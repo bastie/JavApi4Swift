@@ -2,6 +2,9 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
+
+import Foundation
+
 public struct System {
   // FIXME: create a generic function
   /*
@@ -57,4 +60,9 @@ public struct System {
     }
   }
   
+  /// Return the value from environment variable
+  /// - Returns value of environment variable or nil
+  static public func getenv (_ name : String) -> String? {
+    return ProcessInfo.processInfo.environment[name]
+  }
 }

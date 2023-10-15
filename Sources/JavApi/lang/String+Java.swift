@@ -2,6 +2,9 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
+
+import Foundation
+
 extension String {
   
   /// Initialize the String with given encoding.
@@ -52,5 +55,26 @@ extension String {
   /// - Returns true if equals
   public func equals (_ other : String) -> Bool {
     return self == other
+  }
+  
+  /// Check the string contains only whitspaces (or nothing)
+  /// - Returns true if only whitespaces included
+  @inlinable
+  public func isBlank () -> Bool {
+    return 0 == self.trimmingCharacters(in: .whitespacesAndNewlines).count
+  }
+  
+  /// Check the string has zero characters
+  /// - Returns true if string length is zero
+  @inlinable
+  public func isEmpty () -> Bool {
+    return 0 == self.count
+  }
+  
+  /// Remove whitespaces and newlines from beginning and end and create a new string as result
+  /// - Returns new string without leading and trailing whitespaces
+  @inlinable
+  public func strip () -> String {
+    return self.trimmingCharacters(in: .whitespacesAndNewlines)
   }
 }

@@ -143,8 +143,5 @@ extension java.util.zip {
       }
       return sum1 | (sum2 << 16);
     }
-    
   }
 }
-
-
