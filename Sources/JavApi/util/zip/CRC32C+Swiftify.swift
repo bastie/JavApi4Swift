@@ -3,7 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
+#if os(Linux)
+enum Insecure{}
+#else
 import CryptoKit
+#endif
 
 // Swiftify
 @available(macOS 10.15, *)
