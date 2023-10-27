@@ -117,6 +117,10 @@ How translation is relized by example:
     }
 }
 
+#### final
+
+First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In Swift you can be declare as parameter as mutable with `var` keyword, but not the `_` underline. 
+
 #### interface
 
 Java interfaces are mapped with Swift protocols. With created package like structure (see package section) a typealias is declerated in this enum with reference of protocol implementation outside the enum. In the protocol implementation a associatedtype is declerated to the typealias name in the structure. This is f.e. needed to declerated function the result type of interface. Default methods need to declerated in a extendsion of protocol like normal Swift protocols.
