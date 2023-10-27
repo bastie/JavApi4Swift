@@ -7,6 +7,7 @@ import XCTest
 import CryptoKit
 
 final class JavApi_util_LinkedHashMap_Tests: XCTestCase {
+  // Test constructors
   func testInit () {
     do { // empty
       let empty = java.util.LinkedHashMap<Int, Int>()
@@ -45,4 +46,5 @@ final class JavApi_util_LinkedHashMap_Tests: XCTestCase {
       }
     }
   }
+  
 }

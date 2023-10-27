@@ -48,7 +48,7 @@ To include other project with compatible license do
     
     # add (temporary) the local other project as remote source and pull wanted data with history
     git remote add importSource ../otherProject
-    git pull importSource importSource --allow-unrelated-histories
+    git pull importSource main --allow-unrelated-histories
     git remote rm importSource
     
     # optional take a look into history
@@ -82,6 +82,13 @@ The Java length property of an array is mapped over a readonly computed Swift pr
 #### blocks of statements
 
 In Java blocks are between curly braces {}. Swift need the `do` keyword before the open brace.
+
+#### char
+
+Not often but here Swift need explicite declaration and double quotes, for example
+
+    let chars : [Character] : "a string to char array".toCharArray()
+    let char : Character = "c"
 
 #### exception handling
 
@@ -137,6 +144,12 @@ For example:
 All types in package java.lang doesn't need to import in Java. One solution is to set the full package name before. In result of Java-Swift name overlap it seems better to implement these types outside the java.lang enum structure (see package section).
 
 Also if default Swing type exists it is extended instead Java implementation is ported, see String type as example.
+
+#### Map
+
+Java Map is similar to dictionary type in Swift
+
+    java.util.Map<String, Double> variable;    to    var variable : [String: Double]
 
 #### method
 
@@ -224,6 +237,13 @@ Of course this are the easiest variants.
 
 Java packages can be mapped as enum hierachy. Take a look to the CryptoKit, for example MD5 is placed in the enum Insecure and must called with Insecure.MD5
 Too add a new _package_ create an enum with same name. Subpackages can be add directly in the enum or maybe better as extension of these enum.
+
+#### shortcuts
+
+Java shortcuts for types need to be translated like
+
+    1d    to    1.0         // double shortcut
+    1l    to    Int64(1)    // long shortcut
 
 #### String.format
 

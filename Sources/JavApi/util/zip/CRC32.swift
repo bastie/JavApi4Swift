@@ -42,6 +42,7 @@ extension java.util.zip {
   final public class CRC32 : Checksum {
     public typealias Checksum = CRC32
     
+    public init () {}
     
     /*
      *  The following logic has come from RFC1952.

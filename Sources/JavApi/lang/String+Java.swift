@@ -77,4 +77,47 @@ extension String {
   public func strip () -> String {
     return self.trimmingCharacters(in: .whitespacesAndNewlines)
   }
+  /// Returns a array of characters build by contents of String
+  /// - Returns [Character] array
+  public func toCharArray () -> [Character] {
+    var result : [Character] = []
+    var split = self.components(separatedBy: "")
+    
+    for i in 0...split.count{
+      result.append(Character(split[i]))
+    }
+    
+    return result
+  }
+  
+  /// Returns the character on given offset
+  ///
+  /// Internal it use toCharArray. If it possible cache the result of toCharArray instead often call this function.
+  ///
+  /// - Parameters index
+  /// - Returns char at index
+  func charAt (_ index : Int) -> Character { // TODO: perhaps better results with Swift native but now and first it works
+    return toCharArray()[index]
+  }
+  
+  /// The count of String elements
+  func lenght () -> Int {
+    return self.count
+  }
+  
+  func trim () -> String {
+    return self.trimmingCharacters(in: TRIM_CHARACTER_SET)
+  }
 }
+
+fileprivate let TRIM_CHARACTER_SET = CharacterSet(charactersIn : "\u{0000}\u{0001}\u{0002}\u{0003}\u{0004}\u{0005}\u{0006}\u{0007}\u{0008}\u{0009}\u{000A}\u{000B}\u{000C}\u{000D}\u{000E}\u{000F}\u{0010}\u{0011}\u{0012}\u{0013}\u{0014}\u{0015}\u{0016}\u{0017}\u{0018}\u{0019}\u{001A}\u{001B}\u{001C}\u{001D}\u{001E}\u{001F}\u{0020}") // different to strip can be readed f.e. here: (https://stackoverflow.com/questions/51266582/difference-between-string-trim-and-strip-methods-in-java-11)
+
+
+
+// TODO: Incubation
+extension String? {
+  func length () -> Int? {
+    return self?.count ?? nil
+  }
+}
+

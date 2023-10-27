@@ -15,4 +15,9 @@ extension java.lang {
   public typealias System = JavApi.System
   public typealias String = Swift.String
   public typealias Throwable = JavApi.Throwable
+  public typealias Math = JavApi.Math
 }
+
+/// This type alias provides the char keyword for characters, but you need double quotes instead single quotes.
+typealias char = Character
+

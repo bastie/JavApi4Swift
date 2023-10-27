@@ -42,6 +42,7 @@ extension java.util.zip {
   final public class Adler32 : Checksum {
     public typealias Checksum = Adler32
     
+    public init() {}
     
     // largest prime smaller than 65536
     static private let BASE : Int = 65521;
