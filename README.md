@@ -79,6 +79,10 @@ Abstract classes are implemented as interface with default methods.
 
 The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property.
 
+#### assert
+
+Instead of `assert` use the `guard` with function `fatalError`.
+
 #### blocks of statements
 
 In Java blocks are between curly braces {}. Swift need the `do` keyword before the open brace.
@@ -148,6 +152,12 @@ For example:
 All types in package java.lang doesn't need to import in Java. One solution is to set the full package name before. In result of Java-Swift name overlap it seems better to implement these types outside the java.lang enum structure (see package section).
 
 Also if default Swing type exists it is extended instead Java implementation is ported, see String type as example.
+
+#### keyword masking
+
+The best way is to rename variables and types in Java before collision with Swift keywords. But you can also variable names mask with backtick like:
+
+   let `in` : Int 
 
 #### Map
 
