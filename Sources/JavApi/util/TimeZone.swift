@@ -32,5 +32,4 @@ public class SimpleTimeZone : TimeZone {
   init () {
     self.delegate = Foundation.TimeZone.current
   }
-
 }
