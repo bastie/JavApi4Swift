@@ -48,8 +48,10 @@ To include other project with compatible license do
     
     # add (temporary) the local other project as remote source and pull wanted data with history
     git remote add importSource ../otherProject
-    git pull importSource main --allow-unrelated-histories
+    git pull importSource master --no-rebase --allow-unrelated-histories
     git remote rm importSource
+    
+    # work on conflicts f.e. in .gitignore
     
     # optional take a look into history
     git log
