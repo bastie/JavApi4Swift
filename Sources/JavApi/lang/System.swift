@@ -72,33 +72,33 @@ public struct System {
   }
   
   /// Printstream to write on standard output.
-  static var out : SystemOut {
+  public static var out : SystemOut {
     get {
       return SystemOut ()
     }
   }
   
   /// Internal PrintStream to write on standard OutputStream
-  internal class SystemOut : java.io.PrintStream {
+  public class SystemOut : java.io.PrintStream {
     init () {
       super.init(java.io.OutputStream.nullOutputStream())
     }
     
-    override func write(_ b: Int) {
+    public override func write(_ b: Int) {
       Swift.print (b, terminator: "")
     }
-    override func write(_ b: UInt8) {
+    public override func write(_ b: UInt8) {
       Swift.print (b, terminator: "")
     }
     
-    override func write(_ value: [byte]) {
+    public override func write(_ value: [byte]) {
       Swift.print (String(decoding: Data(value), as: UTF8.self))
     }
     
-    override func println(_ s: String) {
+    public override func println(_ s: String) {
       Swift.print(s)
     }
-    override func print(_ s: String) {
+    public override func print(_ s: String) {
       Swift.print(s, terminator: "")
     }
   }
