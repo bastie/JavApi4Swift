@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 extension java.io {
-  public class OutputStream : java.io.Flushable, java.io.Closeable {
+  open class OutputStream : java.io.Flushable, java.io.Closeable {
     public typealias Flushable = OutputStream
     public typealias Closeable = OutputStream
     

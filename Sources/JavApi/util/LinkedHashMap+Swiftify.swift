@@ -7,7 +7,8 @@ extension java.util.LinkedHashMap {
   
   /// Create new instance with given dictionary
   /// - Parameters with dictionary
-  public init(with dictionary: Dictionary<KeyType, ValueType>) {
+  public convenience init(with dictionary: Dictionary<KeyType, ValueType>) {
+    self.init()
     delegateDictionary = dictionary
     sortedKeyCollection = dictionary.keys.map { $0 }
   }

@@ -15,12 +15,6 @@ extension Array {
     }
   }
   
-}
-
-
-
-extension Array {
-  
   // TODO: make Element == Int more generic
   public init (original : [Element], count newCount: Int) where Element == Int {
     self.init(original)

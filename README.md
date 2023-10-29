@@ -279,6 +279,18 @@ to
 
 Swiftify is a JavApi extension. It make additional implementations of Java methods with syntax more like Swift code. It can also implements additional Swift type to use the Java ported code like Swift in other real Swift code.
 
+#### visibility
+
+Swift visiblilities are:
+
+1. private: like Java - symbol visible within the current declaration only. 
+2. fileprivate: symbol visible within the current file.
+3. internal: like .net - symbol visible within the current module or default access modifier.
+4. public: not identical with Java - symbol visible outside the current module.
+5. open: like public in Java - for class or function to be subclassed or overridden outside the current module.
+
+In result of these Java ported classes and structs are by default `open` except they are final then `public`.
+
 ## thanks
 
 * (JZLib implementation)[https://github.com/kohsuke/jzlib] and (JZLib implementation)[https://github.com/ymnk/jzlib]

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 extension java.io {
-  public class PrintStream : OutputStream {// TODO: FilterOutputStream between PrintStream and OutputStream
+  open class PrintStream : OutputStream {// TODO: FilterOutputStream between PrintStream and OutputStream
     let delegate : OutputStream
     
     public init (_ newDelegate : OutputStream){

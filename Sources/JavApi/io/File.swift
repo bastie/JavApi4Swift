@@ -8,7 +8,7 @@ import Foundation
 extension java.io {
   
   /// Abstraction of entry in file system like regular files, directory and other
-  public class File {
+  open class File {
     
     private var file : String
     

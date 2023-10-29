@@ -5,7 +5,7 @@
 
 extension java.util {
   /// A LinkedHashMap implementation
-  public struct LinkedHashMap<KeyType: Hashable, ValueType> where ValueType: Equatable {
+  open class LinkedHashMap<KeyType: Hashable, ValueType> where ValueType: Equatable {
     /*
      the implementation use a dictionary for key-value pairs and an array for sorted keys
      */
@@ -27,12 +27,12 @@ extension java.util {
       self.sortedKeyCollection = m.sortedKeyCollection
     }
     
-    mutating func clear () {
+    public func clear () {
       sortedKeyCollection = []
       delegateDictionary = Dictionary<KeyType, ValueType>(minimumCapacity: 100)
     }
     
-    mutating func put (_ key : KeyType, _ newValue : ValueType) -> ValueType? {
+    public func put (_ key : KeyType, _ newValue : ValueType) -> ValueType? {
       let oldValue = self.delegateDictionary.updateValue(newValue, forKey: key)
       if nil == oldValue  {
         self.sortedKeyCollection.append(key)
@@ -40,7 +40,7 @@ extension java.util {
       return oldValue
     }
     
-    mutating func remove (_ key : KeyType) -> ValueType? {
+    public func remove (_ key : KeyType) -> ValueType? {
       guard self.sortedKeyCollection.contains(key) else {
         return nil
       }

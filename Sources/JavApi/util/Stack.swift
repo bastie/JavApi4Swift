@@ -7,12 +7,12 @@
 extension java.util {
   
   /// Base implementation of Stack
-  public struct Stack<Element> {
+  open class Stack<Element> {
     var items: [Element] = []
-    mutating func push(_ item: Element) {
+    public func push(_ item: Element) {
       items.append(item)
     }
-    mutating func pop() -> Element {
+    public func pop() -> Element {
       return items.removeLast()
     }
   }

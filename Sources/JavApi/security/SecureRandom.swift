@@ -8,7 +8,7 @@ import Security
 extension java.security {
   
   /// Type to create secure random values
-  public class SecureRandom : java.util.Random {
+  open class SecureRandom : java.util.Random {
     
     /// Fill the given byte array with random data
     /// - Parameters byte array to fill
