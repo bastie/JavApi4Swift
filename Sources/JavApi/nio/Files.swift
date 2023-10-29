@@ -69,6 +69,27 @@ extension java.nio {
       }
       throw Throwable.IOException("IOException: file \(file.toString()) can not be reading ")
     }
-    
+   
+    @available(macOS 13.0, *)
+    public static func write (_ file : java.nio.Path, _ content : [UInt8], _ options : java.nio.OpenOption? = nil) throws {
+      if let options {
+        // FIXME: not yet implemented
+        fatalError("not yet implemented \(options)")
+      }
+      else {
+        // Javadoc tells us: In other words, it opens the file for writing, creating the file if it doesn't exist, or initially truncating an existing regular-file to a size of 0.
+        var b = file.toFile().exists()
+        if (b) {
+          b = file.toFile().delete()
+        }
+        do {
+          try Data(content).write(to: URL(filePath: file.toString()))
+        }
+        catch {
+          throw Throwable.IOException(error.localizedDescription)
+        }
+      }
+    }
+
   }
 }

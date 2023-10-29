@@ -57,6 +57,18 @@ extension java.io {
         return 0
       }
     }
-  }
+    /// Delete the file
+    /// - Returns true if deleted
+    public func delete () -> Bool {
+      do {
+        try FileManager.default.removeItem(atPath: self.file)
+        return true
+      }
+      catch {
+        return false
+      }
+    }
 
-}
+  } // EOT
+
+} // EOP

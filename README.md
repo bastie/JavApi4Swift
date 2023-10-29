@@ -89,6 +89,10 @@ Instead of `assert` use the `guard` with function `fatalError`.
 
 In Java blocks are between curly braces {}. Swift need the `do` keyword before the open brace.
 
+#### byte type
+
+Swift use `UInt8` instead `byte` but typealias are exported.
+
 #### char
 
 Not often but here Swift need explicite declaration and double quotes, for example
@@ -159,7 +163,7 @@ Also if default Swing type exists it is extended instead Java implementation is 
 
 The best way is to rename variables and types in Java before collision with Swift keywords. But you can also variable names mask with backtick like:
 
-   let `in` : Int 
+   let ``in`` : Int 
 
 #### Map
 

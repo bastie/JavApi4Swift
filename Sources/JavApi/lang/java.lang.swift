@@ -19,6 +19,6 @@ extension java.lang {
 }
 
 /// This type alias provides the char keyword for characters, but you need double quotes instead single quotes.
-typealias char = Character
+public typealias char = Character
 /// This type alias provides the byte keyword with UInt8 as data type
-typealias byte = UInt8
+public typealias byte = UInt8
