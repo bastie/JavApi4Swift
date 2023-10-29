@@ -217,7 +217,7 @@ extension java.time {
     public func plus(component: Component, newValue: Int64) -> Instant {
       switch component {
       case .second:
-        return self.plus(second: newValue)
+        return self.plusSeconds(newValue)
         
       case .nanosecond:
         return self.plus(nano: newValue)
@@ -228,7 +228,7 @@ extension java.time {
     ///
     /// - Parameters second: The amount of the second field to add to the result.
     /// - Results: An Instant based on this instant with the specified amount added.
-    public func plus(second: Int64) -> Instant {
+    public func plusSeconds (_ secondsToAdd : Int64) -> Instant {
       return Instant(
         epochSecond: self.internalSecond + second,
         nano: Int64(self.internalNano)
@@ -291,7 +291,7 @@ extension java.time {
     /// - Parameters second: The amount of the second field to subtract to the result.
     /// - Results: An Instant based on this instant with the specified amount subtracted.
     public func minus(second: Int64) -> Instant {
-      return self.plus(second: -second)
+      return self.plusSeconds( -second)
     }
     
     /// Returns a copy of this instant with the specified duration in milliseconds subtracted.
