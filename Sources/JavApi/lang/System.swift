@@ -65,4 +65,41 @@ public struct System {
   static public func getenv (_ name : String) -> String? {
     return ProcessInfo.processInfo.environment[name]
   }
+  
+  /// Exits the application
+  public static func exit (_ status : Int) -> Never {
+    Foundation.exit(Int32(status))
+  }
+  
+  /// Printstream to write on standard output.
+  static var out : SystemOut {
+    get {
+      return SystemOut ()
+    }
+  }
+  
+  /// Internal PrintStream to write on standard OutputStream
+  internal class SystemOut : java.io.PrintStream {
+    init () {
+      super.init(java.io.OutputStream.nullOutputStream())
+    }
+    
+    override func write(_ b: Int) {
+      Swift.print (b, terminator: "")
+    }
+    override func write(_ b: UInt8) {
+      Swift.print (b, terminator: "")
+    }
+    
+    override func write(_ value: [byte]) {
+      Swift.print (String(decoding: Data(value), as: UTF8.self))
+    }
+    
+    override func println(_ s: String) {
+      Swift.print(s)
+    }
+    override func print(_ s: String) {
+      Swift.print(s, terminator: "")
+    }
+  }
 }

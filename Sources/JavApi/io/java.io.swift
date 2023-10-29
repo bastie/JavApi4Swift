@@ -4,5 +4,8 @@
  */
 extension java {
   /// The namespace of IO types
-  public enum io{}
+  public enum io{
+    public typealias Closeable = JavApi.Closeable
+    public typealias Flushable = JavApi.Flushable
+  }
 }

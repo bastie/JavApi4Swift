@@ -81,7 +81,7 @@ extension String {
   /// - Returns [Character] array
   public func toCharArray () -> [Character] {
     var result : [Character] = []
-    var split = self.components(separatedBy: "")
+    let split = self.components(separatedBy: "")
     
     for i in 0...split.count{
       result.append(Character(split[i]))
