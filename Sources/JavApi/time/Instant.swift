@@ -36,13 +36,13 @@ extension java.time {
     // MARK: - Static
     
     /// Constant for the 1970-01-01T00:00:00Z epoch instant.
-    public static var epoch: Instant { return Instant(epochSecond: 0, nano: 0) }
+    public static var EPOCH: Instant { return Instant(epochSecond: 0, nano: 0) }
     
     /// The minimum supported Instant, '-1000_000_000-01-01T00:00Z'.
-    public static var min: Instant { return Instant(epochSecond: Constant.minSecond, nano: 0) }
+    public static var MIN: Instant { return Instant(epochSecond: Constant.minSecond, nano: 0) }
     
     /// The maximum supported Instant, '1000_000_000-12-31T23:59:59.999999999Z'.
-    public static var max: Instant { return Instant(epochSecond: Constant.maxSecond, nano: 999_999_999) }
+    public static var MAX: Instant { return Instant(epochSecond: Constant.maxSecond, nano: 999_999_999) }
     
     
     // MARK: - Property
@@ -124,8 +124,8 @@ extension java.time {
     
     // MARK: - Private
     
-    fileprivate var internalSecond: Int64
-    fileprivate var internalNano: Int
+    internal var internalSecond: Int64
+    internal var internalNano: Int
     
     private mutating func normalize() {
       if self.internalNano < 0 {
@@ -394,183 +394,5 @@ extension java.time {
       self.internalNano = Int(epochMilli % 1000) * 1000_000
       self.normalize()
     }
-  }
-  
-  
-
-}
-
-
-
-extension java.time.Instant: Comparable {
-  
-  /// Returns a Boolean value indicating whether the value of the first
-  /// argument is less than that of the second argument.
-  public static func <(lhs: java.time.Instant, rhs: java.time.Instant) -> Bool {
-    guard lhs.second == rhs.second else { return lhs.second < rhs.second }
-    return lhs.nano < rhs.nano
-  }
-  
-  /// Returns a Boolean value indicating whether the value of the first
-  /// argument is greater than that of the second argument.
-  public static func >(lhs: java.time.Instant, rhs: java.time.Instant) -> Bool {
-    guard lhs.second == rhs.second else { return lhs.second > rhs.second }
-    return lhs.nano > rhs.nano
-  }
-  
-  /// Returns a Boolean value indicating whether the value of the first
-  /// argument is less than or equal to that of the second argument.
-  public static func <=(lhs: java.time.Instant, rhs: java.time.Instant) -> Bool {
-    return !(lhs > rhs)
-  }
-  
-  /// Returns a Boolean value indicating whether the value of the first
-  /// argument is greater than or equal to that of the second argument.
-  public static func >=(lhs: java.time.Instant, rhs: java.time.Instant) -> Bool {
-    return !(lhs < rhs)
-  }
-  
-}
-
-extension java.time.Instant: Hashable {
-  
-#if swift(>=4.2)
-  /// Hashes the essential components of this value by feeding them into the
-  /// given hasher.
-  ///
-  /// Implement this method to conform to the `Hashable` protocol. The
-  /// components used for hashing must be the same as the components compared
-  /// in your type's `==` operator implementation. Call `hasher.combine(_:)`
-  /// with each of these components.
-  ///
-  /// - Important: Never call `finalize()` on `hasher`. Doing so may become a
-  ///   compile-time error in the future.
-  ///
-  /// - Parameter hasher: The hasher to use when combining the components
-  ///   of this instance.
-  public func hash(into hasher: inout Hasher) {
-    hasher.combine(second)
-    hasher.combine(nano)
-  }
-#else
-  /// The hash value.
-  ///
-  /// Hash values are not guaranteed to be equal across different executions of
-  /// your program. Do not save hash values to use during a future execution.
-  public var hashValue: Int {
-    return second.hashValue ^ (51 &* nano.hashValue)
-  }
-#endif
-}
-
-
-
-extension java.time.Instant: Equatable {
-  
-  /// Returns a Boolean value indicating whether two values are equal.
-  public static func ==(lhs: java.time.Instant, rhs: java.time.Instant) -> Bool {
-    return lhs.second == rhs.second && lhs.nano == rhs.nano
-  }
-  
-}
-
-
-
-extension java.time.Instant: CustomStringConvertible, CustomDebugStringConvertible {
-  
-  /// A textual representation of this instance.
-  public var description: String {
-    return "\(self.second).\(self.nano)"
-  }
-  
-  /// A textual representation of this instance, suitable for debugging.
-  public var debugDescription: String {
-    return description
-  }
-  
-}
-
-
-extension java.time.Instant: CustomReflectable {
-  
-  /// The custom mirror for this instance.
-  ///
-  /// If this type has value semantics, the mirror should be unaffected by
-  /// subsequent mutations of the instance.
-  public var customMirror: Mirror {
-    var c = [(label: String?, value: Any)]()
-    c.append((label: "second", value: self.second))
-    c.append((label: "nano", value: self.nano))
-    return Mirror(self, children: c, displayStyle: Mirror.DisplayStyle.struct)
-  }
-  
-}
-
-
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
-extension java.time.Instant: CustomPlaygroundDisplayConvertible {
-  
-  /// Returns the custom playground description for this instance.
-  ///
-  /// If this type has value semantics, the instance returned should be
-  /// unaffected by subsequent mutations if possible.
-  public var playgroundDescription: Any {
-    return self.description
-  }
-  
-}
-#else
-extension Instant: CustomPlaygroundQuickLookable {
-  
-  /// A custom playground Quick Look for this instance.
-  ///
-  /// If this type has value semantics, the `PlaygroundQuickLook` instance
-  /// should be unaffected by subsequent mutations.
-  public var customPlaygroundQuickLook: PlaygroundQuickLook {
-    return .text(self.description)
-  }
-  
-}
-#endif
-
-
-#if swift(>=3.2)
-extension java.time.Instant: Codable {
-  
-  /// A type that can be used as a key for encoding and decoding.
-  ///
-  /// - second: The second.
-  /// - nano: The nano-of-second.
-  private enum CodingKeys: Int, CodingKey {
-    case second
-    case nano
-  }
-  
-  /// Creates a new instance by decoding from the given decoder.
-  ///
-  /// This initializer throws an error if reading from the decoder fails, or
-  /// if the data read is corrupted or otherwise invalid.
-  ///
-  /// - Parameter decoder: The decoder to read data from.
-  public init(from decoder: Decoder) throws {
-    let container = try decoder.container(keyedBy: CodingKeys.self)
-    self.internalSecond = try container.decode(Int64.self, forKey: .second)
-    self.internalNano = try container.decode(Int.self, forKey: .nano)
-  }
-  
-  /// Encodes this value into the given encoder.
-  ///
-  /// If the value fails to encode anything, `encoder` will encode an empty
-  /// keyed container in its place.
-  ///
-  /// This function throws an error if any values are invalid for the given
-  /// encoder's format.
-  ///
-  /// - Parameter encoder: The encoder to write data to.
-  public func encode(to encoder: Encoder) throws {
-    var container = encoder.container(keyedBy: CodingKeys.self)
-    try container.encode(self.internalSecond, forKey: .second)
-    try container.encode(self.internalNano, forKey: .nano)
-  }
-}
-#endif
+  } // EOT
+} // EOP

@@ -69,7 +69,7 @@ extension java.time {
     // MARK: - Public
     
     /// Returns an instance of LocalTime.
-    public func toTime() -> LocalTime {
+    public func toTime() -> java.time.LocalTime {
       return LocalTime(secondOfDay: offsetSecond)
     }
     /// Returns an instance of TimeZone.
