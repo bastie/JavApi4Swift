@@ -16,3 +16,26 @@ extension Array {
   }
   
 }
+
+
+
+extension Array {
+  
+  // TODO: make Element == Int more generic
+  public init (original : [Element], count newCount: Int) where Element == Int {
+    self.init(original)
+    switch (newCount - original.count == 0 ? 0 : newCount - original.count > 0 ? 1 : -1) {
+    case 0 : return
+    case -1 :
+      let removeLastTimes = original.count - newCount
+      for _ in 0..<removeLastTimes {
+        self.removeLast()
+      }
+    default :
+      let addDefaultValueTimes = newCount - original.count
+      for _ in 0..<addDefaultValueTimes {
+        self.append(0)
+      }
+    }
+  }
+}

@@ -20,5 +20,6 @@ public enum Throwable : Error {
 extension java.util {
   public enum Throwable : Error {
     case EmptyStackException (_ message : String = "EmptyStackException")
+    case NoSuchElementException (_ message : String = "NoSuchElementException")
   }
 }
