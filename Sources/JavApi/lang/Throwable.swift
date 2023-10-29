@@ -31,7 +31,7 @@ extension java.util {
 }
 
 extension java.util.zip {
-  enum Throwable : Error {
+  public enum Throwable : Error {
     case DataFormatException (_ message : String = "DataFormatException")
   }
 }
