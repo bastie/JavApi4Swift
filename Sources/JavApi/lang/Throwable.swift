@@ -9,17 +9,29 @@ public enum Throwable : Error {
   case CloneNotSupportedException (_ message : String = "CloneNotSupportedException")
   case IllegalArgumentException (_ message : String = "IllegalArgumentException")
   case IndexOutOufBoundsException (_ withValue : Int)
-  case IOException (_ message : String = "IOException")
   case NullPointerException (_ message : String = "NullPointerExeception")
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")
   case RuntimeException (_ message : String = "RuntimeException")
   case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
   case ArithmeticException (_ message : String = "ArithmeticException")
+  case AssertionError (_ message : String = "AssertionError")
+}
+
+extension java.io {
+  public enum Throwable : Error {
+    case IOException (_ message : String = "IOException")
+  }
 }
 
 extension java.util {
   public enum Throwable : Error {
     case EmptyStackException (_ message : String = "EmptyStackException")
     case NoSuchElementException (_ message : String = "NoSuchElementException")
+  }
+}
+
+extension java.util.zip {
+  enum Throwable : Error {
+    case DataFormatException (_ message : String = "DataFormatException")
   }
 }
