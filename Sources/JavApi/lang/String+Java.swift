@@ -96,16 +96,17 @@ extension String {
   ///
   /// - Parameters index
   /// - Returns char at index
-  func charAt (_ index : Int) -> Character { // TODO: perhaps better results with Swift native but now and first it works
+  public func charAt (_ index : Int) -> Character { // TODO: perhaps better results with Swift native but now and first it works
     return toCharArray()[index]
   }
   
   /// The count of String elements
-  func lenght () -> Int {
+  @inlinable
+  public func lenght () -> Int {
     return self.count
   }
-  
-  func trim () -> String {
+  // trim the String
+  public func trim () -> String {
     return self.trimmingCharacters(in: TRIM_CHARACTER_SET)
   }
 }
@@ -116,7 +117,8 @@ fileprivate let TRIM_CHARACTER_SET = CharacterSet(charactersIn : "\u{0000}\u{000
 
 // TODO: Incubation
 extension String? {
-  func length () -> Int? {
+  @inlinable
+  public func length () -> Int? {
     return self?.count ?? nil
   }
 }
