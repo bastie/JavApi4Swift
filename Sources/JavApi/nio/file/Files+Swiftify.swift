@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension java.nio.Files {
+extension java.nio.file.Files {
   
   /// Read all byte of a file and return a byte array.
   /// - Parameter file path

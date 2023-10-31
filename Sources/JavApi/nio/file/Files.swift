@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension java.nio {
+extension java.nio.file {
 
   /// Utility type for working with files
   public class Files {
@@ -71,7 +71,7 @@ extension java.nio {
     }
    
     @available(macOS 13.0, *)
-    public static func write (_ file : java.nio.Path, _ content : [UInt8], _ options : java.nio.OpenOption? = nil) throws {
+    public static func write (_ file : java.nio.file.Path, _ content : [UInt8], _ options : java.nio.file.OpenOption? = nil) throws {
       if let options {
         // FIXME: not yet implemented
         fatalError("not yet implemented \(options)")

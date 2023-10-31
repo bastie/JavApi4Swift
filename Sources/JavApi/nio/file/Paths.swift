@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.nio {
+extension java.nio.file {
   /// Utility type to work with paths
   public class Paths {
     /// Create a new path instance from given parts 

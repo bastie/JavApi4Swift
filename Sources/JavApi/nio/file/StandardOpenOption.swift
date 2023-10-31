@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.nio {
+extension java.nio.file {
   /// The standard open options for working with paths
   public enum StandardOpenOption : OpenOption {
     case APPEND

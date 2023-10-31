@@ -68,7 +68,11 @@ extension java.io {
         return false
       }
     }
-
+    /// Creates a java.nio.Path instance from file
+    /// - Returns Path instance
+    public func toPath () -> java.nio.file.Path {
+      return java.nio.file.Paths.get (self.file)
+    }
   } // EOT
 
 } // EOP

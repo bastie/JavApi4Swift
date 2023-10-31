@@ -14,6 +14,7 @@ extension java.lang {
   public typealias Exception = JavApi.Throwable
   public typealias System = JavApi.System
   public typealias String = Swift.String
+  public typealias StringBuilder = JavApi.StringBuilder
   public typealias Throwable = JavApi.Throwable
   public typealias Math = JavApi.Math
 }

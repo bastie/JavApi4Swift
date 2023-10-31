@@ -59,7 +59,12 @@ public struct System {
       dest [destPos+offset] = UInt8(src [srcPos+offset])
     }
   }
-  
+  public static func arraycopy (_ src : [Character], _ srcPos : Int, _ dest : inout [Character] , _ destPos : Int, _ length : Int) {
+    for offset in 0..<length {
+      dest [destPos+offset] = src [srcPos+offset]
+    }
+  }
+
   /// Return the value from environment variable
   /// - Returns value of environment variable or nil
   static public func getenv (_ name : String) -> String? {

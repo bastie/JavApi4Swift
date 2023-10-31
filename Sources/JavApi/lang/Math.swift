@@ -86,4 +86,16 @@ public class Math {
   public static func toDegrees (_ value : Double) -> Double {
     return value * PI / 180
   }
+  @inlinable
+  public static func min<T>(_ x: T, _ y: T) -> T where T : Comparable {
+    Swift.min(x, y)
+  }
+  @inlinable
+  public static func max<T>(_ x: T, _ y: T) -> T where T : Comparable {
+    Swift.max(x, y)
+  }
+  
+  public static func round (_ d : Double) -> Int64 {
+    return llround(d)
+  }
 }

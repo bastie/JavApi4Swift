@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.nio {
+extension java.nio.file {
   
   public typealias Path = JavApi.Path
   
@@ -25,29 +25,32 @@ public protocol Path {
   func toString () -> String
 }
 
+extension Path {
+  
+  /// Create a new Path instance from given parts
+  /// - Parameters:
+  ///    - first part of path
+  ///    - more parts of path
+  /// - Returns path instance
+  public static func of (_ firstValue : String, _ moreValue : [String]) -> Path {
+    let result = java.nio.file._Path()
+    result.first = firstValue
+    result.more = moreValue
+    return result
+  }
+  public static func of (_ firstValue : String, _ moreValue : String...) -> Path {
+    let result = java.nio.file._Path()
+    result.first = firstValue
+    result.more = moreValue
+    return result
+  }
+}
 
-extension java.nio {
+extension java.nio.file {
   /// Default implementation of Path type
   public class _Path : Path {
-    private var first : String?
-    private var more : [String]?
-    /// Create a new Path instance from given parts
-    /// - Parameters:
-    ///    - first part of path
-    ///    - more parts of path
-    /// - Returns path instance
-    public static func of (_ firstValue : String, _ moreValue : [String]) -> Path {
-      let result = _Path()
-      result.first = firstValue
-      result.more = moreValue
-      return result
-    }
-    public static func of (_ firstValue : String, _ moreValue : String...) -> Path {
-      let result = _Path()
-      result.first = firstValue
-      result.more = moreValue
-      return result
-    }
+    fileprivate var first : String?
+    fileprivate var more : [String]?
     
     public func toFile() -> java.io.File {
       return java.io.File(self.toString())

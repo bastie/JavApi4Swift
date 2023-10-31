@@ -4,9 +4,5 @@
  */
 
 extension java.nio {
-  
-  public typealias OpenOption = JavApi.OpenOption
-  
+  public enum file {}
 }
-
-public protocol OpenOption {}
