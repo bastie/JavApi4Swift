@@ -5,7 +5,13 @@
 public class StringBuilder {
   
   var content : String = ""
-  
+
+  /// Default constructor
+  public init (){}
+
+  /// Append a String type
+  /// - Parameters String to append
+  /// - Returns self (fluent interface pattern)
   public func append (_ s : String) -> StringBuilder{
     self.content.append(s)
     return self
