@@ -36,4 +36,20 @@ final class JavApi_lang_String_Tests: XCTestCase {
       XCTAssertEqual(expected, actually, "String \(expected) wurde geändert in \(actually) obwohl durch strip() die Entfernung des Unicode 0x2002 und des letzten Space erwartet wurde")
     }
   }
+  
+  func testSplit () {
+    do {
+      let input : java.lang.String = "Hello World!"
+      let expected  = ["H","e","l","l","o"," ","W","o","r","l","d","!"]
+      let actually = input.split("")
+      XCTAssertEqual(expected, actually, "Der String \(input) wurde nicht wie erwartet nach \(expected) zerlegt sondern als \(actually)")
+    }
+  }
+  
+  func testToCharArray () {
+    let input : java.lang.String = "Hello World!"
+    let expected : [Character] = ["H","e","l","l","o"," ","W","o","r","l","d","!"]
+    let actually = input.toCharArray()
+    XCTAssertEqual(expected, actually, "Der String \(input) wurde nicht wie erwartet nach \(expected) zerlegt sondern als \(actually)")
+  }
 }
