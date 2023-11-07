@@ -10,6 +10,7 @@ public enum Throwable : Error {
   case IllegalArgumentException (_ message : String = "IllegalArgumentException")
   case IndexOutOufBoundsException (_ withValue : Int)
   case NullPointerException (_ message : String = "NullPointerExeception")
+  case NumberFormatException (_ message : String = "NumberformatException")
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")
   case RuntimeException (_ message : String = "RuntimeException")
   case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")

@@ -18,7 +18,15 @@ When working with SwiftPM add dependency
 or
 
     .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.4.2"))
-    
+
+## Ports
+
+I'm implementing some porting projects to check JavApi⁴Swift releases and look for the next missing features. The use could start from version 0.4.2.
+Check out these projects and learn how to use JavApi⁴Swift.
+
+### 0.4.2
+
+* [ASCII-Data](https://github.com/bastie/ASCII-Data2JavApi.git) is a library to display tables and graphs on command line as ASCII or ANSI.
 
 ## Development
 
