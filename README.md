@@ -5,7 +5,7 @@
 
 This project provides a Java like API in 100%-pure Swift instead bridging to Java virtual machine. In result you do not need a Java virtual machine. On the otherside you can port Java code to Swift without Big-Bang step by step.
 
-This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.html) pattern and reduce dependency with eat other great resources.
+This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.html) pattern to reduce dependency and eat other great resources.
 
 ## License
 
@@ -39,11 +39,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.4.2")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.5.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.4.2"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.5.0"))
 
 ## Ports
 
