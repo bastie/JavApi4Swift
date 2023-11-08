@@ -1,13 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: 2015 - Doug Richardson
+ * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: Unlicense
+ */
+
 //
 //  SwiftyBase64Tests.swift
 //  SwiftyBase64Tests
 //
 //  Created by Doug Richardson on 8/7/15.
-//
+//  Modify ⁴JavApi by Sebastian Ritter
 //
 
 import XCTest
-import SwiftyBase64
+@testable import JavApi
 
 class SwiftyBase64Tests: XCTestCase {
     
@@ -15,33 +21,33 @@ class SwiftyBase64Tests: XCTestCase {
     // gcc generate_binary_testfile.c && ./a.out <start> <end> | base64
     
     func testEmpty() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([]), "")
-        XCTAssertEqual(SwiftyBase64.EncodeString([], alphabet:.URLAndFilenameSafe), "")
+      XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([]), "")
+      XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([]), "")
     }
     
     func testBase64OneByte() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([0]), "AA==")
-        XCTAssertEqual(SwiftyBase64.EncodeString([0], alphabet:.URLAndFilenameSafe), "AA==")
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([0]), "AA==")
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([0]), "AA==")
     }
     
     func testBase64TwoBytes() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([0,0]), "AAA=")
-        XCTAssertEqual(SwiftyBase64.EncodeString([0,0], alphabet:.URLAndFilenameSafe), "AAA=")
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([0,0]), "AAA=")
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([0,0]), "AAA=")
     }
     
     func testBase64ThreeBytes() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([0,0,0]), "AAAA")
-        XCTAssertEqual(SwiftyBase64.EncodeString([0,0,0], alphabet:.URLAndFilenameSafe), "AAAA")
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([0,0,0]), "AAAA")
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([0,0,0]), "AAAA")
     }
     
     func test255() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([255]), "/w==")
-        XCTAssertEqual(SwiftyBase64.EncodeString([255], alphabet:.URLAndFilenameSafe), "_w==")
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([255]), "/w==")
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([255]), "_w==")
     }
     
     func test254Thru255() {
-        XCTAssertEqual(SwiftyBase64.EncodeString([254, 255]), "/v8=")
-        XCTAssertEqual(SwiftyBase64.EncodeString([254, 255], alphabet:.URLAndFilenameSafe), "_v8=")
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString([254, 255]), "/v8=")
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString([254, 255]), "_v8=")
     }
     
     func testZeroThrough255() {
@@ -54,8 +60,8 @@ class SwiftyBase64Tests: XCTestCase {
             b.append(UInt8(i))
         }
         
-        XCTAssertEqual(SwiftyBase64.EncodeString(b), expectedStandard)
-        XCTAssertEqual(SwiftyBase64.EncodeString(b, alphabet:.URLAndFilenameSafe), expectedURLSafe)
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString(b), expectedStandard)
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString(b), expectedURLSafe)
     }
     
     func testOneThrough255() {
@@ -68,8 +74,8 @@ class SwiftyBase64Tests: XCTestCase {
             b.append(UInt8(i))
         }
         
-        XCTAssertEqual(SwiftyBase64.EncodeString(b), expectedStandard)
-        XCTAssertEqual(SwiftyBase64.EncodeString(b, alphabet:.URLAndFilenameSafe), expectedURLSafe)
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString(b), expectedStandard)
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString(b), expectedURLSafe)
     }
     
     func testTwoThrough255() {
@@ -82,8 +88,8 @@ class SwiftyBase64Tests: XCTestCase {
             b.append(UInt8(i))
         }
         
-        XCTAssertEqual(SwiftyBase64.EncodeString(b), expectedStandard)
-        XCTAssertEqual(SwiftyBase64.EncodeString(b, alphabet:.URLAndFilenameSafe), expectedURLSafe)
+        XCTAssertEqual(java.util.Base64.getEncoder().encodeToString(b), expectedStandard)
+        XCTAssertEqual(java.util.Base64.getURLEncoder().encodeToString(b), expectedURLSafe)
     }
     
     func testPerformanceBase64() {
@@ -93,7 +99,7 @@ class SwiftyBase64Tests: XCTestCase {
         }
         
         self.measure() {
-            _ = SwiftyBase64.Encode(b)
+          _ = java.util.Base64.getEncoder().encode(b)
         }
     }
     

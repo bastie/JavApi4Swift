@@ -1,17 +1,24 @@
-//
-//  Alphabets.swift
-//  SwiftyBase64
-//
-//  Created by Doug Richardson on 8/7/15.
-//
-//
+/*
+ * SPDX-FileCopyrightText: 2015 - Doug Richardson
+ * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: Unlicense
+ */
 
-// The tables in this file were generated using generate_alphabet_table in the tools directory.
-// Note the tables contain 65 characters: 64 to do the translation and 1 more for the padding
-// character used in each alphabet.
-
-/// Standard Base64 encoding table.
-let StandardAlphabet : [UInt8] = [
+extension java.util.Base64 {
+  
+  //
+  //  Alphabets.swift
+  //  SwiftyBase64
+  //
+  //  Created by Doug Richardson on 8/7/15.
+  //  Modify ⁴JavApi by Sebastian Ritter
+  //
+  
+  // Note the tables contain 65 characters: 64 to do the translation and 1 more for the padding
+  // character used in each alphabet.
+  
+  /// Standard Base64 encoding table.
+  static let StandardAlphabet : [UInt8] = [
     65, // 0=A
     66, // 1=B
     67, // 2=C
@@ -78,10 +85,10 @@ let StandardAlphabet : [UInt8] = [
     47, // 63=/
     // PADDING FOLLOWS, not used during lookups
     61, // 64==
-]
-
-/// URL and Filename Safe Base64 encoding table.
-let URLAndFilenameSafeAlphabet : [UInt8] = [
+  ]
+  
+  /// URL and Filename Safe Base64 encoding table.
+  static let URLAndFilenameSafeAlphabet : [UInt8] = [
     65, // 0=A
     66, // 1=B
     67, // 2=C
@@ -148,4 +155,5 @@ let URLAndFilenameSafeAlphabet : [UInt8] = [
     95, // 63=_
     // PADDING FOLLOWS, not used during lookups
     61, // 64==
-]
+  ]
+}

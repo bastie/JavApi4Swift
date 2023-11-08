@@ -5,6 +5,32 @@
 
 This project provides a Java like API in 100%-pure Swift instead bridging to Java virtual machine. In result you do not need a Java virtual machine. On the otherside you can port Java code to Swift without Big-Bang step by step.
 
+This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.html) pattern and reduce dependency with eat other great resources.
+
+## License
+
+This project use only business friendly **permissive licenses**.
+
+<p><figure>
+<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Floss-license-slide-image.svg/512px-Floss-license-slide-image.svg.png"></a>
+<figcaption style="text-align: right;display: inline-block">Image: David A. Wheeler, et al., CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0>, via Wikimedia Commons</figcaption>
+</figure></p>
+
+
+By default the MIT License is used.
+Parts of source code use the BSD Licenses and the Public Domain / The Unlicense.
+
+
+## thanks
+
+Special thanks to contributors of
+
+* [JZLib implementation](https://github.com/kohsuke/jzlib) and original [JZLib implementation](https://github.com/ymnk/jzlib)
+* [AnyDate implementation](https://github.com/kawoou/AnyDate)
+* [Base64 implementation](https://github.com/drichardson/SwiftyBase64) with alphabet separation
+
+
+
 ## Usage
 
 When working with XCode add dependency
@@ -299,24 +325,3 @@ Swift visiblilities are:
 
 In result of these Java ported classes are by default `open` except they are final then `public`.
 
-## thanks
-
-* [JZLib implementation](https://github.com/kohsuke/jzlib) and [JZLib implementation](https://github.com/ymnk/jzlib)
-* [AnyDate implementation](https://github.com/kawoou/AnyDate)
-
-
-
-## License
-
-This project use only business friendly **permissive licenses**.
-
-<p><figure>
-<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Floss-license-slide-image.svg/512px-Floss-license-slide-image.svg.png"></a>
-<figcaption style="text-align: right;display: inline-block">Image: David A. Wheeler, et al., CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0>, via Wikimedia Commons</figcaption>
-</figure></p>
-
-
-
-By default the MIT License is used.
-
-Parts of source code use the 3-Clause BSD License.

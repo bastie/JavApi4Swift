@@ -32,7 +32,7 @@ final class JavApi_util_LinkedHashMap_Tests: XCTestCase {
       XCTAssertEqual(expected, actually, "LinkedHashMap hat eine Länge von \(actually) obwohl \(expected) erwartet wurde")
     }
     do { // extended copy
-      var param = java.util.LinkedHashMap<Int,Int>()
+      let param = java.util.LinkedHashMap<Int,Int>()
       _ = param.put(0,1)
       let copy = java.util.LinkedHashMap<Int, Int>(param)
       XCTAssertNotNil(copy, "LinkedHashMap ist nil, erwartet wurde eine leere Collection")
