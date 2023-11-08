@@ -230,7 +230,7 @@ extension java.time {
     /// - Results: An Instant based on this instant with the specified amount added.
     public func plusSeconds (_ secondsToAdd : Int64) -> Instant {
       return Instant(
-        epochSecond: self.internalSecond + second,
+        epochSecond: self.internalSecond + secondsToAdd,
         nano: Int64(self.internalNano)
       )
     }

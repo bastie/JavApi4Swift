@@ -1,11 +1,14 @@
+/*
+ * SPDX-License-Identifier: MIT
+ */
 import XCTest
 import Foundation
-import AnyDate
+@testable import JavApi
 
 class PeriodTests: XCTestCase {
 
     func testPropertySetter() {
-        var zero = Period()
+        var zero = java.time.Period()
         zero.year = 100
         zero.month = 2
         zero.day = -12
@@ -23,18 +26,18 @@ class PeriodTests: XCTestCase {
         XCTAssertEqual(zero.nano, 999_874_779)
     }
     func testComparable() {
-        let min = Period()
-        let max = Period(year: 1000)
+        let min = java.time.Period()
+        let max = java.time.Period(year: 1000)
         
-        let oldPeriod = Period(month: 2)
-        let newPeriod1 = Period(year: 1, month: 2)
-        let newPeriod2 = Period(month: 3)
-        let newPeriod3 = Period(month: 2, day: 1)
-        let newPeriod4 = Period(month: 2, hour: 1)
-        let newPeriod5 = Period(month: 2, minute: 1)
-        let newPeriod6 = Period(month: 2, second: 1)
-        let newPeriod7 = Period(month: 2, nano: 1)
-        let equalPeriod = Period(year: 0, month: 2)
+        let oldPeriod = java.time.Period(month: 2)
+        let newPeriod1 = java.time.Period(year: 1, month: 2)
+        let newPeriod2 = java.time.Period(month: 3)
+        let newPeriod3 = java.time.Period(month: 2, day: 1)
+        let newPeriod4 = java.time.Period(month: 2, hour: 1)
+        let newPeriod5 = java.time.Period(month: 2, minute: 1)
+        let newPeriod6 = java.time.Period(month: 2, second: 1)
+        let newPeriod7 = java.time.Period(month: 2, nano: 1)
+        let equalPeriod = java.time.Period(year: 0, month: 2)
         
         XCTAssertLessThan(min, oldPeriod)
         XCTAssertGreaterThan(max, newPeriod1)
@@ -65,13 +68,13 @@ class PeriodTests: XCTestCase {
         XCTAssertLessThan(oldPeriod, newPeriod1)
 
         /// #15 TestCode
-        let test1 = Period(year: 1500, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
-        let test2 = Period(year: 1499, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_001)
-        let test3 = Period(year: 1499, month: 6, day: 15, hour: 12, minute: 30, second: 31, nano: 500_000_000)
-        let test4 = Period(year: 1499, month: 6, day: 15, hour: 12, minute: 31, second: 30, nano: 500_000_000)
-        let test5 = Period(year: 1499, month: 6, day: 15, hour: 13, minute: 30, second: 30, nano: 500_000_000)
-        let test6 = Period(year: 1499, month: 6, day: 16, hour: 12, minute: 30, second: 30, nano: 500_000_000)
-        let test7 = Period(year: 1499, month: 7, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
+        let test1 = java.time.Period(year: 1500, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
+        let test2 = java.time.Period(year: 1499, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_001)
+        let test3 = java.time.Period(year: 1499, month: 6, day: 15, hour: 12, minute: 30, second: 31, nano: 500_000_000)
+        let test4 = java.time.Period(year: 1499, month: 6, day: 15, hour: 12, minute: 31, second: 30, nano: 500_000_000)
+        let test5 = java.time.Period(year: 1499, month: 6, day: 15, hour: 13, minute: 30, second: 30, nano: 500_000_000)
+        let test6 = java.time.Period(year: 1499, month: 6, day: 16, hour: 12, minute: 30, second: 30, nano: 500_000_000)
+        let test7 = java.time.Period(year: 1499, month: 7, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
         XCTAssertGreaterThan(test1, test2)
         XCTAssertGreaterThan(test1, test3)
         XCTAssertGreaterThan(test1, test4)
@@ -79,12 +82,12 @@ class PeriodTests: XCTestCase {
         XCTAssertGreaterThan(test1, test6)
         XCTAssertGreaterThan(test1, test7)
 
-        let test8 = Period(year: 1501, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 499_999_999)
-        let test9 = Period(year: 1501, month: 6, day: 15, hour: 12, minute: 30, second: 29, nano: 500_000_000)
-        let test10 = Period(year: 1501, month: 6, day: 15, hour: 12, minute: 29, second: 30, nano: 500_000_000)
-        let test11 = Period(year: 1501, month: 6, day: 15, hour: 11, minute: 30, second: 30, nano: 500_000_000)
-        let test12 = Period(year: 1501, month: 6, day: 14, hour: 12, minute: 30, second: 30, nano: 500_000_000)
-        let test13 = Period(year: 1501, month: 5, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
+        let test8 = java.time.Period(year: 1501, month: 6, day: 15, hour: 12, minute: 30, second: 30, nano: 499_999_999)
+        let test9 = java.time.Period(year: 1501, month: 6, day: 15, hour: 12, minute: 30, second: 29, nano: 500_000_000)
+        let test10 = java.time.Period(year: 1501, month: 6, day: 15, hour: 12, minute: 29, second: 30, nano: 500_000_000)
+        let test11 = java.time.Period(year: 1501, month: 6, day: 15, hour: 11, minute: 30, second: 30, nano: 500_000_000)
+        let test12 = java.time.Period(year: 1501, month: 6, day: 14, hour: 12, minute: 30, second: 30, nano: 500_000_000)
+        let test13 = java.time.Period(year: 1501, month: 5, day: 15, hour: 12, minute: 30, second: 30, nano: 500_000_000)
         XCTAssertLessThan(test1, test8)
         XCTAssertLessThan(test1, test9)
         XCTAssertLessThan(test1, test10)
@@ -93,7 +96,7 @@ class PeriodTests: XCTestCase {
         XCTAssertLessThan(test1, test13)
     }
     func testNormalize() {
-        let period = Period(year: 0, month: 11, day: 30, hour: 23, minute: 59, second: 59, nano: 1000_000_000)
+        let period = java.time.Period(year: 0, month: 11, day: 30, hour: 23, minute: 59, second: 59, nano: 1000_000_000)
         XCTAssertEqual(period.year, 1)
         XCTAssertEqual(period.month, 0)
         XCTAssertEqual(period.day, 0)
@@ -103,9 +106,9 @@ class PeriodTests: XCTestCase {
         XCTAssertEqual(period.nano, 0)
     }
     func testAddOperator() {
-        var localDate = LocalDateTime(year: 1000, month: 1, day: 1, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
-        var zonedDate = ZonedDateTime(year: 1000, month: 1, day: 1, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
-        let addPeriod = Period(year: 0, month: 1, day: 3, hour: 0, minute: 8, second: 0, nano: 0)
+      var localDate = java.time.LocalDateTime(year: 1000, month: 1, day: 1, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
+      var zonedDate = java.time.ZonedDateTime(year: 1000, month: 1, day: 1, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
+        let addPeriod = java.time.Period(year: 0, month: 1, day: 3, hour: 0, minute: 8, second: 0, nano: 0)
 
         let newLocalDate = localDate + addPeriod
         let newZonedDate = zonedDate + addPeriod
@@ -149,7 +152,7 @@ class PeriodTests: XCTestCase {
         let period2 = 2.month
         
         let sumPeriod = period1 + period2
-        let checkPeriod = Period(year: 1, month: 2)
+        let checkPeriod = java.time.Period(year: 1, month: 2)
         XCTAssertEqual(sumPeriod, checkPeriod)
         
         period1 += period2
@@ -157,9 +160,9 @@ class PeriodTests: XCTestCase {
     }
 
     func testSubtractOperator() {
-        var localDate = LocalDateTime(year: 1000, month: 1, day: 7, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
-        var zonedDate = ZonedDateTime(year: 1000, month: 1, day: 7, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
-        let addPeriod = Period(year: 0, month: 1, day: 3, hour: 0, minute: 8, second: 0, nano: 0)
+      var localDate = java.time.LocalDateTime(year: 1000, month: 1, day: 7, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
+      var zonedDate = java.time.ZonedDateTime(year: 1000, month: 1, day: 7, hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
+        let addPeriod = java.time.Period(year: 0, month: 1, day: 3, hour: 0, minute: 8, second: 0, nano: 0)
 
         let newLocalDate = localDate - addPeriod
         let newZonedDate = zonedDate - addPeriod
@@ -203,14 +206,14 @@ class PeriodTests: XCTestCase {
         let period2 = 2.month
         
         let subtractPeriod = period1 - period2
-        let checkPeriod = Period(month: 10)
+        let checkPeriod = java.time.Period(month: 10)
         XCTAssertEqual(subtractPeriod, checkPeriod)
         
         period1 -= period2
         XCTAssertEqual(period1, checkPeriod)
     }
     func testHashable() {
-        let period = Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
+        let period = java.time.Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
         
         #if swift(>=4.2)
         var hasher = Hasher()
@@ -234,8 +237,8 @@ class PeriodTests: XCTestCase {
         #endif
     }
     func testDescription() {
-        let period1 = Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
-        let period2 = Period(year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0, nano: 0)
+        let period1 = java.time.Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
+        let period2 = java.time.Period(year: 0, month: 0, day: 0, hour: 0, minute: 0, second: 0, nano: 0)
         XCTAssertEqual(period1.description, "0001Year 01Mon 03Day 01Hour 08Min 01.000000010Sec")
         XCTAssertEqual(period1.debugDescription, "0001Year 01Mon 03Day 01Hour 08Min 01.000000010Sec")
         #if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
@@ -260,7 +263,7 @@ class PeriodTests: XCTestCase {
         #endif
     }
     func testMirror() {
-        let period = Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
+        let period = java.time.Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
         
         var checkList = [
             "year": 1,
@@ -279,11 +282,11 @@ class PeriodTests: XCTestCase {
     }
 #if swift(>=3.2)
     func testCodable() {
-        let period1 = Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
+        let period1 = java.time.Period(year: 1, month: 1, day: 3, hour: 1, minute: 8, second: 1, nano: 10)
         let jsonString = String(data: try! JSONEncoder().encode(period1), encoding: .utf8)!
 
         let jsonData = jsonString.data(using: .utf8)!
-        let period2 = try! JSONDecoder().decode(Period.self, from: jsonData)
+      let period2 = try! JSONDecoder().decode(java.time.Period.self, from: jsonData)
 
         XCTAssertEqual(period1, period2)
     }
