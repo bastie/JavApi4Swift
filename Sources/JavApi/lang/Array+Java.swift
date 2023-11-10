@@ -32,4 +32,4 @@ extension Array {
       }
     }
   }
-}
+} // EOT

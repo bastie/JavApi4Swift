@@ -10,10 +10,12 @@ extension java.io {
   /// Abstraction of entry in file system like regular files, directory and other
   open class File {
     
+    /// internal representation
     private var file : String
     
     /// Create a new File instance with given file name
-    /// - Parameters file name
+    /// - Parameters:
+    /// - qualifiedFileName name of node in FileSystem as String with qualified directory
     public init (_ qualifiedFileName : String) {
       self.file = qualifiedFileName
       

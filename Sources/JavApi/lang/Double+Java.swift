@@ -13,6 +13,10 @@ extension Double {
     }
     throw Throwable.NullPointerException("In result of String is nil cannot parse as Double.")
   }
+  /// Parse the fiven String to a Double
+  ///
+  /// - Parameters:
+  ///   - s Double as String
   public static func parseDouble (_ s : String) throws -> Double {
     let trimmed = s.trim()
     guard trimmed.components(separatedBy: ".").count == 2 else {
@@ -24,4 +28,4 @@ extension Double {
     }
     throw Throwable.NumberFormatException ("NumberFormatException for input String \(s)")
   }
-}
+} // EOT
