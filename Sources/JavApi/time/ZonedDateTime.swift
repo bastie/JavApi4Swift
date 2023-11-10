@@ -799,7 +799,6 @@ extension java.time.ZonedDateTime: Comparable {
 }
 extension java.time.ZonedDateTime: Hashable {
   
-#if swift(>=4.2)
   /// Hashes the essential components of this value by feeding them into the
   /// given hasher.
   ///
@@ -817,15 +816,6 @@ extension java.time.ZonedDateTime: Hashable {
     hasher.combine(internalClock)
     hasher.combine(internalDateTime)
   }
-#else
-  /// The hash value.
-  ///
-  /// Hash values are not guaranteed to be equal across different executions of
-  /// your program. Do not save hash values to use during a future execution.
-  public var hashValue: Int {
-    return internalClock.hashValue ^ (79 &* internalDateTime.hashValue)
-  }
-#endif
 }
 extension java.time.ZonedDateTime: Equatable {
   
@@ -868,7 +858,6 @@ extension java.time.ZonedDateTime: CustomReflectable {
   }
   
 }
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
 extension java.time.ZonedDateTime: CustomPlaygroundDisplayConvertible {
   
   /// Returns the custom playground description for this instance.
@@ -880,20 +869,7 @@ extension java.time.ZonedDateTime: CustomPlaygroundDisplayConvertible {
   }
   
 }
-#else
-extension ZonedDateTime: CustomPlaygroundQuickLookable {
-  
-  /// A custom playground Quick Look for this instance.
-  ///
-  /// If this type has value semantics, the `PlaygroundQuickLook` instance
-  /// should be unaffected by subsequent mutations.
-  public var customPlaygroundQuickLook: PlaygroundQuickLook {
-    return .text(self.description)
-  }
-}
-#endif
 
-#if swift(>=3.2)
 extension java.time.ZonedDateTime: Codable {
   
   /// A type that can be used as a key for encoding and decoding.
@@ -932,4 +908,3 @@ extension java.time.ZonedDateTime: Codable {
     try container.encode(self.internalClock, forKey: .clock)
   }
 }
-#endif

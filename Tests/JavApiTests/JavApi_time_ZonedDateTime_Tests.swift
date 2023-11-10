@@ -492,33 +492,20 @@ class ZonedDateTimeTests: XCTestCase {
     func testHashable() {
       let date = java.time.ZonedDateTime(year: 1999, month: 10, day: 31, hour: 11, minute: 51, second: 18, nanoOfSecond: 153_000_000, clock: .UTC)
         
-        #if swift(>=4.2)
         var hasher = Hasher()
         hasher.combine(date.clock)
         hasher.combine(date.localDateTime)
         XCTAssertEqual(
             date.hashValue, hasher.finalize()
         )
-        #else
-        XCTAssertEqual(
-            date.hashValue,
-            date.clock.hashValue ^ (79 &* date.localDateTime.hashValue)
-        )
-        #endif
     }
     func testDescription() {
       let date = java.time.ZonedDateTime(year: 1999, month: 10, day: 31, hour: 11, minute: 51, second: 18, nanoOfSecond: 153_000_000, clock: .UTC)
         XCTAssertEqual(date.description, "1999.10.31T11:51:18.153000000(00:00:00.000000000)")
         XCTAssertEqual(date.debugDescription, "1999.10.31T11:51:18.153000000(00:00:00.000000000)")
-        #if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
         if let description = date.playgroundDescription as? String {
             XCTAssertEqual(description, "1999.10.31T11:51:18.153000000(00:00:00.000000000)")
         }
-        #else
-        if case .text(let text) = date.customPlaygroundQuickLook {
-            XCTAssertEqual(text, "1999.10.31T11:51:18.153000000(00:00:00.000000000)")
-        }
-        #endif
     }
     func testMirror() {
       let date = java.time.ZonedDateTime(year: 1999, month: 10, day: 31, hour: 11, minute: 51, second: 18, nanoOfSecond: 153_000_000, clock: .UTC)
@@ -543,8 +530,8 @@ class ZonedDateTimeTests: XCTestCase {
         }
         XCTAssertEqual(checkList.count, 0)
     }
-#if swift(>=3.2)
-    func testCodable() {
+
+  func testCodable() {
       let date1 = java.time.ZonedDateTime(year: 1999, month: 10, day: 31, hour: 11, minute: 51, second: 18, nanoOfSecond: 153_000_000, clock: .UTC)
         let jsonString = String(data: try! JSONEncoder().encode(date1), encoding: .utf8)!
 
@@ -553,6 +540,4 @@ class ZonedDateTimeTests: XCTestCase {
 
         XCTAssertEqual(date1, date2)
     }
-#endif
-
 }

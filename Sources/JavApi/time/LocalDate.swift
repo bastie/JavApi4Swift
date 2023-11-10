@@ -726,7 +726,6 @@ extension java.time.LocalDate: Comparable {
 }
 extension java.time.LocalDate: Hashable {
   
-#if swift(>=4.2)
   /// Hashes the essential components of this value by feeding them into the
   /// given hasher.
   ///
@@ -745,15 +744,6 @@ extension java.time.LocalDate: Hashable {
     hasher.combine(month)
     hasher.combine(day)
   }
-#else
-  /// The hash value.
-  ///
-  /// Hash values are not guaranteed to be equal across different executions of
-  /// your program. Do not save hash values to use during a future execution.
-  public var hashValue: Int {
-    return year.hashValue ^ (51 &* month.hashValue) ^ (17 &* day.hashValue)
-  }
-#endif
 }
 extension java.time.LocalDate: Equatable {
   
@@ -799,7 +789,6 @@ extension java.time.LocalDate: CustomReflectable {
   }
   
 }
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
 extension java.time.LocalDate: CustomPlaygroundDisplayConvertible {
   
   /// Returns the custom playground description for this instance.
@@ -811,21 +800,7 @@ extension java.time.LocalDate: CustomPlaygroundDisplayConvertible {
   }
   
 }
-#else
-extension LocalDate: CustomPlaygroundQuickLookable {
-  
-  /// A custom playground Quick Look for this instance.
-  ///
-  /// If this type has value semantics, the `PlaygroundQuickLook` instance
-  /// should be unaffected by subsequent mutations.
-  public var customPlaygroundQuickLook: PlaygroundQuickLook {
-    return .text(self.description)
-  }
-  
-}
-#endif
 
-#if swift(>=3.2)
 extension java.time.LocalDate: Codable {
   
   /// A type that can be used as a key for encoding and decoding.
@@ -868,4 +843,3 @@ extension java.time.LocalDate: Codable {
     try container.encode(self.internalDay, forKey: .day)
   }
 }
-#endif

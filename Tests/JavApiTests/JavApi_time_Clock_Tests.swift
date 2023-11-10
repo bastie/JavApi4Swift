@@ -99,15 +99,9 @@ class ClockTests: XCTestCase {
       let clock = java.time.Clock(offsetSecond: 10860)
         XCTAssertEqual(clock.description, "03:01:00.000000000")
         XCTAssertEqual(clock.debugDescription, "03:01:00.000000000")
-        #if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
         if let description = clock.playgroundDescription as? String {
             XCTAssertEqual(description, "03:01:00.000000000")
         }
-        #else
-        if case .text(let text) = clock.customPlaygroundQuickLook {
-            XCTAssertEqual(text, "03:01:00.000000000")
-        }
-        #endif
     }
     func testMirror() {
       let clock = java.time.Clock(offsetSecond: 10860)
@@ -121,7 +115,6 @@ class ClockTests: XCTestCase {
         }
         XCTAssertEqual(checkList.count, 0)
     }
-#if swift(>=3.2)
     func testCodable() {
       let clock1 = java.time.Clock(offsetSecond: 10860)
         let jsonString = String(data: try! JSONEncoder().encode(clock1), encoding: .utf8)!
@@ -131,6 +124,4 @@ class ClockTests: XCTestCase {
 
         XCTAssertEqual(clock1, clock2)
     }
-#endif
-
 }

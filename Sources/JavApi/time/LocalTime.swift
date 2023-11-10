@@ -667,7 +667,6 @@ extension java.time.LocalTime: Comparable {
 }
 extension java.time.LocalTime: Hashable {
   
-#if swift(>=4.2)
   /// Hashes the essential components of this value by feeding them into the
   /// given hasher.
   ///
@@ -687,15 +686,6 @@ extension java.time.LocalTime: Hashable {
     hasher.combine(second)
     hasher.combine(nano)
   }
-#else
-  /// The hash value.
-  ///
-  /// Hash values are not guaranteed to be equal across different executions of
-  /// your program. Do not save hash values to use during a future execution.
-  public var hashValue: Int {
-    return hour.hashValue ^ (51 &* minute.hashValue) ^ (17 &* second.hashValue) ^ (13 &* nano.hashValue)
-  }
-#endif
 }
 extension java.time.LocalTime: Equatable {
   
@@ -744,7 +734,6 @@ extension java.time.LocalTime: CustomReflectable {
   }
   
 }
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
 extension java.time.LocalTime: CustomPlaygroundDisplayConvertible {
   
   /// Returns the custom playground description for this instance.
@@ -756,21 +745,7 @@ extension java.time.LocalTime: CustomPlaygroundDisplayConvertible {
   }
   
 }
-#else
-extension LocalTime: CustomPlaygroundQuickLookable {
-  
-  /// A custom playground Quick Look for this instance.
-  ///
-  /// If this type has value semantics, the `PlaygroundQuickLook` instance
-  /// should be unaffected by subsequent mutations.
-  public var customPlaygroundQuickLook: PlaygroundQuickLook {
-    return .text(self.description)
-  }
-  
-}
-#endif
 
-#if swift(>=3.2)
 extension java.time.LocalTime: Codable {
   
   /// A type that can be used as a key for encoding and decoding.
@@ -817,4 +792,3 @@ extension java.time.LocalTime: Codable {
     try container.encode(self.internalNano, forKey: .nano)
   }
 }
-#endif

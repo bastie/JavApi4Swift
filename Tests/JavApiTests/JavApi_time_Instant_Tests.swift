@@ -183,33 +183,20 @@ class InstantTests: XCTestCase {
   func testHashable() {
     let instant = java.time.Instant(epochSecond: 100_000, nano: 999_000_000)
     
-#if swift(>=4.2)
     var hasher = Hasher()
     hasher.combine(100_000)
     hasher.combine(999_000_000)
     XCTAssertEqual(
       instant.hashValue, hasher.finalize()
     )
-#else
-    XCTAssertEqual(
-      instant.hashValue,
-      Int64(100_000).hashValue ^ (51 &* Int(999_000_000).hashValue)
-    )
-#endif
   }
   func testDescription() {
     let instant = java.time.Instant(epochSecond: 100_000, nano: 999_000_000)
     XCTAssertEqual(instant.description, "100000.999000000")
     XCTAssertEqual(instant.debugDescription, "100000.999000000")
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
     if let description = instant.playgroundDescription as? String {
       XCTAssertEqual(description, "100000.999000000")
     }
-#else
-    if case .text(let text) = instant.customPlaygroundQuickLook {
-      XCTAssertEqual(text, "100000.999000000")
-    }
-#endif
   }
   func testMirror() {
     let instant = java.time.Instant(epochSecond: 100_000, nano: 999_000_000)
@@ -228,7 +215,6 @@ class InstantTests: XCTestCase {
     }
     XCTAssertEqual(checkList.count, 0)
   }
-#if swift(>=3.2)
   func testCodable() {
     let instant1 = java.time.Instant(epochSecond: 100_000, nano: 999_000_000)
     let jsonString = String(data: try! JSONEncoder().encode(instant1), encoding: .utf8)!
@@ -238,6 +224,4 @@ class InstantTests: XCTestCase {
     
     XCTAssertEqual(instant1, instant2)
   }
-#endif
-  
 }

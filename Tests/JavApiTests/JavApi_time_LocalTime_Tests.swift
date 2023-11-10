@@ -293,7 +293,6 @@ class LocalTimeTests: XCTestCase {
   func testHashable() {
     let date = java.time.LocalTime(hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
     
-#if swift(>=4.2)
     var hasher = Hasher()
     hasher.combine(11)
     hasher.combine(51)
@@ -302,24 +301,12 @@ class LocalTimeTests: XCTestCase {
     XCTAssertEqual(
       date.hashValue, hasher.finalize()
     )
-#else
-    XCTAssertEqual(
-      date.hashValue,
-      Int(11).hashValue ^ (51 &* Int(51).hashValue) ^ (17 &* Int(18).hashValue) ^ (13 &* Int(1573).hashValue)
-    )
-#endif
   }
   func testDescription() {
     let date = java.time.LocalTime(hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
     if let description = date.playgroundDescription as? String {
       XCTAssertEqual(description, "11:51:18.000001573")
     }
-#else
-    if case .text(let text) = date.customPlaygroundQuickLook {
-      XCTAssertEqual(text, "11:51:18.000001573")
-    }
-#endif
   }
   func testMirror() {
     let date = java.time.LocalTime(hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
@@ -336,7 +323,6 @@ class LocalTimeTests: XCTestCase {
     }
     XCTAssertEqual(checkList.count, 0)
   }
-#if swift(>=3.2)
   func testCodable() {
     let date1 = java.time.LocalTime(hour: 11, minute: 51, second: 18, nanoOfSecond: 1573)
     let jsonString = String(data: try! JSONEncoder().encode(date1), encoding: .utf8)!
@@ -346,6 +332,4 @@ class LocalTimeTests: XCTestCase {
     
     XCTAssertEqual(date1, date2)
   }
-#endif
-  
 }

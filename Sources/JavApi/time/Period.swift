@@ -292,7 +292,6 @@ extension java.time.Period: Comparable {
 }
 extension java.time.Period: Hashable {
   
-#if swift(>=4.2)
   /// Hashes the essential components of this value by feeding them into the
   /// given hasher.
   ///
@@ -315,17 +314,6 @@ extension java.time.Period: Hashable {
     hasher.combine(second)
     hasher.combine(nano)
   }
-#else
-  /// The hash value.
-  ///
-  /// Hash values are not guaranteed to be equal across different executions of
-  /// your program. Do not save hash values to use during a future execution.
-  public var hashValue: Int {
-    let dateHash = year.hashValue ^ (51 &* month.hashValue) ^ (17 &* day.hashValue)
-    let timeHash = hour.hashValue ^ (51 &* minute.hashValue) ^ (17 &* second.hashValue) ^ (13 &* nano.hashValue)
-    return dateHash ^ (13 &* timeHash)
-  }
-#endif
 }
 extension java.time.Period: Equatable {
   
@@ -355,15 +343,9 @@ extension java.time.Period: CustomStringConvertible, CustomDebugStringConvertibl
       self.internalSecond != 0 || self.internalNano != 0 ? String(format: "%02d.%09dSec", self.internalSecond, self.internalNano) : nil
     ]
     
-#if swift(>=4.1)
     return list
       .compactMap { $0 }
       .joined()
-#else
-    return list
-      .flatMap { $0 }
-      .joined()
-#endif
   }
   
   /// A textual representation of this instance, suitable for debugging.
@@ -391,7 +373,6 @@ extension java.time.Period: CustomReflectable {
   }
   
 }
-#if swift(>=4.1) || (swift(>=3.3) && !swift(>=4.0))
 extension java.time.Period: CustomPlaygroundDisplayConvertible {
   
   /// Returns the custom playground description for this instance.
@@ -403,21 +384,7 @@ extension java.time.Period: CustomPlaygroundDisplayConvertible {
   }
   
 }
-#else
-extension Period: CustomPlaygroundQuickLookable {
-  
-  /// A custom playground Quick Look for this instance.
-  ///
-  /// If this type has value semantics, the `PlaygroundQuickLook` instance
-  /// should be unaffected by subsequent mutations.
-  public var customPlaygroundQuickLook: PlaygroundQuickLook {
-    return .text(self.description)
-  }
-  
-}
-#endif
 
-#if swift(>=3.2)
 extension java.time.Period: Codable {
   
   /// A type that can be used as a key for encoding and decoding.
@@ -476,4 +443,3 @@ extension java.time.Period: Codable {
     try container.encode(self.internalNano, forKey: .nano)
   }
 }
-#endif
