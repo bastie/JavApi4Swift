@@ -163,7 +163,7 @@ How translation is relized by example:
 
 #### final
 
-First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In Swift you can be declare as parameter as mutable with `var` keyword, but not the `_` underline. 
+First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
 
 #### interface
 
