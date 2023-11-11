@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class LocalTimeTests: XCTestCase {
+class JavApi_time_LocalTime_Tests : XCTestCase {
   
   func testPropertySetter() {
     var min = java.time.LocalTime.min

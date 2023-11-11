@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class ZonedDateTimeTests: XCTestCase {
+class JavApi_time_ZonedDateTime_Tests : XCTestCase {
 
     let utcTimeZone = TimeZone(identifier: "UTC")!
 

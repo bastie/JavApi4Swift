@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class ClockTests: XCTestCase {
+class JavApi_time_Clock_Tests : XCTestCase {
 
     func testComparable() {
       let oldClock = java.time.Clock(identifier: .americaStLucia)

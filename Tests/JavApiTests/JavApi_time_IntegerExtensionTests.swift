@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class IntegerExtensionTests: XCTestCase {
+class JavApi_time_IntegerExtensionTests : XCTestCase {
   
   func testAddOperator() {
     let date = java.time.LocalDateTime(

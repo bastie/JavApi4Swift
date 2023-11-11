@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class PeriodTests: XCTestCase {
+class JavApi_time_Period_Tests : XCTestCase {
 
     func testPropertySetter() {
         var zero = java.time.Period()

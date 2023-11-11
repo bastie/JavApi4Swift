@@ -5,7 +5,7 @@ import XCTest
 import Foundation
 @testable import JavApi
 
-class InstantTests: XCTestCase {
+class JavApi_time_Instant_Tests : XCTestCase {
   
   func testPropertySetter() {
     var zero = java.time.Instant.EPOCH
