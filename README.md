@@ -127,6 +127,10 @@ In Java blocks are between curly braces {}. Swift need the `do` keyword before t
 
 Swift use `UInt8` instead `byte` but typealias are exported.
 
+#### casting
+
+To cast in Swift use `as!` keyword. If in Java is first check with `instanceof` you should use `as?`.
+
 #### char
 
 Not often but here Swift need explicite declaration and double quotes, for example
@@ -168,6 +172,10 @@ How translation is relized by example:
 #### final
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
+
+#### instanceof
+
+The Swift keyword is `is`. If it is only a check before casting use `as?` to optional cast.
 
 #### interface
 
@@ -279,6 +287,9 @@ Examples:
     i+=1           translated to    i += 1   /// spaces placed, same for other operators
     int i, j = 1   translated to    var i = 1; var j = 1;   /// separation of assignment operator
     int i, j = 1   translated to    var i : Int = 1; var j : Int = 1;   /// alternative solution
+    
+Other example:
+    result = (first + second++)    to    result = (first + second); second += 1
 
 In loops operator position are relevant. The operator before the variable name tells first do the operator statement and than test. The operator after the variable name tells test first and then do the operator statement.
 

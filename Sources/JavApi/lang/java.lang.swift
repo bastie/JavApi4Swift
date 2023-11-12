@@ -7,7 +7,8 @@ extension java {
   /// The Java base class implementation
   public enum lang{}
 }
-// TODO: Incubation exception handling
+
+// types to place in default namespace like Java
 extension java.lang {
   public typealias Array = Swift.Array
   public typealias Cloneable = JavApi.Cloneable

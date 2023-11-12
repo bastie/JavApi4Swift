@@ -9,7 +9,12 @@ extension Character {
     return char.isNumber
   }
   
+  public static func isLetter (_ char : char) -> Bool {
+    return char.isLetter
+  }
+
   public static func isWhitespace (_ char : char) -> boolean {
     return char.isWhitespace
   }
+  
 }

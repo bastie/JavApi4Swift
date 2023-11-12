@@ -27,6 +27,10 @@ public class StringBuilder {
     return self
   }
   
+  public func length () -> Int {
+    return content.lenght()
+  }
+  
   public func toString () -> String {
     return self.content
   }
