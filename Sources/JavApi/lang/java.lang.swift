@@ -23,3 +23,5 @@ extension java.lang {
 public typealias char = Character
 /// This type alias provides the byte keyword with UInt8 as data type
 public typealias byte = UInt8
+/// This type alias provides the boolean keyword with Bool as data type
+public typealias boolean = Bool

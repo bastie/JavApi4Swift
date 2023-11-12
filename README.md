@@ -134,6 +134,10 @@ Not often but here Swift need explicite declaration and double quotes, for examp
     let chars : [Character] : "a string to char array".toCharArray()
     let char : Character = "c"
 
+#### do while loop
+
+Instead of `do` use keyword `repeat`.
+
 #### exception handling
 
 In Java exception can seperated in "RuntimeException" without explicit naming and "the other exception". The other exception must be declared and catched. RuntimeException and the super type Throwable can be declared and catched - or use `public static void main [] throws Throwable {}`. Java use a *try block* with *catch NamedException* instead to Swift with "normal" *do block* with *catch*. Swift also provide the *error* enum inside the catch block, Java has the NamedException instance.
@@ -254,9 +258,9 @@ The translation has a Optional problem because Java reference types are implicit
 
 Default methods are implemented in a extension, because the mapping of Java interfaces in a Java package like structures need a bit more code. 
 
-#### do while loop
+#### new instance
 
-Instead of `do` use keyword `repeat`.
+We do not need the `new` keyword to create an instance of type.
 
 #### operator >>>
 
