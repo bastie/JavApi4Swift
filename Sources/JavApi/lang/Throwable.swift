@@ -9,6 +9,7 @@ public enum Throwable : Error {
   case CloneNotSupportedException (_ message : String = "CloneNotSupportedException")
   case IllegalArgumentException (_ message : String = "IllegalArgumentException")
   case IndexOutOufBoundsException (_ withValue : Int)
+  case IndexOutOufBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")
   case NullPointerException (_ message : String = "NullPointerExeception")
   case NumberFormatException (_ message : String = "NumberformatException")
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")

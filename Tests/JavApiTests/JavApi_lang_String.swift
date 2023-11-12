@@ -52,4 +52,17 @@ final class JavApi_lang_String_Tests: XCTestCase {
     let actually = input.toCharArray()
     XCTAssertEqual(expected, actually, "Der String \(input) wurde nicht wie erwartet nach \(expected) zerlegt sondern als \(actually)")
   }
+  
+  func testSubsequence () {
+    let input = "Die Würde des Menschen ist unantastbar. Sie zu achten und zu schützen ist Verpflichtung aller staatlichen Gewalt."
+    var actually = input.subSequence(0, 39)
+    var expected = "Die Würde des Menschen ist unantastbar."
+    
+    XCTAssertEqual(actually,expected)
+    
+    actually = input.substring(40)
+    expected = "Sie zu achten und zu schützen ist Verpflichtung aller staatlichen Gewalt."
+    
+    XCTAssertEqual(actually,expected)
+  }
 }
