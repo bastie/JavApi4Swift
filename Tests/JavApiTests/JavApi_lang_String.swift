@@ -6,7 +6,7 @@ import XCTest
 @testable import JavApi
 
 final class JavApi_lang_String_Tests: XCTestCase {
-  // Test constructors
+
   func testTrim () {
     do { // none to trim
       let input : java.lang.String = "JavApi the Java API in 100% pure Swift."
