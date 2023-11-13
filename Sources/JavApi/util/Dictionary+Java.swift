@@ -12,4 +12,14 @@ extension Dictionary {
     
     throw Throwable.NullPointerException("In result of key is nil, NullPointerException ist throwing")
   }
+  
+  public mutating func put (_ name : Key?, _ value : Value?) throws -> Value? {
+    let oldValue = try get(name)
+    self[name!] = value
+    return oldValue
+  }
+  
+  public mutating func clear () {
+    self.removeAll()
+  }
 }

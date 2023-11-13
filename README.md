@@ -137,6 +137,8 @@ Not often but here Swift need explicite declaration and double quotes, for examp
 
     let chars : [Character] : "a string to char array".toCharArray()
     let char : Character = "c"
+    
+In extension you can compare Character with Int value with `==`. If you need the Int value of character use `asDigit()` function.    
 
 #### do while loop
 
@@ -327,6 +329,10 @@ to
 #### Swiftify
 
 Swiftify is a JavApi extension. It make additional implementations of Java methods with syntax more like Swift code. It can also implements additional Swift type to use the Java ported code like Swift in other real Swift code.
+
+#### switch
+
+Java cases `fallthrough` by default and need explicite `break` if not. But Java need no `default`. Also newer Java can use `->` instead of `:`.
 
 #### visibility
 
