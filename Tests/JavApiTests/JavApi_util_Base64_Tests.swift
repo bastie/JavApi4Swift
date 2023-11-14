@@ -102,5 +102,38 @@ class SwiftyBase64Tests: XCTestCase {
           _ = java.util.Base64.getEncoder().encode(b)
         }
     }
+  
+  func testDecodeBase64 () {
     
+    let input = "Uml0dGVy"
+    let expected = [UInt8] ("Ritter".data(using: .utf8)!)
+    
+    let stdDecoder = java.util.Base64.Decoder()
+    let actually = try! stdDecoder.decode([UInt8](input.data(using: .utf8)!))
+    
+    XCTAssertEqual(expected, actually)
+    
+  }
+    
+  func testDecodeBase64With2Padding () {
+    let input = "Uml0dGVyLmJpeg=="
+    let expected = [UInt8] ("Ritter.biz".data(using: .utf8)!)
+
+    let stdDecoder = java.util.Base64.Decoder()
+    let actually = try! stdDecoder.decode([UInt8](input.data(using: .utf8)!))
+    
+    XCTAssertEqual(expected, actually)
+  }
+ 
+  
+  func testDecodeBase64With1Padding () {
+    let input = "ZXhhbXBsZS5jb20="
+    let expected = [UInt8] ("example.com".data(using: .utf8)!)
+    
+    let stdDecoder = java.util.Base64.Decoder()
+    let actually = try! stdDecoder.decode([UInt8](input.data(using: .utf8)!))
+    
+    XCTAssertEqual(expected, actually)
+  }
+  
 }
