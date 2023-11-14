@@ -14,19 +14,6 @@ extension java.util {
   //  Modify ⁴JavApi by Sebastian Ritter
   //
   
-  ///
-  /// Base64 Alphabet to use during encoding.
-  ///
-  /// - Standard: The standard Base64 encoding, defined in RFC 4648 section 4.
-  /// - URLAndFilenameSafe: The base64url encoding, defined in RFC 4648 section 5.
-  ///
-  public enum Alphabet {
-    /// The standard Base64 alphabet
-    case Standard
-    
-    /// The URL and Filename Safe Base64 alphabet
-    case URLAndFilenameSafe
-  }
   
   /// Base64 implementation
   open class Base64 {
