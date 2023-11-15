@@ -5,6 +5,13 @@
 
 extension Character {
   
+  public init (_ codePoint : Int) {
+    var asString = ""
+    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
+    asString = String(String.UnicodeScalarView(asArray))
+    self.init(unicodeScalarLiteral: asString.charAt(0))
+  }
+  
   public static func isDigit (_ char : char) -> Bool{
     return char.isNumber
   }

@@ -22,4 +22,19 @@ extension Dictionary {
   public mutating func clear () {
     self.removeAll()
   }
+
+  public func containsKey (_ key : Key) -> Bool {
+    return self.keys.contains(key)
+  }
+  
+  public mutating func putAll (_ map : Dictionary<Key,Value>?) throws {
+    if let map {
+      for (key, value) in map {
+        self[key] = value
+      }
+    }
+    else {
+      throw Throwable.NullPointerException("In result of parameter is nil.")
+    }
+  }
 }

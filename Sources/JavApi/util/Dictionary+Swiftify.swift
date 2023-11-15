@@ -6,6 +6,12 @@
 extension Dictionary {
   
   public func get (_ name : Key) throws -> Value? {
-      return self[name]
+    return self[name]
+  }
+  
+  public mutating func putAll (_ map : Dictionary<Key,Value>) {
+    for (key, value) in map {
+      self[key] = value
+    }
   }
 }
