@@ -26,3 +26,5 @@ public typealias char = Character
 public typealias byte = UInt8
 /// This type alias provides the boolean keyword with Bool as data type
 public typealias boolean = Bool
+/// This type alias provides the long keyword with Int64 as data type
+public typealias long = Int64

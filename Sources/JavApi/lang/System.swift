@@ -72,8 +72,18 @@ public struct System {
   }
   
   /// Exits the application
+  /// - Parameters:
+  /// - Parameter status return value e.g. for scripting with your application
+  ///
+  /// - Returns Never
   public static func exit (_ status : Int) -> Never {
     Foundation.exit(Int32(status))
   }
   
+  /// Return the current time in milliseconds
+  ///
+  /// - Returns: milliseconds as Int64
+  public static func currentTimeMillis () -> Int64 {
+    return Int64(Date().timeIntervalSince1970.advanced(by: 0)*1_000)
+  }
 }
