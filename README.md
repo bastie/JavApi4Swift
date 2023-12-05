@@ -268,6 +268,10 @@ The translation has a Optional problem because Java reference types are implicit
 
 Default methods are implemented in a extension, because the mapping of Java interfaces in a Java package like structures need a bit more code. 
 
+#### nested classes
+
+Nested classes in Swift can not access to enclosing type variables. Give the nested class the needed variables as (weak) parameters.
+
 #### new instance
 
 We do not need the `new` keyword to create an instance of type.

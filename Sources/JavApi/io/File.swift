@@ -10,6 +10,18 @@ extension java.io {
   /// Abstraction of entry in file system like regular files, directory and other
   open class File {
     
+    /// The delimter char for directory structure from `System.getProperty("file.separator")` or slash if not set as default value
+    public static let separatorChar : Character = System.getProperty("file.separator", "/").charAt(0)
+    
+    /// The delimter  for directory structure from `System.getProperty("file.separator")` or slash if not set as default value
+    public static let separator : String = System.getProperty("file.separator", "/")
+    
+    /// The delimter char for device list from `System.getProperty("path.separator")` or slash if not set as default value
+    public static let pathSeparatorChar : Character = System.getProperty("path.separator", ":").charAt(0)
+    
+    /// The delimter for device list from `System.getProperty("path.separator")` or `:` if not set as default value
+    public static let pathSeparator : String = System.getProperty("path.separator", ":")
+    
     /// internal representation
     private var file : String
     

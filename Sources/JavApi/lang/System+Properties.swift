@@ -21,6 +21,11 @@ extension System {
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
     "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\n\r" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
     "os.name" : _SYSTEM_NAME,
+    "file.separator" : _SYSTEM_NAME.contains("Windows") ? "\\" : _SYSTEM_NAME.contains("Wasm") ? "/" : "/",
+    "native.encoding" : "utf-8",
+    "stdout.encoding" : "utf-8",
+    "stderr.encoding" : "utf-8",
+    "java.vendor" : "JavApi⁴Swift"
   ]
   
 #if os(iOS)
