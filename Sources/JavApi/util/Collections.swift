@@ -3,9 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-open class Collections {
-  
-  public static func emptySet<Element>() -> Set<Element> {
-    return Swift.Set<Element>()
+extension java.util {
+  open class Collections {
+    
+    public static func emptySet<Element>() -> Set<Element> {
+      return Swift.Set<Element>()
+    }
   }
 }

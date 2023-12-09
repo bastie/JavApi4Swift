@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   viewBox="0 0 1400 420"
+   height="420"
+   width="1400"
+   id="svg677"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title497">Floss-license-slide-image</title>
+  <desc
+     id="desc499">Compatibility of common open-source software licenses. Software may be combined under a license that can be reached by tracking the arrows forward from the licenses of all its components. The result must then carry the license in the target box, possibly with additions from the source licenses. Permissive licenses allow the software to become non-free, protective (copyleft) licenses prevent the component from becoming non-free, weakly protective (weak copyleft) licenses additionally allow it (often a software library) to be part of a larger non-free work.</desc>
+  <defs
+     id="defs511">
+    <marker
+       id="marker_arrow"
+       markerWidth="6"
+       markerHeight="6"
+       refX="4"
+       refY="3"
+       orient="auto">
+      <path
+         d="M 0,1 5,3 0,5"
+         fill="#000000"
+         id="path501" />
+    </marker>
+    <linearGradient
+       id="grad"
+       x1="0"
+       y1="0"
+       x2="0"
+       y2="1">
+      <stop
+         offset="10%"
+         stop-color="#ccffff"
+         id="stop504" />
+      <stop
+         offset="90%"
+         stop-color="#99ccff"
+         id="stop506" />
+    </linearGradient>
+    <rect
+       id="large"
+       x="-120"
+       y="-30"
+       width="240"
+       height="60"
+       rx="8"
+       ry="8"
+       fill="url(#grad)"
+       stroke="#003366" />
+    <rect
+       id="small"
+       x="-120"
+       y="-20"
+       width="240"
+       height="40"
+       rx="8"
+       ry="8"
+       fill="url(#grad)"
+       stroke="#003366" />
+  </defs>
+  <rect
+     id="rect213"
+     x="0"
+     y="0"
+     width="1400"
+     height="420"
+     fill="#ffffff" />
+  <g
+     font-family="Helvetica, Arial, sans-serif"
+     font-size="28px"
+     text-anchor="middle"
+     fill="#000000"
+     stroke="none"
+     id="g675">
+    <g
+       fill="none"
+       stroke="#000000"
+       stroke-width="2.5"
+       marker-end="url(#marker_arrow)"
+       id="g549">
+      <path
+         d="m 145,110 v 30"
+         id="path515" />
+      <path
+         d="m 145,180 v 30"
+         id="path517" />
+      <path
+         d="m 145,250 v 30"
+         id="path519" />
+      <path
+         d="M 425,360 V 330"
+         id="path521" />
+      <path
+         d="M 705,170 V 130"
+         id="path1764" />
+      <path
+         d="m 705,230 v 40"
+         id="path1768" />
+      <path
+         d="M 985,170 V 130"
+         id="path525" />
+      <path
+         d="m 985,230 v 40"
+         id="path527" />
+      <path
+         d="m 25,230 q -15,0 -15,15 v 120 q 0,15 15,15 h 280"
+         id="path529" />
+      <path
+         d="m 265,300 h 40"
+         id="path531" />
+      <path
+         d="m 265,230 c 15,0 0,-40 30,-40 h 10"
+         id="path533" />
+      <path
+         d="m 545,200 h 40"
+         id="path535" />
+      <path
+         d="m 265,300 c 30,0 0,-90 30,-90 h 10"
+         id="path214" />
+      <path
+         d="m 545,200 c 30,0 0,-100 30,-100 h 10"
+         id="path537" />
+      <path
+         d="m 545,200 c 30,0 0,100 30,100 h 10"
+         id="path1766" />
+      <path
+         d="m 825,100 c 30,0 0,90 30,90 h 10"
+         id="path539" />
+      <path
+         d="m 825,100 h 40"
+         id="path541" />
+      <path
+         d="m 825,200 c 10,0 10,10 30,10 h 10"
+         id="path543" />
+      <path
+         d="m 825,300 h 40"
+         id="path545" />
+      <path
+         d="m 1105,300 h 40"
+         id="path547" />
+    </g>
+    <g
+       transform="translate(145,90)"
+       id="g557">
+      <use
+         xlink:href="#small"
+         id="use551" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text555"><tspan
+           id="tspan553">Public domain</tspan></text>
+    </g>
+    <g
+       transform="translate(145,160)"
+       id="g565">
+      <use
+         xlink:href="#small"
+         id="use559" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text563"><tspan
+           id="tspan561">MIT</tspan></text>
+    </g>
+    <g
+       transform="translate(145,230)"
+       id="g573">
+      <use
+         xlink:href="#small"
+         id="use567" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text571"><tspan
+           id="tspan569">BSD-3-Clause</tspan></text>
+    </g>
+    <g
+       transform="translate(145,300)"
+       id="g581">
+      <use
+         xlink:href="#small"
+         id="use575" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text579"><tspan
+           id="tspan577">Apache-2.0</tspan></text>
+    </g>
+    <g
+       transform="translate(425,200)"
+       id="g687">
+      <use
+         xlink:href="#large"
+         id="use681" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text685"><tspan
+           id="tspan683">MPL-2.0</tspan></text>
+    </g>
+    <g
+       transform="translate(425,300)"
+       id="g449">
+      <use
+         xlink:href="#large"
+         id="use441" />
+      <text
+         x="0"
+         y="-0.40000001ex"
+         id="text447"><tspan
+           id="tspan443">MPL-2.0-no-</tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan445">copyleft-exception</tspan></text>
+    </g>
+    <g
+       transform="translate(425,380)"
+       id="g615">
+      <use
+         xlink:href="#small"
+         id="use609" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text613"><tspan
+           id="tspan611">MPL-1.1</tspan></text>
+    </g>
+    <g
+       transform="translate(705,100)"
+       id="g589">
+      <use
+         xlink:href="#large"
+         id="use583" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text587"><tspan
+           id="tspan585">LGPL-2.1-only</tspan></text>
+    </g>
+    <g
+       transform="translate(705,200)"
+       id="g597">
+      <use
+         xlink:href="#large"
+         id="use591" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text595"><tspan
+           id="tspan593">LGPL-2.1-or-later</tspan></text>
+    </g>
+    <g
+       transform="translate(705,300)"
+       id="g607">
+      <use
+         xlink:href="#large"
+         id="use599" />
+      <text
+         x="0"
+         y="-0.40000001ex"
+         id="text605"><tspan
+           id="tspan601">LGPL-3.0-only or </tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan603">LGPL-3.0-or-later</tspan></text>
+    </g>
+    <g
+       transform="translate(985,100)"
+       id="g623">
+      <use
+         xlink:href="#large"
+         id="use617" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text621"><tspan
+           id="tspan619">GPL-2.0-only</tspan></text>
+    </g>
+    <g
+       transform="translate(985,200)"
+       id="g631">
+      <use
+         xlink:href="#large"
+         id="use625" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text629"><tspan
+           id="tspan627">GPL-2.0-or-later</tspan></text>
+    </g>
+    <g
+       transform="translate(985,300)"
+       id="g641">
+      <use
+         xlink:href="#large"
+         id="use633" />
+      <text
+         x="0"
+         y="-0.40000001ex"
+         id="text639"><tspan
+           id="tspan635">GPL-3.0-only or </tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan637">GPL-3.0-or-later</tspan></text>
+    </g>
+    <g
+       transform="translate(1265,300)"
+       id="g651">
+      <use
+         xlink:href="#large"
+         id="use643" />
+      <text
+         x="0"
+         y="0.60000002ex"
+         id="text649"><tspan
+           id="tspan645">AGPL-3.0</tspan></text>
+    </g>
+    <g
+       font-weight="bold"
+       font-style="italic"
+       id="g673">
+      <text
+         x="0"
+         y="1ex"
+         transform="translate(145,30)"
+         id="text655"><tspan
+           id="tspan653">Permissive</tspan></text>
+      <text
+         x="0"
+         y="0"
+         transform="translate(425,30)"
+         id="text665"><tspan
+           id="tspan661">Weakly protective </tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan663">(file-based)</tspan></text>
+      <text
+         x="0"
+         y="0"
+         transform="translate(705,30)"
+         id="text219"><tspan
+           id="tspan215">Weakly protective </tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan217">(library-based)</tspan></text>
+      <text
+         x="0"
+         y="1ex"
+         transform="translate(1120,30)"
+         id="text659"><tspan
+           id="tspan657">Strongly protective</tspan></text>
+      <text
+         x="0"
+         y="-0.40000001ex"
+         transform="translate(1265,100)"
+         id="text671"><tspan
+           id="tspan667">Network </tspan><tspan
+           x="0"
+           dy="1em"
+           id="tspan669">protective</tspan></text>
+    </g>
+  </g>
+  <metadata
+     id="metadata689">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:title>Floss-license-slide-image</dc:title>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/3.0/" />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Dwheeler</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:contributor>
+          <cc:Agent>
+            <dc:title>el al.</dc:title>
+          </cc:Agent>
+        </dc:contributor>
+        <dc:source>https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg</dc:source>
+        <dc:publisher>
+          <cc:Agent>
+            <dc:title>Wikimedia Commons</dc:title>
+          </cc:Agent>
+        </dc:publisher>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/3.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+</svg>
