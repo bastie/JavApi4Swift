@@ -19,6 +19,8 @@ This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.htm
 
 In result of Java packaged are provided as Swift enumeration take a deeper look into enumerations. 
 
+The primary target is to near as possible implemented like Java API and so look into [Java API documentation](https://docs.oracle.com/en/java/javase/index.html).
+
 ### <!--@START_MENU_TOKEN@-->Group<!--@END_MENU_TOKEN@-->
 
 - <!--@START_MENU_TOKEN@-->``Symbol``<!--@END_MENU_TOKEN@-->

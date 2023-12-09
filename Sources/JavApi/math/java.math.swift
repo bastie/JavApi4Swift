@@ -1,8 +1,8 @@
-//
-//  File.swift
-//  
-//
-//  Created by Sebastian Ritter on 09.12.23.
-//
-
-import Foundation
+/*
+ * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: MIT
+ */
+/// The java.math namespace
+extension java {
+  public enum math {}
+}

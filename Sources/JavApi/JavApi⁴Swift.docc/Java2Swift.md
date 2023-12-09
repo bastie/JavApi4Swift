@@ -8,13 +8,15 @@ Most modern programming language can be easy translate between. But the detail m
 
 ### How to translate Java source code to Swift
 
+This bullet point list is an overview over methods. Look into source code for more informations.
+
 #### abstract classes
 
 Abstract classes are implemented as interface with default methods.
 
 #### arrays
 
-The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property.
+The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property. If available use Swift `count` directly.
 
 #### assert
 
