@@ -30,4 +30,13 @@ final class JavApi_math_BigDecimal_Tests: XCTestCase {
     XCTAssertEqual(VSP1, java.math.BigDecimal.valueOf("2325.00")!)
 
   }
+  
+  public func testScale2 () {
+    let pi = java.math.BigDecimal.valueOf(Double.pi)
+    let up = pi.setScale(2, java.math.BigDecimal.ROUND_UP)
+    let down = pi.setScale(2, java.math.BigDecimal.ROUND_DOWN)
+    
+    XCTAssertEqual(up, 3.15)
+    XCTAssertEqual(down, 3.14)
+  }
 }
