@@ -39,11 +39,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.6.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.7.3")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.6.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.7.3"))
 
 ## Ports
 
@@ -53,6 +53,10 @@ Check out these projects and learn how to use JavApi⁴Swift.
 ### 0.4.2
 
 * [ASCII-Data](https://github.com/bastie/ASCII-Data2JavApi.git) is a library to display tables and graphs on command line as ASCII or ANSI.
+
+### 0.7.3
+
+* [LStXML2Code](https://github.com/bastie/LStXML2Code) is a library and CLI to generate source code for German income tax calculation based on Federal Ministry of Finance provided XML Pseudocode.
 
 ## Development
 
