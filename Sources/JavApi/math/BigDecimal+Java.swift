@@ -6,11 +6,17 @@
 import Foundation
 
 extension java.math.BigDecimal {
+
+  public static let ZERO = java.math.BigDecimal(0.0)
+  public static let ONE = java.math.BigDecimal(1.0)
+  public static let ROUND_UP = 0
+  public static let ROUND_DOWN = 1
+
   public func setScale (_ newScale : Int, _ roundingMode : Int) -> java.math.BigDecimal {
     let before = self.exponent
     var stringValue = ""
     if before < 0 { // -2 = to chars after point
-      stringValue = "\((self as NSDecimalNumber).doubleValue)"
+      stringValue = "\(self)"
       
       // trim to scale
       var newStringValue = ""

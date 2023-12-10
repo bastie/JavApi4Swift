@@ -20,5 +20,14 @@ final class JavApi_math_BigDecimal_Tests: XCTestCase {
     
     XCTAssertEqual((KVSATZAN as NSDecimalNumber).stringValue, "0.07")
   }
-  
+ 
+  public func testScale () {
+    /// see pseudo code from German Federal Ministry of Finance [income tax calculator](https://www.bmf-steuerrechner.de/interface/einganginterface.xhtml)
+    var VSP1 = java.math.BigDecimal.valueOf("25000")!
+    let RVSATZAN = java.math.BigDecimal.valueOf("0.093000")!
+    
+    VSP1 = (VSP1.multiply(RVSATZAN)).setScale(2,java.math.BigDecimal.ROUND_DOWN)
+    XCTAssertEqual(VSP1, java.math.BigDecimal.valueOf("2325.00")!)
+
+  }
 }

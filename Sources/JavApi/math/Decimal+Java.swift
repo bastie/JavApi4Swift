@@ -7,11 +7,6 @@ import Foundation
 
 extension Decimal {
   
-  public static let ZERO = java.math.BigDecimal(0)
-  public static let ONE = java.math.BigDecimal(1)
-  public static let ROUND_UP = 0
-  public static let ROUND_DOWN = 1
-  
   // exponent is the internal field of accurance
   
   /// NOTE: Same as Java is a bad idea using a double to initialize a BigDecimal value. Better use ``valueOf:(String)`` because the internal information exponent is set correct
