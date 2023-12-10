@@ -21,9 +21,16 @@ extension java.math.BigDecimal {
       let string = String(format: "%.\(newScale)f" ,doubleValue)
       result = java.math.BigDecimal.valueOf(string)!
     case java.math.BigDecimal.ROUND_UP :
-      var factor = 10
-      for _ in 1..<newScale { factor *= 10 }
-      doubleValue = ceil(doubleValue * Double(factor)) / Double(factor)
+      let factor = switch newScale {
+      case 0 : {return Double(1)}
+      case 1 : {return Double(10)}
+      default : {
+        var computedFactor = 10
+        for _ in 1..<newScale { computedFactor *= 10 }
+        return Double(computedFactor)
+      }
+      }
+      doubleValue = ceil(doubleValue * factor()) / factor()
       let string = String(format: "%.\(newScale)f" ,doubleValue)
       result = java.math.BigDecimal.valueOf(string)!
     default:
