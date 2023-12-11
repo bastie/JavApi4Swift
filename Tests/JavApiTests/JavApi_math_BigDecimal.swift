@@ -55,6 +55,10 @@ final class JavApi_math_BigDecimal_Tests: XCTestCase {
     XCTAssertEqual(roundZero, java.math.BigDecimal.valueOf("1103802")!)
     XCTAssertEqual(roundMinusOne, java.math.BigDecimal.valueOf("1.10380E+6")!)
 
-    
+
+    // issue in 0.7.4 => scale > 0 & 5 as last
+    let onePoint55 = java.math.BigDecimal.valueOf("1.55")!
+    let onePoint5 = onePoint55.setScale(1, java.math.BigDecimal.ROUND_DOWN)
+    XCTAssertEqual(onePoint5, java.math.BigDecimal.valueOf("1.5")!)
   }
 }

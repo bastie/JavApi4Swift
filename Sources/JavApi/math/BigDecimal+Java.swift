@@ -20,6 +20,11 @@ extension java.math.BigDecimal {
     case java.math.BigDecimal.ROUND_DOWN :
       var down = ""
       if newScale > 0 {
+        let plusScale = newScale * 1
+        var computedFactor = 10
+        for _ in 1..<plusScale { computedFactor *= 10 }
+        doubleValue = Double(Int (doubleValue * Double(computedFactor))) / Double(computedFactor)
+        
         down = String(format: "%.\(newScale)f" ,doubleValue)
       }
       else if newScale == 0 {
