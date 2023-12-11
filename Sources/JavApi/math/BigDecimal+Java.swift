@@ -18,8 +18,21 @@ extension java.math.BigDecimal {
     var doubleValue = (self as NSDecimalNumber).doubleValue
     switch roundingMode {
     case java.math.BigDecimal.ROUND_DOWN :
-      let string = String(format: "%.\(newScale)f" ,doubleValue)
-      result = java.math.BigDecimal.valueOf(string)!
+      var down = ""
+      if newScale > 0 {
+        down = String(format: "%.\(newScale)f" ,doubleValue)
+      }
+      else if newScale == 0 {
+        down = String(format:"%\(newScale)d",Int(doubleValue))
+      }
+      else {
+        let plusScale = newScale * -1
+        var computedFactor = 10
+        for _ in 1..<plusScale { computedFactor *= 10 }
+        doubleValue = Double( (Int(doubleValue) / computedFactor) * computedFactor )
+        down = String(format: "%\(newScale)f" ,doubleValue)
+      }
+      result = java.math.BigDecimal.valueOf(down)!
     case java.math.BigDecimal.ROUND_UP :
       let factor = switch newScale {
       case 0 : {return Double(1)}

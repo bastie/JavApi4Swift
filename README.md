@@ -54,7 +54,7 @@ Check out these projects and learn how to use JavApi⁴Swift.
 
 * [ASCII-Data](https://github.com/bastie/ASCII-Data2JavApi.git) is a library to display tables and graphs on command line as ASCII or ANSI.
 
-### 0.7.3
+### 0.7.4
 
 * [LStXML2Code](https://github.com/bastie/LStXML2Code) is a library and CLI to generate source code for German income tax calculation based on Federal Ministry of Finance provided XML Pseudocode.
 

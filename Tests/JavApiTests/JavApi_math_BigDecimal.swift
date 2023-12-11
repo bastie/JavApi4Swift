@@ -44,5 +44,17 @@ final class JavApi_math_BigDecimal_Tests: XCTestCase {
     
     XCTAssertEqual(downZero, 3)
     XCTAssertEqual(upZero, 4)
+    
+    // scale 0 second test
+    let toRoundWithZero = java.math.BigDecimal (1103802.8199999998);
+    let roundOne = toRoundWithZero.setScale (1, java.math.BigDecimal.ROUND_DOWN);
+    let roundZero = toRoundWithZero.setScale (0, java.math.BigDecimal.ROUND_DOWN);
+    let roundMinusOne = toRoundWithZero.setScale (-1, java.math.BigDecimal.ROUND_DOWN);
+    
+    XCTAssertEqual(roundOne, java.math.BigDecimal.valueOf("1103802.8")!)
+    XCTAssertEqual(roundZero, java.math.BigDecimal.valueOf("1103802")!)
+    XCTAssertEqual(roundMinusOne, java.math.BigDecimal.valueOf("1.10380E+6")!)
+
+    
   }
 }
