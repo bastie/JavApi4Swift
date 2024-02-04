@@ -6,7 +6,7 @@
 extension java.util {
   
   /// Base implementation of Stack
-  open class Stack<Element> {
+  open class Stack<Element> where Element : Equatable {
     public init(){}
     var items: [Element] = []
 
@@ -55,16 +55,6 @@ extension java.util {
       return self.items[self.items.count - 1]
     }
     
-    /// Add element at end
-    ///
-    /// - Parameters:
-    /// - Parameter item Element to add
-    ///
-    /// - Returns element
-    public func push(_ item: Element) -> Element{
-      items.append(item)
-      return item
-    }
     /// Get last element and remove it
     ///
     /// - Returns last element
@@ -75,6 +65,29 @@ extension java.util {
         throw Throwable.EmptyStackException ()
       }
       return items.removeLast()
+    }
+
+    /// Add element at end
+    ///
+    /// - Parameters:
+    /// - Parameter item Element to add
+    ///
+    /// - Returns element
+    public func push(_ item: Element) -> Element {
+      items.append(item)
+      return item
+    }
+    
+    
+    public func search (_ item: Element) -> Int {
+      var result = 0
+      for i in 0..<self.items.count {
+        result += 1
+        if self.items[self.items.count - 1 - i] == item {
+          return result
+        }
+      }
+      return -1
     }
   }
 }
