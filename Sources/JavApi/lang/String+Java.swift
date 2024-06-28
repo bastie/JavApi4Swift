@@ -139,7 +139,14 @@ extension String {
     }
     self.init(slowImpl)
   }
-  
+
+  public func toUpperCase () -> String {
+    return self.uppercased()
+  }
+
+  public func toLowerCase () -> String {
+    return self.lowercased()
+  }
   
   public static func valueOf (_ array : [Character], _ offset : Int, _ length : Int) -> String {
     var slowImpl = ""

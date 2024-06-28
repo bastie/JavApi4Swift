@@ -53,7 +53,7 @@ Instead of `do` use keyword `repeat`.
 
 In Java exception can seperated in "RuntimeException" without explicit naming and "the other exception". The other exception must be declared and catched. RuntimeException and the super type Throwable can be declared and catched - or use `public static void main [] throws Throwable {}`. Java use a *try block* with *catch NamedException* instead to Swift with "normal" *do block* with *catch*. Swift also provide the *error* enum inside the catch block, Java has the NamedException instance.
 
-How translation is relized by example:
+How translation is realized by example:
 
 ```java
 // Java
