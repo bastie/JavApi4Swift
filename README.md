@@ -39,11 +39,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.7.3")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.8.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.7.3"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.8.0"))
 
 ## Ports
 
@@ -57,6 +57,10 @@ Check out these projects and learn how to use JavApi⁴Swift.
 ### 0.7.4
 
 * [LStXML2Code](https://github.com/bastie/LStXML2Code) is a library and CLI to generate source code for German income tax calculation based on Federal Ministry of Finance provided XML Pseudocode.
+
+### 0.8.0
+
+* [iban4j](https://github.com/bastie/iban4j2JavApi) is a library for generation and validation of the International Bank Account Numbers (IBAN ISO_13616) and Business Identifier Codes (BIC ISO_9362).
 
 ## Development
 
