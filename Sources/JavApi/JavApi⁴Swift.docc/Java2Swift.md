@@ -196,6 +196,22 @@ The translation has a Optional problem because Java reference types are implicit
 
 Default methods are implemented in a extension, because the mapping of Java interfaces in a Java package like structures need a bit more code. 
 
+##### toString() method
+
+If special toString() implemetation is in Java, first let your Swift type be conform to the *CustomStringConvertible*. Next implement the property *description*. For example
+
+```swift
+public func toString () -> String {
+  return "My name is Bond, James Bond"
+}
+
+public var description: String {
+  get {
+    return self.toString()
+  }
+}
+```
+
 #### nested classes
 
 Nested classes in Swift can not access to enclosing type variables. Give the nested class the needed variables as (weak) parameters.
@@ -269,6 +285,23 @@ Swiftify is a JavApi extension. It make additional implementations of Java metho
 #### switch
 
 Java cases `fallthrough` by default and need explicite `break` if not. But Java need no `default`. Also newer Java can use `->` instead of `:`.
+
+If you use enum values in switch, you need a dot before the value name in case.
+
+```java
+switch (enumType){
+case ENUM_NAME: break;
+default: break;
+}
+```
+
+
+```swift
+switch (enumType){
+case .ENUM_NAME: break;
+default: break;
+}
+```
 
 #### visibility
 

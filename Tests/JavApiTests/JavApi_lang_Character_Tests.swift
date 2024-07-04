@@ -28,7 +28,17 @@ final class JavApi_lang_Character_Tests: XCTestCase {
     
     let aValue = 65
     XCTAssertTrue(Character.isLetter(aValue))
-
+  }
+  
+  func testGetNumericValue () {
+    let A : Character = "A"
+    XCTAssertTrue(10 == Character.getNumericValue(A))
+    
+    let _1fract : Character = "\u{215f}"
+    XCTAssertTrue(1 == Character.getNumericValue(_1fract))
+    
+    let _1fract4 : Character = "\u{00BC}"
+    XCTAssertTrue(-2 == Character.getNumericValue(_1fract4))
   }
   
 }
