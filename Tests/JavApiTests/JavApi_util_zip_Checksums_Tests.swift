@@ -6,7 +6,7 @@ import XCTest
 @testable import JavApi
 import CryptoKit
 
-final class JavApi_util_zip_checksum_Tests: XCTestCase {
+final class JavApi_util_zip_Checksum_Tests: XCTestCase {
   func testAdler32 () {
     let chksum : any Checksum = java.util.zip.Adler32()
     

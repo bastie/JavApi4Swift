@@ -12,7 +12,7 @@ extension java.security {
     
     /// Fill the given byte array with random data
     /// - Parameters byte array to fill
-    public func nextBytes(_ bytes : inout [UInt8]) throws {
+    public override func nextBytes(_ bytes : inout [UInt8]) {
       guard 0 < bytes.count else {
         return
       }
