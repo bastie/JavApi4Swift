@@ -64,6 +64,9 @@ extension java.util {
     public init (_ seed : Int64) {
       setSeed(seed);
     }
+    public init (_ seed : Int) {
+      setSeed(Int64(seed))
+    }
     
     /**
      * Returns a pseudo-random uniformly distributed {@code int} value of
