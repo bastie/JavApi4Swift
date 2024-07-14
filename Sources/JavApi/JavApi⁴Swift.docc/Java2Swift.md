@@ -79,6 +79,28 @@ catch {
 }
 ```
 
+Unlike JavApi in your project use better the ``Result`` type as return value. 
+
+```swift
+
+private func toCall () -> Result<MySuccessValue, Error> {
+  // do something with error or success
+  if (OMG_NOOOOOOOOOO) {
+    return .failure (Error())
+  }
+  return .success (MySuccessValue())
+}
+
+// some more code
+
+let result = toCall ().flatMap { _ in
+  toOtherCall ().flatMap { _ in
+    andOtherCall ()
+  }
+}
+```
+
+
 #### final
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
