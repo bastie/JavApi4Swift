@@ -73,6 +73,7 @@ extension java.io {
       guard streamIsOpen else {
         throw Throwable.IOException("read after NilInputStream is closed")
       }
+      return 0
     }
     
   }
