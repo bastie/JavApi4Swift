@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 204 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 extension java.io {
@@ -23,6 +23,10 @@ extension java.io {
       fatalError("not yet implemented")
     }
     
+    public func write (_ buffer : [UInt8], _ pos : Int, _ length : Int) {
+      fatalError("not yet implemented")
+    }
+
     // TODO: TEST required
     public static func nullOutputStream () -> OutputStream {
       let result = OutputStream()
