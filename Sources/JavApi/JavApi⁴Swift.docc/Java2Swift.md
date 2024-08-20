@@ -8,7 +8,7 @@ Most modern programming language can be easy translate between. But the detail m
 
 ### How to translate Java source code to Swift
 
-This bullet point list is an overview over methods. Look into source code for more informations.
+This bullet point list is an overview over methods. Look into source code for more informations. But some things can do before. For example kill all `for` loops or at minimum do not complex statements and checks in the a look header.
 
 #### abstract classes
 
