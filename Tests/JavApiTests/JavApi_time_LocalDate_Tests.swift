@@ -264,19 +264,19 @@ class JavApi_time_LocalDate_Tests : XCTestCase {
         XCTAssertEqual(date6.dayOfWeek, 6)
     }
     func testParse() {
-      let date1 = java.time.LocalDate.parse("2014-11-12", clock: java.time.Clock.current)!
+      let date1 = java.time.LocalDate.parse("2014-11-15", clock: java.time.Clock.current)!
         XCTAssertEqual(date1.year, 2014)
         XCTAssertEqual(date1.month, 11)
-        XCTAssertEqual(date1.day, 12)
+        XCTAssertEqual(date1.day, 15)
 
         let dateFormatter1 = DateFormatter()
         dateFormatter1.dateFormat = "yyyy--MM-dd"
-      let date2 = java.time.LocalDate.parse("2014--11-12", formatter: dateFormatter1, clock: java.time.Clock.current)
+      let date2 = java.time.LocalDate.parse("2014--11-15", formatter: dateFormatter1, clock: java.time.Clock.current)
         XCTAssertEqual(date1, date2)
 
         let dateFormatter2 = DateFormatter()
         dateFormatter2.dateFormat = "yyyy-asdf"
-      let date3 = java.time.LocalDate.parse("2014--11-12", formatter: dateFormatter2, clock: java.time.Clock.current)
+      let date3 = java.time.LocalDate.parse("2014--11-15", formatter: dateFormatter2, clock: java.time.Clock.current)
         XCTAssertEqual(date3, nil)
     }
     func testAddDate() {

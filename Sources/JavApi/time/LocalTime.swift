@@ -181,7 +181,15 @@ extension java.time {
     static public func parse(_ text: String, formatter: DateFormatter, timeZone: Foundation.TimeZone = Foundation.TimeZone.current) -> LocalTime? {
       formatter.timeZone = timeZone
       
-      guard let date = formatter.date(from: text) else { return nil }
+      guard var date = formatter.date(from: text) else {
+        return nil
+      }
+      // bug with TimeZone not equals GMT
+      date = Calendar.current.date(byAdding: .second, value: Foundation.TimeZone.current.secondsFromGMT(), to: date)!
+      if Foundation.TimeZone.current.isDaylightSavingTime() {
+        date = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
+      }
+
       return LocalTime(date)
     }
     

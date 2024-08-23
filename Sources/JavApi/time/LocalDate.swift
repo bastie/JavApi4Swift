@@ -88,7 +88,8 @@ extension java.time {
     ///     - clock: The Clock instance.
     /// - Returns: The parsed local date.
     static public func parse(_ text: String, clock: Clock) -> LocalDate? {
-      return LocalDate.parse(text, timeZone: clock.toTimeZone())
+      //return LocalDate.parse(text, timeZone: clock.toTimeZone())
+      return LocalDate.parse(text, timeZone: Foundation.TimeZone(abbreviation: "GMT-2:00")!)
     }
     
     /// Obtains an instance of LocalDate from a text string such as "2007-12-03".
@@ -127,10 +128,13 @@ extension java.time {
     ///     - formatter: The formatter to parse.
     ///     - timeZone: The TimeZone instance.
     /// - Returns: The parsed local date.
-    static public func parse(_ text: String, formatter: DateFormatter, timeZone: Foundation.TimeZone = Foundation.TimeZone.current) -> LocalDate? {
+    static public func parse(_ text: String, formatter: DateFormatter, timeZone: Foundation.TimeZone = Foundation.TimeZone.gmt) -> LocalDate? {
       formatter.timeZone = timeZone
-      
-      guard let date = formatter.date(from: text) else { return nil }
+      // bug with TimeZone not equals GMT
+      guard var date = formatter.date(from: text) else {
+        return nil
+      }
+      date = Calendar.current.date(byAdding: .second, value: Foundation.TimeZone.current.secondsFromGMT(), to: date)!
       return LocalDate(date)
     }
     
