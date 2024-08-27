@@ -16,6 +16,10 @@ extension System {
     return resultIfMissing
   }
   
+  public static func getProperty (_ name : String) throws -> String? {
+    return try System.getProperty(name, nil)
+  }
+
   // **not private** : In result of Swiftify
   static let SYSTEM_PROPERTIES : [String:String] = [
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
