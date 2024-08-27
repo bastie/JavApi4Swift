@@ -5,8 +5,11 @@
 // TODO: Implementation of Throwable is an "incubation"
 /// Mapping of Java exception handling
 public enum Throwable : Error {
-  case Exception (_ message : String = "Exception")
+  case ArithmeticException (_ message : String = "ArithmeticException")
+  case ArrayIndexOutOfBoundsException (_ offset : Int)
+  case AssertionError (_ message : String = "AssertionError")
   case CloneNotSupportedException (_ message : String = "CloneNotSupportedException")
+  case Exception (_ message : String = "Exception")
   case IllegalArgumentException (_ message : String = "IllegalArgumentException")
   case IndexOutOufBoundsException (_ withValue : Int)
   case IndexOutOufBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")
@@ -15,8 +18,6 @@ public enum Throwable : Error {
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")
   case RuntimeException (_ message : String = "RuntimeException")
   case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
-  case ArithmeticException (_ message : String = "ArithmeticException")
-  case AssertionError (_ message : String = "AssertionError")
 }
 
 extension java.io {
