@@ -28,6 +28,7 @@ Special thanks to contributors of
 * [JZLib implementation](https://github.com/kohsuke/jzlib) and original [JZLib implementation](https://github.com/ymnk/jzlib)
 * [AnyDate implementation](https://github.com/kawoou/AnyDate)
 * [Base64 implementation](https://github.com/drichardson/SwiftyBase64) with alphabet separation
+* Apache Harmony team
 
 
 
