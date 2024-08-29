@@ -26,6 +26,13 @@ extension java.io {
   }
 }
 
+extension java.nio {
+  public enum Throwable : Error {
+    /// Error, if modify only readable buffer
+    case ReadOnlyBufferException
+  }
+}
+
 extension java.util {
   public enum Throwable : Error {
     case EmptyStackException (_ message : String = "EmptyStackException")
