@@ -49,6 +49,10 @@ extension java.nio {
     public static func == (lhs: ByteOrder, rhs: ByteOrder) -> Bool {
       return lhs.asString == rhs.asString
     }
+
+    public func equals (_ other : java.nio.ByteOrder) -> Bool {
+      return self == other
+    }
   }
   
 }
