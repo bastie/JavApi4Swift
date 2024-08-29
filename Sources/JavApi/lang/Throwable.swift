@@ -14,7 +14,7 @@ public enum Throwable : Error {
   case IndexOutOufBoundsException (_ withValue : Int)
   case IndexOutOufBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")
   case NullPointerException (_ message : String = "NullPointerExeception")
-  case NumberFormatException (_ message : String = "NumberformatException")
+  case NumberFormatException (_ message : String = "NumberFormatException")
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")
   case RuntimeException (_ message : String = "RuntimeException")
   case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
