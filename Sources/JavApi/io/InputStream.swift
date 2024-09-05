@@ -9,21 +9,21 @@ extension java.io {
     ///
     /// - Returns: Number of readable bytes
     /// - Note: by default returns 0
-    public func available() throws -> Int {
+    open func available() throws -> Int {
       return 0
     }
     
-    public func close () {
+    open func close () {
       // do nothing
     }
     
-    public func read() throws -> Int {
+    open func read() throws -> Int {
       fatalError("not yet implemented")
     }
-    public func read(_ array : inout [UInt8]) throws -> Int {
+    open func read(_ array : inout [UInt8]) throws -> Int {
       return try read(&array, 0, array.count)
     }
-    public func read(_ array : inout [UInt8], _ offset : Int, _ length : Int) throws -> Int {
+    open func read(_ array : inout [UInt8], _ offset : Int, _ length : Int) throws -> Int {
       fatalError("not yet implemented")
     }
 
