@@ -49,6 +49,10 @@ extension String {
     throw Throwable.UnsupportedEncodingException("Unsupported encoding \(encoding)")
   }
   
+  public func endsWith (_ suffix : String) -> Bool {
+    return self.hasSuffix(suffix)
+  }
+  
   /// Check equals of String to other String
   ///
   /// - Parameter other String instance
@@ -128,6 +132,10 @@ extension String {
     return self.split(separator: separator).map{String($0)}
   }
   
+  public func startsWith (_ prefix : String) -> Bool {
+    return self.hasPrefix(prefix)
+  }
+
   public init (_ bytes : [UInt8]) {
     try! self.init(bytes, "UTF-8")
   }
