@@ -9,7 +9,7 @@ extension java.util {
   
   open class Date {
     
-    let delegate : Foundation.Date
+    fileprivate var delegate : Foundation.Date
     public init () {
       self.delegate = Foundation.Date.now
     }
@@ -21,6 +21,12 @@ extension java.util {
       let result: String = dateFormatter.string(from: self.delegate)
       return result
     }
+    
+    /// Constructor to create a Date instance with GregorianCalendar to implement GregorianCalendar.getTime
+    internal init (_ gregorianCalendar : java.util.GregorianCalendar) {
+      let userCalendar = Calendar(identifier: .gregorian)
+      self.delegate = userCalendar.date(from: gregorianCalendar.dateComponents)!
+    }
+    
   }
-  
 }
