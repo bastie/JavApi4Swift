@@ -5,6 +5,10 @@
 
 extension java.io {
   open class InputStream {
+    
+    /// Default constructor
+    public init(){}
+    
     /// The number of available bytes in this stream or 0 if end of stream is reached
     ///
     /// - Returns: Number of readable bytes
