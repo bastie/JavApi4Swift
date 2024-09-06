@@ -40,27 +40,27 @@ extension java.io {
     /// Tests whether can execute the file.
     ///
     /// - Returns true if executable
-    public func canExecute () -> Bool {
+    open func canExecute () -> Bool {
       return FileManager.default.isExecutableFile(atPath: self.file)
     }
     
     /// Test whether can read the file.
     ///
     /// - Returns true if readable
-    public func canRead () -> Bool {
+    open func canRead () -> Bool {
       return FileManager.default.isReadableFile(atPath: self.file)
     }
     
     /// Tests whentther can write the file
     ///
     /// - Returns true if writable
-    public func canWrite () -> Bool {
+    open func canWrite () -> Bool {
       return FileManager.default.isWritableFile(atPath: self.file)
     }
     
     /// Delete the file
     /// - Returns true if deleted
-    public func delete () -> Bool {
+    open func delete () -> Bool {
       do {
         try FileManager.default.removeItem(atPath: self.file)
         return true
@@ -73,14 +73,14 @@ extension java.io {
     /// Check the exists of file / directory
     ///
     /// - Returns true if exists
-    public func exists () -> Bool {
+    open func exists () -> Bool {
       return FileManager.default.fileExists(atPath: self.file)
     }
     
     /// Tests wheter the file is a directory
     ///
     /// - Returns true if it exists and is a directory
-    public func isDirectory () -> Bool {
+    open func isDirectory () -> Bool {
       var isDirectory : ObjCBool = true
       let exists = FileManager.default.fileExists(atPath: self.file, isDirectory: &isDirectory)
       return exists && isDirectory.boolValue
@@ -89,7 +89,7 @@ extension java.io {
     /// Test wheter the file is hidden
     ///
     /// - Returns true if the file is hidden
-    public func isHidden () -> Bool {
+    open func isHidden () -> Bool {
       do {
         let fileAttributes = try FileManager.default.attributesOfItem(atPath: self.file)
         let hidden = (fileAttributes [.extensionHidden] as? Int ?? 2)!
@@ -102,7 +102,7 @@ extension java.io {
     
     /// Returns the size in bytes of file
     /// - Returns count of bytes in file or 0
-    public func length () -> Int64 {
+    open func length () -> Int64 {
       do {
         let attribute = try FileManager.default.attributesOfItem(atPath: self.file)
         if let length = attribute[FileAttributeKey.size] as? Int64 {
@@ -117,7 +117,7 @@ extension java.io {
     
     /// Create the subdirectory without subdirectory
     /// - Returns true if created
-    public func mkdir () -> Bool {
+    open func mkdir () -> Bool {
       if let _ = try? FileManager.default.createDirectory(atPath: self.file, withIntermediateDirectories: false) {
         return true
       }
@@ -126,7 +126,7 @@ extension java.io {
     
     /// Create directory with all subdirectories
     /// - Returns true if all directories are created
-    public func mkdirs () -> Bool {
+    open func mkdirs () -> Bool {
       if let _ = try? FileManager.default.createDirectory(atPath: self.file, withIntermediateDirectories: true) {
         return true
       }
@@ -135,9 +135,71 @@ extension java.io {
 
     /// Creates a java.nio.Path instance from file
     /// - Returns Path instance
-    public func toPath () -> java.nio.file.Path {
+    open func toPath () -> java.nio.file.Path {
       return java.nio.file.Paths.get (self.file)
     }
-  } // EOT
+
+    open func getPath () -> String {
+      return self.toPath().toString()
+    }
+    open func toString () -> String {
+      return getPath()
+    }
+    
+    open func getAbsoluteFile() -> java.io.File {
+      return java.io.File (self.getPath()) // TODO: TEST IT
+    }
+    
+    open func getName () -> String {
+      if 0 == self.toString().count {
+        return ""
+      }
+      else {
+        let url = URL(fileURLWithPath: self.getAbsoluteFile().toString())
+        let fileNameWithExtension = url.lastPathComponent
+        return fileNameWithExtension
+      }
+    }
+    
+    /// List all files of directory.
+    /// If self isn't a directory returns ``nil``
+    /// - Returns array of directory entries or ``nil``
+    open func listFiles () -> [java.io.File]? {
+      guard self.isDirectory() else {
+        return nil
+      }
+      
+      if let directoryContents = try? FileManager.default.contentsOfDirectory(atPath: self.getAbsoluteFile().toString()) {
+        var result : [java.io.File] = [java.io.File]()
+        for nextFile in directoryContents {
+          result.append(java.io.File(nextFile))
+        }
+        return result
+      }
+      return nil
+    }
+    
+    /// List all files of directory filtered by given ``FileFilter``
+    /// If self isn't a directory returns ``nil``
+    /// - Returns array of directory entries or ``nil``
+    open func listFiles (_ fileFilter : (any java.io.FileFilter)?) -> [java.io.File]? {
+      if let allFiles = self.listFiles() {
+        if let fileFilter {
+          var result = [java.io.File]()
+          for nextFile in allFiles {
+            if fileFilter.accept(nextFile) {
+              result.append(nextFile)
+            }
+          }
+          return result
+        }
+        else {
+          return allFiles
+        }
+      }
+      else {
+        return nil
+      }
+    }  } // EOT
 
 } // EOP
