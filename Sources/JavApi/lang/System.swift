@@ -28,6 +28,11 @@ public struct System {
       dest [destPos+offset] = src [srcPos+offset]
     }
   }
+  public static func arraycopy (_ src : [UInt8], _ srcPos : Int, _ dest : inout [Int] , _ destPos : Int, _ length : Int) {
+    for offset in 0..<length {
+      dest [destPos+offset] = Int(src [srcPos+offset])
+    }
+  }
   public static func arraycopy (_ src : [UInt16], _ srcPos : Int, _ dest : inout [UInt16] , _ destPos : Int, _ length : Int) {
     for offset in 0..<length {
       dest [destPos+offset] = src [srcPos+offset]
