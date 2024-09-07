@@ -5,7 +5,7 @@
 
 extension java.util {
   
-  protocol Collection<Element> {
+  public protocol Collection<Element> {
     associatedtype Element
     
     func clear () throws

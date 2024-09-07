@@ -5,7 +5,7 @@
 
 extension java.util {
   
-  protocol Queue<Element> : Collection {
+  public protocol Queue<Element> : Collection {
     associatedtype Element
     
     func add (_ elem : Element) throws -> Bool
