@@ -40,11 +40,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.11.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.12.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.11.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.12.0"))
 
 ## Ports
 
@@ -62,6 +62,10 @@ Check out these projects and learn how to use JavApi⁴Swift.
 ### 0.8.0
 
 * [iban4j](https://github.com/bastie/iban4j2JavApi) is a library for generation and validation of the International Bank Account Numbers (IBAN ISO_13616) and Business Identifier Codes (BIC ISO_9362).
+
+### 0.12.0
+
+* [ShrinkItArchive](https://github.com/bastie/ShrinkItArchive) is a library for managing Apple ][ ShrinkIt / NuFX archives.
 
 ## Development
 
