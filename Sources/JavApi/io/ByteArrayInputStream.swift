@@ -48,10 +48,10 @@ extension java.io {
       }
       let k = min (length, (self.count - pos))
       
-      for _ in 0..<k {
+      for i in 0..<k {
         switch self.readUInt8() {
         case .success(let value):
-          array[offset+k] = value
+          array[offset+i] = value
         case .failure(let error):
           throw error
         }
