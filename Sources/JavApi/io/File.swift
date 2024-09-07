@@ -13,7 +13,13 @@ extension java.io {
   ///
   /// * SeeAlso: [Oracle JavaDoc](https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/File.html)
   ///
-  open class File {
+  open class File : CustomStringConvertible {
+    public var description: String {
+      get {
+        return self.getAbsolutePath()
+      }
+    }
+    
     
     /// The delimter char for directory structure from `System.getProperty("file.separator")` or slash if not set as default value
     public static let separatorChar : Character = System.getProperty("file.separator", "/").charAt(0)
@@ -132,22 +138,25 @@ extension java.io {
       }
       return false
     }
-
+    
     /// Creates a java.nio.Path instance from file
     /// - Returns Path instance
     open func toPath () -> java.nio.file.Path {
       return java.nio.file.Paths.get (self.file)
     }
-
+    
     open func getPath () -> String {
       return self.toPath().toString()
     }
     open func toString () -> String {
-      return getPath()
+      return self.description
     }
     
     open func getAbsoluteFile() -> java.io.File {
-      return java.io.File (self.getPath()) // TODO: TEST IT
+      return java.io.File (self.getAbsolutePath())
+    }
+    open func getAbsolutePath() -> String {
+      return URL(filePath: self.file).absoluteURL.path()
     }
     
     open func getName () -> String {
@@ -200,6 +209,7 @@ extension java.io {
       else {
         return nil
       }
-    }  } // EOT
-
+    }
+  } // EOT
 } // EOP
+

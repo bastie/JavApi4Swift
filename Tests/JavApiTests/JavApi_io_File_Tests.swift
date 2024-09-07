@@ -63,4 +63,14 @@ final class JavApi_io_File_Tests: XCTestCase {
     // TODO: Test missing for java.io.File on other platforms
 #endif
   }
+  
+  func testGetAbsoluteFilePath () {
+#if os(macOS)
+    XCTAssertEqual(java.io.File("/Applications/Safari.app").getAbsolutePath(), "/Applications/Safari.app")
+    XCTAssertEqual(java.io.File("/Applications/./Safari.app").getAbsolutePath(), "/Applications/./Safari.app")
+    XCTAssertEqual(java.io.File("/Applications/../Applications/Safari.app").getAbsolutePath(), "/Applications/../Applications/Safari.app")
+#else
+    // TODO: Test missing for java.io.File on other platforms
+#endif
+  }
 }
