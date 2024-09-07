@@ -181,7 +181,7 @@ extension java.io {
       if let directoryContents = try? FileManager.default.contentsOfDirectory(atPath: self.getAbsoluteFile().toString()) {
         var result : [java.io.File] = [java.io.File]()
         for nextFile in directoryContents {
-          result.append(java.io.File(nextFile))
+          result.append(java.io.File("\(self.file)\(java.io.File.separator)\(nextFile)"))
         }
         return result
       }

@@ -73,4 +73,32 @@ final class JavApi_io_File_Tests: XCTestCase {
     // TODO: Test missing for java.io.File on other platforms
 #endif
   }
+  
+  /// Test agains JavApi 0.12.0 bug.
+  func testListFiles () {
+    let absoluteDir = "/Applications"
+    let appDir = java.io.File(absoluteDir)
+    if let apps = appDir.listFiles() {
+      for app in apps {
+        XCTAssert(app.getAbsolutePath().startsWith(absoluteDir))
+      }
+    }
+  }
+  class AppFilter : java.io.FileFilter {
+    func accept(_ file: JavApi.java.io.File) -> Bool {
+      return file.getName().endsWith(".app") && file.isDirectory()
+    }
+    typealias FileFilter = AppFilter
+  }
+  /// Test agains JavApi 0.12.0 bug.
+  func testListFilesWithFileFilter () {
+    let absoluteDir = "/Applications"
+    let appDir = java.io.File(absoluteDir)
+    if let apps = appDir.listFiles (AppFilter()) {
+      for app in apps {
+        XCTAssert(app.getAbsolutePath().startsWith(absoluteDir))
+        XCTAssert(app.getAbsolutePath().hasSuffix(".app"))
+      }
+    }
+  }
 }
