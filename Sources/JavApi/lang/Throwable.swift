@@ -7,6 +7,7 @@
 public enum Throwable : Error {
   case ArithmeticException (_ message : String = "ArithmeticException")
   case ArrayIndexOutOfBoundsException (_ offset : Int)
+  case ArrayIndexOutOfBoundsException (_ offset : Int, _ message : String = "ArrayIndexOutOfBoundsException")
   case AssertionError (_ message : String = "AssertionError")
   case CloneNotSupportedException (_ message : String = "CloneNotSupportedException")
   case Exception (_ message : String = "Exception")
@@ -18,6 +19,7 @@ public enum Throwable : Error {
   case OutOfMemoryError (_ message : String = "OutOfMemoryError")
   case RuntimeException (_ message : String = "RuntimeException")
   case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
+  case UnsupportedOperationException (_ message : String = "UnsupportedOperationException")
 }
 
 extension java.io {

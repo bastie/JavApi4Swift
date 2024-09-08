@@ -9,7 +9,7 @@ extension java.util {
   
   open class Date {
     
-    fileprivate var delegate : Foundation.Date
+    internal var delegate : Foundation.Date
     public init () {
       self.delegate = Foundation.Date.now
     }

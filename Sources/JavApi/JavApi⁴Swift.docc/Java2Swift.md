@@ -10,6 +10,12 @@ Most modern programming language can be easy translate between. But the detail m
 
 This bullet point list is an overview over methods. Look into source code for more informations. But some things can do before. For example kill all `for` loops or at minimum do not complex statements and checks in the a look header.
 
+### Some steps I do
+
+0. Exit factor: Find a Swift project that already meets your requirements.
+1. Problem factor: In result of hidden check 3rd party dependencies.  
+2. Problem factor: In result of sometimes complex test, check loops in code. Sometime refactoring of loops especially for loops on Java site is a good idea. Do same if you translate Non-Java code like C. A good for loop only iterate over elements, that is equal to count as iterate over number range. 
+
 #### abstract classes
 
 Abstract classes are implemented as interface with default methods.
