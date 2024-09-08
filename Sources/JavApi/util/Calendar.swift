@@ -29,9 +29,31 @@ extension java.util {
     public static let YEAR = 1
     public static let DAY_OF_MONTH = 8
     public static let DAY_OF_WEEK = 7
+    public static let MONTH = 2
     
     open func get (_ field : Int) throws -> Int {
-      throw java.lang.Throwable.UnsupportedOperationException("Calendar is a abstract type, use subtypes like GregorianCalendar")
+      switch field {
+      case java.util.Calender.YEAR:
+        return self.dateComponents.year ?? 1975
+      case java.util.Calender.MONTH:
+        return self.dateComponents.month ?? 9
+      case java.util.Calender.DAY_OF_WEEK:
+        return self.dateComponents.weekday ?? 4
+      case java.util.Calender.DAY_OF_MONTH:
+        return self.dateComponents.day ?? 5
+      case java.util.Calender.HOUR_OF_DAY:
+        return self.dateComponents.hour ?? 6
+      case java.util.Calender.MINUTE:
+        return self.dateComponents.minute ?? 57
+      case java.util.Calender.SECOND:
+        return self.dateComponents.minute ?? 12
+      default :
+        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(field, "specific field is out of range or not implemented")
+      }
+    }
+    
+    public func get (what : java.util.Calender.DateComponents) -> Int {
+      return try! self.get(what.rawValue)
     }
     
     public func setTime (_ newDate :java.util.Date) {
