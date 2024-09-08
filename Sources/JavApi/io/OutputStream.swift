@@ -7,23 +7,23 @@ extension java.io {
     public typealias Flushable = OutputStream
     public typealias Closeable = OutputStream
     
-    public func close() throws {
+    open func close() throws {
     }
     
-    public func flush() {
+    open func flush() {
     }
     
-    public func write (_ b : Int) {
+    open func write (_ b : Int) throws {
       fatalError("not yet implemented")
     }
-    public func write (_ b : UInt8) {
+    open func write (_ b : UInt8) throws {
       fatalError("not yet implemented")
     }
-    public func write (_ value : [byte]) {
+    open func write (_ value : [byte]) throws {
       fatalError("not yet implemented")
     }
     
-    public func write (_ buffer : [UInt8], _ pos : Int, _ length : Int) {
+    open func write (_ buffer : [UInt8], _ pos : Int, _ length : Int) throws {
       fatalError("not yet implemented")
     }
 

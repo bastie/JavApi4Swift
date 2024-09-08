@@ -17,16 +17,26 @@ extension java.io {
       self.delegate.flush ()
     }
     
-    public override func write(_ value: [byte]) {
-      self.delegate.write(value)
+    public override func write(_ value: [byte]) throws {
+      try self.delegate.write(value)
     }
     
     public func print (_ s : String) {
-      self.write([UInt8] (s.data(using: .utf8)!))
+      do {
+        try self.write([UInt8] (s.data(using: .utf8)!))
+      }
+      catch {
+        // ignored
+      }
     }
     public func println (_ s : String) {
       let withLineBreak = s.appending("\n");
-      self.write([UInt8] (withLineBreak.data(using: .utf8)!))
+      do {
+        try self.write([UInt8] (withLineBreak.data(using: .utf8)!))
+      }
+      catch {
+        // ignored
+      }
     }
   } // EOT
   

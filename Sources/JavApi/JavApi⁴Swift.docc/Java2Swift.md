@@ -15,6 +15,8 @@ This bullet point list is an overview over methods. Look into source code for mo
 0. Exit factor: Find a Swift project that already meets your requirements.
 1. Problem factor: In result of hidden check 3rd party dependencies.  
 2. Problem factor: In result of sometimes complex test, check loops in code. Sometime refactoring of loops especially for loops on Java site is a good idea. Do same if you translate Non-Java code like C. A good for loop only iterate over elements, that is equal to count as iterate over number range. 
+3. Problem factor: Check types contains names of types equals names of methods. It is not allowed in Swift. I rename most the type name in `...Value`.
+4. Nice to have: Check if method parameternames equals to names of variables in source code. I like the often in C# used variant of call the parametername `new...`. 
 
 #### abstract classes
 
