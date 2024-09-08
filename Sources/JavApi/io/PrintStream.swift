@@ -13,8 +13,8 @@ extension java.io {
     public override func close() throws {
       try self.delegate.close()
     }
-    public override func flush() {
-      self.delegate.flush ()
+    public override func flush() throws {
+      try self.delegate.flush ()
     }
     
     public override func write(_ value: [byte]) throws {

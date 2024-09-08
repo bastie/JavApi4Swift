@@ -10,7 +10,7 @@ extension java.io {
     open func close() throws {
     }
     
-    open func flush() {
+    open func flush() throws {
     }
     
     open func write (_ b : Int) throws {
