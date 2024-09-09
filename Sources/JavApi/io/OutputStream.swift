@@ -7,6 +7,9 @@ extension java.io {
     public typealias Flushable = OutputStream
     public typealias Closeable = OutputStream
     
+    /// Default constructor
+    public init(){}
+    
     open func close() throws {
     }
     

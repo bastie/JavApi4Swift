@@ -34,7 +34,7 @@ extension java.io {
     public static let pathSeparator : String = System.getProperty("path.separator", ":")
     
     /// internal representation
-    private var file : String
+    var file : String
     
     /// Create a new File instance with given file name
     /// - Parameters:
@@ -85,11 +85,61 @@ extension java.io {
     
     /// Tests wheter the file is a directory
     ///
+    ///
+    /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
+    ///
+    /// Java code
+    /// ```Java
+    /// File appDir = new File ("/Applications");
+    /// boolean exists = appDir.exists();
+    /// return exists && appDir.isDirectory();
+    /// ```
+    /// Swift code
+    /// ```Swift
+    /// var isDirectory : ObjCBool = true
+    /// let exists = FileManager.default.fileExists(atPath: "/Applications", isDirectory: &isDirectory)
+    /// return exists && isDirectory.boolValue
+    /// ```
+    ///
+    /// ⚔️
+    ///
     /// - Returns true if it exists and is a directory
     open func isDirectory () -> Bool {
       var isDirectory : ObjCBool = true
       let exists = FileManager.default.fileExists(atPath: self.file, isDirectory: &isDirectory)
       return exists && isDirectory.boolValue
+    }
+    
+    /// Test wheter the file is a normal file. A normal file is exists, not a directory and sometime other criterias need to be.
+    ///
+    /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
+    ///
+    /// Java code
+    /// ```Java
+    /// File appDir = new File ("/Applications");
+    /// boolean normalFile = appDir.isFile();
+    /// ```
+    /// Swift code
+    /// ```Swift
+    /// var isDirectory : ObjCBool = true
+    /// let exists = FileManager.default.fileExists(atPath: "/Applications", isDirectory: &isDirectory)
+    /// var normalFile = exists && !isDirectory.boolValue
+    /// //some additional checks
+    /// ```
+    ///
+    /// ⚔️
+    ///
+    /// - Returns true if is normal file
+    open func isFile () -> Bool {
+      if exists() && !isDirectory() {
+#if os(Cygwin)
+        if !isRootDirectory().get() {
+          return true
+        }
+#endif
+        return true
+      }
+      return false
     }
     
     /// Test wheter the file is hidden

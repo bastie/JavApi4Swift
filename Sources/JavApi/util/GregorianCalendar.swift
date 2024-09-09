@@ -25,7 +25,8 @@ extension java.util {
   /// let components = DateComponents(year: 2023, month: 11, day: 24)
   /// let date = calendar.date(from: components)
   /// ```
-  
+  /// ⚔️
+  ///
   open class GregorianCalendar : java.util.Calender {
     
     // Constructor to init ``Foundation.DateComponents`` with all fields
