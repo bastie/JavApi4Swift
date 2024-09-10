@@ -2,12 +2,23 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
+
+// final class => public
 public class StringBuilder {
   
-  var content : String = ""
+  var content : String = "" // TODO: implements direct a char array
   
   /// Default constructor
   public init (){}
+  
+  public init (_ newContent : String) {
+    self.content = newContent
+  }
+  
+  // TODO: Test it
+  public init (_ newContent : any CharSequence) {
+    self.content = "\(newContent)"
+  }
   
   /// Append a String type
   /// - Parameters String to append
@@ -25,6 +36,15 @@ public class StringBuilder {
       self.content.append(c)
     }
     return self
+  }
+  
+  public func deleteAt (_ offset : Int) throws -> StringBuilder {
+    guard offset > -1, offset < self.count else {
+      throw java.lang.Throwable.IndexOutOufBoundsException(offset, "the index is negative or greater than or equal to count of String")
+    }
+    var asCharArray = Array(self.content)
+    asCharArray.removeFirst(offset)
+    return StringBuilder(String(asCharArray))
   }
   
   public func length () -> Int {

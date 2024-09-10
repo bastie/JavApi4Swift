@@ -167,6 +167,12 @@ extension String {
   public static func valueOf (_ char : Character) -> String {
     return String ("\(char)")
   }
+  
+  /// Returns self
+  /// - Returns self
+  public func toString () -> String {
+    return self
+  }
 
 }
 
