@@ -38,7 +38,14 @@ public class StringBuilder {
     return self
   }
   
-  public func deleteAt (_ offset : Int) throws -> StringBuilder {
+  public func charAt (_ offset : Int) throws -> Character {
+    guard offset > -1, offset < self.count else {
+      throw java.lang.Throwable.IndexOutOufBoundsException(offset, "the index is negative or greater than or equal to count of String")
+    }
+    return Array (self.content)[offset]
+  }
+  
+  public func deleteCharAt (_ offset : Int) throws -> StringBuilder {
     guard offset > -1, offset < self.count else {
       throw java.lang.Throwable.IndexOutOufBoundsException(offset, "the index is negative or greater than or equal to count of String")
     }
