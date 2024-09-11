@@ -9,6 +9,7 @@ extension java.util {
   /// Abstract Java type
   ///
   open class Calender {
+    /// The ``dateComponents`` encapsulate the Swift delegate instance from ``Foundation.DateComponents``.
     internal var dateComponents : Foundation.DateComponents = Foundation.DateComponents()
 
     public init (){

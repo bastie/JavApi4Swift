@@ -16,7 +16,7 @@ extension java.io {
   
   public class NilInputStream : InputStream {
     private var streamIsOpen = true
-    public override func close () {
+    public override func close () throws {
       streamIsOpen = false
     }
     public func mark (_ readLimit : Int) {

@@ -17,7 +17,7 @@ extension java.io {
       return 0
     }
     
-    open func close () {
+    open func close () throws {
       // do nothing
     }
     
