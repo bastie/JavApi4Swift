@@ -12,6 +12,7 @@ extension java {
 extension java.lang {
   public typealias Array = Swift.Array
   public typealias Cloneable = JavApi.Cloneable
+  public typealias Comparable = JavApi.ComparableJ
   public typealias Exception = JavApi.Throwable
   public typealias System = JavApi.System
   public typealias String = Swift.String
