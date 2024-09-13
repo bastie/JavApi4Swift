@@ -104,6 +104,20 @@ extension String {
     return toCharArray()[index]
   }
   
+  public func lastIndexOf (_ char : Character) -> Int {
+    guard self.contains(char) else {
+      return -1
+    }
+    return distance(from: startIndex, to: self.lastIndex(of: char)!)
+  }
+  
+  func lastIndexOf(_ substring: String) -> Int {
+    guard let range = range(of: substring, options: .backwards) else {
+      return -1
+    }
+    return distance(from: startIndex, to: range.lowerBound)
+  }
+  
   /// The count of String elements
   @inlinable
   public func lenght () -> Int {
