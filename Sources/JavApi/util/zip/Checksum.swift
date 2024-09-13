@@ -79,7 +79,7 @@ public protocol Checksum {
   func update(_ b : Int)
   
   /// Update the checksum with the given ByteBuffer content
-  func update (_ buffer : any java.nio.ByteBuffer)
+  func update (_ buffer : java.nio.ByteBuffer)
   
 }
 
@@ -97,7 +97,7 @@ extension Checksum {
       throw Throwable.NullPointerException()
     }
   }
-  public func update (_ buffer : any java.nio.ByteBuffer) {
+  public func update (_ buffer : java.nio.ByteBuffer) {
     try! self.update(buffer.array())
   }
 }
