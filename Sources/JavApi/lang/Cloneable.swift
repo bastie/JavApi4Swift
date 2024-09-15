@@ -1,9 +1,10 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
-/// `Cloneable` type in Java
+/// ``Cloneable`` type in Java
+/// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
 public protocol Cloneable {
   
   /// Clone the instance

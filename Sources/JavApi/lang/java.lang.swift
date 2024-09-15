@@ -14,6 +14,7 @@ extension java.lang {
   public typealias Cloneable = JavApi.Cloneable
   public typealias Comparable = JavApi.ComparableJ
   public typealias Exception = JavApi.Throwable
+  public typealias Runnable = JavApi.Runnable
   public typealias System = JavApi.System
   public typealias String = Swift.String
   public typealias StringBuilder = JavApi.StringBuilder
