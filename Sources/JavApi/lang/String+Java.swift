@@ -31,7 +31,7 @@ extension String {
       }
     }
     else {
-      throw Throwable.UnsupportedEncodingException("Unsupported encoding \(encoding)")
+      throw java.io.Throwable.UnsupportedEncodingException("Unsupported encoding \(encoding)")
     }
   }
   
@@ -46,7 +46,7 @@ extension String {
     default:
       if let data = self.data(using: .utf8) { return  [UInt8](data) }
     }
-    throw Throwable.UnsupportedEncodingException("Unsupported encoding \(encoding)")
+    throw java.io.Throwable.UnsupportedEncodingException("Unsupported encoding \(encoding)")
   }
   
   public func endsWith (_ suffix : String) -> Bool {
