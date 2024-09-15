@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-/// ``Cloneable`` type in Java
+/// ``Cloneable`` type
 /// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
 public protocol Cloneable {
   

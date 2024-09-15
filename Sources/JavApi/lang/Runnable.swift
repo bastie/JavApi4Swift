@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-/// ``Runnable`` type in Java
+/// ``Runnable`` type 
 /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
 public protocol Runnable {
   

@@ -144,6 +144,14 @@ extension java.nio {
   }
 }
 
+extension java.nio.charset {
+  public enum Throwable : Error {
+    /// Exception if charset is not supported
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.4)
+    case UnsupportedCharsetException (_ name : String)
+  }
+}
+
 extension java.util {
   public enum Throwable : Error {
     /// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
