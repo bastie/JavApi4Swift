@@ -70,12 +70,12 @@ public struct System {
     }
   }
   
-  /// Return the value from environment variable
-  /// - Returns value of environment variable or nil
-  static public func getenv (_ name : String) -> String? {
-    return ProcessInfo.processInfo.environment[name]
+  /// Return the current time in milliseconds
+  ///
+  /// - Returns: milliseconds as Int64
+  public static func currentTimeMillis () -> Int64 {
+    return Int64(Date().timeIntervalSince1970.advanced(by: 0)*1_000)
   }
-  
   /// Exits the application
   /// - Parameters:
   /// - Parameter status return value e.g. for scripting with your application
@@ -85,10 +85,21 @@ public struct System {
     Foundation.exit(Int32(status))
   }
   
-  /// Return the current time in milliseconds
-  ///
-  /// - Returns: milliseconds as Int64
-  public static func currentTimeMillis () -> Int64 {
-    return Int64(Date().timeIntervalSince1970.advanced(by: 0)*1_000)
+  /// Returns a hashCode
+  /// - Note: unsafe
+  public static func identityHashCode (_ x : AnyObject?) -> Int {
+    if let x {
+      return ObjectIdentifier(x).hashValue
+    }
+    else {
+      return 0
+    }
   }
+  
+  /// Return the value from environment variable
+  /// - Returns value of environment variable or nil
+  public static func getenv (_ name : String) -> String? {
+    return ProcessInfo.processInfo.environment[name]
+  }
+  
 }
