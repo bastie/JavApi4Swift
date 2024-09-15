@@ -113,12 +113,27 @@ extension java.io {
     case FileNotFoundException (_ message : String = "FileNotFoundException")
     /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
     case InterruptedIOException (_ message : String = "InterruptedIOException", byteTransferred : Int = 0)
-    /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
+    /// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
     case IOException (_ message : String = "IOException")
     /// - Since: JavaApi &gt; 0.16.0 (Java 1.1)
     case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
     /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
-    case UTFDataFormatException (_ message : String = "InterruptedIOException")
+    case UTFDataFormatException (_ message : String = "UTFDataFormatException")
+  }
+}
+
+extension java.net {
+  public enum Throwable : Error {
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case MalformedURLException (_ message : String = "MalformedURLException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case ProtocolException (_ host : String = "ProtocolException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case SocketException (_ message : String = "SocketException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case UnknownHostException (_ host : String = "UnknownHostException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case UnknownServiceException (_ message : String = "UnknownServiceException")
   }
 }
 
@@ -131,7 +146,9 @@ extension java.nio {
 
 extension java.util {
   public enum Throwable : Error {
+    /// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
     case EmptyStackException (_ message : String = "EmptyStackException")
+    /// - Since: JavaApi &lt; 0.16.1 (Java 1.0)
     case NoSuchElementException (_ message : String = "NoSuchElementException")
   }
 }
