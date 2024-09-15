@@ -107,9 +107,18 @@ public enum Throwable : Error {
 
 extension java.io {
   public enum Throwable : Error {
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case EOFException (_ message : String = "EOFException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case FileNotFoundException (_ message : String = "FileNotFoundException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case InterruptedIOException (_ message : String = "InterruptedIOException", byteTransferred : Int = 0)
+    /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
     case IOException (_ message : String = "IOException")
     /// - Since: JavaApi &gt; 0.16.0 (Java 1.1)
     case UnsupportedEncodingException (_ message : String = "UnsupportedEncodingException")
+    /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+    case UTFDataFormatException (_ message : String = "InterruptedIOException")
   }
 }
 
