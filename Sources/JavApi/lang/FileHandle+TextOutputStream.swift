@@ -6,7 +6,7 @@
 import Foundation
 
 /// Extension for FileHandle as TextOutputStream for using in System.err
-extension FileHandle: TextOutputStream {
+extension FileHandle: @retroactive TextOutputStream {
   public func write(_ string: String) {
     let data = Data(string.utf8)
     self.write(data)
