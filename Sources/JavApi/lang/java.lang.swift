@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -22,8 +22,6 @@ extension java.lang {
   public typealias Math = JavApi.Math
 }
 
-/// This type alias provides the char keyword for characters, but you need double quotes instead single quotes.
-public typealias char = Character
 /// This type alias provides the byte keyword with UInt8 as data type
 public typealias byte = UInt8
 /// This type alias provides the boolean keyword with Bool as data type

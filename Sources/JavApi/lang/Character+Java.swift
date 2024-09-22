@@ -1,10 +1,24 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023,2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
+/// This type alias provides the char keyword for characters, but you need double quotes instead single quotes.
+public typealias char = Character
+
 extension Character {
   
+  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  public init (_ charValue : Swift.Character) {
+    self.init(unicodeScalarLiteral: charValue)
+  }
+  
+  /// Returns (a copy of) self value
+  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  public func charValue () -> Swift.Character { // TODO: is copyOf needed?
+    return "copyOf\(self)".charAt(6)
+  }
+
   public init (_ codePoint : Int) {
     var asString = ""
     let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
