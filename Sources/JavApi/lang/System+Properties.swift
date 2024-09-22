@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -21,6 +21,7 @@ extension System {
   }
 
   // **not private** : In result of Swiftify
+  /// An dictionary with all supported properties and the default value used in JavApi
   static let SYSTEM_PROPERTIES : [String:String] = [
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
     "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\n\r" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
@@ -29,7 +30,8 @@ extension System {
     "native.encoding" : "utf-8",
     "stdout.encoding" : "utf-8",
     "stderr.encoding" : "utf-8",
-    "java.vendor" : "JavApi⁴Swift"
+    "java.vendor" : "JavApi⁴Swift",
+    "java.expected.version" : "\(UInt64.max)" // (extension) can be set to special Java version behavior. For example Java 1.0 behavior in Boolean.getBoolean.
   ]
   
 #if os(iOS)
