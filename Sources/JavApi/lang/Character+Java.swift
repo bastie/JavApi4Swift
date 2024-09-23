@@ -19,44 +19,12 @@ extension Character {
     return "copyOf\(self)".charAt(6)
   }
 
-  public init (_ codePoint : Int) {
-    var asString = ""
-    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
-    asString = String(String.UnicodeScalarView(asArray))
-    self.init(unicodeScalarLiteral: asString.charAt(0))
-  }
-  
-  public static func isDigit (_ char : char) -> Bool{
-    return char.isNumber
-  }
-  
-  public static func isDigit (_ codePoint : Int) -> Bool{
-    var asString = ""
-    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
-    asString = String(String.UnicodeScalarView(asArray))
-    return isDigit(asString.toCharArray()[0])
-  }
-  
-  public static func isLetter (_ char : char) -> Bool {
-    return char.isLetter
-  }
-  
-  public static func isLetter (_ codePoint : Int) -> Bool{
-    var asString = ""
-    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
-    asString = String(String.UnicodeScalarView(asArray))
-    return isLetter(asString.toCharArray()[0])
-  }
-  
-  public static func isWhitespace (_ char : char) -> boolean {
-    return char.isWhitespace
-  }
-  
   /// Return the numeric value of Unicode character, f.e. ``\u{216D}`` returns  100.
   ///
   /// - Parameters: char
   /// - Returns: numeric value or 10 to 35 for A-Z or -2 for fractions or -1 for all others
-  public static func getNumericValue (_ char : Character) -> Int {
+  /// - Since: JavaApi &lt; 0.16.0 (Java 1.1)
+  public static func getNumericValue (_ char : Character) -> Int { // FIXME: this implementation must be checked against supported Unicode version of Java versions
     switch char {
     case "0" : return 0
     case "1" : return 1
@@ -94,7 +62,7 @@ extension Character {
     case "X", "x", "\u{FF38}", "\u{FF58}" : return 33
     case "Y", "y", "\u{FF39}", "\u{FF59}" : return 34
     case "Z", "z", "\u{FF3A}", "\u{FF5A}" : return 35
-    // fractions
+      // fractions
     case "\u{00BC}", "\u{00BD}", "\u{00BE}" : return -2
     case "\u{2150}", "\u{2151}", "\u{2152}",
       "\u{2153}", "\u{2154}", "\u{2155}",
@@ -109,5 +77,36 @@ extension Character {
       }
       return -1
     }
+  }  /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
+  public static func isDigit (_ char : char) -> Bool{
+    return char.isNumber
   }
+  
+  /// - Since: JavaApi &lt; 0.16.0 (Java 5)
+  public static func isDigit (_ codePoint : Int) -> Bool{
+    var asString = ""
+    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
+    asString = String(String.UnicodeScalarView(asArray))
+    return isDigit(asString.toCharArray()[0])
+  }
+  
+  /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
+  public static func isLetter (_ char : char) -> Bool {
+    return char.isLetter
+  }
+  
+  /// - Since: JavaApi &lt; 0.16.0 (Java 5)
+  public static func isLetter (_ codePoint : Int) -> Bool{
+    var asString = ""
+    let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
+    asString = String(String.UnicodeScalarView(asArray))
+    return isLetter(asString.toCharArray()[0])
+  }
+  
+  /// - Since: JavaApi &lt; 0.16.0 (Java 1.1)
+  public static func isWhitespace (_ char : char) -> boolean {
+    return char.isWhitespace
+  }
+  
+
 }
