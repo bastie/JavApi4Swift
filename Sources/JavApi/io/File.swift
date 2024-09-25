@@ -220,6 +220,20 @@ extension java.io {
       }
     }
     
+    /// System depend last modified data of the underlying file. The default implementation returns the time since 1. January 1970 in milliseconds
+    /// - Returns last modified time stamp of file
+    /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
+    open func lastModified () -> Int64 {
+      do {
+        let attributes = try FileManager.default.attributesOfItem(atPath: self.getAbsolutePath())
+        if let lastModifiedDate = attributes[.modificationDate] as? Date {
+          return Int64(lastModifiedDate.timeIntervalSince1970) * 1000
+        }
+      } catch {
+      }
+      return 0
+    }
+    
     /// List all files of directory.
     /// If self isn't a directory returns ``nil``
     /// - Returns array of directory entries or ``nil``

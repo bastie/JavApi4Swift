@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -10,7 +10,10 @@ extension java.nio {
 }
 
 /// Abstract type for working with bytes
-public class ByteBuffer {
+open class ByteBuffer {
+  
+  /// The default byte order of ``ByteBuffer`` is `BIG_ENDIAN`.
+  private var SELF_BYTE_ORDER = java.nio.ByteOrder.BIG_ENDIAN
   
   /// byte buffer
   internal var content : [UInt8] = []
@@ -30,6 +33,37 @@ public class ByteBuffer {
   /// - Returns byte buffer
   open func array () throws -> [UInt8] {
     return self.content
+  }
+  
+  /// Returns the order of this ``ByteBuffer``. The default value is ``java.nio.ByteOrder.BIG_ENDIAN``
+  /// - Returns order of ``ByteBuffer``
+  /// - Since: JavaApi &gt; 0.17.0 (Java 1.4)
+  open func order () -> java.nio.ByteOrder {
+    return SELF_BYTE_ORDER
+  }
+  
+  /// Modify the order of ``ByteBuffer`` if required
+  /// - Parameter order the new order of bytes
+  /// - Returns ``ByteBuffer`` self
+  /// - Since: JavaApi &gt; 0.17.0 (Java 1.4)
+  open func order(_ order: java.nio.ByteOrder) -> ByteBuffer {
+    guard SELF_BYTE_ORDER != order else {
+      return self
+    }
+    guard SELF_BYTE_ORDER == .BIG_ENDIAN || SELF_BYTE_ORDER == .LITTLE_ENDIAN else {
+      /// FIXME: create a log message
+      return self
+    }
+    
+    // reverse byte order
+    self.content.reverse()
+    if SELF_BYTE_ORDER == .LITTLE_ENDIAN {
+      self.SELF_BYTE_ORDER = .BIG_ENDIAN
+    }
+    else {
+      self.SELF_BYTE_ORDER = .LITTLE_ENDIAN
+    }
+    return self
   }
   
   open func put (_ byte : UInt8) throws -> ByteBuffer {

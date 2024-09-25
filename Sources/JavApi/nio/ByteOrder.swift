@@ -8,7 +8,7 @@ import Foundation
 extension java.nio {
   public final class ByteOrder : Equatable {
     
-    private let asString : String
+    internal let asString : String
     public static let BIG_ENDIAN : ByteOrder = ByteOrder("BIG_ENDIAN")
     public static let LITTLE_ENDIAN : ByteOrder = ByteOrder("LITTLE_ENDIAN")
     
