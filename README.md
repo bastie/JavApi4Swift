@@ -17,8 +17,9 @@ This project use only business friendly **permissive licenses**.
 </figure></p>
 
 
-By default the MIT License is used.
 Parts of source code use the BSD Licenses and the Public Domain / The Unlicense.
+By default I use the MIT License.
+Parts of source code use the Apache 2.0 license.
 
 
 ## thanks
@@ -29,6 +30,7 @@ Special thanks to contributors of
 * [AnyDate implementation](https://github.com/kawoou/AnyDate)
 * [Base64 implementation](https://github.com/drichardson/SwiftyBase64) with alphabet separation
 * Apache Harmony team
+* [jTar implementation](https://github.com/xiaoxindada/jtar) and original [jTar implementation](https://github.com/kamranzafar/jtar)
 
 
 
@@ -40,11 +42,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.12.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.19.1")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.12.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.19.1"))
 
 ## Ports
 
@@ -66,6 +68,10 @@ Check out these projects and learn how to use JavApi⁴Swift.
 ### 0.12.0
 
 * [ShrinkItArchive](https://github.com/bastie/ShrinkItArchive) is a library for managing Apple ][ ShrinkIt / NuFX archives.
+
+### 0.19.1
+
+*  [STar](https://github.com/bastie/STar) is a simple Swift Tar library, that provides an easy way to create and read tar files using.
 
 ## Development
 
