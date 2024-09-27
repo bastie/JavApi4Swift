@@ -3,7 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
-/// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
-public protocol DataOutput {
-  
+extension java.io {
+  /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
+  public protocol DataOutput {
+    
+  }
 }
