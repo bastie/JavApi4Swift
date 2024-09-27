@@ -5,6 +5,7 @@
 
 extension java.io {
   
+  /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
   open class ByteArrayInputStream : java.io.InputStream {
     
     public let data : [UInt8]

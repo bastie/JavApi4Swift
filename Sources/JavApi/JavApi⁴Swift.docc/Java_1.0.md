@@ -29,12 +29,18 @@ Java 1.0 splits his packages in two parts.
 - term java.awt.image: the Image package for AWT
 - term java.awt.peer: the peer package for AWT
 
+### How to read?
+
+- Header type name (count of fields or methods/ count of implemted of them / count of test implemented for them)
+- ✔️ yes, is implemented or test is success 😅
+- 🪄 no test needed 😜
+- ⭕️ implementation or test is missing 😭
 
 ### Java Core packages
 
 #### java.lang
 
-<!-- 11+24+8+5+5+22+23+23+23+32+4+11+7+16+32+48+31+16+41+23+7=412 >
+<!-- 11+24+8+5+5+22+23+23+23+32+4+11+7+16+32+48+31+16+41+23+7=412 -->
 
 ##### java.lang.Boolean (11/11/1)
 
@@ -146,10 +152,76 @@ version | implemented | tested   | type          | name           | more informa
 
 #### java.io
 
+##### java.io.BufferedOutputStream (7/7/-)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | buf            | byte[]
+1.0.2   | ✔️          | ⭕️       | field         | count          | int contains the fill status of buffer
+1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream)
+1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream, Int)
+1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+
+##### java.io.DataInput (15/15/-)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | 🪄       | method        | readBoolean    | ()->boolean
+1.0.2   | ✔️          | 🪄       | method        | readByte    | ()->byte
+1.0.2   | ✔️          | 🪄       | method        | readChar    | ()->char
+1.0.2   | ✔️          | 🪄       | method        | readDouble    | ()->double
+1.0.2   | ✔️          | 🪄       | method        | readFloat    | ()->float
+1.0.2   | ✔️          | 🪄       | method        | readFully    | (byte[])
+1.0.2   | ✔️          | 🪄       | method        | readFully    | (byte[],Int,Int)
+1.0.2   | ✔️          | 🪄       | method        | readInt    | ()->int
+1.0.2   | ✔️          | 🪄       | method        | readLine    | ()->String
+1.0.2   | ✔️          | 🪄       | method        | readLong    | ()->long
+1.0.2   | ✔️          | 🪄       | method        | readShort    | ()->short
+1.0.2   | ✔️          | 🪄       | method        | readUnsignedByte    | ()->Int
+1.0.2   | ✔️          | 🪄       | method        | readUnsignedShort    | ()->Int
+1.0.2   | ✔️          | 🪄       | method        | readUTF    | ()->String
+1.0.2   | ✔️          | 🪄       | method        | skipBytes    | (Int)
+
+##### java.io.FileDescriptor (5/2/-)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | err            | FileDescriptor
+1.0.2   | ⭕️          | ⭕️       | field         | out            | FileDescriptor
+1.0.2   | ⭕️          | ⭕️       | field         | in             | FileDescriptor
+1.0.2   | ✔️          | ⭕️       | constructor   | FileDescriptor | ()
+1.0.2   | ✔️          | ⭕️       | method        | valid()        | ()->boolean
+
+##### java.io.FileOutputStream (9/9/-)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (File)
+1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (FileDescriptor)
+1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (String)
+1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | finalize()     | () calls only close()
+1.0.2   | ✔️          | ⭕️       | method        | getFD()        | ()->FileDescriptor
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[])
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+
+##### java.io.FilterOutputStream (7/7/-)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | out            | OutputStream
+1.0.2   | ✔️          | ⭕️       | constructor   | FilterOutputStream | (OutputStream)
+1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[])
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+
+
 #### java.net
 
 #### java.util
 
-- [x] #739
-- [ ] https://github.com/octo-org/octo-repo/issues/740
-- [ ] Add delight to the experience when all tasks are complete :tada:
