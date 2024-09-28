@@ -43,6 +43,19 @@ extension java.io {
       self.file = qualifiedFileName
     }
     
+    /// Create a new File instance with given file name
+    /// - Parameters:
+    /// - Parameter dir directory name
+    /// - Parameter name name of node in FileSystem as String
+    public init (_ dir : java.io.File, _ name : String) {
+      var qualifiedFileName = dir.getAbsolutePath()
+      if !qualifiedFileName.hasSuffix(File.separator) {
+        qualifiedFileName.append(File.separator)
+      }
+      qualifiedFileName.append(name)
+      self.file = qualifiedFileName
+    }
+    
     /// Tests whether can execute the file.
     ///
     /// - Returns true if executable
@@ -233,10 +246,23 @@ extension java.io {
       }
       return 0
     }
-    
+
     /// List all files of directory.
     /// If self isn't a directory returns ``nil``
     /// - Returns array of directory entries or ``nil``
+    /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+    open func list () -> [String]? {
+      guard self.isDirectory() else {
+        return nil
+      }
+      
+      return  try? FileManager.default.contentsOfDirectory(atPath: self.getAbsoluteFile().toString())
+    }
+
+    /// List all files of directory.
+    /// If self isn't a directory returns ``nil``
+    /// - Returns array of directory entries or ``nil``
+    /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
     open func listFiles () -> [java.io.File]? {
       guard self.isDirectory() else {
         return nil
