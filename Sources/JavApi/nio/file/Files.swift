@@ -10,6 +10,23 @@ extension java.nio.file {
   /// Utility type for working with files
   public class Files {
     
+    public static func createTempDirectory (_ prefix : String, _ attr : java.nio.file.attribute.FileAttribute...) throws -> Path {
+      guard attr.isEmpty else {
+        throw java.lang.Throwable.UnsupportedOperationException("Attributes on Files.createTempDirectory ar not yet implemented")
+      }
+      let temporaryDirectoryURL = FileManager.default.temporaryDirectory
+      
+      let uniqueName = UUID().uuidString
+      let tempDirectoryURL = temporaryDirectoryURL.appendingPathComponent(uniqueName)
+      
+      do {
+        try FileManager.default.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+        return java.nio.file._Path.of(tempDirectoryURL.path)
+      } catch {
+        throw java.io.Throwable.IOException(error.localizedDescription)
+      }
+    }
+    
     /// Write data to given file
     ///
     /// The default `option` is `StandardOpenOption.WRITE`.
