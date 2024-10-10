@@ -155,6 +155,62 @@ The best way is to rename variables and types in Java before collision with Swif
 let ``in`` : Int
 ```
 
+But best, rename it before switch to swift.
+
+#### loops
+
+##### for
+
+The for loop in Swift takes one after one element from a sorted collection. A Range is not much more than a type of sorted collection in this moment. C, Java an some other programming language accepts also a counting loop. 
+
+** How to count in a for loop? **
+
+```java
+for (int i = 0; i < 100; i++) {}
+```
+
+```swift
+for i in 0..<100 {}
+```
+
+** How to count reverse in a for loop? **
+
+```swift
+for i in (0...99).reversed() {}
+```
+
+or
+
+```swift
+for i in stride (from: 99, to: -1, by: -1){}
+```
+
+** How to add more termination condidtion in loop header? **
+
+```swift
+for i in 0...99 where i % 2 != 0 && i % 3 != 0 {}
+```
+
+##### while
+
+Swift don't like composite statements. Not only in loops split in single statements is never a bad idea. For example let the loop header only check the termination condition.
+
+```java
+var count = 0
+while ((count = inputStreamInstance.read(data)) != -1) {
+  try dest.write(data, 0, count);
+}
+```
+
+```swift
+var count = try tis.read(&data)
+while (count != -1) {
+  try dest.write(data, 0, count)
+  count = try tis.read(&data)
+}
+```
+
+
 #### Map
 
 Java Map is similar to dictionary type in Swift

@@ -10,6 +10,34 @@ extension java.nio.file {
   /// Utility type for working with files
   public class Files {
     
+    /// Create a temporary directory
+    ///
+    /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
+    ///
+    /// Java code
+    /// ```Java
+    /// java.nio.File.createTempDirectory ("myPrefix");
+    /// ```
+    /// Swift code
+    /// ```Swift
+    /// let temporaryDirectoryURL = FileManager.default.temporaryDirectory
+    ///
+    /// let uniqueName = UUID().uuidString
+    /// let tempDirectoryURL = temporaryDirectoryURL.appendingPathComponent(uniqueName)
+    ///
+    /// do {
+    ///  try FileManager.default.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true, attributes: nil)
+    /// }
+    /// catch {
+    ///  fatalError("Could not create temporary directory: \(error)")
+    /// }
+    /// ```
+    ///
+    /// ⚔️
+    ///
+    /// - Parameter prefix for the temporary directory name
+    /// - Parameter attr are optional file attributes
+    /// - Returns true if it exists and is a directory
     public static func createTempDirectory (_ prefix : String, _ attr : java.nio.file.attribute.FileAttribute...) throws -> Path {
       guard attr.isEmpty else {
         throw java.lang.Throwable.UnsupportedOperationException("Attributes on Files.createTempDirectory ar not yet implemented")
