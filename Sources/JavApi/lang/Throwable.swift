@@ -50,7 +50,7 @@ public enum Throwable : Error {
   /// - Since: JavaApi &lt; 0.16.0 (Java 9.0)
   case IndexOutOufBoundsException (_ withValue : Int)
   /// - Since: JavaApi &gt; 0.16.0 (Java 16.0)
-  /// - Note: As result of implementation way in swift, we add a ignored parameter to be different to `case` with ``Int`` value
+  /// - Note: As result of implementation way in swift, we add a ignored parameter to be different to `case` with `Int` value
   case IndexOutOufBoundsException (_ withLongValue : Int64, _ignored : Bool = true)
   /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
   case IndexOutOufBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")

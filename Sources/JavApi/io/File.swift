@@ -248,8 +248,8 @@ extension java.io {
     }
 
     /// List all files of directory.
-    /// If self isn't a directory returns ``nil``
-    /// - Returns array of directory entries or ``nil``
+    /// If self isn't a directory returns `nil`
+    /// - Returns array of directory entries or `nil`
     /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
     open func list () -> [String]? {
       guard self.isDirectory() else {
@@ -260,8 +260,8 @@ extension java.io {
     }
 
     /// List all files of directory.
-    /// If self isn't a directory returns ``nil``
-    /// - Returns array of directory entries or ``nil``
+    /// If self isn't a directory returns `nil`
+    /// - Returns array of directory entries or `nil`
     /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
     open func listFiles () -> [java.io.File]? {
       guard self.isDirectory() else {
@@ -278,9 +278,9 @@ extension java.io {
       return nil
     }
     
-    /// List all files of directory filtered by given ``FileFilter``
-    /// If self isn't a directory returns ``nil``
-    /// - Returns array of directory entries or ``nil``
+    /// List all files of directory filtered by given `FileFilter`
+    /// If self isn't a directory returns `nil`
+    /// - Returns array of directory entries or `nil`
     open func listFiles (_ fileFilter : (any java.io.FileFilter)?) -> [java.io.File]? {
       if let allFiles = self.listFiles() {
         if let fileFilter {

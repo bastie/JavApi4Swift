@@ -57,6 +57,36 @@ In extension you can compare Character with Int value with `==`. If you need the
 
 Instead of `do` use keyword `repeat`.
 
+#### equals method
+
+Java provides an `equals` method on object instances and the `==` operator for test against same object or same primitive value. In Swift the test to check same object is written with `===` operator. Also a `Swift.Equatable` protocol is supported but did not take a unspecific `Any` or `AnyObject` as (second) parameter.
+
+This example based on `java.awt.geom.Point2D` can be a template to port equals method to Swift: 
+
+```Swift
+enum java { enum awt { enum geom {
+  class Point2D : Equatable {
+    // some other in the class
+
+    /// Implements the Java like equals method.
+    public static func ==(lhs: java.awt.geom.Point2D, rhs: AnyObject) -> Bool {
+      if lhs === rhs { return true }
+        guard rhs is Point2D else {
+        return false
+      }
+      let p = rhs as! Point2D
+      return lhs.getX() == p.getX() && lhs.getY() == p.getY();
+    }
+    
+    /// Implements the Equatable protocol
+    public static func ==(lhs: java.awt.geom.Point2D, rhs: Point2D) -> Bool {
+      if lhs === rhs { return true }
+      return lhs.getX() == rhs.getX() && lhs.getY() == rhs.getY();
+    }
+  }
+} /* geom */ } /* awt */ } /* java */ 
+```
+
 #### exception handling
 
 In Java exception can seperated in "RuntimeException" without explicit naming and "the other exception". The other exception must be declared and catched. RuntimeException and the super type Throwable can be declared and catched - or use `public static void main [] throws Throwable {}`. Java use a *try block* with *catch NamedException* instead to Swift with "normal" *do block* with *catch*. Swift also provide the *error* enum inside the catch block, Java has the NamedException instance.
@@ -66,7 +96,7 @@ How translation is realized by example:
 ```java
 // Java
 try {
-// do something throwable
+  // do something throwable
 }
 catch (NullPointerException npe) {}
 catch (Exception e) {}
@@ -76,7 +106,7 @@ catch (Throwable t) {}
 ```swift
 /// Swift with JavApi⁴Swift
 do {
-// do something throwable
+  // do something throwable
 }
 catch {
   switch error {
@@ -87,7 +117,7 @@ catch {
 }
 ```
 
-Unlike JavApi in your project use better the ``Result`` type as return value. 
+Unlike JavApi in your project use better the `Result` type as return value. 
 
 ```swift
 
@@ -112,6 +142,35 @@ let result = toCall ().flatMap { _ in
 #### final
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
+
+#### hashCode method
+
+Java provides a `hashCode` method on each object. Swift realize same with the `Swift.Hashable` protocol. To implement a Java like hashcode methode use something like this:
+
+```Swift
+class MyTypeNeedToBe : Hashable {
+
+  // the Java method
+  public func hashCode () -> Int {
+    return hashValue // delegate work to Swift function
+  }
+
+  // a property for hash value but without calculate this
+  public var hashValue: Int {
+    var hasher = Hasher()
+    hash(into: &hasher) // delegate the calculate into the hash function
+    return hasher.finalize()
+  }
+
+  // calculate the hash
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(System.identityHashCode(self)) // put a system identical hash code part for this object
+    // add more specific hash information over add some lines with
+    // hasher.combine(...)
+  }
+
+}
+```
 
 #### instanceof
 

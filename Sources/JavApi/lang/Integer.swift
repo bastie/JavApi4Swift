@@ -21,4 +21,41 @@ public class Integer {
   public static func reverseBytes (_ value : Int) -> Int {
     return Int (Int32(value).byteSwapped)
   }
+
+  /// The maximum value of `Int` type
+  ///
+  /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
+  ///
+  /// Java code
+  /// ```Java
+  /// int maximum = Integer.MAX_VALUE;
+  /// ```
+  /// Swift code
+  /// ```Swift
+  /// var maximum = Int32.max
+  /// ```
+  ///
+  /// ⚔️
+  ///
+  /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+  public static let MAX_VALUE : Int = Int(Int32.max)
+
+  /// The minimum value of `Int` type
+  ///
+  /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
+  ///
+  /// Java code
+  /// ```Java
+  /// int minimum = Integer.MIX_VALUE;
+  /// ```
+  /// Swift code
+  /// ```Swift
+  /// var minimum = Int32.min
+  /// ```
+  ///
+  /// ⚔️
+  ///
+  /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+  public static let MIN_VALUE : Int = Int(Int32.min)
+  
 }

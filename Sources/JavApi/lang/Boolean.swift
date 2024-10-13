@@ -34,7 +34,7 @@ extension Boolean {
     return self
   }
   
-  /// Returns if values of self and the other are same if parameter is not ``nil``
+  /// Returns if values of self and the other are same if parameter is not `nil`
   /// - Parameter other the value to compare with self
   /// - Returns true if `other` not nil, is ``Bool`` and have same value
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
