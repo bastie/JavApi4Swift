@@ -14,7 +14,7 @@ By default the lates Java behavior is implemented but checked at runtime against
 
 ## Java Documentation
 
-_based on JDK Documentation at [https://javaalmanac.io](https://javaalmanac.io/jdk/1.0/api/)_
+_ based on JDK Documentation at [https://javaalmanac.io](https://javaalmanac.io/jdk/1.0/api/) _
 
 Java 1.0 splits his packages in two parts.
 
@@ -66,15 +66,15 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | Class         | Boolean        | typealias and extension of `char`
-1.0.2   | ⭕️          | ⭕️       | final field   | MAX_RADIX      | 
-1.0.2   | ⭕️          | ⭕️       | final field   | MAX_VALUE      | 
-1.0.2   | ⭕️          | ⭕️       | final field   | MIN_RADIX      | 
-1.0.2   | ⭕️          | ⭕️       | final field   | MIN_VALUE      | 
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_RADIX      | 
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | 
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_RADIX      | 
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | 
 1.0.2   | ✔️          | ⭕️       | constructor   | Character()    | (char)
 1.0.2   | ✔️          | ⭕️       | method        | charValue()    | ()->Character
-1.0.2   | ⭕️          | ⭕️       | static method | digit()        | (char,int)->int
+1.0.2   | ✔️          | ⭕️       | static method | digit()        | (char,int)->int
 1.0.2   | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | forDigit()     | (char,int)->int
+1.0.2   | ✔️          | ⭕️       | static method | forDigit()     | (char,int)->int
 1.1     | ✔️          | ⭕️       | static method | getNumericValue()        | (char)->int
 1.0.2   | ⭕️          | ⭕️       | method        | hashCode()     | ()->int
 1.0.2   | ⭕️          | ⭕️       | static method | isDefined()    | (char)->boolean

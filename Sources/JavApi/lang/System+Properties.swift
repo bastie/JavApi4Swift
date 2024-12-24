@@ -19,10 +19,31 @@ extension System {
   public static func getProperty (_ name : String) throws -> String? {
     return try System.getProperty(name, nil)
   }
+  
+  public static func setProperty (_ name : String, _ value : String) throws {
+    guard !name.isEmpty() else {
+      throw Throwable.IllegalArgumentException("name cannot be empty")
+    }
+    let _ = Task(operation: {
+      SYSTEM_PROPERTIES[name] = value
+    })
+  }
+  
+  /// Remove the property with given name.
+  ///
+  /// - Since: JavaApi &gt; 0.20.0 (Java 1.5)
+  public static func clearProperty (_ name : String) throws {
+    guard !name.isEmpty() else {
+      throw Throwable.IllegalArgumentException("name cannot be empty")
+    }
+    let _ = Task(operation: {
+      SYSTEM_PROPERTIES.removeValue(forKey: name)
+    })
+  }
 
   // **not private** : In result of Swiftify
   /// An dictionary with all supported properties and the default value used in JavApi
-  static let SYSTEM_PROPERTIES : [String:String] = [
+  nonisolated(unsafe) static var SYSTEM_PROPERTIES : [String:String] = [
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
     "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\n\r" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
     "os.name" : _SYSTEM_NAME,

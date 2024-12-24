@@ -18,7 +18,7 @@ extension Character {
   public func charValue () -> Swift.Character { // TODO: is copyOf needed?
     return "copyOf\(self)".charAt(6)
   }
-
+  
   /// Return the numeric value of Unicode character, f.e. ``\u{216D}`` returns  100.
   ///
   /// - Parameters: char
@@ -108,5 +108,22 @@ extension Character {
     return char.isWhitespace
   }
   
-
+  public static let MAX_RADIX : Int = 36
+  public static let MAX_VALUE : Character = "\u{FFFF}"
+  public static let MIN_RADIX : Int = 2
+  public static let MIN_VALUE : Character = "\u{0000}"
+  
+  
+  public func digit(_ character: Character, _ radix: Int) -> Int {
+    let stringValue = String(character)
+    if let digit = Int(stringValue, radix: radix) {
+      return digit
+    }
+    return -1
+  }
+  
+  public func forDigit(_ digit: Int, _ radix: Int) -> Character {
+    let chars = String(digit, radix: radix, uppercase: false)
+    return chars.charAt(0)
+  }
 }
