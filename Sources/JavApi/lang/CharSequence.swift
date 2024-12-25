@@ -7,4 +7,6 @@ public protocol CharSequence {
   associatedtype CharSequence : StringProtocol
   
   func subSequence (_ start: Int, _ end : Int) -> CharSequence
+  
+  func toString () -> String
 }
