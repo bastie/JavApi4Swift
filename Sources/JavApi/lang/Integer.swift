@@ -58,4 +58,15 @@ public class Integer {
   /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
   public static let MIN_VALUE : Int = Int(Int32.min)
   
+  
+  public static func parseInt (_ string : String) throws -> Int {
+    if let value = Int(string) {
+      return value
+    }
+    throw java.lang.Throwable.NumberFormatException("\(string) is not a number")
+  }
+  
+  public static func valueOf (_ string : String, _ radix : Int) throws -> Int {
+    return try parseInt(string)
+  }
 }
