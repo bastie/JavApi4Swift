@@ -47,13 +47,25 @@ public enum Throwable : Error {
   case InstantiationError (_ message : String = "InstantiationError")
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   case InternalError (_ message : String = "InternalError")
+  /// - Since: JavaApi &lt; 0.19.2 (Java 9.0)
+  case IndexOutOfBoundsException (_ withValue : Int)
+  /// - Since: JavaApi &gt; 0.19.2 (Java 16.0)
+  /// - Note: As result of implementation way in swift, we add a ignored parameter to be different to `case` with `Int` value
+  case IndexOutOfBoundsException (_ withLongValue : Int64, _ignored : Bool = true)
+  /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
+  case IndexOutOfBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")
+  
   /// - Since: JavaApi &lt; 0.16.0 (Java 9.0)
+  @available(*, deprecated, renamed: "IndexOutOfBoundsException", message: "use IndexOutOfBoundsException instead and spell correctly")
   case IndexOutOufBoundsException (_ withValue : Int)
   /// - Since: JavaApi &gt; 0.16.0 (Java 16.0)
   /// - Note: As result of implementation way in swift, we add a ignored parameter to be different to `case` with `Int` value
+  @available(*, deprecated, renamed: "IndexOutOfBoundsException", message: "use IndexOutOfBoundsException instead and spell correctly")
   case IndexOutOufBoundsException (_ withLongValue : Int64, _ignored : Bool = true)
   /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
+  @available(*, deprecated, renamed: "IndexOutOfBoundsException", message: "use IndexOutOfBoundsException instead and spell correctly")
   case IndexOutOufBoundsException (_ withValue : Int = 0, String = "IndexOutOufBoundsException")
+  
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   case LinkageError (_ message : String = "LinkageError")
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)

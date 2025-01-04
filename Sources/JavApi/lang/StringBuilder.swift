@@ -40,14 +40,14 @@ public class StringBuilder {
   
   public func charAt (_ offset : Int) throws -> Character {
     guard offset > -1, offset < self.count else {
-      throw java.lang.Throwable.IndexOutOufBoundsException(offset, "the index is negative or greater than or equal to count of String")
+      throw java.lang.Throwable.IndexOutOfBoundsException(offset, "the index is negative or greater than or equal to count of String")
     }
     return Array (self.content)[offset]
   }
   
   public func deleteCharAt (_ offset : Int) throws -> StringBuilder {
     guard offset > -1, offset < self.count else {
-      throw java.lang.Throwable.IndexOutOufBoundsException(offset, "the index is negative or greater than or equal to count of String")
+      throw java.lang.Throwable.IndexOutOfBoundsException(offset, "the index is negative or greater than or equal to count of String")
     }
     var asCharArray = Array(self.content)
     asCharArray.removeFirst(offset)
@@ -60,7 +60,7 @@ public class StringBuilder {
   
   public func setLength (_ newLength : Int) throws {
     guard newLength >= 0 else {
-      throw Throwable.IndexOutOufBoundsException(newLength, "New length need to be equals or greater than zero but is \(newLength)")
+      throw Throwable.IndexOutOfBoundsException(newLength, "New length need to be equals or greater than zero but is \(newLength)")
     }
     
     switch newLength {

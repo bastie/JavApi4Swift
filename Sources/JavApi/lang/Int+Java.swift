@@ -17,4 +17,10 @@ extension Int {
   public static func reverseBytes (_ value : Int) -> Int {
     return Int (Int32(value).byteSwapped)
   }
+  
+  
+  public func compareTo(_ other : Int) -> Int {
+    return self > other ? 1 : (self < other ? -1 : 0)
+  }
+
 }

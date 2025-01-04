@@ -45,7 +45,7 @@ extension java.io {
     
     public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
       guard offset >= 0, length >= 0, length <= (array.count - offset) else {
-        throw java.lang.Throwable.IndexOutOufBoundsException()
+        throw java.lang.Throwable.IndexOutOfBoundsException()
       }
       let k = min (length, (self.count - pos))
       

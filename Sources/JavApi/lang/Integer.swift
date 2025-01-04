@@ -69,4 +69,9 @@ public class Integer {
   public static func valueOf (_ string : String, _ radix : Int) throws -> Int {
     return try parseInt(string)
   }
+  
+  public static func toHexString (_ decimalNumber : any BinaryInteger) -> String {
+    let hexString = String(decimalNumber, radix: 16)
+    return hexString
+  }
 }

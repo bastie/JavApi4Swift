@@ -80,10 +80,10 @@ open class ByteBuffer {
   
   open func put (_ bytes : [UInt8], _ offset : Int, _ length : Int) throws -> ByteBuffer {
     guard offset > -1 && offset < bytes.count else {
-      throw Throwable.IndexOutOufBoundsException(offset, "illegal start position \(offset)")
+      throw Throwable.IndexOutOfBoundsException(offset, "illegal start position \(offset)")
     }
     guard length > -1 && length <= (bytes.count-offset) else {
-      throw Throwable.IndexOutOufBoundsException(offset, "illegal length \(length)")
+      throw Throwable.IndexOutOfBoundsException(offset, "illegal length \(length)")
     }
     for i in offset..<(offset+length) {
       try _ = self.put(bytes[i])
