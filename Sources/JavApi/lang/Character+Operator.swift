@@ -4,7 +4,7 @@
  */
 
 extension Character {
-
+  
   /// Return the codepoint value of character
   ///
   /// In result of Unicode Scalar representation it returns a value in Int32 range.
@@ -18,7 +18,7 @@ extension Character {
     fatalError("Never ever come to this point.")
   }
   
-
+  
   /// Test the codepoint of Character against the Int value
   ///
   /// - Parameters
@@ -41,5 +41,27 @@ extension Character {
   public static func ==(lhs: Int, rhs: Character) -> Bool {
     let intValue = rhs.asDigit()
     return intValue == lhs
+  }
+  
+  /// Test the codepoint of Character against the Int value
+  ///
+  /// - Parameters
+  /// - Parameter lhs Character to test
+  /// - Parameter rhs codepint
+  ///
+  /// - Returns true if different
+  public static func !=(lhs: Character, rhs: Int) -> Bool {
+    return !(lhs == rhs)
+  }
+  
+  /// Test the codepoint of Character against the Int value
+  ///
+  /// - Parameters
+  /// - Parameter rhs Character to test
+  /// - Parameter lhs codepint
+  ///
+  /// - Returns true if different
+  public static func !=(lhs: Int, rhs: Character) -> Bool {
+    return !(rhs == lhs)
   }
 }
