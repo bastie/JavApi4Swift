@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -51,7 +51,7 @@ extension Character {
   ///
   /// - Returns true if different
   public static func !=(lhs: Character, rhs: Int) -> Bool {
-    return !(lhs == rhs)
+    return lhs.unicodeScalars.first!.value == rhs
   }
   
   /// Test the codepoint of Character against the Int value
@@ -62,6 +62,6 @@ extension Character {
   ///
   /// - Returns true if different
   public static func !=(lhs: Int, rhs: Character) -> Bool {
-    return !(rhs == lhs)
+    return rhs.unicodeScalars.first!.value == lhs
   }
 }
