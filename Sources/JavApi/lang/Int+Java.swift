@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -18,9 +18,11 @@ extension Int {
     return Int (Int32(value).byteSwapped)
   }
   
-  
   public func compareTo(_ other : Int) -> Int {
     return self > other ? 1 : (self < other ? -1 : 0)
   }
-
+  
+  public init (_ char : Character) {
+    self.init (char.unicodeScalars.first!.value)
+  }
 }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2024, 2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -19,5 +19,8 @@ extension Int64 {
   public static func parseInt (_ decimalNumber : Int64) -> String {
     return Integer.toHexString (decimalNumber)
   }
+  
+  public init (_ char : Character) {
+    self.init (char.unicodeScalars.first!.value)
+  }
 }
-

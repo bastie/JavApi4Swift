@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -27,6 +27,11 @@ public class StringBuilder {
     self.content.append(s)
     return self
   }
+  public func append (_ s: String, _ start: Int, _ end: Int) -> StringBuilder {
+    self.content.append(s.substring(start, end))
+    return self
+  }
+
   public func append (_ c : Character) -> StringBuilder{
     self.content.append(c)
     return self
