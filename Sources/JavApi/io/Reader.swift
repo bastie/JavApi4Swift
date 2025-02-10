@@ -71,9 +71,9 @@ extension java.io {
      * @throws IOException
      *             if an error occurs while closing this reader.
      */
-    public func close() throws {
+    open func close() throws {
       throw java.io.Throwable.IOException("abstract function not yet implemented")
-    };
+    }
     
     /**
      * Sets a mark position in this reader. The parameter {@code readLimit}
@@ -94,7 +94,7 @@ extension java.io {
      * @see #markSupported()
      * @see #reset()
      */
-    public func mark(_ readLimit : Int) throws {
+    open func mark(_ readLimit : Int) throws {
       throw java.io.Throwable.IOException();
     }
     
@@ -105,7 +105,7 @@ extension java.io {
      *
      * @return always {@code false}.
      */
-    public func markSupported() -> Bool {
+    open func markSupported() -> Bool {
       return false;
     }
     
@@ -119,10 +119,10 @@ extension java.io {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    public func read() throws -> Int {
+    open func read() throws -> Int {
       try lock.withLock {_ in
-        let charArray : [Character] = [Character](repeating: "\0", count: 1)
-        if (try read(charArray, 0, 1) != -1) {
+        var charArray : [Character] = [Character](repeating: "\0", count: 1)
+        if (try read(&charArray, 0, 1) != -1) {
           return Int(charArray[0].unicodeScalars.first!.value)
         }
         return -1;
@@ -141,8 +141,8 @@ extension java.io {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    public func read(_ buf : [Character]) throws -> Int {
-      return try read(buf, 0, buf.count)
+    open func read(_ buf : inout [Character]) throws -> Int {
+      return try read(&buf, 0, buf.count)
     }
     
     /**
@@ -163,8 +163,7 @@ extension java.io {
      * @throws IOException
      *             if this reader is closed or some other I/O error occurs.
      */
-    public func read(_ buf : [Character], _ offset : Int, _ count : Int)
-    throws -> Int {
+    open func read(_ buf : inout [Character], _ offset : Int, _ count : Int) throws -> Int {
       throw java.io.Throwable.IOException("abstract method not yet implemented")
     }
     
@@ -181,7 +180,7 @@ extension java.io {
      * @see #read(char[])
      * @see #read(char[], int, int)
      */
-    public func ready() throws -> Bool {
+    open func ready() throws -> Bool {
       return false;
     }
     
@@ -197,7 +196,7 @@ extension java.io {
      * @see #mark(int)
      * @see #markSupported()
      */
-    public func reset() throws {
+    open func reset() throws {
       throw java.io.Throwable.IOException();
     }
     
@@ -218,7 +217,7 @@ extension java.io {
      * @see #markSupported()
      * @see #reset()
      */
-    public func skip(_ count : Int64) throws -> Int64 {
+    open func skip(_ count : Int64) throws -> Int64 {
       if (count < 0) {
         throw java.lang.Throwable.IllegalArgumentException()
       }
@@ -226,9 +225,9 @@ extension java.io {
       try self.lock.withLock{_ in
         var _skipped : Int64 = 0
         var toRead : Int = count < 512 ? Int(count) : 512
-        let charsSkipped : [Character] = Array(repeating: "\u{0}", count: toRead)
+        var charsSkipped : [Character] = Array(repeating: "\u{0}", count: toRead)
         while (_skipped < count) {
-          let read = try read(charsSkipped, 0, toRead)
+          let read = try read(&charsSkipped, 0, toRead)
           if (read == -1) {
             return _skipped
           }
@@ -257,10 +256,10 @@ extension java.io {
      * @throws ReadOnlyBufferException
      *             if {@code target} is read-only.
      */
-    public func read(_ target : java.nio.CharBuffer) throws -> Int {
+    open func read(_ target : java.nio.CharBuffer) throws -> Int {
       var length = target.length();
-      let buf : [Character] = Array(repeating: "\u{0}", count: length)
-      length = Math.min(length, try read(buf))
+      var buf : [Character] = Array(repeating: "\u{0}", count: length)
+      length = Math.min(length, try read(&buf))
       if (length > 0) {
         _ = try target.put(buf, 0, length)
       }

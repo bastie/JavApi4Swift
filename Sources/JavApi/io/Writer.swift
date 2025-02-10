@@ -42,17 +42,17 @@ extension java.io {
     public typealias Flushable = Writer
     
     
-    public func append(_ c: Character) throws -> any Appendable {
+    open func append(_ c: Character) throws -> any Appendable {
       try self.write([c])
       return self
     }
     
-    public func append(_ csq: any CharSequence) throws -> any Appendable {
+    open func append(_ csq: any CharSequence) throws -> any Appendable {
       try self.write(csq.toString().toCharArray())
       return self
     }
     
-    public func append(_ csq: any CharSequence, _ start: Int, _ end: Int) throws -> any Appendable {
+    open func append(_ csq: any CharSequence, _ start: Int, _ end: Int) throws -> any Appendable {
       try self.write(csq.toString().substring(start, end).toCharArray())
       return self
     }
@@ -98,7 +98,7 @@ extension java.io {
      * @throws IOException
      *             if an error occurs while closing this writer.
      */
-    public func close() throws {
+    open func close() throws {
       throw java.lang.Throwable.AbstractMethodError("java.io.Writer.close")
     }
     
@@ -109,7 +109,7 @@ extension java.io {
      * @throws IOException
      *             if an error occurs while flushing this writer.
      */
-    public func flush() throws {
+    open func flush() throws {
       throw java.lang.Throwable.AbstractMethodError("java.io.Writer.flush")
     }
     
@@ -121,7 +121,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func write(_ buf : [Character]) throws {
+    open func write(_ buf : [Character]) throws {
       try write(buf, 0, buf.length);
     }
     
@@ -141,7 +141,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func write(_ buf : [Character], _ offset : Int, _ count : Int) throws {
+    open func write(_ buf : [Character], _ offset : Int, _ count : Int) throws {
       throw java.lang.Throwable.AbstractMethodError("java.io.Writer.write([Character],Int,Int")
     }
     
@@ -154,7 +154,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func write(_ oneChar : Character) throws {
+    open func write(_ oneChar : Character) throws {
       lock?.lock()
       let oneCharArray : [Character] = Array.init(repeating: oneChar, count: 1)
       //oneCharArray[0] = (char) oneChar;
@@ -170,7 +170,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func write(_ str : String) throws {
+    open func write(_ str : String) throws {
       try write(str, 0, str.count)
     }
     
@@ -190,7 +190,7 @@ extension java.io {
      *             if {@code offset < 0} or {@code count < 0}, or if {@code
      *             offset + count} is greater than the length of {@code str}.
      */
-    public func write (_ str : String, _ offset : Int, _ count : Int) throws {
+    open func write (_ str : String, _ offset : Int, _ count : Int) throws {
       if (count < 0) { // other cases tested by getChars()
         throw java.lang.Throwable.StringIndexOutOfBoundsException(-1)
       }
@@ -212,7 +212,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func append(_ c : Character) throws -> Writer {
+    open func append(_ c : Character) throws -> Writer {
       try write(c);
       return self;
     }
@@ -229,7 +229,7 @@ extension java.io {
      * @throws IOException
      *             if this writer is closed or another I/O error occurs.
      */
-    public func append(_ csq : (any CharSequence)?) throws -> Writer {
+    open func append(_ csq : (any CharSequence)?) throws -> Writer {
       if (nil == csq) {
         try write(TOKEN_NULL);
       } else {
@@ -261,7 +261,7 @@ extension java.io {
      *             either {@code start} or {@code end} are greater or equal than
      *             the length of {@code csq}.
      */
-    public func append(_ csq : (any CharSequence)?, _ start : Int, _ end : Int) throws -> Writer {
+    open func append(_ csq : (any CharSequence)?, _ start : Int, _ end : Int) throws -> Writer {
       if (nil == csq) {
         try write(TOKEN_NULL.substring(start, end))
       } else {
