@@ -16,6 +16,6 @@ extension Int32 {
   }
   
   public init (_ char : Character) {
-    self.init (char.unicodeScalars.first!.value)
+    self.init (Int(char))
   }
 }

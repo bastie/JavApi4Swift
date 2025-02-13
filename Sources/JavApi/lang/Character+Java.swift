@@ -8,6 +8,22 @@ public typealias char = Character
 
 extension Character {
   
+  /// https://www.unicode.org/glossary/#high_surrogate_code_unit
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static let MAX_HIGH_SURROGATE : Int = 0xDBFF
+  
+  /// https://www.unicode.org/glossary/#high_surrogate_code_unit
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static let MIN_HIGH_SURROGATE : Int = 0xD800
+  
+  /// https://www.unicode.org/glossary/#low_surrogate_code_unit
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static let MIN_LOW_SURROGATE : Int = 0xDC00
+  
+  /// https://www.unicode.org/glossary/#low_surrogate_code_unit
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static let MAX_LOW_SURROGATE : Int = 0xDFFF
+  
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   public init (_ charValue : Swift.Character) {
     self.init(unicodeScalarLiteral: charValue)
@@ -125,5 +141,19 @@ extension Character {
   public func forDigit(_ digit: Int, _ radix: Int) -> Character {
     let chars = String(digit, radix: radix, uppercase: false)
     return chars.charAt(0)
+  }
+  
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static func isHighSurrogate(_ character : Character) -> Bool {
+    let integer = Int(character)
+    return (   MIN_HIGH_SURROGATE <= integer
+               && MAX_HIGH_SURROGATE >= integer)
+  }
+  
+  /// - Since: JavaApi &gt; 0.22.0 (Java 5)
+  public static func isLowSurrogate(_ character : Character) -> Bool {
+    let integer = Int(character)
+    return (   MIN_LOW_SURROGATE <= integer
+               && MAX_LOW_SURROGATE >= integer)
   }
 }

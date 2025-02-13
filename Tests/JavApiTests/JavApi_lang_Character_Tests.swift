@@ -41,4 +41,11 @@ final class JavApi_lang_Character_Tests: XCTestCase {
     XCTAssertTrue(-2 == Character.getNumericValue(_1fract4))
   }
   
+  func testConvertToInt () {
+    let A : Character = "A"
+    XCTAssertTrue(65 == Int(A))
+    
+    let 𝄞 : Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
+    XCTAssertTrue(119070 == Int (𝄞))
+  }
 }
