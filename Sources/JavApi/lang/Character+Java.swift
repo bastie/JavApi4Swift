@@ -156,4 +156,74 @@ extension Character {
     return (   MIN_LOW_SURROGATE <= integer
                && MAX_LOW_SURROGATE >= integer)
   }
+  
+  /// - Since: JavaApi &gt; 0.22.1 (Java 5)
+  public static func toChars(_ codePoint: Int) throws -> [Character] {
+    /// parts from codestral:22b
+    guard codePoint > 0 else {
+      throw Throwable.IllegalArgumentException("Unicode codepoint must be greater than 0")
+    }
+    if let scalar = UnicodeScalar(UInt16(codePoint)) {
+      return "\(scalar)".toCharArray()
+    }
+    else {
+      let lead = (codePoint - 0x10000) >> 10 &+ 0xD800
+      let trail = (codePoint - 0x10000) & 0x3FF | 0xDC00
+
+      return ["\(UnicodeScalar(lead)!.description)".charAt(0), "\(UnicodeScalar(trail)!.description)".charAt(0)]
+    }
+  }
+  
+  /// If given parameter `codepoint` greater or equals 0x10000 returns 2 otherwise 1
+  /// - Parameter codepoint
+  /// - Returns 2 or 1, unchecked valid codepoint
+  /// - Since: JavaApi &gt; 0.22.1 (Java 5)
+  public static func charCount (_ codepoint : Int) -> Int {
+    return codepoint >= 0x10000 ? 2 : 1
+  }
+  
+  /// - Since: JavaApi &gt; 0.23.0 (Java 5)
+  public static func codePointAt (_ char : [Character], _ index : Int) throws -> Int {
+    guard index >= 0 && index < char.count else {
+      throw Throwable.IndexOutOfBoundsException(index)
+    }
+    var character: Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
+    character = char[index]
+    
+    // UTF-16-Darstellung des Zeichens abrufen
+    let utf16CodeUnits = "\(character)".utf16
+    
+    // Überprüfen, ob das Zeichen ein einzelnes UTF-16-Code-Unit ist (kein Surrogate Pair)
+    if utf16CodeUnits.count == 1 {
+      let codeUnit = utf16CodeUnits.first!//[0]
+      let codePoint = Int(codeUnit)
+      
+      return codePoint
+    } else if utf16CodeUnits.count == 2 {
+      // Behandlung von Surrogate Pairs (falls erforderlich)
+      let highSurrogate = utf16CodeUnits.first!//[0]
+      let lowSurrogate = utf16CodeUnits.last!//[1]
+                                             // ... Logik zur Berechnung des Int32-Werts aus den Surrogate Pairs
+      let codePoint : Int = (Int(highSurrogate) - 0xD800) * 0x400 + (Int(lowSurrogate) - 0xDC00) + 0x10000
+      
+      return codePoint
+    } else {
+      throw Throwable.UnknownError("Never ever reached position in source Int+java.swift:codePointAt()")
+    }
+  }
+  
+  public static func codePointAt(_ text: String, _ offset: Int) throws -> Int {
+    return try codePointAt(text.toCharArray(), offset)
+  }
+  
+  ///   Converts the give surrogate pair to its supplementary Unicode.Scalar code point value, without validation
+  /// - Parameters:
+  /// - Parameter high - high-surrogate code unit
+  /// - Parameter low - low-surrogate code unit
+  /// - Returns: the supplementary code point computed by parameters
+  /// - Since: JavaApi &gt; 0.22.1 (Java 5)
+  public static func toCodePoint(_ high: Int, _ low: Int) -> Int {
+    // from XCode generated
+    return ((high & 0x3FF) << 10) | (low & 0x3FF) | 0x10000
+  }
 }

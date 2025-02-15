@@ -7,7 +7,12 @@ import Foundation
 
 extension String {
   
-  /// Initialize the String with given encoding.
+  public init (_ bytes : [UInt8], _ start : Int, _ end : Int, _ encoding : String) throws {
+    try self.init (Array(bytes [start..<end]), encoding)
+  }
+
+    
+    /// Initialize the String with given encoding.
   ///
   /// Like Java the encoding is given as String instance.
   ///
