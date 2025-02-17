@@ -409,6 +409,42 @@ Java shortcuts for types need to be translated like
     1d    to    1.0         // double shortcut
     1l    to    Int64(1)    // long shortcut
 
+#### static block
+
+Solution to do something:
+
+```java
+static {
+  // only run once after class is loading
+}
+```
+
+```swift
+static _init : Void = {
+  // only run once during class is loading
+}()
+```
+
+Solution to init something:
+
+```java
+static Something[] staticArray;
+static {
+  staticArray = new Something [100];
+  for (int i = 0; i < staticArray.length(); i++) {
+    staticArray[i] = Something();
+  }
+  // do more
+}
+```
+
+```swift
+static staticArray : [Something] = {
+  var _staticArray = Array.repeating (Something(), 100)
+  //do more
+  return _staticArray
+}()
+
 #### String.format
 
 Replace `String.format` with Swift placeholders like from

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -66,6 +66,21 @@ extension String {
     return self == other
   }
   
+  public func indexOf (_ part : String) -> Int {
+    if let range = self.range(of: part) {
+      let startPosition = self.distance(from: self.startIndex, to: range.lowerBound)
+      //let endPosition = self.distance(from: self.startIndex, to: range.upperBound)
+      return startPosition
+    }
+    return -1
+  }
+  public func indexOf (_ part : Character) -> Int {
+    if let indexOfPart = self.firstIndex(of: part) {
+      return self.distance(from: self.startIndex, to: indexOfPart)
+    }
+    return -1
+  }
+
   /// Check the string contains only whitspaces (or nothing)
   /// - Returns true if only whitespaces included
   @inlinable
@@ -86,6 +101,7 @@ extension String {
   public func strip () -> String {
     return self.trimmingCharacters(in: .whitespacesAndNewlines)
   }
+  
   /// Returns a array of characters build by contents of String
   /// - Returns [Character] array
   public func toCharArray () -> [Character] {
