@@ -187,8 +187,8 @@ extension Character {
     guard index >= 0 && index < char.count else {
       throw Throwable.IndexOutOfBoundsException(index)
     }
-    var character: Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
-    character = char[index]
+    //var character: Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
+    let character : Character = char[index]
     
     // UTF-16-Darstellung des Zeichens abrufen
     let utf16CodeUnits = "\(character)".utf16
@@ -199,15 +199,17 @@ extension Character {
       let codePoint = Int(codeUnit)
       
       return codePoint
-    } else if utf16CodeUnits.count == 2 {
+    }
+    else if utf16CodeUnits.count == 2 {
       // Behandlung von Surrogate Pairs (falls erforderlich)
       let highSurrogate = utf16CodeUnits.first!//[0]
       let lowSurrogate = utf16CodeUnits.last!//[1]
-                                             // ... Logik zur Berechnung des Int32-Werts aus den Surrogate Pairs
+      // ... Logik zur Berechnung des Int32-Werts aus den Surrogate Pairs
       let codePoint : Int = (Int(highSurrogate) - 0xD800) * 0x400 + (Int(lowSurrogate) - 0xDC00) + 0x10000
       
       return codePoint
-    } else {
+    }
+    else {
       throw Throwable.UnknownError("Never ever reached position in source Int+java.swift:codePointAt()")
     }
   }
