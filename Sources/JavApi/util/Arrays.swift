@@ -2,6 +2,9 @@
  * SPDX-FileCopyrightText: 2023,2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
+
+import Foundation
+
 extension java.util {
   
   /// Utility type to work with Arrays
@@ -102,6 +105,21 @@ extension java.util {
       return true
     }
 
+    /// If all element of two array are in same order in both contained, these arrays are equals.
+    /// - Parameter actual array
+    /// - Parameter identical array
+    /// - Returns ``true`` if they are equals
+    public static func equals<T>(_ actual : [T], _ identical : [T]) -> Bool {
+      guard actual.count == identical.count else {
+        return false
+      }
+      for (offset,_) in actual.enumerated() {
+        if actual[offset] as! NSObject == identical[offset] as! NSObject {
+          return false
+        }
+      }
+      return true
+    }
 
 
     /// Fill the given array with element on all indices
