@@ -45,7 +45,7 @@ Parts of source code use the Apache 2.0 license.
 2. [java_swift](https://github.com/SwiftJava/java_swift) - forks and similat projects of SwiftJava user.
    * **pro**: all of installed Java Runtime is supported
    * **contra**: seams still inactive
-   * **conta**: need installed Java Runtime
+   * **contra**: need installed Java Runtime
 
 Some other projects port parts of Java functionally to Swift. I do not say one project are better than other. 
 
