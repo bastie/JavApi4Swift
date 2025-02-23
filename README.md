@@ -23,7 +23,7 @@ Parts of source code use the Apache 2.0 license.
 
 ## Similar projects
 
-0. [JavApi⁴Swift]
+0. [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
   * **pro**: it is JavApi⁴Swift 😎
   * **pro**: still active
   * **pro**: no Java Runtime needed
