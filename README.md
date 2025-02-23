@@ -24,14 +24,14 @@ Parts of source code use the Apache 2.0 license.
 ## Similar projects
 
 0. [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
-  * **pro**: it is JavApi⁴Swift 😎
-  * **pro**: still active
-  * **pro**: no Java Runtime needed
-  * **pro**: stable
-  * **pro**: sample ported Java projects are provided
-  * **contra**: less developer
-  * **contra**: at the moment not all of Java API supported
-  * **contra**: Java code need to port to Swift
+   * **pro**: it is JavApi⁴Swift 😎
+   * **pro**: still active
+   * **pro**: no Java Runtime needed
+   * **pro**: stable
+   * **pro**: sample ported Java projects are provided
+   * **contra**: less developer
+   * **contra**: at the moment not all of Java API supported
+   * **contra**: Java code need to port to Swift
 
 1. [Swift Java Interoperability Tools and Libraries](https://github.com/swiftlang/swift-java)
    * **pro**: subrepository of Apple Swiftlang github home
