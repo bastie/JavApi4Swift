@@ -145,10 +145,5 @@ extension java.util {
       }
       return result
     }
-    
-    /*  public static func fill (_ a : inout Array<Any>, _ fromIndex : Int, _ toIndex : Int, e : ((Any)-> Bool)) {
-     for i in fromIndex..<toIndex {
-     a[i] = e
-     }
-     }*/  }
+  }
 }

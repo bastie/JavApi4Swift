@@ -21,6 +21,33 @@ Parts of source code use the BSD Licenses and the Public Domain / The Unlicense.
 By default I use the MIT License.
 Parts of source code use the Apache 2.0 license.
 
+## Similar projects
+
+0. [JavApi⁴Swift]
+  * **pro**: it is JavApi⁴Swift 😎
+  * **pro**: still active
+  * **pro**: no Java Runtime needed
+  * **pro**: stable
+  * **pro**: sample ported Java projects are provided
+  * **contra**: less developer
+  * **contra**: at the moment not all of Java API supported
+  * **contra**: Java code need to port to Swift
+
+1. [Swift Java Interoperability Tools and Libraries](https://github.com/swiftlang/swift-java)
+   * **pro**: subrepository of Apple Swiftlang github home
+   * **pro**: seems active
+   * **pro**: lot of developer
+   * **pro**: all of installed Java Runtime is supported
+   * **pro**: no rewrite of running Java code needed (it 's like let COBOL code run forever 😜)
+   * **contra**: need installed Java Runtime
+   * **contra**: not stable  
+   
+2. [java_swift](https://github.com/SwiftJava/java_swift) - forks and similat projects of SwiftJava user.
+   * **pro**: all of installed Java Runtime is supported
+   * **contra**: seams still inactive
+   * **conta**: need installed Java Runtime
+
+Some other projects port parts of Java functionally to Swift. I do not say one project are better than other. 
 
 ## thanks
 
