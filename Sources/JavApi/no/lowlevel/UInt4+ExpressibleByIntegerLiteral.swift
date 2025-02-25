@@ -11,9 +11,9 @@ extension UInt4 : ExpressibleByIntegerLiteral {
     guard value <= 0x0F else {
       fatalError("Invalid value for UInt4. Value must be between 0 and 15.")
     }
-    guard value >= 0x00 else {
+    /*guard value >= 0x00 else {
       fatalError("Invalid value for UInt4. Value must be between 0 and 15.")
-    }
+    }*/
     self.value = value
   }
 }
