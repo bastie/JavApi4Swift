@@ -4,7 +4,7 @@
  */
 
 
-public protocol Iterable {
+public protocol Iterable<E> : IteratorProtocol {
   associatedtype E
   associatedtype IteratorType: IteratorProtocol where IteratorType.Element == E
   func iterator() -> any java.util.Iterator<E>
