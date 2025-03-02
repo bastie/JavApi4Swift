@@ -9,7 +9,7 @@ extension java.util {
 
     func hasNext() -> Bool
     
-    func next() -> E?
+    func next() throws -> E?
     
     func remove()
   }

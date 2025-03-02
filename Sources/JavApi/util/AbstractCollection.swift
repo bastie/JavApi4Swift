@@ -75,7 +75,7 @@ extension java.util {
       var result = false;
       let it = collection.iterator();
       while (it.hasNext()) {
-        let next = it.next()!
+        let next = try it.next()!
         if try add(next) {
           result = true
         }
@@ -102,7 +102,7 @@ extension java.util {
     public func clear() {
       let it = iterator();
       while (it.hasNext()) {
-        _ = it.next();
+        _ = try! it.next();
         it.remove();
       }
     }
@@ -130,13 +130,13 @@ extension java.util {
       let it = iterator()
       if (element != nil) {
         while (it.hasNext()) {
-          if (element == it.next()) {
+          if (element == (try! it.next())) {
             return true;
           }
         }
       } else {
         while (it.hasNext()) {
-          if (it.next() == nil) {
+          if (try! it.next() == nil) {
             return true;
           }
         }
@@ -167,7 +167,7 @@ extension java.util {
     open func containsAll(_ collection: any java.util.Collection<E?>) -> Bool {
       let it = collection.iterator();
       while (it.hasNext()) {
-        let next = it.next()
+        let next = try! it.next()
         if !self.contains(next!) {
           return false;
         }
@@ -231,14 +231,14 @@ extension java.util {
       let it = iterator();
       if (element != nil) {
         while (it.hasNext()) {
-          if (element == it.next()) {
+          if (element == (try! it.next())) {
             it.remove();
             return true
           }
         }
       } else {
         while (it.hasNext()) {
-          if (it.next() == nil) {
+          if (try! it.next() == nil) {
             it.remove();
             return true;
           }
@@ -280,7 +280,7 @@ extension java.util {
       var result = false;
       let it = iterator();
       while (it.hasNext()) {
-        if (collection.contains(it.next())) {
+        if (collection.contains(try! it.next())) {
           it.remove();
           result = true;
         }
@@ -321,9 +321,9 @@ extension java.util {
       var result = false;
       let it = iterator();
       while (it.hasNext()) {
-        let next : E? = it.next()
+        let next : E? = try! it.next()
         _ = collection.contains(next)
-        if (!collection.contains(it.next())) {
+        if !collection.contains(next) {
           it.remove()
           result = true
         }
@@ -349,7 +349,7 @@ extension java.util {
       var array : [E?] = []
       let iterator = self.iterator()
       while iterator.hasNext() {
-        let next : E? = iterator.next()
+        let next : E? = try! iterator.next()
         array.append(next)
       }
       return array;
@@ -387,7 +387,7 @@ extension java.util {
       _ = buffer.append("[")
       let it = iterator();
       while (it.hasNext()) {
-        let next = it.next()
+        let next = try! it.next()
         if (next != self as? E) {
           _ = buffer.append("\(String(describing: next))")
         } else {
