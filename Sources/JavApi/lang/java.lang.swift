@@ -20,6 +20,7 @@ extension java.lang {
   public typealias StringBuilder = JavApi.StringBuilder
   public typealias Throwable = JavApi.Throwable
   public typealias Math = JavApi.Math
+  public typealias Iterable = JavApi.Iterable
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type
