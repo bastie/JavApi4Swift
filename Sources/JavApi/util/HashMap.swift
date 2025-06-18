@@ -20,6 +20,8 @@ extension java.util {
     open func containsKey(_ key: K) -> Bool {
       return delegate.keys.contains(key)
     }
+    
+    public init() {}
   }
   
 }
