@@ -33,4 +33,20 @@ extension Array {
     }
   }
   
-} // EOT
+} 
+
+extension Array where Element: Equatable {
+  func indexOf(_ element: Element?, default: Int = -1) -> Int {
+    guard let element = element else {
+      return -1
+    }
+    return firstIndex(of: element) ?? `default`
+  }
+  
+  func lastIndexOf(_ element: Element?, default: Int = -1) -> Int {
+    guard let element = element else {
+      return `default`
+    }
+    return lastIndex(of: element) ?? `default`
+  }
+}
