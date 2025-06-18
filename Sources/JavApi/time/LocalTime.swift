@@ -186,9 +186,10 @@ extension java.time {
       }
       // bug with TimeZone not equals GMT
       date = Calendar.current.date(byAdding: .second, value: Foundation.TimeZone.current.secondsFromGMT(), to: date)!
-      if Foundation.TimeZone.current.isDaylightSavingTime() {
+      // FIXME: @2025-02-09 it works and isDaylightSavingTime() return FALSE
+      //if Foundation.TimeZone.current.isDaylightSavingTime() {
         date = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
-      }
+      //}
 
       return LocalTime(date)
     }

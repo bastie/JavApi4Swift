@@ -24,6 +24,10 @@ extension System {
     guard !name.isEmpty() else {
       throw Throwable.IllegalArgumentException("name cannot be empty")
     }
+    // Javadoc tells you cannot change this at runtime
+    guard name != "java.locale.useOldISOCodes" else {
+      return
+    }
     let _ = Task(operation: {
       SYSTEM_PROPERTIES[name] = value
     })
@@ -43,7 +47,9 @@ extension System {
 
   // **not private** : In result of Swiftify
   /// An dictionary with all supported properties and the default value used in JavApi
-  nonisolated(unsafe) static var SYSTEM_PROPERTIES : [String:String] = [
+  nonisolated(unsafe) static var SYSTEM_PROPERTIES : [String:String] = {
+    
+    var result : [String:String] = [
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
     "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\n\r" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
     "os.name" : _SYSTEM_NAME,
@@ -52,8 +58,15 @@ extension System {
     "stdout.encoding" : "utf-8",
     "stderr.encoding" : "utf-8",
     "java.vendor" : "JavApi⁴Swift",
-    "java.expected.version" : "\(UInt64.max)" // (extension) can be set to special Java version behavior. For example Java 1.0 behavior in Boolean.getBoolean.
-  ]
+    "java.expected.version" : "\(Int.max)", // (extension) can be set to special Java version behavior. For example Java 1.0 behavior in Boolean.getBoolean.
+    ]
+    // see java.util.Locale.getLanguageCode
+    if Int(result["java.expected.version"]!)! < 17 {
+      result["java.locale.useOldISOCodes"] = "true"
+    }
+
+    return result
+  }()
   
 #if os(iOS)
   fileprivate static let _SYSTEM_NAME = "iOS"

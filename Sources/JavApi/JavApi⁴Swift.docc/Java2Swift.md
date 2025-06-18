@@ -26,6 +26,30 @@ Abstract classes are implemented as interface with default methods.
 
 The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property. If available use Swift `count` directly.
 
+Arrays are reference types in Java, but value types in Swift. If you set a new variable in Java to the **same** array, all you can do is this **one** array modify. In Swift you create a **second** array and all you do has no effect on array one.
+
+```Java
+/// real existing anonymized example
+class OnlyOnce {
+  int [] hihi = {0,1,2,3,4};
+
+  void changeIt () {
+    final int[] hoho = hihi;
+    hoho [0] = 5;
+  }
+}
+```
+
+```Swift
+class NotTwice {
+  var hihi = [0,1,2,3,4]
+
+  func changeIt () {
+    hihi [0] = 5 
+  }
+}
+```
+
 #### assert
 
 Instead of `assert` use the `guard` with function `fatalError`.

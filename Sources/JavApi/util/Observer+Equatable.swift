@@ -4,7 +4,11 @@
  */
 extension java.util.Observer {
   
-  public static func == (lhs : any java.util.Observer, rhs : any java.util.Observer) -> Bool {
+  public static func == (lhs : Self, rhs : any java.util.Observer) -> Bool {
+    return false
+  }
+  
+  public static func == (lhs : any java.util.Observer, rhs : Self) -> Bool {
     return false
   }
 }

@@ -23,6 +23,12 @@ public class Math {
       return value
     }
   }
+  public static func abs<T: Numeric & Comparable>(_ value: T) -> T {
+    if value < .zero {
+      return -1 * value
+    }
+    return value
+  }
   public static func acos (_ value : Double) -> Double {
     return Foundation.acos(value)
   }

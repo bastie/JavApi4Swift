@@ -11,8 +11,8 @@ extension java.util {
     func addAll(_ location : Int, collection : any Collection<E?>) -> Bool
     func get(_ location : Int) -> E?
     func hashCode() -> Int
-    func indexOf(element : Any) -> Int
-    func lastIndexOf(_ element : Any) -> Int
+    func indexOf(element : Any?) -> Int
+    func lastIndexOf(_ element : Any?) -> Int
     func listIterator() -> any java.util.ListIterator<E?>
     func listIterator(_ location : Int) -> any java.util.ListIterator<E?>
     func remove(_ location : Int) -> E?
