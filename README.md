@@ -42,7 +42,7 @@ Parts of source code use the Apache 2.0 license.
    * **contra**: need installed Java Runtime
    * **contra**: not stable  
    
-2. [java_swift](https://github.com/SwiftJava/java_swift) - forks and similat projects of SwiftJava user.
+2. [java_swift](https://github.com/SwiftJava/java_swift) - forks and similar projects of SwiftJava user.
    * **pro**: all of installed Java Runtime is supported
    * **contra**: seams still inactive
    * **contra**: need installed Java Runtime
@@ -102,7 +102,7 @@ Check out these projects and learn how to use JavApi⁴Swift.
 
 ### 0.26.1
 
-* [Word2Number](https://github.com/bastie/w2ni18n) is a converter library, to get numeric values from textual words f.e. `201` from `two hundred and one`.
+* [Word2Number](https://github.com/bastie/w2ni18n) is a converter library, to get numeric values from textual words f.e. `201` from `two hundred and one`. It is ported from non-i18n python project to i18n python project, to Java (and other) and now to Swift.
 
 ## Development
 
