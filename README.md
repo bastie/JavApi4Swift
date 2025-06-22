@@ -69,11 +69,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.19.1")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.26.1")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.19.1"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.26.1"))
 
 ## Ports
 
@@ -98,7 +98,11 @@ Check out these projects and learn how to use JavApi⁴Swift.
 
 ### 0.19.1
 
-*  [STar](https://github.com/bastie/STar) is a simple Swift Tar library, that provides an easy way to create and read tar files using.
+* [STar](https://github.com/bastie/STar) is a simple Swift Tar library, that provides an easy way to create and read tar files using.
+
+### 0.26.1
+
+* [Word2Number](https://github.com/bastie/w2ni18n) is a converter library, to get numeric values from textual words f.e. `201` from `two hundred and one`.
 
 ## Development
 
