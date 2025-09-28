@@ -1,8 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
+#if canImport(Security)
 import Security
 
 extension java.security {
@@ -54,3 +55,4 @@ extension java.security {
     }
   }
 }
+#endif // canImport(Security)
