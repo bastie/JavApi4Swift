@@ -4,7 +4,9 @@
  */
 
 import Foundation
+#if canImport(Network)
 import Network
+#endif
 
 extension java.io {
   /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
@@ -14,9 +16,6 @@ extension java.io {
     
     /// handle for file
     internal var fileHandle: FileHandle?
-    
-    private var connection: NWConnection?
-    
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
     public init () {}
     
@@ -24,10 +23,13 @@ extension java.io {
       self.fileHandle = handle
     }
     
+#if canImport(Network)
+    private var connection: NWConnection?
     internal init (handle: NWConnection){
       self.connection = handle
     }
-    
+#endif // canImport(Network)
+
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
     public func valid () -> Bool{
       if let fileHandle {
@@ -38,12 +40,14 @@ extension java.io {
           return false
         }
       }
+#if canImport(Network)
       if let connection {
         switch connection.state {
           case .ready : return true
           default : return false
         }
       }
+#endif // canImport(Network)
       return false
     }
   }
