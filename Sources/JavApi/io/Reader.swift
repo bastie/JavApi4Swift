@@ -16,7 +16,6 @@
  */
 
 import Foundation
-import Synchronization
 
 extension java.io {
   
@@ -43,14 +42,14 @@ extension java.io {
     /**
      * The object used to synchronize access to the reader.
      */
-    public let lock : Mutex<Sendable>
+    public let lock : CrossPlatformMutex
     
     /**
      * Constructs a new {@code Reader} with {@code this} as the object used to
      * synchronize critical sections.
      */
     public init() {
-      lock = Mutex(Int(479117))
+      lock = CrossPlatformMutex(Int(479117))
     }
     
     /**
@@ -61,7 +60,7 @@ extension java.io {
      *            the {@code Object} used to synchronize critical sections.
      */
     public init(_ lockObject : Sendable) {
-      self.lock = Mutex(lockObject)
+      self.lock = CrossPlatformMutex(lockObject)
     }
     
     /**
