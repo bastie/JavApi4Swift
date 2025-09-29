@@ -9,7 +9,11 @@ public struct PIC9 : Sendable {
   public internal(set) var value: UInt128 = 0
   internal var count : Int = 1
   
+#if swift(<6)
+  public static let max : UInt128 = UInt128 ("9999999999999999999999999999999")!
+#else
   public static let max : UInt128 = 9_999_999_999_999_999_999_999_999_999_999
+#endif
   public static let min : UInt128 = 0
   
   public init(count: Int = 1, value: any UnsignedInteger) {
