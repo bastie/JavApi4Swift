@@ -5,8 +5,6 @@
 
 #if os(macOS)
 import CryptoKit
-#else
-enum Insecure{}
 #endif
 
 // Swiftify

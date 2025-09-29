@@ -2,7 +2,7 @@
 #else
 
 /// In result of CryptoKit is not available on FreeBSD `Insecure` `MD5` is self provided.
-public enum Insecure {
+extension Insecure {
   
   // Vollständige KI-MD5 Implementierung in Swift
   // TODO: Test unter FreeBSD (und anderen noch offen)
