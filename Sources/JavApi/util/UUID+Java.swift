@@ -4,7 +4,9 @@
  */
 
 import Foundation
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 extension java.util {
   typealias UUID = Foundation.UUID
