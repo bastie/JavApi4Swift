@@ -9,6 +9,7 @@ import Synchronization
 public typealias CrossPlatformMutex = Mutex<Sendable>
 #else
 // Fallback-Implementierung
+import Foundation
 import Dispatch
 
 /// WARNING DO NOT USE THIS CLASS DIRECT
