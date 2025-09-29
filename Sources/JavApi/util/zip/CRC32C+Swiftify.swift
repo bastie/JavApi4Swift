@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
-#if os(Linux)
-enum Insecure{}
-#else
+#if os(macOS)
 import CryptoKit
+#else
+enum Insecure{}
 #endif
 
 // Swiftify

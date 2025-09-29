@@ -1,10 +1,9 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 import XCTest
 @testable import JavApi
-import CryptoKit
 
 final class JavApi_util_LinkedHashMap_Tests: XCTestCase {
   // Test constructors

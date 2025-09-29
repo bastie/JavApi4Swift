@@ -1,10 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023, 2025 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 import XCTest
 @testable import JavApi
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 final class JavApi_util_zip_Checksum_Tests: XCTestCase {
   func testAdler32 () {
@@ -38,8 +40,9 @@ final class JavApi_util_zip_Checksum_Tests: XCTestCase {
     XCTAssertEqual(expected, actually, "CRC32C Prüfsummenberechnung fehlerhaft")
   }
   
-
+#if canImport(CryptoKit)
   func testSwiftlyAdler32 () {
     let _ = Insecure.Adler32 ()
   }
+#endif
 }
