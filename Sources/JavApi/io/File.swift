@@ -219,7 +219,11 @@ extension java.io {
       return java.io.File (self.getAbsolutePath())
     }
     open func getAbsolutePath() -> String {
+      #if swift(<6) 
+      return URL(fileURLWithPath: self.file).absoluteURL.path
+      #else
       return URL(filePath: self.file).absoluteURL.path()
+      #endif
     }
     
     open func getName () -> String {
