@@ -33,6 +33,10 @@ extension Insecure {
       0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391
     ]
     
+    public static func hash(data : Data) -> [UInt8] {
+      return hash([UInt8](data))
+    }
+    
     public static func hash(_ bytes: [UInt8]) -> [UInt8] {
       var message = bytes
       let messageLenBits = UInt64(message.count) * 8
