@@ -39,6 +39,8 @@ public enum Throwable : Error {
   case IllegalArgumentException (_ message : String = "IllegalArgumentException")
   /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
   case IllegalMonitorStateException (_ message : String = "IllegalMonitorStateException")
+  /// - Since: JavaApi &lt; 0.29.0 (Java 1.1)
+  case IllegalStateException (_ message : String = "IllegalStateException", _ cause : Error?)
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   case IllegalThreadStateException (_ message : String = "IllegalThreadStateException")
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
