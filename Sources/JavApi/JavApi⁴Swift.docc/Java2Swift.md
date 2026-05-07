@@ -224,6 +224,20 @@ extension JavaInterfaceName {
 }
 ```
 
+#### interfaces with constants
+
+To implements constants in protocols take computed properties and an extensions.
+
+```swift
+  public protocol WithConstants {
+    static var name : Type {get} // value of contants not here 
+  }
+  
+  extension WithConstants {
+    static var name : Type {contant_value} // like: static var magicNumber : Int { 42 }
+  }
+```
+
 #### java.lang types
 
 All types in package java.lang doesn't need to import in Java. One solution is to set the full package name before. In result of Java-Swift name overlap it seems better to implement these types outside the java.lang enum structure (see package section).
