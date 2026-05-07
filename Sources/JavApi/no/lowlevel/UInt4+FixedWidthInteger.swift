@@ -33,7 +33,7 @@ extension UInt4: FixedWidthInteger {
   }
   
   public func dividedReportingOverflow(by rhs: UInt4) -> (partialValue: UInt4, overflow: Bool) {
-    if rhs == 0 {
+    if rhs == UInt4(0) {
       return (0, true) // Division by zero
     }
     let result = UInt4(truncatingIfNeeded: UInt(self) / UInt(rhs))
@@ -41,7 +41,7 @@ extension UInt4: FixedWidthInteger {
   }
   
   public func remainderReportingOverflow(dividingBy rhs: UInt4) -> (partialValue: UInt4, overflow: Bool) {
-    if rhs == 0 {
+    if rhs == UInt4(0) {
       return (0, true) // Division by zero
     }
     let result = UInt4(truncatingIfNeeded: UInt(self) % UInt(rhs))
