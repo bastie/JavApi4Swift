@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -201,6 +201,13 @@ extension String {
   
   public static func valueOf (_ char : Character) -> String {
     return String ("\(char)")
+  }
+
+  /// Fluent Java like append function
+  /// - Parameter string: to append
+  public mutating func appendJ (_ string : String) -> String {
+    self.append(string)
+    return self
   }
   
   /// Returns self

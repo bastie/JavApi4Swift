@@ -5,13 +5,13 @@
 
 extension java.util {
   
-  public protocol ListIterator<E> : Iterator {
+  public protocol ListIterator<Element> : Iterator {
     
-    func add(_ element : E?)
+    func add(_ element : Element?)
     func hasPrevious() -> Bool
     func nextIndex() -> Int
-    func previous() throws -> E?
+    func previous() throws -> Element?
     func previousIndex() -> Int
-    func set(_ element : E?);
+    func set(_ element : Element?);
   }
 }

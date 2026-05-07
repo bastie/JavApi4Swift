@@ -103,7 +103,7 @@ extension java.util {
       let it = iterator();
       while (it.hasNext()) {
         _ = try! it.next();
-        it.remove();
+        try? it.remove();
       }
     }
     
@@ -134,9 +134,13 @@ extension java.util {
             return true;
           }
         }
-      } else {
+      }
+      else {
         while (it.hasNext()) {
-          if (try! it.next() == nil) {
+          do {
+            _ = try it.next()
+          }
+          catch {
             return true;
           }
         }
@@ -232,14 +236,18 @@ extension java.util {
       if (element != nil) {
         while (it.hasNext()) {
           if (element == (try! it.next())) {
-            it.remove();
+            try? it.remove();
             return true
           }
         }
-      } else {
+      }
+      else {
         while (it.hasNext()) {
-          if (try! it.next() == nil) {
-            it.remove();
+          do {
+            _ = try it.next()
+          }
+          catch {
+            try? it.remove();
             return true;
           }
         }
@@ -281,7 +289,7 @@ extension java.util {
       let it = iterator();
       while (it.hasNext()) {
         if (collection.contains(try! it.next())) {
-          it.remove();
+          try? it.remove();
           result = true;
         }
       }
@@ -324,7 +332,7 @@ extension java.util {
         let next : E? = try! it.next()
         _ = collection.contains(next)
         if !collection.contains(next) {
-          it.remove()
+          try? it.remove()
           result = true
         }
       }
