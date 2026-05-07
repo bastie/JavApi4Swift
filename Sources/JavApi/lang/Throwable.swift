@@ -40,7 +40,7 @@ public enum Throwable : Error {
   /// - Since: JavaApi &lt; 0.16.0 (Java 1.0)
   case IllegalMonitorStateException (_ message : String = "IllegalMonitorStateException")
   /// - Since: JavaApi &lt; 0.29.0 (Java 1.1)
-  case IllegalStateException (_ message : String = "IllegalStateException", _ cause : Error?)
+  case IllegalStateException (_ message : String = "IllegalStateException", _ cause : Error? = nil)
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   case IllegalThreadStateException (_ message : String = "IllegalThreadStateException")
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
