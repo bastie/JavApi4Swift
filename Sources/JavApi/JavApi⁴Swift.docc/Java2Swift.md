@@ -162,6 +162,15 @@ let result = toCall ().flatMap { _ in
 }
 ```
 
+With **Swift 6.0** typed throws is provided.
+
+```swift
+  public twoBeOrNotTwoBe (_ number : Int) throws (NumberFormatException) {
+    guard 42 == number else {
+      throw NumberFormatException () 
+    }
+  }
+```
 
 #### final
 
