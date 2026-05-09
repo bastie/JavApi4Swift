@@ -1,11 +1,10 @@
 /*
  * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
- * SPDX-License-Identifier: ASL2
+ * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.util {
-  
-  
+    
   /**
    * This class provides methods that generates pseudo-random numbers of different
    * types, such as {@code int}, {@code long}, {@code double}, and {@code float}.
@@ -17,8 +16,7 @@ extension java.util {
     public static func == (lhs: java.util.Random, rhs: java.util.Random) -> Bool {
       return lhs.seed == rhs.seed
     }
-    
-    
+        
     private static let multiplier : Int64 = Int64 (0x5deece66d);
     
     /**
@@ -251,7 +249,6 @@ extension java.util {
       self.seed = (seed ^ java.util.Random.multiplier) & ((Int64(1) << 48) - 1);
       haveNextNextGaussian = false;
     }
-    
     
     public func hash(into hasher: inout Hasher) {
       return hasher.combine(seed)
