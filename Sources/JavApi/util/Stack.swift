@@ -5,89 +5,89 @@
 
 extension java.util {
   
-  /// Base implementation of Stack
-  open class Stack<Element> where Element : Equatable {
-    public init(){}
-    var items: [Element] = []
-
-    /// Add element at end
-    ///
-    /// - Parameters:
-    /// - Parameter e Element to add
-    ///
-    /// - Returns true if collection is changed
-    public func add (_ e : Element) -> Bool {
-      let countBefore = items.count
-      items.append(e)
-      return items.count != countBefore
-    }
-    /// Add element at end
-    ///
-    /// - Parameters:
-    /// - Parameter e Element to add
-    public func addElement (_ e : Element) {
-      let _ = self.add(e)
+  /// A last-in-first-out (LIFO) stack of objects.
+  ///
+  /// Mirrors `java.util.Stack<E>`, which extends `Vector<E>` and adds
+  /// exactly five methods: `push`, `pop`, `peek`, `empty`, and `search`.
+  ///
+  /// All inherited `Vector` methods (and their thread-safety guarantee)
+  /// are available without any additional code.
+  ///
+  /// ```swift
+  /// let stack = Java.util.Stack<NSString>()
+  /// stack.push("a")
+  /// stack.push("b")
+  /// print(try stack.peek())    // → b
+  /// print(try stack.pop())     // → b
+  /// print(stack.search("a"))   // → 1  (1-based distance from top)
+  /// ```
+  public final class Stack<E: AnyObject>: Vector<E> {
+    
+    /// Creates an empty stack.
+    public init() {
+      try! super.init(0,0)
     }
     
-    /// Tests if contains no elements
-    ///
-    /// - Returns true if empty
-    public func empty () -> Bool {
-      return 0 == self.items.count
-    }
+    // =========================================================================
+    // MARK: - Stack API  (java.util.Stack)
+    // =========================================================================
     
-    /// Tests if contains no elements
+    /// Pushes `item` onto the top of this stack and returns it.
     ///
-    /// - Returns true if empty
-    public func isEmpty () -> Bool {
-      return 0 == self.items.count
-    }
-    
-    /// Get last element
-    ///
-    /// - Returns element
-    ///
-    /// - Throws if no element is existing an EmptyStackException
-    public func peek () throws -> Element {
-      guard !self.items.isEmpty else {
-        throw EmptyStackException()
-      }
-      return self.items[self.items.count - 1]
-    }
-    
-    /// Get last element and remove it
-    ///
-    /// - Returns last element
-    ///
-    /// - Throws if no element is existing an EmptyStackException
-    public func pop() throws -> Element {
-      guard !self.items.isEmpty else {
-        throw EmptyStackException ()
-      }
-      return items.removeLast()
-    }
-
-    /// Add element at end
-    ///
-    /// - Parameters:
-    /// - Parameter item Element to add
-    ///
-    /// - Returns element
-    public func push(_ item: Element) -> Element {
-      items.append(item)
+    /// Equivalent to `addElement(item)`.
+    @discardableResult
+    public func push(_ item: E) -> E {
+      addElement(item)
       return item
     }
     
-    
-    public func search (_ item: Element) -> Int {
-      var result = 0
-      for i in 0..<self.items.count {
-        result += 1
-        if self.items[self.items.count - 1 - i] == item {
-          return result
+    /// Removes and returns the object at the top of this stack.
+    ///
+    /// - Throws: `java.util.EmptyStackException` when the stack is empty.
+    @discardableResult
+    public func pop() throws -> E {
+      try withLock {
+        guard elementCount > 0 else {
+          throw java.util.EmptyStackException()
         }
+        return try _removeAt(elementCount - 1)   // inherited private helper
       }
-      return -1
+    }
+    
+    /// Returns the object at the top of this stack without removing it.
+    ///
+    /// - Throws: `java.util.EmptyStackException` when the stack is empty.
+    public func peek() throws -> E {
+      try withLock {
+        guard elementCount > 0 else {
+          throw java.util.EmptyStackException()
+        }
+        return elementData[elementCount - 1]!
+      }
+    }
+    
+    /// Returns `true` if this stack contains no elements.
+    ///
+    /// Shadows `Vector.isEmpty()` with the idiomatic Java Stack name.
+    public func empty() -> Bool {
+      isEmpty()
+    }
+    
+    /// Returns the 1-based position of `o` from the top of the stack,
+    /// or `-1` if `o` is not present.
+    ///
+    /// The topmost element has distance `1`; the element beneath it `2`, etc.
+    /// Uses identity (`===`) for comparison, matching Java's `==` on objects.
+    public func search(_ o: E) -> Int {
+      withLock {
+        // Scan from top (elementCount-1) downward
+        for i in stride(from: elementCount - 1, through: 0, by: -1) {
+          if elementData[i] === o {
+            return elementCount - i   // convert 0-based from-bottom to 1-based from-top
+          }
+        }
+        return -1
+      }
     }
   }
 }

@@ -76,25 +76,27 @@ extension java.util {
     ///   - initialCapacity: Initial backing-buffer size. Must be ≥ 0.
     ///   - capacityIncrement: Number of slots added on each grow.
     ///                        `<= 0` means "double the current capacity".
-    public init(initialCapacity: Int, capacityIncrement: Int) {
-      precondition(initialCapacity >= 0, "Illegal Capacity: \(initialCapacity)")
+    public init(_ initialCapacity: Int, _ capacityIncrement: Int) throws {
+      guard initialCapacity >= 0 else {
+        throw IllegalArgumentException.init("initialCapacity must not be negative")
+      }
       self.elementData = [E?](repeating: nil, count: initialCapacity)
       self.capacityIncrement = capacityIncrement
     }
     
     /// Creates a vector with the given initial capacity and automatic growth.
-    public convenience init(initialCapacity: Int) {
-      self.init(initialCapacity: initialCapacity, capacityIncrement: 0)
+    public convenience init(_ initialCapacity: Int) throws {
+      try self.init(initialCapacity, 0)
     }
     
     /// Creates a vector with a default initial capacity of 10 and automatic growth.
-    public convenience init() {
-      self.init(initialCapacity: 10, capacityIncrement: 0)
+    public convenience init() throws {
+      try self.init(10, 0)
     }
     
     /// Creates a vector pre-loaded with all elements of `collection`.
-    public convenience init(_ collection: [E]) {
-      self.init(initialCapacity: collection.count, capacityIncrement: 0)
+    public convenience init(_ collection: [E]) throws {
+      try self.init(collection.count, 0)
       for element in collection {
         // No lock needed — object is not yet visible to other threads.
         _appendUnsafe(element)
@@ -354,7 +356,7 @@ extension java.util {
     
     /// Removes and returns the element at `index`.  Assumes index is valid.
     @discardableResult
-    private func _removeAt(_ index: Int) throws -> E {
+    internal func _removeAt(_ index: Int) throws -> E {
       try _rangeCheck(index)
       let old = elementData[index]!
       for i in index..<(elementCount - 1) {
