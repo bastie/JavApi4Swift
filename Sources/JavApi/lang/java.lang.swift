@@ -22,7 +22,10 @@ extension java.lang {
   public typealias Throwable = JavApi.Throwable
   public typealias Exception = JavApi.Exception
   public typealias RuntimeException = JavApi.RuntimeException
-  public typealias IllegalStateException = JavApi.RuntimeException
+  public typealias IllegalArgumentException = JavApi.IllegalArgumentException
+  public typealias IllegalStateException = JavApi.IllegalStateException
+  public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
+  public typealias ArrayIndexOutOfBoundsException = JavApi.ArrayIndexOutOfBoundsException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type

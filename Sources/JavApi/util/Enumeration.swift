@@ -6,7 +6,7 @@ extension java.util {
   
   public protocol Enumeration<Element>: Sequence, IteratorProtocol {
     func hasMoreElements() -> Bool
-    mutating func nextElement() -> Element
+    mutating func nextElement() throws -> Element
   }
   
 }

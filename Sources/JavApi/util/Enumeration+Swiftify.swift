@@ -7,7 +7,13 @@ extension java.util.Enumeration {
   // IteratorProtocol.next()  ←  Java hasMoreElements() + nextElement()
   mutating func next() -> Element? {
     guard hasMoreElements() else { return nil }
-    return nextElement()
+    do {
+      let elem = try nextElement()
+      return elem
+    }
+    catch {
+      return nil
+    }
   }
   
   // Sequence.makeIterator()  →  self ist gleichzeitig der Iterator
