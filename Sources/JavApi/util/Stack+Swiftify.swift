@@ -9,11 +9,12 @@ extension java.util.Stack {
   /// - Returns element
   ///
   /// - Throws if no element is existing an EmptyStackException
-  public func peek ()-> Element? {
-    guard !self.items.isEmpty else {
+  public func peek ()-> E? {
+    guard !self.empty() else {
       return nil
     }
-    return self.items[self.items.count - 1]
+    
+    return elementData[elementCount - 1]!
   }
   
   /// Get last element and remove it
@@ -21,10 +22,10 @@ extension java.util.Stack {
   /// - Returns last element
   ///
   /// - Throws if no element is existing an EmptyStackException
-  public func pop() -> Element? {
-    guard !self.items.isEmpty else {
+  public func pop() -> E? {
+    guard !self.empty() else {
       return nil
     }
-    return items.removeLast()
+    return try! _removeAt(elementCount - 1)
   }
 }

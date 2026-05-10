@@ -486,48 +486,9 @@ extension java.util {
 }
 
 // =============================================================================
-// MARK: - Swiftify extension
-// =============================================================================
-
-extension java.util.Vector {
-  
-  /// Swift-style read subscript.
-  ///
-  /// ```swift
-  /// let first = try v[0]
-  /// ```
-  ///
-  /// - Throws: `java.lang.ArrayIndexOutOfBoundsException` when `index` is out of range.
-  public subscript(index: Int) -> E {
-    get throws { try elementAt(index) }
-  }
-  
-  /// The number of elements (Swift alias for `size()`).
-  public var count: Int { size() }
-  
-  /// Appends `element` using the `+=` operator.
-  ///
-  /// ```swift
-  /// v += myObject
-  /// ```
-  public static func += (lhs: java.util.Vector<E>, rhs: E) {
-    lhs.addElement(rhs)
-  }
-  
-  /// Converts this vector to a plain Swift `Array`.
-  public func toSwiftArray() -> [E] { toArray() }
-}
-
-// =============================================================================
 // MARK: - Enumeration  (java.util.Enumeration<E> — minimal impl for Vector)
 // =============================================================================
 //
-// If JavApi⁴Swift already provides Java.util.Enumeration, delete this block
-// and use the existing type.  The implementation below is self-contained so
-// that java.util.Vector.swift compiles independently.
-//
-// NOTE: Place this in a dedicated  java.util.Enumeration.swift  if the type
-// is needed by other classes (Stack, Hashtable, …).
 
 extension java.util {
   
