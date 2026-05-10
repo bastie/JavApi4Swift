@@ -50,7 +50,7 @@ extension java.util {
     /// - Throws if no element is existing an EmptyStackException
     public func peek () throws -> Element {
       guard !self.items.isEmpty else {
-        throw Throwable.EmptyStackException()
+        throw EmptyStackException()
       }
       return self.items[self.items.count - 1]
     }
@@ -62,7 +62,7 @@ extension java.util {
     /// - Throws if no element is existing an EmptyStackException
     public func pop() throws -> Element {
       guard !self.items.isEmpty else {
-        throw Throwable.EmptyStackException ()
+        throw EmptyStackException ()
       }
       return items.removeLast()
     }

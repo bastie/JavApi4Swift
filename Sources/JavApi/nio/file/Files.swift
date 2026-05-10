@@ -51,7 +51,7 @@ extension java.nio.file {
         try FileManager.default.createDirectory(at: tempDirectoryURL, withIntermediateDirectories: true, attributes: nil)
         return java.nio.file._Path.of(tempDirectoryURL.path)
       } catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
     
@@ -72,7 +72,7 @@ extension java.nio.file {
           fileHandle.closeFile()
         }
         else {
-          throw java.io.Throwable.IOException("IOException: file can not be written at \(file.toString())")
+          throw java.io.IOException("IOException: file can not be written at \(file.toString())")
         }
       }
       else {
@@ -81,10 +81,10 @@ extension java.nio.file {
           if #available(macOS 13.0, *) {
             try Data(bytes).write(to: URL(filePath: file.toString()), options: .atomic)
           } else {
-            throw java.io.Throwable.IOException("IOException: func Files.write (Path, [UInt8], OpenOption not yet implemented for other than macOS 13.0 or higher. Please help!")
+            throw java.io.IOException("IOException: func Files.write (Path, [UInt8], OpenOption not yet implemented for other than macOS 13.0 or higher. Please help!")
           }
         }catch {
-          throw java.io.Throwable.IOException("IOException: file \(file.toString()) can not be created and written")
+          throw java.io.IOException("IOException: file \(file.toString()) can not be created and written")
         }
       }
       return file
@@ -110,9 +110,9 @@ extension java.nio.file {
         }
       }
       catch {
-        throw java.io.Throwable.IOException("IOException: file \(file.toString()) can not be reading ")
+        throw java.io.IOException("IOException: file \(file.toString()) can not be reading ")
       }
-      throw java.io.Throwable.IOException("IOException: file \(file.toString()) can not be reading ")
+      throw java.io.IOException("IOException: file \(file.toString()) can not be reading ")
     }
    
     @available(macOS 13.0, *)
@@ -131,7 +131,7 @@ extension java.nio.file {
           try Data(content).write(to: URL(filePath: file.toString()))
         }
         catch {
-          throw java.io.Throwable.IOException(error.localizedDescription)
+          throw java.io.IOException(error.localizedDescription)
         }
       }
     }

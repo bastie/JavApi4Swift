@@ -19,7 +19,7 @@ extension java.io {
         self.fileMode = mode
       }
       else {
-        throw java.io.Throwable.IOException()
+        throw java.io.IOException()
       }
     }
     
@@ -34,7 +34,7 @@ extension java.io {
         try fileDescriptor.seek(toOffset: UInt64(newPos))
       }
       catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
   }

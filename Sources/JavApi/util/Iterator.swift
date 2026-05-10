@@ -8,10 +8,8 @@ extension java.util {
 
     func hasNext() -> Bool
     
-    // - TODO: should be throws only NoSuchElementException, but it is a big change
-    func next() throws (java.util.Throwable) -> Element
+    func next() throws (java.util.NoSuchElementException) -> Element
     
-    // - TODO: should be throws only UnsupportedOperationException and IllegalStateException, but it is a big change
-    func remove() throws (java.lang.Throwable)
+    func remove() throws (java.lang.IllegalStateException)
   }
 }

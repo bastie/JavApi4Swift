@@ -22,6 +22,7 @@ extension java.lang {
   public typealias Throwable = JavApi.Throwable
   public typealias Exception = JavApi.Exception
   public typealias RuntimeException = JavApi.RuntimeException
+  public typealias IllegalStateException = JavApi.RuntimeException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type

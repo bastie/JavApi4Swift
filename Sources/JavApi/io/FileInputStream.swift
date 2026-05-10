@@ -15,7 +15,7 @@ extension java.io {
     public init (_ file : java.io.File) throws {
       let newFileHandle = FileHandle(forReadingAtPath: file.getAbsolutePath())
       if newFileHandle == nil {
-        throw java.io.Throwable.IOException("Could not open file '\(file.getAbsolutePath())' for reading")
+        throw java.io.IOException("Could not open file '\(file.getAbsolutePath())' for reading")
       }
       else {
         self.fileHandle = newFileHandle!
@@ -26,7 +26,7 @@ extension java.io {
     public init (_ file : String) throws {
       let newFileHandle = FileHandle(forReadingAtPath: file)
       if newFileHandle == nil {
-        throw java.io.Throwable.IOException("Could not open file '\(file)' for reading")
+        throw java.io.IOException("Could not open file '\(file)' for reading")
       }
       else {
         self.fileHandle = newFileHandle!
@@ -45,7 +45,7 @@ extension java.io {
         }
       }
       catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
     
@@ -64,18 +64,18 @@ extension java.io {
         }
       }
       catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
     
     /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
     open override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
       guard length > 0 else {
-        throw java.io.Throwable.IOException("Length must be greater than zero")
+        throw java.io.IOException("Length must be greater than zero")
       }
       guard offset >= 0 && offset < array.count else {
         let message = "Offset must be between 0 and \(array.count)"
-        throw java.io.Throwable.IOException(message)
+        throw java.io.IOException(message)
       }
       let maxRead = min(length, array.count - offset)
       
@@ -92,7 +92,7 @@ extension java.io {
         }
       }
       catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
     
@@ -100,7 +100,7 @@ extension java.io {
     open override func skip(_ n: Int) throws -> Int {
       guard n >= 0 else {
         let message = "Length must be greater than or equal to zero"
-        throw java.io.Throwable.IOException(message)
+        throw java.io.IOException(message)
       }
       var ignored : [UInt8] = Array(repeating: 0, count: n)
       return try self.read(&ignored)

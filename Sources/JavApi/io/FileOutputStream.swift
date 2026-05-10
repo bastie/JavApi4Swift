@@ -17,7 +17,7 @@ extension java.io {
         self.handle = newFileHandle
       }
       else {
-        throw java.io.Throwable.IOException("Could not open file: \(file.getAbsolutePath()) for writing")
+        throw java.io.IOException("Could not open file: \(file.getAbsolutePath()) for writing")
       }
     }
     
@@ -27,7 +27,7 @@ extension java.io {
       if let newFileHandle = fileDescriptor.fileHandle {
         self.handle = newFileHandle
       }
-      throw java.io.Throwable.IOException("Could not open file descriptor: \(fileDescriptor) for writing")
+      throw java.io.IOException("Could not open file descriptor: \(fileDescriptor) for writing")
     }
     
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
@@ -36,7 +36,7 @@ extension java.io {
         self.handle = newFileHandle
       }
       else {
-        throw java.io.Throwable.IOException("Could not open file: \(path) for writing")
+        throw java.io.IOException("Could not open file: \(path) for writing")
       }
 
     }
@@ -47,7 +47,7 @@ extension java.io {
         try self.handle.close()
       }
       catch {
-        throw java.io.Throwable.IOException(error.localizedDescription)
+        throw java.io.IOException(error.localizedDescription)
       }
     }
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)

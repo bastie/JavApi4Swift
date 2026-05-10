@@ -26,7 +26,7 @@ extension java.io {
     
     /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
     open func read() throws -> Int {
-      throw java.io.Throwable.EOFException("not yet implemented")
+      throw java.io.EOFException("not yet implemented")
     }
     /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
     open func read(_ array : inout [UInt8]) throws -> Int {
@@ -34,7 +34,7 @@ extension java.io {
     }
     /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
     open func read(_ array : inout [UInt8], _ offset : Int, _ length : Int) throws -> Int {
-      throw java.io.Throwable.EOFException("not yet implemented")
+      throw java.io.EOFException("not yet implemented")
     }
     
     /// Skip a number of bytes in the Stream

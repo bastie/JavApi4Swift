@@ -37,7 +37,7 @@ extension java.io {
     
     internal func readUInt8() -> Result<UInt8,Error> {
       guard pos < self.data.count else {
-        return .failure(java.io.Throwable.IOException())
+        return .failure(java.io.IOException())
       }
       pos += 1
       return .success(self.data[pos - 1])

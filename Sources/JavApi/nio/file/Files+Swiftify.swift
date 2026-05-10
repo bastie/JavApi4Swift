@@ -27,9 +27,9 @@ extension java.nio.file.Files {
       }
     }
     catch {
-      throw java.io.Throwable.IOException("IOException: file \(file.toString()) can not be reading ")
+      throw java.io.IOException("IOException: file \(file.toString()) can not be reading ")
     }
-    throw java.io.Throwable.IOException("IOException: file \(file.toString()) can not be reading ")
+    throw java.io.IOException("IOException: file \(file.toString()) can not be reading ")
   }
   
 }

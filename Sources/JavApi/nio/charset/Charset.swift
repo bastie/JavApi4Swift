@@ -49,7 +49,7 @@ extension java.nio.charset {
       case "ISO-8859-1" :
         result.delegate = .isoLatin1
       default:
-        throw java.nio.charset.Throwable.UnsupportedCharsetException (name)
+        throw java.nio.charset.UnsupportedCharsetException (name)
       }
       return result
     }

@@ -26,7 +26,7 @@ extension RandomAccessCollection {
       return low
     }
     else {
-      throw java.util.Throwable.NoSuchElementException()
+      throw java.util.NoSuchElementException()
     }
   }
 }

@@ -10,7 +10,7 @@ extension java.io.Writer {
       try self.write(character)
     }
     else {
-      throw java.io.Throwable.IOException("integer \(intWert) cannot be converted to a character")
+      throw java.io.IOException("integer \(intWert) cannot be converted to a character")
     }
   }
 }

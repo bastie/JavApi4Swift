@@ -58,7 +58,7 @@ extension java.io {
      *             if an error occurs while closing this reader.
      */
     open func close() throws {
-      throw java.io.Throwable.IOException("abstract function not yet implemented")
+      throw java.io.IOException("abstract function not yet implemented")
     }
     
     /**
@@ -81,7 +81,7 @@ extension java.io {
      * @see #reset()
      */
     open func mark(_ readLimit : Int) throws {
-      throw java.io.Throwable.IOException();
+      throw java.io.IOException();
     }
     
     /**
@@ -150,7 +150,7 @@ extension java.io {
      *             if this reader is closed or some other I/O error occurs.
      */
     open func read(_ buf : inout [Character], _ offset : Int, _ count : Int) throws -> Int {
-      throw java.io.Throwable.IOException("abstract method not yet implemented")
+      throw java.io.IOException("abstract method not yet implemented")
     }
     
     /**
@@ -183,7 +183,7 @@ extension java.io {
      * @see #markSupported()
      */
     open func reset() throws {
-      throw java.io.Throwable.IOException();
+      throw java.io.IOException();
     }
     
     /**

@@ -6,9 +6,9 @@ extension java.util.Iterator {
   
   // Brücke: erfüllt IteratorProtocol.next() -> Element?
   // "as Element" disambiguiert explizit zur Java-Variante
-  mutating func next() throws (java.util.Throwable) -> Element? {
+  mutating func next() throws (java.util.NoSuchElementException) -> Element? {
     guard hasNext() else {
-      throw java.util.Throwable.NoSuchElementException()
+      throw java.util.NoSuchElementException()
     }
     // hasNext checked so try!
     return (try! next() as Element)
