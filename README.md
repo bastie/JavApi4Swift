@@ -12,7 +12,7 @@ This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.htm
 This project use only business friendly **permissive licenses**.
 
 <p><figure>
-<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Floss-license-slide-image.svg/512px-Floss-license-slide-image.svg.png"></a>
+<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://github.com/bastie/JavApi4Swift/blob/main/Sources/JavApi/JavApi⁴Swift.docc/Resources/Floss-license-slide-image.svg"></a>
 <figcaption style="text-align: right;display: inline-block">Image: David A. Wheeler, et al., CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0>, via Wikimedia Commons</figcaption>
 </figure></p>
 
@@ -69,15 +69,15 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.26.1")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.31.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.26.1"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.31.0"))
 
 ## Ports
 
-I'm implementing some porting projects to check JavApi⁴Swift releases and look for the next missing features. The use could start from version 0.4.2.
+I'm implementing some porting projects to check JavApi⁴Swift releases and look for the next missing features. The use should start from version 0.31.0.
 Check out these projects and learn how to use JavApi⁴Swift.
 
 ### 0.4.2
