@@ -11,12 +11,15 @@ let package = Package(
       name: "JavApi",
       targets: ["JavApi"]
     ),
-    .library(name: "DOM", targets: ["DOM"])
-    
+    .library(name: "DOM", targets: ["DOM"]),
+    .library(name: "notonlyjava", targets: ["NO"]),
   ],
   targets: [
     // Targets are the basic building blocks of a package, defining a module or a test suite.
     // Targets can depend on other targets in this package and products from dependencies.
+    .target(
+      name: "NO",
+    ),
     .target(
       name: "DOM",
     ),
