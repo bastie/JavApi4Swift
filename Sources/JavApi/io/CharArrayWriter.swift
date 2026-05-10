@@ -44,9 +44,9 @@ extension java.io {
      * @throws IllegalArgumentException
      *             if {@code initialSize < 0}.
      */
-    public init(_ initialSize : Int) throws {
+    public init(_ initialSize : Int) throws (IllegalArgumentException) {
       guard initialSize >= 0 else {
-        throw java.lang.Throwable.IllegalArgumentException("array size must be non-negative")
+        throw IllegalArgumentException("array size must be non-negative")
       }
       buf = Array(repeating: "\u{0}", count: initialSize)
       self.count = 0
@@ -160,7 +160,7 @@ extension java.io {
       // avoid int overflow
       if (offset < 0 || offset > c.count || len < 0
           || len > c.count - offset) {
-        throw java.lang.Throwable.IndexOutOfBoundsException();
+        throw IndexOutOfBoundsException();
       }
       self.lock?.lock()
       defer {

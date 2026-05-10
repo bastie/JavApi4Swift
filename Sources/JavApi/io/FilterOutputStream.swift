@@ -94,11 +94,11 @@ extension java.io {
     public override func write(_ buffer : [UInt8], _ offset : Int, _ length : Int) throws {
       // Force null buffer check first!
       if (offset > buffer.length || offset < 0) {
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(offset, "Offset out of bounds : \(offset)")
+        throw ArrayIndexOutOfBoundsException("Offset out of bounds : \(offset)")
       }
       if (length < 0 || length > buffer.length - offset) {
         // luni.18=Length out of bounds \: {0}
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(length, "Length out of bounds : \(length)")
+        throw ArrayIndexOutOfBoundsException("Length out of bounds : \(length)")
       }
       for i in 0..<length {
         // Call write() instead of out.write() since subclasses could

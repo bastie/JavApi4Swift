@@ -59,11 +59,11 @@ public class Integer {
   public static let MIN_VALUE : Int = Int(Int32.min)
   
   
-  public static func parseInt (_ string : String) throws -> Int {
+  public static func parseInt (_ string : String) throws (NumberFormatException) -> Int {
     if let value = Int(string) {
       return value
     }
-    throw java.lang.Throwable.NumberFormatException("\(string) is not a number")
+    throw NumberFormatException("\(string) is not a number")
   }
   
   public static func valueOf (_ string : String, _ radix : Int) throws -> Int {

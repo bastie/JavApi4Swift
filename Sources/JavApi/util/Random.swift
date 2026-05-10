@@ -204,7 +204,7 @@ extension java.util {
      *            the exclusive upper border of the range [0 - n).
      * @return a random {@code int}.
      */
-    public func nextInt(_ n : Int) throws -> Int {
+    public func nextInt(_ n : Int) throws (IllegalArgumentException) -> Int {
       if (n > 0) {
         if ((n & -n) == n) {
           return Int ((Int64(n) * Int64(next(31))) >> 31);
@@ -217,7 +217,7 @@ extension java.util {
         } while (bits - val + (n - 1) < 0);
         return val;
       }
-      throw java.lang.Throwable.IllegalArgumentException()
+      throw IllegalArgumentException()
     }
     
     /**

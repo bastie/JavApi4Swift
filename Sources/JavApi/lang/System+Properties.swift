@@ -8,7 +8,7 @@ extension System {
   
   public static func getProperty (_ key : String, _ resultIfMissing : String?) throws -> String? {
     guard !key.isEmpty() else {
-      throw Throwable.IllegalArgumentException("key cannot be empty");
+      throw IllegalArgumentException("key cannot be empty");
     }
     if SYSTEM_PROPERTIES.keys.contains(key) {
       return SYSTEM_PROPERTIES[key]
@@ -22,7 +22,7 @@ extension System {
   
   public static func setProperty (_ name : String, _ value : String) throws {
     guard !name.isEmpty() else {
-      throw Throwable.IllegalArgumentException("name cannot be empty")
+      throw IllegalArgumentException("name cannot be empty")
     }
     // Javadoc tells you cannot change this at runtime
     guard name != "java.locale.useOldISOCodes" else {
@@ -38,7 +38,7 @@ extension System {
   /// - Since: JavaApi &gt; 0.20.0 (Java 1.5)
   public static func clearProperty (_ name : String) throws {
     guard !name.isEmpty() else {
-      throw Throwable.IllegalArgumentException("name cannot be empty")
+      throw IllegalArgumentException("name cannot be empty")
     }
     let _ = Task(operation: {
       SYSTEM_PROPERTIES.removeValue(forKey: name)

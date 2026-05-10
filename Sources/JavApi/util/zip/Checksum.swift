@@ -89,12 +89,12 @@ extension Checksum {
   public func update (_ buffer : [UInt8]) {
     self.update(buffer, 0, buffer.count)
   }
-  public func update (_ buffer : [UInt8]?) throws {
+  public func update (_ buffer : [UInt8]?) throws (NullPointerException) {
     if let buffer {
       self.update(buffer, 0, buffer.count)
     }
     else {
-      throw Throwable.NullPointerException()
+      throw NullPointerException()
     }
   }
   public func update (_ buffer : java.nio.ByteBuffer) {

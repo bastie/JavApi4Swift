@@ -40,7 +40,7 @@ extension java.nio.file {
     /// - Returns true if it exists and is a directory
     public static func createTempDirectory (_ prefix : String, _ attr : java.nio.file.attribute.FileAttribute...) throws -> Path {
       guard attr.isEmpty else {
-        throw java.lang.Throwable.UnsupportedOperationException("Attributes on Files.createTempDirectory ar not yet implemented")
+        throw UnsupportedOperationException("Attributes on Files.createTempDirectory ar not yet implemented")
       }
       let temporaryDirectoryURL = FileManager.default.temporaryDirectory
       
@@ -100,7 +100,7 @@ extension java.nio.file {
         return [UInt8]()
       }
       guard Int.max > lengthOfFile else {
-        throw Throwable.OutOfMemoryError ("OutOfMemoryError: file with \(lengthOfFile) to big to read fully into an array")
+        throw OutOfMemoryError ("OutOfMemoryError: file with \(lengthOfFile) to big to read fully into an array")
       }
       do {
         if #available(macOS 13.0, *) {

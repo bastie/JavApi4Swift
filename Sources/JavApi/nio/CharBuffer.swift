@@ -34,10 +34,10 @@ open class CharBuffer {
   
   open func put (_ chars : [Character], _ offset : Int, _ length : Int) throws -> CharBuffer {
     guard offset > -1 && offset < chars.count else {
-      throw Throwable.IndexOutOfBoundsException(offset, "illegal start position \(offset)")
+      throw IndexOutOfBoundsException("illegal start position \(offset)")
     }
     guard length > -1 && length <= (chars.count-offset) else {
-      throw Throwable.IndexOutOfBoundsException(offset, "illegal length \(length)")
+      throw IndexOutOfBoundsException("illegal length \(length)")
     }
     for i in offset..<(offset+length) {
       try _ = self.put(chars[i])

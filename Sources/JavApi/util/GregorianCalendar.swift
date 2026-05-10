@@ -73,7 +73,7 @@ extension java.util {
       case Calender.DAY_OF_WEEK :
         return dateComponents.weekday!
       default :
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(field, "if the specified field is out of range or not implemented")
+        throw ArrayIndexOutOfBoundsException("the specified field \(field) is out of range or not implemented")
       }
     }
   }

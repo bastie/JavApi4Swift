@@ -32,10 +32,10 @@ extension java.util.Base64 {
       var dest = [UInt8]()
       
       guard src.count % 4 == 0 else {
-        throw Throwable.IllegalArgumentException("Input is not a BASE64 content.")
+        throw IllegalArgumentException("Input is not a BASE64 content.")
       }
       guard src.count > 3 else  {
-        throw Throwable.IllegalArgumentException("Input is not a padded BASE64 content.")
+        throw IllegalArgumentException("Input is not a padded BASE64 content.")
       }
       
       // to support without last 4 bytes

@@ -14,11 +14,11 @@ extension Decimal {
     return java.math.BigDecimal(floatLiteral: newValue)
   }
   
-  public static func valueOf (_ newValue : String) throws -> Decimal {
+  public static func valueOf (_ newValue : String) throws (NumberFormatException) -> Decimal {
     if let result = Decimal(string: newValue) {
       return result
     }
-    throw Throwable.NumberFormatException("In result of \"\(newValue)\" is not a number throw a NumberFormatException")
+    throw NumberFormatException("In result of \"\(newValue)\" is not a number throw a NumberFormatException")
   }
   
   public static func valueOf (_ newValue : Int) -> java.math.BigDecimal {

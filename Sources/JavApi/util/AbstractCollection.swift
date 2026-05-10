@@ -26,7 +26,7 @@ extension java.util {
     }
     
     open func add(_ element: E?) throws -> Bool {
-      throw java.lang.Throwable.UnsupportedOperationException()
+      throw UnsupportedOperationException()
     }
     
     /**

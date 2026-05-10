@@ -5,12 +5,12 @@
 
 extension Dictionary {
   
-  public func get (_ name : Key?) throws -> Value? {
+  public func get (_ name : Key?) throws (NullPointerException) -> Value? {
     if let name {
       return self[name]
     }
     
-    throw Throwable.NullPointerException("In result of key is nil, NullPointerException ist throwing")
+    throw NullPointerException("In result of key is nil, NullPointerException ist throwing")
   }
   
   public mutating func put (_ name : Key?, _ value : Value?) throws -> Value? {
@@ -27,14 +27,14 @@ extension Dictionary {
     return self.keys.contains(key)
   }
   
-  public mutating func putAll (_ map : Dictionary<Key,Value>?) throws {
+  public mutating func putAll (_ map : Dictionary<Key,Value>?) throws (NullPointerException) {
     if let map {
       for (key, value) in map {
         self[key] = value
       }
     }
     else {
-      throw Throwable.NullPointerException("In result of parameter is nil.")
+      throw NullPointerException("In result of parameter is nil.")
     }
   }
 }

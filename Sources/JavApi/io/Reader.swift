@@ -205,10 +205,10 @@ extension java.io {
      */
     open func skip(_ count : Int64) throws -> Int64 {
       if (count < 0) {
-        throw java.lang.Throwable.IllegalArgumentException()
+        throw IllegalArgumentException()
       }
       let skipped =
-      try self.lock.withLock{_ in
+      try self.lock.withLock {_ in
         var _skipped : Int64 = 0
         var toRead : Int = count < 512 ? Int(count) : 512
         var charsSkipped : [Character] = Array(repeating: "\u{0}", count: toRead)

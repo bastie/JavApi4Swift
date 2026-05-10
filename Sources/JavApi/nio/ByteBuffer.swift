@@ -22,7 +22,7 @@ open class ByteBuffer {
   /// Note: Implementation did not allocate space at this time
   public static func allocate (_ count : Int) throws -> ByteBuffer {
     guard count > -1 else {
-      throw Throwable.IllegalArgumentException("sorry for my failure master, I cant not create a ByteBuffer with negative count of bytes")
+      throw IllegalArgumentException("sorry for my failure master, I cant not create a ByteBuffer with negative count of bytes")
     }
     let buffer = ByteBuffer()
     //buffer.content = Array(repeating: 0, count: count)
@@ -80,10 +80,10 @@ open class ByteBuffer {
   
   open func put (_ bytes : [UInt8], _ offset : Int, _ length : Int) throws -> ByteBuffer {
     guard offset > -1 && offset < bytes.count else {
-      throw Throwable.IndexOutOfBoundsException(offset, "illegal start position \(offset)")
+      throw IndexOutOfBoundsException("illegal start position \(offset)")
     }
     guard length > -1 && length <= (bytes.count-offset) else {
-      throw Throwable.IndexOutOfBoundsException(offset, "illegal length \(length)")
+      throw IndexOutOfBoundsException("illegal length \(length)")
     }
     for i in offset..<(offset+length) {
       try _ = self.put(bytes[i])

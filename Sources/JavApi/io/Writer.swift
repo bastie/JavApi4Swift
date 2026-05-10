@@ -69,12 +69,12 @@ extension java.io {
      * @throws NullPointerException
      *             if {@code lock} is {@code null}.
      */
-    public init(_ lock : NSLock?) throws {
+    public init(_ lock : NSLock?) throws (NullPointerException) {
       if let lock {
         self.lock = lock;
       }
       else {
-        throw java.lang.Throwable.NullPointerException()
+        throw NullPointerException()
       }
     }
     
@@ -86,7 +86,7 @@ extension java.io {
      *             if an error occurs while closing this writer.
      */
     open func close() throws {
-      throw java.lang.Throwable.AbstractMethodError("java.io.Writer.close")
+      throw AbstractMethodError("java.io.Writer.close")
     }
     
     /**
@@ -97,7 +97,7 @@ extension java.io {
      *             if an error occurs while flushing this writer.
      */
     open func flush() throws {
-      throw java.lang.Throwable.AbstractMethodError("java.io.Writer.flush")
+      throw AbstractMethodError("java.io.Writer.flush")
     }
     
     /**
@@ -129,7 +129,7 @@ extension java.io {
      *             if this writer is closed or another I/O error occurs.
      */
     open func write(_ buf : [Character], _ offset : Int, _ count : Int) throws {
-      throw java.lang.Throwable.AbstractMethodError("java.io.Writer.write([Character],Int,Int")
+      throw AbstractMethodError("java.io.Writer.write([Character],Int,Int")
     }
     
     /**
@@ -179,7 +179,7 @@ extension java.io {
      */
     open func write (_ str : String, _ offset : Int, _ count : Int) throws {
       if (count < 0) { // other cases tested by getChars()
-        throw java.lang.Throwable.StringIndexOutOfBoundsException(-1)
+        throw StringIndexOutOfBoundsException(-1)
       }
       var buf : [Character] = Array.init(repeating: "\u{0}", count: count)
       str.getChars(offset, offset + count, &buf, 0)

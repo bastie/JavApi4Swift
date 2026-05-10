@@ -22,7 +22,7 @@ extension Foundation.UUID {
     if let uuid = UUID(uuidString: uuid) {
       return uuid
     }
-    throw Throwable.IllegalArgumentException("In result of invalid UUID string \(uuid)")
+    throw IllegalArgumentException("In result of invalid UUID string \(uuid)")
   }
   
   public static func randomUUID () -> UUID {

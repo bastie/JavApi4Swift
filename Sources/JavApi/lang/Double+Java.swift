@@ -7,25 +7,25 @@ extension Double {
   public static let MAX_VALUE = Double.greatestFiniteMagnitude
   public static let MIN_VALUE = -MAX_VALUE
   
-  public static func parseDouble (_ s : String?) throws -> Double {
+  public static func parseDouble (_ s : String?) throws /*(RuntimeException) <- CompilerError */ -> Double {
     if let s {
       return try parseDouble(s)
     }
-    throw Throwable.NullPointerException("In result of String is nil cannot parse as Double.")
+    throw NullPointerException("In result of String is nil cannot parse as Double.")
   }
   /// Parse the fiven String to a Double
   ///
   /// - Parameters:
   ///   - s Double as String
-  public static func parseDouble (_ s : String) throws -> Double {
+  public static func parseDouble (_ s : String) throws (NumberFormatException) -> Double {
     let trimmed = s.trim()
     guard trimmed.components(separatedBy: ".").count == 2 else {
-      throw Throwable.NumberFormatException("In result of String contains multiple points cannot parse as Double.")
+      throw NumberFormatException("In result of String contains multiple points cannot parse as Double.")
     }
     let result = Double(trimmed)
     if let result {
       return result
     }
-    throw Throwable.NumberFormatException ("NumberFormatException for input String \(s)")
+    throw NumberFormatException ("NumberFormatException for input String \(s)")
   }
 } // EOT

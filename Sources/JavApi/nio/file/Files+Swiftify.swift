@@ -17,7 +17,7 @@ extension java.nio.file.Files {
       return Data([UInt8]())
     }
     guard Int.max > lengthOfFile else {
-      throw Throwable.OutOfMemoryError ("OutOfMemoryError: file with \(lengthOfFile) to big to read fully into an array")
+      throw OutOfMemoryError ("OutOfMemoryError: file with \(lengthOfFile) to big to read fully into an array")
     }
     do {
       if #available(macOS 13.0, *) {

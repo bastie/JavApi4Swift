@@ -7,7 +7,7 @@ import Foundation
 
 extension java.util.Date : ComparableJ {
   
-  public func compareTo(_ other: java.util.Date?) throws -> Int {
+  public func compareTo(_ other: java.util.Date?) throws (NullPointerException) -> Int {
     if let other {
       if self.delegate > other.delegate {
         return 1
@@ -22,7 +22,7 @@ extension java.util.Date : ComparableJ {
       }
     }
     else {
-      throw Throwable.NullPointerException()
+      throw NullPointerException()
     }
   }
   

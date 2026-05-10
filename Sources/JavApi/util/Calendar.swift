@@ -49,7 +49,7 @@ extension java.util {
       case java.util.Calender.SECOND:
         return self.dateComponents.minute ?? 12
       default :
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(field, "specific field is out of range or not implemented")
+        throw ArrayIndexOutOfBoundsException("specific field \(field) is out of range or not implemented")
       }
     }
     

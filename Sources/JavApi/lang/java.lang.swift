@@ -13,14 +13,15 @@ extension java.lang {
   public typealias Array = Swift.Array
   public typealias Cloneable = JavApi.Cloneable
   public typealias Comparable = JavApi.ComparableJ
-  public typealias Exception = JavApi.Throwable
   public typealias Runnable = JavApi.Runnable
   public typealias System = JavApi.System
   public typealias String = Swift.String
   public typealias StringBuilder = JavApi.StringBuilder
-  public typealias Throwable = JavApi.Throwable
   public typealias Math = JavApi.Math
   public typealias Iterable = JavApi.Iterable
+  public typealias Throwable = JavApi.Throwable
+  public typealias Exception = JavApi.Exception
+  public typealias RuntimeException = JavApi.RuntimeException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type

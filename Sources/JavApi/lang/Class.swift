@@ -27,7 +27,7 @@ extension java.lang {
         }
         //print ("--------------")
       }
-      throw Throwable.ClassNotFoundException("class \(className) not found")
+      throw ClassNotFoundException("class \(className) not found")
       
       // 2. Klasse suchen:
       

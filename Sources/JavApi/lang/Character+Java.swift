@@ -158,10 +158,10 @@ extension Character {
   }
   
   /// - Since: JavaApi &gt; 0.22.1 (Java 5)
-  public static func toChars(_ codePoint: Int) throws -> [Character] {
+  public static func toChars(_ codePoint: Int) throws (IllegalArgumentException) -> [Character] {
     /// parts from codestral:22b
     guard codePoint > 0 else {
-      throw Throwable.IllegalArgumentException("Unicode codepoint must be greater than 0")
+      throw IllegalArgumentException("Unicode codepoint must be greater than 0")
     }
     if let scalar = UnicodeScalar(UInt16(codePoint)) {
       return "\(scalar)".toCharArray()
@@ -185,7 +185,7 @@ extension Character {
   /// - Since: JavaApi &gt; 0.23.0 (Java 5)
   public static func codePointAt (_ char : [Character], _ index : Int) throws -> Int {
     guard index >= 0 && index < char.count else {
-      throw Throwable.IndexOutOfBoundsException(index)
+      throw IndexOutOfBoundsException("\(index)")
     }
     //var character: Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
     let character : Character = char[index]
@@ -210,7 +210,7 @@ extension Character {
       return codePoint
     }
     else {
-      throw Throwable.UnknownError("Never ever reached position in source Int+java.swift:codePointAt()")
+      throw UnknownError("Never ever reached position in source Int+java.swift:codePointAt()")
     }
   }
   

@@ -60,9 +60,9 @@ extension java.io {
      *             if {@code size <= 0}.
      */
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
-    public init(_ out : java.io.OutputStream, _ size : Int) throws {
+    public init(_ out : java.io.OutputStream, _ size : Int) throws (IllegalArgumentException) {
       if (size <= 0) {
-        throw java.lang.Throwable.IllegalArgumentException("size must be > 0")
+        throw IllegalArgumentException("size must be > 0")
       }
       buf = Array(repeating: 0, count: size)
       super.init(out);
@@ -116,13 +116,11 @@ extension java.io {
       }
       
       if (offset < 0 || offset > buffer.length - length) {
-        // luni.12=Offset out of bounds \: {0}
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(offset, "Offset out of bounds : \(offset)")
+        throw ArrayIndexOutOfBoundsException("Offset out of bounds : \(offset)")
         
       }
       if (length < 0) {
-        // luni.18=Length out of bounds \: {0}
-        throw java.lang.Throwable.ArrayIndexOutOfBoundsException(length, "Length out of bounds : \(length)")
+        throw ArrayIndexOutOfBoundsException("Length out of bounds : \(length)")
       }
       
       // flush the internal buffer first if we have not enough space left
