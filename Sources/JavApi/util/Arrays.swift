@@ -145,5 +145,12 @@ extension java.util {
       }
       return result
     }
+    public static func copyOfRange (_ a : [UInt8], _ fromIndex : Int, _ toIndex : Int) -> [UInt8]{
+      var result = [UInt8]()
+      for i in fromIndex..<toIndex {
+        result.append(a[i])
+      }
+      return result
+    }
   }
 }
