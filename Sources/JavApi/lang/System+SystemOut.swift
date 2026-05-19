@@ -31,6 +31,10 @@ extension System {
       Swift.print (String(decoding: Data(value), as: UTF8.self))
     }
     
+    public override func write(_ buffer: [UInt8], _ pos: Int, _ length: Int) throws {
+      Swift.print (String(decoding: Data(buffer[pos..<pos+length]), as: UTF8.self))
+    }
+    
     public override func println(_ s: String) {
       Swift.print(s)
     }
