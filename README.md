@@ -69,11 +69,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.31.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.35.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.31.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.35.0"))
 
 ## Ports
 
@@ -103,6 +103,10 @@ Check out these projects and learn how to use JavApi⁴Swift.
 ### 0.26.1
 
 * [Word2Number](https://github.com/bastie/w2ni18n) is a converter library, to get numeric values from textual words f.e. `201` from `two hundred and one`. It is ported from non-i18n python project to i18n python project, to Java (and other) and now to Swift.
+
+### 0.35.0
+
+* [stailf](https://github.com/bastie/stailf.git) is a `tail -f` implementation using the RandomAccessFile.
 
 ## Development
 
