@@ -264,5 +264,15 @@ extension java.io {
     internal func checkError() -> Bool{
       return false
     }
+    
+    open func write(_ intWert : Int) throws {
+      if let unicodeScalar = UnicodeScalar(intWert) {
+        let character = Character(unicodeScalar)
+        try self.write(character)
+      }
+      else {
+        throw java.io.IOException("integer \(intWert) cannot be converted to a character")
+      }
+    }
   }
 }
