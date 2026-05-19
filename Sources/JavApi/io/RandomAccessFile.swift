@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2024-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -14,16 +14,26 @@ extension java.io {
     private var readBuffer = Data()      // aktueller Datenblock
     private var bufferPos = 0            // aktuelle Leseposition im Puffer
     private var bufferStartOffset: UInt64 = 0 // Dateioffset des ersten Bytes im Puffer
-    private var isEOF = false
 
     /// - Since: JavaApi &lt; 0.18.0 (Java 1.0)
-    public init (_ file : java.io.File, _ mode : String) throws {
-      if let fd = FileHandle(forReadingAtPath: file.getAbsolutePath()) {
-        self.fileDescriptor = fd
-        self.fileMode = mode
+    public init (_ file : java.io.File, _ mode : String) throws (IOException) {
+      if mode.contains("rw") {
+        if let fd = FileHandle(forUpdatingAtPath : file.getAbsolutePath()) {
+          self.fileDescriptor = fd
+          self.fileMode = mode
+        }
+        else {
+          throw java.io.IOException()
+        }
       }
       else {
-        throw java.io.IOException()
+        if let fd = FileHandle(forReadingAtPath: file.getAbsolutePath()) {
+          self.fileDescriptor = fd
+          self.fileMode = mode
+        }
+        else {
+          throw java.io.IOException()
+        }
       }
     }
     
@@ -40,7 +50,6 @@ extension java.io {
         readBuffer = Data()
         bufferPos = 0
         bufferStartOffset = UInt64(newPos)
-        isEOF = false
       } catch {
         throw java.io.IOException(error.localizedDescription)
       }
@@ -68,10 +77,10 @@ extension java.io {
     /// - Returns: Die Zeile ohne Zeilenumbruch, oder `nil` am Dateiende.
     /// - Throws: IOException bei Lesefehlern oder Kodierungsfehlern.
     open func readLine() throws -> String? {
-      guard !isEOF else { return nil }
-      
       var lineData = Data()
       var foundNewline = false
+      var hitEOF = false
+      
       
       while !foundNewline {
         // Puffer nachfüllen, falls nötig
@@ -80,7 +89,7 @@ extension java.io {
           let blockSize = 4096
           let newData = try fileDescriptor.read(upToCount: blockSize) ?? Data()
           if newData.isEmpty {
-            isEOF = true
+            hitEOF = true
             break   // keine weiteren Daten
           }
           readBuffer = newData
@@ -109,7 +118,7 @@ extension java.io {
             // Prüfen, ob ein LF folgt (CRLF)
             if bufferPos < readBuffer.count && readBuffer[bufferPos] == 0x0A {
               bufferPos += 1   // LF überspringen
-            } else if bufferPos == readBuffer.count && !isEOF {
+            } else if bufferPos == readBuffer.count && !hitEOF {
               // CR am Ende des Puffers: wir müssen ein Byte vorauslesen
               let nextByte = try readOneByteAfterCurrentBlock()
               if nextByte == 0x0A {
@@ -132,7 +141,7 @@ extension java.io {
       }
       
       // Am Dateiende: die letzte Zeile ohne abschließenden Zeilenumbruch zurückgeben
-      if !foundNewline && isEOF {
+      if !foundNewline && hitEOF {
         return lineData.isEmpty ? nil : try decode(lineData)
       }
       
@@ -141,7 +150,7 @@ extension java.io {
     
     // MARK: - Private Hilfsmethoden
     
-    private func decode(_ data: Data) throws -> String {
+    private func decode(_ data: Data) throws (IOException) -> String {
       guard let string = String(data: data, encoding: .utf8) else {
         throw java.io.IOException("Invalid UTF-8 sequence")
       }
@@ -150,10 +159,15 @@ extension java.io {
     
     /// Liest ein einzelnes Byte über das aktuelle Pufferende hinaus, ohne den Puffer zu zerstören.
     private func readOneByteAfterCurrentBlock() throws -> UInt8? {
-      let currentOffset = try fileDescriptor.offset()
-      defer { try? fileDescriptor.seek(toOffset: currentOffset) }
       let nextData = try fileDescriptor.read(upToCount: 1)
-      return nextData?.first
+      guard let byte = nextData?.first else { return nil }
+      if byte != 0x0A {
+        // Gehört zur nächsten Zeile → zurückspringen
+        let pos = try fileDescriptor.offset()
+        try fileDescriptor.seek(toOffset: pos - 1)
+      }
+      // LF → einfach konsumiert lassen
+      return byte
     }
   }
 }
