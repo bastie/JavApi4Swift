@@ -26,6 +26,7 @@ extension java.lang {
   public typealias IllegalStateException = JavApi.IllegalStateException
   public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
   public typealias ArrayIndexOutOfBoundsException = JavApi.ArrayIndexOutOfBoundsException
+  public typealias UnsupportedOperationException = JavApi.UnsupportedOperationException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type

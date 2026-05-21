@@ -13,7 +13,7 @@ struct AWTComponentView: View {
   var body: some View {
     Canvas { context, size in
       // CGContext aus SwiftUI-Canvas extrahieren und AWT-Graphics bauen
-      let cgCtx = context  // (vereinfacht — braucht CGContext-Zugang)
+      let _ /* cgCtx */ = context  // (vereinfacht — braucht CGContext-Zugang)
                            // component.paint(Java.awt.Graphics(cgCtx))
     }
     .frame(

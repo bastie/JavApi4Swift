@@ -365,7 +365,10 @@ extension AWTWindowHost {
       forName: NSWindow.willCloseNotification,
       object: window,
       queue: .main) { [weak self] _ in
-        self?.hide(frame)
+        guard let self else { return }
+        Task { @MainActor in
+          self.hide(frame)
+        }
       }
   }
 }
