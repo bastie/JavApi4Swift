@@ -40,7 +40,11 @@ extension java.lang {
     }
     
     open func getName() -> String {
+      #if canImport(ObjectiveC) // Apple-OSs
       let type = delegate.className(for: delegate) ?? "<unknown>"
+      #else // Linux, BSD and so on
+      let type = String(describing: type(of: delegate))
+      #endif
       return "\(type)"
     }
 

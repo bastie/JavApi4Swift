@@ -41,7 +41,7 @@ extension Insecure {
       return hash([UInt8](data))
     }
     
-    public static func hash(_ bytes: [UInt8]) -> [UInt8] {
+    public static func hash(data bytes: [UInt8]) -> [UInt8] {
       var message = bytes
       let messageLenBits = UInt64(message.count) * 8
       

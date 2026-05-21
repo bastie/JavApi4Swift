@@ -10,7 +10,9 @@ extension java.awt {
     
     /// Macht das Fenster sichtbar — auf Apple öffnet das ein SwiftUI-Window
     open func setVisible(_ visible: Bool) {
+      #if canImport(SwiftUI)
       if visible { AWTWindowHost.shared.show(self) }
+      #endif
     }
     
     open func setSize(_ width: Int, _ height: Int) {
