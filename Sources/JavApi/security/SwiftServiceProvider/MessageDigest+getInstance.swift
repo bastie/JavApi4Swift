@@ -6,7 +6,7 @@
 extension java.security.MessageDigest {
   
   /// - Note: subclass need to implements this function
-  public static func getInstance(_ algorithm: String) throws -> java.security.MessageDigest {
+  public static func getInstance(_ algorithm: String) throws (java.security.NoSuchAlgorithmException) -> java.security.MessageDigest {
     guard SwiftMessageDigestProvidedAlgorithm.provides (algorithm: algorithm) else {
       throw java.security.NoSuchAlgorithmException ("Swift MessageDigest service provider do not support \(algorithm)")
     }
