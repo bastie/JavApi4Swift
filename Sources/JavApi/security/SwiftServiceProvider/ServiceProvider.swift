@@ -1,10 +1,7 @@
-
-//
-//  ServiceProvider.swift
-//  JavApi⁴Swift
-//
-//  Created by Sebastian Ritter on 21.05.26.
-//
+/*
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: 0BSD
+ */
 
 public class SwiftMessageDigestServiceProvider : java.security.Provider {
   internal override init(){
