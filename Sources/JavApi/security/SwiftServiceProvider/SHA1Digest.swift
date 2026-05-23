@@ -5,7 +5,6 @@
 
 #if canImport(CryptoKit)
 import CryptoKit
-#endif
 import Foundation
 
 public class SwiftSHA1Digest : java.security.MessageDigest {
@@ -32,3 +31,4 @@ public class SwiftSHA1Digest : java.security.MessageDigest {
     self.delegate = Insecure.SHA1()
   }
 }
+#endif

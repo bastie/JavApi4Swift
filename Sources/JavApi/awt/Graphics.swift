@@ -56,38 +56,39 @@ extension java.awt {
   }
 }
 #else // Non-Apple OSs
-public protocol CGContext {
+extension java.awt {
+  public protocol CGContext {
+  }
+  public class Graphics {
+    internal var cgContext: CGContext
+    
+    internal init(_ context: CGContext) {
+      self.cgContext = context
+    }
+    
+    // Farbe setzen
+    public func setColor(_ color: java.awt.Color) {
+    }
+    
+    // Rechteck füllen
+    open func fillRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+    }
+    
+    // Rechteck zeichnen (nur Rand)
+    open func drawRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+    }
+    
+    // Linie zeichnen
+    open func drawLine(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int) {
+    }
+    
+    // Oval füllen
+    open func fillOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+    }
+    
+    // String zeichnen (vereinfacht)
+    open func drawString(_ str: String, _ x: Int, _ y: Int) {
+    }
+  }
 }
-public class Graphics {
-  internal var cgContext: CGContext
-  
-  internal init(_ context: CGContext) {
-    self.cgContext = context
-  }
-  
-  // Farbe setzen
-  public func setColor(_ color: java.awt.Color) {
-  }
-  
-  // Rechteck füllen
-  open func fillRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
-  }
-  
-  // Rechteck zeichnen (nur Rand)
-  open func drawRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
-  }
-  
-  // Linie zeichnen
-  open func drawLine(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int) {
-  }
-  
-  // Oval füllen
-  open func fillOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
-  }
-  
-  // String zeichnen (vereinfacht)
-  open func drawString(_ str: String, _ x: Int, _ y: Int) {
-  }
-}
-
 #endif

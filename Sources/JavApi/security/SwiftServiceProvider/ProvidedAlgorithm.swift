@@ -3,17 +3,23 @@
  * SPDX-License-Identifier: 0BSD
  */
 
+#if canImport(CryptoKit)
 import CryptoKit
+#endif
 
 public enum SwiftMessageDigestProvidedAlgorithm : String, CustomStringConvertible, CustomDebugStringConvertible, CaseIterable {
   
   public var debugDescription: String {
     switch self {
+#if canImport(CryptoKit)
     case .MD5:     return "CryptoKit:Insecure.MD5"
     case .SHA_1:   return "CryptoKit:Insecure.SHA-1"
     case .SHA_256: return "CryptoKit:SHA-256"
     case .SHA_384: return "CryptoKit:SHA-384"
     case .SHA_512: return "CryptoKit:SHA-512"
+#else
+    case .MD5:     return "Insecure.MD5"
+#endif
     }
   }
   
@@ -25,12 +31,14 @@ public enum SwiftMessageDigestProvidedAlgorithm : String, CustomStringConvertibl
   
   /// MD5 until Java 9 required
   case MD5     = "MD5"
+#if canImport(CryptoKit)
   case SHA_1   = "SHA-1"
   case SHA_256 = "SHA-256"
   /// SHA 384 since Java 25 required
   case SHA_384 = "SHA-384"
   /// With Swift also supported SHA 512
   case SHA_512 = "SHA-512"
+#endif
   
   /// Java idomatic return of value to create a new instance with `java.security.MessageDigest (String)`.
   /// - Returns Algorithm name
@@ -45,10 +53,12 @@ public enum SwiftMessageDigestProvidedAlgorithm : String, CustomStringConvertibl
   internal static func getInstance (algorithm : String) -> java.security.MessageDigest? {
     switch algorithm {
     case "MD5":     return SwiftMD5Digest ()
+#if canImport(CryptoKit)
     case "SHA-1":   return SwiftSHA1Digest()
     case "SHA-256": return SwiftSHA256Digest()
     case "SHA-384": return SwiftSHA384Digest()
     case "SHA-512": return SwiftSHA512Digest()
+#endif
     default : return nil
     }
   }
