@@ -1,3 +1,8 @@
+/*
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: MIT
+ */
+
 extension java.awt {
   
   @MainActor
@@ -12,6 +17,8 @@ extension java.awt {
     open func setVisible(_ visible: Bool) {
       #if canImport(SwiftUI)
       if visible { AWTWindowHost.shared.show(self) }
+      #else
+      fatalError("not yet implemented")
       #endif
     }
     
