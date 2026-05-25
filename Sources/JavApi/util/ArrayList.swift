@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 extension java.util {
-  typealias ArrayList<Element> = Swift.Array<Element>
+  public typealias ArrayList<Element> = Swift.Array<Element>
 }
 
 extension java.util.ArrayList {
