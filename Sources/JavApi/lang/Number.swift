@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: 0BSD
  */
 
-typealias Number = Numeric
+public typealias Number = Numeric
 
 extension Numeric where Self: BinaryInteger {
   func intValue() -> Int { return Int(self) }

@@ -18,6 +18,7 @@ extension java.lang {
   public typealias String = Swift.String
   public typealias StringBuilder = JavApi.StringBuilder
   public typealias Math = JavApi.Math
+  public typealias Number = JavApi.Number
   public typealias Iterable = JavApi.Iterable
   public typealias Throwable = JavApi.Throwable
   public typealias Exception = JavApi.Exception
