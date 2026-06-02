@@ -110,7 +110,7 @@ extension java.math {
     }
 
     /// Converts an `Int128` value to BigInteger.
-    convenience init(_ value: Int128) {
+    public convenience init(_ value: Int128) {
       if value == 0 { self.init(0, 0); return }
       let s = value < 0 ? -1 : 1
       // magnitude as UInt128
