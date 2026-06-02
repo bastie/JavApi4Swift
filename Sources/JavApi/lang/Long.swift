@@ -22,7 +22,7 @@ public final class Long : Number {
   
   public typealias Magnitude = Int64.Magnitude
   
-  private var value : Int64
+  internal var value : Int64
   
   public required init?<T>(exactly source: T) where T : BinaryInteger {
     self.value = Int64(exactly: source)!

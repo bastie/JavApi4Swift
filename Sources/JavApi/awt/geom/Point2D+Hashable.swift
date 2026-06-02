@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2024-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -12,7 +12,6 @@ extension java.awt.geom.Point2D : Hashable {
   }
   
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(System.identityHashCode(self))
     hasher.combine(self.getX())
     hasher.combine(self.getY())
   }

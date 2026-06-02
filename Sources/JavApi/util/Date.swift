@@ -55,7 +55,7 @@ extension java.util {
     
     /// Constructor to create a Date instance with GregorianCalendar to implement GregorianCalendar.getTime
     internal init (_ gregorianCalendar : java.util.GregorianCalendar) {
-      let userCalendar = Calendar(identifier: .gregorian)
+      let userCalendar = Foundation.Calendar(identifier: .gregorian)
       self.delegate = userCalendar.date(from: gregorianCalendar.dateComponents)!
     }
     
