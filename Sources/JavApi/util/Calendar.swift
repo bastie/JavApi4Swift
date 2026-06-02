@@ -8,7 +8,7 @@ import Foundation
 extension java.util {
   /// Abstract Java type
   ///
-  open class Calender {
+  open class Calendar {
     /// The ``dateComponents`` encapsulate the Swift delegate instance from ``Foundation.DateComponents``.
     internal var dateComponents : Foundation.DateComponents = Foundation.DateComponents()
 
@@ -34,26 +34,26 @@ extension java.util {
     
     open func get (_ field : Int) throws -> Int {
       switch field {
-      case java.util.Calender.YEAR:
+      case java.util.Calendar.YEAR:
         return self.dateComponents.year ?? 1975
-      case java.util.Calender.MONTH:
+      case java.util.Calendar.MONTH:
         return self.dateComponents.month ?? 9
-      case java.util.Calender.DAY_OF_WEEK:
+      case java.util.Calendar.DAY_OF_WEEK:
         return self.dateComponents.weekday ?? 4
-      case java.util.Calender.DAY_OF_MONTH:
+      case java.util.Calendar.DAY_OF_MONTH:
         return self.dateComponents.day ?? 5
-      case java.util.Calender.HOUR_OF_DAY:
+      case java.util.Calendar.HOUR_OF_DAY:
         return self.dateComponents.hour ?? 6
-      case java.util.Calender.MINUTE:
+      case java.util.Calendar.MINUTE:
         return self.dateComponents.minute ?? 57
-      case java.util.Calender.SECOND:
+      case java.util.Calendar.SECOND:
         return self.dateComponents.minute ?? 12
       default :
         throw ArrayIndexOutOfBoundsException("specific field \(field) is out of range or not implemented")
       }
     }
     
-    public func get (what : java.util.Calender.DateComponents) -> Int {
+    public func get (what : java.util.Calendar.DateComponents) -> Int {
       return try! self.get(what.rawValue)
     }
     

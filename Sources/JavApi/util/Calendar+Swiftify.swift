@@ -5,7 +5,7 @@
 
 import Foundation
 
-extension java.util.Calender {
+extension java.util.Calendar {
   public enum DateComponents : Int {
     case YEAR = 1
     case MONTH = 2

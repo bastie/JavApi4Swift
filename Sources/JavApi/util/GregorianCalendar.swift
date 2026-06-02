@@ -27,7 +27,7 @@ extension java.util {
   /// ```
   /// ⚔️
   ///
-  open class GregorianCalendar : java.util.Calender {
+  open class GregorianCalendar : java.util.Calendar {
     
     // Constructor to init ``Foundation.DateComponents`` with all fields
     public override init () {
@@ -60,17 +60,17 @@ extension java.util {
     /// - Note: Can throw a hidden Java runtime Exception. Use Swift DateComponents or secure extension function `get (_ java.util.Calendar.DateComponets`
     open override func get (_ field : Int) throws -> Int {
       switch field {
-      case Calender.SECOND :
+      case Calendar.SECOND :
         return dateComponents.second!
-      case Calender.MINUTE :
+      case Calendar.MINUTE :
         return dateComponents.minute!
-      case Calender.HOUR_OF_DAY :
+      case Calendar.HOUR_OF_DAY :
         return dateComponents.hour!
-      case Calender.YEAR :
+      case Calendar.YEAR :
         return dateComponents.year!
-      case Calender.DAY_OF_MONTH :
+      case Calendar.DAY_OF_MONTH :
         return dateComponents.month!
-      case Calender.DAY_OF_WEEK :
+      case Calendar.DAY_OF_WEEK :
         return dateComponents.weekday!
       default :
         throw ArrayIndexOutOfBoundsException("the specified field \(field) is out of range or not implemented")
