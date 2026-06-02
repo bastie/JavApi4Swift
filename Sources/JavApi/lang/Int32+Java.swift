@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023-2025 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -17,5 +17,13 @@ extension Int32 {
   
   public init (_ char : Character) {
     self.init (Int(char))
+  }
+  
+  public static func numberOfLeadingZeros(_ value: Int32) -> Int {
+    return value.leadingZeroBitCount
+  }
+  
+  public static func numberOfTrailingZeros(_ value: Int32) -> Int {
+    return value.trailingZeroBitCount
   }
 }

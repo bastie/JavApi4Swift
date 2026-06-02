@@ -31,7 +31,7 @@
 /// }
 /// ```
 ///
-extension Character : Strideable { //Diese Compiler-Warnung soll explizit bestehen bleiben
+extension Character : @retroactive Strideable { //Diese Compiler-Warnung soll explizit bestehen bleiben
   public typealias Stride = Int
   
   public func distance(to other: Character) -> Stride {
