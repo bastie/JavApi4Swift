@@ -114,19 +114,18 @@ extension java.time {
     ///     - timeZone: The TimeZone instance.
     /// - Returns: The parsed local date-time.
     static public func parse(_ text: String, formatter: DateFormatter, timeZone: Foundation.TimeZone = Foundation.TimeZone.current) -> LocalDateTime? {
-      formatter.timeZone = timeZone
-      
-      guard var date = formatter.date(from: text) else {
+      // LocalDateTime carries no timezone information — the numeric values in the
+      // string are the result. Parse and extract components both in UTC so that
+      // no timezone shift is applied, regardless of the host system timezone or
+      // DST status.
+      let utc = Foundation.TimeZone(identifier: "UTC")!
+      formatter.timeZone = utc
+
+      guard let date = formatter.date(from: text) else {
         return nil
       }
-      // bug with TimeZone not equals GMT
-      date = Calendar.current.date(byAdding: .second, value: Foundation.TimeZone.current.secondsFromGMT(), to: date)!
-      // FIXME: @2025-02-09 it works and isDaylightSavingTime() return FALSE
-//      if Foundation.TimeZone.current.isDaylightSavingTime() {
-        date = Calendar.current.date(byAdding: .hour, value: -1, to: date)!
-//      }
 
-      return LocalDateTime(date)
+      return LocalDateTime(date, timeZone: utc)
     }
     
     
