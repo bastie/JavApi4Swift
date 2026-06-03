@@ -225,3 +225,204 @@ version | implemented | tested   | type          | name           | more informa
 
 #### java.util
 
+<!-- 11+27+7+2+14+9+2+8+10+5+6+23=124 -->
+
+##### java.util.BitSet (11/11/-)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | BitSet()       | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | BitSet()       | (int)
+1.0.2   | ✔️          | ⭕️       | method        | and()          | (BitSet)
+1.0.2   | ✔️          | ⭕️       | method        | clear()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | clone()        | ()->BitSet
+1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | get()          | (int)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | hashCode()     | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | or()           | (BitSet)
+1.0.2   | ✔️          | ⭕️       | method        | set()          | (int)
+1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | xor()          | (BitSet)
+
+##### java.util.Date (27/27/-)
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Date()              | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | Date()              | (long)
+1.0.2   | ✔️          | ⭕️       | method        | after()             | (Date)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | before()            | (Date)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | clone()             | ()->Date
+1.0.2   | ✔️          | ⭕️       | method        | compareTo()         | (Date)->int
+1.0.2   | ✔️          | ⭕️       | method        | equals()            | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | getDate()           | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getDay()            | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getHours()          | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getMinutes()        | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getMonth()          | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getSeconds()        | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getTime()           | ()->long
+1.0.2   | ✔️          | ⭕️       | method        | getTimezoneOffset() | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | getYear()           | ()->int — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | hashCode()          | ()->int
+1.0.2   | ✔️          | ⭕️       | static method | parse()             | (String)->long — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setDate()           | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setHours()          | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setMinutes()        | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setMonth()          | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setSeconds()        | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | setTime()           | (long)
+1.0.2   | ✔️          | ⭕️       | method        | setYear()           | (int) — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | toGMTString()       | ()->String — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | toLocaleString()    | ()->String — deprecated since 1.1
+1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
+1.0.2   | ✔️          | ⭕️       | static method | UTC()               | (int,int,int,int,int,int)->long — deprecated since 1.1
+
+##### java.util.Dictionary (7/7/-)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | elements()     | ()->Enumeration — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | get()          | (Object)->Object — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | isEmpty()      | ()->boolean — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | keys()         | ()->Enumeration — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | put()          | (Object,Object)->Object — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | remove()       | (Object)->Object — extension on Swift Dictionary
+1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int — extension on Swift Dictionary
+
+##### java.util.Enumeration (2/2/2)
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0.2   | ✔️          | ✔️       | method        | hasMoreElements() | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | nextElement()     | ()->Object
+
+##### java.util.Hashtable (14/14/-)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | (int)
+1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | (int,float)
+1.0.2   | ✔️          | ⭕️       | method        | clear()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | clone()        | ()->Hashtable
+1.0.2   | ✔️          | ⭕️       | method        | contains()     | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | containsKey()  | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | elements()     | ()->Enumeration
+1.0.2   | ✔️          | ⭕️       | method        | get()          | (Object)->Object
+1.0.2   | ✔️          | ⭕️       | method        | isEmpty()      | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | keys()         | ()->Enumeration
+1.0.2   | ✔️          | ⭕️       | method        | put()          | (Object,Object)->Object
+1.0.2   | ✔️          | ⭕️       | method        | remove()       | (Object)->Object
+1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
+
+##### java.util.Observable (9/9/-)
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | addObserver()     | (Observer)
+1.0.2   | ✔️          | ⭕️       | method        | clearChanged()    | ()
+1.0.2   | ✔️          | ⭕️       | method        | countObservers()  | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | deleteObserver()  | (Observer)
+1.0.2   | ✔️          | ⭕️       | method        | deleteObservers() | ()
+1.0.2   | ✔️          | ⭕️       | method        | hasChanged()      | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | notifyObservers() | ()
+1.0.2   | ✔️          | ⭕️       | method        | notifyObservers() | (Object)
+1.0.2   | ✔️          | ⭕️       | method        | setChanged()      | ()
+
+##### java.util.Observer (2/2/-)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | update()       | (Observable,Object)
+1.0.2   | ✔️          | 🪄       | method        | hashCode()     | ()->int — default via ObjectIdentifier for class types
+
+##### java.util.Properties (8/8/-)
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | defaults          | Properties
+1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | (Properties)
+1.0.2   | ✔️          | ⭕️       | method        | getProperty()     | (String)->String
+1.0.2   | ✔️          | ⭕️       | method        | getProperty()     | (String,String)->String
+1.0.2   | ✔️          | ⭕️       | method        | list()            | (PrintStream)
+1.0.2   | ✔️          | ⭕️       | method        | load()            | (InputStream)
+1.0.2   | ✔️          | ⭕️       | method        | propertyNames()   | ()->Enumeration
+1.0.2   | ✔️          | ⭕️       | method        | save()            | (OutputStream,String) — deprecated since 1.2, use store()
+1.0.2   | ✔️          | ⭕️       | method        | setProperty()     | (String,String)->Object
+
+##### java.util.Random (10/10/10)
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0.2   | ✔️          | ✔️       | constructor   | Random()          | ()
+1.0.2   | ✔️          | ✔️       | constructor   | Random()          | (long)
+1.0.2   | ✔️          | ✔️       | method        | nextBoolean()     | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | nextBytes()       | (byte[])
+1.0.2   | ✔️          | ✔️       | method        | nextDouble()      | ()->double
+1.0.2   | ✔️          | ✔️       | method        | nextFloat()       | ()->float
+1.0.2   | ✔️          | ✔️       | method        | nextGaussian()    | ()->double
+1.0.2   | ✔️          | ✔️       | method        | nextInt()         | ()->int
+1.0.2   | ✔️          | ✔️       | method        | nextInt()         | (int)->int
+1.0.2   | ✔️          | ✔️       | method        | nextLong()        | ()->long
+1.0.2   | ✔️          | ✔️       | method        | setSeed()         | (long)
+
+##### java.util.Stack (5/5/1)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Stack()        | () — extends Vector
+1.0.2   | ✔️          | ⭕️       | method        | empty()        | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | peek()         | ()->Object
+1.0.2   | ✔️          | ⭕️       | method        | pop()          | ()->Object
+1.0.2   | ✔️          | ⭕️       | method        | push()         | (Object)->Object
+1.0.2   | ✔️          | ✔️       | method        | search()       | (Object)->int
+
+##### java.util.StringTokenizer (6/6/-)
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String)
+1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String,String)
+1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String,String,boolean)
+1.0.2   | ✔️          | ⭕️       | method        | countTokens()     | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | hasMoreElements() | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | hasMoreTokens()   | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | nextElement()     | ()->Object
+1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | (String)->String
+
+##### java.util.Vector (23/23/-)
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | (int)
+1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | addElement()        | (Object)
+1.0.2   | ✔️          | ⭕️       | method        | capacity()          | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | contains()          | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | copyInto()          | (Object[])
+1.0.2   | ✔️          | ⭕️       | method        | elementAt()         | (int)->Object
+1.0.2   | ✔️          | ⭕️       | method        | elements()          | ()->Enumeration
+1.0.2   | ✔️          | ⭕️       | method        | ensureCapacity()    | (int)
+1.0.2   | ✔️          | ⭕️       | method        | firstElement()      | ()->Object
+1.0.2   | ✔️          | ⭕️       | method        | indexOf()           | (Object)->int
+1.0.2   | ✔️          | ⭕️       | method        | indexOf()           | (Object,int)->int
+1.0.2   | ✔️          | ⭕️       | method        | insertElementAt()   | (Object,int)
+1.0.2   | ✔️          | ⭕️       | method        | isEmpty()           | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | lastElement()       | ()->Object
+1.0.2   | ✔️          | ⭕️       | method        | lastIndexOf()       | (Object)->int
+1.0.2   | ✔️          | ⭕️       | method        | lastIndexOf()       | (Object,int)->int
+1.0.2   | ✔️          | ⭕️       | method        | removeAllElements() | ()
+1.0.2   | ✔️          | ⭕️       | method        | removeElement()     | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | removeElementAt()   | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setElementAt()      | (Object,int)
+1.0.2   | ✔️          | ⭕️       | method        | setSize()           | (int)
+1.0.2   | ✔️          | ⭕️       | method        | size()              | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | trimToSize()        | ()
+

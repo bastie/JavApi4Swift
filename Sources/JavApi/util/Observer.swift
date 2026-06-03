@@ -12,18 +12,21 @@ extension java.util {
   /// - see Observable
   ///
   public protocol Observer : Equatable, Hashable {
-    
+
+    /// This method is called if the specified ``Observable`` object's
+    /// ``Observable/notifyObservers()`` method is called because the
+    /// `Observable` object has been updated.
     ///
-    /// This method is called if the specified {@code Observable} object's
-    /// {@code notifyObservers} method is called (because the {@code Observable}
-    /// object has been updated.
+    /// - Parameters:
+    ///   - observable: The `Observable` object that changed.
+    ///   - data: Optional data passed to ``Observable/notifyObservers(_:)``.
+    func update(_ observable: Observable, _ data: Any?)
+
+    /// Returns a hash code for this observer.
     ///
-    /// - Parameter observable the {@link Observable} object.
-    /// - Parameter data the data passed to {@link Observable#notifyObservers(Object)}.
-    ///
-    func update(_ observable : Observable, _ data : Any?)
-    
-    /// Swift requirement: You need to implement this by ```return self```
-    func observerInstance() -> AnyObject
+    /// Used by ``Observable`` to identify and deduplicate observers.
+    /// A default implementation is provided in ``Observer+Swiftify`` for
+    /// class types via `ObjectIdentifier`.
+    func hashCode() -> Int
   }
 }

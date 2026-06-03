@@ -124,10 +124,25 @@ extension java.util {
 
     /// Returns `true` if this hashtable maps one or more keys to `value`.
     ///
-    /// - Parameter value: The value to search for (equality via `==`).
+    /// This overload is available when `V` conforms to `Equatable` and uses
+    /// value equality (`==`), matching Java's `equals()`-based semantics.
+    ///
+    /// - Parameter value: The value to search for.
     /// - Since: JavaApi (Java 1.0)
     public func contains(_ value: V) -> Bool where V: Equatable {
       withLock { storage.values.contains(value) }
+    }
+
+    /// Returns `true` if this hashtable maps one or more keys to `value`.
+    ///
+    /// This overload is available when `V` is a reference type (`AnyObject`)
+    /// and uses identity equality (`===`), which corresponds to Java's default
+    /// `Object.equals()` for types that do not override it.
+    ///
+    /// - Parameter value: The reference value to search for.
+    /// - Since: JavaApi (Java 1.0)
+    public func contains(_ value: V) -> Bool where V: AnyObject {
+      withLock { storage.values.contains { $0 === value } }
     }
 
     /// Returns `true` if this hashtable contains a mapping for `key`.
@@ -136,6 +151,16 @@ extension java.util {
     /// - Since: JavaApi (Java 1.0)
     public func containsKey(_ key: K) -> Bool {
       withLock { storage[key] != nil }
+    }
+
+    /// Returns `true` if this hashtable maps one or more keys to `value`.
+    ///
+    /// Alias for ``contains(_:)`` — added for API completeness.
+    ///
+    /// - Parameter value: The value to search for (equality via `==`).
+    /// - Since: JavaApi (Java 1.0)
+    public func containsValue(_ value: V) -> Bool where V: Equatable {
+      contains(value)
     }
 
     /// Returns an `Enumeration` over the keys of this hashtable.

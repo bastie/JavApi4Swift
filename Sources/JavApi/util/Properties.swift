@@ -151,6 +151,17 @@ extension java.util {
       try out.write(data)
     }
 
+    /// Saves properties to an `OutputStream` in `.properties` format.
+    ///
+    /// - Parameters:
+    ///   - out: The output stream to write to.
+    ///   - comments: Optional header comment written as the first line.
+    /// - Since: JavaApi (Java 1.0)
+    @available(*, deprecated, message: "as of Java 1.2, use store(OutputStream, String?) instead")
+    public func save(_ out: java.io.OutputStream, _ comments: String?) {
+      try? store(out, comments)
+    }
+
     /// Prints all properties to `out` prefixed with an optional comment.
     ///
     /// - Parameters:

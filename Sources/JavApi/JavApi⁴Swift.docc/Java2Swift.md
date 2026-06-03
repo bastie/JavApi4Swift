@@ -111,6 +111,40 @@ enum java { enum awt { enum geom {
 } /* geom */ } /* awt */ } /* java */ 
 ```
 
+#### Equatable for Java interfaces (protocols)
+
+Java interfaces do not inherit `equals()` semantics — each implementing class decides equality via `Object.equals()`. When porting a Java interface to a Swift `protocol` that should also conform to `Equatable` and `Hashable`, two separate extension files are used:
+
+**`+Equatable.swift`** — provides cross-type equality for all conformers (value types and reference types alike). Different Observer types can never be equal, so the default returns `false`:
+
+```swift
+extension java.util.Observer {
+  public static func == (lhs: Self, rhs: any java.util.Observer) -> Bool { return false }
+  public static func == (lhs: any java.util.Observer, rhs: Self) -> Bool { return false }
+}
+```
+
+**`+EquatableObject.swift`** — provides same-type equality for **class**-based conformers via identity (`===`). This matches Java's default `Object.equals()` behaviour (identity equality unless overridden):
+
+```swift
+extension java.util.Observer where Self: AnyObject {
+  public static func == (lhs: Self, rhs: Self) -> Bool { return lhs === rhs }
+}
+```
+
+**Why two files?** Swift resolves the more-specific `where Self: AnyObject` overload for classes automatically, while value types (`struct`, `enum`) fall back to the general overload. Value-type conformers that need meaningful equality must implement `==` themselves.
+
+**`+Hashable.swift`** — provides `hash(into:)` and `hashCode()` for class-based conformers via `ObjectIdentifier`, again using `where Self: AnyObject`:
+
+```swift
+extension java.util.Observer where Self: AnyObject {
+  public func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+  public func hashCode() -> Int { return ObjectIdentifier(self).hashValue }
+}
+```
+
+Value-type conformers must implement `hash(into:)` and `hashCode()` manually.
+
 #### exception handling
 
 In Java exception can seperated in "RuntimeException" without explicit naming and "the other exception". The other exception must be declared and catched. RuntimeException and the super type Throwable can be declared and catched - or use `public static void main [] throws Throwable {}`. Java use a *try block* with *catch NamedException* instead to Swift with "normal" *do block* with *catch*. Swift also provide the *error* enum inside the catch block, Java has the NamedException instance.

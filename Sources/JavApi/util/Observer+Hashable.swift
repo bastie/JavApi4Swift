@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.util.Observer {
+extension java.util.Observer where Self: AnyObject {
   public var hashValue: Int {
     var hasher = Hasher()
     hash(into: &hasher)
@@ -11,7 +11,7 @@ extension java.util.Observer {
   }
   
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(System.identityHashCode(self.observerInstance()))
+    hasher.combine(ObjectIdentifier(self))
   }
   
   // the Java method
