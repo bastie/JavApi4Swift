@@ -7,6 +7,10 @@ import Foundation
 extension java.time {
   public struct Instant {
     
+    public static func ofEpochMilli (_ epochMilli : Int64) -> Instant {
+      return Instant(epochMilli: epochMilli)
+    }
+    
     // MARK: - Constant
     
     internal struct Constant {
