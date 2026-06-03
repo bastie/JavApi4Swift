@@ -1,31 +1,28 @@
 // swift-tools-version: 6.3
+/*
+ * SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: 0BSD
+ */
 
 import PackageDescription
 
 let package = Package(
   name: "JavApi⁴Swift",
-  platforms: [.macOS(.v26),.visionOS(.v1),.iOS(.v16),.tvOS(.v16),.watchOS(.v9)],
+  platforms: [.macOS(.v26),.visionOS(.v2),.iOS(.v18),.tvOS(.v18),.watchOS(.v11)],
   products: [
     // Products define the executables and libraries a package produces, making them visible to other packages.
     .library(
       name: "JavApi",
       targets: ["JavApi"]
     ),
-    .library(name: "DOM", targets: ["DOM"]),
     .library(name: "notonlyjava", targets: ["NO"]),
   ],
   targets: [
-    // Targets are the basic building blocks of a package, defining a module or a test suite.
-    // Targets can depend on other targets in this package and products from dependencies.
     .target(
       name: "NO",
     ),
     .target(
-      name: "DOM",
-    ),
-    .target(
       name: "JavApi",
-      dependencies: ["DOM"]
     ),
     .testTarget(
       name: "JavApiTests",

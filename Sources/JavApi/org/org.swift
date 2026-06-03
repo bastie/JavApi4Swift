@@ -45,7 +45,7 @@ public typealias IDL_double = Double
 public typealias IDL_unrestricted_double = Double
 
 /// - SeeAlso: https://webidl.spec.whatwg.org/#idl-bigint
-public typealias IDL_bigint = Int128 // FIXME: use real BigInt if implemented in JavApi
+public typealias IDL_bigint = java.math.BigInteger 
 
 /// - SeeAlso: https://webidl.spec.whatwg.org/#idl-DOMString
 public typealias IDL_DOMString = String
