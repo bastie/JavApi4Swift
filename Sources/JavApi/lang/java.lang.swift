@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023, 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -28,6 +28,7 @@ extension java.lang {
   public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
   public typealias ArrayIndexOutOfBoundsException = JavApi.ArrayIndexOutOfBoundsException
   public typealias UnsupportedOperationException = JavApi.UnsupportedOperationException
+  public typealias IllegalThreadStateException = JavApi.IllegalThreadStateException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type
