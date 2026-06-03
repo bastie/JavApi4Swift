@@ -1,5 +1,10 @@
 # Java2Swift
 
+<!--
+* SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+* SPDX-License-Identifier: 0BSD
+-->
+
 How to translate Java to Swift.
 
 ## Overview

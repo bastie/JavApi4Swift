@@ -1,5 +1,10 @@
 # ``JavApi``⁴Swift
 
+<!--
+* SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+* SPDX-License-Identifier: 0BSD
+-->
+
 JavApi⁴Swift is a pure implementation of Java API in Swift under business friendly license.
 
 ## Overview

@@ -1,8 +1,11 @@
 /*
+ * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: MIT
  */
 import Foundation
+
 extension java.time {
+
   public struct Period {
     
     // MARK: - Property

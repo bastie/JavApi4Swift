@@ -1,9 +1,9 @@
 /*
+ * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
-extension java.util {
-  
+extension java.util {  
   
   ///
   /// {@code Observer} is the interface to be implemented by objects that

@@ -1,5 +1,10 @@
 # Java 1.0
 
+<!--
+* SPDX-FileCopyrightText: 2025-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+* SPDX-License-Identifier: 0BSD
+-->
+
 1995-05-23 the first appeared of Java also called Java birthday.
 
 ## Overview

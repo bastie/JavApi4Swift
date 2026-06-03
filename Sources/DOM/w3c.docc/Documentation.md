@@ -1,5 +1,10 @@
 # ``w3d``
 
+<!--
+* SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+* SPDX-License-Identifier: 0BSD
+-->
+
 Informations from W3C.
 
 ## Overview
