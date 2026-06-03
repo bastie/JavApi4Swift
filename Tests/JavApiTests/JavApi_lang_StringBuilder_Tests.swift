@@ -2,31 +2,33 @@
  * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 @testable import JavApi
 
-final class JavApi_lang_StringBuilder_Tests: XCTestCase {
-  
-  func testEquals () {
+struct JavApi_lang_StringBuilder_Tests {
+
+  @Test("=== is false for distinct objects, == compares by value")
+  func testEquals() {
     let a = StringBuilder("1")
     let b = StringBuilder("2")
     let c = StringBuilder("1")
-    XCTAssertFalse(a===b);
-    XCTAssertFalse(a == b) // false
-    XCTAssertTrue(a == a) // true
-    XCTAssertFalse(a===c) // false
-    XCTAssertFalse(a==c) // false
+    #expect(!(a === b))
+    #expect(!(a == b))   // different content
+    #expect(a == a)      // same instance
+    #expect(!(a === c))  // different instances
+    #expect(!(a == c))   // same content but different objects → Java identity semantics
   }
-  
-  func testHashCode () {
+
+  @Test("hashCode is stable and differs for different content")
+  func testHashCode() {
     let a = StringBuilder("1")
     let b = StringBuilder("2")
     let c = StringBuilder("1")
-    // call twice with same result
-    XCTAssertEqual(a.hashCode(), a.hashCode())
-    // two objects with different content creates different hashCode
-    XCTAssertNotEqual(a.hashCode(), b.hashCode())
-    // two objects with same content creates different hashCode
-    XCTAssertNotEqual(a.hashCode(), c.hashCode())
+    // stable across two calls on the same instance
+    #expect(a.hashCode() == a.hashCode())
+    // different content → different hash
+    #expect(a.hashCode() != b.hashCode())
+    // same content but different instances → different hash (identity-based)
+    #expect(a.hashCode() != c.hashCode())
   }
 }
