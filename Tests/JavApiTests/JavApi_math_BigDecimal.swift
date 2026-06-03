@@ -53,7 +53,7 @@ final class JavApi_math_BigDecimal_Tests: XCTestCase {
     
     XCTAssertEqual(roundOne, java.math.BigDecimal.valueOf("1103802.8")!)
     XCTAssertEqual(roundZero, java.math.BigDecimal.valueOf("1103802")!)
-    XCTAssertEqual(roundMinusOne, java.math.BigDecimal.valueOf("1.10380E+6")!)
+    XCTAssertEqual(roundMinusOne, java.math.BigDecimal.valueOf("1103800")!)
 
 
     // issue in 0.7.4 => scale > 0 & 5 as last

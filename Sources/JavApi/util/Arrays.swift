@@ -46,7 +46,7 @@ extension java.util {
         return false
       }
       for (offset,_) in actual.enumerated() {
-        if actual[offset] == identical[offset] {
+        if actual[offset] != identical[offset] {
           return false
         }
       }
@@ -98,7 +98,7 @@ extension java.util {
         return false
       }
       for (offset,_) in actual.enumerated() {
-        if actual[offset] == identical[offset] {
+        if actual[offset] != identical[offset] {
           return false
         }
       }

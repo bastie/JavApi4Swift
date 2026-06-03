@@ -19,10 +19,11 @@ final class JavApi_lang_Thread_Tests: XCTestCase {
     // check that minimum waiting time is slept
     XCTAssertTrue(actuallyDiff >= 0, "Waiting time is \(waiting), diff time is \(diff)")
     
-    let expectedMaximumDiff = 5
-    
-    // check that function call overhead is not to much
-    XCTAssertTrue(expectedMaximumDiff>actuallyDiff)
+    // Linux CI runners have higher scheduler latency; 50 ms is a safe upper bound
+    let expectedMaximumDiff: Int64 = 50
+
+    // check that function call overhead is not too much
+    XCTAssertTrue(expectedMaximumDiff > actuallyDiff, "Overhead \(actuallyDiff) ms exceeded limit of \(expectedMaximumDiff) ms")
     
     
     

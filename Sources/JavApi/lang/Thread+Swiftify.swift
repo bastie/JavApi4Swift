@@ -16,6 +16,6 @@ extension Thread {
   /// - Parameters:
   /// - Parameter milliseconds waiting time in milliseconds
   public static func sleep (milliseconds : Int64) async {
-    try! await Task.sleep(nanoseconds: UInt64(milliseconds * 1000))
+    try! await Task.sleep(nanoseconds: UInt64(milliseconds * 1_000_000))
   }
 }

@@ -8,6 +8,9 @@ extension java.lang.Class {
   
     public static func getName(of object: AnyObject) -> String {
       let type: any AnyObject.Type = type(of: object)
-      return "\(type)"
+      let fullName = "\(type)"
+      // On Linux, type interpolation includes the module prefix (e.g. "JavApiTests.MyClass").
+      // Strip the module prefix to match Java's simple class-name semantics.
+      return fullName.components(separatedBy: ".").last ?? fullName
     }
 }

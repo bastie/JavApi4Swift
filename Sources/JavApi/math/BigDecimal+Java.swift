@@ -31,11 +31,12 @@ extension java.math.BigDecimal {
         down = String(format:"%\(newScale)d",Int(doubleValue))
       }
       else {
+        // negative scale: round to nearest 10^(-newScale)
         let plusScale = newScale * -1
         var computedFactor = 10
         for _ in 1..<plusScale { computedFactor *= 10 }
         doubleValue = Double( (Int(doubleValue) / computedFactor) * computedFactor )
-        down = String(format: "%\(newScale)f" ,doubleValue)
+        down = String(Int(doubleValue))
       }
       result = java.math.BigDecimal.valueOf(down)!
     case java.math.BigDecimal.ROUND_UP :

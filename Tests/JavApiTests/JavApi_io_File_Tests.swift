@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 import XCTest
+import Testing
 @testable import JavApi
 
 final class JavApi_io_File_Tests: XCTestCase {
@@ -100,5 +101,33 @@ final class JavApi_io_File_Tests: XCTestCase {
         XCTAssert(app.getAbsolutePath().hasSuffix(".app"))
       }
     }
+  }
+
+}
+
+// MARK: - Cross-platform tests (Swift Testing)
+
+struct JavApi_io_File_CrossPlatform_Tests {
+
+  @Test("non-existent file reports all capabilities as false")
+  func testNonExistentFile() {
+    let f = java.io.File("/this/path/does/not/exist/ever")
+    #expect(!f.isDirectory())
+    #expect(!f.canExecute())
+    #expect(!f.canRead())
+    #expect(f.listFiles() == nil)
+  }
+
+  @Test("getName extracts the last path component")
+  func testGetName() {
+    #expect(java.io.File("/foo/bar/baz.txt").getName() == "baz.txt")
+    #expect(java.io.File("baz.txt").getName() == "baz.txt")
+  }
+
+  @Test("/tmp is a readable directory on macOS and Linux")
+  func testListFilesOnTmpDir() {
+    let tmpDir = java.io.File("/tmp")
+    #expect(tmpDir.isDirectory())
+    #expect(tmpDir.listFiles() != nil)
   }
 }
