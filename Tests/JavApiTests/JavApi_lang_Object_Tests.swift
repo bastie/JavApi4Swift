@@ -2,58 +2,55 @@
  * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 @testable import JavApi
 
 /// Note: implements base tests
-final class JavApi_lang_Object_Tests: XCTestCase {
+struct JavApi_lang_Object_Tests {
 
-  public func testEqualable () {
-    
+  @Test("equality is value-based, hashValue is identity-based")
+  func testEqualable() {
     let not1_1 = NoObjectType(1)
     let not1_2 = NoObjectType(1)
     let not2_1 = NoObjectType(2)
-    
-    XCTAssertEqual(not1_1, not1_2)
-    XCTAssertNotEqual(not1_1, not2_1)
 
-    // Test other hashCode with same value
-    XCTAssertEqual(not1_1.value, not1_2.value)
-    XCTAssertNotEqual(not1_1.hashValue, not1_2.hashValue)
+    // == is value-based: same value → equal
+    #expect(not1_1 == not1_2)
+    #expect(not1_1 != not2_1)
 
+    // hashValue is identity-based: same value, different instances → different hash
+    #expect(not1_1.value     == not1_2.value)
+    #expect(not1_1.hashValue != not1_2.hashValue)
   }
-  
 }
 
-public class NoObjectType : Equatable, Hashable {
-  
+// MARK: - Helper type (kept public for potential reuse across tests)
+
+public class NoObjectType: Equatable, Hashable {
+
   internal var value: Int
-  
-  public init (_ newValue: Int) {
+
+  public init(_ newValue: Int) {
     value = newValue
   }
-  
-  // the Java method
-  public func hashCode () -> Int {
-    return hashValue // delegate work to Swift function
-  }
-  
-  // a property for hash value but without calculate this
+
+  /// Java-style hashCode delegates to Swift hashValue
+  public func hashCode() -> Int { hashValue }
+
   public var hashValue: Int {
     var hasher = Hasher()
-    hash(into: &hasher) // delegate the calculate into the hash function
+    hash(into: &hasher)
     return hasher.finalize()
   }
-  
-  // calculate the hash
+
   public func hash(into hasher: inout Hasher) {
-    hasher.combine(System.identityHashCode(self)) // put a system identical hash code part for this object
-                                                  // add more specific hash information over add some lines with
-                                                  // hasher.combine(...)
+    // Identity-based component ensures distinct objects never share a hash,
+    // even when their value fields are equal.
+    hasher.combine(System.identityHashCode(self))
     hasher.combine(value)
   }
-  
+
   public static func == (lhs: NoObjectType, rhs: NoObjectType) -> Bool {
-    return lhs.value == rhs.value
+    lhs.value == rhs.value
   }
 }

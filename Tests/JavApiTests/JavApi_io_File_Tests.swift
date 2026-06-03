@@ -2,110 +2,91 @@
  * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
 import Testing
 @testable import JavApi
 
-final class JavApi_io_File_Tests: XCTestCase {
-  
-  func testCanExceute () {
+// MARK: - macOS-specific tests
+
+struct JavApi_io_File_Tests {
+
+  @Test("canExecute returns true for Safari, false for non-existent app")
+  func testCanExecute() {
 #if os(macOS)
-    // true positive
-    XCTAssertTrue(java.io.File("/Applications/Safari.app").canExecute(), "Safari not executable")
-    // true negative
-    XCTAssertFalse(java.io.File("/Applications/Internet Explorer.app").canExecute(), "Internet Explorer executable")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/Applications/Safari.app").canExecute())
+    #expect(!java.io.File("/Applications/Internet Explorer.app").canExecute())
 #endif
   }
-  
-  func testCanRead () {
+
+  @Test("canRead returns true for Safari, false for non-existent app")
+  func testCanRead() {
 #if os(macOS)
-    // true positive
-    XCTAssertTrue(java.io.File("/Applications/Safari.app").canRead(), "Safari not readable")
-    // true negative
-    XCTAssertFalse(java.io.File("/Applications/Internet Explorer.app").canRead(), "Internet Explorer readable")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/Applications/Safari.app").canRead())
+    #expect(!java.io.File("/Applications/Internet Explorer.app").canRead())
 #endif
   }
-  
-  func testCanWrite () {
+
+  @Test("canWrite returns true for /Users/Shared, false for system app")
+  func testCanWrite() {
 #if os(macOS)
-    // true positive
-    XCTAssertTrue(java.io.File("/Users/Shared").canWrite(), "Shared User not writable")
-    // true negative
-    XCTAssertFalse(java.io.File("/Applications/Safari.app").canWrite(), "System Safari is writable")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/Users/Shared").canWrite())
+    #expect(!java.io.File("/Applications/Safari.app").canWrite())
 #endif
   }
-  
-  func testIsDirectory () {
+
+  @Test("isDirectory returns true for .app bundle, false for missing path or file")
+  func testIsDirectory() {
 #if os(macOS)
-    // true positive
-    XCTAssertTrue(java.io.File("/Applications/Safari.app").isDirectory(), "Safari.app isn't a directory")
-    // true negative
-    XCTAssertFalse(java.io.File("/Applications/!Safari.app").isDirectory(), "!Safari.app exists and is a directory")
-    XCTAssertFalse(java.io.File("/Application/Safari.app/Contents/Info.plist").isDirectory(), "Info.plist exists and is a directory")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/Applications/Safari.app").isDirectory())
+    #expect(!java.io.File("/Applications/!Safari.app").isDirectory())
+    #expect(!java.io.File("/Application/Safari.app/Contents/Info.plist").isDirectory())
 #endif
   }
-  
-  func testIsHidden () {
+
+  @Test("isHidden returns true for /.file, false for Safari and nonexistent dotfile")
+  func testIsHidden() {
 #if os(macOS)
-    // true positive
-    XCTAssertTrue(java.io.File("/.file").isHidden(), "Safari.app is hidden")
-    // true negative
-    XCTAssertFalse(java.io.File("/Applications/Safari.app").isHidden(), "Safari.app isn't hidden")
-    XCTAssertFalse(java.io.File("/.bastie").isHidden(), "/.bastie isn't hidden")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/.file").isHidden())
+    #expect(!java.io.File("/Applications/Safari.app").isHidden())
+    #expect(!java.io.File("/.bastie").isHidden())
 #endif
   }
-  
-  func testGetAbsoluteFilePath () {
+
+  @Test("getAbsolutePath returns path unchanged including . and .. segments")
+  func testGetAbsoluteFilePath() {
 #if os(macOS)
-    XCTAssertEqual(java.io.File("/Applications/Safari.app").getAbsolutePath(), "/Applications/Safari.app")
-    XCTAssertEqual(java.io.File("/Applications/./Safari.app").getAbsolutePath(), "/Applications/./Safari.app")
-    XCTAssertEqual(java.io.File("/Applications/../Applications/Safari.app").getAbsolutePath(), "/Applications/../Applications/Safari.app")
-#else
-    // TODO: Test missing for java.io.File on other platforms
+    #expect(java.io.File("/Applications/Safari.app").getAbsolutePath()                       == "/Applications/Safari.app")
+    #expect(java.io.File("/Applications/./Safari.app").getAbsolutePath()                     == "/Applications/./Safari.app")
+    #expect(java.io.File("/Applications/../Applications/Safari.app").getAbsolutePath()       == "/Applications/../Applications/Safari.app")
 #endif
   }
-  
-  /// Test agains JavApi 0.12.0 bug.
-  func testListFiles () {
-    let absoluteDir = "/Applications"
-    let appDir = java.io.File(absoluteDir)
+
+  /// Regression test against JavApi 0.12.0 bug.
+  @Test("listFiles returns entries whose paths all start with the directory path")
+  func testListFiles() {
+    let dir  = "/Applications"
+    let appDir = java.io.File(dir)
     if let apps = appDir.listFiles() {
       for app in apps {
-        XCTAssert(app.getAbsolutePath().startsWith(absoluteDir))
-      }
-    }
-  }
-  class AppFilter : java.io.FileFilter {
-    func accept(_ file: JavApi.java.io.File) -> Bool {
-      return file.getName().endsWith(".app") && file.isDirectory()
-    }
-    typealias FileFilter = AppFilter
-  }
-  /// Test agains JavApi 0.12.0 bug.
-  func testListFilesWithFileFilter () {
-    let absoluteDir = "/Applications"
-    let appDir = java.io.File(absoluteDir)
-    if let apps = appDir.listFiles (AppFilter()) {
-      for app in apps {
-        XCTAssert(app.getAbsolutePath().startsWith(absoluteDir))
-        XCTAssert(app.getAbsolutePath().hasSuffix(".app"))
+        #expect(app.getAbsolutePath().startsWith(dir))
       }
     }
   }
 
+  /// Regression test against JavApi 0.12.0 bug.
+  @Test("listFiles with FileFilter returns only .app directories")
+  func testListFilesWithFileFilter() {
+    let dir    = "/Applications"
+    let appDir = java.io.File(dir)
+    if let apps = appDir.listFiles(AppFileFilter()) {
+      for app in apps {
+        #expect(app.getAbsolutePath().startsWith(dir))
+        #expect(app.getAbsolutePath().hasSuffix(".app"))
+      }
+    }
+  }
 }
 
-// MARK: - Cross-platform tests (Swift Testing)
+// MARK: - Cross-platform tests
 
 struct JavApi_io_File_CrossPlatform_Tests {
 
@@ -130,4 +111,13 @@ struct JavApi_io_File_CrossPlatform_Tests {
     #expect(tmpDir.isDirectory())
     #expect(tmpDir.listFiles() != nil)
   }
+}
+
+// MARK: - Helper types
+
+private class AppFileFilter: java.io.FileFilter {
+  func accept(_ file: JavApi.java.io.File) -> Bool {
+    file.getName().endsWith(".app") && file.isDirectory()
+  }
+  typealias FileFilter = AppFileFilter
 }

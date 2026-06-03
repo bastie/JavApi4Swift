@@ -2,20 +2,15 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
+import Testing
+@testable import JavApi
 
-// TODO: Implement Test for java.util.TimeZone
+// TODO: Expand tests for java.util.TimeZone / SimpleTimeZone
 
-/*
-func testAllJavaTimeZonesAvailable (){
-  print ("\(TimeZone.current.identifier)")
-  let timeZoneIdentifiers = TimeZone.knownTimeZoneIdentifiers
-  print (timeZoneIdentifiers)
-  
-  let allCities = timeZoneIdentifiers.compactMap { identifier in
-    print (identifier.split(separator: "/").last)
+struct JavApi_util_TimeZone_Tests {
+
+  @Test("SimpleTimeZone.getAvailableIDs returns a non-empty list")
+  func testGetAvailableIDsIsNotEmpty() {
+    #expect(SimpleTimeZone.getAvailableIDs().count > 0)
   }
-  
-  print (SimpleTimeZone.getAvailableIDs().count)
-  print (Foundation.TimeZone.timeZoneDataVersion)
 }
-*/

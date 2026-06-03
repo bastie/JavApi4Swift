@@ -2,17 +2,17 @@
  * SPDX-FileCopyrightText: 2024 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 @testable import JavApi
 
-final class JavApi_lang_Class_Tests: XCTestCase {
+struct JavApi_lang_Class_Tests {
 
-  public func test_getName() {
-    
-//    let myClass = try! java.lang.Class.loadClass(named: "JavApi.java.io.File")
-//    let myObject = java.lang.Class(delegate: String.self as! AnyClass)
-    let name = java.lang.Class.getName(of: self)
-    XCTAssertEqual("JavApi_lang_Class_Tests", name)
-    
+  @Test("getName returns simple class name without module prefix")
+  func testGetName() {
+    // Swift Testing uses structs, so we need a class instance as AnyObject.
+    // The helper class name must match the expected string exactly.
+    class JavApi_lang_Class_Tests_Helper {}
+    let name = java.lang.Class.getName(of: JavApi_lang_Class_Tests_Helper())
+    #expect(name == "JavApi_lang_Class_Tests_Helper")
   }
 }

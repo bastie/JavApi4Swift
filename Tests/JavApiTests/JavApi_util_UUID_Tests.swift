@@ -2,34 +2,33 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 @testable import JavApi
 
-final class JavApi_util_UUID_Tests : XCTestCase {
-  
-  func testCreateRandom () {
-    let uuid_1 = java.util.UUID.randomUUID()
-    let uuid_2 = java.util.UUID.randomUUID()
-    
-    XCTAssertNotEqual(uuid_1, uuid_2)
+struct JavApi_util_UUID_Tests {
+
+  @Test("two random UUIDs are not equal")
+  func testCreateRandom() {
+    let uuid1 = java.util.UUID.randomUUID()
+    let uuid2 = java.util.UUID.randomUUID()
+    #expect(uuid1 != uuid2)
   }
-  
-  func testCreateFormString () throws {
-    let uuid1 = try UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d1") // created with Java
-    let uuid2 = try UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d1")
-    let uuid3 = try UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d2")
-    
-    XCTAssertEqual(uuid1, uuid2)
-    XCTAssertNotEqual(uuid1, uuid3)
+
+  @Test("UUID from string parses correctly and compares by value")
+  func testCreateFromString() throws {
+    let uuid1 = try java.util.UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d1")
+    let uuid2 = try java.util.UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d1")
+    let uuid3 = try java.util.UUID.fromString("6339c578-403d-4cb8-9da0-65f096e4f6d2")
+    #expect(uuid1 == uuid2)
+    #expect(uuid1 != uuid3)
   }
-  
-  func testCreateFromName () throws {
-    let uuid1 = try UUID.nameUUIDFromBytes("www.ritter.biz".getBytes("UTF-8"))
-    let uuid2 = try UUID.nameUUIDFromBytes("www.ritter.biz".getBytes("UTF-8"))
-    let uuid3 = try UUID.nameUUIDFromBytes("www.example.com".getBytes("UTF-8"))
-    XCTAssertEqual(uuid1, uuid2)
-    XCTAssertNotEqual(uuid1, uuid3)
+
+  @Test("nameUUIDFromBytes is deterministic and differs for different inputs")
+  func testCreateFromName() throws {
+    let uuid1 = try java.util.UUID.nameUUIDFromBytes("www.ritter.biz".getBytes("UTF-8"))
+    let uuid2 = try java.util.UUID.nameUUIDFromBytes("www.ritter.biz".getBytes("UTF-8"))
+    let uuid3 = try java.util.UUID.nameUUIDFromBytes("www.example.com".getBytes("UTF-8"))
+    #expect(uuid1 == uuid2)
+    #expect(uuid1 != uuid3)
   }
-  
-  
 }

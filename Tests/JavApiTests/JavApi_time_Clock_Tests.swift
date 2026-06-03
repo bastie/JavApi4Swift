@@ -2,127 +2,129 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 import Foundation
 @testable import JavApi
 
-class JavApi_time_Clock_Tests : XCTestCase {
+struct JavApi_time_Clock_Tests {
 
-    func testComparable() {
-      let oldClock = java.time.Clock(identifier: .americaStLucia)
-      let newClock = java.time.Clock.UTC
-      let equalClock = java.time.Clock(identifier: .americaStLucia)
+  @Test("comparable ordering: America/St_Lucia < UTC")
+  func testComparable() {
+    let old   = java.time.Clock(identifier: .americaStLucia)
+    let new_  = java.time.Clock.UTC
+    let equal = java.time.Clock(identifier: .americaStLucia)
+    #expect(old  < new_)
+    #expect(new_ > old)
+    #expect(old <= equal)
+    #expect(old >= equal)
+    #expect(old == equal)
+  }
 
-        XCTAssertLessThan(oldClock, newClock)
-        XCTAssertGreaterThan(newClock, oldClock)
-        XCTAssertLessThanOrEqual(oldClock, equalClock)
-        XCTAssertGreaterThanOrEqual(oldClock, equalClock)
-        XCTAssertEqual(oldClock, equalClock)
-        XCTAssertLessThan(oldClock, newClock)
-    }
-    func testUTC() {
-      let utc = java.time.Clock.UTC
-        XCTAssertEqual(utc.offsetSecond, 0)
-    }
-    func testGMT() {
-      let gmt = java.time.Clock.GMT
-        XCTAssertEqual(gmt.offsetSecond, 0)
-    }
-    func testCurrent() {
-        let timeZone = TimeZone.current
-      let current = java.time.Clock.current
+  @Test("UTC clock has offsetSecond == 0")
+  func testUTC() {
+    #expect(java.time.Clock.UTC.offsetSecond == 0)
+  }
 
-        XCTAssertEqual(current.offsetSecond, timeZone.secondsFromGMT())
-    }
-    func testAutoUpdatingCurrent() {
-        let timeZone = TimeZone.current
-      let autoUpdatingCurrent = java.time.Clock.autoupdatingCurrent
-      let current = java.time.Clock.current
+  @Test("GMT clock has offsetSecond == 0")
+  func testGMT() {
+    #expect(java.time.Clock.GMT.offsetSecond == 0)
+  }
 
-        XCTAssertEqual(autoUpdatingCurrent.offsetSecond, timeZone.secondsFromGMT())
-        XCTAssertEqual(current.offsetSecond, timeZone.secondsFromGMT())
-    }
-    func testIdentifier() {
-        let timeZone = TimeZone.current
+  @Test("current clock matches system timezone offset")
+  func testCurrent() {
+    #expect(java.time.Clock.current.offsetSecond == TimeZone.current.secondsFromGMT())
+  }
 
-      let clock1 = java.time.Clock(identifier: .americaStLucia)
-        let timeZone1 = TimeZone(identifier: "America/St_Lucia")!
-        XCTAssertEqual(clock1.offsetSecond, timeZone1.secondsFromGMT())
+  @Test("autoupdatingCurrent and current both match system timezone offset")
+  func testAutoUpdatingCurrent() {
+    let tz = TimeZone.current.secondsFromGMT()
+    #expect(java.time.Clock.autoupdatingCurrent.offsetSecond == tz)
+    #expect(java.time.Clock.current.offsetSecond            == tz)
+  }
 
-      let clock2 = java.time.Clock(identifier: "Europe/Vilnius")!
-        let timeZone2 = TimeZone(identifier: "Europe/Vilnius")!
-        XCTAssertEqual(clock2.offsetSecond, timeZone2.secondsFromGMT())
+  @Test("identifier-based constructors produce correct offsets")
+  func testIdentifier() {
+    let tz = TimeZone.current
 
-      let clock3 = java.time.Clock(identifier: "TEST IDENTIFIER")
-        XCTAssertEqual(clock3, nil)
+    let clock1 = java.time.Clock(identifier: .americaStLucia)
+    #expect(clock1.offsetSecond == TimeZone(identifier: "America/St_Lucia")!.secondsFromGMT())
 
-      let clock4 = java.time.Clock(identifier: .current)
-        XCTAssertEqual(clock4.offsetSecond, timeZone.secondsFromGMT())
+    let clock2 = java.time.Clock(identifier: "Europe/Vilnius")!
+    #expect(clock2.offsetSecond == TimeZone(identifier: "Europe/Vilnius")!.secondsFromGMT())
 
-      let clock5 = java.time.Clock(identifier: .autoUpdatingCurrent)
-        XCTAssertEqual(clock5.offsetSecond, timeZone.secondsFromGMT())
-    }
-    func testOffsetSecond() {
-      let clock = java.time.Clock(offsetSecond: 10800)
-        XCTAssertEqual(clock.offsetSecond, 10800)
-    }
-    func testOffsetMinute() {
-      let clock = java.time.Clock(offsetMinute: 180)
-        XCTAssertEqual(clock.offsetSecond, 10800)
-    }
-    func testOffsetHour() {
-      let clock = java.time.Clock(offsetHour: 3)
-        XCTAssertEqual(clock.offsetSecond, 10800)
-    }
-    func testToTime() {
-      let clock = java.time.Clock(identifier: .americaStLucia)
-        let time = clock.toTime()
+    #expect(java.time.Clock(identifier: "TEST IDENTIFIER") == nil)
 
-        XCTAssertEqual(time.hour, -4)
-        XCTAssertEqual(time.minute, 0)
-        XCTAssertEqual(time.second, 0)
-        XCTAssertEqual(time.nano, 0)
-    }
-    func testToTimeZone() {
-      let clock = java.time.Clock(offsetSecond: 10860)
-        let timeZone = clock.toTimeZone()
-        XCTAssertEqual(timeZone.secondsFromGMT(), 10860)
-    }
-    func testOffset() {
-      let clock = java.time.Clock.offset(baseClock: java.time.Clock(identifier: .americaStLucia), offsetDuration: 100)
-        XCTAssertEqual(clock.offsetSecond, -14300)
-    }
-    func testHashable() {
-      let clock = java.time.Clock(offsetSecond: 10860)
-        XCTAssertEqual(clock.hashValue, Int(10860).hashValue)
-    }
-    func testDescription() {
-      let clock = java.time.Clock(offsetSecond: 10860)
-        XCTAssertEqual(clock.description, "03:01:00.000000000")
-        XCTAssertEqual(clock.debugDescription, "03:01:00.000000000")
-        if let description = clock.playgroundDescription as? String {
-            XCTAssertEqual(description, "03:01:00.000000000")
-        }
-    }
-    func testMirror() {
-      let clock = java.time.Clock(offsetSecond: 10860)
-        
-        var checkList = [
-            "offsetSecond": 10860
-        ]
-        for child in clock.customMirror.children {
-            XCTAssertEqual(checkList[child.label!]!, (child.value as? Int)!)
-            checkList.removeValue(forKey: child.label!)
-        }
-        XCTAssertEqual(checkList.count, 0)
-    }
-    func testCodable() {
-      let clock1 = java.time.Clock(offsetSecond: 10860)
-        let jsonString = String(data: try! JSONEncoder().encode(clock1), encoding: .utf8)!
+    #expect(java.time.Clock(identifier: .current).offsetSecond            == tz.secondsFromGMT())
+    #expect(java.time.Clock(identifier: .autoUpdatingCurrent).offsetSecond == tz.secondsFromGMT())
+  }
 
-        let jsonData = jsonString.data(using: .utf8)!
-      let clock2 = try! JSONDecoder().decode(java.time.Clock.self, from: jsonData)
+  @Test("offsetSecond constructor stores value directly")
+  func testOffsetSecond() {
+    #expect(java.time.Clock(offsetSecond: 10_800).offsetSecond == 10_800)
+  }
 
-        XCTAssertEqual(clock1, clock2)
+  @Test("offsetMinute constructor converts to seconds")
+  func testOffsetMinute() {
+    #expect(java.time.Clock(offsetMinute: 180).offsetSecond == 10_800)
+  }
+
+  @Test("offsetHour constructor converts to seconds")
+  func testOffsetHour() {
+    #expect(java.time.Clock(offsetHour: 3).offsetSecond == 10_800)
+  }
+
+  @Test("toTime returns correct hour/minute/second/nano for America/St_Lucia (-4h)")
+  func testToTime() {
+    let time = java.time.Clock(identifier: .americaStLucia).toTime()
+    #expect(time.hour   == -4)
+    #expect(time.minute == 0)
+    #expect(time.second == 0)
+    #expect(time.nano   == 0)
+  }
+
+  @Test("toTimeZone preserves offset seconds")
+  func testToTimeZone() {
+    #expect(java.time.Clock(offsetSecond: 10_860).toTimeZone().secondsFromGMT() == 10_860)
+  }
+
+  @Test("offset applies duration to base clock")
+  func testOffset() {
+    let clock = java.time.Clock.offset(baseClock: java.time.Clock(identifier: .americaStLucia), offsetDuration: 100)
+    #expect(clock.offsetSecond == -14_300)
+  }
+
+  @Test("hashValue matches Int(offsetSecond).hashValue")
+  func testHashable() {
+    let clock = java.time.Clock(offsetSecond: 10_860)
+    #expect(clock.hashValue == Int(10_860).hashValue)
+  }
+
+  @Test("description strings are formatted correctly")
+  func testDescription() {
+    let clock = java.time.Clock(offsetSecond: 10_860)
+    #expect(clock.description      == "03:01:00.000000000")
+    #expect(clock.debugDescription == "03:01:00.000000000")
+    if let pd = clock.playgroundDescription as? String {
+      #expect(pd == "03:01:00.000000000")
     }
+  }
+
+  @Test("customMirror exposes offsetSecond")
+  func testMirror() {
+    let clock = java.time.Clock(offsetSecond: 10_860)
+    var checkList = ["offsetSecond": 10_860]
+    for child in clock.customMirror.children {
+      #expect(checkList[child.label!]! == (child.value as? Int)!)
+      checkList.removeValue(forKey: child.label!)
+    }
+    #expect(checkList.count == 0)
+  }
+
+  @Test("Codable round-trip preserves offsetSecond")
+  func testCodable() throws {
+    let clock1 = java.time.Clock(offsetSecond: 10_860)
+    let data   = try JSONEncoder().encode(clock1)
+    let clock2 = try JSONDecoder().decode(java.time.Clock.self, from: data)
+    #expect(clock1 == clock2)
+  }
 }

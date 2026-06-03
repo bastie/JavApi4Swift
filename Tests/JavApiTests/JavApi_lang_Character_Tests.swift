@@ -2,50 +2,48 @@
  * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import XCTest
+import Testing
 @testable import JavApi
 
-final class JavApi_lang_Character_Tests: XCTestCase {
-  
-  
-  func testOperator () {
-    let A : Character = "A"
+struct JavApi_lang_Character_Tests {
+
+  @Test("Character == Int compares by Unicode scalar value")
+  func testOperator() {
+    let A: Character = "A"
     let aValue = 65
-    
-    XCTAssertTrue(A == aValue)
-    XCTAssertTrue(aValue == A)
-    
-    let B : Character = "B"
-    
-    XCTAssertFalse(B == aValue)
-    XCTAssertFalse(aValue == B)
+    #expect(A == aValue)
+    #expect(aValue == A)
+
+    let B: Character = "B"
+    #expect(!(B == aValue))
+    #expect(!(aValue == B))
   }
-  
-  func testIsLetter () {
-    let A : Character = "A"
-    
-    XCTAssertTrue(Character.isLetter(A))
-    
-    let aValue = 65
-    XCTAssertTrue(Character.isLetter(aValue))
+
+  @Test("isLetter returns true for letter characters and their code points")
+  func testIsLetter() {
+    let A: Character = "A"
+    #expect(Character.isLetter(A))
+    #expect(Character.isLetter(65))
   }
-  
-  func testGetNumericValue () {
-    let A : Character = "A"
-    XCTAssertTrue(10 == Character.getNumericValue(A))
-    
-    let _1fract : Character = "\u{215f}"
-    XCTAssertTrue(1 == Character.getNumericValue(_1fract))
-    
-    let _1fract4 : Character = "\u{00BC}"
-    XCTAssertTrue(-2 == Character.getNumericValue(_1fract4))
+
+  @Test("getNumericValue returns hex digit value, fraction numerator, or -2 for non-digit fractions")
+  func testGetNumericValue() {
+    let A: Character = "A"
+    #expect(Character.getNumericValue(A) == 10)
+
+    let fract1: Character = "\u{215F}"   // ⅟ (1/1 fraction — numerator 1)
+    #expect(Character.getNumericValue(fract1) == 1)
+
+    let fract14: Character = "\u{00BC}"  // ¼ — not a simple digit fraction
+    #expect(Character.getNumericValue(fract14) == -2)
   }
-  
-  func testConvertToInt () {
-    let A : Character = "A"
-    XCTAssertTrue(65 == Int(A))
-    
-    let 𝄞 : Character = "𝄞" // Beispiel: Musikalisches Symbol ( außerhalb der BMP)
-    XCTAssertTrue(119070 == Int (𝄞))
+
+  @Test("Int(Character) converts to Unicode scalar value")
+  func testConvertToInt() {
+    let A: Character = "A"
+    #expect(Int(A) == 65)
+
+    let musicalSymbol: Character = "𝄞"  // outside BMP
+    #expect(Int(musicalSymbol) == 119_070)
   }
 }

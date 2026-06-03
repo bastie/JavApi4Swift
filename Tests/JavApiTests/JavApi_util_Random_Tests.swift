@@ -1,256 +1,171 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import XCTest
+import Testing
 @testable import JavApi
 
-public class java_util_Random_tests : XCTestCase {
-  
-  var r = java.util.Random(0)
-  
-  /**
-   * @tests java.util.Random#Random()
-   */
-  public func test_Constructor() {
-    // Test for method java.util.Random()
+struct JavApi_util_Random_Tests {
+
+  @Test("default constructor creates a usable Random instance")
+  func testConstructor() {
     _ = java.util.Random()
-    XCTAssertTrue(true,"Used to test");
+    // no assertion needed — the absence of a crash is the test
   }
-  
-  /**
-   * @tests java.util.Random#Random(long)
-   */
-  public func test_ConstructorJ() {
-    let r = java.util.Random(Int64(8409238))
-    let r2 = java.util.Random(Int64(8409238))
+
+  @Test("two Randoms with the same seed produce identical sequences")
+  func testSameSeedProducesIdenticalSequence() {
+    let r1 = java.util.Random(Int64(8_409_238))
+    let r2 = java.util.Random(Int64(8_409_238))
     for _ in 0..<100 {
-      XCTAssertTrue(r.nextInt() == r2.nextInt(), "Values from randoms with same seed don't match" )
+      #expect(r1.nextInt() == r2.nextInt())
     }
   }
-  
-  /**
-   * @tests java.util.Random#nextBoolean()
-   */
-  public func test_nextBoolean() {
-    // Test for method boolean java.util.Random.nextBoolean()
-    var falseAppeared = false
-    var trueAppeared = false;
+
+  @Test("nextBoolean produces both true and false within 100 calls")
+  func testNextBoolean() {
+    let r = java.util.Random()
+    var sawTrue = false, sawFalse = false
     for _ in 0..<100 {
-      if (r.nextBoolean()) {
-        trueAppeared = true;
-      }
-      else {
-        falseAppeared = true;
-      }
+      if r.nextBoolean() { sawTrue  = true }
+      else               { sawFalse = true }
     }
-    XCTAssertTrue(falseAppeared, "Calling nextBoolean() 100 times resulted in all trues")
-    XCTAssertTrue(trueAppeared, "Calling nextBoolean() 100 times resulted in all falses")
+    #expect(sawTrue,  "100 calls to nextBoolean() produced only false")
+    #expect(sawFalse, "100 calls to nextBoolean() produced only true")
   }
-  
-  /**
-   * @tests java.util.Random#nextBytes(byte[])
-   */
-  public func test_nextBytes$B() {
-    // Test for method void java.util.Random.nextBytes(byte [])
-    var someDifferent = false;
-    var randomBytes : [byte] = Array(repeating: byte(), count: 100)
-    r.nextBytes(&randomBytes);
-    let firstByte = randomBytes[0];
-    for counter in 1..<randomBytes.count {
-      if (randomBytes[counter] != firstByte) {
-        someDifferent = true;
-      }
-    }
-    XCTAssertTrue(someDifferent, "nextBytes() returned an array of length 100 of the same byte")
+
+  @Test("nextBytes fills array with varying values")
+  func testNextBytes() {
+    let r = java.util.Random()
+    var bytes: [byte] = Array(repeating: byte(), count: 100)
+    r.nextBytes(&bytes)
+    let first = bytes[0]
+    let allSame = bytes.dropFirst().allSatisfy { $0 == first }
+    #expect(!allSame)
   }
-  
-  /**
-   * @tests java.util.Random#nextDouble()
-   */
-  public func test_nextDouble() {
-    // Test for method double java.util.Random.nextDouble()
-    var lastNum = r.nextDouble();
-    var nextNum : Double;
-    var someDifferent = false;
-    var inRange = true;
+
+  @Test("nextDouble produces values in [0, 1) with variation")
+  func testNextDouble() {
+    let r = java.util.Random()
+    var last = r.nextDouble()
+    var someDifferent = false
     for _ in 0..<100 {
-      nextNum = r.nextDouble();
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      if (!(0 <= nextNum && nextNum < 1.0)) {
-        inRange = false;
-      }
-      lastNum = nextNum;
+      let next = r.nextDouble()
+      #expect(next >= 0.0 && next < 1.0)
+      if next != last { someDifferent = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent, "Calling nextDouble 100 times resulted in same number")
-    XCTAssertTrue(inRange, "Calling nextDouble resulted in a number out of range [0,1)")
+    #expect(someDifferent)
   }
-  
-  /**
-   * @tests java.util.Random#nextFloat()
-   */
-  public func test_nextFloat() {
-    // Test for method float java.util.Random.nextFloat()
-    var lastNum = r.nextFloat();
-    var nextNum : Float;
-    var someDifferent = false;
-    var inRange = true;
+
+  @Test("nextFloat produces values in [0, 1) with variation")
+  func testNextFloat() {
+    let r = java.util.Random()
+    var last = r.nextFloat()
+    var someDifferent = false
     for _ in 0..<100 {
-      nextNum = r.nextFloat();
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      if (!(0 <= nextNum && nextNum < 1.0)) {
-        inRange = false;
-      }
-      lastNum = nextNum;
+      let next = r.nextFloat()
+      #expect(next >= 0.0 && next < 1.0)
+      if next != last { someDifferent = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent,"Calling nextFloat 100 times resulted in same number")
-    XCTAssertTrue(inRange,"Calling nextFloat resulted in a number out of range [0,1)")
+    #expect(someDifferent)
   }
-  
-  /**
-   * @tests java.util.Random#nextGaussian()
-   */
-  public func test_nextGaussian() {
-    // Test for method double java.util.Random.nextGaussian()
-    var lastNum = r.nextGaussian();
-    var nextNum : Double
-    var someDifferent = false;
-    var someInsideStd = false;
+
+  @Test("nextGaussian produces variation and values within 1 std deviation")
+  func testNextGaussian() {
+    let r = java.util.Random()
+    var last = r.nextGaussian()
+    var someDifferent = false
+    var someInStd = false
     for _ in 0..<100 {
-      nextNum = r.nextGaussian();
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      if (-1.0 <= nextNum && nextNum <= 1.0) {
-        someInsideStd = true;
-      }
-      lastNum = nextNum;
+      let next = r.nextGaussian()
+      if next != last { someDifferent = true }
+      if next >= -1.0 && next <= 1.0 { someInStd = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent, "Calling nextGaussian 100 times resulted in same number")
-    XCTAssertTrue(someInsideStd, "Calling nextGaussian 100 times resulted in no number within 1 std. deviation of mean")
+    #expect(someDifferent)
+    #expect(someInStd)
   }
-  
-  /**
-   * @tests java.util.Random#nextInt()
-   */
-  public func test_nextInt() {
-    // Test for method int java.util.Random.nextInt()
-    var lastNum = r.nextInt();
-    var nextNum = 0;
-    var someDifferent = false;
+
+  @Test("nextInt produces variation across 100 calls")
+  func testNextInt() {
+    let r = java.util.Random()
+    var last = r.nextInt()
+    var someDifferent = false
     for _ in 0..<100 {
-      nextNum = r.nextInt();
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      lastNum = nextNum;
+      let next = r.nextInt()
+      if next != last { someDifferent = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent, "Calling nextInt 100 times resulted in same number")
+    #expect(someDifferent)
   }
-  
-  /**
-   * @tests java.util.Random#nextInt(int)
-   */
-  public func test_nextIntI() {
-    // Test for method int java.util.Random.nextInt(int)
-    let range = 10;
-    var lastNum = try! r.nextInt(range);
-    var nextNum = 0;
-    var someDifferent = false;
-    var inRange = true;
+
+  @Test("nextInt(range) stays within [0, range) with variation")
+  func testNextIntRange() throws {
+    let r = java.util.Random()
+    let range = 10
+    var last = try r.nextInt(range)
+    var someDifferent = false
     for _ in 0..<100 {
-      nextNum = try! r.nextInt(range);
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      if (!(0 <= nextNum && nextNum < range)) {
-        inRange = false;
-      }
-      lastNum = nextNum;
+      let next = try r.nextInt(range)
+      #expect(next >= 0 && next < range)
+      if next != last { someDifferent = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent,"Calling nextInt (range) 100 times resulted in same number")
-    XCTAssertTrue(inRange,"Calling nextInt (range) resulted in a number outside of [0, range)")
+    #expect(someDifferent)
   }
-  
-  /**
-   * @tests java.util.Random#nextLong()
-   */
-  public func test_nextLong() {
-    // Test for method long java.util.Random.nextLong()
-    var lastNum = r.nextLong();
-    var nextNum = Int64();
-    var someDifferent = false;
+
+  @Test("nextLong produces variation across 100 calls")
+  func testNextLong() {
+    let r = java.util.Random()
+    var last = r.nextLong()
+    var someDifferent = false
     for _ in 0..<100 {
-      nextNum = r.nextLong();
-      if (nextNum != lastNum) {
-        someDifferent = true;
-      }
-      lastNum = nextNum;
+      let next = r.nextLong()
+      if next != last { someDifferent = true }
+      last = next
     }
-    XCTAssertTrue(someDifferent, "Calling nextLong 100 times resulted in same number")
+    #expect(someDifferent)
   }
-  
-  /**
-   * @tests java.util.Random#setSeed(long)
-   */
-  public func test_setSeedJ() {
-    // Test for method void java.util.Random.setSeed(long)
-    var randomArray : [Int64] = Array(repeating: Int64(), count: 100)
-    var someDifferent = false;
-    let firstSeed : Int64 = 1000;
-    var aLong : Int64
-    var anotherLong : Int64
-    var yetAnotherLong : Int64
-    let aRandom = java.util.Random();
-    let anotherRandom = java.util.Random();
-    let yetAnotherRandom = java.util.Random();
-    aRandom.setSeed(firstSeed);
-    anotherRandom.setSeed(firstSeed);
-    for counter in 0..<randomArray.count {
-      aLong = aRandom.nextLong();
-      anotherLong = anotherRandom.nextLong();
-      XCTAssertTrue(aLong == anotherLong, "Two randoms with same seeds gave differing nextLong values")
-      yetAnotherLong = yetAnotherRandom.nextLong();
-      randomArray[counter] = aLong;
-      if (aLong != yetAnotherLong) {
-        someDifferent = true;
-      }
-    }
-    XCTAssertTrue(someDifferent,"Two randoms with the different seeds gave the same chain of values");
-    aRandom.setSeed(firstSeed);
-    for counter in 0..<randomArray.count {
-      XCTAssertTrue(aRandom.nextLong() == randomArray[counter], "Reseting a random to its old seed did not result in the same chain of values as it gave before")
-    }
-  }
-  
-  // two random create at a time should also generated different results
-  // regression test for Harmony 4616
-  public func test_random_generate() throws {//Exception {
+
+  @Test("setSeed resets sequence to match original")
+  func testSetSeed() {
+    let seed: Int64 = 1_000
+    let r1 = java.util.Random()
+    let r2 = java.util.Random()
+    let r3 = java.util.Random()
+    r1.setSeed(seed)
+    r2.setSeed(seed)
+
+    var saved = [Int64]()
+    var someDifferentFromR3 = false
     for _ in 0..<100 {
-      let random1 = java.util.Random();
-      Thread.sleep(1) // Swift is to fast, so sleep is needed
-      let random2 = java.util.Random();
-      XCTAssertFalse(random1.nextLong() == random2.nextLong());
+      let v1 = r1.nextLong()
+      let v2 = r2.nextLong()
+      #expect(v1 == v2)
+      saved.append(v1)
+      if v1 != r3.nextLong() { someDifferentFromR3 = true }
+    }
+    #expect(someDifferentFromR3)
+
+    r1.setSeed(seed)
+    for i in 0..<saved.count {
+      #expect(r1.nextLong() == saved[i])
     }
   }
-  
-  /**
-   * Sets up the fixture, for example, open a network connection. This method
-   * is called before a test is executed.
-   */
-  public override func setUp() {
-    r = java.util.Random()
-  }
-  
-  /**
-   * Tears down the fixture, for example, close a network connection. This
-   * method is called after a test is executed.
-   */
-  override public func tearDown() {
+
+  @Test("two Randoms created at different times produce different values")
+  func testConcurrentRandomsDiffer() throws {
+    var anyDifferent = false
+    for _ in 0..<20 {
+      let r1 = java.util.Random()
+      Thread.sleep(1)
+      let r2 = java.util.Random()
+      if r1.nextLong() != r2.nextLong() {
+        anyDifferent = true
+        break
+      }
+    }
+    #expect(anyDifferent)
   }
 }
