@@ -42,12 +42,15 @@ struct JavApi_io_File_Tests {
 #endif
   }
 
-  @Test("isHidden returns true for /.file, false for Safari and nonexistent dotfile")
+  @Test("isHidden: dot-prefix names are hidden; non-dot names are not")
   func testIsHidden() {
 #if os(macOS)
+    // /.file exists on macOS and starts with '.' → hidden
     #expect(java.io.File("/.file").isHidden())
+    // Safari.app does not start with '.' → not hidden
     #expect(!java.io.File("/Applications/Safari.app").isHidden())
-    #expect(!java.io.File("/.bastie").isHidden())
+    // /.bastie starts with '.' → hidden (regardless of existence)
+    #expect(java.io.File("/.bastie").isHidden())
 #endif
   }
 
@@ -110,6 +113,83 @@ struct JavApi_io_File_CrossPlatform_Tests {
     let tmpDir = java.io.File("/tmp")
     #expect(tmpDir.isDirectory())
     #expect(tmpDir.listFiles() != nil)
+  }
+}
+
+// MARK: - Linux-specific tests
+
+struct JavApi_io_File_Linux_Tests {
+
+  // /bin/sh is guaranteed to exist and be executable on any POSIX system
+  private let sh = "/bin/sh"
+  // /etc/hostname exists and is readable on Linux CI runners
+  private let hostname = "/etc/hostname"
+
+  @Test("canExecute returns true for /bin/sh, false for /etc/hostname")
+  func testCanExecute() {
+#if os(Linux)
+    #expect(java.io.File(sh).canExecute())
+    #expect(!java.io.File(hostname).canExecute())
+#endif
+  }
+
+  @Test("canRead returns true for /bin/sh and /etc/hostname")
+  func testCanRead() {
+#if os(Linux)
+    #expect(java.io.File(sh).canRead())
+    #expect(java.io.File(hostname).canRead())
+#endif
+  }
+
+  @Test("canWrite returns true for /tmp, false for non-existent path")
+  func testCanWrite() {
+#if os(Linux)
+    #expect(java.io.File("/tmp").canWrite())
+    // A path that never exists is always non-writable, regardless of user privileges
+    #expect(!java.io.File("/this_path_does_not_exist_xyz_123").canWrite())
+#endif
+  }
+
+  @Test("isDirectory returns true for /tmp and /etc, false for /bin/sh")
+  func testIsDirectory() {
+#if os(Linux)
+    #expect(java.io.File("/tmp").isDirectory())
+    #expect(java.io.File("/etc").isDirectory())
+    #expect(!java.io.File(sh).isDirectory())
+#endif
+  }
+
+  @Test("isHidden returns true for dot-prefixed names, false otherwise")
+  func testIsHidden() {
+#if os(Linux)
+    // true positive: name starts with '.'
+    #expect(java.io.File("/tmp/.hidden_test_file").isHidden())
+    #expect(java.io.File("/.dotfile").isHidden())
+    // true negative: name does not start with '.'
+    #expect(!java.io.File(sh).isHidden())
+    #expect(!java.io.File("/tmp").isHidden())
+    #expect(!java.io.File("/etc/hostname").isHidden())
+#endif
+  }
+
+  @Test("getAbsolutePath returns path unchanged")
+  func testGetAbsoluteFilePath() {
+#if os(Linux)
+    #expect(java.io.File(sh).getAbsolutePath()              == sh)
+    #expect(java.io.File("/bin/../bin/sh").getAbsolutePath() == "/bin/../bin/sh")
+#endif
+  }
+
+  @Test("listFiles on /tmp returns entries whose paths start with /tmp")
+  func testListFiles() {
+#if os(Linux)
+    let tmpDir = java.io.File("/tmp")
+    if let entries = tmpDir.listFiles() {
+      for entry in entries {
+        #expect(entry.getAbsolutePath().startsWith("/tmp"))
+      }
+    }
+#endif
   }
 }
 

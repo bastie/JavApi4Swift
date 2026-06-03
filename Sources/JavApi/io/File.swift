@@ -159,14 +159,23 @@ extension java.io {
     ///
     /// - Returns true if the file is hidden
     open func isHidden () -> Bool {
+      // On POSIX systems (Linux, etc.) a file is hidden when its name starts with '.'
+      let name = self.getName()
+      if name.hasPrefix(".") {
+        return true
+      }
+      // On Apple platforms additionally check the .extensionHidden filesystem attribute
+#if canImport(Darwin)
       do {
         let fileAttributes = try FileManager.default.attributesOfItem(atPath: self.file)
-        let hidden = (fileAttributes [.extensionHidden] as? Int ?? 2)!
+        let hidden = (fileAttributes[.extensionHidden] as? Int ?? 2)!
         return hidden == 0
-      }
-      catch {
+      } catch {
         return false
       }
+#else
+      return false
+#endif
     }
     
     /// Returns the size in bytes of file
