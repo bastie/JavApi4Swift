@@ -22,10 +22,18 @@ This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.htm
 
 ## Topics
 
-In result of Java packaged are provided as Swift enumeration take a deeper look into enumerations. 
+The primary target is to implement as close as possible to the Java API. For reference, see the [Java API documentation](https://docs.oracle.com/en/java/javase/index.html).
 
-The primary target is to near as possible implemented like Java API and so look into [Java API documentation](https://docs.oracle.com/en/java/javase/index.html).
+Java packages are provided as Swift enumerations — `java.util.ArrayList` becomes `java.util.ArrayList` in Swift as well, using nested enums as namespaces.
 
-### <!--@START_MENU_TOKEN@-->Group<!--@END_MENU_TOKEN@-->
+### Learning Trail
 
-- <!--@START_MENU_TOKEN@-->``Symbol``<!--@END_MENU_TOKEN@-->
+New to JavApi⁴Swift? Work through the tutorials in order.
+
+- <doc:Tutorials>
+
+### Migration Guide
+
+Porting existing Java code to Swift? Read this first.
+
+- <doc:Java2Swift>
