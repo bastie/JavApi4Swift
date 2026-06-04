@@ -13,6 +13,8 @@ JavApi⁴Swift provides a Java like API in 100%-pure Swift instead bridging to J
 
 This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.html) MinimizeDependencies pattern to reduce dependency and eat other great resources.
 
+The primary target is to near as possible implemented like Java API and so look into [Java API documentation](https://docs.oracle.com/en/java/javase/index.html). In extension an Tutorial is provided (as test).
+
 ## License
 
 
