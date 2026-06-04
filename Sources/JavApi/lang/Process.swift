@@ -11,7 +11,10 @@ extension java.lang {
   ///
   /// Mirrors `java.lang.Process` from Java 1.0. In Java, `Process` is an
   /// abstract class returned by `Runtime.exec(...)`. This Swift implementation
-  /// is a concrete class backed by `Foundation.Process`.
+  /// is a concrete class backed by `Foundation.Process` on platforms that
+  /// support it (macOS, Linux). On iOS, tvOS, watchOS, and visionOS,
+  /// `Foundation.Process` is unavailable; all methods throw
+  /// `UnsupportedOperationException` at runtime.
   ///
   /// Typical usage via `java.lang.Runtime`:
   /// ```swift
@@ -26,6 +29,7 @@ extension java.lang {
   /// - Since: JavaApi (Java 1.0)
   public class Process {
 
+#if canImport(Foundation) && (os(macOS) || os(Linux) || os(FreeBSD) || os(Windows))
     // MARK: - Delegate
 
     internal let delegate: Foundation.Process
@@ -98,9 +102,46 @@ extension java.lang {
     public func destroy() {
       delegate.terminate()
     }
+
+#else
+    // MARK: - Unsupported platform stubs
+
+    /// Not available on this platform.
+    internal init() {}
+
+    /// - Throws: `UnsupportedOperationException` always.
+    public func getInputStream() throws -> java.io.InputStream {
+      throw java.lang.UnsupportedOperationException("Process is not supported on this platform")
+    }
+
+    /// - Throws: `UnsupportedOperationException` always.
+    public func getErrorStream() throws -> java.io.InputStream {
+      throw java.lang.UnsupportedOperationException("Process is not supported on this platform")
+    }
+
+    /// - Throws: `UnsupportedOperationException` always.
+    public func getOutputStream() throws -> java.io.OutputStream {
+      throw java.lang.UnsupportedOperationException("Process is not supported on this platform")
+    }
+
+    /// - Throws: `UnsupportedOperationException` always.
+    @discardableResult
+    public func waitFor() throws -> Int {
+      throw java.lang.UnsupportedOperationException("Process is not supported on this platform")
+    }
+
+    /// - Throws: `UnsupportedOperationException` always.
+    public func exitValue() throws -> Int {
+      throw java.lang.UnsupportedOperationException("Process is not supported on this platform")
+    }
+
+    /// Does nothing on unsupported platforms.
+    public func destroy() {}
+#endif
   }
 }
 
+#if canImport(Foundation) && (os(macOS) || os(Linux) || os(FreeBSD) || os(Windows))
 // MARK: - Internal stream adapters
 
 /// Wraps a `Pipe`'s read end as a `java.io.InputStream`.
@@ -138,3 +179,4 @@ internal final class PipeOutputStream : java.io.OutputStream {
     pipe.fileHandleForWriting.write(Data([byte]))
   }
 }
+#endif
