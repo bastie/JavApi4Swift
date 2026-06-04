@@ -17,6 +17,11 @@ extension java.lang {
   public typealias System = JavApi.System
   public typealias String = Swift.String
   public typealias StringBuilder = JavApi.StringBuilder
+  public typealias StringBuffer = JavApi.StringBuffer
+  public typealias Float = Swift.Float
+  public typealias Void = JavApi.Void
+  public typealias Compiler = JavApi.Compiler
+  public typealias SecurityManager = JavApi.SecurityManager
   public typealias Math = JavApi.Math
   public typealias Number = JavApi.Number
   public typealias Iterable = JavApi.Iterable
@@ -37,3 +42,5 @@ public typealias byte = UInt8
 public typealias boolean = Bool
 /// This type alias provides the long keyword with Int64 as data type
 public typealias long = Int64
+/// This type alias provides the float keyword with Float as data type
+public typealias float = Float
