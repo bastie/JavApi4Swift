@@ -14,7 +14,7 @@ extension java.util {
   /// attempting to store `nil` throws `NullPointerException`, matching Java
   /// behaviour.
   ///
-  /// `Hashtable` is declared `open` so that ``java.util.Properties`` can
+  /// `Hashtable` is declared `open` so that `java.util.Properties` can
   /// subclass it.
   ///
   /// ```swift
@@ -155,7 +155,7 @@ extension java.util {
 
     /// Returns `true` if this hashtable maps one or more keys to `value`.
     ///
-    /// Alias for ``contains(_:)`` — added for API completeness.
+    /// Alias for ``contains(_:)-1swoz`` — added for API completeness.
     ///
     /// - Parameter value: The value to search for (equality via `==`).
     /// - Since: JavaApi (Java 1.0)

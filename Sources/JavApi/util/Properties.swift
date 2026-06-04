@@ -10,7 +10,7 @@ extension java.util {
   /// A persistent set of string properties (key-value pairs).
   ///
   /// Mirrors `java.util.Properties` from Java 1.0. `Properties` extends
-  /// ``java.util.Hashtable`` with `String` keys and `String` values and adds
+  /// `java.util.Hashtable` with `String` keys and `String` values and adds
   /// support for loading and storing `.properties` files.
   ///
   /// A secondary `Properties` table (`defaults`) can be supplied at

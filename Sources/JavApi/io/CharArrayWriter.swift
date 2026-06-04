@@ -222,7 +222,7 @@ extension java.io {
      * Writer}. The output is all the characters that have been written to the
      * receiver since the last reset or since it was created.
      *
-     * @param out
+     * @param writer
      *            the non-null {@code Writer} on which to write the contents.
      * @throws IOException
      *             if an error occurs attempting to write out the contents.

@@ -23,10 +23,10 @@ extension java.util {
       return Array (original: original, count: newCount)
     }
     
-    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are ``nil`` these arrays are also same.
+    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are `nil` these arrays are also same.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [UInt8]?, _ identical : [UInt8]?) -> Bool {
       if nil == actual && nil == identical {
         return true
@@ -40,7 +40,7 @@ extension java.util {
     /// If all element of two array are in same order in both contained, these arrays are equals.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [UInt8], _ identical : [UInt8]) -> Bool {
       guard actual.count == identical.count else {
         return false
@@ -53,10 +53,10 @@ extension java.util {
       return true
     }
     
-    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are ``nil`` these arrays are also same.
+    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are `nil` these arrays are also same.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [UInt8]?, _ identical : [Int]?) -> Bool {
       if nil == actual && nil == identical {
         return true
@@ -70,15 +70,15 @@ extension java.util {
     /// If all element of two array are in same order in both contained, these arrays are equals.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [UInt8], _ identical : [Int]) -> Bool {
       return equals(identical, actual)
     }
     
-    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are ``nil`` these arrays are also same.
+    /// If all element of two array are in same order in both contained, these arrays are equals. If both arrays are `nil` these arrays are also same.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [Int]?, _ identical : [UInt8]?) -> Bool {
       if nil == actual && nil == identical {
         return true
@@ -92,7 +92,7 @@ extension java.util {
     /// If all element of two array are in same order in both contained, these arrays are equals.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals (_ actual : [Int], _ identical : [UInt8]) -> Bool {
       guard actual.count == identical.count else {
         return false
@@ -108,7 +108,7 @@ extension java.util {
     /// If all element of two array are in same order in both contained, these arrays are equals.
     /// - Parameter actual array
     /// - Parameter identical array
-    /// - Returns ``true`` if they are equals
+    /// - Returns `true` if they are equals
     public static func equals<T>(_ actual : [T], _ identical : [T]) -> Bool {
       guard actual.count == identical.count else {
         return false

@@ -17,12 +17,12 @@ extension java.util {
   /// allows.  All public methods are synchronized via an `NSLock` so that
   /// concurrent access is safe — just as in the Java specification.
   ///
-  /// Unlike ``Java/util/ArrayList``, `Vector` retains Java's legacy
+  /// Unlike `java.util.ArrayList`, `Vector` retains Java's legacy
   /// synchronisation guarantee and its classic method names (`addElement`,
   /// `elementAt`, `removeElementAt`, …) **in addition to** the modern
   /// `List<E>` interface names (`add`, `get`, `remove`, `set`, …).
   ///
-  /// Because ``Java/util/Stack`` extends `Vector` in Java, this class is
+  /// Because `java.util.Stack` extends `Vector` in Java, this class is
   /// declared `open` so that a future `Stack` implementation (or your own
   /// subclass) can inherit from it directly.
   ///

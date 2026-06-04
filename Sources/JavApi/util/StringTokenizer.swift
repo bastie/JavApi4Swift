@@ -14,7 +14,7 @@ extension java.util {
   /// whitespace characters space (`' '`), tab (`'\t'`), newline (`'\n'`),
   /// carriage return (`'\r'`), and form feed (`'\f'`).
   ///
-  /// `StringTokenizer` implements ``java.util.Enumeration`` so it can be used
+  /// `StringTokenizer` implements `java.util.Enumeration` so it can be used
   /// wherever an `Enumeration<String>` is expected. In addition the Swiftify
   /// extension makes it conform to `Sequence`, enabling Swift `for`-`in` loops:
   ///

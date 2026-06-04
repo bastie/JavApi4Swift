@@ -44,7 +44,7 @@ extension java.io {
      * Constructs a new {@code Reader} with {@code lock} used to synchronize
      * critical sections.
      *
-     * @param lock
+     * @param lockObject
      *            the {@code Object} used to synchronize critical sections.
      */
     public init(_ lockObject : Sendable) {

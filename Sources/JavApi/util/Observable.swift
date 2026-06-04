@@ -16,8 +16,7 @@ extension java.util {
   /// call the Observers in the order they registered. Subclasses are completely
   /// free in what order they call the update methods.
   ///
-  /// @see Observer
-  /// - see ``java.util.Observer``
+  /// - see `java.util.Observer`
   ///
   open class Observable {
     

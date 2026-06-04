@@ -5,7 +5,7 @@
 
 // needed to use ==
 extension PIC9 : Equatable {
-  /// Implementing the ```Equatable``` protocol to use ```==``` in Code
+  /// Implementing the `Equatable` protocol to use `==` in Code
   public static func == (lhs: PIC9, rhs: PIC9) -> Bool {
     return lhs.value == rhs.value
   }

@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2023 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2023-2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
 
@@ -9,14 +9,12 @@ import Foundation
 extension Checksum {
   
   /// Update the checksum with given byte
-  /// - Parameters:
-  ///     - with: byte value for update
+  /// - Parameter byteValue: for update
   public func update (with byteValue: UInt8) {
     self.update([byteValue])
   }
   /// Update the checksum with given bytes
-  /// - Parameters:
-  ///     - with:  byte datas for update
+  /// - Parameter data: bytes for update
   public func update (with data: Data) {
     self.update([UInt8](data))
   }

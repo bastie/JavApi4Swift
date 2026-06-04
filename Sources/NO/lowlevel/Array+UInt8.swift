@@ -5,9 +5,9 @@
 
 // Extending Array for me
 extension Array where Element == UInt8 {
-  /// Convert ```[UInt8]``` to ```[UInt4]```
+  /// Convert `[UInt8]` to `[UInt4]`
   ///
-  /// - Returns: ```[UInt4]```
+  /// - Returns: `[UInt4]`
   public func convertToInt4Array() -> [UInt4] {
     var uint4Array: [UInt4] = []
     

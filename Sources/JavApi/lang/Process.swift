@@ -13,7 +13,7 @@ extension java.lang {
   /// abstract class returned by `Runtime.exec(...)`. This Swift implementation
   /// is a concrete class backed by `Foundation.Process`.
   ///
-  /// Typical usage via ``java.lang.Runtime``:
+  /// Typical usage via `java.lang.Runtime`:
   /// ```swift
   /// let p = try java.lang.Runtime.getRuntime().exec("ls -la")
   /// let status = try p.waitFor()

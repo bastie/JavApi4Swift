@@ -51,21 +51,21 @@ public struct UInt4 : Sendable {
 typealias Nibble = UInt4
 
 extension UInt4 {
-  /// Combine two ```UInt4``` to ```UInt8```
+  /// Combine two `UInt4` to `UInt8`
   /// - Parameters:
-  ///    - nibble1: ```UInt4``` high value
-  ///    - nibble2: ```UInt4``` low value
-  /// - Returns: ```UInt8```
+  ///    - nibble1: `UInt4` high value
+  ///    - nibble2: `UInt4` low value
+  /// - Returns: `UInt8`
   public static func combineNibblesToByte(_ nibble1: UInt4, _ nibble2: UInt4) -> UInt8 {
     let byte: UInt8 = (nibble1.getValue() << 4) | nibble2.getValue()
     return byte
   }
   
-  /// Convert a ```UInt8``` to UInt4 Tupel
+  /// Convert a `UInt8` to UInt4 Tupel
   ///
   /// - Parameters:
-  ///    - byte: ```UInt8```
-  /// - Returns: ```(UInt4, UInt4) ```
+  ///    - byte: `UInt8`
+  /// - Returns: `(UInt4, UInt4) `
   public static func splitByteIntoNibbles(_ byte: UInt8) -> (UInt4, UInt4) {
     var nibble1 = UInt4()
     var nibble2 = UInt4()

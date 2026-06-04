@@ -1,4 +1,4 @@
-# ``w3d``
+# W3C
 
 <!--
 * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>

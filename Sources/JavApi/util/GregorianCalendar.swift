@@ -9,7 +9,7 @@ extension java.util {
 
   /// The Gregorian calendar is the calendar used in not too less parts of the world.
   ///
-  /// Port of ``java.util.GregorianCalendar`` to Swift.
+  /// Port of `java.util.GregorianCalendar` to Swift.
   ///
   /// ## Sample for port Java to Swift without [JavApi⁴Swift](https://github.com/bastie/JavApi4Swift)
   ///
@@ -55,8 +55,8 @@ extension java.util {
       return javaDate
     }
     
-    /// Returns the value of given ``java.util.Calendar`` field
-    /// - Returns ``Int`` value of expected field or throws exception
+    /// Returns the value of given `java.util.Calendar` field
+    /// - Returns `Int` value of expected field or throws exception
     /// - Note: Can throw a hidden Java runtime Exception. Use Swift DateComponents or secure extension function `get (_ java.util.Calendar.DateComponets`
     open override func get (_ field : Int) throws -> Int {
       switch field {

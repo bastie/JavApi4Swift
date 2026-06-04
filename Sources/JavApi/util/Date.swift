@@ -14,7 +14,7 @@ extension java.util {
       self.delegate = Foundation.Date.now
     }
     
-    /// Create a new ``java.util.Date`` instance at 1. Januar 1970
+    /// Create a new `java.util.Date` instance at 1. Januar 1970
     /// - Parameter millisecondsSince1970: milliseconds since 1970
     /// - Note: In result of Swift works with seconds instead of milliseconds the milliseconds part are ignored
     /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)

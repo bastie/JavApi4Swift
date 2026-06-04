@@ -4,16 +4,14 @@
  */
 
 extension java.io {
-/**
- * Wraps an existing ``java.io.OutputStream`` and performs some transformation on
- * the output data while it is being written. Transformations can be anything
- * from a simple byte-wise filtering output data to an on-the-fly compression or
- * decompression of the underlying stream. Output streams that wrap another
- * output stream and provide some additional functionality on top of it usually
- * inherit from this class.
- *
- * - see ``java.io.FilterOutputStream``
- */
+///
+/// Wraps an existing ``OutputStream`` and performs some transformation on
+/// the output data while it is being written. Transformations can be anything
+/// from a simple byte-wise filtering output data to an on-the-fly compression or
+/// decompression of the underlying stream. Output streams that wrap another
+/// output stream and provide some additional functionality on top of it usually
+/// inherit from this class.
+///
 /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
   open class FilterOutputStream : java.io.OutputStream {
     

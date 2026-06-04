@@ -8,6 +8,6 @@ extension org.w3c {
   public enum dom {}
 }
 
-/// ``DOMUserData`` can be ``Any``thing
+/// ``DOMUserData`` can be `Any`thing
 /// - SeeAlso: https://www.w3.org/TR/DOM-Level-3-Core/idl-definitions.html
 public typealias DOMUserData = Any

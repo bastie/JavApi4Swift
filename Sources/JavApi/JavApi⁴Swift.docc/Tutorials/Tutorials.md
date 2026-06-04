@@ -11,7 +11,7 @@ Welcome to the JavApi⁴Swift Learning Trail — a guided path for developers wh
 
 This trail is inspired by the classic Sun Microsystems Java Tutorials. Each article introduces one topic, explains the concepts behind it, and shows working code. You do not need prior experience in Java or Swift to follow along — but basic programming knowledge (variables, loops, functions in *any* language) will help.
 
-> **Note:** If you are an experienced Java developer looking to port existing code to Swift, read ``Java2Swift`` instead. That article covers the mechanical translation steps. This trail is for learning, not migrating.
+> **Note:** If you are an experienced Java developer looking to port existing code to Swift, read <doc:Java2Swift> instead. That article covers the mechanical translation steps. This trail is for learning, not migrating.
 
 ## The Trail
 

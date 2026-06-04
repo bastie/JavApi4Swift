@@ -35,7 +35,7 @@ extension Character {
     return "copyOf\(self)".charAt(6)
   }
   
-  /// Return the numeric value of Unicode character, f.e. ``\u{216D}`` returns  100.
+  /// Return the numeric value of Unicode character, f.e. `\u{216D}` returns  100.
   ///
   /// - Parameters: char
   /// - Returns: numeric value or 10 to 35 for A-Z or -2 for fractions or -1 for all others

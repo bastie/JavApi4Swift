@@ -5,9 +5,9 @@
 
 // Extending Array for me
 extension Array where Element == UInt4 {
-  /// Convert ```[UInt4]``` to ```[UInt8]```
+  /// Convert `[UInt4]` to `[UInt8]`
   ///
-  /// - Returns: ```[UInt8]```
+  /// - Returns: `[UInt8]`
   public func convertToUInt8Array() -> [UInt8] {
     var uint8Array: [UInt8] = []
     
@@ -38,7 +38,7 @@ extension Array where Element == UInt4 {
 
 // Other Extending Array with a littlebit more generic
 extension Array where Element == UInt4 {
-  /// Convert ```[UInt4]``` to other BinaryInteger type
+  /// Convert `[UInt4]` to other BinaryInteger type
   public func convert<T : BinaryInteger>(to targetType: T.Type) -> [T] {
     let uint8Array = self.convertToUInt8Array()
     return uint8Array.map { T($0) }

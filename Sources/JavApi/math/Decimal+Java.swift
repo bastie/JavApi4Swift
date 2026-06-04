@@ -9,7 +9,7 @@ extension Decimal {
   
   // exponent is the internal field of accurance
   
-  /// NOTE: Same as Java is a bad idea using a double to initialize a BigDecimal value. Better use ``valueOf:(String)`` because the internal information exponent is set correct
+  /// NOTE: Same as Java is a bad idea using a double to initialize a BigDecimal value. Better use `valueOf:(String)` because the internal information exponent is set correct
   public static func valueOf (_ newValue : Double) -> java.math.BigDecimal {
     return java.math.BigDecimal(floatLiteral: newValue)
   }

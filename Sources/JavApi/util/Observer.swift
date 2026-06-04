@@ -25,7 +25,7 @@ extension java.util {
     /// Returns a hash code for this observer.
     ///
     /// Used by ``Observable`` to identify and deduplicate observers.
-    /// A default implementation is provided in ``Observer+Swiftify`` for
+    /// A default implementation is provided in `Observer+Swiftify` for
     /// class types via `ObjectIdentifier`.
     func hashCode() -> Int
   }

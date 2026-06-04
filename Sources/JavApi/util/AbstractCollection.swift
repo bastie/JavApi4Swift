@@ -104,7 +104,7 @@ extension java.util {
      * each element {@code e} returned by the iterator is compared with the test
      * {@code e == null}.
      *
-     * @param object
+     * @param element
      *            the object to search for.
      * @return {@code true} if object is an element of this {@code Collection}, {@code
      *         false} otherwise.
@@ -207,7 +207,7 @@ extension java.util {
      * not support removing elements, an {@code UnsupportedOperationException}
      * is thrown.
      *
-     * @param object
+     * @param element
      *            the object to remove.
      * @return {@code true} if this {@code Collection} is modified, {@code false}
      *         otherwise.

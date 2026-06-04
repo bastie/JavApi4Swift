@@ -35,7 +35,7 @@ open class ByteBuffer {
     return self.content
   }
   
-  /// Returns the order of this ``ByteBuffer``. The default value is ``java.nio.ByteOrder.BIG_ENDIAN``
+  /// Returns the order of this ``ByteBuffer``. The default value is `java.nio.ByteOrder.BIG_ENDIAN`
   /// - Returns order of ``ByteBuffer``
   /// - Since: JavaApi &gt; 0.17.0 (Java 1.4)
   open func order () -> java.nio.ByteOrder {
