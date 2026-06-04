@@ -33,3 +33,7 @@ Work through the articles in order, or jump to a topic that interests you.
 ### Input and Output
 
 - <doc:InputOutput> — Reading and writing data with streams, files, and byte arrays.
+
+### Concurrency
+
+- <doc:Multithreading> — Threads, thread groups, and how Java's threading model maps to Swift's async/await and structured concurrency.

@@ -19,9 +19,9 @@ extension java.lang {
   public typealias StringBuilder = JavApi.StringBuilder
   public typealias StringBuffer = JavApi.StringBuffer
   public typealias Float = Swift.Float
-  public typealias Void = JavApi.Void
   public typealias Compiler = JavApi.Compiler
   public typealias SecurityManager = JavApi.SecurityManager
+  public typealias ThreadGroup = JavApi.ThreadGroup
   public typealias Math = JavApi.Math
   public typealias Number = JavApi.Number
   public typealias Iterable = JavApi.Iterable
