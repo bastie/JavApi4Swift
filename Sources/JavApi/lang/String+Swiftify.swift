@@ -21,6 +21,17 @@ extension String {
   }
   
 
+  /// Copies characters from this string into the destination array.
+  ///
+  /// Equivalent to Java's `String.getChars(int srcBegin, int srcEnd, char[] dst, int dstBegin)`.
+  /// The characters at index `start` up to (but not including) `end` are placed into `array`
+  /// starting at `dstStart`.
+  ///
+  /// - Parameters:
+  ///   - start: Index of the first character to copy (inclusive).
+  ///   - end: Index after the last character to copy (exclusive).
+  ///   - array: Destination character array.
+  ///   - dstStart: Start offset in the destination array.
   public func getChars (_ start : Int, _ end : Int, _ array : inout [Character], _ dstStart : Int) {
     let startIdx = self.index(self.startIndex, offsetBy: start)
     let endIdx = self.index(startIdx, offsetBy: end)
