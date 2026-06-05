@@ -3,23 +3,22 @@
  * SPDX-License-Identifier: MIT
  */
 
+import Synchronization
+
 // Da die Property-Umsetzung schnell unübersichtlich wird (vgl. .net Port) Auslagerung in eine eigene Quelldatei
 extension System {
-  
+
   public static func getProperty (_ key : String, _ resultIfMissing : String?) throws -> String? {
     guard !key.isEmpty() else {
       throw IllegalArgumentException("key cannot be empty");
     }
-    if SYSTEM_PROPERTIES.keys.contains(key) {
-      return SYSTEM_PROPERTIES[key]
-    }
-    return resultIfMissing
+    return _propertiesStorage.withLock { $0[key] } ?? resultIfMissing
   }
-  
+
   public static func getProperty (_ name : String) throws -> String? {
     return try System.getProperty(name, nil)
   }
-  
+
   public static func setProperty (_ name : String, _ value : String) throws {
     guard !name.isEmpty() else {
       throw IllegalArgumentException("name cannot be empty")
@@ -28,11 +27,9 @@ extension System {
     guard name != "java.locale.useOldISOCodes" else {
       return
     }
-    let _ = Task(operation: {
-      SYSTEM_PROPERTIES[name] = value
-    })
+    _propertiesStorage.withLock { $0[name] = value }
   }
-  
+
   /// Remove the property with given name.
   ///
   /// - Since: JavaApi &gt; 0.20.0 (Java 1.5)
@@ -40,18 +37,20 @@ extension System {
     guard !name.isEmpty() else {
       throw IllegalArgumentException("name cannot be empty")
     }
-    let _ = Task(operation: {
-      SYSTEM_PROPERTIES.removeValue(forKey: name)
-    })
+    _ = _propertiesStorage.withLock { $0.removeValue(forKey: name) }
   }
 
   // **not private** : In result of Swiftify
-  /// An dictionary with all supported properties and the default value used in JavApi
-  nonisolated(unsafe) static var SYSTEM_PROPERTIES : [String:String] = {
-    
+  /// A dictionary snapshot with all supported properties and the default values used in JavApi
+  static var SYSTEM_PROPERTIES : [String:String] {
+    _propertiesStorage.withLock { $0 }
+  }
+
+  /// Thread-safe storage for system properties backed by Synchronization.Mutex
+  private static let _propertiesStorage: Mutex<[String:String]> = {
     var result : [String:String] = [
     "path.separator" : _SYSTEM_NAME.contains("Windows") ? ";" : _SYSTEM_NAME.contains("Wasm") ? "[A-Za-z][A-Za-z][A-Za-z][A-Za-z]://" : ":",
-    "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\n\r" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
+    "line.separator" : _SYSTEM_NAME.contains("Windows") ? "\r\n" : _SYSTEM_NAME.contains("Wasm") ? "" : "\n",
     "os.name" : _SYSTEM_NAME,
     "file.separator" : _SYSTEM_NAME.contains("Windows") ? "\\" : _SYSTEM_NAME.contains("Wasm") ? "/" : "/",
     "native.encoding" : "utf-8",
@@ -61,11 +60,10 @@ extension System {
     "java.expected.version" : "\(Int.max)", // (extension) can be set to special Java version behavior. For example Java 1.0 behavior in Boolean.getBoolean.
     ]
     // see java.util.Locale.getLanguageCode
-    if Int(result["java.expected.version"]!)! < 17 {
+    if let version = result["java.expected.version"].flatMap(Int.init), version < 17 {
       result["java.locale.useOldISOCodes"] = "true"
     }
-
-    return result
+    return Mutex(result)
   }()
   
 #if os(iOS)
