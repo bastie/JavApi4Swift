@@ -13,13 +13,14 @@ extension java.awt {
       self.title = title
     }
     
-    /// Macht das Fenster sichtbar — auf Apple öffnet das ein SwiftUI-Window
+    /// Macht das Fenster sichtbar
     open func setVisible(_ visible: Bool) {
-      #if canImport(SwiftUI)
-      if visible { AWTWindowHost.shared.show(self) }
-      #else
-      fatalError("not yet implemented")
-      #endif
+      let toolkit = java.awt.Toolkit.getDefaultToolkit()
+      if visible {
+        toolkit.show(self)
+      } else {
+        toolkit.hide(self)
+      }
     }
     
     open func setSize(_ width: Int, _ height: Int) {

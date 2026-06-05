@@ -219,12 +219,16 @@ private struct _AWTCanvasViewRepresentable: View {
 
 /// SwiftUI-View, das einen einzelnen `Java.awt.Frame` als vollständiges
 /// Fenster darstellt — Titelzeile + Inhalt.
-struct AWTFrameWindow: View {
-  
+public struct AWTFrameWindow: View {
+
   @ObservedObject var host = AWTWindowHost.shared
-  let frame: java.awt.Frame
-  
-  var body: some View {
+  public let frame: java.awt.Frame
+
+  public init(frame: java.awt.Frame) {
+    self.frame = frame
+  }
+
+  public var body: some View {
     VStack(spacing: 0) {
       
       // Titelzeile (auf Plattformen ohne native Fensterchrome)
@@ -301,11 +305,13 @@ public struct AWTHostingScene: Scene {
 /// Auf macOS erscheint jedes Frame als überlappbares Panel innerhalb des
 /// SwiftUI-Fensters.  Für echte separate NSWindow-Instanzen kann
 /// `AWTWindowHost` mit AppKit erweitert werden (siehe `openNewWindow`).
-struct AWTMultiWindowView: View {
-  
+public struct AWTMultiWindowView: View {
+
   @EnvironmentObject var host: AWTWindowHost
-  
-  var body: some View {
+
+  public init() {}
+
+  public var body: some View {
     ZStack(alignment: .topLeading) {
       if host.visibleFrames.isEmpty {
         Text("Kein AWT-Fenster sichtbar")
@@ -343,14 +349,14 @@ extension AWTWindowHost {
   /// ```
   @MainActor
   public func openNewWindow(for frame: java.awt.Frame) {
+    // AWTCanvasView statt AWTFrameWindow — NSWindow liefert Titelzeile nativ
     let hostingView = NSHostingView(
-      rootView: AWTFrameWindow(frame: frame)
-        .environmentObject(self))
-    
+      rootView: AWTCanvasView(component: frame))
+
     let window = NSWindow(
       contentRect: NSRect(
         x: frame.bounds.x, y: frame.bounds.y,
-        width: frame.bounds.width, height: frame.bounds.height + 28),
+        width: frame.bounds.width, height: frame.bounds.height),
       styleMask: [.titled, .closable, .resizable, .miniaturizable],
       backing: .buffered,
       defer: false)
@@ -358,6 +364,10 @@ extension AWTWindowHost {
     window.title = frame.title
     window.contentView = hostingView
     window.isReleasedWhenClosed = false
+    // Zentrieren wenn keine explizite Position gesetzt (x=0, y=0 ist AppKit-Default unten links)
+    if frame.bounds.x == 0 && frame.bounds.y == 0 {
+      window.center()
+    }
     window.makeKeyAndOrderFront(nil)
     
     // Schließen-Button → Frame.setVisible(false)

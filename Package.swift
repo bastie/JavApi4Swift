@@ -27,6 +27,11 @@ let package = Package(
     .testTarget(
       name: "JavApiTests",
       dependencies: ["JavApi"]),
+    .executableTarget(
+      name: "AWTDemo",
+      dependencies: ["JavApi"],
+      path: "Sources/AWTDemo"
+    ),
   ]
 )
 
