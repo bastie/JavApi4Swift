@@ -29,7 +29,7 @@ extension java.awt {
   ///     dashPhase: 0.0)
   /// g2d.setStroke(stroke)
   /// ```
-  public final class BasicStroke {
+  public final class BasicStroke: java.awt.Stroke {
     
     // =========================================================================
     // MARK: - Cap styles  (java.awt.BasicStroke constants)
@@ -187,6 +187,20 @@ extension java.awt {
         dashPhase:  dashPhase)
     }
     
+    // =========================================================================
+    // MARK: - Stroke
+    // =========================================================================
+
+    /// Returns the stroked outline of `shape` as a new `Shape`.
+    ///
+    /// - Note: A proper implementation requires `Path2D`/`GeneralPath`, which
+    ///   are not yet available. This stub returns the input shape unchanged and
+    ///   will be replaced once path types exist.
+    public func createStrokedShape(_ shape: any java.awt.Shape) -> any java.awt.Shape {
+      // TODO: implement via Path2D/GeneralPath once available
+      return shape
+    }
+
     // =========================================================================
     // MARK: - CoreGraphics bridge
     // =========================================================================
