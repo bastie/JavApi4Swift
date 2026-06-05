@@ -36,26 +36,34 @@ extension java.net {
     /// Returns the `InetAddress` for the given hostname or literal IP string.
     ///
     /// - Throws: ``UnknownHostException`` if the host cannot be resolved.
+    ///   On WASI, DNS resolution is unavailable; only literal IP strings are accepted.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public static func getByName(_ host: String) throws -> InetAddress {
-      // Literal IPv4 / IPv6 — no DNS needed
       if isLiteralIP(host) {
         return InetAddress(hostname: nil, addressString: host)
       }
+#if os(WASI)
+      throw UnknownHostException("DNS resolution is unavailable on WASI: \(host)")
+#else
       guard let resolved = resolveFirst(host) else {
         throw UnknownHostException(host)
       }
       return InetAddress(hostname: host, addressString: resolved)
+#endif
     }
 
     /// Returns all `InetAddress` instances for the given hostname.
     ///
     /// - Throws: ``UnknownHostException`` if the host cannot be resolved.
+    ///   On WASI, DNS resolution is unavailable; only literal IP strings are accepted.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public static func getAllByName(_ host: String) throws -> [InetAddress] {
       if isLiteralIP(host) {
         return [InetAddress(hostname: nil, addressString: host)]
       }
+#if os(WASI)
+      throw UnknownHostException("DNS resolution is unavailable on WASI: \(host)")
+#endif
       let resolved = resolveAll(host)
       guard !resolved.isEmpty else {
         throw UnknownHostException(host)
@@ -66,8 +74,12 @@ extension java.net {
     /// Returns the `InetAddress` of the local host.
     ///
     /// - Throws: ``UnknownHostException`` if the local hostname cannot be determined.
+    ///   On WASI, always throws as there is no local host concept.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public static func getLocalHost() throws -> InetAddress {
+#if os(WASI)
+      throw UnknownHostException("getLocalHost is unavailable on WASI")
+#endif
       var buf = [CChar](repeating: 0, count: 256)
       guard gethostname(&buf, buf.count) == 0 else {
         throw UnknownHostException("localhost")
@@ -155,10 +167,7 @@ extension java.net {
       return false
     }
 
-    private static func resolveFirst(_ host: String) -> String? {
-      return resolveAll(host).first
-    }
-
+#if !os(WASI)
     private static func resolveAll(_ host: String) -> [String] {
       var results: [String] = []
       var hints = addrinfo()
@@ -188,6 +197,11 @@ extension java.net {
       }
       return results
     }
+
+    private static func resolveFirst(_ host: String) -> String? {
+      return resolveAll(host).first
+    }
+#endif
 
     private static func parseBytes(_ address: String) -> [byte] {
       // IPv4

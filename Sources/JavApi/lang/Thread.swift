@@ -4,6 +4,9 @@
  */
 
 import Foundation
+#if canImport(WASILibc)
+import WASILibc
+#endif
 
 open class Thread: @unchecked Sendable {
 
@@ -178,8 +181,13 @@ open class Thread: @unchecked Sendable {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   @available(*, renamed: "sleep", message: "with Swift 5.5 or higher use await/async with sleep(nanoseconds) instead")
   public static func sleep(_ milliseconds: Int64) {
+#if os(WASI)
+    // DispatchGroup is unavailable on WASI; use POSIX usleep instead.
+    usleep(UInt32(milliseconds * 1_000))
+#else
     let group = DispatchGroup()
     group.enter()
     _ = group.wait(timeout: .now() + DispatchTimeInterval.milliseconds(Int(milliseconds)))
+#endif
   }
 }

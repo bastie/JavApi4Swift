@@ -58,7 +58,9 @@ extension java.net {
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func connect() throws {
       guard !connected else { return }
-
+#if os(WASI)
+      throw java.io.IOException("URLConnection.connect() is unavailable on WASI")
+#else
       var request = URLRequest(url: url.foundationURL)
       for (key, value) in requestProperties {
         request.setValue(value, forHTTPHeaderField: key)
@@ -88,6 +90,7 @@ extension java.net {
         throw java.io.IOException(error.localizedDescription)
       }
       connected = true
+#endif
     }
 
     // MARK: - Streams
