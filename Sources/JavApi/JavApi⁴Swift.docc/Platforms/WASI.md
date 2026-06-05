@@ -13,7 +13,7 @@ Swift can be compiled to WebAssembly using [SwiftWasm](https://swiftwasm.org). J
 
 ## Networking — unavailable
 
-WASI (WebAssembly System Interface) does not expose POSIX socket APIs in its standard interface. All networking classes that require a socket will throw a ``java.net.SocketException`` at runtime:
+WASI (WebAssembly System Interface) does not expose POSIX socket APIs in its standard interface. All networking classes that require a socket will throw a `java.net.SocketException` at runtime:
 
 | Class | Behaviour on WASI |
 |-------|-------------------|

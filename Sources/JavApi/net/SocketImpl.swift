@@ -40,7 +40,7 @@ extension java.net {
     /// Creates either a stream or a datagram socket.
     ///
     /// - Parameter stream: `true` for TCP (stream), `false` for UDP (datagram).
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func create(_ stream: Bool) throws {
       throw java.io.IOException("SocketImpl.create() must be overridden by subclass")
@@ -48,7 +48,7 @@ extension java.net {
 
     /// Connects this socket to the given host and port.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func connect(_ host: String, _ port: Int) throws {
       throw java.io.IOException("SocketImpl.connect() must be overridden by subclass")
@@ -56,7 +56,7 @@ extension java.net {
 
     /// Connects this socket to the given address and port.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func connect(_ address: InetAddress, _ port: Int) throws {
       throw java.io.IOException("SocketImpl.connect() must be overridden by subclass")
@@ -64,7 +64,7 @@ extension java.net {
 
     /// Binds this socket to the given local address and port.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func bind(_ host: InetAddress, _ port: Int) throws {
       throw java.io.IOException("SocketImpl.bind() must be overridden by subclass")
@@ -72,7 +72,7 @@ extension java.net {
 
     /// Sets the maximum queue length for incoming connections.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func listen(_ backlog: Int) throws {
       throw java.io.IOException("SocketImpl.listen() must be overridden by subclass")
@@ -80,7 +80,7 @@ extension java.net {
 
     /// Accepts a connection into `s`.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func accept(_ s: SocketImpl) throws {
       throw java.io.IOException("SocketImpl.accept() must be overridden by subclass")
@@ -88,31 +88,34 @@ extension java.net {
 
     /// Returns an input stream for this socket.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Returns java.io.InputStream
     open func getInputStream() throws -> java.io.InputStream {
       throw java.io.IOException("SocketImpl.getInputStream() must be overridden by subclass")
     }
 
     /// Returns an output stream for this socket.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Returns java.io.OutputStream
     open func getOutputStream() throws -> java.io.OutputStream {
       throw java.io.IOException("SocketImpl.getOutputStream() must be overridden by subclass")
     }
 
     /// Returns the number of bytes that can be read without blocking.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Returns Int
     open func available() throws -> Int {
       throw java.io.IOException("SocketImpl.available() must be overridden by subclass")
     }
 
     /// Closes this socket.
     ///
-    /// - Throws: ``java.io.IOException`` – subclasses must override.
+    /// - Throws: `java.io.IOException` – subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func close() throws {
       throw java.io.IOException("SocketImpl.close() must be overridden by subclass")
@@ -143,6 +146,7 @@ extension java.net {
     /// Returns a string representation of this socket implementation.
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Returns String
     public func toString() -> String {
       return "SocketImpl[addr=\(address?.getHostAddress() ?? "null"),port=\(port),localport=\(localport)]"
     }

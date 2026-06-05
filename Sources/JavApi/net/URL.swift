@@ -218,7 +218,7 @@ extension java.net {
 
     /// Opens a connection to this URL and returns an input stream for reading.
     ///
-    /// - Throws: ``java.io.IOException`` if the connection cannot be opened.
+    /// - Throws: `java.io.IOException` if the connection cannot be opened.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func openStream() throws -> java.io.InputStream {
       let data: Data

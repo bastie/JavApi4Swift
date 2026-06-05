@@ -35,7 +35,7 @@ extension java.net {
     ///
     /// Once set it cannot be replaced (matching Java's behaviour).
     ///
-    /// - Throws: ``java.io.IOException`` if a factory is already registered.
+    /// - Throws: `java.io.IOException` if a factory is already registered.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public static func setContentHandlerFactory(_ fac: any ContentHandlerFactory) throws {
       guard _contentHandlerFactory == nil else {
@@ -79,7 +79,7 @@ extension java.net {
     /// Must be called before ``getInputStream()``, ``getContentLength()``, or
     /// ``getHeaderField(_:)``.
     ///
-    /// - Throws: ``java.io.IOException`` if the connection fails.
+    /// - Throws: `java.io.IOException` if the connection fails.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func connect() throws {
       guard !connected else { return }
@@ -126,7 +126,7 @@ extension java.net {
     /// the connection's MIME type, that handler's ``ContentHandler/getContent(_:)``
     /// is called. Otherwise the raw content is returned as `[UInt8]`.
     ///
-    /// - Throws: ``java.io.IOException`` if the connection fails.
+    /// - Throws: `java.io.IOException` if the connection fails.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getContent() throws -> Any? {
       if !connected { try connect() }
@@ -143,7 +143,7 @@ extension java.net {
     ///
     /// Calls ``connect()`` automatically if not yet connected.
     ///
-    /// - Throws: ``java.io.IOException`` if the connection fails or returns no data.
+    /// - Throws: `java.io.IOException` if the connection fails or returns no data.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getInputStream() throws -> java.io.InputStream {
       if !connected { try connect() }
@@ -190,6 +190,7 @@ extension java.net {
     }
 
     /// Cross-platform header lookup (case-insensitive) via `allHeaderFields`.
+    /// - Returns optional value of named header
     private func headerValue(_ name: String) -> String? {
       guard let headers = httpResponse?.allHeaderFields else { return nil }
       let lower = name.lowercased()

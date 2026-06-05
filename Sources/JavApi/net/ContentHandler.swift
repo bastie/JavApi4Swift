@@ -27,7 +27,7 @@ extension java.net {
     ///
     /// - Parameter connection: An open ``URLConnection``.
     /// - Returns: The parsed content object.
-    /// - Throws: ``java.io.IOException`` — subclasses must override.
+    /// - Throws: `java.io.IOException` — subclasses must override.
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func getContent(_ connection: URLConnection) throws -> Any? {
       throw java.io.IOException("ContentHandler.getContent() must be overridden by subclass")
