@@ -3,21 +3,18 @@
  * SPDX-License-Identifier: MIT
  */
 
-#if os(macOS)
+#if canImport(CryptoKit)
 import CryptoKit
-#endif
 
 // Swiftify
-@available(macOS 10.15, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Insecure {
   public typealias Adler32 = java.util.zip.Adler32
 }
 
-@available(macOS 10.15, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Insecure.Adler32 {
-  
   /// Hash name
-  public var description : String {
-    get {"Adler-32"}
-  }
+  public var description: String { "Adler-32" }
 }
+#endif

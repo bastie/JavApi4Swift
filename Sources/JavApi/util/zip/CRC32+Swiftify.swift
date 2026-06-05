@@ -3,21 +3,18 @@
  * SPDX-License-Identifier: MIT
  */
 
-#if os(macOS)
+#if canImport(CryptoKit)
 import CryptoKit
-#endif
 
 // Swiftify
-@available(macOS 10.15, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Insecure {
   public typealias CRC32 = java.util.zip.CRC32
 }
 
-@available(macOS 10.15, *)
+@available(macOS 10.15, iOS 13, tvOS 13, watchOS 6, *)
 extension Insecure.CRC32 {
-  
   /// Hash name
-  public var description : String {
-    get {"CRC-32"}
-  }
+  public var description: String { "CRC-32" }
 }
+#endif
