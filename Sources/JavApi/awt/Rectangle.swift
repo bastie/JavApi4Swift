@@ -35,10 +35,10 @@ extension java.awt {
     // =========================================================================
     // MARK: - Constructors
     // =========================================================================
-    
+
     /// Creates a rectangle at (0, 0) with zero size.
     @MainActor public static let zero = Rectangle(0, 0, 0, 0)
-    
+
     /// Creates a rectangle with the given origin and size.
     public init(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
       self.x      = x
@@ -46,15 +46,35 @@ extension java.awt {
       self.width  = width
       self.height = height
     }
-    
+
     /// Creates a rectangle at (0, 0) with the given size.
     public convenience init(_ width: Int, _ height: Int) {
       self.init(0, 0, width, height)
     }
-    
+
     /// Creates a zero rectangle at origin (0, 0).
     public convenience init() {
       self.init(0, 0, 0, 0)
+    }
+
+    /// Creates a rectangle at the given point with zero size.
+    public convenience init(_ p: java.awt.Point) {
+      self.init(p.x, p.y, 0, 0)
+    }
+
+    /// Creates a rectangle at (0, 0) with the given dimension.
+    public convenience init(_ d: java.awt.Dimension) {
+      self.init(0, 0, d.width, d.height)
+    }
+
+    /// Creates a rectangle at the given point with the given dimension.
+    public convenience init(_ p: java.awt.Point, _ d: java.awt.Dimension) {
+      self.init(p.x, p.y, d.width, d.height)
+    }
+
+    /// Copy constructor.
+    public convenience init(_ r: Rectangle) {
+      self.init(r.x, r.y, r.width, r.height)
     }
     
     // =========================================================================
@@ -104,15 +124,35 @@ extension java.awt {
     public func move(_ x: Int, _ y: Int) {
       setLocation(x, y)
     }
-    
+
     /// Resizes the rectangle — alias for `setSize`.
     public func resize(_ width: Int, _ height: Int) {
       setSize(width, height)
     }
-    
+
     /// Repositions and resizes in one call.
     public func reshape(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
       self.x = x; self.y = y; self.width = width; self.height = height
+    }
+
+    /// Returns a copy of this rectangle (mirrors `getBounds()` in Java).
+    public func getBounds() -> Rectangle {
+      Rectangle(self)
+    }
+
+    /// Sets the bounds from individual values — alias for `reshape`.
+    public func setBounds(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      reshape(x, y, width, height)
+    }
+
+    /// Sets the bounds from another rectangle.
+    public func setBounds(_ r: Rectangle) {
+      reshape(r.x, r.y, r.width, r.height)
+    }
+
+    /// Translates the rectangle by `(dx, dy)`.
+    public func translate(_ dx: Int, _ dy: Int) {
+      x += dx; y += dy
     }
     
     // =========================================================================
@@ -192,9 +232,22 @@ extension java.awt {
     }
     
     // =========================================================================
+    // MARK: - Object
+    // =========================================================================
+
+    open func toString() -> String {
+      "\(String(describing: type(of: self))) [x=\(x),y=\(y),width=\(width),height=\(height)]"
+    }
+
+    open func equals(_ obj: AnyObject) -> Bool {
+      guard let other = obj as? Rectangle else { return false }
+      return self == other
+    }
+
+    // =========================================================================
     // MARK: - Equatable
     // =========================================================================
-    
+
     public static func == (lhs: Rectangle, rhs: Rectangle) -> Bool {
       lhs.x == rhs.x && lhs.y == rhs.y
       && lhs.width == rhs.width && lhs.height == rhs.height
