@@ -39,3 +39,12 @@ New to JavApi⁴Swift? Work through the tutorials in order.
 Porting existing Java code to Swift? Read this first.
 
 - <doc:Java2Swift>
+
+### Platform Notes
+
+Platform-specific behaviour, limitations and requirements.
+
+- <doc:Apple>
+- <doc:Linux>
+- <doc:Windows>
+- <doc:WASI>

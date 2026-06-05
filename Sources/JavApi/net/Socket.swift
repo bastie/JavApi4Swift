@@ -1,0 +1,269 @@
+/*
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: MIT
+ */
+
+import Foundation
+#if canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#endif
+
+extension java.net {
+
+  /// A TCP client socket, Java 1.0 `java.net.Socket`.
+  ///
+  /// Backed by a POSIX file descriptor. Available on macOS, iOS, Linux and
+  /// Windows; not available on WASI (throws ``SocketException`` on init).
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public class Socket: @unchecked Sendable {
+
+    internal var fd: Int32 = -1
+    private var _inetAddress: InetAddress?
+    private var _port: Int = -1
+    private var _localPort: Int = -1
+    private var _closed: Bool = false
+    private var soTimeout: Int = 0
+
+    // MARK: - Constructors
+
+    /// Creates an unconnected socket.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public init() {}
+
+    /// Creates a socket and connects it to the given host and port.
+    ///
+    /// - Throws: ``SocketException`` / ``UnknownHostException`` on failure.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public init(_ host: String, _ port: Int) throws {
+#if os(WASI)
+      throw SocketException("Socket is unavailable on WASI")
+#endif
+      let addr = try InetAddress.getByName(host)
+      try connect(addr, port)
+    }
+
+    /// Creates a socket and connects it to the given address and port.
+    ///
+    /// - Throws: ``SocketException`` on failure.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public init(_ address: InetAddress, _ port: Int) throws {
+#if os(WASI)
+      throw SocketException("Socket is unavailable on WASI")
+#endif
+      try connect(address, port)
+    }
+
+    /// Internal init used by ServerSocket.accept()
+    internal init(fd: Int32, remoteAddress: InetAddress, remotePort: Int, localPort: Int) {
+      self.fd = fd
+      self._inetAddress = remoteAddress
+      self._port = remotePort
+      self._localPort = localPort
+    }
+
+    // MARK: - Connect
+
+#if !os(WASI)
+    private func connect(_ address: InetAddress, _ port: Int) throws {
+#if canImport(Darwin)
+      let sockFd = socket(AF_INET, SOCK_STREAM, 0)
+#else
+      let sockFd = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
+#endif
+      guard sockFd >= 0 else {
+        throw SocketException("Cannot create socket")
+      }
+
+      var addr = sockaddr_in()
+      addr.sin_family = sa_family_t(AF_INET)
+      addr.sin_port = UInt16(port).bigEndian
+      inet_pton(AF_INET, address.getHostAddress(), &addr.sin_addr)
+
+      let result = withUnsafePointer(to: &addr) {
+        $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+          Foundation.connect(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+        }
+      }
+      guard result == 0 else {
+        Foundation.close(sockFd)
+        throw ConnectException("Connection refused: \(address.getHostAddress()):\(port)")
+      }
+
+      self.fd = sockFd
+      self._inetAddress = address
+      self._port = port
+
+      // get local port
+      var localAddr = sockaddr_in()
+      var len = socklen_t(MemoryLayout<sockaddr_in>.size)
+      _ = withUnsafeMutablePointer(to: &localAddr) {
+        $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+          getsockname(sockFd, $0, &len)
+        }
+      }
+      self._localPort = Int(localAddr.sin_port.bigEndian)
+    }
+#endif
+
+    // MARK: - Streams
+
+    /// Returns an input stream for reading from this socket.
+    ///
+    /// - Throws: ``SocketException`` if the socket is closed.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getInputStream() throws -> java.io.InputStream {
+      guard !_closed, fd >= 0 else {
+        throw SocketException("Socket is closed")
+      }
+      return SocketInputStream(fd: fd)
+    }
+
+    /// Returns an output stream for writing to this socket.
+    ///
+    /// - Throws: ``SocketException`` if the socket is closed.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getOutputStream() throws -> java.io.OutputStream {
+      guard !_closed, fd >= 0 else {
+        throw SocketException("Socket is closed")
+      }
+      return SocketOutputStream(fd: fd)
+    }
+
+    // MARK: - Close
+
+    /// Closes this socket.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func close() throws {
+      guard !_closed, fd >= 0 else { return }
+#if !os(WASI)
+      Foundation.close(fd)
+#endif
+      _closed = true
+      fd = -1
+    }
+
+    // MARK: - Accessors
+
+    /// Returns the remote `InetAddress`, or `nil` if not connected.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getInetAddress() -> InetAddress? { return _inetAddress }
+
+    /// Returns the remote port, or `-1` if not connected.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getPort() -> Int { return _port }
+
+    /// Returns the local port, or `-1` if not bound.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getLocalPort() -> Int { return _localPort }
+
+    /// Returns `true` if the socket has been closed.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func isClosed() -> Bool { return _closed }
+
+    /// Returns `true` if the socket is connected.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func isConnected() -> Bool { return !_closed && fd >= 0 }
+
+    /// Sets the SO_TIMEOUT in milliseconds (`0` = no timeout).
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func setSoTimeout(_ timeout: Int) {
+      soTimeout = timeout
+#if !os(WASI)
+      if fd >= 0 {
+        var tv = timeval()
+        tv.tv_sec = timeout / 1000
+#if canImport(Darwin)
+        tv.tv_usec = Int32((timeout % 1000) * 1000)
+#else
+        tv.tv_usec = (timeout % 1000) * 1000
+#endif
+        setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+      }
+#endif
+    }
+
+    /// Returns the SO_TIMEOUT in milliseconds.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getSoTimeout() -> Int { return soTimeout }
+  }
+}
+
+// MARK: - SocketInputStream
+
+/// An InputStream backed by a POSIX socket file descriptor.
+internal class SocketInputStream: java.io.InputStream {
+  private let fd: Int32
+
+  init(fd: Int32) { self.fd = fd }
+
+  public override func read() throws -> Int {
+#if os(WASI)
+    return -1
+#endif
+    var byte: UInt8 = 0
+    let n = recv(fd, &byte, 1, 0)
+    if n == 0 { return -1 }  // EOF
+    if n < 0 { throw java.io.IOException("Socket read error") }
+    return Int(byte)
+  }
+
+  public override func read(_ buffer: inout [byte]) throws -> Int {
+    return try read(&buffer, 0, buffer.count)
+  }
+
+  public override func read(_ buffer: inout [byte], _ offset: Int, _ length: Int) throws -> Int {
+#if os(WASI)
+    return -1
+#endif
+    guard length > 0 else { return 0 }
+    let n = buffer.withUnsafeMutableBytes { ptr in
+      recv(fd, ptr.baseAddress! + offset, length, 0)
+    }
+    if n == 0 { return -1 }
+    if n < 0 { throw java.io.IOException("Socket read error") }
+    return n
+  }
+}
+
+// MARK: - SocketOutputStream
+
+/// An OutputStream backed by a POSIX socket file descriptor.
+internal class SocketOutputStream: java.io.OutputStream {
+  private let fd: Int32
+
+  init(fd: Int32) { self.fd = fd }
+
+  public override func write(_ b: Int) throws {
+#if !os(WASI)
+    var byte = UInt8(b & 0xFF)
+    let n = send(fd, &byte, 1, 0)
+    if n < 0 { throw java.io.IOException("Socket write error") }
+#endif
+  }
+
+  public override func write(_ buffer: [byte]) throws {
+    try write(buffer, 0, buffer.count)
+  }
+
+  public override func write(_ buffer: [byte], _ offset: Int, _ length: Int) throws {
+#if !os(WASI)
+    guard length > 0 else { return }
+    let n = buffer.withUnsafeBytes { ptr in
+      send(fd, ptr.baseAddress! + offset, length, 0)
+    }
+    if n < 0 { throw java.io.IOException("Socket write error") }
+#endif
+  }
+}

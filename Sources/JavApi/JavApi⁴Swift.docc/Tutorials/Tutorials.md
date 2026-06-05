@@ -34,6 +34,10 @@ Work through the articles in order, or jump to a topic that interests you.
 
 - <doc:InputOutput> — Reading and writing data with streams, files, and byte arrays.
 
+### Networking
+
+- <doc:Networking> — Resolving hostnames, making HTTP requests, and building a simple TCP server and client.
+
 ### Concurrency
 
 - <doc:Multithreading> — Threads, thread groups, and how Java's threading model maps to Swift's async/await and structured concurrency.

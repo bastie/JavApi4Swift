@@ -26,6 +26,31 @@ extension java.net {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public class URLConnection: @unchecked Sendable {
 
+    // MARK: - Global content handler factory
+
+    /// The global content handler factory, set via ``setContentHandlerFactory(_:)``.
+    nonisolated(unsafe) private static var _contentHandlerFactory: (any ContentHandlerFactory)? = nil
+
+    /// Sets the global `ContentHandlerFactory`.
+    ///
+    /// Once set it cannot be replaced (matching Java's behaviour).
+    ///
+    /// - Throws: ``java.io.IOException`` if a factory is already registered.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func setContentHandlerFactory(_ fac: any ContentHandlerFactory) throws {
+      guard _contentHandlerFactory == nil else {
+        throw java.io.IOException("ContentHandlerFactory already set")
+      }
+      _contentHandlerFactory = fac
+    }
+
+    /// Returns the content handler for the given MIME type, or `nil` if none registered.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func getContentHandler(for mimetype: String) -> ContentHandler? {
+      return _contentHandlerFactory?.createContentHandler(mimetype)
+    }
+
     // MARK: - State
 
     internal let url: java.net.URL
@@ -91,6 +116,25 @@ extension java.net {
       }
       connected = true
 #endif
+    }
+
+    // MARK: - Content
+
+    /// Returns the content of this URL connection.
+    ///
+    /// If a ``ContentHandlerFactory`` is registered and provides a handler for
+    /// the connection's MIME type, that handler's ``ContentHandler/getContent(_:)``
+    /// is called. Otherwise the raw content is returned as `[UInt8]`.
+    ///
+    /// - Throws: ``java.io.IOException`` if the connection fails.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getContent() throws -> Any? {
+      if !connected { try connect() }
+      if let mimeType = getContentType(),
+         let handler = URLConnection.getContentHandler(for: mimeType) {
+        return try handler.getContent(self)
+      }
+      return responseData.map { Array($0) }
     }
 
     // MARK: - Streams
