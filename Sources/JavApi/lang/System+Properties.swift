@@ -82,6 +82,10 @@ extension System {
   fileprivate static let _SYSTEM_NAME = "PS4"
 #elseif os(WASI)
   fileprivate static let _SYSTEM_NAME = "Wasm"
+#elseif os(Android)
+  fileprivate static let _SYSTEM_NAME = "Android"
+#elseif os(FreeBSD)
+  fileprivate static let _SYSTEM_NAME = "FreeBSD"
 #else
   fileprivate static let _SYSTEM_NAME = "other"
 #endif

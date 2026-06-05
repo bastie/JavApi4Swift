@@ -531,6 +531,60 @@ static staticArray : [Something] = {
   return _staticArray
 }()
 
+#### static variables and Swift 6 concurrency
+
+Java `static` fields are shared mutable state — any thread can read or write them. Swift 6 strict concurrency rejects this pattern unless the variable is explicitly declared safe.
+
+**The problem**
+
+A direct port of a Java static field:
+
+```java
+// Java
+class URLConnection {
+    private static ContentHandlerFactory factory = null;
+}
+```
+
+```swift
+// Swift 6 — compiler error
+private static var factory: (any ContentHandlerFactory)? = nil
+// error: static property 'factory' is not concurrency-safe because
+// it is not either conforming to 'Sendable' or isolated to a global actor
+```
+
+**Solution 1 — `nonisolated(unsafe)`**
+
+Use `nonisolated(unsafe)` when the Java semantics already guarantee safety and you take responsibility for correctness:
+
+```swift
+nonisolated(unsafe) private static var factory: (any ContentHandlerFactory)? = nil
+```
+
+This is appropriate when:
+- The variable is **written once** and then only read (e.g. a factory registered at startup)
+- Access is **manually synchronized** (e.g. protected by a lock or a DispatchSemaphore)
+- The variable is captured in a `sending` closure that runs after the current task yields (semaphore pattern)
+
+**Solution 2 — `actor`**
+
+For mutable shared state that is accessed from multiple threads, use a Swift `actor` instead. See `ThreadGroup` as an example — it replaces Java's `synchronized` methods with actor isolation.
+
+**Solution 3 — `@MainActor` or global actor**
+
+If the variable is only accessed on the main thread (e.g. UI state), annotate it with `@MainActor`.
+
+**Which to choose?**
+
+| Java pattern | Swift 6 solution |
+|---|---|
+| Write-once static (factory, singleton) | `nonisolated(unsafe)` |
+| Mutable shared state | `actor` |
+| Closure capturing a local `var` across task boundary | `nonisolated(unsafe) var` |
+| UI-only state | `@MainActor` |
+
+> **Important:** `nonisolated(unsafe)` silences the compiler but does **not** add synchronisation. Only use it when you can reason that no data race is possible — the same way you would use `synchronized` in Java to assert thread safety without the compiler's help.
+
 #### String.format
 
 Replace `String.format` with Swift placeholders like from

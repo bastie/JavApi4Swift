@@ -164,4 +164,5 @@ To include other project with compatible license do
 ### Test it
 
 On macOS for macOS `swift test`.
-On macOS for Linux `container run --rm -v "$(pwd)":/project:ro swift:latest sh -c "cd project && swift test --scratch-path /tmp/build && uname -a && swift -version"`
+
+On macOS for Linux `container run --rm -w /project -v "$(pwd)":/project:ro swift:latest sh -c "swift test --scratch-path /tmp/build && uname -a && swift -version"`
