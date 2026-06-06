@@ -14,4 +14,14 @@ extension java.util.Date : CustomStringConvertible {
     return result
   }
   
+  /// Seconds since 1 January 1970 UTC as a `TimeInterval` (`Double`).
+  ///
+  /// Convenience bridge to Swift's `Foundation.Date.timeIntervalSince1970`,
+  /// so that `java.util.Date` can be used directly where a `TimeInterval` is expected.
+  ///
+  /// - Since: JavaApi (Swift bridge)
+  public var timeIntervalSince1970: Foundation.TimeInterval {
+    return delegate.timeIntervalSince1970
+  }
+  
 }

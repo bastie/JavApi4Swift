@@ -37,6 +37,18 @@ public final class StringBuffer {
     self.content = "\(newContent)"
   }
 
+  /// Creates an empty buffer with the given initial capacity hint.
+  ///
+  /// The capacity is advisory only — the buffer grows automatically as needed.
+  ///
+  /// - Parameter capacity: The initial capacity (ignored if < 0).
+  /// - Since: JavaApi (Java 1.0)
+  public init(_ capacity: Int) {
+    // Swift strings grow dynamically; capacity is a hint only.
+    self.content = ""
+    self.content.reserveCapacity(max(0, capacity))
+  }
+
   /// Creates a buffer from an existing StringBuilder
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
