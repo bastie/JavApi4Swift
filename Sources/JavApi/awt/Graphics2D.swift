@@ -186,7 +186,7 @@ extension java.awt {
       cgContext.translateBy(x: CGFloat(x), y: CGFloat(y))
     }
 
-    public func translate(_ x: Int, _ y: Int) {
+    public override func translate(_ x: Int, _ y: Int) {
       translate(Double(x), Double(y))
     }
 
@@ -222,7 +222,7 @@ extension java.awt {
       }
     }
 
-    public func clipRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+    public override func clipRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
       cgContext.clip(to: CGRect(x: x, y: y, width: width, height: height))
     }
 
@@ -389,7 +389,7 @@ extension java.awt {
     public func rotate(_ theta: Double) { _transform.rotate(theta) }
     public func rotate(_ theta: Double, _ ax: Double, _ ay: Double) { _transform.rotate(theta, ax, ay) }
     public func translate(_ x: Double, _ y: Double) { _transform.translate(x, y) }
-    public func translate(_ x: Int, _ y: Int) { translate(Double(x), Double(y)) }
+    public override func translate(_ x: Int, _ y: Int) { translate(Double(x), Double(y)) }
     public func scale(_ sx: Double, _ sy: Double) { _transform.scale(sx, sy) }
     public func shear(_ shx: Double, _ shy: Double) { _transform.shear(shx, shy) }
 
@@ -411,7 +411,7 @@ extension java.awt {
     public func getClip() -> (any java.awt.Shape)? { nil }
     public func setClip(_ shape: (any java.awt.Shape)?) {}
     public func clip(_ shape: any java.awt.Shape) {}
-    public func clipRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
+    public override func clipRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     public func saveState() {}
     public func restoreState() {}
   }

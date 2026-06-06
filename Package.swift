@@ -28,9 +28,10 @@ let package = Package(
       name: "JavApiTests",
       dependencies: ["JavApi"]),
     .executableTarget(
-      name: "AWTDemo",
+      name: "AWTShowcase",
       dependencies: ["JavApi"],
-      path: "Sources/AWTDemo"
+      path: "Sources/AWTShowcase",
+      resources: [.process("Assets.xcassets")]
     ),
   ]
 )

@@ -6,7 +6,8 @@
 import Foundation
 
 extension java.awt {
-  public final class Color: Sendable {
+  /// Base color class — may be subclassed (e.g. by `SystemColor`).
+  open class Color: @unchecked Sendable {
 
     // -------------------------------------------------------------------------
     // MARK: Components  (0.0 … 1.0)
@@ -99,24 +100,27 @@ extension java.awt {
     // MARK: Component accessors
     // -------------------------------------------------------------------------
 
-    public func getRed()   -> Int { Int((red   * 255).rounded()) }
-    public func getGreen() -> Int { Int((green * 255).rounded()) }
-    public func getBlue()  -> Int { Int((blue  * 255).rounded()) }
-    public func getAlpha() -> Int { Int((alpha * 255).rounded()) }
+    open func getRed()   -> Int { Int((red   * 255).rounded()) }
+    open func getGreen() -> Int { Int((green * 255).rounded()) }
+    open func getBlue()  -> Int { Int((blue  * 255).rounded()) }
+    open func getAlpha() -> Int { Int((alpha * 255).rounded()) }
 
     /// - Returns the color as a packed `0xAARRGGBB` integer.
-    public func getRGB() -> Int {
+    ///   Subclasses (e.g. `SystemColor`) may override for dynamic values.
+    open func getRGB() -> Int {
       (getAlpha() << 24) | (getRed() << 16) | (getGreen() << 8) | getBlue()
     }
 
     /// - Returns the RGB components as a `[Float]` array (length 3, 0.0–1.0).
+    ///   Uses the overridable getters so subclasses return correct values.
     public func getRGBComponents() -> [Float] {
-      [Float(red), Float(green), Float(blue)]
+      [Float(getRed()) / 255.0, Float(getGreen()) / 255.0, Float(getBlue()) / 255.0]
     }
 
     /// - Returns the RGBA components as a `[Float]` array (length 4, 0.0–1.0).
     public func getRGBAComponents() -> [Float] {
-      [Float(red), Float(green), Float(blue), Float(alpha)]
+      [Float(getRed()) / 255.0, Float(getGreen()) / 255.0,
+       Float(getBlue()) / 255.0, Float(getAlpha()) / 255.0]
     }
 
     // -------------------------------------------------------------------------

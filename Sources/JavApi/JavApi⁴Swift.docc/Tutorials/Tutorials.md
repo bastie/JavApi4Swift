@@ -41,3 +41,7 @@ Work through the articles in order, or jump to a topic that interests you.
 ### Concurrency
 
 - <doc:Multithreading> — Threads, thread groups, and how Java's threading model maps to Swift's async/await and structured concurrency.
+
+### Building UIs with java.awt
+
+- <doc:AWT> — Frames, Panels, Canvases, and layout managers. Creating windows and drawing custom graphics with the Abstract Window Toolkit.

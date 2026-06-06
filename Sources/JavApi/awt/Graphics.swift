@@ -70,6 +70,35 @@ extension java.awt {
       cgContext.fillEllipse(in: CGRect(x: x, y: y, width: width, height: height))
     }
 
+    open func drawOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      cgContext.strokeEllipse(in: CGRect(x: x, y: y, width: width, height: height))
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Graphics state (save / restore / clip / translate)
+    // -------------------------------------------------------------------------
+
+    /// Save the current graphics state (transform, clip, color).
+    open func save() { cgContext.saveGState() }
+
+    /// Restore the previously saved graphics state.
+    open func restore() { cgContext.restoreGState() }
+
+    /// Intersect the current clip with the given rectangle (AWT coordinates).
+    open func clipRect(_ x: Int, _ y: Int, _ w: Int, _ h: Int) {
+      cgContext.clip(to: CGRect(x: x, y: y, width: w, height: h))
+    }
+
+    /// Translate the origin by (`dx`, `dy`) in AWT coordinates.
+    ///
+    /// In the Y-flipped CGContext used by the AWT bridge, positive `dy` moves
+    /// content downward (same direction as positive AWT-y), so passing
+    /// `(-scrollX, -scrollY)` shifts visible content left/up — exactly what
+    /// `ScrollPane` needs when rendering its clipped child.
+    open func translate(_ dx: Int, _ dy: Int) {
+      cgContext.translateBy(x: CGFloat(dx), y: CGFloat(dy))
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Text
     // -------------------------------------------------------------------------
@@ -82,12 +111,53 @@ extension java.awt {
                      kCTForegroundColorFromContextAttributeName: true] as CFDictionary
       guard let attrStr = CFAttributedStringCreate(kCFAllocatorDefault, str as CFString, attrs) else { return }
       let line = CTLineCreateWithAttributedString(attrStr)
-      // AWT baseline: y is distance from top; CoreGraphics baseline: distance from bottom.
-      // The CGContext is already flipped in _AWTNativeCanvas (macOS) / draw(_:) (iOS),
-      // so we can use y directly as the baseline position.
-      cgContext.textPosition = CGPoint(x: CGFloat(x), y: CGFloat(y))
+
+      cgContext.saveGState()
+      cgContext.translateBy(x: CGFloat(x), y: CGFloat(y))
+      cgContext.scaleBy(x: 1, y: -1)
+      cgContext.textPosition = .zero
       CTLineDraw(line, cgContext)
+      cgContext.restoreGState()
 #endif
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Image
+    // -------------------------------------------------------------------------
+
+    /// Zeichnet ein `java.awt.Image` an Position `(x, y)` in Originalgröße.
+    @discardableResult
+    open func drawImage(_ img: java.awt.Image, _ x: Int, _ y: Int,
+                        _ observer: java.awt.ImageObserver? = nil) -> Bool {
+      guard let bi = img as? java.awt.image.BufferedImage,
+            let cg = bi.toCGImage() else { return false }
+      let rect = CGRect(x: CGFloat(x), y: CGFloat(y),
+                        width: CGFloat(bi.width), height: CGFloat(bi.height))
+      // Der Kontext ist bereits Y-gespiegelt (AWT-Koordinaten), daher nochmal
+      // lokal spiegeln damit das Bild nicht auf dem Kopf steht.
+      cgContext.saveGState()
+      cgContext.translateBy(x: rect.minX, y: rect.maxY)
+      cgContext.scaleBy(x: 1, y: -1)
+      cgContext.draw(cg, in: CGRect(origin: .zero, size: rect.size))
+      cgContext.restoreGState()
+      return true
+    }
+
+    /// Zeichnet ein Bild skaliert auf `(width × height)`.
+    @discardableResult
+    open func drawImage(_ img: java.awt.Image,
+                        _ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                        _ observer: java.awt.ImageObserver? = nil) -> Bool {
+      guard let bi = img as? java.awt.image.BufferedImage,
+            let cg = bi.toCGImage() else { return false }
+      let rect = CGRect(x: CGFloat(x), y: CGFloat(y),
+                        width: CGFloat(width), height: CGFloat(height))
+      cgContext.saveGState()
+      cgContext.translateBy(x: rect.minX, y: rect.maxY)
+      cgContext.scaleBy(x: 1, y: -1)
+      cgContext.draw(cg, in: CGRect(origin: .zero, size: rect.size))
+      cgContext.restoreGState()
+      return true
     }
   }
 }
@@ -120,7 +190,20 @@ extension java.awt {
     open func drawRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     open func drawLine(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int) {}
     open func fillOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
+    open func drawOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     open func drawString(_ str: String, _ x: Int, _ y: Int) {}
+    open func save()    {}
+    open func restore() {}
+    open func clipRect(_ x: Int, _ y: Int, _ w: Int, _ h: Int) {}
+    open func translate(_ dx: Int, _ dy: Int) {}
+
+    @discardableResult
+    open func drawImage(_ img: java.awt.Image, _ x: Int, _ y: Int,
+                        _ observer: java.awt.ImageObserver? = nil) -> Bool { false }
+    @discardableResult
+    open func drawImage(_ img: java.awt.Image,
+                        _ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                        _ observer: java.awt.ImageObserver? = nil) -> Bool { false }
   }
 }
 #endif

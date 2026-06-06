@@ -59,7 +59,11 @@ extension java.awt {
     // MARK: Window lifecycle — override in subclasses
     // -------------------------------------------------------------------------
 
-    open func show(_ frame: java.awt.Frame) {}
-    open func hide(_ frame: java.awt.Frame) {}
+    open func show(_ window: java.awt.Window) {}
+    open func hide(_ window: java.awt.Window) {}
+
+    /// Bindet eine `MenuBar` an einen `Frame`.
+    /// Plattform-Implementierungen überschreiben diese Methode.
+    open func attachMenuBar(_ menuBar: MenuBar?, to frame: Frame) {}
   }
 }

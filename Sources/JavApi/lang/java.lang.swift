@@ -27,6 +27,7 @@ extension java.lang {
   public typealias Iterable = JavApi.Iterable
   public typealias Throwable = JavApi.Throwable
   public typealias Exception = JavApi.Exception
+  public typealias Error = JavApi.JError
   public typealias RuntimeException = JavApi.RuntimeException
   public typealias IllegalArgumentException = JavApi.IllegalArgumentException
   public typealias IllegalStateException = JavApi.IllegalStateException

@@ -17,12 +17,29 @@ extension java.awt {
 
     private override init() {}
 
-    public override func show(_ frame: java.awt.Frame) {
-      AWTWindowHost.shared.show(frame)
+    public override func show(_ window: java.awt.Window) {
+#if os(macOS)
+      // FileDialog verwaltet seinen eigenen nativen Panel in setVisible —
+      // kein AWTWindowHost-Fenster nötig.
+      if window is java.awt.FileDialog { return }
+      if let dialog = window as? java.awt.Dialog {
+        AWTWindowHost.shared.openDialog(dialog)
+        return
+      }
+      AWTWindowHost.shared.openNewWindow(for: window)
+#else
+      AWTWindowHost.shared.show(window)
+#endif
     }
 
-    public override func hide(_ frame: java.awt.Frame) {
-      AWTWindowHost.shared.hide(frame)
+    public override func hide(_ window: java.awt.Window) {
+      AWTWindowHost.shared.hide(window)
+    }
+
+    public override func attachMenuBar(_ menuBar: java.awt.MenuBar?, to frame: java.awt.Frame) {
+#if os(macOS)
+      AWTWindowHost.shared.attachMenuBar(menuBar, to: frame)
+#endif
     }
   }
 }

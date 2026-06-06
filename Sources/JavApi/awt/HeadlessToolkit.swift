@@ -15,11 +15,15 @@ extension java.awt {
 
     public override init() {}
 
-    public override func show(_ frame: java.awt.Frame) {
+    public override func show(_ window: java.awt.Window) {
       // no-op — headless environment
     }
 
-    public override func hide(_ frame: java.awt.Frame) {
+    public override func hide(_ window: java.awt.Window) {
+      // no-op — headless environment
+    }
+
+    public override func attachMenuBar(_ menuBar: java.awt.MenuBar?, to frame: java.awt.Frame) {
       // no-op — headless environment
     }
   }
