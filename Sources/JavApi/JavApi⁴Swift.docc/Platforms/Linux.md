@@ -54,3 +54,9 @@ JavApi⁴Swift handles all these differences internally with `#if canImport(Darw
 ## Fully supported
 
 All `java.lang`, `java.io`, `java.util`, and `java.net` classes are fully supported on Linux.
+
+## AWT on Linux
+
+`java.awt` compiles on Linux but runs in headless mode — no windows are shown. The `HeadlessToolkit` is selected automatically and all window operations are no-ops.
+
+To add real windowing support (GTK, SDL2, Wayland, X11, …), implement a custom `Toolkit` subclass. See <doc:ImplementingAToolkit> for a step-by-step guide and a complete checklist of what must be implemented.

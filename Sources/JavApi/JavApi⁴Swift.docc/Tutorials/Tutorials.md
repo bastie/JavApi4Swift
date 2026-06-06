@@ -45,3 +45,7 @@ Work through the articles in order, or jump to a topic that interests you.
 ### Building UIs with java.awt
 
 - <doc:AWT> — Frames, Panels, Canvases, and layout managers. Creating windows and drawing custom graphics with the Abstract Window Toolkit.
+
+### Porting and Platform Development
+
+- <doc:ImplementingAToolkit> — How to implement a custom AWT Toolkit backend for a new platform (Linux desktop, FreeBSD, Windows, …).
