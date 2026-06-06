@@ -52,7 +52,7 @@ extension java.awt {
       columns = 20
       scrollbarVisibility = TextArea.SCROLLBARS_BOTH
       super.init()
-      background = java.awt.Color(0xFF, 0xFF, 0xFF)
+      background = java.awt.SystemColor.text
     }
 
     public init(_ text: String) {
@@ -61,7 +61,7 @@ extension java.awt {
       scrollbarVisibility = TextArea.SCROLLBARS_BOTH
       super.init()
       self.text  = text
-      background = java.awt.Color(0xFF, 0xFF, 0xFF)
+      background = java.awt.SystemColor.text
     }
 
     public init(_ text: String, _ rows: Int, _ columns: Int) {
@@ -70,7 +70,7 @@ extension java.awt {
       scrollbarVisibility = TextArea.SCROLLBARS_BOTH
       super.init()
       self.text  = text
-      background = java.awt.Color(0xFF, 0xFF, 0xFF)
+      background = java.awt.SystemColor.text
     }
 
     public init(_ text: String, _ rows: Int, _ columns: Int, _ scrollbarVisibility: Int) {
@@ -79,7 +79,7 @@ extension java.awt {
       self.scrollbarVisibility = scrollbarVisibility
       super.init()
       self.text  = text
-      background = java.awt.Color(0xFF, 0xFF, 0xFF)
+      background = java.awt.SystemColor.text
     }
 
     // -------------------------------------------------------------------------
@@ -296,7 +296,7 @@ extension java.awt {
         scrollbarVisibility == TextArea.SCROLLBARS_VERTICAL_ONLY
 
       // Background
-      g.setColor(editable ? background : java.awt.Color(0xEE, 0xEE, 0xEE))
+      g.setColor(editable ? background : java.awt.SystemColor.control)
       g.fillRect(x, y, w, h)
 
       let hasFocus = isFocusOwner
@@ -394,7 +394,7 @@ extension java.awt {
       // Border
       let borderColor = hasFocus
         ? java.awt.Color.keyboardFocusIndicator
-        : java.awt.Color(0x88, 0x88, 0x88)
+        : java.awt.SystemColor.windowBorder
       g.setColor(borderColor)
       g.drawLine(x,     y,     x+w-1, y)
       g.drawLine(x,     y,     x,     y+h-1)

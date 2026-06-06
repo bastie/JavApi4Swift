@@ -26,7 +26,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     /// Macht das Fenster sichtbar oder versteckt es.
-    open func setVisible(_ visible: Bool) {
+    open override func setVisible(_ visible: Bool) {
       let wasVisible = self.visible
       self.visible   = visible
       let toolkit    = java.awt.Toolkit.getDefaultToolkit()
@@ -44,7 +44,7 @@ extension java.awt {
       }
     }
 
-    public func isVisible() -> Bool { visible }
+    public override func isVisible() -> Bool { visible }
 
     // -------------------------------------------------------------------------
     // MARK: Lebenszyklus

@@ -105,38 +105,38 @@ extension java.awt {
         let fm  = getFontMetrics(font)
         let tx  = x + boxSize + 4
         let ty  = y + (h - fm.getHeight()) / 2 + fm.getAscent()
-        g.setColor(foreground)
+        g.setColor(java.awt.SystemColor.controlText)
         g.drawString(label, tx, ty)
       }
     }
 
     private func paintCheckbox(_ g: java.awt.Graphics, x: Int, y: Int) {
-      // White fill
-      g.setColor(java.awt.Color(0xFF, 0xFF, 0xFF))
+      // Box background
+      g.setColor(java.awt.SystemColor.window)
       g.fillRect(x, y, boxSize, boxSize)
       // Border
-      g.setColor(java.awt.Color(0x55, 0x55, 0x55))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawRect(x, y, boxSize - 1, boxSize - 1)
 
       guard state else { return }
       // Checkmark (two lines: \ and /)
-      g.setColor(java.awt.Color(0x00, 0x00, 0x00))
+      g.setColor(java.awt.SystemColor.controlText)
       g.drawLine(x + 2, y + 6, x + 5, y + 10)
       g.drawLine(x + 5, y + 10, x + 11, y + 2)
     }
 
     private func paintRadio(_ g: java.awt.Graphics, x: Int, y: Int) {
-      // White fill
-      g.setColor(java.awt.Color(0xFF, 0xFF, 0xFF))
+      // Circle background
+      g.setColor(java.awt.SystemColor.window)
       g.fillOval(x, y, boxSize, boxSize)
       // Border
-      g.setColor(java.awt.Color(0x55, 0x55, 0x55))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawOval(x, y, boxSize - 1, boxSize - 1)
 
       guard state else { return }
       // Filled inner circle
       let margin = 3
-      g.setColor(java.awt.Color(0x00, 0x00, 0x00))
+      g.setColor(java.awt.SystemColor.controlText)
       g.fillOval(x + margin, y + margin,
                  boxSize - 2 * margin, boxSize - 2 * margin)
     }

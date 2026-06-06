@@ -144,31 +144,31 @@ extension java.awt {
       let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
       let fm = getFontMetrics(font)
 
-      // Background
-      g.setColor(java.awt.SystemColor.control)
+      // Background — window-Farbe passt sich an Light/Dark Mode an
+      g.setColor(java.awt.SystemColor.window)
       g.fillRect(x, y, w, h)
 
       // Selected item text
       if let sel = getSelectedItem() {
-        g.setColor(java.awt.SystemColor.controlText)
+        g.setColor(java.awt.SystemColor.windowText)
         let ty = y + (h - fm.getHeight()) / 2 + fm.getAscent()
         g.drawString(sel, x + 4, ty)
       }
 
-      // Arrow button strip
+      // Arrow button strip — separatorColor ist in Light+Dark sichtbar
       let arrowX = x + w - arrowWidth
-      g.setColor(java.awt.SystemColor.controlShadow)
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(arrowX, y + 1, arrowX, y + h - 2)
       // Downward triangle (4 rows)
       let midX = arrowX + arrowWidth / 2
       let midY = y + h / 2 - 1
-      g.setColor(java.awt.SystemColor.controlText)
+      g.setColor(java.awt.SystemColor.windowText)
       for i in 0..<4 {
         g.drawLine(midX - i, midY + i, midX + i, midY + i)
       }
 
       // Border
-      g.setColor(java.awt.Color(0x88, 0x88, 0x88))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(x,     y,     x+w-1, y)
       g.drawLine(x,     y,     x,     y+h-1)
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)
@@ -181,7 +181,7 @@ extension java.awt {
       let visRows = min(items.count, maxVisiblePopupRows)
 
       // Popup background
-      g.setColor(java.awt.Color(0xFF, 0xFF, 0xFF))
+      g.setColor(java.awt.SystemColor.window)
       g.fillRect(pr.x, pr.y, pr.width, pr.height)
 
       // Items
@@ -199,7 +199,7 @@ extension java.awt {
       }
 
       // Popup border
-      g.setColor(java.awt.Color(0x44, 0x44, 0x44))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(pr.x,            pr.y,            pr.x + pr.width - 1, pr.y)
       g.drawLine(pr.x,            pr.y,            pr.x,                pr.y + pr.height - 1)
       g.drawLine(pr.x + pr.width-1, pr.y,          pr.x + pr.width - 1, pr.y + pr.height - 1)

@@ -91,7 +91,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      for child in children { child.paint(g) }
+      for child in children where child.visible { child.paint(g) }
     }
   }
 }

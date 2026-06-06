@@ -40,12 +40,15 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     public func setColor(_ color: java.awt.Color) {
-      cgContext.setFillColor(
-        CGColor(red: color.red, green: color.green,
-                blue: color.blue, alpha: color.alpha))
-      cgContext.setStrokeColor(
-        CGColor(red: color.red, green: color.green,
-                blue: color.blue, alpha: color.alpha))
+      // getRed/getGreen/getBlue werden von SystemColor überschrieben und liefern
+      // den aktuellen Systemwert (Dark-Mode-sicher). Daher Getter statt stored properties.
+      let r = CGFloat(color.getRed())   / 255.0
+      let g = CGFloat(color.getGreen()) / 255.0
+      let b = CGFloat(color.getBlue())  / 255.0
+      let a = CGFloat(color.getAlpha()) / 255.0
+      let cg = CGColor(red: r, green: g, blue: b, alpha: a)
+      cgContext.setFillColor(cg)
+      cgContext.setStrokeColor(cg)
     }
 
     // -------------------------------------------------------------------------
@@ -119,6 +122,42 @@ extension java.awt {
       CTLineDraw(line, cgContext)
       cgContext.restoreGState()
 #endif
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Polygon
+    // -------------------------------------------------------------------------
+
+    /// Zeichnet den Umriss eines Polygons.
+    open func drawPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {
+      guard npoints >= 2 else { return }
+      cgContext.move(to: CGPoint(x: xpoints[0], y: ypoints[0]))
+      for i in 1..<npoints {
+        cgContext.addLine(to: CGPoint(x: xpoints[i], y: ypoints[i]))
+      }
+      cgContext.closePath()
+      cgContext.strokePath()
+    }
+
+    /// Zeichnet den Umriss eines `Polygon`-Objekts.
+    open func drawPolygon(_ p: java.awt.Polygon) {
+      drawPolygon(p.xpoints, p.ypoints, p.npoints)
+    }
+
+    /// Füllt ein Polygon (Even-Odd-Füllregel).
+    open func fillPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {
+      guard npoints >= 2 else { return }
+      cgContext.move(to: CGPoint(x: xpoints[0], y: ypoints[0]))
+      for i in 1..<npoints {
+        cgContext.addLine(to: CGPoint(x: xpoints[i], y: ypoints[i]))
+      }
+      cgContext.closePath()
+      cgContext.fillPath(using: .evenOdd)
+    }
+
+    /// Füllt ein `Polygon`-Objekt.
+    open func fillPolygon(_ p: java.awt.Polygon) {
+      fillPolygon(p.xpoints, p.ypoints, p.npoints)
     }
 
     // -------------------------------------------------------------------------
@@ -204,6 +243,11 @@ extension java.awt {
     open func drawImage(_ img: java.awt.Image,
                         _ x: Int, _ y: Int, _ width: Int, _ height: Int,
                         _ observer: java.awt.ImageObserver? = nil) -> Bool { false }
+
+    open func drawPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {}
+    open func drawPolygon(_ p: java.awt.Polygon) {}
+    open func fillPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {}
+    open func fillPolygon(_ p: java.awt.Polygon) {}
   }
 }
 #endif

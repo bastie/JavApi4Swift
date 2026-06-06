@@ -56,8 +56,22 @@ extension java.awt {
     }
 
     public func preferredLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {
-      // Simple approximation
-      java.awt.Dimension(parent.bounds.width, parent.bounds.height)
+      // Ermittle die bevorzugte Größe aus den fünf Regionen.
+      // NORTH/SOUTH bestimmen die Höhe; EAST/WEST bestimmen die Breite;
+      // CENTER füllt den Rest — wir nehmen hier seine preferredSize als Minimum.
+      func ps(_ c: java.awt.Component?) -> java.awt.Dimension {
+        guard let c else { return java.awt.Dimension(0, 0) }
+        let p = c.getPreferredSize()
+        return java.awt.Dimension(
+          p.width  > 0 ? p.width  : c.bounds.width,
+          p.height > 0 ? p.height : c.bounds.height)
+      }
+      let n = ps(north), s = ps(south), e = ps(east), w = ps(west), ctr = ps(center)
+      let totalH = n.height + s.height + vgap * (north != nil && south != nil ? 2 : north != nil || south != nil ? 1 : 0)
+                 + Swift.max(e.height, w.height, ctr.height)
+      let totalW = w.width + e.width + hgap * (west != nil && east != nil ? 2 : west != nil || east != nil ? 1 : 0)
+                 + ctr.width
+      return java.awt.Dimension(totalW, totalH)
     }
 
     public func minimumLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {

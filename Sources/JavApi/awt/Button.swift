@@ -73,8 +73,8 @@ extension java.awt {
       g.fillRect(x, y, w, h)
 
       // Border: invert highlight/shadow when pressed
-      let hiColor  = isPressed ? java.awt.Color(0x88, 0x88, 0x88) : java.awt.Color(0xFF, 0xFF, 0xFF)
-      let loColor  = isPressed ? java.awt.Color(0xFF, 0xFF, 0xFF) : java.awt.Color(0x88, 0x88, 0x88)
+      let hiColor: java.awt.Color = isPressed ? java.awt.SystemColor.controlShadow : java.awt.SystemColor.controlHighlight
+      let loColor: java.awt.Color = isPressed ? java.awt.SystemColor.controlHighlight : java.awt.SystemColor.controlShadow
       g.setColor(hiColor)
       g.drawLine(x, y, x + w - 1, y)                    // top
       g.drawLine(x, y, x, y + h - 1)                    // left
@@ -87,7 +87,7 @@ extension java.awt {
       let fm = getFontMetrics(font)
       let tx = x + (w - fm.stringWidth(label)) / 2
       let ty = y + (h - fm.getHeight()) / 2 + fm.getAscent()
-      g.setColor(foreground)
+      g.setColor(java.awt.SystemColor.controlText)
       g.drawString(label, tx, ty)
     }
   }

@@ -47,10 +47,16 @@ extension java.awt {
     private var _scrollX: Int = 0
     private var _scrollY: Int = 0
 
-    /// Current horizontal scroll offset (read-only; use `setScrollPosition`).
-    public var scrollX: Int { _scrollX }
-    /// Current vertical scroll offset (read-only; use `setScrollPosition`).
-    public var scrollY: Int { _scrollY }
+    /// Current horizontal scroll offset.
+    public var scrollX: Int {
+      get { _scrollX }
+      set { _scrollX = newValue }
+    }
+    /// Current vertical scroll offset.
+    public var scrollY: Int {
+      get { _scrollY }
+      set { _scrollY = newValue }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Scrollbar drag state  (used by AWTWindowHost)
@@ -117,7 +123,7 @@ extension java.awt {
     }
 
     /// Maximum reachable scroll offsets.
-    func maxScroll() -> (x: Int, y: Int) {
+    public func maxScroll() -> (x: Int, y: Int) {
       let vp = getViewportSize()
       let cW = children.first?.bounds.width  ?? 0
       let cH = children.first?.bounds.height ?? 0
@@ -148,7 +154,7 @@ extension java.awt {
     // MARK: Scrollbar geometry  (used by AWTWindowHost for hit-testing)
     // -------------------------------------------------------------------------
 
-    /// Track rect of the vertical scrollbar (nil if not shown).
+    /// Full rect of the vertical scrollbar strip (nil if not shown).
     public func vScrollbarRect() -> java.awt.Rectangle? {
       guard needsVScrollbar else { return nil }
       let trackH = bounds.height - (needsHScrollbar ? scrollbarSize : 0)
@@ -156,7 +162,7 @@ extension java.awt {
                                 bounds.y, scrollbarSize, trackH)
     }
 
-    /// Track rect of the horizontal scrollbar (nil if not shown).
+    /// Full rect of the horizontal scrollbar strip (nil if not shown).
     public func hScrollbarRect() -> java.awt.Rectangle? {
       guard needsHScrollbar else { return nil }
       let trackW = bounds.width - (needsVScrollbar ? scrollbarSize : 0)
@@ -165,13 +171,35 @@ extension java.awt {
                                 trackW, scrollbarSize)
     }
 
+    // Arrow-button rects for the vertical scrollbar
+    public func vDecrementButtonRect() -> java.awt.Rectangle? {
+      guard let r = vScrollbarRect() else { return nil }
+      return java.awt.Rectangle(r.x, r.y, r.width, scrollbarSize)
+    }
+    public func vIncrementButtonRect() -> java.awt.Rectangle? {
+      guard let r = vScrollbarRect() else { return nil }
+      return java.awt.Rectangle(r.x, r.y + r.height - scrollbarSize, r.width, scrollbarSize)
+    }
+
+    // Arrow-button rects for the horizontal scrollbar
+    public func hDecrementButtonRect() -> java.awt.Rectangle? {
+      guard let r = hScrollbarRect() else { return nil }
+      return java.awt.Rectangle(r.x, r.y, scrollbarSize, r.height)
+    }
+    public func hIncrementButtonRect() -> java.awt.Rectangle? {
+      guard let r = hScrollbarRect() else { return nil }
+      return java.awt.Rectangle(r.x + r.width - scrollbarSize, r.y, scrollbarSize, r.height)
+    }
+
     /// Thumb rect of the vertical scrollbar (nil if not scrollable).
     public func vThumbRect() -> java.awt.Rectangle? {
       guard let track = vScrollbarRect() else { return nil }
       let (_, maxY) = maxScroll()
       guard maxY > 0, let childH = children.first?.bounds.height, childH > 0 else { return nil }
-      let thumbH = max(16, track.height * track.height / childH)
-      let thumbY = track.y + (track.height - thumbH) * _scrollY / maxY
+      let bs = scrollbarSize
+      let usableH = track.height - 2 * bs
+      let thumbH  = max(16, usableH * usableH / childH)
+      let thumbY  = track.y + bs + (usableH - thumbH) * _scrollY / maxY
       return java.awt.Rectangle(track.x, thumbY, track.width, thumbH)
     }
 
@@ -180,8 +208,10 @@ extension java.awt {
       guard let track = hScrollbarRect() else { return nil }
       let (maxX, _) = maxScroll()
       guard maxX > 0, let childW = children.first?.bounds.width, childW > 0 else { return nil }
-      let thumbW = max(16, track.width * track.width / childW)
-      let thumbX = track.x + (track.width - thumbW) * _scrollX / maxX
+      let bs = scrollbarSize
+      let usableW = track.width - 2 * bs
+      let thumbW  = max(16, usableW * usableW / childW)
+      let thumbX  = track.x + bs + (usableW - thumbW) * _scrollX / maxX
       return java.awt.Rectangle(thumbX, track.y, thumbW, track.height)
     }
 
@@ -213,6 +243,8 @@ extension java.awt {
         if let thumb = vThumbRect() {
           drawThumb(g, thumb)
         }
+        if let r = vDecrementButtonRect() { drawScrollArrow(g, rect: r, up: true) }
+        if let r = vIncrementButtonRect() { drawScrollArrow(g, rect: r, up: false) }
       }
 
       // ── Horizontal scrollbar ───────────────────────────────────────────────
@@ -222,6 +254,8 @@ extension java.awt {
         if let thumb = hThumbRect() {
           drawThumb(g, thumb)
         }
+        if let r = hDecrementButtonRect() { drawScrollArrow(g, rect: r, up: true,  vertical: false) }
+        if let r = hIncrementButtonRect() { drawScrollArrow(g, rect: r, up: false, vertical: false) }
       }
 
       // ── Corner fill (intersection of both scrollbars) ──────────────────────
@@ -232,7 +266,7 @@ extension java.awt {
       }
 
       // ── Border ─────────────────────────────────────────────────────────────
-      g.setColor(java.awt.Color(0x88, 0x88, 0x88))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(x,     y,     x+w-1, y)
       g.drawLine(x,     y,     x,     y+h-1)
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)
@@ -243,10 +277,40 @@ extension java.awt {
       g.setColor(java.awt.SystemColor.control)
       g.fillRect(t.x, t.y, t.width, t.height)
       g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawLine(t.x,            t.y,            t.x + t.width - 1, t.y)
-      g.drawLine(t.x,            t.y,            t.x,               t.y + t.height - 1)
-      g.drawLine(t.x + t.width-1, t.y,           t.x + t.width - 1, t.y + t.height - 1)
-      g.drawLine(t.x,            t.y + t.height-1, t.x + t.width - 1, t.y + t.height - 1)
+      g.drawLine(t.x,             t.y,             t.x + t.width - 1, t.y)
+      g.drawLine(t.x,             t.y,             t.x,               t.y + t.height - 1)
+      g.drawLine(t.x + t.width-1, t.y,             t.x + t.width - 1, t.y + t.height - 1)
+      g.drawLine(t.x,             t.y + t.height-1, t.x + t.width - 1, t.y + t.height - 1)
+    }
+
+    /// Draws one scrollbar arrow button.
+    /// `up` = decrement direction (▲ for vertical, ◀ for horizontal).
+    private func drawScrollArrow(_ g: java.awt.Graphics, rect r: java.awt.Rectangle,
+                                  up: Bool, vertical: Bool = true) {
+      g.setColor(java.awt.SystemColor.control)
+      g.fillRect(r.x, r.y, r.width, r.height)
+      g.setColor(java.awt.SystemColor.controlShadow)
+      g.drawLine(r.x,             r.y,             r.x + r.width - 1, r.y)
+      g.drawLine(r.x,             r.y,             r.x,               r.y + r.height - 1)
+      g.drawLine(r.x + r.width-1, r.y,             r.x + r.width - 1, r.y + r.height - 1)
+      g.drawLine(r.x,             r.y + r.height-1, r.x + r.width - 1, r.y + r.height - 1)
+      // Triangle
+      g.setColor(java.awt.SystemColor.controlText)
+      let cx = r.x + r.width / 2
+      let cy = r.y + r.height / 2
+      if vertical {
+        let base = up ? cy + 2 : cy - 2
+        for row in 0...2 {
+          let dy = up ? base - row : base + row
+          g.drawLine(cx - row, dy, cx + row, dy)
+        }
+      } else {
+        let base = up ? cx + 2 : cx - 2
+        for col in 0...2 {
+          let dx = up ? base - col : base + col
+          g.drawLine(dx, cy - col, dx, cy + col)
+        }
+      }
     }
   }
 }

@@ -315,7 +315,7 @@ extension java.awt {
       cgContext.addPath(path); cgContext.strokePath()
     }
 
-    public func drawPolygon(_ xPoints: [Int], _ yPoints: [Int], _ nPoints: Int) {
+    public override func drawPolygon(_ xPoints: [Int], _ yPoints: [Int], _ nPoints: Int) {
       guard nPoints > 1 else { return }
       let path = CGMutablePath()
       path.move(to: CGPoint(x: xPoints[0], y: yPoints[0]))
@@ -324,7 +324,7 @@ extension java.awt {
       cgContext.addPath(path); cgContext.strokePath()
     }
 
-    public func fillPolygon(_ xPoints: [Int], _ yPoints: [Int], _ nPoints: Int) {
+    public override func fillPolygon(_ xPoints: [Int], _ yPoints: [Int], _ nPoints: Int) {
       guard nPoints > 1 else { return }
       let path = CGMutablePath()
       path.move(to: CGPoint(x: xPoints[0], y: yPoints[0]))

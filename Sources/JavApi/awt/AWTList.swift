@@ -86,7 +86,7 @@ extension java.awt {
       self.rows         = rows
       self.multipleMode = multipleMode
       super.init()
-      background = java.awt.Color(0xFF, 0xFF, 0xFF)
+      background = java.awt.SystemColor.window
     }
 
     // -------------------------------------------------------------------------
@@ -223,7 +223,7 @@ extension java.awt {
       }
 
       // Row separator lines
-      g.setColor(java.awt.Color(0xDD, 0xDD, 0xDD))
+      g.setColor(java.awt.SystemColor.windowBorder)
       for row in 1..<vRows {
         let iy = y + row * itemHeight
         g.drawLine(x, iy, x + listW - 1, iy)
@@ -246,7 +246,7 @@ extension java.awt {
       }
 
       // Border
-      g.setColor(java.awt.Color(0x88, 0x88, 0x88))
+      g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(x,     y,     x+w-1, y)
       g.drawLine(x,     y,     x,     y+h-1)
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)

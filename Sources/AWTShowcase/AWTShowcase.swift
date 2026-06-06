@@ -13,6 +13,132 @@ import AppKit
 // MARK: - Custom Canvas components
 // ---------------------------------------------------------------------------
 
+/// Draws sample polygons — demonstrates drawPolygon/fillPolygon.
+@MainActor
+final class PolygonCanvas: java.awt.Canvas {
+  override func paint(_ g: java.awt.Graphics) {
+    let w = bounds.width, h = bounds.height
+    guard w > 4, h > 4 else { return }
+
+    // Hintergrund
+    g.setColor(.darkGray)
+    g.fillRect(bounds.x, bounds.y, w, h)
+
+    let ox = bounds.x, oy = bounds.y
+
+    // Gefülltes Dreieck (blau)
+    g.setColor(.blue)
+    let tri = java.awt.Polygon(
+      xpoints: [ox + w/2,  ox + w - 4, ox + 4],
+      ypoints: [oy + 4,    oy + h/2,   oy + h/2],
+      npoints: 3)
+    g.fillPolygon(tri)
+
+    // Umriss-Stern (gelb) — 6-Punkt-Stern über zwei Dreiecke
+    g.setColor(.yellow)
+    let cx = ox + w/2, cy = oy + h*3/4
+    let r1 = Swift.min(w, h) / 5
+    let r2 = r1 / 2
+    var sx = [Int](), sy = [Int]()
+    for i in 0..<6 {
+      let angle1 = Double(i) * Double.pi / 3.0 - Double.pi / 2
+      let angle2 = angle1 + Double.pi / 6.0
+      sx.append(cx + Int(Double(r1) * cos(angle1)))
+      sy.append(cy + Int(Double(r1) * sin(angle1)))
+      sx.append(cx + Int(Double(r2) * cos(angle2)))
+      sy.append(cy + Int(Double(r2) * sin(angle2)))
+    }
+    g.drawPolygon(sx, sy, 12)
+
+    // Label
+    g.setColor(.white)
+    g.drawString("Polygon", ox + 2, oy + h - 4)
+  }
+}
+
+// ---------------------------------------------------------------------------
+// MARK: - GridLayout demo panel (standalone function, reused in buildShowcase)
+// ---------------------------------------------------------------------------
+
+/// Baut ein 3×2-GridLayout-Panel mit farbigen Label-Zellen.
+@MainActor
+func makeGridPanel(width: Int, height: Int) -> java.awt.Panel {
+  let panel = java.awt.Panel(java.awt.GridLayout(2, 3, 2, 2))
+  panel.setPreferredSize(java.awt.Dimension(width, height))
+  let colours: [(java.awt.Color, String)] = [
+    (.red,     "Rot"),    (.green,   "Grün"),  (.blue,   "Blau"),
+    (.yellow,  "Gelb"),   (.cyan,    "Cyan"),  (.magenta,"Magenta")
+  ]
+  for (col, name) in colours {
+    let lbl = java.awt.Label(name, java.awt.Label.CENTER)
+    lbl.background = col
+    lbl.foreground = .white
+    panel.add(lbl)
+  }
+  return panel
+}
+
+// ---------------------------------------------------------------------------
+// MARK: - CardLayout demo panel
+// ---------------------------------------------------------------------------
+
+/// Panel mit CardLayout — drei Karten, umschaltbar per Buttons.
+@MainActor
+final class CardDemoPanel: java.awt.Panel {
+
+  private let cards   = java.awt.CardLayout()
+  private let cardBox: java.awt.Panel
+
+  override init() {
+    cardBox = java.awt.Panel(cards)
+    super.init()
+    setLayout(java.awt.BorderLayout())
+
+    // Drei Karten
+    let card1 = java.awt.Label("Karte 1 — Start", java.awt.Label.CENTER)
+    card1.background = .blue
+    card1.foreground = .white
+    let card2 = java.awt.Label("Karte 2 — Mitte", java.awt.Label.CENTER)
+    card2.background = .green
+    card2.foreground = .white
+    let card3 = java.awt.Label("Karte 3 — Ende",  java.awt.Label.CENTER)
+    card3.background = .red
+    card3.foreground = .white
+
+    cardBox.add(card1, "1")
+    cardBox.add(card2, "2")
+    cardBox.add(card3, "3")
+
+    add(cardBox, java.awt.BorderLayout.CENTER)
+
+    // Navigationsleiste
+    let nav = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 4, 2))
+    let prevBtn = java.awt.Button("◀")
+    prevBtn.setPreferredSize(java.awt.Dimension(36, 22))
+    prevBtn.addActionListener(CardNavListener(cards: cards, box: cardBox, dir: -1))
+    let nextBtn = java.awt.Button("▶")
+    nextBtn.setPreferredSize(java.awt.Dimension(36, 22))
+    nextBtn.addActionListener(CardNavListener(cards: cards, box: cardBox, dir: 1))
+    nav.add(prevBtn)
+    nav.add(nextBtn)
+    nav.setPreferredSize(java.awt.Dimension(100, 28))
+    add(nav, java.awt.BorderLayout.SOUTH)
+  }
+}
+
+@MainActor
+final class CardNavListener: java.awt.event.ActionListener {
+  private let cards: java.awt.CardLayout
+  private let box:   java.awt.Panel
+  private let dir:   Int   // -1 = previous, +1 = next
+  init(cards: java.awt.CardLayout, box: java.awt.Panel, dir: Int) {
+    self.cards = cards; self.box = box; self.dir = dir
+  }
+  func actionPerformed(_ e: java.awt.event.ActionEvent) {
+    if dir > 0 { cards.next(box) } else { cards.previous(box) }
+  }
+}
+
 /// Draws a 5×2 colour grid — demonstrates Canvas.paint().
 @MainActor
 final class ColourGridCanvas: java.awt.Canvas {
@@ -49,11 +175,19 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   frame.setMinimumSize(java.awt.Dimension(380, 280))
   frame.setLayout(java.awt.BorderLayout())
 
+  // ── Höhenaufteilung ──────────────────────────────────────────────────────
+  // Alle Höhen sind hier zentral definiert; centerH ergibt sich automatisch.
+  let northH    = 40
+  let controlsH = 90   // oberer SOUTH-Block: FlowLayout mit Widgets
+  let demosH    = 60   // unterer SOUTH-Block: GridLayout + CardLayout Demo
+  let southH    = controlsH + demosH
+  let centerH   = height - northH - southH
+
   // ── NORTH: title label ───────────────────────────────────────────────────
   let title = java.awt.Label(
     "Panel · Canvas · Button · Checkbox · TextField · Label · TextArea · Scrollbar · ScrollPane · Choice · List",
     java.awt.Label.CENTER)
-  title.setPreferredSize(java.awt.Dimension(width, 40))
+  title.setPreferredSize(java.awt.Dimension(width, northH))
   title.setMinimumSize(java.awt.Dimension(200, 30))
   frame.add(title, java.awt.BorderLayout.NORTH)
 
@@ -63,7 +197,7 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
 
   // ColourGridCanvas (doppelte Höhe) — bounds bestimmen den virtuellen Inhalt der ScrollPane
   let bigCanvas = ColourGridCanvas()
-  bigCanvas.bounds = java.awt.Rectangle(0, 0, width / 2, (height - 140) * 2)
+  bigCanvas.bounds = java.awt.Rectangle(0, 0, width / 2, centerH * 2)
 
   // PopupMenu auf dem Canvas
   let canvasPopup = java.awt.PopupMenu("Canvas")
@@ -81,7 +215,7 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
 
   // ScrollPane als WEST im centerPanel: Breite fix, Höhe vom BorderLayout gesetzt
   let scrollPane = java.awt.ScrollPane()
-  scrollPane.setPreferredSize(java.awt.Dimension(width / 2, height - 140))
+  scrollPane.setPreferredSize(java.awt.Dimension(width / 2, centerH))
   scrollPane.setMinimumSize(java.awt.Dimension(80, 60))
   scrollPane.add(bigCanvas)
   centerPanel.add(scrollPane, java.awt.BorderLayout.WEST)
@@ -90,19 +224,25 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   let textArea = java.awt.TextArea("Edit me here…\nLine 2\nLine 3", 5, 20)
   centerPanel.add(textArea, java.awt.BorderLayout.CENTER)
 
+  // PolygonCanvas rechts im centerPanel
+  let polyCanvas = PolygonCanvas()
+  polyCanvas.setPreferredSize(java.awt.Dimension(80, centerH))
+  polyCanvas.setMinimumSize(java.awt.Dimension(60, 60))
+  centerPanel.add(polyCanvas, java.awt.BorderLayout.EAST)
+
   frame.add(centerPanel, java.awt.BorderLayout.CENTER)
 
   // ── EAST: standalone vertical Scrollbar — Breite fix per preferredSize ───
   let scrollbar = java.awt.Scrollbar(java.awt.Scrollbar.VERTICAL,
                                      value: 0, visible: 20,
                                      minimum: 0, maximum: 100)
-  scrollbar.setPreferredSize(java.awt.Dimension(18, height - 140))
+  scrollbar.setPreferredSize(java.awt.Dimension(18, centerH))
   scrollbar.setMinimumSize(java.awt.Dimension(12, 40))
   frame.add(scrollbar, java.awt.BorderLayout.EAST)
 
   // ── SOUTH: controls panel — Höhe fix per preferredSize ───────────────────
   let controls = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 4))
-  controls.setPreferredSize(java.awt.Dimension(width, 100))
+  controls.setPreferredSize(java.awt.Dimension(width, controlsH))
   controls.setMinimumSize(java.awt.Dimension(200, 60))
 
   // Button
@@ -161,15 +301,15 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   choice.addItemListener(ShowcaseItemListener(label: "Choice"))
   controls.add(choice)
 
-  // List (scrollable, single-select, 4 sichtbare Zeilen)
-  let list = java.awt.List(4, false)
+  // List (scrollable, single-select, 3 sichtbare Zeilen — kompakter für SOUTH)
+  let list = java.awt.List(3, false)
   list.add("Red")
   list.add("Green")
   list.add("Blue")
   list.add("Yellow")
   list.add("Cyan")
   list.add("Magenta")
-  list.setPreferredSize(java.awt.Dimension(90, 80))
+  list.setPreferredSize(java.awt.Dimension(90, 62))
   list.setMinimumSize(java.awt.Dimension(60, 40))
   list.addItemListener(ShowcaseItemListener(label: "List"))
   list.addActionListener(ShowcaseActionListener())
@@ -187,7 +327,28 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   saveBtn.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.SAVE))
   controls.add(saveBtn)
 
-  frame.add(controls, java.awt.BorderLayout.SOUTH)
+  // ── GridLayout + CardLayout Demo unten ───────────────────────────────────
+  let southPanel = java.awt.Panel(java.awt.BorderLayout())
+  southPanel.setPreferredSize(java.awt.Dimension(width, southH))
+  southPanel.setMinimumSize(java.awt.Dimension(200, 100))
+  southPanel.add(controls, java.awt.BorderLayout.NORTH)
+
+  let demosPanel = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 4))
+  demosPanel.setPreferredSize(java.awt.Dimension(width, demosH))
+
+  // GridLayout-Demo
+  let gridPanel = makeGridPanel(width: 180, height: demosH - 4)
+  demosPanel.add(gridPanel)
+
+  // CardLayout-Demo
+  let cardPanel = CardDemoPanel()
+  cardPanel.setPreferredSize(java.awt.Dimension(150, demosH - 4))
+  cardPanel.setMinimumSize(java.awt.Dimension(100, 40))
+  demosPanel.add(cardPanel)
+
+  southPanel.add(demosPanel, java.awt.BorderLayout.CENTER)
+
+  frame.add(southPanel, java.awt.BorderLayout.SOUTH)
 
   // ── MenuBar ───────────────────────────────────────────────────────────────
   let menuBar = java.awt.MenuBar()

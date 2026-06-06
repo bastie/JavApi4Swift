@@ -13,8 +13,8 @@ extension java.awt {
     // MARK: Visual properties
     // -------------------------------------------------------------------------
 
-    public var background: java.awt.Color = .white
-    public var foreground: java.awt.Color = .black
+    public var background: java.awt.Color = java.awt.SystemColor.window
+    public var foreground: java.awt.Color = java.awt.SystemColor.windowText
     public var bounds: java.awt.Rectangle = .zero
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
     public var visible: Bool = true
@@ -49,6 +49,17 @@ extension java.awt {
     public func getMaximumSize() -> java.awt.Dimension {
       _maximumSize ?? java.awt.Dimension(Int.max, Int.max)
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Position & size
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // MARK: Visibility
+    // -------------------------------------------------------------------------
+
+    open func setVisible(_ v: Bool) { visible = v }
+    open func isVisible() -> Bool   { visible     }
 
     // -------------------------------------------------------------------------
     // MARK: Position & size

@@ -264,26 +264,59 @@ final class _AWTNativeCanvas: NSView {
       needsDisplay = true
 
     } else if let sb = hit as? java.awt.Scrollbar {
-      // Begin scrollbar thumb drag
       let thumb = sb.thumbRect()
-      let coord = sb.orientation == java.awt.Scrollbar.VERTICAL ? Int(pt.y) : Int(pt.x)
+      let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
+      let coord  = isVert ? Int(pt.y) : Int(pt.x)
       if thumb.contains(Int(pt.x), Int(pt.y)) {
-        draggingScrollbar        = sb
-        sb.isDragging            = true
-        sb.dragStartCoord        = coord
-        sb.dragStartValue        = sb.value
+        // Klick auf Thumb — Drag starten
+        draggingScrollbar    = sb
+        sb.isDragging        = true
+        sb.dragStartCoord    = coord
+        sb.dragStartValue    = sb.value
+      } else {
+        // Klick in Track — Sprung zur Klick-Position (Thumb-Mitte zum Cursor)
+        let range  = sb.maximum - sb.minimum
+        let track  = isVert ? sb.bounds.height : sb.bounds.width
+        let origin = isVert ? sb.bounds.y      : sb.bounds.x
+        let newVal = sb.minimum + (coord - origin) * range / max(1, track) - sb.visibleAmount / 2
+        sb.value   = newVal
+        sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: false)
+        // Danach sofort in Drag-Modus wechseln, damit der User ziehen kann
+        draggingScrollbar    = sb
+        sb.isDragging        = true
+        sb.dragStartCoord    = coord
+        sb.dragStartValue    = sb.value
       }
       needsDisplay = true
 
     } else if let sp = hit as? java.awt.ScrollPane {
-      // Hit the ScrollPane itself → must be a scrollbar strip
       let ptI = (x: Int(pt.x), y: Int(pt.y))
       if let thumb = sp.vThumbRect(), thumb.contains(ptI.x, ptI.y) {
+        // Klick auf V-Thumb — Drag starten
+        draggingScrollPane      = sp
+        sp.isDraggingV          = true
+        sp.dragStartY           = ptI.y
+        sp.dragStartScrollY     = sp.scrollY
+      } else if let track = sp.vScrollbarRect(), track.contains(ptI.x, ptI.y) {
+        // Klick in V-Track — Sprung zur Position
+        let (_, maxY) = sp.maxScroll()
+        let relY      = ptI.y - track.y
+        sp.scrollY    = max(0, min(maxY, relY * maxY / max(1, track.height)))
         draggingScrollPane      = sp
         sp.isDraggingV          = true
         sp.dragStartY           = ptI.y
         sp.dragStartScrollY     = sp.scrollY
       } else if let thumb = sp.hThumbRect(), thumb.contains(ptI.x, ptI.y) {
+        // Klick auf H-Thumb — Drag starten
+        draggingScrollPane      = sp
+        sp.isDraggingH          = true
+        sp.dragStartX           = ptI.x
+        sp.dragStartScrollX     = sp.scrollX
+      } else if let track = sp.hScrollbarRect(), track.contains(ptI.x, ptI.y) {
+        // Klick in H-Track — Sprung zur Position
+        let (maxX, _) = sp.maxScroll()
+        let relX      = ptI.x - track.x
+        sp.scrollX    = max(0, min(maxX, relX * maxX / max(1, track.width)))
         draggingScrollPane      = sp
         sp.isDraggingH          = true
         sp.dragStartX           = ptI.x

@@ -118,23 +118,43 @@ extension java.awt {
     public func getOrientation() -> Int   { orientation }
 
     // -------------------------------------------------------------------------
-    // MARK: Thumb geometry
+    // MARK: Button / Thumb geometry
     // -------------------------------------------------------------------------
 
-    /// Returns the rectangle of the scroll thumb in the component's coordinate space.
+    /// Size of the arrow buttons at each end of the scrollbar.
+    public var buttonSize: Int { orientation == Scrollbar.VERTICAL ? bounds.width : bounds.height }
+
+    /// Rectangle of the decrement (▲/◀) button.
+    public func decrementButtonRect() -> java.awt.Rectangle {
+      let bs = buttonSize
+      return orientation == Scrollbar.VERTICAL
+        ? java.awt.Rectangle(bounds.x, bounds.y, bounds.width, bs)
+        : java.awt.Rectangle(bounds.x, bounds.y, bs, bounds.height)
+    }
+
+    /// Rectangle of the increment (▼/▶) button.
+    public func incrementButtonRect() -> java.awt.Rectangle {
+      let bs = buttonSize
+      return orientation == Scrollbar.VERTICAL
+        ? java.awt.Rectangle(bounds.x, bounds.y + bounds.height - bs, bounds.width, bs)
+        : java.awt.Rectangle(bounds.x + bounds.width - bs, bounds.y, bs, bounds.height)
+    }
+
+    /// Returns the rectangle of the scroll thumb within the track area.
     public func thumbRect() -> java.awt.Rectangle {
       let x = bounds.x, y = bounds.y
       let w = bounds.width, h = bounds.height
+      let bs = buttonSize
       let range = max(1, maximum - minimum)
       if orientation == Scrollbar.VERTICAL {
-        let trackH = h
+        let trackH = h - 2 * bs
         let thumbH = max(12, trackH * visibleAmount / range)
-        let thumbY = y + trackH * (_value - minimum) / range
+        let thumbY = y + bs + (trackH - thumbH) * (_value - minimum) / max(1, range - visibleAmount)
         return java.awt.Rectangle(x, thumbY, w, thumbH)
       } else {
-        let trackW = w
+        let trackW = w - 2 * bs
         let thumbW = max(12, trackW * visibleAmount / range)
-        let thumbX = x + trackW * (_value - minimum) / range
+        let thumbX = x + bs + (trackW - thumbW) * (_value - minimum) / max(1, range - visibleAmount)
         return java.awt.Rectangle(thumbX, y, thumbW, h)
       }
     }
@@ -168,10 +188,16 @@ extension java.awt {
 
       // Thumb border
       g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawLine(tr.x,              tr.y,              tr.x + tr.width - 1, tr.y)
-      g.drawLine(tr.x,              tr.y,              tr.x,                tr.y + tr.height - 1)
-      g.drawLine(tr.x + tr.width-1, tr.y,              tr.x + tr.width - 1, tr.y + tr.height - 1)
-      g.drawLine(tr.x,              tr.y + tr.height-1, tr.x + tr.width - 1, tr.y + tr.height - 1)
+      g.drawLine(tr.x,              tr.y,               tr.x + tr.width - 1, tr.y)
+      g.drawLine(tr.x,              tr.y,               tr.x,                tr.y + tr.height - 1)
+      g.drawLine(tr.x + tr.width-1, tr.y,               tr.x + tr.width - 1, tr.y + tr.height - 1)
+      g.drawLine(tr.x,              tr.y + tr.height-1,  tr.x + tr.width - 1, tr.y + tr.height - 1)
+
+      // Arrow buttons
+      let db = decrementButtonRect()
+      let ib = incrementButtonRect()
+      drawArrowButton(g, rect: db, decrement: true)
+      drawArrowButton(g, rect: ib, decrement: false)
 
       // Outer border
       g.setColor(java.awt.SystemColor.controlDkShadow)
@@ -179,6 +205,44 @@ extension java.awt {
       g.drawLine(x,     y,     x,     y+h-1)
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)
       g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+    }
+
+    /// Draws one arrow button (filled rect + triangle).
+    private func drawArrowButton(_ g: java.awt.Graphics, rect r: java.awt.Rectangle, decrement: Bool) {
+      // Button background
+      g.setColor(java.awt.SystemColor.control)
+      g.fillRect(r.x, r.y, r.width, r.height)
+      // Button border
+      g.setColor(java.awt.SystemColor.controlShadow)
+      g.drawLine(r.x,            r.y,            r.x + r.width - 1, r.y)
+      g.drawLine(r.x,            r.y,            r.x,               r.y + r.height - 1)
+      g.drawLine(r.x + r.width-1, r.y,           r.x + r.width - 1, r.y + r.height - 1)
+      g.drawLine(r.x,            r.y + r.height-1, r.x + r.width - 1, r.y + r.height - 1)
+      // Triangle arrow
+      g.setColor(java.awt.SystemColor.controlText)
+      let cx = r.x + r.width / 2
+      let cy = r.y + r.height / 2
+      let vert = orientation == Scrollbar.VERTICAL
+      // Draw a small 3-row triangle
+      if vert {
+        // ▲ or ▼
+        let tip = decrement ? cy - 2 : cy + 2
+        let base = decrement ? cy + 2 : cy - 2
+        for row in 0...2 {
+          let dy = decrement ? base - row : base + row
+          g.drawLine(cx - row, dy, cx + row, dy)
+        }
+        let _ = tip  // suppress warning
+      } else {
+        // ◀ or ▶
+        let tip = decrement ? cx - 2 : cx + 2
+        let base = decrement ? cx + 2 : cx - 2
+        for col in 0...2 {
+          let dx = decrement ? base - col : base + col
+          g.drawLine(dx, cy - col, dx, cy + col)
+        }
+        let _ = tip  // suppress warning
+      }
     }
   }
 }

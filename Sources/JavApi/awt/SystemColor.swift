@@ -182,12 +182,12 @@ extension java.awt {
       case TEXT_HIGHLIGHT:         return .selectedTextBackgroundColor
       case TEXT_HIGHLIGHT_TEXT:    return .selectedTextColor
       case TEXT_INACTIVE_TEXT:     return .disabledControlTextColor
-      case CONTROL:                return .controlColor
-      case CONTROL_TEXT:           return .controlTextColor
-      case CONTROL_HIGHLIGHT:      return .highlightColor
-      case CONTROL_LT_HIGHLIGHT:   return .highlightColor
-      case CONTROL_SHADOW:         return .shadowColor
-      case CONTROL_DK_SHADOW:      return .shadowColor
+      case CONTROL:                return .controlBackgroundColor
+      case CONTROL_TEXT:           return .labelColor
+      case CONTROL_HIGHLIGHT:      return .separatorColor
+      case CONTROL_LT_HIGHLIGHT:   return .separatorColor
+      case CONTROL_SHADOW:         return .separatorColor
+      case CONTROL_DK_SHADOW:      return .gridColor
       case SCROLLBAR:              return .controlColor              // scrollBarColor deprecated macOS 11
       case INFO:                   return .controlColor
       case INFO_TEXT:              return .controlTextColor
