@@ -71,11 +71,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.35.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.46.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.35.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.46.0"))
 
 ## Ports
 
@@ -165,11 +165,36 @@ To include other project with compatible license do
 
 ### Test it
 
-* On macOS for macOS `swift test`.
+* On macOS for
+  * macOS <br/> `swift test`
+  * Linux <br/> only once `podman machine init && podman machine start` and then to test `podman run --rm -v "$(pwd)":/project:ro -w /project swift:latest sh -c "swift test --scratch-path /tmp/build"`
+  * watchOS <br/> `swift test --target JavApi --triple arm64-apple-watchos --sdk $(xcrun --sdk watchos --show-sdk-path)`
+  * iOS <br/> `swift test --target JavApi --triple arm64-apple-ios --sdk $(xcrun --sdk iphoneos --show-sdk-path)`
+  * visionOS <br/> `swift test --target JavApi --triple arm64-apple-xros --sdk $(xcrun --sdk xros --show-sdk-path)`
+  * tvOS (look for sdk name) <br/> `swift build --target JavApi --triple arm64-apple-tvos --sdk $(xcrun --sdk appletvos --show-sdk-path)`
+  * WASM <br/> once install like Swift.org it describe and then `swift test --target JavApi --swift-sdk 6.3.2-RELEASE-wasm32-unknown-wasi`
+  * Android <br/> once install like Swift.org it describe and then `swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_android`
+
+And all together without Windows:
+
+```
+swift test
+podman run --rm -v "$(pwd)":/project:ro -w /project swift:latest sh -c "swift test --scratch-path /tmp/build"
+swift test --target JavApi --triple arm64-apple-watchos --sdk $(xcrun --sdk watchos --show-sdk-path)
+swift test --target JavApi --triple arm64-apple-ios --sdk $(xcrun --sdk iphoneos --show-sdk-path)
+swift test --target JavApi --triple arm64-apple-xros --sdk $(xcrun --sdk xros --show-sdk-path)
+swift build --target JavApi --triple arm64-apple-tvos --sdk $(xcrun --sdk appletvos --show-sdk-path)
+swift test --target JavApi --swift-sdk 6.3.2-RELEASE-wasm32-unknown-wasi
+swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_android
+swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_static-linux-0.1.0
+```
+<small>Also static Linux are here.</small>
+
+
+* On Windows for 
+  * Windows <br/> `swift test`
 
 <!--
 not stable:
 On macOS for Linux `container run --rm -w /project -v "$(pwd)":/project:ro swift:latest sh -c "swift test --scratch-path /tmp/build && uname -a && swift -version"`
 -->
-
-* On macOS for Linux only once `podman machine init && podman machine start` and then to test `podman run --rm -v "$(pwd)":/project:ro -w /project swift:latest sh -c "swift test --scratch-path /tmp/build"
