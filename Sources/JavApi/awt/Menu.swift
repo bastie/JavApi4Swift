@@ -5,13 +5,18 @@
 
 extension java.awt {
 
-  /// Ein aufklappbares Untermenü — mirrors `java.awt.Menu`.
+  /// Openable submenu.
   ///
-  /// `Menu` erbt von `MenuItem`, da Untermenüs selbst als Eintrag in einer
-  /// Menüleiste oder einem anderen Menü erscheinen.
+  /// `Menu` extends `MenuItem`, becaue submenus are item of menu or menubars
+  ///
+  /// - Note: you can add an own separator String over System property `javapi.menu.separator`
   @MainActor
   open class Menu: MenuItem {
+    
+    // change implementation to single point of failure
+    public static let _SEPARATOR_LINE = System.getProperty("javapi.menu.separator", "--- ¯\\_(ツ)_/¯ ---")
 
+    /// Menuitems
     private var items: [MenuItem] = []
     public var tearOff: Bool = false
 
@@ -20,46 +25,74 @@ extension java.awt {
       super.init(label)
     }
 
-    // -------------------------------------------------------------------------
-    // MARK: Items
-    // -------------------------------------------------------------------------
-
+    /// Add a menuitem to this menu
+    /// - Parameter item: menuitem
     public func add(_ item: MenuItem) {
       items.append(item)
     }
 
-    /// Fügt einen Trennstrich hinzu.
+    /// Add separator
     public func addSeparator() {
-      items.append(MenuItem("-"))
+      items.append(MenuItem(Menu._SEPARATOR_LINE))
     }
 
+    /// Insert a menuitem to this menu at given index
+    /// - Parameters:
+    ///  - item: menuitem
+    ///  - index: position of menu
     public func insert(_ item: MenuItem, _ index: Int) {
       let i = max(0, min(index, items.count))
       items.insert(item, at: i)
     }
 
+    /// Insert a separator at given index
+    /// - Parameter index: postion of menu
     public func insertSeparator(_ index: Int) {
-      insert(MenuItem("-"), index)
+      insert(MenuItem(Menu._SEPARATOR_LINE), index)
     }
 
+    /// Remove menuitem at given index or do nothing
+    /// - Parameter index: positon of menu
     public func remove(_ index: Int) {
       guard index >= 0, index < items.count else { return }
       items.remove(at: index)
     }
 
+    /// Remove the given menuitem
+    /// - Parameter item: the item to remove
     public func remove(_ item: MenuItem) {
       items.removeAll { $0 === item }
     }
 
-    public func removeAll() { items.removeAll() }
+    /// Remove all menuitems
+    public func removeAll() {
+      items.removeAll()
+    }
 
-    public func getItem(_ index: Int) -> MenuItem { items[index] }
-    public func getItemCount() -> Int             { items.count }
-    public func getItems() -> [MenuItem]          { items }
+    /// - Parameter index: of wanted menuitem
+    /// - Returns: the menuitem at index
+    /// - Throws: ArrayIndexOutOfBoundsException if is index is not valid (like Java does)
+    public func getItem(_ index: Int) throws (ArrayIndexOutOfBoundsException) -> MenuItem {
+      guard getItemCount() > index else {
+        throw ArrayIndexOutOfBoundsException()
+      }
+      return items[index]
+    }
+    
+    /// - Returns the cont of items in menu
+    public func getItemCount() -> Int             {
+      return items.count
+    }
+    
+    /// - Returns: an array of all menuitems
+    public func getItems() -> [MenuItem]          {
+      items
+    }
 
+    /// - Returns: `true` if at index is an separator item
     public func isSeparator(at index: Int) -> Bool {
       guard index >= 0, index < items.count else { return false }
-      return items[index].getLabel() == "-"
+      return items[index].getLabel() == Menu._SEPARATOR_LINE
     }
   }
 }

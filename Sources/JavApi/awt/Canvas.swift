@@ -5,7 +5,7 @@
 
 extension java.awt {
 
-  /// A blank rectangular area for custom drawing — mirrors `java.awt.Canvas`.
+  /// A blank rectangular area for custom drawing .
   ///
   /// Subclass Canvas and override `paint(_ g: Graphics)` to draw.
   /// Canvas is a leaf component: it has no children and no layout manager.

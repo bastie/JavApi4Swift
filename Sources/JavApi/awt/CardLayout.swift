@@ -9,7 +9,7 @@ extension java.awt {
   // MARK: - CardLayout
   // ---------------------------------------------------------------------------
 
-  /// Shows one child at a time, like a stack of cards — mirrors `java.awt.CardLayout`.
+  /// Shows one child at a time, like a stack of cards .
   ///
   /// Components are added with a string name. Use `show(_:_:)`, `next(_:)`,
   /// `previous(_:)`, `first(_:)`, and `last(_:)` to switch the visible card.
