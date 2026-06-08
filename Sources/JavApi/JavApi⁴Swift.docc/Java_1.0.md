@@ -256,18 +256,16 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessError() | 
 
 
-##### java.lang.Exception (1/1/⭕️)
+##### java.lang.Exception (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Exception()    | 
 
 
-##### java.lang.Error (1/1/⭕️)
+##### java.lang.Error (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Error()        | 
 
 
 ##### java.lang.Cloneable (0/0/⭕️)
@@ -339,15 +337,13 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | AbstractMethodError() | 
 
 
-##### java.lang.Boolean (10/10/⭕️)
+##### java.lang.Boolean (8/8/⭕️)
 
 <!-- 11 methods+fields, 11 full implemented, 1 test implemented -->
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | Class         | Boolean        | typealias and extension of `Bool`
-1.0.2   | ✔️          | 🪄       | constructor   | Boolean()      | (boolean) buildin over typealias
-1.0.2   | ✔️          | ⭕️       | constructor   | Boolean()      | (String?)
 1.0.2   | ✔️          | ⭕️       | method        | booleanValue() | ()->boolean
 1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | getBoolean()   | (String)->boolean, in result since Java 1.1 it is case insensitive the Java 1.0 case sensitive behavior must be explicit activated
@@ -356,7 +352,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Boolean
 
-##### java.lang.Character (29/29/⭕️)
+##### java.lang.Character (28/28/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -365,7 +361,6 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | 
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_RADIX      | 
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | 
-1.0.2   | ✔️          | ⭕️       | constructor   | Character()    | (char)
 1.0.2   | ✔️          | ⭕️       | method        | charValue()    | ()->Character
 1.0.2   | ✔️          | ⭕️       | static method | digit()        | (char,int)->int
 1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
@@ -532,11 +527,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getInCheck()   | ()->boolean
 
 
-##### java.lang.String (1/1/⭕️)
+##### java.lang.String (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | String()       | 
 
 
 ##### java.lang.StringBuffer (1/1/⭕️)
@@ -574,11 +568,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | ThreadGroup()  | String
 
 
-##### java.lang.Throwable (1/1/⭕️)
+##### java.lang.Throwable (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Throwable()    | 
 
 
 #### java.io
@@ -722,11 +715,10 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.io.File (1/1/⭕️)
+##### java.io.File (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | File()         | String
 
 
 ##### java.io.EOFException (1/1/⭕️)
@@ -961,13 +953,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | SocketException() | String
 
 
-##### java.net.Socket (3/3/⭕️)
+##### java.net.Socket (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | 
-1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | String,int
-1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | String,int,boolean
 
 
 ##### java.net.ServerSocket (2/2/⭕️)
@@ -1074,12 +1063,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | xor()          | (BitSet)
 
-##### java.util.Date (29/29/⭕️)
+##### java.util.Date (27/27/⭕️)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Date()              | ()
-1.0.2   | ✔️          | ⭕️       | constructor   | Date()              | (long)
 1.0.2   | ✔️          | ⭕️       | method        | after()             | (Date)->boolean
 1.0.2   | ✔️          | ⭕️       | method        | before()            | (Date)->boolean
 1.0.2   | ✔️          | ⭕️       | method        | clone()             | ()->Date
@@ -1127,13 +1114,10 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | hasMoreElements() | ()->boolean
 1.0.2   | ✔️          | ✔️       | method        | nextElement()     | ()->Object
 
-##### java.util.Hashtable (15/15/⭕️)
+##### java.util.Hashtable (12/12/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | ()
-1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | (int)
-1.0.2   | ✔️          | ⭕️       | constructor   | Hashtable()    | (int,float)
 1.0.2   | ✔️          | ⭕️       | method        | clear()        | ()
 1.0.2   | ✔️          | ⭕️       | method        | clone()        | ()->Hashtable
 1.0.2   | ✔️          | ⭕️       | method        | contains()     | (Object)->boolean
@@ -1168,12 +1152,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | update()       | (Observable,Object)
 1.0.2   | ✔️          | 🪄       | method        | hashCode()     | ()->int — default via ObjectIdentifier for class types
 
-##### java.util.Properties (9/9/⭕️)
+##### java.util.Properties (7/7/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | ()
-1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | (Properties)
 1.0.2   | ✔️          | ⭕️       | method        | getProperty()     | (String)->String
 1.0.2   | ✔️          | ⭕️       | method        | getProperty()     | (String,String)->String
 1.0.2   | ✔️          | ⭕️       | method        | list()            | (PrintStream)
@@ -1182,12 +1164,10 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | save()            | (OutputStream,String) — deprecated since 1.2, use store()
 1.0.2   | ✔️          | ⭕️       | method        | setProperty()     | (String,String)->Object
 
-##### java.util.Random (11/11/⭕️)
+##### java.util.Random (9/9/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
-1.0.2   | ✔️          | ✔️       | constructor   | Random()          | ()
-1.0.2   | ✔️          | ✔️       | constructor   | Random()          | (long)
 1.0.2   | ✔️          | ✔️       | method        | nextBoolean()     | ()->boolean
 1.0.2   | ✔️          | ✔️       | method        | nextBytes()       | (byte[])
 1.0.2   | ✔️          | ✔️       | method        | nextDouble()      | ()->double
@@ -1198,11 +1178,10 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | nextLong()        | ()->long
 1.0.2   | ✔️          | ✔️       | method        | setSeed()         | (long)
 
-##### java.util.Stack (6/6/⭕️)
+##### java.util.Stack (5/5/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Stack()        | () — extends Vector
 1.0.2   | ✔️          | ⭕️       | method        | empty()        | ()->boolean
 1.0.2   | ✔️          | ⭕️       | method        | peek()         | ()->Object
 1.0.2   | ✔️          | ⭕️       | method        | pop()          | ()->Object
@@ -1223,13 +1202,10 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | (String)->String
 
-##### java.util.Vector (26/26/⭕️)
+##### java.util.Vector (23/23/⭕️)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | ()
-1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | (int)
-1.0.2   | ✔️          | ⭕️       | constructor   | Vector()            | (int,int)
 1.0.2   | ✔️          | ⭕️       | method        | addElement()        | (Object)
 1.0.2   | ✔️          | ⭕️       | method        | capacity()          | ()->int
 1.0.2   | ✔️          | ⭕️       | method        | contains()          | (Object)->boolean
@@ -1257,80 +1233,59 @@ version | implemented | tested   | type          | name                | more in
 #### java.applet
 
 
-##### java.applet.AudioClip (3/0/⭕️)
+##### java.applet.AudioClip (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | play()         | ()
-1.0.2   | ⭕️          | ⭕️       | method        | loop()         | ()
-1.0.2   | ⭕️          | ⭕️       | method        | stop()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | play()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | loop()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | stop()         | ()
 
 
-##### java.applet.AppletStub (6/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | isActive()     | ()->boolean
-1.0.2   | ⭕️          | ⭕️       | method        | getDocumentBase() | ()->URL
-1.0.2   | ⭕️          | ⭕️       | method        | getCodeBase()  | ()->URL
-1.0.2   | ⭕️          | ⭕️       | method        | getParameter() | (String)->String
-1.0.2   | ⭕️          | ⭕️       | method        | getAppletContext() | ()->AppletContext
-1.0.2   | ⭕️          | ⭕️       | method        | appletResize() | (int,int)
-
-
-##### java.applet.AppletContext (7/0/⭕️)
+##### java.applet.AppletStub (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getAudioClip() | (URL)->AudioClip
-1.0.2   | ⭕️          | ⭕️       | method        | getImage()     | (URL)->Image
-1.0.2   | ⭕️          | ⭕️       | method        | getApplet()    | (String)->Applet
-1.0.2   | ⭕️          | ⭕️       | method        | getApplets()   | ()->Enumeration
-1.0.2   | ⭕️          | ⭕️       | method        | showDocument() | (URL)
-1.0.2   | ⭕️          | ⭕️       | method        | showDocument() | (URL,String)
-1.0.2   | ⭕️          | ⭕️       | method        | showStatus()   | (String)
+1.0.2   | ✔️          | ⭕️       | method        | isActive()     | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | getDocumentBase() | ()->URL
+1.0.2   | ✔️          | ⭕️       | method        | getCodeBase()  | ()->URL
+1.0.2   | ✔️          | ⭕️       | method        | getParameter() | (String)->String
+1.0.2   | ✔️          | ⭕️       | method        | getAppletContext() | ()->AppletContext
+1.0.2   | ✔️          | ⭕️       | method        | appletResize() | (int,int)
 
 
-##### java.applet.Applet (1/0/⭕️)
+##### java.applet.AppletContext (7/7/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setStub()      | (AppletStub)
+1.0.2   | ✔️          | ⭕️       | method        | getAudioClip() | (URL)->AudioClip
+1.0.2   | ✔️          | ⭕️       | method        | getImage()     | (URL)->Image
+1.0.2   | ✔️          | ⭕️       | method        | getApplet()    | (String)->Applet
+1.0.2   | ✔️          | ⭕️       | method        | getApplets()   | ()->Enumeration
+1.0.2   | ✔️          | ⭕️       | method        | showDocument() | (URL)
+1.0.2   | ✔️          | ⭕️       | method        | showDocument() | (URL,String)
+1.0.2   | ✔️          | ⭕️       | method        | showStatus()   | (String)
+
+
+##### java.applet.Applet (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | setStub()      | (AppletStub)
 
 #### java.awt
 
 
-##### java.awt.Window (3/0/⭕️)
+##### java.awt.Window (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | warningString  | String
-1.0.2   | ⭕️          | ⭕️       | constructor   | Window()       | 
-1.0.2   | ⭕️          | ⭕️       | constructor   | Window()       | Frame
 
 
-##### java.awt.Toolkit (25/1/⭕️)
+##### java.awt.Toolkit (7/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | createButton() | (Button)
-1.0.2   | ⭕️          | ⭕️       | method        | createTextField() | (TextField)
-1.0.2   | ⭕️          | ⭕️       | method        | createLabel()  | (Label)
-1.0.2   | ⭕️          | ⭕️       | method        | createList()   | (List)
-1.0.2   | ⭕️          | ⭕️       | method        | createCheckbox() | (Checkbox)
-1.0.2   | ⭕️          | ⭕️       | method        | createScrollbar() | (Scrollbar)
-1.0.2   | ⭕️          | ⭕️       | method        | createTextArea() | (TextArea)
-1.0.2   | ⭕️          | ⭕️       | method        | createChoice() | (Choice)->ChoicePeer
-1.0.2   | ⭕️          | ⭕️       | method        | createFrame()  | (Frame)
-1.0.2   | ⭕️          | ⭕️       | method        | createCanvas() | (Canvas)
-1.0.2   | ⭕️          | ⭕️       | method        | createPanel()  | (Panel)
-1.0.2   | ⭕️          | ⭕️       | method        | createWindow() | (Window)
-1.0.2   | ⭕️          | ⭕️       | method        | createDialog() | (Dialog)
-1.0.2   | ⭕️          | ⭕️       | method        | createMenuBar() | (MenuBar)
-1.0.2   | ⭕️          | ⭕️       | method        | createMenu()   | (Menu)
-1.0.2   | ⭕️          | ⭕️       | method        | createMenuItem() | (MenuItem)
-1.0.2   | ⭕️          | ⭕️       | method        | createFileDialog() | (FileDialog)->FileDialogPeer
-1.0.2   | ⭕️          | ⭕️       | method        | createCheckboxMenuItem() | (CheckboxMenuItem)->CheckboxMenuItemPeer
 1.0.2   | ⭕️          | ⭕️       | method        | getScreenSize() | ()->Dimension
 1.0.2   | ⭕️          | ⭕️       | method        | getScreenResolution() | ()->int
 1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()->ColorModel
@@ -1348,14 +1303,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | TextField()    | 
 
 
-##### java.awt.TextComponent (4/0/⭕️)
+##### java.awt.TextComponent (1/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | selStart       | int
-1.0.2   | ⭕️          | ⭕️       | field         | selEnd         | int
 1.0.2   | ⭕️          | ⭕️       | constructor   | TextComponent() | String
-1.0.2   | ⭕️          | ⭕️       | method        | removeNotify() | ()
 
 
 ##### java.awt.TextArea (1/1/⭕️)
@@ -1365,48 +1317,36 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | TextArea()     | 
 
 
-##### java.awt.Scrollbar (6/3/⭕️)
+##### java.awt.Scrollbar (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | HORIZONTAL     | int
 1.0.2   | ✔️          | ⭕️       | final field   | VERTICAL       | int
-1.0.2   | ⭕️          | ⭕️       | field         | sVisible       | int
-1.0.2   | ⭕️          | ⭕️       | field         | lineIncrement  | int
-1.0.2   | ⭕️          | ⭕️       | field         | pageIncrement  | int
-1.0.2   | ✔️          | ⭕️       | constructor   | Scrollbar()    | 
 
 
-##### java.awt.Rectangle (1/1/⭕️)
+##### java.awt.Rectangle (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Rectangle()    | 
 
 
-##### java.awt.Polygon (4/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | int[4]         | int
-1.0.2   | ⭕️          | ⭕️       | field         | int[4]         | int
-1.0.2   | ⭕️          | ⭕️       | field         | Rectangle      | 
-1.0.2   | ✔️          | ⭕️       | constructor   | Polygon()      | 
-
-
-##### java.awt.Point (1/1/⭕️)
+##### java.awt.Polygon (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Point()        | int,int
 
 
-##### java.awt.Panel (2/1/⭕️)
+##### java.awt.Point (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Panel()        | 
-1.0.2   | ⭕️          | ⭕️       | static method | FlowLayout()   | ()->new
+
+
+##### java.awt.Panel (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
 ##### java.awt.MenuItem (1/1/⭕️)
@@ -1432,23 +1372,18 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getParent()    | ()->MenuContainer
 
 
-##### java.awt.MenuBar (3/1/⭕️)
+##### java.awt.MenuBar (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | helpMenu       | Menu
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuBar()      | 
-1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
 
 
-##### java.awt.Menu (4/2/⭕️)
+##### java.awt.Menu (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | field         | tearOff        | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | isHelpMenu     | boolean
-1.0.2   | ✔️          | ⭕️       | constructor   | Menu()         | String
-1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
 
 
 ##### java.awt.MediaTracker (1/0/⭕️)
@@ -1458,46 +1393,39 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | constructor   | MediaTracker() | Component
 
 
-##### java.awt.List (5/0/⭕️)
+##### java.awt.List (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | multipleSelections | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | int[0]         | int
-1.0.2   | ⭕️          | ⭕️       | field         | visibleIndex   | int
-1.0.2   | ⭕️          | ⭕️       | constructor   | List()         | 
-1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
 
 
-##### java.awt.LayoutManager (5/0/⭕️)
+##### java.awt.LayoutManager (5/5/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addLayoutComponent() | (String,Component)
-1.0.2   | ⭕️          | ⭕️       | method        | removeLayoutComponent() | (Component)
-1.0.2   | ⭕️          | ⭕️       | method        | preferredLayoutSize() | (Container)->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | minimumLayoutSize() | (Container)->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | layoutContainer() | (Container)
+1.0.2   | ✔️          | ⭕️       | method        | addLayoutComponent() | (String,Component)
+1.0.2   | ✔️          | ⭕️       | method        | removeLayoutComponent() | (Component)
+1.0.2   | ✔️          | ⭕️       | method        | preferredLayoutSize() | (Container)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | minimumLayoutSize() | (Container)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | layoutContainer() | (Container)
 
 
-##### java.awt.Label (4/4/⭕️)
+##### java.awt.Label (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | LEFT           | int
 1.0.2   | ✔️          | ⭕️       | final field   | CENTER         | int
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
-1.0.2   | ✔️          | ⭕️       | constructor   | Label()        | 
 
 
-##### java.awt.Insets (1/1/⭕️)
+##### java.awt.Insets (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Insets()       | int,int,int,int
 
 
-##### java.awt.Image (7/3/⭕️)
+##### java.awt.Image (6/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1506,7 +1434,6 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getSource()    | ()->ImageProducer
 1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()->Graphics
 1.0.2   | ⭕️          | ⭕️       | method        | getProperty()  | (String,ImageObserver)->Object
-1.0.2   | ⭕️          | ⭕️       | static method | Object()       | ()->new
 1.0.2   | ✔️          | ⭕️       | method        | flush()        | ()
 
 
@@ -1517,21 +1444,17 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | GridLayout()   | int,int
 
 
-##### java.awt.GridBagLayout (8/0/⭕️)
+##### java.awt.GridBagLayout (4/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ⭕️          | ⭕️       | final field   | MAXGRIDSIZE    | int
 1.0.2   | ⭕️          | ⭕️       | final field   | MINSIZE        | int
 1.0.2   | ⭕️          | ⭕️       | final field   | PREFERREDSIZE  | int
-1.0.2   | ⭕️          | ⭕️       | field         | defaultConstraints | GridBagConstraints
-1.0.2   | ⭕️          | ⭕️       | field         | layoutInfo     | GridBagLayoutInfo
 1.0.2   | ⭕️          | ⭕️       | constructor   | GridBagLayout() | 
-1.0.2   | ⭕️          | ⭕️       | method        | Hashtable()    | ()->new
-1.0.2   | ⭕️          | ⭕️       | method        | GridBagConstraints() | ()->new
 
 
-##### java.awt.GridBagConstraints (20/0/⭕️)
+##### java.awt.GridBagConstraints (15/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1550,21 +1473,15 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | final field   | SOUTHWEST      | int
 1.0.2   | ⭕️          | ⭕️       | final field   | WEST           | int
 1.0.2   | ⭕️          | ⭕️       | final field   | NORTHWEST      | int
-1.0.2   | ⭕️          | ⭕️       | field         | tempY          | int
-1.0.2   | ⭕️          | ⭕️       | field         | tempHeight     | int
-1.0.2   | ⭕️          | ⭕️       | field         | minHeight      | int
-1.0.2   | ⭕️          | ⭕️       | constructor   | GridBagConstraints() | 
-1.0.2   | ⭕️          | ⭕️       | method        | Insets()       | (0,0,0,0)->new
 
 
-##### java.awt.Graphics (1/1/⭕️)
+##### java.awt.Graphics (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Graphics()     | 
 
 
-##### java.awt.Frame (21/5/⭕️)
+##### java.awt.Frame (14/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1582,13 +1499,6 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | final field   | E_RESIZE_CURSOR | int
 1.0.2   | ⭕️          | ⭕️       | final field   | HAND_CURSOR    | int
 1.0.2   | ⭕️          | ⭕️       | final field   | MOVE_CURSOR    | int
-1.0.2   | ⭕️          | ⭕️       | field         | Image          | 
-1.0.2   | ⭕️          | ⭕️       | field         | menuBar        | MenuBar
-1.0.2   | ⭕️          | ⭕️       | field         | cursorImage    | Image
-1.0.2   | ⭕️          | ⭕️       | field         | cursorType     | int
-1.0.2   | ⭕️          | ⭕️       | field         | cursorFg       | Color
-1.0.2   | ⭕️          | ⭕️       | field         | cursorBg       | Color
-1.0.2   | ✔️          | ⭕️       | constructor   | Frame()        | 
 
 
 ##### java.awt.FontMetrics (1/1/⭕️)
@@ -1598,25 +1508,22 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FontMetrics()  | Font
 
 
-##### java.awt.Font (5/4/⭕️)
+##### java.awt.Font (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | PLAIN          | int
 1.0.2   | ✔️          | ⭕️       | final field   | BOLD           | int
 1.0.2   | ✔️          | ⭕️       | final field   | ITALIC         | int
-1.0.2   | ⭕️          | ⭕️       | field         | pData          | int
-1.0.2   | ✔️          | ⭕️       | constructor   | Font()         | String,int,int
 
 
-##### java.awt.FlowLayout (4/4/⭕️)
+##### java.awt.FlowLayout (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | LEFT           | int
 1.0.2   | ✔️          | ⭕️       | final field   | CENTER         | int
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
-1.0.2   | ✔️          | ⭕️       | constructor   | FlowLayout()   | 
 
 
 ##### java.awt.FileDialog (3/3/⭕️)
@@ -1628,7 +1535,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FileDialog()   | Frame,String
 
 
-##### java.awt.Event (60/53/⭕️)
+##### java.awt.Event (58/52/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1690,71 +1597,44 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | GOT_FOCUS      | int
 1.0.2   | ✔️          | ⭕️       | final field   | LOST_FOCUS     | int
 1.0.2   | ✔️          | ⭕️       | field         | clickCount     | int
-1.0.2   | ⭕️          | ⭕️       | field         | key,           | long
-1.0.2   | ✔️          | ⭕️       | constructor   | Event()        | Object,long,int,int,int,int,int
 
 
-##### java.awt.Dimension (1/1/⭕️)
+##### java.awt.Dimension (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Dimension()    | 
 
 
-##### java.awt.Dialog (1/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Dialog()       | Frame,boolean
-
-
-##### java.awt.Container (4/0/⭕️)
+##### java.awt.Dialog (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | Component      | new
-1.0.2   | ⭕️          | ⭕️       | field         | layoutMgr      | LayoutManager
-1.0.2   | ⭕️          | ⭕️       | constructor   | Container()    | 
+
+
+##### java.awt.Container (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ⭕️          | ⭕️       | method        | countComponents() | ()->int
 
 
-##### java.awt.Component (2/1/⭕️)
+##### java.awt.Component (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | Component()    | 
 1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->Container
 
 
-##### java.awt.Color (15/14/⭕️)
+##### java.awt.Color (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | pData          | int
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,255,255
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 192,192,192
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 128,128,128
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 64,64,64
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,0,0
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,0,0
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,175,175
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,200,0
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,255,0
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,255,0
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,0,255
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,255,255
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,0,255
-1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | int,int,int
 
 
-##### java.awt.Choice (4/1/⭕️)
+##### java.awt.Choice (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | pItems         | Vector
-1.0.2   | ⭕️          | ⭕️       | field         | selectedIndex  | int
-1.0.2   | ✔️          | ⭕️       | constructor   | Choice()       | 
-1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
 
 
 ##### java.awt.CheckboxMenuItem (1/1/⭕️)
@@ -1764,43 +1644,36 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxMenuItem() | String
 
 
-##### java.awt.CheckboxGroup (2/1/⭕️)
+##### java.awt.CheckboxGroup (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | Checkbox       | 
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxGroup() | 
 
 
-##### java.awt.Checkbox (2/1/⭕️)
+##### java.awt.Checkbox (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Checkbox()     | 
-1.0.2   | ⭕️          | ⭕️       | method        | setStateInternal() | (boolean)
 
 
-##### java.awt.CardLayout (2/1/⭕️)
+##### java.awt.CardLayout (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CardLayout()   | 
-1.0.2   | ⭕️          | ⭕️       | method        | Hashtable()    | ()->new
 
 
-##### java.awt.Canvas (2/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addNotify()    | ()
-1.0.2   | ⭕️          | ⭕️       | method        | getToolkit()   | ()->=
-
-
-##### java.awt.Button (1/1/⭕️)
+##### java.awt.Canvas (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | Button()       | 
+
+
+##### java.awt.Button (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
 ##### java.awt.BorderLayout (1/1/⭕️)
@@ -2137,7 +2010,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | insets()       | ()->Insets
 
 
-##### java.awt.peer.ComponentPeer (25/0/⭕️)
+##### java.awt.peer.ComponentPeer (24/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2153,7 +2026,6 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | ()
 1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | ()
 1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()
-1.0.2   | ⭕️          | ⭕️       | method        | getToolkit()   | ()->java.awt.Toolkit
 1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()
 1.0.2   | ⭕️          | ⭕️       | method        | getFontMetrics() | (Font)
 1.0.2   | ⭕️          | ⭕️       | method        | dispose()      | ()
