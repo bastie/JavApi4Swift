@@ -36,17 +36,29 @@ final class _AWTNativeCanvas: NSView {
   }
 
   override var acceptsFirstResponder: Bool { true }
-  
+
+  // NSHostingView (the SwiftUI bridge) sets isFlipped=true, giving draw() a
+  // coordinate system where Y=0 is at the top — exactly matching AWT.
+  // We must mirror that here so our own draw() receives the same orientation;
+  // otherwise the manual translate+scale flip below would double-flip and
+  // invert directions (triangles, line segments, etc.) while leaving absolute
+  // positions coincidentally correct.
+  override var isFlipped: Bool { true }
+
   override func setFrameSize(_ newSize: NSSize) {
     super.setFrameSize(newSize)
-    // Wenn das NSWindow seine Größe ändert, passen wir frame.bounds an
+    // Wenn das NSWindow/NSPanel seine Größe ändert, passen wir component.bounds an
     // und rufen validate() auf, damit alle LayoutManager neu rechnen.
-    if let frame = component as? java.awt.Frame {
+    // Gilt für Frame UND Dialog (und generell jeden Container als Root-Komponente).
+    if let container = component as? java.awt.Container {
       let newW = Int(newSize.width)
       let newH = Int(newSize.height)
-      guard frame.bounds.width != newW || frame.bounds.height != newH else { return }
-      frame.bounds = java.awt.Rectangle(0, 0, newW, newH)
-      frame.validate()
+      guard container.bounds.width != newW || container.bounds.height != newH else {
+        needsDisplay = true
+        return
+      }
+      container.bounds = java.awt.Rectangle(0, 0, newW, newH)
+      container.validate()
     }
     needsDisplay = true
   }
@@ -55,17 +67,18 @@ final class _AWTNativeCanvas: NSView {
     guard let component,
           let cgContext = NSGraphicsContext.current?.cgContext else { return }
     cgContext.saveGState()
-    cgContext.translateBy(x: 0, y: bounds.height)
-    cgContext.scaleBy(x: 1, y: -1)
+    // isFlipped=true → draw() already has Y=0 at top, matching AWT.
+    // No manual flip needed.
     let g = java.awt.Graphics2D(cgContext)
     component.paint(g)
     cgContext.restoreGState()
   }
   
-  // NSView Y: bottom-left origin → AWT Y: top-left origin
+  // isFlipped=true → convert() already returns Y=0-at-top, matching AWT.
+  // No manual Y-flip needed (it was needed before isFlipped=true; now it would double-flip).
   private func awtPoint(from event: NSEvent) -> CGPoint {
     let p = convert(event.locationInWindow, from: nil)
-    return CGPoint(x: p.x, y: bounds.height - p.y)
+    return CGPoint(x: p.x, y: p.y)
   }
   
   private var pressedButton: java.awt.Button?
@@ -99,11 +112,15 @@ final class _AWTNativeCanvas: NSView {
         needsDisplay  = true
         return
       } else {
-        // Click outside popup → just close it
+        // Click outside popup → close it.
+        // If the click landed on the same Choice that owns the popup, stop here —
+        // falling through would re-open it via the toggle below.
         choice.isOpen = false
         openChoice    = nil
         needsDisplay  = true
-        // Fall through to normal dispatch for the actual click target
+        let closeHit = AWTHitTest.find(at: pt, in: component)
+        if closeHit === choice { return }
+        // Otherwise fall through so the actual click target is dispatched normally.
       }
     }
     

@@ -447,22 +447,22 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | isNaN()        | (float)->boolean
 
 
-##### java.lang.Integer (3/2/⭕️)
+##### java.lang.Integer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | int
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | int
-1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (int,int)->String
+1.0.2   | ✔️          | ⭕️       | static method | toString()     | (int,int)->String
 
 
-##### java.lang.Long (3/2/⭕️)
+##### java.lang.Long (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | long
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | long
-1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (long,int)->String
+1.0.2   | ✔️          | ⭕️       | static method | toString()     | (long,int)->String
 
 
 ##### java.lang.Math (17/17/⭕️)
@@ -709,16 +709,46 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FileNotFoundException() | 
 
 
-##### java.io.FileInputStream (0/0/⭕️)
+##### java.io.FileInputStream (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | FileInputStream() | (File)
+1.0.2   | ✔️          | ⭕️       | constructor   | FileInputStream() | (String)
+1.0.2   | ✔️          | ⭕️       | method        | read()         | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte[])->int
+1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte[],int,int)->int
+1.0.2   | ✔️          | ⭕️       | method        | skip()         | (int)->int
+1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
 
 
-##### java.io.File (0/0/⭕️)
+##### java.io.File (18/18/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | static field  | separator      | String
+1.0.2   | ✔️          | ⭕️       | static field  | separatorChar  | char
+1.0.2   | ✔️          | ⭕️       | static field  | pathSeparator  | String
+1.0.2   | ✔️          | ⭕️       | static field  | pathSeparatorChar | char
+1.0.2   | ✔️          | ⭕️       | constructor   | File()         | (String)
+1.0.2   | ✔️          | ⭕️       | constructor   | File()         | (File,String)
+1.0.2   | ✔️          | ⭕️       | method        | canExecute()   | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | canRead()      | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | canWrite()     | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | delete()       | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | exists()       | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | getAbsolutePath() | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getName()      | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getPath()      | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | isDirectory()  | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | isFile()       | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | isHidden()     | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | lastModified() | ()->long
+1.0.2   | ✔️          | ⭕️       | method        | length()       | ()->long
+1.0.2   | ✔️          | ⭕️       | method        | list()         | ()->String[]
+1.0.2   | ✔️          | ⭕️       | method        | mkdir()        | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | mkdirs()       | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 
 
 ##### java.io.EOFException (1/1/⭕️)
@@ -862,18 +892,18 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | UnknownHostException() | String
 
 
-##### java.net.URLStreamHandlerFactory (1/0/⭕️)
+##### java.net.URLStreamHandlerFactory (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | createURLStreamHandler() | (String)->URLStreamHandler
+1.0.2   | ✔️          | ⭕️       | method        | createURLStreamHandler() | (String)->URLStreamHandler
 
 
-##### java.net.URLStreamHandler (2/0/⭕️)
+##### java.net.URLStreamHandler (2/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | openConnection() | (URL)->URLConnection
+1.0.2   | ✔️          | ⭕️       | method        | openConnection() | (URL)->URLConnection
 1.0.2   | ⭕️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
 
 
@@ -922,11 +952,11 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.net.SocketImplFactory (1/0/⭕️)
+##### java.net.SocketImplFactory (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | createSocketImpl() | ()->SocketImpl
+1.0.2   | ✔️          | ⭕️       | method        | createSocketImpl() | ()->SocketImpl
 
 
 ##### java.net.SocketImpl (11/11/⭕️)
@@ -1276,10 +1306,11 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt
 
 
-##### java.awt.Window (0/0/⭕️)
+##### java.awt.Window (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Window         | implemented as Container subclass with setVisible, dispose, pack, toFront, toBack
 
 
 ##### java.awt.Toolkit (7/1/⭕️)
@@ -1325,28 +1356,32 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | VERTICAL       | int
 
 
-##### java.awt.Rectangle (0/0/⭕️)
+##### java.awt.Rectangle (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Rectangle      | implemented with x,y,width,height fields, constructors, contains, intersects, union, etc.
 
 
-##### java.awt.Polygon (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-
-
-##### java.awt.Point (0/0/⭕️)
+##### java.awt.Polygon (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Polygon        | implemented with npoints, xpoints, ypoints, addPoint, contains, getBoundingBox
 
 
-##### java.awt.Panel (0/0/⭕️)
+##### java.awt.Point (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Point          | implemented with x,y fields, constructors, distance, equals, translate
+
+
+##### java.awt.Panel (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Panel          | implemented as Container subclass
 
 
 ##### java.awt.MenuItem (1/1/✔️)
@@ -1365,11 +1400,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | remove()       | (MenuComponent)
 
 
-##### java.awt.MenuComponent (1/0/⭕️)
+##### java.awt.MenuComponent (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getParent()    | ()->MenuContainer
+1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->MenuContainer — via open class MenuComponent
 
 
 ##### java.awt.MenuBar (1/1/✔️)
@@ -1386,17 +1421,36 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | field         | tearOff        | boolean
 
 
-##### java.awt.MediaTracker (1/0/⭕️)
+##### java.awt.MediaTracker (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | MediaTracker() | Component
+1.0.2   | ✔️          | 🪄       | constructor   | MediaTracker() | Component — headless: images always COMPLETE
+1.0.2   | ✔️          | 🪄       | static field  | LOADING        | int
+1.0.2   | ✔️          | 🪄       | static field  | ABORTED        | int
+1.0.2   | ✔️          | 🪄       | static field  | ERRORED        | int
+1.0.2   | ✔️          | 🪄       | static field  | COMPLETE       | int
+1.0.2   | ✔️          | 🪄       | method        | addImage()     | (Image,int)
+1.0.2   | ✔️          | 🪄       | method        | addImage()     | (Image,int,int,int)
+1.0.2   | ✔️          | 🪄       | method        | checkAll()     | ()->boolean
+1.0.2   | ✔️          | 🪄       | method        | checkID()      | (int)->boolean
+1.0.2   | ✔️          | 🪄       | method        | statusAll()    | (boolean)->int
+1.0.2   | ✔️          | 🪄       | method        | statusID()     | (int,boolean)->int
+1.0.2   | ✔️          | 🪄       | method        | waitForAll()   | ()
+1.0.2   | ✔️          | 🪄       | method        | waitForAll()   | (long)->boolean
+1.0.2   | ✔️          | 🪄       | method        | waitForID()    | (int)
+1.0.2   | ✔️          | 🪄       | method        | waitForID()    | (int,long)->boolean
+1.0.2   | ✔️          | 🪄       | method        | getErrorsAny() | ()->Object[]
+1.0.2   | ✔️          | 🪄       | method        | getErrorsID()  | (int)->Object[]
+1.0.2   | ✔️          | 🪄       | method        | isErrorAny()   | ()->boolean
+1.0.2   | ✔️          | 🪄       | method        | isErrorID()    | (int)->boolean
 
 
-##### java.awt.List (0/0/⭕️)
+##### java.awt.List (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | List           | implemented as Component subclass with add, select, getSelectedItem, ItemListener, ActionListener
 
 
 ##### java.awt.LayoutManager (5/5/✔️)
@@ -1419,10 +1473,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
 
 
-##### java.awt.Insets (0/0/⭕️)
+##### java.awt.Insets (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Insets         | implemented with top,left,bottom,right fields, constructors, clone, equals
 
 
 ##### java.awt.Image (6/3/⭕️)
@@ -1444,41 +1499,44 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | GridLayout()   | int,int
 
 
-##### java.awt.GridBagLayout (4/0/⭕️)
+##### java.awt.GridBagLayout (4/4/✔️)
+
+See Java_1.1.md for full implementation notes (Step 1 complete).
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | final field   | MAXGRIDSIZE    | int
-1.0.2   | ⭕️          | ⭕️       | final field   | MINSIZE        | int
-1.0.2   | ⭕️          | ⭕️       | final field   | PREFERREDSIZE  | int
-1.0.2   | ⭕️          | ⭕️       | constructor   | GridBagLayout() | 
+1.0.2   | ✔️          | 🪄       | final field   | MAXGRIDSIZE    | int
+1.0.2   | ✔️          | 🪄       | final field   | MINSIZE        | int
+1.0.2   | ✔️          | 🪄       | final field   | PREFERREDSIZE  | int
+1.0.2   | ✔️          | ⭕️       | constructor   | GridBagLayout() | 
 
 
-##### java.awt.GridBagConstraints (15/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | final field   | RELATIVE       | int
-1.0.2   | ⭕️          | ⭕️       | final field   | REMAINDER      | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NONE           | int
-1.0.2   | ⭕️          | ⭕️       | final field   | BOTH           | int
-1.0.2   | ⭕️          | ⭕️       | final field   | HORIZONTAL     | int
-1.0.2   | ⭕️          | ⭕️       | final field   | VERTICAL       | int
-1.0.2   | ⭕️          | ⭕️       | final field   | CENTER         | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NORTH          | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NORTHEAST      | int
-1.0.2   | ⭕️          | ⭕️       | final field   | EAST           | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SOUTHEAST      | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SOUTH          | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SOUTHWEST      | int
-1.0.2   | ⭕️          | ⭕️       | final field   | WEST           | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NORTHWEST      | int
-
-
-##### java.awt.Graphics (0/0/⭕️)
+##### java.awt.GridBagConstraints (15/15/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | 🪄       | final field   | RELATIVE       | int
+1.0.2   | ✔️          | 🪄       | final field   | REMAINDER      | int
+1.0.2   | ✔️          | 🪄       | final field   | NONE           | int
+1.0.2   | ✔️          | 🪄       | final field   | BOTH           | int
+1.0.2   | ✔️          | 🪄       | final field   | HORIZONTAL     | int
+1.0.2   | ✔️          | 🪄       | final field   | VERTICAL       | int
+1.0.2   | ✔️          | 🪄       | final field   | CENTER         | int
+1.0.2   | ✔️          | 🪄       | final field   | NORTH          | int
+1.0.2   | ✔️          | 🪄       | final field   | NORTHEAST      | int
+1.0.2   | ✔️          | 🪄       | final field   | EAST           | int
+1.0.2   | ✔️          | 🪄       | final field   | SOUTHEAST      | int
+1.0.2   | ✔️          | 🪄       | final field   | SOUTH          | int
+1.0.2   | ✔️          | 🪄       | final field   | SOUTHWEST      | int
+1.0.2   | ✔️          | 🪄       | final field   | WEST           | int
+1.0.2   | ✔️          | 🪄       | final field   | NORTHWEST      | int
+
+
+##### java.awt.Graphics (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Graphics       | implemented mapped to CGContext (canImport(CoreGraphics))
 
 
 ##### java.awt.Frame (14/14/✔️)
@@ -1599,23 +1657,25 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | field         | clickCount     | int
 
 
-##### java.awt.Dimension (0/0/⭕️)
+##### java.awt.Dimension (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Dimension      | implemented with width,height fields, constructors, equals, getSize, setSize, toString
 
 
-##### java.awt.Dialog (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-
-
-##### java.awt.Container (1/0/⭕️)
+##### java.awt.Dialog (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | countComponents() | ()->int
+1.0.2   | ✔️          | ⭕️       | class         | Dialog         | implemented as Window subclass with modal support
+
+
+##### java.awt.Container (1/1/✔️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | countComponents() | ()->int — via children.count
 
 
 ##### java.awt.Cursor (15/15/✔️)
@@ -1649,16 +1709,18 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->Container
 
 
-##### java.awt.Color (0/0/⭕️)
+##### java.awt.Color (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Color          | implemented with RGB constants, constructors, getRGB, brighter, darker
 
 
-##### java.awt.Choice (0/0/⭕️)
+##### java.awt.Choice (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Choice         | implemented as Component subclass with add, select, getSelectedItem, getItemCount
 
 
 ##### java.awt.CheckboxMenuItem (1/1/✔️)
@@ -1675,10 +1737,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxGroup() | 
 
 
-##### java.awt.Checkbox (0/0/⭕️)
+##### java.awt.Checkbox (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Checkbox       | implemented as Component subclass with label, state, CheckboxGroup, ItemListener
 
 
 ##### java.awt.CardLayout (1/1/✔️)
@@ -1688,16 +1751,18 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | CardLayout()   | 
 
 
-##### java.awt.Canvas (0/0/⭕️)
+##### java.awt.Canvas (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Canvas         | implemented as Component subclass with paint()
 
 
-##### java.awt.Button (0/0/⭕️)
+##### java.awt.Button (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | class         | Button         | implemented as Component subclass with label, ActionListener, actionCommand
 
 
 ##### java.awt.BorderLayout (1/1/✔️)
@@ -1775,15 +1840,15 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getMapSize()   | ()->int
 
 
-##### java.awt.image.ImageProducer (5/0/⭕️)
+##### java.awt.image.ImageProducer (5/5/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addConsumer()  | (ImageConsumer)
-1.0.2   | ⭕️          | ⭕️       | method        | isConsumer()   | (ImageConsumer)->boolean
-1.0.2   | ⭕️          | ⭕️       | method        | removeConsumer() | (ImageConsumer)
-1.0.2   | ⭕️          | ⭕️       | method        | startProduction() | (ImageConsumer)
-1.0.2   | ⭕️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | addConsumer()  | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | isConsumer()   | (ImageConsumer)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | removeConsumer() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | startProduction() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
 
 
 ##### java.awt.image.ImageObserver (9/8/⭕️)
@@ -1808,28 +1873,26 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getFilterInstance() | (ImageConsumer)->ImageFilter
 
 
-##### java.awt.image.ImageConsumer (18/0/⭕️)
+##### java.awt.image.ImageConsumer (18/18/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | RANDOMPIXELORDER | int
-1.0.2   | ⭕️          | ⭕️       | field         | TOPDOWNLEFTRIGHT | int
-1.0.2   | ⭕️          | ⭕️       | field         | COMPLETESCANLINES | int
-1.0.2   | ⭕️          | ⭕️       | field         | SINGLEPASS     | int
-1.0.2   | ⭕️          | ⭕️       | field         | SINGLEFRAME    | int
-1.0.2   | ⭕️          | ⭕️       | field         | h,             | void
-1.0.2   | ⭕️          | ⭕️       | field         | ColorModel     | byte
-1.0.2   | ⭕️          | ⭕️       | field         | h,             | void
-1.0.2   | ⭕️          | ⭕️       | field         | ColorModel     | int
-1.0.2   | ⭕️          | ⭕️       | field         | IMAGEERROR     | int
-1.0.2   | ⭕️          | ⭕️       | field         | SINGLEFRAMEDONE | int
-1.0.2   | ⭕️          | ⭕️       | static field  | STATICIMAGEDONE | int
-1.0.2   | ⭕️          | ⭕️       | field         | IMAGEABORTED   | int
-1.0.2   | ⭕️          | ⭕️       | method        | setDimensions() | (int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | setProperties() | (Hashtable)
-1.0.2   | ⭕️          | ⭕️       | method        | setColorModel() | (ColorModel)
-1.0.2   | ⭕️          | ⭕️       | method        | setHints()     | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | imageComplete() | (int)
+1.0.2   | ✔️          | 🪄       | field         | RANDOMPIXELORDER | int
+1.0.2   | ✔️          | 🪄       | field         | TOPDOWNLEFTRIGHT | int
+1.0.2   | ✔️          | 🪄       | field         | COMPLETESCANLINES | int
+1.0.2   | ✔️          | 🪄       | field         | SINGLEPASS     | int
+1.0.2   | ✔️          | 🪄       | field         | SINGLEFRAME    | int
+1.0.2   | ✔️          | 🪄       | method        | setPixels()    | (int,int,int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | 🪄       | method        | setPixels()    | (int,int,int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | 🪄       | field         | IMAGEERROR     | int
+1.0.2   | ✔️          | 🪄       | field         | SINGLEFRAMEDONE | int
+1.0.2   | ✔️          | 🪄       | field         | STATICIMAGEDONE | int
+1.0.2   | ✔️          | 🪄       | field         | IMAGEABORTED   | int
+1.0.2   | ✔️          | ⭕️       | method        | setDimensions() | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
+1.0.2   | ✔️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ✔️          | ⭕️       | method        | setHints()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | imageComplete() | (int)
 
 
 ##### java.awt.image.FilteredImageSource (1/0/⭕️)
@@ -1837,27 +1900,6 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ⭕️          | ⭕️       | constructor   | FilteredImageSource() | ImageProducer,ImageFilter
-
-
-##### java.awt.image.DirectColorModel (15/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | red_mask       | int
-1.0.2   | ⭕️          | ⭕️       | field         | green_mask     | int
-1.0.2   | ⭕️          | ⭕️       | field         | blue_mask      | int
-1.0.2   | ⭕️          | ⭕️       | field         | alpha_mask     | int
-1.0.2   | ⭕️          | ⭕️       | field         | red_offset     | int
-1.0.2   | ⭕️          | ⭕️       | field         | green_offset   | int
-1.0.2   | ⭕️          | ⭕️       | field         | blue_offset    | int
-1.0.2   | ⭕️          | ⭕️       | field         | alpha_offset   | int
-1.0.2   | ⭕️          | ⭕️       | field         | red_bits       | int
-1.0.2   | ⭕️          | ⭕️       | field         | green_bits     | int
-1.0.2   | ⭕️          | ⭕️       | field         | blue_bits      | int
-1.0.2   | ⭕️          | ⭕️       | field         | alpha_bits     | int
-1.0.2   | ⭕️          | ⭕️       | field         | bits,          | DirectColorModel(int
-1.0.2   | ⭕️          | ⭕️       | field         | bits,          | DirectColorModel(int
-1.0.2   | ⭕️          | ⭕️       | method        | getRedMask()   | ()->int
 
 
 ##### java.awt.image.CropImageFilter (9/0/⭕️)
@@ -1875,13 +1917,33 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | constructor   | CropImageFilter() | int,int,int,int
 
 
-##### java.awt.image.ColorModel (3/0/⭕️)
+##### java.awt.image.ColorModel (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | pixel_bits     | int
-1.0.2   | ⭕️          | ⭕️       | static field  | RGBdefault     | ColorModel
-1.0.2   | ⭕️          | ⭕️       | static method | getRGBdefault() | ()->ColorModel
+1.0.2   | ✔️          | ⭕️       | field         | pixel_bits     | int
+1.0.2   | ✔️          | ⭕️       | static field  | RGBdefault     | ColorModel
+1.0.2   | ✔️          | ⭕️       | static method | getRGBdefault() | ()->ColorModel
+
+##### java.awt.image.DirectColorModel (15/15/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | red_mask       | int
+1.0.2   | ✔️          | ⭕️       | field         | green_mask     | int
+1.0.2   | ✔️          | ⭕️       | field         | blue_mask      | int
+1.0.2   | ✔️          | ⭕️       | field         | alpha_mask     | int
+1.0.2   | ✔️          | ⭕️       | field         | red_offset     | int
+1.0.2   | ✔️          | ⭕️       | field         | green_offset   | int
+1.0.2   | ✔️          | ⭕️       | field         | blue_offset    | int
+1.0.2   | ✔️          | ⭕️       | field         | alpha_offset   | int
+1.0.2   | ✔️          | ⭕️       | field         | red_bits       | int
+1.0.2   | ✔️          | ⭕️       | field         | green_bits     | int
+1.0.2   | ✔️          | ⭕️       | field         | blue_bits      | int
+1.0.2   | ✔️          | ⭕️       | field         | alpha_bits     | int
+1.0.2   | ✔️          | ⭕️       | constructor   | DirectColorModel() | (int,int,int,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | DirectColorModel() | (int,int,int,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | getRedMask()   | ()->int
 
 #### java.awt.peer
 

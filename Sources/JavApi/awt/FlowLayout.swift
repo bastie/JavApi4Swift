@@ -75,23 +75,61 @@ extension java.awt {
 
     public func layoutContainer(_ parent: java.awt.Container) {
       guard !parent.children.isEmpty else { return }
-      var x = parent.bounds.x + hgap
-      var y = parent.bounds.y + vgap
-      var rowHeight = 0
 
+      let containerX = parent.bounds.x
+      let containerW = parent.bounds.width
+      var y = parent.bounds.y + vgap
+
+      // Collect components into rows, then apply alignment offset per row.
+      // A "row" is the sequence of components that fit on one line.
+      struct RowEntry { var comp: java.awt.Component; var w, h: Int }
+      var rowEntries: [RowEntry] = []
+      var rowW = 0   // accumulated width of current row (including hgaps)
+
+      func flushRow(_ entries: [RowEntry], rowHeight: Int) {
+        guard !entries.isEmpty else { return }
+        let totalW = entries.reduce(0) { $0 + $1.w } + hgap * (entries.count - 1)
+        let effectiveAlignment = (alignment == FlowLayout.LEADING)  ? FlowLayout.LEFT
+                               : (alignment == FlowLayout.TRAILING) ? FlowLayout.RIGHT
+                               : alignment
+        let startX: Int
+        switch effectiveAlignment {
+        case FlowLayout.LEFT:
+          startX = containerX + hgap
+        case FlowLayout.RIGHT:
+          startX = containerX + containerW - totalW - hgap
+        default: // CENTER
+          startX = containerX + (containerW - totalW) / 2
+        }
+        var cx = startX
+        for entry in entries {
+          // Vertically centre within the row height
+          let cy = y + (rowHeight - entry.h) / 2
+          entry.comp.bounds = java.awt.Rectangle(cx, cy, entry.w, entry.h)
+          cx += entry.w + hgap
+        }
+        y += rowHeight + vgap
+      }
+
+      var rowHeight = 0
       for comp in parent.children {
         let ps = comp.getPreferredSize()
-        let w  = ps.width  > 0 ? ps.width  : comp.bounds.width
-        let h  = ps.height > 0 ? ps.height : comp.bounds.height
-        if x + w > parent.bounds.x + parent.bounds.width && x > parent.bounds.x + hgap {
-          x = parent.bounds.x + hgap
-          y += rowHeight + vgap
-          rowHeight = 0
+        let w  = ps.width  > 0 ? ps.width  : max(1, comp.bounds.width)
+        let h  = ps.height > 0 ? ps.height : max(1, comp.bounds.height)
+
+        // Would adding this component exceed the container width?
+        let addedW = rowEntries.isEmpty ? w : rowW + hgap + w
+        if !rowEntries.isEmpty && containerX + hgap + addedW + hgap > containerX + containerW {
+          flushRow(rowEntries, rowHeight: rowHeight)
+          rowEntries  = []
+          rowW        = 0
+          rowHeight   = 0
         }
-        comp.bounds = java.awt.Rectangle(x, y, w, h)
-        x += w + hgap
+        rowEntries.append(RowEntry(comp: comp, w: w, h: h))
+        rowW      = rowEntries.isEmpty ? w : rowW + (rowEntries.count > 1 ? hgap : 0) + w
         rowHeight = max(rowHeight, h)
       }
+      flushRow(rowEntries, rowHeight: rowHeight)
     }
   }
 }

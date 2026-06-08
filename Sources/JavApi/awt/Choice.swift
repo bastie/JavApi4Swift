@@ -162,9 +162,13 @@ extension java.awt {
       // Downward triangle (4 rows)
       let midX = arrowX + arrowWidth / 2
       let midY = y + h / 2 - 1
+      // Draw a downward-pointing triangle (▼).
+      // In the CGContext the Y-axis grows downward (isFlipped=true in the NSView),
+      // so "wider at top, narrower at bottom" produces a ▼ pointing down.
       g.setColor(java.awt.SystemColor.windowText)
       for i in 0..<4 {
-        g.drawLine(midX - i, midY + i, midX + i, midY + i)
+        let row = 3 - i           // row 0 = widest (top), row 3 = single pixel (bottom = tip)
+        g.drawLine(midX - row, midY + i, midX + row, midY + i)
       }
 
       // Border

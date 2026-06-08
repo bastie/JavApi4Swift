@@ -285,6 +285,22 @@ extension java.awt {
     var scrollDragStartOff:  Int  = 0
 
     // -------------------------------------------------------------------------
+    // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    /// Returns a size based on `rows` × `columns`.  An explicit
+    /// `setPreferredSize` call still takes precedence.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let explicit = _preferredSize { return explicit }
+      let fm   = getFontMetrics(font)
+      let charW = fm.stringWidth("m")
+      let lineH = fm.getHeight() + 2
+      let w = charW * max(1, columns) + 16 + 14  // pad + scrollbar
+      let h = lineH * max(1, rows)    + 8
+      return java.awt.Dimension(max(40, w), max(30, h))
+    }
+
     // MARK: Paint
     // -------------------------------------------------------------------------
 

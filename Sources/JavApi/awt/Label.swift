@@ -83,6 +83,22 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    /// Returns a size computed from the label text so LayoutManagers (e.g.
+    /// `GridBagLayout`) can allocate an appropriate cell without the caller
+    /// having to invoke `setPreferredSize`.  An explicit `setPreferredSize`
+    /// call still takes precedence.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let explicit = _preferredSize { return explicit }
+      let fm = getFontMetrics(font)
+      let w  = fm.stringWidth(_text) + 8   // 4px pad each side
+      let h  = fm.getHeight() + 4
+      return java.awt.Dimension(max(4, w), max(4, h))
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
@@ -93,7 +109,7 @@ extension java.awt {
       g.setColor(background)
       g.fillRect(x, y, w, h)
 
-      guard !_text.isEmpty else { return }
+      guard !_text.isEmpty, w > 0, h > 0 else { return }
 
       let fm  = getFontMetrics(font)
       let tw  = fm.stringWidth(_text)
@@ -110,8 +126,13 @@ extension java.awt {
         tx = x + pad
       }
 
+      // Clip to label bounds so text never bleeds into neighbouring components.
+      // save/clipRect/restore brackets the clip so it doesn't affect later paint calls.
+      g.save()
+      g.clipRect(x, y, w, h)
       g.setColor(foreground)
       g.drawString(_text, tx, ty)
+      g.restore()
     }
   }
 }

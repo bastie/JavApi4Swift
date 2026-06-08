@@ -81,6 +81,24 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    /// Returns a width based on `columns` (or the current text if columns=0)
+    /// and a height of one text line plus padding.  An explicit
+    /// `setPreferredSize` call still takes precedence.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let explicit = _preferredSize { return explicit }
+      let fm   = getFontMetrics(font)
+      let cols = self.columns > 0 ? self.columns : max(1, text.count)
+      // Java uses the width of 'm' × columns as the canonical column width.
+      let charW = fm.stringWidth("m")
+      let w = charW * cols + 8    // 4px pad each side
+      let h = fm.getHeight() + 8
+      return java.awt.Dimension(max(20, w), max(16, h))
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 

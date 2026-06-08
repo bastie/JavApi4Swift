@@ -92,7 +92,11 @@ extension AWTWindowHost {
       return
     }
     let nsMenu = buildNSMenu(from: menuBar)
-    NSApp.mainMenu = nsMenu
+    // SwiftUI überschreibt mainMenu beim App-Start — deshalb verzögert setzen
+    // damit unser Menü nach SwiftUIs eigener Initialisierung greift.
+    DispatchQueue.main.async {
+      NSApp.mainMenu = nsMenu
+    }
   }
 
   /// Wandelt eine `java.awt.MenuBar` in eine `NSMenu`-Hierarchie um.

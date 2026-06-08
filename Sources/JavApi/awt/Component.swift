@@ -30,8 +30,8 @@ extension java.awt {
     // MARK: Size hints (used by LayoutManagers)
     // -------------------------------------------------------------------------
 
-    private var _preferredSize: java.awt.Dimension? = nil
-    private var _minimumSize:   java.awt.Dimension? = nil
+    internal var _preferredSize: java.awt.Dimension? = nil
+    private  var _minimumSize:   java.awt.Dimension? = nil
     private var _maximumSize:   java.awt.Dimension? = nil
 
     /// Hint für LayoutManager; `nil` bedeutet „komponenteneigener Standardwert".

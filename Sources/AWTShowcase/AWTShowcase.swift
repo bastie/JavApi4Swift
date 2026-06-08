@@ -56,89 +56,6 @@ final class PolygonCanvas: java.awt.Canvas {
   }
 }
 
-// ---------------------------------------------------------------------------
-// MARK: - GridLayout demo panel (standalone function, reused in buildShowcase)
-// ---------------------------------------------------------------------------
-
-/// Baut ein 3×2-GridLayout-Panel mit farbigen Label-Zellen.
-@MainActor
-func makeGridPanel(width: Int, height: Int) -> java.awt.Panel {
-  let panel = java.awt.Panel(java.awt.GridLayout(2, 3, 2, 2))
-  panel.setPreferredSize(java.awt.Dimension(width, height))
-  let colours: [(java.awt.Color, String)] = [
-    (.red,     "Rot"),    (.green,   "Grün"),  (.blue,   "Blau"),
-    (.yellow,  "Gelb"),   (.cyan,    "Cyan"),  (.magenta,"Magenta")
-  ]
-  for (col, name) in colours {
-    let lbl = java.awt.Label(name, java.awt.Label.CENTER)
-    lbl.background = col
-    lbl.foreground = .white
-    panel.add(lbl)
-  }
-  return panel
-}
-
-// ---------------------------------------------------------------------------
-// MARK: - CardLayout demo panel
-// ---------------------------------------------------------------------------
-
-/// Panel mit CardLayout — drei Karten, umschaltbar per Buttons.
-@MainActor
-final class CardDemoPanel: java.awt.Panel {
-
-  private let cards   = java.awt.CardLayout()
-  private let cardBox: java.awt.Panel
-
-  override init() {
-    cardBox = java.awt.Panel(cards)
-    super.init()
-    setLayout(java.awt.BorderLayout())
-
-    // Drei Karten
-    let card1 = java.awt.Label("Karte 1 — Start", java.awt.Label.CENTER)
-    card1.background = .blue
-    card1.foreground = .white
-    let card2 = java.awt.Label("Karte 2 — Mitte", java.awt.Label.CENTER)
-    card2.background = .green
-    card2.foreground = .white
-    let card3 = java.awt.Label("Karte 3 — Ende",  java.awt.Label.CENTER)
-    card3.background = .red
-    card3.foreground = .white
-
-    cardBox.add(card1, "1")
-    cardBox.add(card2, "2")
-    cardBox.add(card3, "3")
-
-    add(cardBox, java.awt.BorderLayout.CENTER)
-
-    // Navigationsleiste
-    let nav = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.CENTER, 4, 2))
-    let prevBtn = java.awt.Button("◀")
-    prevBtn.setPreferredSize(java.awt.Dimension(36, 22))
-    prevBtn.addActionListener(CardNavListener(cards: cards, box: cardBox, dir: -1))
-    let nextBtn = java.awt.Button("▶")
-    nextBtn.setPreferredSize(java.awt.Dimension(36, 22))
-    nextBtn.addActionListener(CardNavListener(cards: cards, box: cardBox, dir: 1))
-    nav.add(prevBtn)
-    nav.add(nextBtn)
-    nav.setPreferredSize(java.awt.Dimension(100, 28))
-    add(nav, java.awt.BorderLayout.SOUTH)
-  }
-}
-
-@MainActor
-final class CardNavListener: java.awt.event.ActionListener {
-  private let cards: java.awt.CardLayout
-  private let box:   java.awt.Panel
-  private let dir:   Int   // -1 = previous, +1 = next
-  init(cards: java.awt.CardLayout, box: java.awt.Panel, dir: Int) {
-    self.cards = cards; self.box = box; self.dir = dir
-  }
-  func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    if dir > 0 { cards.next(box) } else { cards.previous(box) }
-  }
-}
-
 /// Draws a 5×2 colour grid — demonstrates Canvas.paint().
 @MainActor
 final class ColourGridCanvas: java.awt.Canvas {
@@ -336,16 +253,6 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   let demosPanel = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 4))
   demosPanel.setPreferredSize(java.awt.Dimension(width, demosH))
 
-  // GridLayout-Demo
-  let gridPanel = makeGridPanel(width: 180, height: demosH - 4)
-  demosPanel.add(gridPanel)
-
-  // CardLayout-Demo
-  let cardPanel = CardDemoPanel()
-  cardPanel.setPreferredSize(java.awt.Dimension(150, demosH - 4))
-  cardPanel.setMinimumSize(java.awt.Dimension(100, 40))
-  demosPanel.add(cardPanel)
-
   // Cursor-Demo
   let cursorPanel = CursorDemoPanel()
   cursorPanel.setPreferredSize(java.awt.Dimension(170, demosH - 4))
@@ -392,6 +299,27 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   }
   viewMenu.add(zoomMenu)
   menuBar.add(viewMenu)
+
+
+  // LayoutManager-Menü
+  let layoutMenu = java.awt.Menu("LayoutManager")
+  let blItem = java.awt.MenuItem("BorderLayout")
+  blItem.addActionListener(BorderLayoutDemoListener(owner: frame))
+  layoutMenu.add(blItem)
+  let flItem = java.awt.MenuItem("FlowLayout")
+  flItem.addActionListener(FlowLayoutDemoListener(owner: frame))
+  layoutMenu.add(flItem)
+  let glItem = java.awt.MenuItem("GridLayout")
+  glItem.addActionListener(GridLayoutDemoListener(owner: frame))
+  layoutMenu.add(glItem)
+  let clItem = java.awt.MenuItem("CardLayout")
+  clItem.addActionListener(CardLayoutDemoListener(owner: frame))
+  layoutMenu.add(clItem)
+  layoutMenu.addSeparator()
+  let gbItem = java.awt.MenuItem("GridBagLayout")
+  gbItem.addActionListener(GridBagDemoListener(owner: frame))
+  layoutMenu.add(gbItem)
+  menuBar.add(layoutMenu)
 
   // Hilfe-Menü
   let helpMenu = java.awt.Menu("Hilfe")
