@@ -47,15 +47,305 @@ Java 1.0 splits his packages in two parts.
 
 <!-- 11+24+8+5+5+22+23+23+23+32+4+11+7+16+32+48+31+16+41+23+7=412 -->
 
-##### java.lang.Boolean (11/11/1)
+##### java.lang.VirtualMachineError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | VirtualMachineError() | 
+
+
+##### java.lang.VerifyError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | VerifyError()  | 
+
+
+##### java.lang.UnsatisfiedLinkError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | UnsatisfiedLinkError() | 
+
+
+##### java.lang.UnknownError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | UnknownError() | 
+
+
+##### java.lang.ThreadDeath (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.lang.StringIndexOutOfBoundsException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | StringIndexOutOfBoundsException() | 
+
+
+##### java.lang.StackOverflowError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | StackOverflowError() | 
+
+
+##### java.lang.SecurityException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | SecurityException() | 
+
+
+##### java.lang.RuntimeException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | RuntimeException() | 
+
+
+##### java.lang.Runnable (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | run()          | ()
+
+
+##### java.lang.OutOfMemoryError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | OutOfMemoryError() | 
+
+
+##### java.lang.NumberFormatException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NumberFormatException() | 
+
+
+##### java.lang.NullPointerException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NullPointerException() | 
+
+
+##### java.lang.NoSuchMethodException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchMethodException() | 
+
+
+##### java.lang.NoSuchMethodError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchMethodError() | 
+
+
+##### java.lang.NoSuchFieldError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchFieldError() | 
+
+
+##### java.lang.NoClassDefFoundError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NoClassDefFoundError() | 
+
+
+##### java.lang.NegativeArraySizeException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NegativeArraySizeException() | 
+
+
+##### java.lang.LinkageError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | LinkageError() | 
+
+
+##### java.lang.InterruptedException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | InterruptedException() | 
+
+
+##### java.lang.InternalError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | InternalError() | 
+
+
+##### java.lang.InstantiationException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | InstantiationException() | 
+
+
+##### java.lang.InstantiationError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | InstantiationError() | 
+
+
+##### java.lang.IndexOutOfBoundsException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexOutOfBoundsException() | 
+
+
+##### java.lang.IncompatibleClassChangeError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IncompatibleClassChangeError() | 
+
+
+##### java.lang.IllegalThreadStateException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IllegalThreadStateException() | 
+
+
+##### java.lang.IllegalMonitorStateException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IllegalMonitorStateException() | 
+
+
+##### java.lang.IllegalArgumentException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IllegalArgumentException() | 
+
+
+##### java.lang.IllegalAccessException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessException() | 
+
+
+##### java.lang.IllegalAccessError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessError() | 
+
+
+##### java.lang.Exception (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Exception()    | 
+
+
+##### java.lang.Error (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Error()        | 
+
+
+##### java.lang.Cloneable (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.lang.CloneNotSupportedException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | CloneNotSupportedException() | 
+
+
+##### java.lang.ClassNotFoundException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ClassNotFoundException() | 
+
+
+##### java.lang.ClassFormatError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ClassFormatError() | 
+
+
+##### java.lang.ClassCircularityError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ClassCircularityError() | 
+
+
+##### java.lang.ClassCastException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ClassCastException() | 
+
+
+##### java.lang.ArrayStoreException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ArrayStoreException() | 
+
+
+##### java.lang.ArrayIndexOutOfBoundsException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ArrayIndexOutOfBoundsException() | 
+
+
+##### java.lang.ArithmeticException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ArithmeticException() | 
+
+
+##### java.lang.AbstractMethodError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | AbstractMethodError() | 
+
+
+##### java.lang.Boolean (10/10/⭕️)
 
 <!-- 11 methods+fields, 11 full implemented, 1 test implemented -->
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | Class         | Boolean        | typealias and extension of `Bool`
-1.0.2   | ✔️          | ⭕️       | final field   | Boolean.FALSE  | 
-1.0.2   | ✔️          | ⭕️       | final field   | Boolean.TRUE   | 
 1.0.2   | ✔️          | 🪄       | constructor   | Boolean()      | (boolean) buildin over typealias
 1.0.2   | ✔️          | ⭕️       | constructor   | Boolean()      | (String?)
 1.0.2   | ✔️          | ⭕️       | method        | booleanValue() | ()->boolean
@@ -66,7 +356,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Boolean
 
-##### java.lang.Character (24/?/?)
+##### java.lang.Character (29/15/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -101,7 +391,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | static method | isWhiteSpace()           | (char)->boolean
 
 
-##### java.lang.Class (8/?/?)
+##### java.lang.Class (8/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -115,61 +405,404 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | toString()     | ()->String
 
 
-##### java.lang.ClassLoader (5/?/?)
+##### java.lang.ClassLoader (1/0/⭕️)
 
-##### java.lang.Compiler (5/?/?)
-
-##### java.lang.Double (22/?/?)
-
-##### java.lang.Float (23/?/?)
-
-##### java.lang.Integer (23/?/?)
-
-##### java.lang.Long (23/?/?)
-
-##### java.lang.Math (32/?/?)
-
-##### java.lang.Number (4/?/?)
-
-##### java.lang.Object (11/?/?)
-
-##### java.lang.Process (7/?/?)
-
-##### java.lang.Runtime (16/?/?)
-
-##### java.lang.SecurityManager (32/?/?)
-
-##### java.lang.String (48/?/?)
-
-##### java.lang.StringBuffer (31/?/?)
-
-##### java.lang.System (16/?/?)
-
-##### java.lang.Thread (41/?/?)
-
-##### java.lang.ThreadGroup (23/?/?)
-
-##### java.lang.Throwable (7/?/?)
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | constructor   | ClassLoader()  | 
 
 
+##### java.lang.Compiler (6/5/⭕️)
 
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | static method | initialize()   | ()
+1.0.2   | ✔️          | ⭕️       | static method | compileClass() | (Class)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | compileClasses() | (String)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | command()      | (Object)->Object
+1.0.2   | ✔️          | ⭕️       | static method | enable()       | ()
+1.0.2   | ✔️          | ⭕️       | static method | disable()      | ()
+
+
+##### java.lang.Double (8/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | final field   | POSITIVE_INFINITY | double
+1.0.2   | ⭕️          | ⭕️       | final field   | NEGATIVE_INFINITY | double
+1.0.2   | ⭕️          | ⭕️       | final field   | NaN            | double
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | double
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | double
+1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (double)->String
+1.0.2   | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Double
+1.0.2   | ⭕️          | ⭕️       | static method | isNaN()        | (double)->boolean
+
+
+##### java.lang.Float (8/5/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | final field   | POSITIVE_INFINITY | float
+1.0.2   | ⭕️          | ⭕️       | final field   | NEGATIVE_INFINITY | float
+1.0.2   | ⭕️          | ⭕️       | final field   | NaN            | float
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | float
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | float
+1.0.2   | ✔️          | ⭕️       | static method | toString()     | (float)->String
+1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Float
+1.0.2   | ✔️          | ⭕️       | static method | isNaN()        | (float)->boolean
+
+
+##### java.lang.Integer (3/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | int
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | int
+1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (int,int)->String
+
+
+##### java.lang.Long (3/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | long
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | long
+1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (long,int)->String
+
+
+##### java.lang.Math (17/14/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | PI             | double
+1.0.2   | ✔️          | ⭕️       | static method | sin()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | cos()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | tan()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | asin()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | acos()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | atan()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | exp()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | log()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | sqrt()         | (double)->double
+1.0.2   | ⭕️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | ceil()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | floor()        | (double)->double
+1.0.2   | ⭕️          | ⭕️       | static method | rint()         | (double)->double
+1.0.2   | ⭕️          | ⭕️       | static method | atan2()        | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | pow()          | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | round()        | (float)->int
+
+
+##### java.lang.Number (4/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | intValue()     | ()->int
+1.0.2   | ⭕️          | ⭕️       | method        | longValue()    | ()->long
+1.0.2   | ⭕️          | ⭕️       | method        | floatValue()   | ()->float
+1.0.2   | ⭕️          | ⭕️       | method        | doubleValue()  | ()->double
+
+
+##### java.lang.Object (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getClass()     | ()->Class
+1.0.2   | ⭕️          | ⭕️       | method        | hashCode()     | ()->int
+1.0.2   | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
+
+
+##### java.lang.Process (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.lang.Runtime (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | static method | getRuntime()   | ()->Runtime
+
+
+##### java.lang.SecurityManager (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getInCheck()   | ()->boolean
+
+
+##### java.lang.String (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | String()       | 
+
+
+##### java.lang.StringBuffer (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | StringBuffer() | 
+
+
+##### java.lang.System (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | static method | setSecurityManager() | (SecurityManager)
+
+
+##### java.lang.Thread (8/5/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | MIN_PRIORITY   | int
+1.0.2   | ✔️          | ⭕️       | final field   | NORM_PRIORITY  | int
+1.0.2   | ✔️          | ⭕️       | final field   | MAX_PRIORITY   | int
+1.0.2   | ⭕️          | ⭕️       | static method | nextThreadNum() | ()->int
+1.0.2   | ⭕️          | ⭕️       | static method | currentThread() | ()->Thread
+1.0.2   | ⭕️          | ⭕️       | static method | yield()        | ()
+1.0.2   | ✔️          | ⭕️       | static method | sleep()        | (long)
+1.0.2   | ✔️          | ⭕️       | static method | sleep()        | (long,int)
+
+
+##### java.lang.ThreadGroup (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ThreadGroup()  | String
+
+
+##### java.lang.Throwable (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Throwable()    | 
 
 
 #### java.io
 
-##### java.io.BufferedOutputStream (7/7/-)
+##### java.io.UTFDataFormatException (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | field         | buf            | byte[]
-1.0.2   | ✔️          | ⭕️       | field         | count          | int contains the fill status of buffer
+1.0.2   | ✔️          | ⭕️       | constructor   | UTFDataFormatException() | 
+
+
+##### java.io.StringBufferInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | StringBufferInputStream() | String
+
+
+##### java.io.StreamTokenizer (11/10/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | LINENO         | int
+1.0.2   | ✔️          | ⭕️       | final field   | CT_WHITESPACE  | byte
+1.0.2   | ⭕️          | ⭕️       | final field   | CT_DIGIT       | byte
+1.0.2   | ✔️          | ⭕️       | final field   | CT_ALPHA       | byte
+1.0.2   | ✔️          | ⭕️       | final field   | CT_QUOTE       | byte
+1.0.2   | ✔️          | ⭕️       | final field   | CT_COMMENT     | byte
+1.0.2   | ✔️          | ⭕️       | final field   | TT_EOF         | int
+1.0.2   | ✔️          | ⭕️       | final field   | TT_EOL         | int
+1.0.2   | ✔️          | ⭕️       | final field   | TT_NUMBER      | int
+1.0.2   | ✔️          | ⭕️       | final field   | TT_WORD        | int
+1.0.2   | ✔️          | ⭕️       | constructor   | StreamTokenizer() | InputStream
+
+
+##### java.io.SequenceInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | SequenceInputStream() | Enumeration
+
+
+##### java.io.RandomAccessFile (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | RandomAccessFile() | String,String
+
+
+##### java.io.PushbackInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | PushbackInputStream() | InputStream
+
+
+##### java.io.PrintStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | PrintStream()  | OutputStream
+
+
+##### java.io.PipedOutputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | PipedOutputStream() | PipedInputStream
+
+
+##### java.io.PipedInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | PipedInputStream() | PipedOutputStream
+
+
+##### java.io.OutputStream (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte)
+
+
+##### java.io.LineNumberInputStream (3/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | lineNumber     | int
+1.0.2   | ⭕️          | ⭕️       | field         | markLineNumber | int
+1.0.2   | ✔️          | ⭕️       | constructor   | LineNumberInputStream() | InputStream
+
+
+##### java.io.InterruptedIOException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | InterruptedIOException() | 
+
+
+##### java.io.InputStream (3/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | read()         | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte)->int
+1.0.2   | ✔️          | ⭕️       | method        | read()         | (b,0,b.length)->return
+
+
+##### java.io.IOException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | IOException()  | 
+
+
+##### java.io.FilterInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | FilterInputStream() | InputStream
+
+
+##### java.io.FilenameFilter (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | accept()       | (File,String)->boolean
+
+
+##### java.io.FileNotFoundException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | FileNotFoundException() | 
+
+
+##### java.io.FileInputStream (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.io.File (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | File()         | String
+
+
+##### java.io.EOFException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | EOFException() | 
+
+
+##### java.io.DataOutputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | DataOutputStream() | OutputStream
+
+
+##### java.io.DataOutput (14/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | write()        | (byte)
+1.0.2   | ⭕️          | ⭕️       | method        | write()        | (byte,int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | writeBoolean() | (boolean)
+1.0.2   | ⭕️          | ⭕️       | method        | writeByte()    | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | writeShort()   | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | writeChar()    | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | writeInt()     | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | writeLong()    | (long)
+1.0.2   | ⭕️          | ⭕️       | method        | writeFloat()   | (float)
+1.0.2   | ⭕️          | ⭕️       | method        | writeDouble()  | (double)
+1.0.2   | ⭕️          | ⭕️       | method        | writeBytes()   | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | writeChars()   | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | writeUTF()     | (String)
+
+
+##### java.io.DataInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | DataInputStream() | InputStream
+
+
+##### java.io.ByteArrayOutputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ByteArrayOutputStream() | 
+
+
+##### java.io.ByteArrayInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ByteArrayInputStream() | byte
+
+
+##### java.io.BufferedInputStream (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | BufferedInputStream() | InputStream
+
+
+##### java.io.BufferedOutputStream (5/5/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream)
 1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream, Int)
 1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
 1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
 1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
 
-##### java.io.DataInput (15/15/-)
+##### java.io.DataInput (15/15/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -189,17 +822,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | 🪄       | method        | readUTF    | ()->String
 1.0.2   | ✔️          | 🪄       | method        | skipBytes    | (Int)
 
-##### java.io.FileDescriptor (5/2/-)
+##### java.io.FileDescriptor (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | err            | FileDescriptor
-1.0.2   | ⭕️          | ⭕️       | field         | out            | FileDescriptor
-1.0.2   | ⭕️          | ⭕️       | field         | in             | FileDescriptor
 1.0.2   | ✔️          | ⭕️       | constructor   | FileDescriptor | ()
 1.0.2   | ✔️          | ⭕️       | method        | valid()        | ()->boolean
 
-##### java.io.FileOutputStream (9/9/-)
+##### java.io.FileOutputStream (9/9/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -213,11 +843,10 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[])
 1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
 
-##### java.io.FilterOutputStream (7/7/-)
+##### java.io.FilterOutputStream (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | field         | out            | OutputStream
 1.0.2   | ✔️          | ⭕️       | constructor   | FilterOutputStream | (OutputStream)
 1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
 1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
@@ -228,11 +857,207 @@ version | implemented | tested   | type          | name           | more informa
 
 #### java.net
 
+##### java.net.UnknownServiceException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | UnknownServiceException() | 
+
+
+##### java.net.UnknownHostException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | UnknownHostException() | String
+
+
+##### java.net.URLStreamHandlerFactory (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | createURLStreamHandler() | (String)->URLStreamHandler
+
+
+##### java.net.URLStreamHandler (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | openConnection() | (URL)->URLConnection
+1.0.2   | ⭕️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
+
+
+##### java.net.URLEncoder (3/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | static field  | dontNeedEncoding | BitSet
+1.0.2   | ✔️          | ⭕️       | static method | encode()       | (String)->String
+1.0.2   | ⭕️          | ⭕️       | method        | ByteArrayOutputStream() | (s.length()->new
+
+
+##### java.net.URLConnection (9/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | doInput        | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | doOutput       | boolean
+1.0.2   | ⭕️          | ⭕️       | static field  | defaultAllowUserInteraction | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | allowUserInteraction | boolean
+1.0.2   | ⭕️          | ⭕️       | static field  | defaultUseCaches | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | useCaches      | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | ifModifiedSince | long
+1.0.2   | ✔️          | ⭕️       | constructor   | URLConnection() | URL
+1.0.2   | ✔️          | ⭕️       | method        | connect()      | ()
+
+
+##### java.net.URL (3/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | MalformedURLException | throws
+1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | String,String,int,String
+1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | String,String,String
+
+
+##### java.net.SocketOutputStream (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.net.SocketInputStream (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.net.SocketImplFactory (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | createSocketImpl() | ()->SocketImpl
+
+
+##### java.net.SocketImpl (11/11/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | create()       | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | connect()      | (String,int)
+1.0.2   | ✔️          | ⭕️       | method        | connect()      | (InetAddress,int)
+1.0.2   | ✔️          | ⭕️       | method        | bind()         | (InetAddress,int)
+1.0.2   | ✔️          | ⭕️       | method        | listen()       | (int)
+1.0.2   | ✔️          | ⭕️       | method        | accept()       | (SocketImpl)
+1.0.2   | ✔️          | ⭕️       | method        | getInputStream() | ()->InputStream
+1.0.2   | ✔️          | ⭕️       | method        | getOutputStream() | ()->OutputStream
+1.0.2   | ✔️          | ⭕️       | method        | available()    | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | getFileDescriptor() | ()->FileDescriptor
+
+
+##### java.net.SocketException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | SocketException() | String
+
+
+##### java.net.Socket (3/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | 
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | String,int
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | String,int,boolean
+
+
+##### java.net.ServerSocket (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | 
+1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | int
+
+
+##### java.net.ProtocolException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ProtocolException() | String
+
+
+##### java.net.PlainSocketImpl (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.net.MalformedURLException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | MalformedURLException() | 
+
+
+##### java.net.InetAddress (4/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | hostName       | String
+1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | 
+1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | String,byte
+1.0.2   | ✔️          | ⭕️       | method        | getHostName()  | ()->String
+
+
+##### java.net.DatagramSocket (3/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | localPort      | int
+1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket() | 
+1.0.2   | ⭕️          | ⭕️       | method        | datagramSocketBind() | (0)->=
+
+
+##### java.net.DatagramPacket (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | DatagramPacket() | byte,int
+
+
+##### java.net.ContentHandlerFactory (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | createContentHandler() | (String)->ContentHandler
+
+
+##### java.net.ContentHandler (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | getContent()   | (URLConnection)->Object
+
+
 #### java.util
 
 <!-- 11+27+7+2+14+9+2+8+10+5+6+23=124 -->
 
-##### java.util.BitSet (11/11/-)
+##### java.util.NoSuchElementException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchElementException() | 
+
+
+##### java.util.EmptyStackException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | EmptyStackException() | 
+
+
+##### java.util.BitSet (13/13/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -250,7 +1075,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | xor()          | (BitSet)
 
-##### java.util.Date (27/27/-)
+##### java.util.Date (29/29/⭕️)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -284,7 +1109,7 @@ version | implemented | tested   | type          | name                | more in
 1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | UTC()               | (int,int,int,int,int,int)->long — deprecated since 1.1
 
-##### java.util.Dictionary (7/7/-)
+##### java.util.Dictionary (7/7/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -296,14 +1121,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | remove()       | (Object)->Object — extension on Swift Dictionary
 1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int — extension on Swift Dictionary
 
-##### java.util.Enumeration (2/2/2)
+##### java.util.Enumeration (2/2/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
 1.0.2   | ✔️          | ✔️       | method        | hasMoreElements() | ()->boolean
 1.0.2   | ✔️          | ✔️       | method        | nextElement()     | ()->Object
 
-##### java.util.Hashtable (14/14/-)
+##### java.util.Hashtable (15/15/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -323,7 +1148,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 
-##### java.util.Observable (9/9/-)
+##### java.util.Observable (9/9/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -337,18 +1162,17 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | notifyObservers() | (Object)
 1.0.2   | ✔️          | ⭕️       | method        | setChanged()      | ()
 
-##### java.util.Observer (2/2/-)
+##### java.util.Observer (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | update()       | (Observable,Object)
 1.0.2   | ✔️          | 🪄       | method        | hashCode()     | ()->int — default via ObjectIdentifier for class types
 
-##### java.util.Properties (8/8/-)
+##### java.util.Properties (9/9/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | field         | defaults          | Properties
 1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | ()
 1.0.2   | ✔️          | ⭕️       | constructor   | Properties()      | (Properties)
 1.0.2   | ✔️          | ⭕️       | method        | getProperty()     | (String)->String
@@ -359,7 +1183,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | save()            | (OutputStream,String) — deprecated since 1.2, use store()
 1.0.2   | ✔️          | ⭕️       | method        | setProperty()     | (String,String)->Object
 
-##### java.util.Random (10/10/10)
+##### java.util.Random (11/11/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -375,7 +1199,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | nextLong()        | ()->long
 1.0.2   | ✔️          | ✔️       | method        | setSeed()         | (long)
 
-##### java.util.Stack (5/5/1)
+##### java.util.Stack (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -386,7 +1210,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | push()         | (Object)->Object
 1.0.2   | ✔️          | ✔️       | method        | search()       | (Object)->int
 
-##### java.util.StringTokenizer (6/6/-)
+##### java.util.StringTokenizer (9/9/⭕️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -400,7 +1224,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | (String)->String
 
-##### java.util.Vector (23/23/-)
+##### java.util.Vector (26/26/⭕️)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -430,4 +1254,954 @@ version | implemented | tested   | type          | name                | more in
 1.0.2   | ✔️          | ⭕️       | method        | size()              | ()->int
 1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | trimToSize()        | ()
+
+#### java.applet
+
+
+##### java.applet.AudioClip (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | play()         | ()
+1.0.2   | ⭕️          | ⭕️       | method        | loop()         | ()
+1.0.2   | ⭕️          | ⭕️       | method        | stop()         | ()
+
+
+##### java.applet.AppletStub (6/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | isActive()     | ()->boolean
+1.0.2   | ⭕️          | ⭕️       | method        | getDocumentBase() | ()->URL
+1.0.2   | ⭕️          | ⭕️       | method        | getCodeBase()  | ()->URL
+1.0.2   | ⭕️          | ⭕️       | method        | getParameter() | (String)->String
+1.0.2   | ⭕️          | ⭕️       | method        | getAppletContext() | ()->AppletContext
+1.0.2   | ⭕️          | ⭕️       | method        | appletResize() | (int,int)
+
+
+##### java.applet.AppletContext (7/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getAudioClip() | (URL)->AudioClip
+1.0.2   | ⭕️          | ⭕️       | method        | getImage()     | (URL)->Image
+1.0.2   | ⭕️          | ⭕️       | method        | getApplet()    | (String)->Applet
+1.0.2   | ⭕️          | ⭕️       | method        | getApplets()   | ()->Enumeration
+1.0.2   | ⭕️          | ⭕️       | method        | showDocument() | (URL)
+1.0.2   | ⭕️          | ⭕️       | method        | showDocument() | (URL,String)
+1.0.2   | ⭕️          | ⭕️       | method        | showStatus()   | (String)
+
+
+##### java.applet.Applet (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setStub()      | (AppletStub)
+
+#### java.awt
+
+
+##### java.awt.Window (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | warningString  | String
+1.0.2   | ⭕️          | ⭕️       | constructor   | Window()       | 
+1.0.2   | ⭕️          | ⭕️       | constructor   | Window()       | Frame
+
+
+##### java.awt.Toolkit (25/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | createButton() | (Button)
+1.0.2   | ⭕️          | ⭕️       | method        | createTextField() | (TextField)
+1.0.2   | ⭕️          | ⭕️       | method        | createLabel()  | (Label)
+1.0.2   | ⭕️          | ⭕️       | method        | createList()   | (List)
+1.0.2   | ⭕️          | ⭕️       | method        | createCheckbox() | (Checkbox)
+1.0.2   | ⭕️          | ⭕️       | method        | createScrollbar() | (Scrollbar)
+1.0.2   | ⭕️          | ⭕️       | method        | createTextArea() | (TextArea)
+1.0.2   | ⭕️          | ⭕️       | method        | createChoice() | (Choice)->ChoicePeer
+1.0.2   | ⭕️          | ⭕️       | method        | createFrame()  | (Frame)
+1.0.2   | ⭕️          | ⭕️       | method        | createCanvas() | (Canvas)
+1.0.2   | ⭕️          | ⭕️       | method        | createPanel()  | (Panel)
+1.0.2   | ⭕️          | ⭕️       | method        | createWindow() | (Window)
+1.0.2   | ⭕️          | ⭕️       | method        | createDialog() | (Dialog)
+1.0.2   | ⭕️          | ⭕️       | method        | createMenuBar() | (MenuBar)
+1.0.2   | ⭕️          | ⭕️       | method        | createMenu()   | (Menu)
+1.0.2   | ⭕️          | ⭕️       | method        | createMenuItem() | (MenuItem)
+1.0.2   | ⭕️          | ⭕️       | method        | createFileDialog() | (FileDialog)->FileDialogPeer
+1.0.2   | ⭕️          | ⭕️       | method        | createCheckboxMenuItem() | (CheckboxMenuItem)->CheckboxMenuItemPeer
+1.0.2   | ⭕️          | ⭕️       | method        | getScreenSize() | ()->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | getScreenResolution() | ()->int
+1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()->ColorModel
+1.0.2   | ⭕️          | ⭕️       | method        | getFontList()  | ()->String[]
+1.0.2   | ⭕️          | ⭕️       | method        | getFontMetrics() | (Font)->FontMetrics
+1.0.2   | ⭕️          | ⭕️       | method        | sync()         | ()
+1.0.2   | ✔️          | ⭕️       | static method | getDefaultToolkit() | ()->Toolkit
+
+
+##### java.awt.TextField (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | echoChar       | char
+1.0.2   | ✔️          | ⭕️       | constructor   | TextField()    | 
+
+
+##### java.awt.TextComponent (4/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | selStart       | int
+1.0.2   | ⭕️          | ⭕️       | field         | selEnd         | int
+1.0.2   | ⭕️          | ⭕️       | constructor   | TextComponent() | String
+1.0.2   | ⭕️          | ⭕️       | method        | removeNotify() | ()
+
+
+##### java.awt.TextArea (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | TextArea()     | 
+
+
+##### java.awt.Scrollbar (6/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | HORIZONTAL     | int
+1.0.2   | ✔️          | ⭕️       | final field   | VERTICAL       | int
+1.0.2   | ⭕️          | ⭕️       | field         | sVisible       | int
+1.0.2   | ⭕️          | ⭕️       | field         | lineIncrement  | int
+1.0.2   | ⭕️          | ⭕️       | field         | pageIncrement  | int
+1.0.2   | ✔️          | ⭕️       | constructor   | Scrollbar()    | 
+
+
+##### java.awt.Rectangle (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Rectangle()    | 
+
+
+##### java.awt.Polygon (4/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | int[4]         | int
+1.0.2   | ⭕️          | ⭕️       | field         | int[4]         | int
+1.0.2   | ⭕️          | ⭕️       | field         | Rectangle      | 
+1.0.2   | ✔️          | ⭕️       | constructor   | Polygon()      | 
+
+
+##### java.awt.Point (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Point()        | int,int
+
+
+##### java.awt.Panel (2/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Panel()        | 
+1.0.2   | ⭕️          | ⭕️       | static method | FlowLayout()   | ()->new
+
+
+##### java.awt.MenuItem (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | MenuItem()     | String
+
+
+##### java.awt.MenuContainer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getFont()      | ()->Font
+1.0.2   | ⭕️          | ⭕️       | method        | postEvent()    | (Event)->boolean
+1.0.2   | ⭕️          | ⭕️       | method        | remove()       | (MenuComponent)
+
+
+##### java.awt.MenuComponent (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getParent()    | ()->MenuContainer
+
+
+##### java.awt.MenuBar (3/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | helpMenu       | Menu
+1.0.2   | ✔️          | ⭕️       | constructor   | MenuBar()      | 
+1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
+
+
+##### java.awt.Menu (4/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | tearOff        | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | isHelpMenu     | boolean
+1.0.2   | ✔️          | ⭕️       | constructor   | Menu()         | String
+1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
+
+
+##### java.awt.MediaTracker (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | constructor   | MediaTracker() | Component
+
+
+##### java.awt.List (5/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | multipleSelections | boolean
+1.0.2   | ⭕️          | ⭕️       | field         | int[0]         | int
+1.0.2   | ⭕️          | ⭕️       | field         | visibleIndex   | int
+1.0.2   | ⭕️          | ⭕️       | constructor   | List()         | 
+1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
+
+
+##### java.awt.LayoutManager (5/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addLayoutComponent() | (String,Component)
+1.0.2   | ⭕️          | ⭕️       | method        | removeLayoutComponent() | (Component)
+1.0.2   | ⭕️          | ⭕️       | method        | preferredLayoutSize() | (Container)->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | minimumLayoutSize() | (Container)->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | layoutContainer() | (Container)
+
+
+##### java.awt.Label (4/4/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | LEFT           | int
+1.0.2   | ✔️          | ⭕️       | final field   | CENTER         | int
+1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
+1.0.2   | ✔️          | ⭕️       | constructor   | Label()        | 
+
+
+##### java.awt.Insets (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Insets()       | int,int,int,int
+
+
+##### java.awt.Image (7/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | getWidth()     | (ImageObserver)->int
+1.0.2   | ✔️          | ⭕️       | method        | getHeight()    | (ImageObserver)->int
+1.0.2   | ⭕️          | ⭕️       | method        | getSource()    | ()->ImageProducer
+1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()->Graphics
+1.0.2   | ⭕️          | ⭕️       | method        | getProperty()  | (String,ImageObserver)->Object
+1.0.2   | ⭕️          | ⭕️       | static method | Object()       | ()->new
+1.0.2   | ✔️          | ⭕️       | method        | flush()        | ()
+
+
+##### java.awt.GridLayout (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | GridLayout()   | int,int
+
+
+##### java.awt.GridBagLayout (8/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | final field   | MAXGRIDSIZE    | int
+1.0.2   | ⭕️          | ⭕️       | final field   | MINSIZE        | int
+1.0.2   | ⭕️          | ⭕️       | final field   | PREFERREDSIZE  | int
+1.0.2   | ⭕️          | ⭕️       | field         | defaultConstraints | GridBagConstraints
+1.0.2   | ⭕️          | ⭕️       | field         | layoutInfo     | GridBagLayoutInfo
+1.0.2   | ⭕️          | ⭕️       | constructor   | GridBagLayout() | 
+1.0.2   | ⭕️          | ⭕️       | method        | Hashtable()    | ()->new
+1.0.2   | ⭕️          | ⭕️       | method        | GridBagConstraints() | ()->new
+
+
+##### java.awt.GridBagConstraints (20/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | final field   | RELATIVE       | int
+1.0.2   | ⭕️          | ⭕️       | final field   | REMAINDER      | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NONE           | int
+1.0.2   | ⭕️          | ⭕️       | final field   | BOTH           | int
+1.0.2   | ⭕️          | ⭕️       | final field   | HORIZONTAL     | int
+1.0.2   | ⭕️          | ⭕️       | final field   | VERTICAL       | int
+1.0.2   | ⭕️          | ⭕️       | final field   | CENTER         | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NORTH          | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NORTHEAST      | int
+1.0.2   | ⭕️          | ⭕️       | final field   | EAST           | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SOUTHEAST      | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SOUTH          | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SOUTHWEST      | int
+1.0.2   | ⭕️          | ⭕️       | final field   | WEST           | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NORTHWEST      | int
+1.0.2   | ⭕️          | ⭕️       | field         | tempY          | int
+1.0.2   | ⭕️          | ⭕️       | field         | tempHeight     | int
+1.0.2   | ⭕️          | ⭕️       | field         | minHeight      | int
+1.0.2   | ⭕️          | ⭕️       | constructor   | GridBagConstraints() | 
+1.0.2   | ⭕️          | ⭕️       | method        | Insets()       | (0,0,0,0)->new
+
+
+##### java.awt.Graphics (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Graphics()     | 
+
+
+##### java.awt.Frame (21/5/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | DEFAULT_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | CROSSHAIR_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | TEXT_CURSOR    | int
+1.0.2   | ✔️          | ⭕️       | final field   | WAIT_CURSOR    | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SW_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SE_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NW_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | NE_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | N_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | S_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | W_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | E_RESIZE_CURSOR | int
+1.0.2   | ⭕️          | ⭕️       | final field   | HAND_CURSOR    | int
+1.0.2   | ⭕️          | ⭕️       | final field   | MOVE_CURSOR    | int
+1.0.2   | ⭕️          | ⭕️       | field         | Image          | 
+1.0.2   | ⭕️          | ⭕️       | field         | menuBar        | MenuBar
+1.0.2   | ⭕️          | ⭕️       | field         | cursorImage    | Image
+1.0.2   | ⭕️          | ⭕️       | field         | cursorType     | int
+1.0.2   | ⭕️          | ⭕️       | field         | cursorFg       | Color
+1.0.2   | ⭕️          | ⭕️       | field         | cursorBg       | Color
+1.0.2   | ✔️          | ⭕️       | constructor   | Frame()        | 
+
+
+##### java.awt.FontMetrics (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | FontMetrics()  | Font
+
+
+##### java.awt.Font (5/4/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | PLAIN          | int
+1.0.2   | ✔️          | ⭕️       | final field   | BOLD           | int
+1.0.2   | ✔️          | ⭕️       | final field   | ITALIC         | int
+1.0.2   | ⭕️          | ⭕️       | field         | pData          | int
+1.0.2   | ✔️          | ⭕️       | constructor   | Font()         | String,int,int
+
+
+##### java.awt.FlowLayout (4/4/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | LEFT           | int
+1.0.2   | ✔️          | ⭕️       | final field   | CENTER         | int
+1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
+1.0.2   | ✔️          | ⭕️       | constructor   | FlowLayout()   | 
+
+
+##### java.awt.FileDialog (3/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | LOAD           | int
+1.0.2   | ✔️          | ⭕️       | final field   | SAVE           | int
+1.0.2   | ✔️          | ⭕️       | constructor   | FileDialog()   | Frame,String
+
+
+##### java.awt.Event (60/53/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | final field   | SHIFT_MASK     | int
+1.0.2   | ✔️          | ⭕️       | final field   | CTRL_MASK      | int
+1.0.2   | ✔️          | ⭕️       | final field   | META_MASK      | int
+1.0.2   | ✔️          | ⭕️       | final field   | ALT_MASK       | int
+1.0.2   | ✔️          | ⭕️       | final field   | HOME           | int
+1.0.2   | ✔️          | ⭕️       | final field   | END            | int
+1.0.2   | ✔️          | ⭕️       | final field   | PGUP           | int
+1.0.2   | ✔️          | ⭕️       | final field   | PGDN           | int
+1.0.2   | ✔️          | ⭕️       | final field   | UP             | int
+1.0.2   | ✔️          | ⭕️       | final field   | DOWN           | int
+1.0.2   | ✔️          | ⭕️       | final field   | LEFT           | int
+1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
+1.0.2   | ✔️          | ⭕️       | final field   | F1             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F2             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F3             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F4             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F5             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F6             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F7             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F8             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F9             | int
+1.0.2   | ✔️          | ⭕️       | final field   | F10            | int
+1.0.2   | ✔️          | ⭕️       | final field   | F11            | int
+1.0.2   | ✔️          | ⭕️       | final field   | F12            | int
+1.0.2   | ⭕️          | ⭕️       | final field   | WINDOW_EVENT   | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_DESTROY | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_EXPOSE  | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_ICONIFY | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_DEICONIFY | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_MOVED   | int
+1.0.2   | ⭕️          | ⭕️       | final field   | KEY_EVENT      | int
+1.0.2   | ✔️          | ⭕️       | final field   | KEY_PRESS      | int
+1.0.2   | ✔️          | ⭕️       | final field   | KEY_RELEASE    | int
+1.0.2   | ✔️          | ⭕️       | final field   | KEY_ACTION     | int
+1.0.2   | ✔️          | ⭕️       | final field   | KEY_ACTION_RELEASE | int
+1.0.2   | ⭕️          | ⭕️       | final field   | MOUSE_EVENT    | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_DOWN     | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_UP       | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_MOVE     | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_ENTER    | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_EXIT     | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_DRAG     | int
+1.0.2   | ⭕️          | ⭕️       | final field   | SCROLL_EVENT   | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_LINE_UP | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_LINE_DOWN | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_PAGE_UP | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_PAGE_DOWN | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_ABSOLUTE | int
+1.0.2   | ⭕️          | ⭕️       | final field   | LIST_EVENT     | int
+1.0.2   | ✔️          | ⭕️       | final field   | LIST_SELECT    | int
+1.0.2   | ✔️          | ⭕️       | final field   | LIST_DESELECT  | int
+1.0.2   | ⭕️          | ⭕️       | final field   | MISC_EVENT     | int
+1.0.2   | ✔️          | ⭕️       | final field   | ACTION_EVENT   | int
+1.0.2   | ✔️          | ⭕️       | final field   | LOAD_FILE      | int
+1.0.2   | ✔️          | ⭕️       | final field   | SAVE_FILE      | int
+1.0.2   | ✔️          | ⭕️       | final field   | GOT_FOCUS      | int
+1.0.2   | ✔️          | ⭕️       | final field   | LOST_FOCUS     | int
+1.0.2   | ✔️          | ⭕️       | field         | clickCount     | int
+1.0.2   | ⭕️          | ⭕️       | field         | key,           | long
+1.0.2   | ✔️          | ⭕️       | constructor   | Event()        | Object,long,int,int,int,int,int
+
+
+##### java.awt.Dimension (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Dimension()    | 
+
+
+##### java.awt.Dialog (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Dialog()       | Frame,boolean
+
+
+##### java.awt.Container (4/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | Component      | new
+1.0.2   | ⭕️          | ⭕️       | field         | layoutMgr      | LayoutManager
+1.0.2   | ⭕️          | ⭕️       | constructor   | Container()    | 
+1.0.2   | ⭕️          | ⭕️       | method        | countComponents() | ()->int
+
+
+##### java.awt.Component (2/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | constructor   | Component()    | 
+1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->Container
+
+
+##### java.awt.Color (15/14/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | pData          | int
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,255,255
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 192,192,192
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 128,128,128
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 64,64,64
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,0,0
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,0,0
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,175,175
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,200,0
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,255,0
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,255,0
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 255,0,255
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,255,255
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | 0,0,255
+1.0.2   | ✔️          | ⭕️       | constructor   | Color()        | int,int,int
+
+
+##### java.awt.Choice (4/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | pItems         | Vector
+1.0.2   | ⭕️          | ⭕️       | field         | selectedIndex  | int
+1.0.2   | ✔️          | ⭕️       | constructor   | Choice()       | 
+1.0.2   | ⭕️          | ⭕️       | method        | Vector()       | ()->new
+
+
+##### java.awt.CheckboxMenuItem (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxMenuItem() | String
+
+
+##### java.awt.CheckboxGroup (2/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | Checkbox       | 
+1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxGroup() | 
+
+
+##### java.awt.Checkbox (2/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Checkbox()     | 
+1.0.2   | ⭕️          | ⭕️       | method        | setStateInternal() | (boolean)
+
+
+##### java.awt.CardLayout (2/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | CardLayout()   | 
+1.0.2   | ⭕️          | ⭕️       | method        | Hashtable()    | ()->new
+
+
+##### java.awt.Canvas (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addNotify()    | ()
+1.0.2   | ⭕️          | ⭕️       | method        | getToolkit()   | ()->=
+
+
+##### java.awt.Button (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Button()       | 
+
+
+##### java.awt.BorderLayout (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | BorderLayout() | 
+
+
+##### java.awt.AWTException (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | AWTException() | String
+
+
+##### java.awt.AWTError (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | AWTError()     | String
+
+#### java.awt.image
+
+
+##### java.awt.image.RGBImageFilter (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | canFilterIndexColorModel | boolean
+1.0.2   | ⭕️          | ⭕️       | method        | setColorModel() | (ColorModel)
+
+
+##### java.awt.image.PixelGrabber (12/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | dstX           | int
+1.0.2   | ⭕️          | ⭕️       | field         | dstY           | int
+1.0.2   | ⭕️          | ⭕️       | field         | dstW           | int
+1.0.2   | ⭕️          | ⭕️       | field         | dstH           | int
+1.0.2   | ⭕️          | ⭕️       | field         | dstOff         | int
+1.0.2   | ⭕️          | ⭕️       | field         | dstScan        | int
+1.0.2   | ⭕️          | ⭕️       | field         | GRABBEDBITS    | int
+1.0.2   | ⭕️          | ⭕️       | field         | DONEBITS       | int
+1.0.2   | ⭕️          | ⭕️       | field         | h,             | int
+1.0.2   | ⭕️          | ⭕️       | field         | h,             | int
+1.0.2   | ⭕️          | ⭕️       | method        | grabPixels()   | ()->boolean
+1.0.2   | ⭕️          | ⭕️       | method        | grabPixels()   | (0)->return
+
+
+##### java.awt.image.MemoryImageSource (6/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
+1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
+1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
+1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
+1.0.2   | ⭕️          | ⭕️       | field         | cm,            | void
+1.0.2   | ⭕️          | ⭕️       | constructor   | MemoryImageSource() | int,int,int,int,int
+
+
+##### java.awt.image.IndexColorModel (8/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | map_size       | int
+1.0.2   | ⭕️          | ⭕️       | field         | transparent_index | int
+1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
+1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
+1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
+1.0.2   | ⭕️          | ⭕️       | field         | start,         | int
+1.0.2   | ⭕️          | ⭕️       | field         | start,         | int
+1.0.2   | ⭕️          | ⭕️       | method        | getMapSize()   | ()->int
+
+
+##### java.awt.image.ImageProducer (5/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addConsumer()  | (ImageConsumer)
+1.0.2   | ⭕️          | ⭕️       | method        | isConsumer()   | (ImageConsumer)->boolean
+1.0.2   | ⭕️          | ⭕️       | method        | removeConsumer() | (ImageConsumer)
+1.0.2   | ⭕️          | ⭕️       | method        | startProduction() | (ImageConsumer)
+1.0.2   | ⭕️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
+
+
+##### java.awt.image.ImageObserver (9/8/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | infoflags,     | boolean
+1.0.2   | ✔️          | ⭕️       | final field   | WIDTH          | int
+1.0.2   | ✔️          | ⭕️       | final field   | HEIGHT         | int
+1.0.2   | ✔️          | ⭕️       | final field   | PROPERTIES     | int
+1.0.2   | ✔️          | ⭕️       | final field   | SOMEBITS       | int
+1.0.2   | ✔️          | ⭕️       | final field   | FRAMEBITS      | int
+1.0.2   | ✔️          | ⭕️       | final field   | ALLBITS        | int
+1.0.2   | ✔️          | ⭕️       | final field   | ERROR          | int
+1.0.2   | ✔️          | ⭕️       | final field   | ABORT          | int
+
+
+##### java.awt.image.ImageFilter (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getFilterInstance() | (ImageConsumer)->ImageFilter
+
+
+##### java.awt.image.ImageConsumer (18/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | RANDOMPIXELORDER | int
+1.0.2   | ⭕️          | ⭕️       | field         | TOPDOWNLEFTRIGHT | int
+1.0.2   | ⭕️          | ⭕️       | field         | COMPLETESCANLINES | int
+1.0.2   | ⭕️          | ⭕️       | field         | SINGLEPASS     | int
+1.0.2   | ⭕️          | ⭕️       | field         | SINGLEFRAME    | int
+1.0.2   | ⭕️          | ⭕️       | field         | h,             | void
+1.0.2   | ⭕️          | ⭕️       | field         | ColorModel     | byte
+1.0.2   | ⭕️          | ⭕️       | field         | h,             | void
+1.0.2   | ⭕️          | ⭕️       | field         | ColorModel     | int
+1.0.2   | ⭕️          | ⭕️       | field         | IMAGEERROR     | int
+1.0.2   | ⭕️          | ⭕️       | field         | SINGLEFRAMEDONE | int
+1.0.2   | ⭕️          | ⭕️       | static field  | STATICIMAGEDONE | int
+1.0.2   | ⭕️          | ⭕️       | field         | IMAGEABORTED   | int
+1.0.2   | ⭕️          | ⭕️       | method        | setDimensions() | (int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | setProperties() | (Hashtable)
+1.0.2   | ⭕️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ⭕️          | ⭕️       | method        | setHints()     | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | imageComplete() | (int)
+
+
+##### java.awt.image.FilteredImageSource (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | constructor   | FilteredImageSource() | ImageProducer,ImageFilter
+
+
+##### java.awt.image.DirectColorModel (15/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | red_mask       | int
+1.0.2   | ⭕️          | ⭕️       | field         | green_mask     | int
+1.0.2   | ⭕️          | ⭕️       | field         | blue_mask      | int
+1.0.2   | ⭕️          | ⭕️       | field         | alpha_mask     | int
+1.0.2   | ⭕️          | ⭕️       | field         | red_offset     | int
+1.0.2   | ⭕️          | ⭕️       | field         | green_offset   | int
+1.0.2   | ⭕️          | ⭕️       | field         | blue_offset    | int
+1.0.2   | ⭕️          | ⭕️       | field         | alpha_offset   | int
+1.0.2   | ⭕️          | ⭕️       | field         | red_bits       | int
+1.0.2   | ⭕️          | ⭕️       | field         | green_bits     | int
+1.0.2   | ⭕️          | ⭕️       | field         | blue_bits      | int
+1.0.2   | ⭕️          | ⭕️       | field         | alpha_bits     | int
+1.0.2   | ⭕️          | ⭕️       | field         | bits,          | DirectColorModel(int
+1.0.2   | ⭕️          | ⭕️       | field         | bits,          | DirectColorModel(int
+1.0.2   | ⭕️          | ⭕️       | method        | getRedMask()   | ()->int
+
+
+##### java.awt.image.CropImageFilter (9/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | cropX          | int
+1.0.2   | ⭕️          | ⭕️       | field         | cropY          | int
+1.0.2   | ⭕️          | ⭕️       | field         | cropW          | int
+1.0.2   | ⭕️          | ⭕️       | field         | cropH          | int
+1.0.2   | ⭕️          | ⭕️       | field         | cropX          | 
+1.0.2   | ⭕️          | ⭕️       | field         | cropY          | 
+1.0.2   | ⭕️          | ⭕️       | field         | cropW          | 
+1.0.2   | ⭕️          | ⭕️       | field         | cropH          | 
+1.0.2   | ⭕️          | ⭕️       | constructor   | CropImageFilter() | int,int,int,int
+
+
+##### java.awt.image.ColorModel (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | field         | pixel_bits     | int
+1.0.2   | ⭕️          | ⭕️       | static field  | RGBdefault     | ColorModel
+1.0.2   | ⭕️          | ⭕️       | static method | getRGBdefault() | ()->ColorModel
+
+#### java.awt.peer
+
+
+##### java.awt.peer.WindowPeer (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | toFront()      | ()
+1.0.2   | ⭕️          | ⭕️       | method        | toBack()       | ()
+
+
+##### java.awt.peer.TextFieldPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setEchoCharacter() | (char)
+1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int)->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
+
+
+##### java.awt.peer.TextComponentPeer (6/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setEditable()  | (boolean)
+1.0.2   | ⭕️          | ⭕️       | method        | getText()      | ()->String
+1.0.2   | ⭕️          | ⭕️       | method        | setText()      | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | getSelectionStart() | ()->int
+1.0.2   | ⭕️          | ⭕️       | method        | getSelectionEnd() | ()->int
+1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int,int)
+
+
+##### java.awt.peer.TextAreaPeer (4/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | insertText()   | (String,int)
+1.0.2   | ⭕️          | ⭕️       | method        | replaceText()  | (String,int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int,int)->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int,int)->Dimension
+
+
+##### java.awt.peer.ScrollbarPeer (4/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setValue()     | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | setValues()    | (int,int,int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | setLineIncrement() | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | setPageIncrement() | (int)
+
+
+##### java.awt.peer.PanelPeer (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.awt.peer.MenuPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addSeparator() | ()
+1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (MenuItem)
+1.0.2   | ⭕️          | ⭕️       | method        | delItem()      | (int)
+
+
+##### java.awt.peer.MenuItemPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | enable()       | ()
+1.0.2   | ⭕️          | ⭕️       | method        | disable()      | ()
+
+
+##### java.awt.peer.MenuComponentPeer (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | dispose()      | ()
+
+
+##### java.awt.peer.MenuBarPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addMenu()      | (Menu)
+1.0.2   | ⭕️          | ⭕️       | method        | delMenu()      | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | addHelpMenu()  | (Menu)
+
+
+##### java.awt.peer.ListPeer (10/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | getSelectedIndexes() | ()->int[]
+1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (String,int)
+1.0.2   | ⭕️          | ⭕️       | method        | delItems()     | (int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | clear()        | ()
+1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | deselect()     | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | makeVisible()  | (int)
+1.0.2   | ⭕️          | ⭕️       | method        | setMultipleSelections() | (boolean)
+1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int)->Dimension
+1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
+
+
+##### java.awt.peer.LabelPeer (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setText()      | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | setAlignment() | (int)
+
+
+##### java.awt.peer.FramePeer (5/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setTitle()     | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | setIconImage() | (Image)
+1.0.2   | ⭕️          | ⭕️       | method        | setMenuBar()   | (MenuBar)
+1.0.2   | ⭕️          | ⭕️       | method        | setResizable() | (boolean)
+1.0.2   | ⭕️          | ⭕️       | method        | setCursor()    | (int)
+
+
+##### java.awt.peer.FileDialogPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setFile()      | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | setDirectory() | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | setFilenameFilter() | (FilenameFilter)
+
+
+##### java.awt.peer.DialogPeer (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setTitle()     | (String)
+1.0.2   | ⭕️          | ⭕️       | method        | setResizable() | (boolean)
+
+
+##### java.awt.peer.ContainerPeer (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | insets()       | ()->Insets
+
+
+##### java.awt.peer.ComponentPeer (25/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | show()         | ()
+1.0.2   | ⭕️          | ⭕️       | method        | hide()         | ()
+1.0.2   | ⭕️          | ⭕️       | method        | enable()       | ()
+1.0.2   | ⭕️          | ⭕️       | method        | disable()      | ()
+1.0.2   | ⭕️          | ⭕️       | method        | paint()        | (Graphics)
+1.0.2   | ⭕️          | ⭕️       | method        | repaint()      | (long,int,int,int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | print()        | (Graphics)
+1.0.2   | ⭕️          | ⭕️       | method        | reshape()      | (int,int,int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | handleEvent()  | (Event)
+1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | ()
+1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | ()
+1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()
+1.0.2   | ⭕️          | ⭕️       | method        | getToolkit()   | ()->java.awt.Toolkit
+1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()
+1.0.2   | ⭕️          | ⭕️       | method        | getFontMetrics() | (Font)
+1.0.2   | ⭕️          | ⭕️       | method        | dispose()      | ()
+1.0.2   | ⭕️          | ⭕️       | method        | setForeground() | (Color)
+1.0.2   | ⭕️          | ⭕️       | method        | setBackground() | (Color)
+1.0.2   | ⭕️          | ⭕️       | method        | setFont()      | (Font)
+1.0.2   | ⭕️          | ⭕️       | method        | requestFocus() | ()
+1.0.2   | ⭕️          | ⭕️       | method        | nextFocus()    | ()
+1.0.2   | ⭕️          | ⭕️       | method        | createImage()  | (ImageProducer)
+1.0.2   | ⭕️          | ⭕️       | method        | createImage()  | (int,int)
+1.0.2   | ⭕️          | ⭕️       | method        | prepareImage() | (Image,int,int,ImageObserver)
+1.0.2   | ⭕️          | ⭕️       | method        | checkImage()   | (Image,int,int,ImageObserver)
+
+
+##### java.awt.peer.ChoicePeer (2/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (String,int)
+1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int)
+
+
+##### java.awt.peer.CheckboxPeer (3/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setState()     | (boolean)
+1.0.2   | ⭕️          | ⭕️       | method        | setCheckboxGroup() | (CheckboxGroup)
+1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
+
+
+##### java.awt.peer.CheckboxMenuItemPeer (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setState()     | (boolean)
+
+
+##### java.awt.peer.CanvasPeer (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+
+
+##### java.awt.peer.ButtonPeer (1/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
 

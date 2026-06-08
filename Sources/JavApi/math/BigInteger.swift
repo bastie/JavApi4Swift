@@ -550,9 +550,7 @@ extension java.math {
 
     final func cutOffLeadingZeroes() {
       while numberLength > 0 && digits[numberLength - 1] == 0 { numberLength -= 1 }
-      if numberLength == 0 || digits[numberLength] == 0 { sign = 0 }
-      // Ensure numberLength >= 1
-      if numberLength == 0 { numberLength = 1 }
+      if numberLength == 0 { sign = 0; numberLength = 1 }
     }
 
     func isOne() -> Bool { return numberLength == 1 && digits[0] == 1 }

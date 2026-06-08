@@ -60,7 +60,7 @@ extension java.math {
       if op2.numberLength > op1.numberLength { swap(&op1, &op2) }
       if op2.numberLength < whenUseKaratsuba { return multiplyPAP(op1, op2) }
 
-      let ndiv2 = (op1.numberLength & 0xFFFFFFFE) << 4
+      let ndiv2 = (op1.numberLength & ~1) << 4
       let upperOp1 = op1.shiftRight(ndiv2)
       let upperOp2 = op2.shiftRight(ndiv2)
       let lowerOp1 = op1.subtract(upperOp1.shiftLeft(ndiv2))
@@ -82,8 +82,8 @@ extension java.math {
       let resSign = a.sign != b.sign ? -1 : 1
       if resLength == 2 {
         let val = unsignedMultAddAdd(a.digits[0], b.digits[0], 0, 0)
-        let lo = Int(truncatingIfNeeded: val)
-        let hi = Int(truncatingIfNeeded: val >> 32)
+        let lo = Int(UInt32(truncatingIfNeeded: val))
+        let hi = Int(UInt32(truncatingIfNeeded: val >> 32))
         return hi == 0
           ? BigInteger(resSign, lo)
           : BigInteger(resSign, 2, [lo, hi])
@@ -119,10 +119,10 @@ extension java.math {
         let aI = a[i]
         for j in 0..<bLen {
           carry = unsignedMultAddAdd(aI, b[j], t[i + j], Int(truncatingIfNeeded: carry))
-          t[i + j] = Int(truncatingIfNeeded: carry)
+          t[i + j] = Int(UInt32(truncatingIfNeeded: carry))
           carry = Int64(bitPattern: UInt64(bitPattern: carry) >> 32)
         }
-        t[i + bLen] = Int(truncatingIfNeeded: carry)
+        t[i + bLen] = Int(UInt32(truncatingIfNeeded: carry))
       }
     }
 
@@ -132,10 +132,10 @@ extension java.math {
       var carry: Int64 = 0
       for i in 0..<aSize {
         carry = unsignedMultAddAdd(a[i], factor, Int(truncatingIfNeeded: carry), 0)
-        res[i] = Int(truncatingIfNeeded: carry)
+        res[i] = Int(UInt32(truncatingIfNeeded: carry))
         carry = Int64(bitPattern: UInt64(bitPattern: carry) >> 32)
       }
-      return Int(truncatingIfNeeded: carry)
+      return Int(UInt32(truncatingIfNeeded: carry))
     }
 
     @discardableResult
@@ -149,8 +149,8 @@ extension java.math {
       let aLen = val.numberLength
       if aLen == 1 {
         let res = unsignedMultAddAdd(val.digits[0], factor, 0, 0)
-        let lo = Int(truncatingIfNeeded: res)
-        let hi = Int(truncatingIfNeeded: res >> 32)
+        let lo = Int(UInt32(truncatingIfNeeded: res))
+        let hi = Int(UInt32(truncatingIfNeeded: res >> 32))
         return hi == 0
           ? BigInteger(resSign, lo)
           : BigInteger(resSign, 2, [lo, hi])
@@ -186,21 +186,21 @@ extension java.math {
         var carry: Int64 = 0
         for j in (i + 1)..<aLen {
           carry = unsignedMultAddAdd(a[i], a[j], res[i + j], Int(truncatingIfNeeded: carry))
-          res[i + j] = Int(truncatingIfNeeded: carry)
+          res[i + j] = Int(UInt32(truncatingIfNeeded: carry))
           carry = Int64(bitPattern: UInt64(bitPattern: carry) >> 32)
         }
-        res[i + aLen] = Int(truncatingIfNeeded: carry)
+        res[i + aLen] = Int(UInt32(truncatingIfNeeded: carry))
       }
       BitLevel.shiftLeftOneBit(&res, res, aLen << 1)
       var carry: Int64 = 0
       var index = 0
       for i in 0..<aLen {
         carry = unsignedMultAddAdd(a[i], a[i], res[index], Int(truncatingIfNeeded: carry))
-        res[index] = Int(truncatingIfNeeded: carry)
+        res[index] = Int(UInt32(truncatingIfNeeded: carry))
         carry = Int64(bitPattern: UInt64(bitPattern: carry) >> 32)
         index += 1
         carry += Int64(res[index]) & 0xFFFFFFFF
-        res[index] = Int(truncatingIfNeeded: carry)
+        res[index] = Int(UInt32(truncatingIfNeeded: carry))
         carry = Int64(bitPattern: UInt64(bitPattern: carry) >> 32)
         index += 1
       }
@@ -229,10 +229,13 @@ extension java.math {
     }
 
     /// Computes `(a & 0xFFFFFFFF) * (b & 0xFFFFFFFF) + (c & 0xFFFFFFFF) + (d & 0xFFFFFFFF)`
+    /// Uses UInt64 arithmetic to avoid signed overflow: max result is UInt64.max, which fits in UInt64.
     static func unsignedMultAddAdd(_ a: Int, _ b: Int, _ c: Int, _ d: Int) -> Int64 {
-      return (Int64(a) & 0xFFFFFFFF) * (Int64(b) & 0xFFFFFFFF)
-           + (Int64(c) & 0xFFFFFFFF)
-           + (Int64(d) & 0xFFFFFFFF)
+      let ua = UInt64(bitPattern: Int64(a)) & 0xFFFFFFFF
+      let ub = UInt64(bitPattern: Int64(b)) & 0xFFFFFFFF
+      let uc = UInt64(bitPattern: Int64(c)) & 0xFFFFFFFF
+      let ud = UInt64(bitPattern: Int64(d)) & 0xFFFFFFFF
+      return Int64(bitPattern: ua * ub + uc + ud)
     }
   }
 }

@@ -83,7 +83,7 @@ extension java.math {
       if count == 0 {
         let srcStart = 0
         let dstStart = intCount
-        let len = result.count - intCount
+        let len = min(result.count - intCount, source.count)
         for i in 0..<len {
           result[dstStart + i] = source[srcStart + i]
         }
@@ -104,7 +104,7 @@ extension java.math {
       var carry = 0
       for i in 0..<srcLen {
         let val = source[i]
-        result[i] = (val << 1) | carry
+        result[i] = (val &<< 1) | carry
         carry = Int(UInt32(truncatingIfNeeded: val) >> 31)
       }
       if carry != 0 { result[srcLen] = carry }

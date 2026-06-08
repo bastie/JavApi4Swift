@@ -37,8 +37,8 @@ extension java.math {
         let b = Int64(op2.digits[0]) & 0xFFFFFFFF
         if op1Sign == op2Sign {
           let res = a + b
-          let lo = Int(truncatingIfNeeded: res)
-          let hi = Int(truncatingIfNeeded: res >> 32)
+          let lo = Int(UInt32(truncatingIfNeeded: res))
+          let hi = Int(UInt32(truncatingIfNeeded: res >> 32))
           return hi == 0
             ? BigInteger(op1Sign, lo)
             : BigInteger(op1Sign, 2, [lo, hi])
@@ -132,11 +132,11 @@ extension java.math {
       var i = 0
       while carry != 0 && i < aSize {
         carry += Int64(a[i]) & 0xFFFFFFFF
-        a[i] = Int(truncatingIfNeeded: carry)
+        a[i] = Int(UInt32(truncatingIfNeeded: carry))
         carry >>= 32
         i += 1
       }
-      return Int(truncatingIfNeeded: carry)
+      return Int(UInt32(truncatingIfNeeded: carry))
     }
 
     /// `op1 += addend`  (op1 must have room for a possible carry)
@@ -208,38 +208,38 @@ extension java.math {
                                  _ b: [Int], _ bSize: Int) {
       var i: Int
       var carry = (Int64(a[0]) & 0xFFFFFFFF) + (Int64(b[0]) & 0xFFFFFFFF)
-      res[0] = Int(truncatingIfNeeded: carry)
+      res[0] = Int(UInt32(truncatingIfNeeded: carry))
       carry >>= 32
 
       if aSize >= bSize {
         for j in 1..<bSize {
           carry += (Int64(a[j]) & 0xFFFFFFFF) + (Int64(b[j]) & 0xFFFFFFFF)
-          res[j] = Int(truncatingIfNeeded: carry)
+          res[j] = Int(UInt32(truncatingIfNeeded: carry))
           carry >>= 32
         }
         i = bSize
         while i < aSize {
           carry += Int64(a[i]) & 0xFFFFFFFF
-          res[i] = Int(truncatingIfNeeded: carry)
+          res[i] = Int(UInt32(truncatingIfNeeded: carry))
           carry >>= 32
           i += 1
         }
       } else {
         for j in 1..<aSize {
           carry += (Int64(a[j]) & 0xFFFFFFFF) + (Int64(b[j]) & 0xFFFFFFFF)
-          res[j] = Int(truncatingIfNeeded: carry)
+          res[j] = Int(UInt32(truncatingIfNeeded: carry))
           carry >>= 32
         }
         i = aSize
         while i < bSize {
           carry += Int64(b[i]) & 0xFFFFFFFF
-          res[i] = Int(truncatingIfNeeded: carry)
+          res[i] = Int(UInt32(truncatingIfNeeded: carry))
           carry >>= 32
           i += 1
         }
       }
       if carry != 0 {
-        res[i] = Int(truncatingIfNeeded: carry)
+        res[i] = Int(UInt32(truncatingIfNeeded: carry))
       }
     }
 
@@ -257,12 +257,12 @@ extension java.math {
       var borrow: Int64 = 0
       for i in 0..<bSize {
         borrow += (Int64(a[i]) & 0xFFFFFFFF) - (Int64(b[i]) & 0xFFFFFFFF)
-        res[i] = Int(truncatingIfNeeded: borrow)
+        res[i] = Int(UInt32(truncatingIfNeeded: borrow))
         borrow >>= 32
       }
       for i in bSize..<aSize {
         borrow += Int64(a[i]) & 0xFFFFFFFF
-        res[i] = Int(truncatingIfNeeded: borrow)
+        res[i] = Int(UInt32(truncatingIfNeeded: borrow))
         borrow >>= 32
       }
     }
@@ -282,19 +282,19 @@ extension java.math {
       let minSize = Swift.min(aSize, bSize)
       for i in 0..<minSize {
         borrow += (Int64(b[i]) & 0xFFFFFFFF) - (Int64(a[i]) & 0xFFFFFFFF)
-        res[i] = Int(truncatingIfNeeded: borrow)
+        res[i] = Int(UInt32(truncatingIfNeeded: borrow))
         borrow >>= 32
       }
       if aSize < bSize {
         for i in aSize..<bSize {
           borrow += Int64(b[i]) & 0xFFFFFFFF
-          res[i] = Int(truncatingIfNeeded: borrow)
+          res[i] = Int(UInt32(truncatingIfNeeded: borrow))
           borrow >>= 32
         }
       } else {
         for i in bSize..<aSize {
           borrow -= Int64(a[i]) & 0xFFFFFFFF
-          res[i] = Int(truncatingIfNeeded: borrow)
+          res[i] = Int(UInt32(truncatingIfNeeded: borrow))
           borrow >>= 32
         }
       }
