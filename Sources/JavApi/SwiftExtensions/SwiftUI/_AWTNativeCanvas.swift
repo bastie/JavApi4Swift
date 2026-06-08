@@ -8,7 +8,7 @@ import SwiftUI
 
 
 #if os(macOS)
-import AppKit
+@preconcurrency import AppKit
 
 
 /// Natives NSView, das `component.paint(g)` in `draw(_:)` aufruft
@@ -16,8 +16,25 @@ import AppKit
 @MainActor
 final class _AWTNativeCanvas: NSView {
   
-  var component: java.awt.Component?
-  
+  var component: java.awt.Component? {
+    didSet { subscribeCursorNotification() }
+  }
+
+  private var cursorObserver: NSObjectProtocol?
+
+  private func subscribeCursorNotification() {
+    if let obs = cursorObserver {
+      NotificationCenter.default.removeObserver(obs)
+    }
+    cursorObserver = NotificationCenter.default.addObserver(
+      forName: .awtCursorChanged, object: nil, queue: .main) { [weak self] _ in
+      MainActor.assumeIsolated {
+        guard let self else { return }
+        self.window?.invalidateCursorRects(for: self)
+      }
+    }
+  }
+
   override var acceptsFirstResponder: Bool { true }
   
   override func setFrameSize(_ newSize: NSSize) {
@@ -395,6 +412,90 @@ final class _AWTNativeCanvas: NSView {
     }
   }
   
+  // MARK: - Cursor support
+
+  override func resetCursorRects() {
+    discardCursorRects()
+    guard let component else { return }
+    // Walk the component tree and add cursor rects for any component with a cursor set
+    addCursorRects(for: component)
+  }
+
+  private func addCursorRects(for comp: java.awt.Component) {
+    if let cur = comp.cursor {
+      let r = comp.bounds
+      let ns = NSRect(x: r.x, y: Int(bounds.height) - r.y - r.height,
+                      width: r.width, height: r.height)
+      addCursorRect(ns, cursor: nsCursor(for: cur))
+    }
+    if let container = comp as? java.awt.Container {
+      for child in container.getComponents() {
+        addCursorRects(for: child)
+      }
+    }
+  }
+
+  private func nsCursor(for cursor: java.awt.Cursor) -> NSCursor {
+    switch cursor.type {
+    case java.awt.Cursor.CROSSHAIR_CURSOR:  return .crosshair
+    case java.awt.Cursor.TEXT_CURSOR:       return .iBeam
+    case java.awt.Cursor.WAIT_CURSOR:       return .operationNotAllowed
+    case java.awt.Cursor.HAND_CURSOR:       return .pointingHand
+    case java.awt.Cursor.MOVE_CURSOR:       return .openHand
+    case java.awt.Cursor.N_RESIZE_CURSOR,
+         java.awt.Cursor.S_RESIZE_CURSOR:   return .resizeUpDown
+    case java.awt.Cursor.E_RESIZE_CURSOR,
+         java.awt.Cursor.W_RESIZE_CURSOR:   return .resizeLeftRight
+    case java.awt.Cursor.NE_RESIZE_CURSOR,
+         java.awt.Cursor.SW_RESIZE_CURSOR:  return .arrow   // NSCursor has no diagonal resize
+    case java.awt.Cursor.NW_RESIZE_CURSOR,
+         java.awt.Cursor.SE_RESIZE_CURSOR:  return .arrow   // NSCursor has no diagonal resize
+    default:                                return .arrow
+    }
+  }
+
+  override func mouseMoved(with event: NSEvent) {
+    guard let component else { super.mouseMoved(with: event); return }
+    let pt = awtPoint(from: event)
+    let hit = AWTHitTest.find(at: pt, in: component)
+    effectiveCursor(for: hit).set()
+  }
+
+  /// Returns the effective NSCursor for a hit component:
+  /// walks up the AWT parent chain for an explicit cursor, falls back to
+  /// implicit cursors for text components, then arrow.
+  private func effectiveCursor(for comp: java.awt.Component?) -> NSCursor {
+    // Implicit cursor for text-editing components
+    if comp is java.awt.TextField || comp is java.awt.TextArea {
+      return .iBeam
+    }
+    // Walk up parent chain for explicit cursor
+    var current: java.awt.Component? = comp
+    while let c = current {
+      if let cur = c.cursor {
+        return nsCursor(for: cur)
+      }
+      current = c.getParent()
+    }
+    return .arrow
+  }
+
+  override func mouseEntered(with event: NSEvent) {
+    // Trigger cursor update on entry
+    mouseMoved(with: event)
+  }
+
+  override func mouseExited(with event: NSEvent) {
+    NSCursor.arrow.set()
+  }
+
+  override func updateTrackingAreas() {
+    super.updateTrackingAreas()
+    for area in trackingAreas { removeTrackingArea(area) }
+    let opts: NSTrackingArea.Options = [.mouseMoved, .mouseEnteredAndExited, .activeInKeyWindow]
+    addTrackingArea(NSTrackingArea(rect: bounds, options: opts, owner: self, userInfo: nil))
+  }
+
   override func rightMouseDown(with event: NSEvent) {
     guard let component else { return }
     let pt  = awtPoint(from: event)

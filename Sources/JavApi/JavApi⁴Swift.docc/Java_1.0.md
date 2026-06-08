@@ -1295,7 +1295,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | getDefaultToolkit() | ()->Toolkit
 
 
-##### java.awt.TextField (2/2/⭕️)
+##### java.awt.TextField (2/2/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1303,21 +1303,21 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | TextField()    | 
 
 
-##### java.awt.TextComponent (1/0/⭕️)
+##### java.awt.TextComponent (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | TextComponent() | String
+1.0.2   | ✔️          | ⭕️       | constructor   | TextComponent() | String
 
 
-##### java.awt.TextArea (1/1/⭕️)
+##### java.awt.TextArea (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | TextArea()     | 
 
 
-##### java.awt.Scrollbar (2/2/⭕️)
+##### java.awt.Scrollbar (2/2/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1349,20 +1349,20 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.MenuItem (1/1/⭕️)
+##### java.awt.MenuItem (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuItem()     | String
 
 
-##### java.awt.MenuContainer (3/0/⭕️)
+##### java.awt.MenuContainer (3/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getFont()      | ()->Font
+1.0.2   | ✔️          | ⭕️       | method        | getFont()      | ()->Font
 1.0.2   | ⭕️          | ⭕️       | method        | postEvent()    | (Event)->boolean
-1.0.2   | ⭕️          | ⭕️       | method        | remove()       | (MenuComponent)
+1.0.2   | ✔️          | ⭕️       | method        | remove()       | (MenuComponent)
 
 
 ##### java.awt.MenuComponent (1/0/⭕️)
@@ -1372,14 +1372,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | getParent()    | ()->MenuContainer
 
 
-##### java.awt.MenuBar (1/1/⭕️)
+##### java.awt.MenuBar (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuBar()      | 
 
 
-##### java.awt.Menu (1/1/⭕️)
+##### java.awt.Menu (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1399,7 +1399,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.LayoutManager (5/5/⭕️)
+##### java.awt.LayoutManager (5/5/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1410,7 +1410,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | layoutContainer() | (Container)
 
 
-##### java.awt.Label (3/3/⭕️)
+##### java.awt.Label (3/3/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1437,7 +1437,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | flush()        | ()
 
 
-##### java.awt.GridLayout (1/1/⭕️)
+##### java.awt.GridLayout (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1481,7 +1481,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.Frame (14/4/⭕️)
+##### java.awt.Frame (14/14/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1489,26 +1489,26 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | CROSSHAIR_CURSOR | int
 1.0.2   | ✔️          | ⭕️       | final field   | TEXT_CURSOR    | int
 1.0.2   | ✔️          | ⭕️       | final field   | WAIT_CURSOR    | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SW_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SE_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NW_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | NE_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | N_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | S_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | W_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | E_RESIZE_CURSOR | int
-1.0.2   | ⭕️          | ⭕️       | final field   | HAND_CURSOR    | int
-1.0.2   | ⭕️          | ⭕️       | final field   | MOVE_CURSOR    | int
+1.0.2   | ✔️          | ⭕️       | final field   | SW_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | SE_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | NW_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | NE_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | N_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | S_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | W_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | E_RESIZE_CURSOR | int
+1.0.2   | ✔️          | ⭕️       | final field   | HAND_CURSOR    | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOVE_CURSOR    | int
 
 
-##### java.awt.FontMetrics (1/1/⭕️)
+##### java.awt.FontMetrics (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | FontMetrics()  | Font
 
 
-##### java.awt.Font (3/3/⭕️)
+##### java.awt.Font (3/3/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1517,7 +1517,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | ITALIC         | int
 
 
-##### java.awt.FlowLayout (3/3/⭕️)
+##### java.awt.FlowLayout (3/3/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1526,7 +1526,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
 
 
-##### java.awt.FileDialog (3/3/⭕️)
+##### java.awt.FileDialog (3/3/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1618,7 +1618,31 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | method        | countComponents() | ()->int
 
 
-##### java.awt.Component (1/1/⭕️)
+##### java.awt.Cursor (15/15/✔️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | final field   | DEFAULT_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | CROSSHAIR_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | TEXT_CURSOR    | int
+1.1     | ✔️          | ⭕️       | final field   | WAIT_CURSOR    | int
+1.1     | ✔️          | ⭕️       | final field   | SW_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | SE_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | NW_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | NE_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | N_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | S_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | W_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | E_RESIZE_CURSOR | int
+1.1     | ✔️          | ⭕️       | final field   | HAND_CURSOR    | int
+1.1     | ✔️          | ⭕️       | final field   | MOVE_CURSOR    | int
+1.1     | ✔️          | ⭕️       | static method | getPredefinedCursor() | (int)->Cursor
+1.1     | ✔️          | ⭕️       | static method | getDefaultCursor() | ()->Cursor
+1.1     | ✔️          | ⭕️       | constructor   | Cursor()       | int
+1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
+
+
+##### java.awt.Component (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1637,14 +1661,14 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.CheckboxMenuItem (1/1/⭕️)
+##### java.awt.CheckboxMenuItem (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxMenuItem() | String
 
 
-##### java.awt.CheckboxGroup (1/1/⭕️)
+##### java.awt.CheckboxGroup (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1657,7 +1681,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.CardLayout (1/1/⭕️)
+##### java.awt.CardLayout (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1676,21 +1700,21 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.BorderLayout (1/1/⭕️)
+##### java.awt.BorderLayout (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | BorderLayout() | 
 
 
-##### java.awt.AWTException (1/1/⭕️)
+##### java.awt.AWTException (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | AWTException() | String
 
 
-##### java.awt.AWTError (1/1/⭕️)
+##### java.awt.AWTError (1/1/✔️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------

@@ -202,6 +202,27 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Cursor (Java 1.1)
+    // -------------------------------------------------------------------------
+
+    /// The cursor currently set on this component.
+    public var cursor: java.awt.Cursor? = nil
+
+    /// Sets the cursor for this component.
+    public func setCursor(_ cursor: java.awt.Cursor) {
+      self.cursor = cursor
+      #if canImport(AppKit)
+      // Tell the native view to recompute cursor rects
+      NotificationCenter.default.post(name: .awtCursorChanged, object: self)
+      #endif
+    }
+
+    /// Returns the cursor set on this component, or nil if none.
+    public func getCursor() -> java.awt.Cursor? {
+      return cursor
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint & layout
     // -------------------------------------------------------------------------
 
@@ -214,3 +235,11 @@ extension java.awt {
     }
   }
 }
+
+#if canImport(Foundation)
+import Foundation
+extension Notification.Name {
+  /// Posted when a java.awt.Component's cursor changes, so native views can update cursor rects.
+  public static let awtCursorChanged = Notification.Name("java.awt.Component.cursorChanged")
+}
+#endif
