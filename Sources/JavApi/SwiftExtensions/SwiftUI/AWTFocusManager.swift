@@ -192,7 +192,7 @@ public final class AWTFocusManager {
     for ch in text { typeCharacter(ch) }
   }
 
-  #elseif canImport(UIKit)
+  #elseif canImport(UIKit) && !os(tvOS)
 
   func copySelection() {
     guard let tc = focusOwner as? java.awt.TextComponent, tc.hasSelection else { return }

@@ -196,7 +196,7 @@ extension java.awt {
     }
     // swiftlint:enable cyclomatic_complexity
 
-    #elseif canImport(UIKit)
+    #elseif canImport(UIKit) && !os(tvOS)
 
     private static func liveRGB(for index: Int) -> Int {
       uiColorToRGB(uiColor(for: index))
