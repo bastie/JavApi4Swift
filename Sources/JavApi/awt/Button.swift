@@ -82,11 +82,26 @@ extension java.awt {
       g.drawLine(x + w - 1, y, x + w - 1, y + h - 1)   // right
       g.drawLine(x, y + h - 1, x + w - 1, y + h - 1)   // bottom
 
-      // Label
+      // Fill: shift background brightness when pressed.
+      // Dark backgrounds are lightened, light backgrounds are darkened — ensures
+      // visible contrast in both Light Mode and Dark Mode.
+      if isPressed {
+        let r = background.getRed(), gv = background.getGreen(), b = background.getBlue()
+        let luminance = (r * 299 + gv * 587 + b * 114) / 1000   // ITU-R BT.601
+        let delta = luminance < 128 ? 50 : -40
+        let pr = min(255, max(0, r  + delta))
+        let pg = min(255, max(0, gv + delta))
+        let pb = min(255, max(0, b  + delta))
+        g.setColor(java.awt.Color(pr, pg, pb))
+        g.fillRect(x + 1, y + 1, w - 2, h - 2)
+      }
+
+      // Label — offset by 1px right/down when pressed (classic AWT behaviour)
       guard !label.isEmpty else { return }
-      let fm = getFontMetrics(font)
-      let tx = x + (w - fm.stringWidth(label)) / 2
-      let ty = y + (h - fm.getHeight()) / 2 + fm.getAscent()
+      let fm     = getFontMetrics(font)
+      let offset = isPressed ? 1 : 0
+      let tx = x + (w - fm.stringWidth(label)) / 2 + offset
+      let ty = y + (h - fm.getHeight()) / 2 + fm.getAscent() + offset
       g.setColor(java.awt.SystemColor.controlText)
       g.drawString(label, tx, ty)
     }

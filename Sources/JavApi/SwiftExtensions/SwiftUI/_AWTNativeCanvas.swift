@@ -98,6 +98,7 @@ final class _AWTNativeCanvas: NSView {
     if let btn = hit as? java.awt.Button {
       pressedButton = btn
       btn.isPressed = true
+      self.setNeedsDisplay(bounds)
       needsDisplay  = true
       
     } else if let tf = hit as? java.awt.TextField {
@@ -338,6 +339,7 @@ final class _AWTNativeCanvas: NSView {
     if let btn = pressedButton {
       btn.isPressed  = false
       pressedButton  = nil
+      self.setNeedsDisplay(bounds)
       let pt = awtPoint(from: event)
       if let hit = AWTHitTest.find(at: pt, in: component ?? btn),
          hit === btn {
