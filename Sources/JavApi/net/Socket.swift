@@ -10,6 +10,8 @@ import Glibc
 import Musl
 #elseif canImport(Android)
 import Android
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 extension java.net {
@@ -77,6 +79,8 @@ extension java.net {
       let sockFd = socket(AF_INET, SOCK_STREAM, 0)
 #elseif canImport(Glibc)
       let sockFd = socket(AF_INET, numericCast(SOCK_STREAM.rawValue), 0)
+#elseif canImport(WinSDK)
+      let sockFd = platformSocket(AF_INET, Int32(SOCK_STREAM), 0)
 #else
       let sockFd = socket(AF_INET, Int32(SOCK_STREAM), 0)
 #endif
@@ -105,12 +109,21 @@ extension java.net {
 
       // get local port
       var localAddr = sockaddr_in()
+#if canImport(WinSDK)
+      var len = Int32(MemoryLayout<sockaddr_in>.size)
+      _ = withUnsafeMutablePointer(to: &localAddr) {
+        $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+          platformGetsockname(sockFd, $0, &len)
+        }
+      }
+#else
       var len = socklen_t(MemoryLayout<sockaddr_in>.size)
       _ = withUnsafeMutablePointer(to: &localAddr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
           getsockname(sockFd, $0, &len)
         }
       }
+#endif
       self._localPort = Int(localAddr.sin_port.bigEndian)
     }
 #endif
@@ -187,14 +200,17 @@ extension java.net {
       soTimeout = timeout
 #if !os(WASI)
       if fd >= 0 {
+#if canImport(WinSDK)
         var tv = timeval()
-        tv.tv_sec = timeout / 1000
-#if canImport(Darwin)
+        tv.tv_sec = Int32(timeout / 1000)
         tv.tv_usec = Int32((timeout % 1000) * 1000)
+        platformSetsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
 #else
-        tv.tv_usec = (timeout % 1000) * 1000
-#endif
+        var tv = timeval()
+        tv.tv_sec = numericCast(timeout / 1000)
+        tv.tv_usec = numericCast((timeout % 1000) * 1000)
         setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+#endif
       }
 #endif
     }
@@ -219,7 +235,11 @@ internal class SocketInputStream: java.io.InputStream {
     return -1
 #else
     var byte: UInt8 = 0
+#if canImport(WinSDK)
+    let n = platformRecv(fd, &byte, 1, 0)
+#else
     let n = recv(fd, &byte, 1, 0)
+#endif
     if n == 0 { return -1 }  // EOF
     if n < 0 { throw java.io.IOException("Socket read error") }
     return Int(byte)
@@ -235,9 +255,15 @@ internal class SocketInputStream: java.io.InputStream {
     return -1
 #else
     guard length > 0 else { return 0 }
+#if canImport(WinSDK)
+    let n = buffer.withUnsafeMutableBytes { ptr in
+      platformRecv(fd, ptr.baseAddress! + offset, length, 0)
+    }
+#else
     let n = buffer.withUnsafeMutableBytes { ptr in
       recv(fd, ptr.baseAddress! + offset, length, 0)
     }
+#endif
     if n == 0 { return -1 }
     if n < 0 { throw java.io.IOException("Socket read error") }
     return n
@@ -256,7 +282,11 @@ internal class SocketOutputStream: java.io.OutputStream {
   public override func write(_ b: Int) throws {
 #if !os(WASI)
     var byte = UInt8(b & 0xFF)
+#if canImport(WinSDK)
+    let n = platformSend(fd, &byte, 1, 0)
+#else
     let n = send(fd, &byte, 1, 0)
+#endif
     if n < 0 { throw java.io.IOException("Socket write error") }
 #endif
   }
@@ -268,9 +298,15 @@ internal class SocketOutputStream: java.io.OutputStream {
   public override func write(_ buffer: [byte], _ offset: Int, _ length: Int) throws {
 #if !os(WASI)
     guard length > 0 else { return }
+#if canImport(WinSDK)
+    let n = buffer.withUnsafeBytes { ptr in
+      platformSend(fd, ptr.baseAddress! + offset, length, 0)
+    }
+#else
     let n = buffer.withUnsafeBytes { ptr in
       send(fd, ptr.baseAddress! + offset, length, 0)
     }
+#endif
     if n < 0 { throw java.io.IOException("Socket write error") }
 #endif
   }

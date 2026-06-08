@@ -10,6 +10,8 @@ import Glibc
 import Musl
 #elseif canImport(Android)
 import Android
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 extension java.net {
@@ -79,6 +81,8 @@ extension java.net {
       let sockFd = socket(AF_INET, SOCK_STREAM, 0)
 #elseif canImport(Glibc)
       let sockFd = socket(AF_INET, numericCast(SOCK_STREAM.rawValue), 0)
+#elseif canImport(WinSDK)
+      let sockFd = platformSocket(AF_INET, Int32(SOCK_STREAM), 0)
 #else
       let sockFd = socket(AF_INET, Int32(SOCK_STREAM), 0)
 #endif
@@ -87,7 +91,11 @@ extension java.net {
       }
 
       var reuse: Int32 = 1
+#if canImport(WinSDK)
+      platformSetsockopt(sockFd, SOL_SOCKET, SO_REUSEADDR, &reuse, socklen_t(MemoryLayout<Int32>.size))
+#else
       setsockopt(sockFd, SOL_SOCKET, SO_REUSEADDR, &reuse, socklen_t(MemoryLayout<Int32>.size))
+#endif
 
       var addr = sockaddr_in()
       addr.sin_family = sa_family_t(AF_INET)
@@ -108,10 +116,17 @@ extension java.net {
         throw BindException("Address already in use: \(port)")
       }
 
+#if canImport(WinSDK)
+      guard platformListen(sockFd, Int32(backlog)) == 0 else {
+        platformClose(sockFd)
+        throw SocketException("listen() failed on port \(port)")
+      }
+#else
       guard listen(sockFd, Int32(backlog)) == 0 else {
         platformClose(sockFd)
         throw SocketException("listen() failed on port \(port)")
       }
+#endif
 
       self.fd = sockFd
 #endif
@@ -147,18 +162,31 @@ extension java.net {
 
       // Remote address string
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
+#if canImport(WinSDK)
+      platformInet_ntop(AF_INET, &clientAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#else
       inet_ntop(AF_INET, &clientAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#endif
       let remoteIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
       let remotePort = Int(clientAddr.sin_port.bigEndian)
 
       // Local port (may differ from _localPort if bound to 0)
       var localAddr = sockaddr_in()
+#if canImport(WinSDK)
+      var localLen = Int32(MemoryLayout<sockaddr_in>.size)
+      _ = withUnsafeMutablePointer(to: &localAddr) {
+        $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+          platformGetsockname(clientFd, $0, &localLen)
+        }
+      }
+#else
       var localLen = socklen_t(MemoryLayout<sockaddr_in>.size)
       _ = withUnsafeMutablePointer(to: &localAddr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
           getsockname(clientFd, $0, &localLen)
         }
       }
+#endif
       let localPort = Int(localAddr.sin_port.bigEndian)
 
       let remoteAddress = try InetAddress.getByName(remoteIP)
@@ -199,14 +227,17 @@ extension java.net {
       soTimeout = timeout
 #if !os(WASI)
       if fd >= 0 {
+#if canImport(WinSDK)
         var tv = timeval()
-        tv.tv_sec = timeout / 1000
-#if canImport(Darwin)
+        tv.tv_sec = Int32(timeout / 1000)
         tv.tv_usec = Int32((timeout % 1000) * 1000)
+        platformSetsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
 #else
-        tv.tv_usec = (timeout % 1000) * 1000
-#endif
+        var tv = timeval()
+        tv.tv_sec = numericCast(timeout / 1000)
+        tv.tv_usec = numericCast((timeout % 1000) * 1000)
         setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+#endif
       }
 #endif
     }

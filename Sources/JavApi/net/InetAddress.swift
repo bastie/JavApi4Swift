@@ -12,6 +12,8 @@ import Glibc
 import Musl
 #elseif canImport(Android)
 import Android
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 extension java.net {
@@ -84,7 +86,12 @@ extension java.net {
       throw UnknownHostException("getLocalHost is unavailable on WASI")
 #else
       var buf = [CChar](repeating: 0, count: 256)
-      guard gethostname(&buf, buf.count) == 0 else {
+#if canImport(WinSDK)
+      let hostnameResult = gethostname(&buf, Int32(buf.count))
+#else
+      let hostnameResult = gethostname(&buf, buf.count)
+#endif
+      guard hostnameResult == 0 else {
         throw UnknownHostException("localhost")
       }
       let name = String(bytes: buf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
@@ -195,6 +202,15 @@ extension java.net {
           current.pointee.ai_addrlen,
           &hostname,
           Int(NI_MAXHOST),
+          nil, 0,
+          NI_NUMERICHOST
+        )
+#elseif canImport(WinSDK)
+        gaiResult = platformGetnameinfo(
+          current.pointee.ai_addr,
+          socklen_t(current.pointee.ai_addrlen),
+          &hostname,
+          socklen_t(NI_MAXHOST),
           nil, 0,
           NI_NUMERICHOST
         )

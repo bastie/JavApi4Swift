@@ -10,6 +10,8 @@ import Glibc
 import Musl
 #elseif canImport(Android)
 import Android
+#elseif canImport(WinSDK)
+import WinSDK
 #endif
 
 extension java.net {
@@ -83,6 +85,8 @@ extension java.net {
       let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
 #elseif canImport(Glibc)
       let sockFd = socket(AF_INET, numericCast(SOCK_DGRAM.rawValue), 0)
+#elseif canImport(WinSDK)
+      let sockFd = platformSocket(AF_INET, Int32(SOCK_DGRAM), 0)
 #else
       let sockFd = socket(AF_INET, Int32(SOCK_DGRAM), 0)
 #endif
@@ -91,7 +95,11 @@ extension java.net {
       }
 
       var reuse: Int32 = 1
+#if canImport(WinSDK)
+      platformSetsockopt(sockFd, SOL_SOCKET, SO_REUSEADDR, &reuse, socklen_t(MemoryLayout<Int32>.size))
+#else
       setsockopt(sockFd, SOL_SOCKET, SO_REUSEADDR, &reuse, socklen_t(MemoryLayout<Int32>.size))
+#endif
 
       var addr = sockaddr_in()
       addr.sin_family = sa_family_t(AF_INET)
@@ -113,12 +121,21 @@ extension java.net {
       }
 
       var localAddr = sockaddr_in()
+#if canImport(WinSDK)
+      var len = Int32(MemoryLayout<sockaddr_in>.size)
+      _ = withUnsafeMutablePointer(to: &localAddr) {
+        $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+          platformGetsockname(sockFd, $0, &len)
+        }
+      }
+#else
       var len = socklen_t(MemoryLayout<sockaddr_in>.size)
       _ = withUnsafeMutablePointer(to: &localAddr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
           getsockname(sockFd, $0, &len)
         }
       }
+#endif
 
       self.fd = sockFd
       self._localPort = Int(localAddr.sin_port.bigEndian)
@@ -160,8 +177,13 @@ extension java.net {
       let sent = data.withUnsafeBytes { ptr in
         withUnsafePointer(to: &dest) {
           $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+#if canImport(WinSDK)
+            platformSendto(fd, ptr.baseAddress! + offset, length, 0, $0,
+                           socklen_t(MemoryLayout<sockaddr_in>.size))
+#else
             sendto(fd, ptr.baseAddress! + offset, length, 0, $0,
                    socklen_t(MemoryLayout<sockaddr_in>.size))
+#endif
           }
         }
       }
@@ -193,7 +215,11 @@ extension java.net {
       let received = packet.buf.withUnsafeMutableBytes { ptr in
         withUnsafeMutablePointer(to: &sender) {
           $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
+#if canImport(WinSDK)
+            platformRecvfrom(fd, ptr.baseAddress! + packet.offset, packet.length, 0, $0, &senderLen)
+#else
             recvfrom(fd, ptr.baseAddress! + packet.offset, packet.length, 0, $0, &senderLen)
+#endif
           }
         }
       }
@@ -204,7 +230,11 @@ extension java.net {
       packet.length = received
 
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
+#if canImport(WinSDK)
+      platformInet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#else
       inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#endif
       let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
       packet.port = Int(sender.sin_port.bigEndian)
       packet.address = try InetAddress.getByName(senderIP)
@@ -244,14 +274,17 @@ extension java.net {
       soTimeout = timeout
 #if !os(WASI)
       if fd >= 0 {
+#if canImport(WinSDK)
         var tv = timeval()
-        tv.tv_sec = timeout / 1000
-#if canImport(Darwin)
+        tv.tv_sec = Int32(timeout / 1000)
         tv.tv_usec = Int32((timeout % 1000) * 1000)
+        platformSetsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
 #else
-        tv.tv_usec = (timeout % 1000) * 1000
-#endif
+        var tv = timeval()
+        tv.tv_sec = numericCast(timeout / 1000)
+        tv.tv_usec = numericCast((timeout % 1000) * 1000)
         setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, socklen_t(MemoryLayout<timeval>.size))
+#endif
       }
 #endif
     }
@@ -267,7 +300,11 @@ extension java.net {
     public func setSendBufferSize(_ size: Int) {
 #if !os(WASI)
       var s = Int32(size)
+#if canImport(WinSDK)
+      platformSetsockopt(fd, SOL_SOCKET, SO_SNDBUF, &s, socklen_t(MemoryLayout<Int32>.size))
+#else
       setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &s, socklen_t(MemoryLayout<Int32>.size))
+#endif
 #endif
     }
 
@@ -277,7 +314,11 @@ extension java.net {
     public func setReceiveBufferSize(_ size: Int) {
 #if !os(WASI)
       var s = Int32(size)
+#if canImport(WinSDK)
+      platformSetsockopt(fd, SOL_SOCKET, SO_RCVBUF, &s, socklen_t(MemoryLayout<Int32>.size))
+#else
       setsockopt(fd, SOL_SOCKET, SO_RCVBUF, &s, socklen_t(MemoryLayout<Int32>.size))
+#endif
 #endif
     }
   }
