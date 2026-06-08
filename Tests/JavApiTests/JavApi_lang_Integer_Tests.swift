@@ -39,4 +39,25 @@ struct JavApi_lang_Integer_Tests {
     #expect(Integer.reverseBytes(0x00801600) == 0x00168000)
     #expect(Integer.reverseBytes(0) == 0)
   }
+
+  @Test("toString(int, radix) converts to correct base string")
+  func testToStringRadix() {
+    // Decimal (radix 10)
+    #expect(Integer.toString(42, 10) == "42")
+    #expect(Integer.toString(-42, 10) == "-42")
+    #expect(Integer.toString(0, 10) == "0")
+    // Binary (radix 2)
+    #expect(Integer.toString(8, 2) == "1000")
+    #expect(Integer.toString(-1, 2) == "-1")
+    // Octal (radix 8)
+    #expect(Integer.toString(255, 8) == "377")
+    // Hex (radix 16)
+    #expect(Integer.toString(255, 16) == "ff")
+    #expect(Integer.toString(-255, 16) == "-ff")
+    // Radix 36
+    #expect(Integer.toString(35, 36) == "z")
+    // Invalid radix falls back to 10
+    #expect(Integer.toString(42, 1) == "42")
+    #expect(Integer.toString(42, 37) == "42")
+  }
 }

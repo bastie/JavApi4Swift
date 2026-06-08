@@ -46,6 +46,23 @@ public final class Long : Number {
   
   public static let MAX_VALUE = Int64.max
   public static let MIN_VALUE = Int64.min
+
+  /// Returns a string representation of the long value in the given radix.
+  ///
+  /// Matches Java's `Long.toString(long i, int radix)` behaviour:
+  /// - Radix is clamped to 2…36; values outside that range fall back to radix 10.
+  /// - Negative values get a leading minus sign.
+  ///
+  /// - Parameters:
+  ///   - i: The long value to convert.
+  ///   - radix: The base to use (2–36).
+  /// - Returns: String representation in the given radix.
+  ///
+  /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+  public static func toString (_ i : Int64, _ radix : Int) -> String {
+    let r = (radix < 2 || radix > 36) ? 10 : radix
+    return String(i, radix: r, uppercase: false)
+  }
   
   public static func numberOfLeadingZeros(_ number : long) -> Int {
     return Int64.numberOfLeadingZeros(long: number)

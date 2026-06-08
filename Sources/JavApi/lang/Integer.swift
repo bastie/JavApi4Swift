@@ -74,4 +74,21 @@ public class Integer {
     let hexString = String(decimalNumber, radix: 16)
     return hexString
   }
+
+  /// Returns a string representation of the integer in the given radix.
+  ///
+  /// Matches Java's `Integer.toString(int i, int radix)` behaviour:
+  /// - Radix is clamped to 2…36; values outside that range fall back to radix 10.
+  /// - Negative values get a leading minus sign.
+  ///
+  /// - Parameters:
+  ///   - i: The integer value to convert.
+  ///   - radix: The base to use (2–36).
+  /// - Returns: String representation in the given radix.
+  ///
+  /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+  public static func toString (_ i : Int, _ radix : Int) -> String {
+    let r = (radix < 2 || radix > 36) ? 10 : radix
+    return String(i, radix: r, uppercase: false)
+  }
 }
