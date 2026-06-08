@@ -51,7 +51,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     /// Schließt das Fenster und gibt Ressourcen frei.
-    open func dispose() {
+    open override func dispose() {
       setVisible(false)
     }
 

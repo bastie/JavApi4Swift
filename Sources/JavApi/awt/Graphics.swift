@@ -21,6 +21,16 @@ extension java.awt {
       self.cgContext = context
     }
 
+    /// A no-op stub context — used when a `Graphics` is required but no real
+    /// paint cycle is active (e.g. peer API calls).
+    public static var stub: Graphics {
+      let ctx = CGContext(data: nil, width: 1, height: 1,
+                         bitsPerComponent: 8, bytesPerRow: 4,
+                         space: CGColorSpaceCreateDeviceRGB(),
+                         bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
+      return Graphics(ctx)
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Font & FontMetrics
     // -------------------------------------------------------------------------
@@ -213,6 +223,9 @@ extension java.awt {
     internal init(_ context: CGContext) {
       self.cgContext = context
     }
+
+    /// A no-op stub — used when a `Graphics` is required outside a paint cycle.
+    public static var stub: Graphics { Graphics(java.awt.CGContext()) }
 
     public func setFont(_ f: java.awt.Font) { font = f }
     public func getFont() -> java.awt.Font  { font     }

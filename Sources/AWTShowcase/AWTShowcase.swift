@@ -340,7 +340,7 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
 @MainActor
 final class ShowcaseActionListener: java.awt.event.ActionListener {
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    print("Action: \(e.getActionCommand())")
+    Swift.print("Action: \(e.getActionCommand())")
     if e.getActionCommand() == "Beenden" {
       terminateApp()
     }
@@ -364,20 +364,20 @@ final class ShowcaseItemListener: java.awt.event.ItemListener {
   func itemStateChanged(_ e: java.awt.event.ItemEvent) {
     let state = e.stateChange == java.awt.event.ItemEvent.SELECTED ? "selected" : "deselected"
     let item  = e.item as? String ?? "?"
-    print("\(label): \(item) \(state)")
+    Swift.print("\(label): \(item) \(state)")
   }
 }
 
 /// WindowListener — gibt Fenster-Lebenszyklusereignisse auf der Konsole aus.
 @MainActor
 final class ShowcaseWindowListener: java.awt.event.WindowListener {
-  func windowOpened     (_ e: java.awt.event.WindowEvent) { print("Window: opened")      }
-  func windowClosing    (_ e: java.awt.event.WindowEvent) { print("Window: closing")     }
-  func windowClosed     (_ e: java.awt.event.WindowEvent) { print("Window: closed")      }
-  func windowIconified  (_ e: java.awt.event.WindowEvent) { print("Window: iconified")   }
-  func windowDeiconified(_ e: java.awt.event.WindowEvent) { print("Window: deiconified") }
-  func windowActivated  (_ e: java.awt.event.WindowEvent) { print("Window: activated")   }
-  func windowDeactivated(_ e: java.awt.event.WindowEvent) { print("Window: deactivated") }
+  func windowOpened     (_ e: java.awt.event.WindowEvent) { Swift.print("Window: opened")      }
+  func windowClosing    (_ e: java.awt.event.WindowEvent) { Swift.print("Window: closing")     }
+  func windowClosed     (_ e: java.awt.event.WindowEvent) { Swift.print("Window: closed")      }
+  func windowIconified  (_ e: java.awt.event.WindowEvent) { Swift.print("Window: iconified")   }
+  func windowDeiconified(_ e: java.awt.event.WindowEvent) { Swift.print("Window: deiconified") }
+  func windowActivated  (_ e: java.awt.event.WindowEvent) { Swift.print("Window: activated")   }
+  func windowDeactivated(_ e: java.awt.event.WindowEvent) { Swift.print("Window: deactivated") }
 }
 
 /// Öffnet einen FileDialog und gibt das Ergebnis auf der Konsole aus.
@@ -396,9 +396,9 @@ final class FileDialogListener: java.awt.event.ActionListener {
     let fd    = java.awt.FileDialog(frame, title, mode)
     fd.setVisible(true)
     if let file = fd.getFile(), let dir = fd.getDirectory() {
-      print("FileDialog: \(dir)\(file)")
+      Swift.print("FileDialog: \(dir)\(file)")
     } else {
-      print("FileDialog: abgebrochen")
+      Swift.print("FileDialog: abgebrochen")
     }
   }
 }
@@ -583,7 +583,7 @@ final class CursorDemoPanel: java.awt.Panel {
     let (type, name) = CursorDemoPanel.cursors[currentIndex]
     setCursor(java.awt.Cursor.getPredefinedCursor(type))
     nameLabel.setText("Cursor: \(name)")
-    print("Cursor changed to: \(java.awt.Cursor.getPredefinedCursor(type).getName())")
+    Swift.print("Cursor changed to: \(java.awt.Cursor.getPredefinedCursor(type).getName())")
   }
 }
 
@@ -648,8 +648,8 @@ struct AWTShowcase {
     let frame = buildShowcase(width: 520, height: 420)
     frame.validate()
     frame.setVisible(true)
-    print("AWTShowcase headless: Frame > BorderLayout > Panel(NORTH) + Canvas(CENTER) + Panel(SOUTH)")
-    print("  SOUTH contains: Button, TextField, 2 Checkboxes, 3 RadioButtons")
+    Swift.Swift.print("AWTShowcase headless: Frame > BorderLayout > Panel(NORTH) + Canvas(CENTER) + Panel(SOUTH)")
+    Swift.Swift.print("  SOUTH contains: Button, TextField, 2 Checkboxes, 3 RadioButtons")
   }
 }
 #endif
