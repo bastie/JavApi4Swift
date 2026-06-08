@@ -34,15 +34,15 @@ internal struct _AWTCanvasViewRepresentable: NSViewRepresentable {
 import UIKit
 
 internal struct _AWTCanvasViewRepresentable: UIViewRepresentable {
-  
+
   let component: java.awt.Component
-  
+
   func makeUIView(context: Context) -> _AWTNativeCanvas {
     let v = _AWTNativeCanvas()
     v.component = component
     return v
   }
-  
+
   func updateUIView(_ uiView: _AWTNativeCanvas, context: Context) {
     uiView.component = component
     uiView.setNeedsDisplay()
@@ -53,7 +53,7 @@ internal struct _AWTCanvasViewRepresentable: UIViewRepresentable {
 // MARK: Linux / headless stub
 // ---------------------------------------------------------------------------
 
-private struct _AWTCanvasViewRepresentable: View {
+internal struct _AWTCanvasViewRepresentable: View {
   let component: java.awt.Component
   var body: some View { EmptyView() }
 }

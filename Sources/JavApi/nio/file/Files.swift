@@ -78,11 +78,15 @@ extension java.nio.file {
       else {
         // if file does not exist write data for the first time
         do{
+#if os(WASI)
+          try Data(bytes).write(to: URL(fileURLWithPath: file.toString()))
+#else
           if #available(macOS 13.0, *) {
             try Data(bytes).write(to: URL(filePath: file.toString()), options: .atomic)
           } else {
             throw java.io.IOException("IOException: func Files.write (Path, [UInt8], OpenOption not yet implemented for other than macOS 13.0 or higher. Please help!")
           }
+#endif
         }catch {
           throw java.io.IOException("IOException: file \(file.toString()) can not be created and written")
         }

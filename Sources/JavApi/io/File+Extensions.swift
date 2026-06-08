@@ -8,22 +8,20 @@ extension java.io.File {
   /// - Returns .success(true) if is root directory and .success(false) if is no root directory && .failure(Error) if unknown
   internal func isRootDirectory() -> Result<Bool,Error> {
 #if os(WASI)
-    return .failure(java.lang.Throwable.UnsupportedOperationException())
-#endif
-#if os(PS4)
-    return .failure(java.lang.Throwable.UnsupportedOperationException())
-#endif
-#if os(Cygwin)
+    return .failure(java.lang.UnsupportedOperationException())
+#elseif os(PS4)
+    return .failure(java.lang.UnsupportedOperationException())
+#elseif os(Cygwin)
     let url = URL(fileURLWithPath: self.file)
     if url.pathComponents.count == 1 && url.path.contains(":") && self.file.count == 2{
       return .success(true)
     }
-    return .success (false)
+    return .success(false)
 #else
     if self.file == "/" {
       return .success(true)
     }
-    return .success (false)
+    return .success(false)
 #endif
   }
   

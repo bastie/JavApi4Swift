@@ -192,6 +192,12 @@ public final class AWTFocusManager {
     for ch in text { typeCharacter(ch) }
   }
 
+  #elseif canImport(UIKit) && os(watchOS)
+  // watchOS: UIPasteboard.general.string is unavailable — clipboard ops are no-ops
+  func copySelection()  {}
+  func cutSelection()   {}
+  func pasteText()      {}
+
   #elseif canImport(UIKit) && !os(tvOS)
 
   func copySelection() {

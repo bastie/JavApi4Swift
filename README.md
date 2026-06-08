@@ -172,21 +172,21 @@ To include other project with compatible license do
   * iOS <br/> `swift test --target JavApi --triple arm64-apple-ios --sdk $(xcrun --sdk iphoneos --show-sdk-path)`
   * visionOS <br/> `swift test --target JavApi --triple arm64-apple-xros --sdk $(xcrun --sdk xros --show-sdk-path)`
   * tvOS (look for sdk name) <br/> `swift build --target JavApi --triple arm64-apple-tvos --sdk $(xcrun --sdk appletvos --show-sdk-path)`
-  * WASM <br/> once install like Swift.org it describe and then `swift test --target JavApi --swift-sdk 6.3.2-RELEASE-wasm32-unknown-wasi`
-  * Android <br/> once install like Swift.org it describe and then `swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_android`
+  * WASM <br/> once install like Swift.org it describe and then `swift build --swift-sdk swift-6.3.2-RELEASE_wasm`
+  * Android <br/> Install the Android NDK with `brew install android-ndk` and like Swift.org it describe and then `swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_android`
 
 And all together without Windows:
 
 ```
 swift test
 podman run --rm -v "$(pwd)":/project:ro -w /project swift:latest sh -c "swift test --scratch-path /tmp/build"
-swift test --target JavApi --triple arm64-apple-watchos --sdk $(xcrun --sdk watchos --show-sdk-path)
-swift test --target JavApi --triple arm64-apple-ios --sdk $(xcrun --sdk iphoneos --show-sdk-path)
-swift test --target JavApi --triple arm64-apple-xros --sdk $(xcrun --sdk xros --show-sdk-path)
+swift build --target JavApi --triple arm64-apple-watchos --sdk $(xcrun --sdk watchos --show-sdk-path)
+swift build --target JavApi --triple arm64-apple-ios --sdk $(xcrun --sdk iphoneos --show-sdk-path)
+xcodebuild build -scheme JavApi -destination 'generic/platform=visionOS' -sdk xros
 swift build --target JavApi --triple arm64-apple-tvos --sdk $(xcrun --sdk appletvos --show-sdk-path)
-swift test --target JavApi --swift-sdk 6.3.2-RELEASE-wasm32-unknown-wasi
-swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_android
-swift test --target JavApi --swift-sdk swift-6.3.2-RELEASE_static-linux-0.1.0
+swift build --target JavApi --swift-sdk swift-6.3.2-RELEASE_wasm
+swift build --target JavApi --swift-sdk swift-6.3.2-RELEASE_android
+swift build --target JavApi --swift-sdk swift-6.3.2-RELEASE_static-linux-0.1.0
 ```
 <small>Also static Linux are here.</small>
 

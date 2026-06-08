@@ -189,8 +189,8 @@ extension java.awt {
         let v = Int(brightness * 255 + 0.5)
         r = v; g = v; b = v
       } else {
-        let h = (hue - Foundation.floor(hue)) * 6.0
-        let f = h - Foundation.floor(h)
+        let h = (hue - hue.rounded(.down)) * 6.0
+        let f = h - h.rounded(.down)
         let p = brightness * (1 - saturation)
         let q = brightness * (1 - saturation * f)
         let t = brightness * (1 - saturation * (1 - f))
@@ -203,7 +203,7 @@ extension java.awt {
         default: r = Int(brightness*255+0.5); g = Int(p*255+0.5); b = Int(q*255+0.5)
         }
       }
-      return 0xFF_00_00_00 | (r << 16) | (g << 8) | b
+      return Int(bitPattern: 0xFF_00_00_00) | (r << 16) | (g << 8) | b
     }
 
     /// Creates a `Color` from HSB values (0.0–1.0 each).

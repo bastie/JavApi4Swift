@@ -8,6 +8,8 @@ import Foundation
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Android)
+import Android
 #endif
 
 extension java.net {
@@ -41,9 +43,10 @@ extension java.net {
     public init(_ host: String, _ port: Int) throws {
 #if os(WASI)
       throw SocketException("Socket is unavailable on WASI")
-#endif
+#else
       let addr = try InetAddress.getByName(host)
       try connect(addr, port)
+#endif
     }
 
     /// Creates a socket and connects it to the given address and port.
@@ -53,8 +56,9 @@ extension java.net {
     public init(_ address: InetAddress, _ port: Int) throws {
 #if os(WASI)
       throw SocketException("Socket is unavailable on WASI")
-#endif
+#else
       try connect(address, port)
+#endif
     }
 
     /// Internal init used by ServerSocket.accept()
@@ -69,10 +73,12 @@ extension java.net {
 
 #if !os(WASI)
     private func connect(_ address: InetAddress, _ port: Int) throws {
-#if canImport(Darwin)
+#if canImport(Darwin) || os(Android)
       let sockFd = socket(AF_INET, SOCK_STREAM, 0)
+#elseif canImport(Glibc)
+      let sockFd = socket(AF_INET, numericCast(SOCK_STREAM.rawValue), 0)
 #else
-      let sockFd = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
+      let sockFd = socket(AF_INET, Int32(SOCK_STREAM), 0)
 #endif
       guard sockFd >= 0 else {
         throw SocketException("Cannot create socket")
@@ -85,11 +91,11 @@ extension java.net {
 
       let result = withUnsafePointer(to: &addr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-          Foundation.connect(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+          platformConnect(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
         }
       }
       guard result == 0 else {
-        Foundation.close(sockFd)
+        platformClose(sockFd)
         throw ConnectException("Connection refused: \(address.getHostAddress()):\(port)")
       }
 
@@ -141,7 +147,7 @@ extension java.net {
     public func close() throws {
       guard !_closed, fd >= 0 else { return }
 #if !os(WASI)
-      Foundation.close(fd)
+      platformClose(fd)
 #endif
       _closed = true
       fd = -1
@@ -211,12 +217,13 @@ internal class SocketInputStream: java.io.InputStream {
   public override func read() throws -> Int {
 #if os(WASI)
     return -1
-#endif
+#else
     var byte: UInt8 = 0
     let n = recv(fd, &byte, 1, 0)
     if n == 0 { return -1 }  // EOF
     if n < 0 { throw java.io.IOException("Socket read error") }
     return Int(byte)
+#endif
   }
 
   public override func read(_ buffer: inout [byte]) throws -> Int {
@@ -226,7 +233,7 @@ internal class SocketInputStream: java.io.InputStream {
   public override func read(_ buffer: inout [byte], _ offset: Int, _ length: Int) throws -> Int {
 #if os(WASI)
     return -1
-#endif
+#else
     guard length > 0 else { return 0 }
     let n = buffer.withUnsafeMutableBytes { ptr in
       recv(fd, ptr.baseAddress! + offset, length, 0)
@@ -234,6 +241,7 @@ internal class SocketInputStream: java.io.InputStream {
     if n == 0 { return -1 }
     if n < 0 { throw java.io.IOException("Socket read error") }
     return n
+#endif
   }
 }
 

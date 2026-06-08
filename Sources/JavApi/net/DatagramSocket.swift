@@ -8,6 +8,8 @@ import Foundation
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Android)
+import Android
 #endif
 
 extension java.net {
@@ -76,11 +78,13 @@ extension java.net {
     private func bindSocket(port: Int, address: InetAddress?) throws {
 #if os(WASI)
       throw SocketException("DatagramSocket is unavailable on WASI")
-#endif
-#if canImport(Darwin)
-      let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
 #else
-      let sockFd = socket(AF_INET, Int32(SOCK_DGRAM.rawValue), 0)
+#if canImport(Darwin) || os(Android)
+      let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
+#elseif canImport(Glibc)
+      let sockFd = socket(AF_INET, numericCast(SOCK_DGRAM.rawValue), 0)
+#else
+      let sockFd = socket(AF_INET, Int32(SOCK_DGRAM), 0)
 #endif
       guard sockFd >= 0 else {
         throw SocketException("Cannot create datagram socket")
@@ -100,11 +104,11 @@ extension java.net {
 
       let bindResult = withUnsafePointer(to: &addr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-          Foundation.bind(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+          platformBind(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
         }
       }
       guard bindResult == 0 else {
-        Foundation.close(sockFd)
+        platformClose(sockFd)
         throw BindException("Cannot bind datagram socket to port \(port)")
       }
 
@@ -118,6 +122,7 @@ extension java.net {
 
       self.fd = sockFd
       self._localPort = Int(localAddr.sin_port.bigEndian)
+#endif
     }
 
     // MARK: - Send
@@ -134,7 +139,7 @@ extension java.net {
       }
 #if os(WASI)
       throw SocketException("DatagramSocket.send() is unavailable on WASI")
-#endif
+#else
       guard let address = packet.getAddress() else {
         throw SocketException("Packet has no destination address")
       }
@@ -163,6 +168,7 @@ extension java.net {
       guard sent >= 0 else {
         throw SocketException("send() failed")
       }
+#endif
     }
 
     // MARK: - Receive
@@ -180,7 +186,7 @@ extension java.net {
       }
 #if os(WASI)
       throw SocketException("DatagramSocket.receive() is unavailable on WASI")
-#endif
+#else
       var sender = sockaddr_in()
       var senderLen = socklen_t(MemoryLayout<sockaddr_in>.size)
 
@@ -202,6 +208,7 @@ extension java.net {
       let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
       packet.port = Int(sender.sin_port.bigEndian)
       packet.address = try InetAddress.getByName(senderIP)
+#endif
     }
 
     // MARK: - Close
@@ -212,7 +219,7 @@ extension java.net {
     public func close() {
       guard !_closed, fd >= 0 else { return }
 #if !os(WASI)
-      Foundation.close(fd)
+      platformClose(fd)
 #endif
       _closed = true
       fd = -1

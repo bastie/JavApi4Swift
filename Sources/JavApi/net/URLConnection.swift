@@ -62,7 +62,9 @@ extension java.net {
     private var readTimeout: Int = 0
 
     private var responseData: Data?
+#if !os(WASI)
     private var httpResponse: HTTPURLResponse?
+#endif
     private var connected: Bool = false
 
     // MARK: - Init (package-internal, created by URL.openConnection())
@@ -192,6 +194,9 @@ extension java.net {
     /// Cross-platform header lookup (case-insensitive) via `allHeaderFields`.
     /// - Returns optional value of named header
     private func headerValue(_ name: String) -> String? {
+#if os(WASI)
+      return nil
+#else
       guard let headers = httpResponse?.allHeaderFields else { return nil }
       let lower = name.lowercased()
       for (key, value) in headers {
@@ -200,13 +205,18 @@ extension java.net {
         }
       }
       return nil
+#endif
     }
 
     /// Returns the HTTP status code, or `-1` if not connected or not HTTP.
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getResponseCode() -> Int {
+#if os(WASI)
+      return -1
+#else
       return httpResponse?.statusCode ?? -1
+#endif
     }
 
     // MARK: - Request properties

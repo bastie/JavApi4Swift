@@ -139,7 +139,7 @@ extension java.awt {
     override public func getGreen() -> Int { (SystemColor.liveRGB(for: index) >>  8) & 0xFF }
     override public func getBlue()  -> Int {  SystemColor.liveRGB(for: index)         & 0xFF }
     override public func getAlpha() -> Int { 255 }
-    override public func getRGB()   -> Int { 0xFF_00_00_00 | SystemColor.liveRGB(for: index) }
+    override public func getRGB()   -> Int { Int(bitPattern: 0xFF_00_00_00) | SystemColor.liveRGB(for: index) }
 
     // -------------------------------------------------------------------------
     // MARK: Platform colour resolution
@@ -195,6 +195,53 @@ extension java.awt {
       }
     }
     // swiftlint:enable cyclomatic_complexity
+
+    #elseif canImport(UIKit) && os(watchOS)
+
+    private static func liveRGB(for index: Int) -> Int {
+      uiColorToRGB(uiColor(for: index))
+    }
+
+    private static func uiColorToRGB(_ color: UIColor) -> Int {
+      var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+      color.getRed(&r, green: &g, blue: &b, alpha: &a)
+      return (Int(r * 255 + 0.5) << 16)
+           | (Int(g * 255 + 0.5) <<  8)
+           |  Int(b * 255 + 0.5)
+    }
+
+    // watchOS: only basic UIColor constants are available (no systemGray2–5, no systemGray)
+    private static func uiColor(for index: Int) -> UIColor {
+      switch index {
+      case DESKTOP:                return .black
+      case ACTIVE_CAPTION:         return .darkGray
+      case ACTIVE_CAPTION_TEXT:    return .white
+      case ACTIVE_CAPTION_BORDER:  return .gray
+      case INACTIVE_CAPTION:       return .darkGray
+      case INACTIVE_CAPTION_TEXT:  return .lightGray
+      case INACTIVE_CAPTION_BORDER: return .gray
+      case WINDOW:                 return .black
+      case WINDOW_BORDER:          return .gray
+      case WINDOW_TEXT:            return .white
+      case MENU:                   return .darkGray
+      case MENU_TEXT:              return .white
+      case TEXT:                   return .black
+      case TEXT_TEXT:              return .white
+      case TEXT_HIGHLIGHT:         return .blue
+      case TEXT_HIGHLIGHT_TEXT:    return .white
+      case TEXT_INACTIVE_TEXT:     return .gray
+      case CONTROL:                return .gray
+      case CONTROL_TEXT:           return .white
+      case CONTROL_HIGHLIGHT:      return .lightGray
+      case CONTROL_LT_HIGHLIGHT:   return .lightGray
+      case CONTROL_SHADOW:         return .gray
+      case CONTROL_DK_SHADOW:      return .darkGray
+      case SCROLLBAR:              return .gray
+      case INFO:                   return .yellow
+      case INFO_TEXT:              return .black
+      default:                     return .gray
+      }
+    }
 
     #elseif canImport(UIKit) && !os(tvOS)
 
@@ -291,3 +338,49 @@ private extension Int {
     Swift.max(range.lowerBound, Swift.min(range.upperBound, self))
   }
 }
+
+// -------------------------------------------------------------------------
+// MARK: - Platform focus-ring colour (rendering aid, no Java equivalent)
+// -------------------------------------------------------------------------
+
+#if canImport(AppKit)
+import AppKit
+
+extension java.awt.Color {
+  /// The platform focus-ring colour (macOS: NSColor.keyboardFocusIndicatorColor).
+  public static var keyboardFocusIndicator: java.awt.Color {
+    let ns = NSColor.keyboardFocusIndicatorColor
+      .usingColorSpace(.sRGB) ?? NSColor.systemBlue
+    return java.awt.Color(
+      Int((ns.redComponent   * 255 + 0.5).rounded(.down)),
+      Int((ns.greenComponent * 255 + 0.5).rounded(.down)),
+      Int((ns.blueComponent  * 255 + 0.5).rounded(.down)))
+  }
+}
+
+#elseif canImport(UIKit)
+import UIKit
+
+extension java.awt.Color {
+  /// The platform focus-ring colour (iOS/watchOS: blue).
+  public static var keyboardFocusIndicator: java.awt.Color {
+    var r: CGFloat = 0, g: CGFloat = 0, b: CGFloat = 0, a: CGFloat = 0
+    #if os(watchOS)
+    UIColor.blue.getRed(&r, green: &g, blue: &b, alpha: &a)
+    #else
+    UIColor.systemBlue.getRed(&r, green: &g, blue: &b, alpha: &a)
+    #endif
+    return java.awt.Color(Int(r * 255), Int(g * 255), Int(b * 255))
+  }
+}
+
+#else
+
+extension java.awt.Color {
+  /// The platform focus-ring colour (Linux/headless fallback).
+  public static var keyboardFocusIndicator: java.awt.Color {
+    java.awt.Color(0x00, 0x78, 0xD7)
+  }
+}
+
+#endif

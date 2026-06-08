@@ -10,6 +10,8 @@ import Darwin
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Android)
+import Android
 #endif
 
 extension java.net {
@@ -63,12 +65,13 @@ extension java.net {
       }
 #if os(WASI)
       throw UnknownHostException("DNS resolution is unavailable on WASI: \(host)")
-#endif
+#else
       let resolved = resolveAll(host)
       guard !resolved.isEmpty else {
         throw UnknownHostException(host)
       }
       return resolved.map { InetAddress(hostname: host, addressString: $0) }
+#endif
     }
 
     /// Returns the `InetAddress` of the local host.
@@ -79,13 +82,14 @@ extension java.net {
     public static func getLocalHost() throws -> InetAddress {
 #if os(WASI)
       throw UnknownHostException("getLocalHost is unavailable on WASI")
-#endif
+#else
       var buf = [CChar](repeating: 0, count: 256)
       guard gethostname(&buf, buf.count) == 0 else {
         throw UnknownHostException("localhost")
       }
       let name = String(bytes: buf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
       return try getByName(name)
+#endif
     }
 
     // MARK: - Accessors
@@ -171,10 +175,12 @@ extension java.net {
     private static func resolveAll(_ host: String) -> [String] {
       var results: [String] = []
       var hints = addrinfo()
-#if canImport(Darwin)
+#if canImport(Darwin) || os(Android)
       hints.ai_socktype = SOCK_STREAM
+#elseif canImport(Glibc)
+      hints.ai_socktype = numericCast(SOCK_STREAM.rawValue)
 #else
-      hints.ai_socktype = Int32(SOCK_STREAM.rawValue)
+      hints.ai_socktype = Int32(SOCK_STREAM)
 #endif
       var res: UnsafeMutablePointer<addrinfo>? = nil
       guard getaddrinfo(host, nil, &hints, &res) == 0, let res else { return results }
@@ -182,14 +188,27 @@ extension java.net {
       var ptr: UnsafeMutablePointer<addrinfo>? = res
       while let current = ptr {
         var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-        if getnameinfo(
+        let gaiResult: Int32
+#if os(Android)
+        gaiResult = getnameinfo(
+          current.pointee.ai_addr,
+          current.pointee.ai_addrlen,
+          &hostname,
+          Int(NI_MAXHOST),
+          nil, 0,
+          NI_NUMERICHOST
+        )
+#else
+        gaiResult = getnameinfo(
           current.pointee.ai_addr,
           current.pointee.ai_addrlen,
           &hostname,
           socklen_t(NI_MAXHOST),
           nil, 0,
           NI_NUMERICHOST
-        ) == 0 {
+        )
+#endif
+        if gaiResult == 0 {
           let addr = String(bytes: hostname.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
           if !results.contains(addr) { results.append(addr) }
         }

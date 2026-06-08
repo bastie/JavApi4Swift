@@ -8,6 +8,8 @@ import Foundation
 import Glibc
 #elseif canImport(Musl)
 import Musl
+#elseif canImport(Android)
+import Android
 #endif
 
 extension java.net {
@@ -72,11 +74,13 @@ extension java.net {
     private func bind(port: Int, backlog: Int, bindAddr: InetAddress? = nil) throws {
 #if os(WASI)
       throw SocketException("ServerSocket is unavailable on WASI")
-#endif
-#if canImport(Darwin)
-      let sockFd = socket(AF_INET, SOCK_STREAM, 0)
 #else
-      let sockFd = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
+#if canImport(Darwin) || os(Android)
+      let sockFd = socket(AF_INET, SOCK_STREAM, 0)
+#elseif canImport(Glibc)
+      let sockFd = socket(AF_INET, numericCast(SOCK_STREAM.rawValue), 0)
+#else
+      let sockFd = socket(AF_INET, Int32(SOCK_STREAM), 0)
 #endif
       guard sockFd >= 0 else {
         throw BindException("Cannot create socket")
@@ -96,20 +100,21 @@ extension java.net {
 
       let bindResult = withUnsafePointer(to: &addr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-          Foundation.bind(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
+          platformBind(sockFd, $0, socklen_t(MemoryLayout<sockaddr_in>.size))
         }
       }
       guard bindResult == 0 else {
-        Foundation.close(sockFd)
+        platformClose(sockFd)
         throw BindException("Address already in use: \(port)")
       }
 
       guard listen(sockFd, Int32(backlog)) == 0 else {
-        Foundation.close(sockFd)
+        platformClose(sockFd)
         throw SocketException("listen() failed on port \(port)")
       }
 
       self.fd = sockFd
+#endif
     }
 
     // MARK: - accept
@@ -126,13 +131,13 @@ extension java.net {
       }
 #if os(WASI)
       throw SocketException("ServerSocket.accept() is unavailable on WASI")
-#endif
+#else
       var clientAddr = sockaddr_in()
       var addrLen = socklen_t(MemoryLayout<sockaddr_in>.size)
 
       let clientFd = withUnsafeMutablePointer(to: &clientAddr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-          Foundation.accept(fd, $0, &addrLen)
+          platformAccept(fd, $0, &addrLen)
         }
       }
 
@@ -158,6 +163,7 @@ extension java.net {
 
       let remoteAddress = try InetAddress.getByName(remoteIP)
       return Socket(fd: clientFd, remoteAddress: remoteAddress, remotePort: remotePort, localPort: localPort)
+#endif
     }
 
     // MARK: - close
@@ -168,7 +174,7 @@ extension java.net {
     public func close() throws {
       guard !_closed, fd >= 0 else { return }
 #if !os(WASI)
-      Foundation.close(fd)
+      platformClose(fd)
 #endif
       _closed = true
       fd = -1
