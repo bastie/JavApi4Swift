@@ -4,7 +4,7 @@
  */
 
 extension java.applet {
-  /// Interface for playing audio clips — mirrors `java.applet.AudioClip` from Java 1.0.
+  /// Interface for playing audio clips.
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public protocol AudioClip {
