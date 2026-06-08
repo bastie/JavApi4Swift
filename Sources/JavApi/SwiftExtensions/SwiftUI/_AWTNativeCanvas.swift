@@ -447,9 +447,9 @@ final class _AWTNativeCanvas: NSView {
     case java.awt.Cursor.E_RESIZE_CURSOR,
          java.awt.Cursor.W_RESIZE_CURSOR:   return .resizeLeftRight
     case java.awt.Cursor.NE_RESIZE_CURSOR,
-         java.awt.Cursor.SW_RESIZE_CURSOR:  return .arrow   // NSCursor has no diagonal resize
+         java.awt.Cursor.SW_RESIZE_CURSOR:  return _AWTDiagonalCursor.neSwCursor
     case java.awt.Cursor.NW_RESIZE_CURSOR,
-         java.awt.Cursor.SE_RESIZE_CURSOR:  return .arrow   // NSCursor has no diagonal resize
+         java.awt.Cursor.SE_RESIZE_CURSOR:  return _AWTDiagonalCursor.nwSeCursor
     default:                                return .arrow
     }
   }
