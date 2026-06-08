@@ -412,8 +412,8 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
 @MainActor
 final class ShowcaseActionListener: java.awt.event.ActionListener {
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    print("Action: \(e.actionCommand)")
-    if e.actionCommand == "Beenden" {
+    print("Action: \(e.getActionCommand())")
+    if e.getActionCommand() == "Beenden" {
       terminateApp()
     }
   }
