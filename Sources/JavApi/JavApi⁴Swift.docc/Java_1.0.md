@@ -356,7 +356,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Boolean
 
-##### java.lang.Character (29/15/⭕️)
+##### java.lang.Character (29/29/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -368,26 +368,26 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | Character()    | (char)
 1.0.2   | ✔️          | ⭕️       | method        | charValue()    | ()->Character
 1.0.2   | ✔️          | ⭕️       | static method | digit()        | (char,int)->int
-1.0.2   | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | forDigit()     | (char,int)->int
 1.1     | ✔️          | ⭕️       | static method | getNumericValue()        | (char)->int
-1.0.2   | ⭕️          | ⭕️       | method        | hashCode()     | ()->int
-1.0.2   | ⭕️          | ⭕️       | static method | isDefined()    | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | hashCode()     | ()->int
+1.0.2   | ✔️          | ⭕️       | static method | isDefined()    | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isDigit()      | (char)->boolean
 5       | ✔️          | ⭕️       | static method | isDigit()      | (int)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isJavaLetter()           | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isJavaLetterOrDigit()    | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isJavaLetter()           | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isJavaLetterOrDigit()    | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isLetter()               | (char)->boolean
 5       | ✔️          | ⭕️       | static method | isLetter()               | (int)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isLetterOrDigit()        | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isLowerCase()            | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isSpace()                | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isTitleCase()            | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | isUpperCase()            | (char)->boolean
-1.0.2   | ⭕️          | ⭕️       | static method | toLowerCase()            | (char)->char
-1.0.2   | ⭕️          | ⭕️       | static method | toString()               | ()->String
-1.0.2   | ⭕️          | ⭕️       | static method | toTitelCase()            | (char)->char
-1.0.2   | ⭕️          | ⭕️       | static method | toUpperCase()            | (char)->char
+1.0.2   | ✔️          | ⭕️       | static method | isLetterOrDigit()        | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isLowerCase()            | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isSpace()                | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isTitleCase()            | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | isUpperCase()            | (char)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | toLowerCase()            | (char)->char
+1.0.2   | ✔️          | ⭕️       | static method | toString()               | ()->String
+1.0.2   | ✔️          | ⭕️       | static method | toTitelCase()            | (char)->char
+1.0.2   | ✔️          | ⭕️       | static method | toUpperCase()            | (char)->char
 1.1     | ✔️          | ⭕️       | static method | isWhiteSpace()           | (char)->boolean
 
 
@@ -424,27 +424,27 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | disable()      | ()
 
 
-##### java.lang.Double (8/2/⭕️)
+##### java.lang.Double (8/8/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | final field   | POSITIVE_INFINITY | double
-1.0.2   | ⭕️          | ⭕️       | final field   | NEGATIVE_INFINITY | double
-1.0.2   | ⭕️          | ⭕️       | final field   | NaN            | double
+1.0.2   | ✔️          | ⭕️       | final field   | POSITIVE_INFINITY | double
+1.0.2   | ✔️          | ⭕️       | final field   | NEGATIVE_INFINITY | double
+1.0.2   | ✔️          | ⭕️       | final field   | NaN            | double
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | double
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | double
-1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (double)->String
-1.0.2   | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Double
-1.0.2   | ⭕️          | ⭕️       | static method | isNaN()        | (double)->boolean
+1.0.2   | ✔️          | ⭕️       | static method | toString()     | (double)->String
+1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Double
+1.0.2   | ✔️          | ⭕️       | static method | isNaN()        | (double)->boolean
 
 
-##### java.lang.Float (8/5/⭕️)
+##### java.lang.Float (8/8/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | final field   | POSITIVE_INFINITY | float
-1.0.2   | ⭕️          | ⭕️       | final field   | NEGATIVE_INFINITY | float
-1.0.2   | ⭕️          | ⭕️       | final field   | NaN            | float
+1.0.2   | ✔️          | ⭕️       | final field   | POSITIVE_INFINITY | float
+1.0.2   | ✔️          | ⭕️       | final field   | NEGATIVE_INFINITY | float
+1.0.2   | ✔️          | ⭕️       | final field   | NaN            | float
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | float
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | float
 1.0.2   | ✔️          | ⭕️       | static method | toString()     | (float)->String
@@ -470,7 +470,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ⭕️          | ⭕️       | static method | toString()     | (long,int)->String
 
 
-##### java.lang.Math (17/14/⭕️)
+##### java.lang.Math (17/17/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -484,23 +484,23 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | exp()          | (double)->double
 1.0.2   | ✔️          | ⭕️       | static method | log()          | (double)->double
 1.0.2   | ✔️          | ⭕️       | static method | sqrt()         | (double)->double
-1.0.2   | ⭕️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
 1.0.2   | ✔️          | ⭕️       | static method | ceil()         | (double)->double
 1.0.2   | ✔️          | ⭕️       | static method | floor()        | (double)->double
-1.0.2   | ⭕️          | ⭕️       | static method | rint()         | (double)->double
-1.0.2   | ⭕️          | ⭕️       | static method | atan2()        | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | rint()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | atan2()        | (double,double)->double
 1.0.2   | ✔️          | ⭕️       | static method | pow()          | (double,double)->double
 1.0.2   | ✔️          | ⭕️       | static method | round()        | (float)->int
 
 
-##### java.lang.Number (4/0/⭕️)
+##### java.lang.Number (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | intValue()     | ()->int
-1.0.2   | ⭕️          | ⭕️       | method        | longValue()    | ()->long
-1.0.2   | ⭕️          | ⭕️       | method        | floatValue()   | ()->float
-1.0.2   | ⭕️          | ⭕️       | method        | doubleValue()  | ()->double
+1.0.2   | ✔️          | ⭕️       | method        | intValue()     | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | longValue()    | ()->long
+1.0.2   | ✔️          | ⭕️       | method        | floatValue()   | ()->float
+1.0.2   | ✔️          | ⭕️       | method        | doubleValue()  | ()->double
 
 
 ##### java.lang.Object (3/0/⭕️)
@@ -597,13 +597,12 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | StringBufferInputStream() | String
 
 
-##### java.io.StreamTokenizer (11/10/⭕️)
+##### java.io.StreamTokenizer (10/10/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | field         | LINENO         | int
 1.0.2   | ✔️          | ⭕️       | final field   | CT_WHITESPACE  | byte
-1.0.2   | ⭕️          | ⭕️       | final field   | CT_DIGIT       | byte
 1.0.2   | ✔️          | ⭕️       | final field   | CT_ALPHA       | byte
 1.0.2   | ✔️          | ⭕️       | final field   | CT_QUOTE       | byte
 1.0.2   | ✔️          | ⭕️       | final field   | CT_COMMENT     | byte
@@ -664,12 +663,12 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte)
 
 
-##### java.io.LineNumberInputStream (3/1/⭕️)
+##### java.io.LineNumberInputStream (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | lineNumber     | int
-1.0.2   | ⭕️          | ⭕️       | field         | markLineNumber | int
+1.0.2   | ✔️          | ⭕️       | field         | lineNumber     | int
+1.0.2   | ✔️          | ⭕️       | field         | markLineNumber | int
 1.0.2   | ✔️          | ⭕️       | constructor   | LineNumberInputStream() | InputStream
 
 
@@ -703,11 +702,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FilterInputStream() | InputStream
 
 
-##### java.io.FilenameFilter (1/0/⭕️)
+##### java.io.FilenameFilter (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | accept()       | (File,String)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | accept()       | (File,String)->boolean
 
 
 ##### java.io.FileNotFoundException (1/1/⭕️)
@@ -744,24 +743,24 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | DataOutputStream() | OutputStream
 
 
-##### java.io.DataOutput (14/0/⭕️)
+##### java.io.DataOutput (14/14/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | write()        | (byte)
-1.0.2   | ⭕️          | ⭕️       | method        | write()        | (byte,int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | writeBoolean() | (boolean)
-1.0.2   | ⭕️          | ⭕️       | method        | writeByte()    | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | writeShort()   | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | writeChar()    | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | writeInt()     | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | writeLong()    | (long)
-1.0.2   | ⭕️          | ⭕️       | method        | writeFloat()   | (float)
-1.0.2   | ⭕️          | ⭕️       | method        | writeDouble()  | (double)
-1.0.2   | ⭕️          | ⭕️       | method        | writeBytes()   | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | writeChars()   | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | writeUTF()     | (String)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte)
+1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | writeBoolean() | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | writeByte()    | (int)
+1.0.2   | ✔️          | ⭕️       | method        | writeShort()   | (int)
+1.0.2   | ✔️          | ⭕️       | method        | writeChar()    | (int)
+1.0.2   | ✔️          | ⭕️       | method        | writeInt()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | writeLong()    | (long)
+1.0.2   | ✔️          | ⭕️       | method        | writeFloat()   | (float)
+1.0.2   | ✔️          | ⭕️       | method        | writeDouble()  | (double)
+1.0.2   | ✔️          | ⭕️       | method        | writeBytes()   | (String)
+1.0.2   | ✔️          | ⭕️       | method        | writeChars()   | (String)
+1.0.2   | ✔️          | ⭕️       | method        | writeUTF()     | (String)
 
 
 ##### java.io.DataInputStream (1/1/⭕️)

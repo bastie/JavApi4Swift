@@ -10,6 +10,21 @@ extension Float {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public static let MAX_VALUE = Float.greatestFiniteMagnitude
 
+  /// Positive infinity (Java Float.POSITIVE_INFINITY)
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static let POSITIVE_INFINITY = Float.infinity
+
+  /// Negative infinity (Java Float.NEGATIVE_INFINITY)
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static let NEGATIVE_INFINITY = -Float.infinity
+
+  /// Not a Number (Java Float.NaN)
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static let NaN = Float.nan
+
   /// The smallest positive nonzero value of `Float` type (Java Float.MIN_VALUE)
   ///
   /// Note: Java's Float.MIN_VALUE is the smallest *positive* nonzero value, not the most negative.

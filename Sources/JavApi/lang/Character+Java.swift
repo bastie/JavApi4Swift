@@ -128,6 +128,96 @@ extension Character {
   public static let MAX_VALUE : Character = "\u{FFFF}"
   public static let MIN_RADIX : Int = 2
   public static let MIN_VALUE : Character = "\u{0000}"
+
+  // MARK: - Java 1.0 missing methods
+
+  /// Returns true if the character is defined in Unicode
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isDefined(_ ch: Character) -> Bool {
+    return ch.unicodeScalars.first.map { $0.properties.generalCategory != .unassigned } ?? false
+  }
+
+  /// Returns true if the character is a Java letter (letter or underscore or dollar)
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isJavaLetter(_ ch: Character) -> Bool {
+    return ch.isLetter || ch == "_" || ch == "$"
+  }
+
+  /// Returns true if the character is a Java letter or digit
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isJavaLetterOrDigit(_ ch: Character) -> Bool {
+    return isJavaLetter(ch) || ch.isNumber
+  }
+
+  /// Returns true if the character is a letter or digit
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isLetterOrDigit(_ ch: Character) -> Bool {
+    return ch.isLetter || ch.isNumber
+  }
+
+  /// Returns true if the character is a lowercase letter
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isLowerCase(_ ch: Character) -> Bool {
+    return ch.isLowercase
+  }
+
+  /// Returns true if the character is an uppercase letter
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isUpperCase(_ ch: Character) -> Bool {
+    return ch.isUppercase
+  }
+
+  /// Returns true if the character is a titlecase letter
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isTitleCase(_ ch: Character) -> Bool {
+    return ch.unicodeScalars.first.map {
+      $0.properties.generalCategory == .titlecaseLetter
+    } ?? false
+  }
+
+  /// Returns true if the character is a space character (Java 1.0: space, tab, newline, return, formfeed)
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func isSpace(_ ch: Character) -> Bool {
+    return ch == " " || ch == "\t" || ch == "\n" || ch == "\r" || ch == "\u{000C}"
+  }
+
+  /// Converts character to lowercase
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func toLowerCase(_ ch: Character) -> Character {
+    let s = String(ch).lowercased()
+    return s.isEmpty ? ch : s.charAt(0)
+  }
+
+  /// Converts character to uppercase
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func toUpperCase(_ ch: Character) -> Character {
+    let s = String(ch).uppercased()
+    return s.isEmpty ? ch : s.charAt(0)
+  }
+
+  /// Converts character to titlecase (same as uppercase for most characters)
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func toTitleCase(_ ch: Character) -> Character {
+    return toUpperCase(ch)
+  }
+
+  /// Returns a String representation of the character
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public func toString() -> String {
+    return String(self)
+  }
+
+  /// Equals comparison
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public func equals(_ other: Character) -> Bool {
+    return self == other
+  }
+
+  /// Hash code
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public func hashCode() -> Int {
+    return self.hashValue
+  }
   
   
   public func digit(_ character: Character, _ radix: Int) -> Int {

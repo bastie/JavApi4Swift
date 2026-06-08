@@ -102,6 +102,24 @@ public class Math {
   }
   
   public static func round (_ d : Double) -> Int64 {
-    return llround(d)
+    return Foundation.llround(d)
+  }
+
+  /// IEEE remainder: f1 - (round(f1/f2) * f2)
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func IEEEremainder(_ f1: Double, _ f2: Double) -> Double {
+    return Foundation.remainder(f1, f2)
+  }
+
+  /// Returns the double closest to a that is a mathematical integer, rounding to even
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func rint(_ a: Double) -> Double {
+    return Foundation.rint(a)
+  }
+
+  /// Returns the angle theta from the conversion of rectangular coordinates (x, y) to polar (r, theta)
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func atan2(_ a: Double, _ b: Double) -> Double {
+    return Foundation.atan2(a, b)
   }
 }
