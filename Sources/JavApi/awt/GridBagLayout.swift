@@ -11,12 +11,6 @@ extension java.awt {
 
   /// A flexible grid layout manager — mirrors `java.awt.GridBagLayout`.
   ///
-  /// ## Implementation status
-  ///
-  /// **Step 2 (current):** Full support for `gridx`/`gridy`/`gridwidth`/`gridheight`,
-  /// `fill`, `anchor`, `insets`, `ipadx`/`ipady`, `weightx`/`weighty` extra-space
-  /// distribution, and `RELATIVE`/`REMAINDER` automatic placement.
-  ///
   /// Matches Java's behaviour: extra container space is distributed proportionally
   /// to column/row weights; RELATIVE places a component after the previous one;
   /// REMAINDER makes a component consume all remaining columns/rows in its line.

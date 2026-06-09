@@ -372,7 +372,7 @@ extension java.awt {
   }
 }
 
-#else  // Non-Apple platforms — stub without CoreGraphics
+#else  // platforms without CoreGraphics — stub 
 
 extension java.awt {
   public final class Graphics2D: Graphics {

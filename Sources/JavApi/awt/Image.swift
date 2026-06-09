@@ -22,24 +22,22 @@ extension java.awt {
     /// Höhe in Pixeln, oder -1 wenn noch nicht bekannt.
     open func getHeight(_ observer: ImageObserver? = nil) -> Int { -1 }
 
-    /// Returns the `ImageProducer` that produces the pixels for this image.
+    /// - Returns: the `ImageProducer` that produces the pixels for this image.
     ///
-    /// - TODO: Concrete subclasses (e.g. `BufferedImage`) should override this
-    ///   to return a real producer. The base implementation always returns `nil`.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// The base implementation returns `nil`. `BufferedImage` overrides this
+    /// to return a `MemoryImageSource` backed by its pixel buffer.
+    /// - Since: Java 1.0
     open func getSource() -> (any java.awt.image.ImageProducer)? { return nil }
 
-    /// Returns a `Graphics` object that can be used to draw into this image.
+    /// - Returns: a `Graphics` object that can be used to draw into this image.
     ///
-    /// Only off-screen images support this; on-screen images throw
-    /// `UnsupportedOperationException` in Java. The base implementation
-    /// returns `nil` — override in concrete off-screen subclasses.
-    ///
-    /// - TODO: Return a real `Graphics` once off-screen rendering is implemented.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// Only off-screen images support this. The base implementation returns
+    /// `nil`; `BufferedImage` overrides this to return a `Graphics` backed
+    /// by its pixel buffer.
+    /// - Since: Java 1.0
     open func getGraphics() -> java.awt.Graphics? { return nil }
 
-    /// Returns a named property of this image.
+    /// - Returns: a named property of this image.
     ///
     /// Returns `nil` if the property is not defined or not yet available.
     /// Subclasses can override to expose metadata (e.g. DPI, color space).
@@ -47,7 +45,7 @@ extension java.awt {
     /// - Parameters:
     ///   - name: The property name.
     ///   - observer: An `ImageObserver` to notify when the value is available.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getProperty(_ name: String, _ observer: (any ImageObserver)? = nil) -> AnyObject? {
       return nil
     }

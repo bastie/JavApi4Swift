@@ -71,6 +71,36 @@ extension java.awt.image {
     public override func getWidth(_ observer: java.awt.ImageObserver? = nil) -> Int  { width }
     public override func getHeight(_ observer: java.awt.ImageObserver? = nil) -> Int { height }
 
+    /// Returns a `Graphics` that draws directly into this image's pixel buffer.
+    ///
+    /// On platforms with CoreGraphics a real `CGContext` is created over the
+    /// pixel buffer; every drawing call writes directly into the image data.
+    /// On platforms without CoreGraphics `Graphics.stub` (no-op) is returned.
+    public override func getGraphics() -> java.awt.Graphics? {
+#if canImport(CoreGraphics)
+      guard let ctx = CGContext(
+        data:             &pixels,
+        width:            width,
+        height:           height,
+        bitsPerComponent: 8,
+        bytesPerRow:      width * 4,
+        space:            CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo:       CGBitmapInfo(rawValue:
+                            CGImageAlphaInfo.premultipliedFirst.rawValue |
+                            CGBitmapInfo.byteOrder32Big.rawValue).rawValue)
+      else { return java.awt.Graphics.stub }
+      return java.awt.Graphics(ctx)
+#else
+      return java.awt.Graphics.stub
+#endif
+    }
+
+    /// Returns a `MemoryImageSource` backed by this image's pixel buffer.
+    public override func getSource() -> (any java.awt.image.ImageProducer)? {
+      let intPixels = pixels.map { Int(bitPattern: UInt($0)) }
+      return java.awt.image.MemoryImageSource(width, height, intPixels, 0, width)
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Pixel-Zugriff (ARGB 0xAARRGGBB)
     // -------------------------------------------------------------------------
