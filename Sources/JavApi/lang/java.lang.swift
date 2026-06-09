@@ -20,7 +20,9 @@ extension java.lang {
   public typealias StringBuffer = JavApi.StringBuffer
   public typealias Float = Swift.Float
   public typealias Compiler = JavApi.Compiler
+  /* because SecurityManager is deprecated no typealias are provided
   public typealias SecurityManager = JavApi.SecurityManager
+   */
   public typealias ThreadGroup = JavApi.ThreadGroup
   public typealias Math = JavApi.Math
   public typealias Number = JavApi.Number

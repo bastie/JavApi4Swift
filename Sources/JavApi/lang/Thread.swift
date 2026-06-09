@@ -190,4 +190,62 @@ open class Thread: @unchecked Sendable {
     _ = group.wait(timeout: .now() + DispatchTimeInterval.milliseconds(Int(milliseconds)))
 #endif
   }
+
+  /// Sleeps for the given number of milliseconds plus nanoseconds.
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func sleep(_ millis: Int64, _ nanos: Int) {
+    let totalNanos = UInt64(millis) * 1_000_000 + UInt64(nanos)
+#if os(WASI)
+    usleep(UInt32(totalNanos / 1_000))
+#else
+    let group = DispatchGroup()
+    group.enter()
+    _ = group.wait(timeout: .now() + DispatchTimeInterval.nanoseconds(Int(totalNanos)))
+#endif
+  }
+
+  // MARK: - Thread identity / coordination
+
+  nonisolated(unsafe) private static var _threadCounter: Int = 0
+  nonisolated(unsafe) private static var _counterLock = NSLock()
+
+  /// Returns the next thread number (used internally for default thread names).
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func nextThreadNum() -> Int {
+    _counterLock.lock()
+    defer { _counterLock.unlock() }
+    _threadCounter += 1
+    return _threadCounter
+  }
+
+  /// Returns a `Thread` representing the currently executing thread.
+  ///
+  /// - Note: Swift does not expose the executing thread directly; this returns
+  ///   a new `Thread` instance whose `name` matches the current OS thread name.
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func currentThread() -> Thread {
+#if !os(WASI)
+    let threadName = Foundation.Thread.current.name ?? "main"
+    return Thread(threadName)
+#else
+    return Thread()
+#endif
+  }
+
+  /// Causes the currently executing thread to temporarily pause.
+  ///
+  /// In Java this is a hint to the scheduler; here it calls `sched_yield` on
+  /// POSIX platforms.
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func yield() {
+#if !os(WASI) && canImport(Glibc)
+    sched_yield()
+#elseif !os(WASI) && canImport(Darwin)
+    sched_yield()
+#endif
+    // On Windows / WASI: no-op
+  }
 }

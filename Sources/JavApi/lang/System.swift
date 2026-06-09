@@ -101,5 +101,57 @@ public struct System {
   public static func getenv (_ name : String) -> String? {
     return ProcessInfo.processInfo.environment[name]
   }
-  
+
+  // MARK: - Security
+  //
+  // Storage and accessors are marked deprecated themselves so that the compiler
+  // does not emit secondary warnings when the deprecated public API accesses them.
+
+  @available(*, deprecated)
+  nonisolated(unsafe) private static var _securityManager: SecurityManager? = nil
+
+  @available(*, deprecated)
+  private static func _getSecurityManager() -> SecurityManager? { _securityManager }
+
+  @available(*, deprecated)
+  private static func _setSecurityManager(_ sm: SecurityManager?) { _securityManager = sm }
+
+  /// Sets the system security manager.
+  ///
+  /// Behaviour depends on `java.expected.version` system property:
+  /// - Java < 17: sets the manager; throws `SecurityException` if already set.
+  /// - Java ≥ 17 (default): always throws `UnsupportedOperationException`
+  ///   (deprecated Java 17, effectively removed Java 18).
+  ///
+  /// - Throws: `UnsupportedOperationException` for Java ≥ 17, `SecurityException` if already set on Java < 17.
+  /// - Since: Java 1.0
+  @available(*, deprecated, message: "setSecurityManager is deprecated since Java 17 and throws UnsupportedOperationException unless java.expected.version < 17 is set")
+  public static func setSecurityManager (_ newSecurityManager: SecurityManager?) throws {
+    let expectedVersion = (try? System.getProperty("java.expected.version")).flatMap { $0.flatMap(Int.init) } ?? Int.max
+    guard expectedVersion < 17 else {
+      throw UnsupportedOperationException("setSecurityManager is not supported since Java 17")
+    }
+    if _getSecurityManager() != nil {
+      throw SecurityException("security manager already set")
+    }
+    _setSecurityManager(newSecurityManager)
+  }
+
+  /// Returns the currently installed security manager, or `nil` if none.
+  ///
+  /// Behaviour depends on `java.expected.version` system property:
+  /// - Java < 17: returns the installed manager.
+  /// - Java ≥ 17 (default): always returns `nil`
+  ///   (deprecated Java 17, effectively removed Java 18).
+  ///
+  /// - Since: Java 1.0
+  @available(*, deprecated, message: "getSecurityManager is deprecated since Java 17 and always returns nil unless java.expected.version < 17 is set")
+  public static func getSecurityManager() -> SecurityManager? {
+    let expectedVersion = (try? System.getProperty("java.expected.version")).flatMap { $0.flatMap(Int.init) } ?? Int.max
+    guard expectedVersion < 17 else {
+      return nil
+    }
+    return _getSecurityManager()
+  }
+
 }

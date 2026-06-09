@@ -77,10 +77,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | UnknownError() | 
 
 
-##### java.lang.ThreadDeath (0/0/⭕️)
+##### java.lang.ThreadDeath (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | ThreadDeath()  |
 
 
 ##### java.lang.StringIndexOutOfBoundsException (1/1/⭕️)
@@ -415,14 +416,14 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | ClassLoader()  | 
+1.0.2   | ⭕️          | ⭕️       | constructor   | ClassLoader()  | no class-loader concept in Swift; not portierbar
 
 
-##### java.lang.Compiler (6/5/⭕️)
+##### java.lang.Compiler (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | static method | initialize()   | ()
+1.0.2   | ✔️          | ⭕️       | static method | initialize()   | () — no-op (deprecated Java 9, removed Java 17)
 1.0.2   | ✔️          | ⭕️       | static method | compileClass() | (Class)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | compileClasses() | (String)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | command()      | (Object)->Object
@@ -509,39 +510,48 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | doubleValue()  | ()->double
 
 
-##### java.lang.Object (3/0/⭕️)
+##### java.lang.Object (3/3/🪄)
+
+Swift has no common `Object` base class. The three Java `Object` methods are handled as follows:
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getClass()     | ()->Class
-1.0.2   | ⭕️          | ⭕️       | method        | hashCode()     | ()->int
-1.0.2   | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
+1.0.2   | ✔️          | 🪄       | method        | getClass()     | ()->Class — Swift's `type(of: self)` is the idiomatic equivalent; a `getClass()` extension on `AnyObject` is possible but not implemented (no use case yet)
+1.0.2   | ✔️          | 🪄       | method        | hashCode()     | ()->int — implemented per type (String, Character, Boolean, Long, …) via Swift's `Hashable`
+1.0.2   | ✔️          | 🪄       | method        | equals()       | (Object)->boolean — implemented per type; Swift's `Equatable` (`==`) is the idiomatic equivalent
 
 
-##### java.lang.Process (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-
-
-##### java.lang.Runtime (1/0/⭕️)
+##### java.lang.Process (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | static method | getRuntime()   | ()->Runtime
+1.0.2   | ✔️          | ⭕️       | method        | getInputStream()  | ()->InputStream
+1.0.2   | ✔️          | ⭕️       | method        | getOutputStream() | ()->OutputStream
+1.0.2   | ✔️          | ⭕️       | method        | getErrorStream()  | ()->InputStream
+1.0.2   | ✔️          | ⭕️       | method        | waitFor()         | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | exitValue()       | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | destroy()         | ()
 
 
-##### java.lang.SecurityManager (1/0/⭕️)
+##### java.lang.Runtime (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getInCheck()   | ()->boolean
+1.0.2   | ✔️          | ⭕️       | static method | getRuntime()   | ()->Runtime
+
+
+##### java.lang.SecurityManager (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | getInCheck()   | ()->boolean
 
 
 ##### java.lang.String (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+| note: Swift's native `String` covers the Java String API; no separate port needed
 
 
 ##### java.lang.StringBuffer (1/1/⭕️)
@@ -551,23 +561,23 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | StringBuffer() | 
 
 
-##### java.lang.System (1/0/⭕️)
+##### java.lang.System (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | static method | setSecurityManager() | (SecurityManager)
+1.0.2   | ✔️          | ⭕️       | static method | setSecurityManager() | (SecurityManager)
 
 
-##### java.lang.Thread (8/5/⭕️)
+##### java.lang.Thread (8/8/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_PRIORITY   | int
 1.0.2   | ✔️          | ⭕️       | final field   | NORM_PRIORITY  | int
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_PRIORITY   | int
-1.0.2   | ⭕️          | ⭕️       | static method | nextThreadNum() | ()->int
-1.0.2   | ⭕️          | ⭕️       | static method | currentThread() | ()->Thread
-1.0.2   | ⭕️          | ⭕️       | static method | yield()        | ()
+1.0.2   | ✔️          | ⭕️       | static method | nextThreadNum() | ()->int
+1.0.2   | ✔️          | ⭕️       | static method | currentThread() | ()->Thread
+1.0.2   | ✔️          | ⭕️       | static method | yield()        | ()
 1.0.2   | ✔️          | ⭕️       | static method | sleep()        | (long)
 1.0.2   | ✔️          | ⭕️       | static method | sleep()        | (long,int)
 
@@ -579,10 +589,17 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | ThreadGroup()  | String
 
 
-##### java.lang.Throwable (0/0/⭕️)
+##### java.lang.Throwable (7/7/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Throwable()    |
+1.0.2   | ✔️          | ⭕️       | constructor   | Throwable(String) |
+1.0.2   | ✔️          | ⭕️       | constructor   | Throwable(String, Throwable) |
+1.0.2   | ✔️          | ⭕️       | constructor   | Throwable(Throwable) |
+1.0.2   | ✔️          | ⭕️       | method        | getMessage()   | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getLocalizedMessage() | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 
 
 #### java.io
@@ -1069,13 +1086,13 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 
 
-##### java.net.DatagramSocket (3/1/⭕️)
+##### java.net.DatagramSocket (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | localPort      | int
-1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket() | 
-1.0.2   | ⭕️          | ⭕️       | method        | datagramSocketBind() | (0)->=
+1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket() |
+1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket(int) |
+1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket(int, InetAddress) |
 
 
 ##### java.net.DatagramPacket (1/1/⭕️)

@@ -12,7 +12,8 @@
 ///
 /// Subclass and override individual `check*` methods to enforce custom policies.
 ///
-/// - Since: JavaApi > 0.19.1 (Java 1.0)
+/// - Since: Java 1.0
+@available(*, deprecated, message: "SecurityManager is deprecated since Java 17 and not stable unless java.expected.version < 17 is set")
 open class SecurityManager {
 
   public init() {}
@@ -96,4 +97,14 @@ open class SecurityManager {
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   open func checkPermission(_ permissionName: String) {}
+
+  // MARK: - Java 1.0 state query
+
+  /// Returns `true` if a security check is in progress.
+  ///
+  /// In Java 1.0 this indicated whether the security manager was actively
+  /// performing a check. This implementation always returns `false`.
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public func getInCheck() -> Bool { return false }
 }

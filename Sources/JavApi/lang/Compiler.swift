@@ -47,4 +47,12 @@ public final class Compiler {
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public static func disable() {}
+
+  /// Initializes the compiler. No-op in this implementation.
+  ///
+  /// In Java this was called by the VM to initialise the JIT compiler.
+  /// Deprecated in Java 9, removed in Java 17.
+  ///
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func initialize() {}
 }
