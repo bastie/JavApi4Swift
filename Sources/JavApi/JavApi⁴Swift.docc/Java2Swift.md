@@ -248,6 +248,23 @@ class MyTypeNeedToBe : Hashable {
 
 The Swift keyword is `is`. If it is only a check before casting use `as?` to optional cast.
 
+#### integer literals and 32-bit platforms (Android, WASM)
+
+On 64-bit Apple platforms `Int` is 64 bits wide, so hex literals like `0xFF000000` fit without issues. On 32-bit targets such as Android and WebAssembly `Int` is only 32 bits, and the same literal overflows:
+
+```swift
+// error on 32-bit: integer literal '4278190080' overflows when stored into 'Int'
+let alphaMask: Int = 0xFF000000
+```
+
+**Solution** — use `Int(bitPattern:)` to reinterpret the bit pattern as a signed integer:
+
+```swift
+let alphaMask: Int = Int(bitPattern: 0xFF000000)  // -16777216 on 32-bit, same bits
+```
+
+This compiles on all platforms and preserves the exact bit pattern needed for bitmask operations.
+
 #### interface
 
 Java interfaces are mapped with Swift protocols. With created package like structure (see package section) a typealias is declerated in this enum with reference of protocol implementation outside the enum. In the protocol implementation a associatedtype is declerated to the typealias name in the structure. This is f.e. needed to declerated function the result type of interface. Default methods need to declerated in a extendsion of protocol like normal Swift protocols.

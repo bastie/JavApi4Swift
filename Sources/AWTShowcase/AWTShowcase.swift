@@ -411,72 +411,35 @@ final class FileDialogListener: java.awt.event.ActionListener {
 @MainActor
 final class LogoCanvas: java.awt.Canvas {
 
-  /// Gecachtes Image — wird beim ersten paint() erzeugt.
-  private var logoImage: java.awt.image.BufferedImage? = nil
-
   override func paint(_ g: java.awt.Graphics) {
     let w = bounds.width, h = bounds.height
     guard w > 0, h > 0 else { return }
 
-    // Image beim ersten Aufruf erzeugen
-    if logoImage == nil || logoImage!.width != w || logoImage!.height != h {
-      logoImage = buildLogo(width: w, height: h)
-    }
-    if let img = logoImage {
-      g.drawImage(img, bounds.x, bounds.y, w, h)
-    }
-  }
+    // Hintergrund
+    g.setColor(background)
+    g.fillRect(bounds.x, bounds.y, w, h)
 
-  /// Zeichnet das Logo (blaues Oval, weißes „J4") in ein BufferedImage.
-  private func buildLogo(width: Int, height: Int) -> java.awt.image.BufferedImage {
-    let img = java.awt.image.BufferedImage(width, height)
-    let cx = width / 2, cy = height / 2
-    let rx = width / 2 - 2, ry = height / 2 - 2
-
-    // Hintergrund weiß
-    img.fill(.white)
-
-    // Blaues Oval
-    let blue = argb(52, 120, 246)
-    for py in 0 ..< height {
-      for px in 0 ..< width {
-        let dx = Double(px - cx) / Double(rx)
-        let dy = Double(py - cy) / Double(ry)
-        if dx*dx + dy*dy <= 1.0 {
-          img.setRGB(px, py, blue)
-        }
+#if canImport(AppKit)
+    // App-Icon laden: erst Bundle-Ressource, dann applicationIconName als Fallback
+    let nsImg: NSImage? = {
+      // SPM-Bundle: Assets.xcassets werden als Ordner kopiert
+      if let url = Bundle.module.url(
+          forResource: "Design ohne Titel256",
+          withExtension: "png",
+          subdirectory: "Assets.xcassets/AppIcon.appiconset") {
+        return NSImage(contentsOf: url)
       }
+      // .app-Bundle Fallback
+      return NSImage(named: NSImage.applicationIconName)
+    }()
+    if let img = nsImg {
+      let side = min(w, h)
+      let rect = CGRect(x: bounds.x + (w - side) / 2,
+                        y: bounds.y + (h - side) / 2,
+                        width: side, height: side)
+      img.draw(in: rect)
     }
-
-    // Weißes „J4" als Pixelstriche
-    let white = argb(255, 255, 255)
-    let t = max(2, width / 16)   // Strichstärke
-
-    func fill(_ fx: Double, _ fy: Double, _ fw: Double, _ fh: Double) {
-      let x0 = Int(fx * Double(width)),  y0 = Int(fy * Double(height))
-      let x1 = Int((fx+fw) * Double(width)), y1 = Int((fy+fh) * Double(height))
-      for yy in max(0,y0) ..< min(height,y1) {
-        for xx in max(0,x0) ..< min(width,x1) {
-          img.setRGB(xx, yy, white)
-        }
-      }
-    }
-
-    let tf = Double(t) / Double(width)
-    // J: senkrechter Strich, Haken links unten
-    fill(0.38, 0.18, tf*2, 0.45)
-    fill(0.22, 0.55, 0.18, tf*2)
-    fill(0.22, 0.45, tf*2, 0.12)
-    // 4: linker Schenkel, Querbalken, rechter Schenkel
-    fill(0.55, 0.18, tf*2, 0.30)
-    fill(0.55, 0.44, 0.22, tf*2)
-    fill(0.73, 0.18, tf*2, 0.50)
-
-    return img
-  }
-
-  private func argb(_ r: Int, _ g: Int, _ b: Int) -> Int {
-    (255 << 24) | (r << 16) | (g << 8) | b
+#endif
   }
 }
 
@@ -648,8 +611,8 @@ struct AWTShowcase {
     let frame = buildShowcase(width: 520, height: 420)
     frame.validate()
     frame.setVisible(true)
-    Swift.Swift.print("AWTShowcase headless: Frame > BorderLayout > Panel(NORTH) + Canvas(CENTER) + Panel(SOUTH)")
-    Swift.Swift.print("  SOUTH contains: Button, TextField, 2 Checkboxes, 3 RadioButtons")
+    Swift.print("AWTShowcase headless: Frame > BorderLayout > Panel(NORTH) + Canvas(CENTER) + Panel(SOUTH)")
+    Swift.print("  SOUTH contains: Button, TextField, 2 Checkboxes, 3 RadioButtons")
   }
 }
 #endif

@@ -61,7 +61,7 @@ extension java.awt.image {
       redMask:   0x00FF0000,
       greenMask: 0x0000FF00,
       blueMask:  0x000000FF,
-      alphaMask: 0xFF000000)
+      alphaMask: Int(bitPattern: 0xFF000000))
 
     /// Returns the default RGB color model.
     public static func getRGBdefault() -> ColorModel { RGBdefault }

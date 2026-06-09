@@ -216,6 +216,9 @@ extension java.awt {
 extension java.awt {
   public protocol CGContext {}
 
+  /// Concrete no-op implementation used as a stub on non-Apple platforms.
+  internal struct _StubCGContext: CGContext {}
+
   public class Graphics {
     internal var cgContext: CGContext
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
@@ -225,7 +228,7 @@ extension java.awt {
     }
 
     /// A no-op stub — used when a `Graphics` is required outside a paint cycle.
-    public static var stub: Graphics { Graphics(java.awt.CGContext()) }
+    public static var stub: Graphics { Graphics(_StubCGContext()) }
 
     public func setFont(_ f: java.awt.Font) { font = f }
     public func getFont() -> java.awt.Font  { font     }
