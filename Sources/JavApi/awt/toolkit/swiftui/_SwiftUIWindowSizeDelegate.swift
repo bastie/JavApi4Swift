@@ -2,27 +2,31 @@
  * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import Foundation
 
 #if canImport(SwiftUI)
 import SwiftUI
 
 #if os(macOS)
 
-internal final class _AWTWindowSizeDelegate: NSObject, NSWindowDelegate {
-  
+internal final class _SwiftUIWindowSizeDelegate: NSObject, NSWindowDelegate {
+
   private weak var awtWindow: java.awt.Window?
-  
+  /// Verhindert Mehrfach-Dispatch: NSApp.terminate(nil) kann ein zweites
+  /// willCloseNotification auslösen, bevor die App tatsächlich beendet ist.
+  private var didFireClosing = false
+
   init(_ awtWindow: java.awt.Window) {
     self.awtWindow = awtWindow
   }
-  
+
   func windowWillClose(_ notification: Notification) {
-    guard let awt = awtWindow else { return }
-    // WINDOW_CLOSING wird bereits in Window.setVisible(false) gefeuert,
-    // aber nur wenn der Schließvorgang von AWT initiiert wurde.
-    // Hier fangen wir den nativen X-Button ab.
-    Task { @MainActor in
+    guard let awt = awtWindow, !didFireClosing else { return }
+    didFireClosing = true
+    // Wichtig: synchron ausführen statt Task { @MainActor in },
+    // da NSApp.terminate(nil) (z.B. in windowClosing-Listenern) sofort
+    // die App beendet — ein asynchroner Task käme nie zur Ausführung.
+    // windowWillClose wird immer auf dem Main-Thread aufgerufen.
+    MainActor.assumeIsolated {
       awt.processWindowEvent(
         java.awt.event.WindowEvent(awt, java.awt.event.WindowEvent.WINDOW_CLOSING))
     }

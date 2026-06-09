@@ -13,12 +13,30 @@ extension java.awt {
     public var enabled: Bool = true
     public var shortcut: MenuShortcut? = nil
 
+    /// `true` if this item is a visual separator rather than an actionable entry.
+    ///
+    /// Separators are created via `Menu.addSeparator()` or `Menu.insertSeparator(_:)`.
+    /// - Rendering: native toolkits (AppKit, UIKit) draw a platform-native divider line;
+    ///   TUI rendering falls back to `Menu._SEPARATOR_LINE` as a text representation.
+    /// - Dark Mode: native rendering uses `NSColor.separatorColor` / `UIColor.separator`
+    ///   which automatically adapts to the current appearance.
+    public let isSeparator: Bool
+
     private var actionListeners: [java.awt.event.ActionListener] = []
     private var actionCommand:   String = ""
 
     public init(_ label: String = "") {
       self.label         = label
       self.actionCommand = label
+      self.isSeparator   = false
+    }
+
+    /// Designated initializer for separator items.
+    /// Use `Menu.addSeparator()` instead of calling this directly.
+    public init(isSeparator: Bool) {
+      self.isSeparator   = isSeparator
+      self.label         = isSeparator ? Menu._SEPARATOR_LINE : ""
+      self.actionCommand = ""
     }
 
     public convenience init(_ label: String, _ shortcut: MenuShortcut) {
@@ -73,12 +91,13 @@ extension java.awt {
   }
 
   // ---------------------------------------------------------------------------
-  // MARK: Separator-Hilfsmethode
+  // MARK: Separator factory
   // ---------------------------------------------------------------------------
 
-  /// Erzeugt einen Trennstrich-Eintrag (`"-"`).
+  /// Creates a separator `MenuItem`.
+  /// Prefer `Menu.addSeparator()` for adding separators to a menu.
   @MainActor
   public static func menuSeparator() -> MenuItem {
-    MenuItem("-")
+    MenuItem(isSeparator: true)
   }
 }

@@ -38,7 +38,6 @@ extension java.awt {
         fireWindowEvent(java.awt.event.WindowEvent.WINDOW_ACTIVATED)
       } else {
         fireWindowEvent(java.awt.event.WindowEvent.WINDOW_DEACTIVATED)
-        fireWindowEvent(java.awt.event.WindowEvent.WINDOW_CLOSING)
         toolkit.hide(self)
         fireWindowEvent(java.awt.event.WindowEvent.WINDOW_CLOSED)
       }
@@ -52,6 +51,7 @@ extension java.awt {
 
     /// Schließt das Fenster und gibt Ressourcen frei.
     open override func dispose() {
+      fireWindowEvent(java.awt.event.WindowEvent.WINDOW_CLOSING)
       setVisible(false)
     }
 

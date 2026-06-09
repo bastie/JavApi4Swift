@@ -14,17 +14,17 @@ import SwiftUI
 #if os(macOS)
 import AppKit
 
-internal struct _AWTCanvasViewRepresentable: NSViewRepresentable {
+internal struct _SwiftUICanvasViewRepresentable: NSViewRepresentable {
   
   let component: java.awt.Component
   
-  func makeNSView(context: Context) -> _AWTNativeCanvas {
-    let v = _AWTNativeCanvas()
+  func makeNSView(context: Context) -> _SwiftUINativeCanvas {
+    let v = _SwiftUINativeCanvas()
     v.component = component
     return v
   }
   
-  func updateNSView(_ nsView: _AWTNativeCanvas, context: Context) {
+  func updateNSView(_ nsView: _SwiftUINativeCanvas, context: Context) {
     nsView.component = component
     nsView.needsDisplay = true
   }
@@ -33,17 +33,17 @@ internal struct _AWTCanvasViewRepresentable: NSViewRepresentable {
 #elseif os(iOS) || os(tvOS)
 import UIKit
 
-internal struct _AWTCanvasViewRepresentable: UIViewRepresentable {
+internal struct _SwiftUICanvasViewRepresentable: UIViewRepresentable {
 
   let component: java.awt.Component
 
-  func makeUIView(context: Context) -> _AWTNativeCanvas {
-    let v = _AWTNativeCanvas()
+  func makeUIView(context: Context) -> _SwiftUINativeCanvas {
+    let v = _SwiftUINativeCanvas()
     v.component = component
     return v
   }
 
-  func updateUIView(_ uiView: _AWTNativeCanvas, context: Context) {
+  func updateUIView(_ uiView: _SwiftUINativeCanvas, context: Context) {
     uiView.component = component
     uiView.setNeedsDisplay()
   }
@@ -53,7 +53,7 @@ internal struct _AWTCanvasViewRepresentable: UIViewRepresentable {
 // MARK: Linux / headless stub
 // ---------------------------------------------------------------------------
 
-internal struct _AWTCanvasViewRepresentable: View {
+internal struct _SwiftUICanvasViewRepresentable: View {
   let component: java.awt.Component
   var body: some View { EmptyView() }
 }

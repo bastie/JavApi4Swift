@@ -22,7 +22,7 @@ extension java.awt {
     private var selectedIndex: Int = -1
 
     // -------------------------------------------------------------------------
-    // MARK: Popup state  (managed by AWTWindowHost)
+    // MARK: Popup state  (managed by _SwiftUIWindowHost)
     // -------------------------------------------------------------------------
 
     /// `true` while the drop-down popup is visible.
@@ -118,7 +118,7 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Popup geometry  (used by AWTWindowHost for hit-testing)
+    // MARK: Popup geometry  (used by _SwiftUIWindowHost for hit-testing)
     // -------------------------------------------------------------------------
 
     /// The bounding rectangle of the popup list (below the component).

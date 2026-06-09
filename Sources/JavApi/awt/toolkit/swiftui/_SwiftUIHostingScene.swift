@@ -2,13 +2,12 @@
  * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import Foundation
 
 #if canImport(SwiftUI)
 import SwiftUI
 
 // =============================================================================
-// MARK: - AWTHostingScene  (SwiftUI App-Integration)
+// MARK: - _SwiftUIHostingScene  (SwiftUI App-Integration)
 // =============================================================================
 
 /// Eine SwiftUI `Scene`, die automatisch für jeden sichtbaren `Java.awt.Frame`
@@ -18,13 +17,13 @@ import SwiftUI
 /// ```swift
 /// @main struct MyApp: App {
 ///   var body: some Scene {
-///     AWTHostingScene()
+///     _SwiftUIHostingScene()
 ///   }
 /// }
 /// ```
-public struct AWTHostingScene: Scene {
+public struct _SwiftUIHostingScene: Scene {
   
-  @StateObject private var host = AWTWindowHost.shared
+  @StateObject private var host = _SwiftUIWindowHost.shared
   
   public init() {}
   
@@ -32,13 +31,13 @@ public struct AWTHostingScene: Scene {
 #if os(macOS)
     // Auf macOS öffnet jedes Frame als eigenes Fenster.
     WindowGroup("AWT") {
-      AWTMultiWindowView()
+      _SwiftUIMultiWindowView()
         .environmentObject(host)
     }
 #else
     // Auf iOS zeigen wir alle Frames gestapelt in einem einzigen Window.
     WindowGroup {
-      AWTMultiWindowView()
+      _SwiftUIMultiWindowView()
         .environmentObject(host)
     }
 #endif

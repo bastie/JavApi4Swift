@@ -364,7 +364,9 @@ extension java.awt {
         p.addLine(to: CGPoint(x: l.getX2(), y: l.getY2()))
         return p
       }
-      // TODO: Path2D / GeneralPath once available
+      if let path = shape as? java.awt.geom.Path2D {
+        return path.cgPath
+      }
       return nil
     }
   }

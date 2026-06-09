@@ -193,13 +193,82 @@ extension java.awt {
 
     /// Returns the stroked outline of `shape` as a new `Shape`.
     ///
-    /// - Note: A proper implementation requires `Path2D`/`GeneralPath`, which
-    ///   are not yet available. This stub returns the input shape unchanged and
-    ///   will be replaced once path types exist.
+    /// On Apple platforms the stroked path is produced via `CGPath.copy(strokingWithWidth:…)`.
+    /// On other platforms a `GeneralPath` copy of the original shape is returned as a
+    /// best-effort approximation.
     public func createStrokedShape(_ shape: any java.awt.Shape) -> any java.awt.Shape {
-      // TODO: implement via Path2D/GeneralPath once available
-      return shape
+#if canImport(CoreGraphics)
+      // Obtain a CGPath for the input shape, stroke it with our attributes,
+      // then wrap the result in a Path2D so callers get a proper java.awt.Shape.
+      if let source = cgPathFrom(shape: shape) {
+        let stroked = source.copy(
+          strokingWithWidth:  CGFloat(lineWidth),
+          lineCap:            endCap.cgLineCap,
+          lineJoin:           lineJoin.cgLineJoin,
+          miterLimit:         CGFloat(miterLimit),
+          transform:          .identity)
+        return cgPathToPath2D(stroked)
+      }
+#endif
+      // Fallback: return a GeneralPath copy of the original shape.
+      let result = java.awt.geom.GeneralPath(shape: shape)
+      return result
     }
+
+#if canImport(CoreGraphics)
+    /// Converts a `java.awt.Shape` to `CGPath`, covering all known concrete types.
+    private func cgPathFrom(shape: any java.awt.Shape) -> CGPath? {
+      if let r = shape as? java.awt.Rectangle {
+        return CGPath(rect: r.cgRect, transform: nil)
+      }
+      if let r2 = shape as? java.awt.geom.Rectangle2D {
+        return CGPath(rect: CGRect(x: r2.getX(), y: r2.getY(),
+                                   width: r2.getWidth(), height: r2.getHeight()),
+                      transform: nil)
+      }
+      if let e = shape as? java.awt.geom.Ellipse2D {
+        return CGPath(ellipseIn: CGRect(x: e.getX(), y: e.getY(),
+                                        width: e.getWidth(), height: e.getHeight()),
+                      transform: nil)
+      }
+      if let l = shape as? java.awt.geom.Line2D {
+        let p = CGMutablePath()
+        p.move(to: CGPoint(x: l.getX1(), y: l.getY1()))
+        p.addLine(to: CGPoint(x: l.getX2(), y: l.getY2()))
+        return p
+      }
+      if let path = shape as? java.awt.geom.Path2D {
+        return path.cgPath
+      }
+      return nil
+    }
+
+    /// Wraps a `CGPath` in a `Path2D.Double` by re-applying each element.
+    private func cgPathToPath2D(_ cgPath: CGPath) -> java.awt.geom.Path2D.Double {
+      let result = java.awt.geom.Path2D.Double()
+      cgPath.applyWithBlock { element in
+        let pts = element.pointee.points
+        switch element.pointee.type {
+        case .moveToPoint:
+          result.moveTo(Swift.Double(pts[0].x), Swift.Double(pts[0].y))
+        case .addLineToPoint:
+          result.lineTo(Swift.Double(pts[0].x), Swift.Double(pts[0].y))
+        case .addQuadCurveToPoint:
+          result.quadTo(Swift.Double(pts[0].x), Swift.Double(pts[0].y),
+                        Swift.Double(pts[1].x), Swift.Double(pts[1].y))
+        case .addCurveToPoint:
+          result.curveTo(Swift.Double(pts[0].x), Swift.Double(pts[0].y),
+                         Swift.Double(pts[1].x), Swift.Double(pts[1].y),
+                         Swift.Double(pts[2].x), Swift.Double(pts[2].y))
+        case .closeSubpath:
+          result.closePath()
+        @unknown default:
+          break
+        }
+      }
+      return result
+    }
+#endif
 
     // =========================================================================
     // MARK: - CoreGraphics bridge

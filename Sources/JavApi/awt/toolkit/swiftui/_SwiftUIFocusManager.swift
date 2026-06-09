@@ -14,9 +14,9 @@ import UIKit
 /// Tracks which AWT component currently has keyboard focus and routes
 /// keyboard / clipboard operations to the active TextComponent.
 @MainActor
-public final class AWTFocusManager {
+public final class _SwiftUIFocusManager {
 
-  public static let shared = AWTFocusManager()
+  public static let shared = _SwiftUIFocusManager()
   private init() {}
 
   private(set) weak var focusOwner: java.awt.Component?

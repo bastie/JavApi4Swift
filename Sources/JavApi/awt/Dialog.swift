@@ -99,18 +99,14 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     open override func setVisible(_ visible: Bool) {
-      // Plattformspezifische Modalität wird in AWTWindowHost behandelt.
+      // Plattformspezifische Modalität wird in _SwiftUIWindowHost behandelt.
       // Hier nur AWT-seitiger State + Toolkit-Dispatch.
       super.setVisible(visible)
     }
 
     /// Schließt den Dialog und beendet ggf. den modalen Loop.
     open override func dispose() {
-#if os(macOS) && canImport(SwiftUI)
-      AWTWindowHost.shared.closeDialog(self)
-#else
-      super.dispose()
-#endif
+      java.awt.Toolkit.getDefaultToolkit().closeDialog(self)
     }
   }
 }

@@ -121,8 +121,8 @@ extension String {
   ///
   /// - Parameters index
   /// - Returns char at index
-  public func charAt (_ index : Int) -> Character { // TODO: perhaps better results with Swift native but now and first it works
-    return toCharArray()[index]
+  public func charAt (_ index : Int) -> Character {
+    return self[self.index(self.startIndex, offsetBy: index)]
   }
   
   public func lastIndexOf (_ char : Character) -> Int {
@@ -225,11 +225,15 @@ extension String {
 fileprivate let TRIM_CHARACTER_SET = CharacterSet(charactersIn : "\u{0000}\u{0001}\u{0002}\u{0003}\u{0004}\u{0005}\u{0006}\u{0007}\u{0008}\u{0009}\u{000A}\u{000B}\u{000C}\u{000D}\u{000E}\u{000F}\u{0010}\u{0011}\u{0012}\u{0013}\u{0014}\u{0015}\u{0016}\u{0017}\u{0018}\u{0019}\u{001A}\u{001B}\u{001C}\u{001D}\u{001E}\u{001F}\u{0020}") // different to strip can be readed f.e. here: (https://stackoverflow.com/questions/51266582/difference-between-string-trim-and-strip-methods-in-java-11)
 
 
-// TODO: Incubation
-extension String? {
+extension String {
+  /// Returns the number of Unicode grapheme clusters in this string.
+  ///
+  /// Mirrors `java.lang.String.length()`.
+  ///
+  /// - Returns: the count of Unicode grapheme clusters 
   @inlinable
-  public func length () -> Int? {
-    return self?.count ?? nil
+  public func length() -> Int {
+    return self.count
   }
 }
 

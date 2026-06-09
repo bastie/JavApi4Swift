@@ -35,7 +35,7 @@ extension java.awt {
       if override != nil {
         switch override {
         case "Headless":
-          return HeadlessToolkit()
+          return java.awt.toolkit.HeadlessToolkit()
         default:
           break   // unknown value → fall through to platform default
         }
@@ -46,12 +46,12 @@ extension java.awt {
       switch osName {
       case "macOS", "iOS", "tvOS", "visionOS":
 #if canImport(SwiftUI)
-        return SwiftUIToolkit.shared
+        return java.awt.toolkit.swiftui.SwiftUIToolkit.shared
 #else
-        return HeadlessToolkit()
+        return java.awt.toolkit.HeadlessToolkit()
 #endif
       default:
-        return HeadlessToolkit()
+        return java.awt.toolkit.HeadlessToolkit()
       }
     }
 
@@ -65,6 +65,17 @@ extension java.awt {
     /// Bindet eine `MenuBar` an einen `Frame`.
     /// Plattform-Implementierungen überschreiben diese Methode.
     open func attachMenuBar(_ menuBar: MenuBar?, to frame: Frame) {}
+
+    /// Closes a `Dialog` and tears down any platform-modal loop or sheet.
+    ///
+    /// The base implementation falls back to `hide(_:)`.
+    /// Override in platform-specific subclasses for proper modal teardown
+    /// (e.g. ending an `NSApp.runModal` loop or an AppKit sheet).
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    open func closeDialog(_ dialog: Dialog) {
+      hide(dialog)
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Screen properties
@@ -126,6 +137,32 @@ extension java.awt {
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func getFontMetrics(_ font: java.awt.Font) -> java.awt.FontMetrics {
       return java.awt.FontMetrics(font)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: PopupMenu
+    // -------------------------------------------------------------------------
+
+    /// Shows a `PopupMenu` at position `(x, y)` relative to `origin`.
+    ///
+    /// The base implementation is a no-op. Override in platform-specific
+    /// subclasses to display a native context menu.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    open func showPopupMenu(_ menu: PopupMenu, origin: Component, x: Int, y: Int) {}
+
+    // -------------------------------------------------------------------------
+    // MARK: Focus
+    // -------------------------------------------------------------------------
+
+    /// Returns `true` if `component` currently holds keyboard focus.
+    ///
+    /// The base implementation always returns `false` (headless / unknown platform).
+    /// Override in platform-specific subclasses to query the native focus system.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    open func isFocusOwner(_ component: Component) -> Bool {
+      return false
     }
   }
 }

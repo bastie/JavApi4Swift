@@ -4,8 +4,15 @@
  */
 
 extension Cloneable {
-  // Swift called the function copy instead clone
-  func copy() -> Cloneable { // TODO: check the result type
+  /// Swift-idiomatic alias for `clone()`.
+  ///
+  /// The return type is `Cloneable` (the protocol) rather than `Self` because
+  /// `clone()` is declared on the protocol with return type `Cloneable`.
+  /// Narrowing to `Self` would require changing the `clone()` signature, which
+  /// is tracked in the FIXME in `Cloneable.swift`.
+  ///
+  /// - Returns: Cloneable
+  func copy() -> Cloneable {
     return try! self.clone()
   }
 }

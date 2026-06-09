@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: MIT
  */
 
+#if canImport(SwiftUI)
+import SwiftUI
+
 #if canImport(AppKit)
 @preconcurrency import AppKit
 
@@ -10,7 +13,7 @@
 ///
 /// Cursors are rendered once via CoreGraphics and cached as singletons.
 @MainActor
-enum _AWTDiagonalCursor {
+enum _SwiftUIDiagonalCursor {
 
   /// NE ↗︎ / SW ↙︎ diagonal resize cursor (cached).
   static let neSwCursor: NSCursor = makeDiagonalCursor(angle: .pi / 4)
@@ -81,4 +84,5 @@ enum _AWTDiagonalCursor {
     return NSCursor(image: image, hotSpot: NSPoint(x: half, y: half))
   }
 }
-#endif
+#endif   // canImport(AppKit)
+#endif   // canImport(SwiftUI)

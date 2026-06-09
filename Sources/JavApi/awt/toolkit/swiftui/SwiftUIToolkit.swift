@@ -13,13 +13,13 @@ import WatchKit
 import UIKit
 #endif
 
-extension java.awt {
+extension java.awt.toolkit.swiftui {
 
   /// SwiftUI-backed toolkit for Apple platforms (macOS, iOS, tvOS, visionOS).
   ///
-  /// Delegates window lifecycle to `AWTWindowHost`.
+  /// Delegates window lifecycle to `_SwiftUIWindowHost`.
   @MainActor
-  public final class SwiftUIToolkit: Toolkit {
+  public final class SwiftUIToolkit: java.awt.Toolkit {
 
     public static let shared = SwiftUIToolkit()
 
@@ -28,25 +28,43 @@ extension java.awt {
     public override func show(_ window: java.awt.Window) {
 #if os(macOS)
       // FileDialog verwaltet seinen eigenen nativen Panel in setVisible —
-      // kein AWTWindowHost-Fenster nötig.
+      // kein _SwiftUIWindowHost-Fenster nötig.
       if window is java.awt.FileDialog { return }
       if let dialog = window as? java.awt.Dialog {
-        AWTWindowHost.shared.openDialog(dialog)
+        _SwiftUIWindowHost.shared.openDialog(dialog)
         return
       }
-      AWTWindowHost.shared.openNewWindow(for: window)
+      _SwiftUIWindowHost.shared.openNewWindow(for: window)
 #else
-      AWTWindowHost.shared.show(window)
+      _SwiftUIWindowHost.shared.show(window)
 #endif
     }
 
     public override func hide(_ window: java.awt.Window) {
-      AWTWindowHost.shared.hide(window)
+      _SwiftUIWindowHost.shared.hide(window)
     }
 
     public override func attachMenuBar(_ menuBar: java.awt.MenuBar?, to frame: java.awt.Frame) {
 #if os(macOS)
-      AWTWindowHost.shared.attachMenuBar(menuBar, to: frame)
+      _SwiftUIWindowHost.shared.attachMenuBar(menuBar, to: frame)
+#endif
+    }
+
+    public override func showPopupMenu(_ menu: java.awt.PopupMenu, origin: java.awt.Component, x: Int, y: Int) {
+#if os(macOS)
+      menu._showNative(origin: origin, x: x, y: y)
+#endif
+    }
+
+    public override func isFocusOwner(_ component: java.awt.Component) -> Bool {
+      return _SwiftUIFocusManager.shared.focusOwner === component
+    }
+
+    public override func closeDialog(_ dialog: java.awt.Dialog) {
+#if os(macOS)
+      _SwiftUIWindowHost.shared.closeDialog(dialog)
+#else
+      super.closeDialog(dialog)
 #endif
     }
 
@@ -80,8 +98,18 @@ extension java.awt {
 
     /// Returns the screen resolution in dots-per-inch.
     ///
-    /// Uses `NSScreen.main.backingScaleFactor` × 72 on macOS,
-    /// `UIScreen.main.scale` × 160 on iOS (baseline 160 dpi).
+    /// The base DPI follows the Java AWT convention per platform:
+    /// - **macOS**: baseline 72 dpi (historical PostScript/Mac standard),
+    ///   multiplied by `backingScaleFactor` (2.0 on Retina → 144 dpi).
+    /// - **iOS / tvOS**: baseline 160 dpi (Apple's point-per-inch reference
+    ///   for non-Retina iPhone), multiplied by `UIScreen.main.scale`
+    ///   (2.0 or 3.0 on Retina → 320 / 480 dpi).
+    /// - **watchOS**: baseline 160 dpi × `WKInterfaceDevice.screenScale`.
+    /// - **visionOS**: no physical screen; returns a reasonable 96 dpi default.
+    ///
+    /// The differing baselines (72 vs. 160) reflect the physical pixel densities
+    /// of the respective device families and match what `java.awt.Toolkit`
+    /// implementations return on those platforms.
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public override func getScreenResolution() -> Int {
@@ -92,7 +120,7 @@ extension java.awt {
       let scale = WKInterfaceDevice.current().screenScale
       return Int(160.0 * scale)
 #elseif os(visionOS)
-      return 96   // reasonable default; no physical screen concept on visionOS
+      return 96   // no physical screen concept on visionOS
 #elseif canImport(UIKit)
       let scale = UIScreen.main.scale
       return Int(160.0 * scale)

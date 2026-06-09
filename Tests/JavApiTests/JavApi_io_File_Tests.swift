@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 import Testing
+import Foundation
 @testable import JavApi
 
 // MARK: - macOS-specific tests
@@ -108,9 +109,9 @@ struct JavApi_io_File_CrossPlatform_Tests {
     #expect(java.io.File("baz.txt").getName() == "baz.txt")
   }
 
-  @Test("/tmp is a readable directory on macOS and Linux")
+  @Test("temp directory is readable on all platforms")
   func testListFilesOnTmpDir() {
-    let tmpDir = java.io.File("/tmp")
+    let tmpDir = java.io.File(FileManager.default.temporaryDirectory.path)
     #expect(tmpDir.isDirectory())
     #expect(tmpDir.listFiles() != nil)
   }

@@ -352,7 +352,12 @@ final class ShowcaseActionListener: java.awt.event.ActionListener {
 }
 
 @MainActor
+private var _isTerminating = false
+
+@MainActor
 func terminateApp() {
+  guard !_isTerminating else { return }
+  _isTerminating = true
 #if canImport(AppKit)
   NSApp.terminate(nil)
 #else
@@ -373,10 +378,17 @@ final class ShowcaseItemListener: java.awt.event.ItemListener {
 }
 
 /// WindowListener — gibt Fenster-Lebenszyklusereignisse auf der Konsole aus.
+///
+/// `windowClosing` wird sowohl durch den roten macOS-Schließen-Button als auch
+/// durch `dispose()` ausgelöst. In beiden Fällen wird die App beendet — damit
+/// verhält sich der rote Button identisch zum Menüpunkt „Beenden".
 @MainActor
 final class ShowcaseWindowListener: java.awt.event.WindowListener {
   func windowOpened     (_ e: java.awt.event.WindowEvent) { Swift.print("Window: opened")      }
-  func windowClosing    (_ e: java.awt.event.WindowEvent) { Swift.print("Window: closing")     }
+  func windowClosing    (_ e: java.awt.event.WindowEvent) {
+    Swift.print("Window: closing")
+    terminateApp()
+  }
   func windowClosed     (_ e: java.awt.event.WindowEvent) { Swift.print("Window: closed")      }
   func windowIconified  (_ e: java.awt.event.WindowEvent) { Swift.print("Window: iconified")   }
   func windowDeiconified(_ e: java.awt.event.WindowEvent) { Swift.print("Window: deiconified") }
@@ -583,7 +595,7 @@ final class AWTShowcaseDelegate: NSObject, NSApplicationDelegate {
   func applicationDidFinishLaunching(_ notification: Notification) {
     NSApp.setActivationPolicy(.regular)
     NSApp.activate(ignoringOtherApps: true)
-    AWTWindowHost.shared.openNewWindow(for: buildShowcase(width: 520, height: 420))
+    _SwiftUIWindowHost.shared.openNewWindow(for: buildShowcase(width: 520, height: 420))
   }
   func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { true }
 }
@@ -593,10 +605,10 @@ import SwiftUI
 
 @main
 struct AWTShowcase: App {
-  @StateObject private var host = AWTWindowHost.shared
+  @StateObject private var host = _SwiftUIWindowHost.shared
   var body: some Scene {
     WindowGroup {
-      AWTMultiWindowView()
+      _SwiftUIMultiWindowView()
         .environmentObject(host)
         .task {
           let frame = buildShowcase(width: 390, height: 700)

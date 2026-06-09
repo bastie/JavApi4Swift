@@ -59,7 +59,7 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Scrollbar drag state  (used by AWTWindowHost)
+    // MARK: Scrollbar drag state  (used by _SwiftUIWindowHost)
     // -------------------------------------------------------------------------
 
     var isDraggingV:       Bool = false
@@ -151,7 +151,7 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Scrollbar geometry  (used by AWTWindowHost for hit-testing)
+    // MARK: Scrollbar geometry  (used by _SwiftUIWindowHost for hit-testing)
     // -------------------------------------------------------------------------
 
     /// Full rect of the vertical scrollbar strip (nil if not shown).

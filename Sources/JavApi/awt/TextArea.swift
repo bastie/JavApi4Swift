@@ -9,7 +9,7 @@ extension java.awt {
   ///
   /// Selection, caret, clipboard, and text-change events are inherited from
   /// `TextComponent`. Keyboard and mouse interaction is wired up in
-  /// `AWTFocusManager` and `AWTWindowHost`.
+  /// `_SwiftUIFocusManager` and `_SwiftUIWindowHost`.
   open class TextArea: TextComponent {
 
     // -------------------------------------------------------------------------

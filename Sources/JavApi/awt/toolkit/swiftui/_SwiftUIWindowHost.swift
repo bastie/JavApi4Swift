@@ -1,28 +1,27 @@
 // SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
 // SPDX-License-Identifier: MIT
 //
-// AWTWindowHost ist die Brücke zwischen der plattformunabhängigen
+// _SwiftUIWindowHost ist die Brücke zwischen der plattformunabhängigen
 // java.awt.Frame-API und dem nativen SwiftUI/AppKit-Fenstersystem.
 //
 // Architekturprinzip:
 //   Frame.setVisible(true)
-//       → AWTWindowHost.shared.show(frame)
+//       → _SwiftUIWindowHost.shared.show(frame)
 //           → publiziert Frame via @Published
 //               → AWTHostingWindow (SwiftUI Scene / NSWindow) reagiert
-//                   → AWTCanvasView rendert Component.paint(Graphics)
+//                   → _SwiftUICanvasView rendert Component.paint(Graphics)
 //
 // Plattformunterstützung:
 //   macOS  — NSWindow + SwiftUI Canvas (vollständig)
 //   iOS    — UIWindow + SwiftUI Canvas  (vollständig)
 //   Linux  — Stub (kein nativer Fenstermanager; für headless-Tests)
 
-import Foundation
 
 #if canImport(SwiftUI)
 import SwiftUI
 
 // =============================================================================
-// AWTWindowHost  (Singleton — AppKit/UIKit-agnostisch)
+// _SwiftUIWindowHost  (Singleton — AppKit/UIKit-agnostisch)
 // =============================================================================
 
 /// Singleton-Brücke zwischen `Java.awt.Frame` und dem nativen Fenstersystem.
@@ -33,14 +32,14 @@ import SwiftUI
 /// ```swift
 /// @main struct MyApp: App {
 ///   var body: some Scene {
-///     AWTHostingScene()          // registriert alle Frame-Fenster
+///     _SwiftUIHostingScene()          // registriert alle Frame-Fenster
 ///   }
 /// }
 /// ```
 ///
 /// **Option B — AppDelegate-basiert (macOS)**
 /// ```swift
-/// AWTWindowHost.shared.install(in: NSApplication.shared)
+/// _SwiftUIWindowHost.shared.install(in: NSApplication.shared)
 /// ```
 ///
 /// Danach kann portierter Java-Code unverändert laufen:
@@ -51,14 +50,14 @@ import SwiftUI
 /// frame.setVisible(true)   // öffnet ein echtes macOS/iOS-Fenster
 /// ```
 @MainActor
-public final class AWTWindowHost: ObservableObject, Sendable {
+public final class _SwiftUIWindowHost: ObservableObject, Sendable {
   
   // ---------------------------------------------------------------------------
   // MARK: Singleton
   // ---------------------------------------------------------------------------
   
   /// Singleton instance
-  public static let shared = AWTWindowHost()
+  public static let shared = _SwiftUIWindowHost()
   /// private constructor
   private init() {}
   

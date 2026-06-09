@@ -11,8 +11,8 @@ How to port JavApi⁴Swift's AWT to a new platform (Linux desktop, FreeBSD, Wind
 
 JavApi⁴Swift ships two toolkit implementations out of the box:
 
-- **`SwiftUIToolkit`** — macOS, iOS, tvOS, visionOS (uses AppKit/UIKit + SwiftUI)
-- **`HeadlessToolkit`** — all other platforms (no-op, for headless/server use)
+- **`java.awt.toolkit.swiftui.SwiftUIToolkit`** — macOS, iOS, tvOS, visionOS (uses AppKit/UIKit + SwiftUI)
+- **`java.awt.toolkit.HeadlessToolkit`** — all other platforms (no-op, for headless/server use)
 
 If you want real windowing on Linux (e.g. via GTK, SDL2, Wayland, or X11) or FreeBSD, you need to write a third toolkit. This document explains what you must implement and how to plug it in.
 
@@ -27,49 +27,96 @@ java.awt.Frame.setVisible(true)
 
 The rendering pipeline is entirely custom — there is no native widget per component. Every `Button`, `TextField`, `Label` etc. draws itself via `paint(_ g: Graphics)` onto a `CGContext` (Apple) or whatever graphics surface you provide.
 
-## Step 1 — Subclass `java.awt.Toolkit`
+Platform-specific toolkit code lives under `Sources/JavApi/awt/toolkit/`. Each backend is organised as a Swift enum-as-namespace:
+
+```
+java.awt.toolkit                   (Sources/JavApi/awt/toolkit/)
+├── HeadlessToolkit                (HeadlessToolkit.swift)
+└── swiftui                        (swiftui/)
+    ├── SwiftUIToolkit             (SwiftUIToolkit.swift)
+    ├── _SwiftUIWindowHost         (_SwiftUIWindowHost.swift + +macOS.swift)
+    ├── _SwiftUIWindowSizeDelegate (_SwiftUIWindowSizeDelegate.swift)
+    ├── _SwiftUIPopupMenu          (_SwiftUIPopupMenu.swift)
+    └── …
+```
+
+Add your own backend as `java.awt.toolkit.myplatform` following the same pattern.
+
+## Step 1 — Declare your namespace
+
+Create `Sources/JavApi/awt/toolkit/myplatform/package.swift`:
+
+```swift
+extension java.awt.toolkit {
+    public enum myplatform {}
+}
+```
+
+## Step 2 — Subclass `java.awt.Toolkit`
+
+Create `Sources/JavApi/awt/toolkit/myplatform/MyPlatformToolkit.swift`:
 
 ```swift
 import JavApi
 
-@MainActor
-public final class MyLinuxToolkit: java.awt.Toolkit {
+extension java.awt.toolkit.myplatform {
 
-    public static let shared = MyLinuxToolkit()
-    private override init() {}
+    @MainActor
+    public final class MyPlatformToolkit: java.awt.Toolkit {
 
-    // Called when frame.setVisible(true) is invoked
-    public override func show(_ window: java.awt.Window) {
-        // TODO: open a native window (GTK, SDL2, X11, Wayland, …)
-        // and start rendering loop that calls window.paint(graphics)
-    }
+        public static let shared = MyPlatformToolkit()
+        private override init() {}
 
-    // Called when frame.setVisible(false) or frame.dispose()
-    public override func hide(_ window: java.awt.Window) {
-        // TODO: close / hide the native window
-    }
+        // Called when frame.setVisible(true) is invoked
+        public override func show(_ window: java.awt.Window) {
+            // TODO: open a native window (GTK, SDL2, X11, Wayland, …)
+            // and start a rendering loop that calls window.paint(graphics)
+        }
 
-    // Called when frame.setMenuBar(_:) is invoked
-    public override func attachMenuBar(_ menuBar: java.awt.MenuBar?,
-                                       to frame: java.awt.Frame) {
-        // TODO: map java.awt.MenuBar to native menu (GTK GMenu, etc.)
-        // MenuBar.getMenus() returns [java.awt.Menu]
-        // Menu.getItems() returns [java.awt.MenuItem]
-        // CheckboxMenuItem / PopupMenu are subclasses of MenuItem
+        // Called when frame.setVisible(false) or frame.dispose()
+        public override func hide(_ window: java.awt.Window) {
+            // TODO: close / hide the native window
+        }
+
+        // Called when frame.setMenuBar(_:) is invoked
+        public override func attachMenuBar(_ menuBar: java.awt.MenuBar?,
+                                           to frame: java.awt.Frame) {
+            // TODO: map java.awt.MenuBar to native menu (GTK GMenu, etc.)
+            // MenuBar.getMenus() returns [java.awt.Menu]
+            // Menu.getItems() returns [java.awt.MenuItem]
+            // item.isSeparator == true → render as native separator
+            // CheckboxMenuItem / PopupMenu are subclasses of MenuItem
+        }
+
+        // Called by PopupMenu.show()
+        public override func showPopupMenu(_ menu: java.awt.PopupMenu,
+                                           origin: java.awt.Component,
+                                           x: Int, y: Int) {
+            // TODO: show a contextual menu at (x, y) relative to origin
+        }
+
+        // Called by Component.isFocusOwner
+        public override func isFocusOwner(_ component: java.awt.Component) -> Bool {
+            // TODO: query your focus manager
+            return false
+        }
+
+        // Called by Dialog.dispose()
+        public override func closeDialog(_ dialog: java.awt.Dialog) {
+            // TODO: close / dismiss the native dialog panel
+        }
     }
 }
 ```
 
-## Step 2 — Provide a `Graphics` implementation
+## Step 3 — Provide a `Graphics` implementation
 
 `java.awt.Graphics` wraps a `CGContext` on Apple platforms. On other platforms you need to provide your own drawing surface. The cleanest approach is to subclass `Graphics` and override all drawing methods:
 
 ```swift
-// TODO: replace SkiaContext with your platform's actual graphics context type
+// TODO: replace MySurface with your platform's actual graphics context type
 public final class MyGraphics: java.awt.Graphics {
 
-    // On non-Apple platforms the CGContext protocol is a local stub in Graphics.swift.
-    // You can pass any conforming object; all real drawing happens in the overrides below.
     private let surface: MySurface
 
     public init(surface: MySurface) {
@@ -105,7 +152,7 @@ public final class MyGraphics: java.awt.Graphics {
 }
 ```
 
-## Step 3 — Render loop
+## Step 4 — Render loop
 
 Your toolkit must call `component.paint(graphics)` whenever the window needs to be redrawn. A minimal render loop looks like this:
 
@@ -114,12 +161,8 @@ func startRenderLoop(for awtWindow: java.awt.Window, nativeWindow: MyNativeWindo
     // Validate layout first
     awtWindow.validate()
 
-    // Fire WINDOW_OPENED
-    // (Window.setVisible already does this via processWindowEvent)
-
     nativeWindow.onRedraw = { surface in
         let g = MyGraphics(surface: surface)
-        // Flip Y so AWT's top-left origin matches native bottom-left origin (if needed)
         awtWindow.paint(g)
     }
 
@@ -132,57 +175,84 @@ func startRenderLoop(for awtWindow: java.awt.Window, nativeWindow: MyNativeWindo
     }
 
     nativeWindow.onClose = {
-        Task { @MainActor in
+        // Fire WINDOW_CLOSING synchronously — use MainActor.assumeIsolated
+        // if you are already on the main thread (e.g. in a native delegate callback),
+        // so that listeners calling terminate() take effect immediately.
+        MainActor.assumeIsolated {
             awtWindow.processWindowEvent(
                 java.awt.event.WindowEvent(awtWindow,
                     java.awt.event.WindowEvent.WINDOW_CLOSING))
-            awtWindow.setVisible(false)
         }
+        // Note: do NOT call awtWindow.setVisible(false) here —
+        // that is the listener's responsibility (e.g. via dispose()).
+        // setVisible(false) fires WINDOW_CLOSED but not WINDOW_CLOSING.
     }
 }
 ```
 
-## Step 4 — Input events
+> **Window close event semantics**
+>
+> - `WINDOW_CLOSING` is fired in two situations: (a) by your native `onClose` handler above, and (b) by `Window.dispose()` for programmatic closes.
+> - `setVisible(false)` fires `WINDOW_DEACTIVATED` and `WINDOW_CLOSED` only — **not** `WINDOW_CLOSING`. This matches Java AWT behaviour.
+> - Guard against duplicate `onClose` calls (e.g. `NSApp.terminate` may re-trigger the native close notification). Use a `didFireClosing` boolean flag as shown in `_SwiftUIWindowSizeDelegate`.
 
-Mouse and keyboard events must be translated from native events into AWT hit-tests and focus management. Use the existing `AWTHitTest` and `AWTFocusManager` utilities:
+## Step 5 — Input events
+
+Mouse and keyboard events must be translated from native events into AWT hit-tests and focus management. Use the existing `_SwiftUIHitTest` and `_SwiftUIFocusManager` utilities as reference:
 
 ```swift
 // Mouse click at native coordinates (nx, ny) — Y may need flipping
 let pt = CGPoint(x: CGFloat(nx), y: CGFloat(windowHeight - ny))  // AWT: Y from top
-let hit = AWTHitTest.find(at: pt, in: awtWindow)
-AWTFocusManager.shared.requestFocus(hit)
-AWTHitTest.dispatch(click: hit)
+let hit = _SwiftUIHitTest.find(at: pt, in: awtWindow)
+_SwiftUIFocusManager.shared.requestFocus(hit)
+_SwiftUIHitTest.dispatch(click: hit)
 
 // Key input
-AWTFocusManager.shared.typeCharacter(character)
+_SwiftUIFocusManager.shared.typeCharacter(character)
 ```
 
 For scrollbars, Choice popups, List selection etc. follow the pattern in
-`_AWTNativeCanvas.mouseDown(with:)` in `AWTWindowHost.swift` — that file is
-the complete reference implementation for Apple platforms.
+`_SwiftUIWindowHost+macOS.swift` — that file is the complete reference
+implementation for Apple platforms.
 
-## Step 5 — Register your toolkit
+## Step 6 — Separator rendering
+
+`MenuItem.isSeparator` is `true` for separator items created via `Menu.addSeparator()`. Use it to render a native divider line instead of a menu label:
+
+```swift
+for item in menu.getItems() {
+    if item.isSeparator {
+        // render native separator — should be Dark Mode aware
+    } else {
+        // render normal item
+    }
+}
+```
+
+On Apple platforms `NSMenuItem.separator()` handles Dark Mode automatically. On other platforms use the equivalent native separator API or draw a line using the platform's separator colour.
+
+## Step 7 — Register your toolkit
 
 Set the `awt.toolkit` system property **before** any AWT code runs:
 
 ```swift
 // In your app's entry point, before calling frame.setVisible(true):
-try? System.setProperty("awt.toolkit", "MyLinuxToolkit")
+try? System.setProperty("awt.toolkit", "MyPlatformToolkit")
 ```
 
-Then add your toolkit name to `Toolkit.getDefaultToolkit()`:
+Then add your toolkit to `Toolkit.getDefaultToolkit()` in `Toolkit.swift`:
 
 ```swift
-// In Toolkit.swift, add a case to the switch:
-case "MyLinuxToolkit":
-    return MyLinuxToolkit.shared
+case "MyPlatformToolkit":
+    return java.awt.toolkit.myplatform.MyPlatformToolkit.shared
 ```
 
-Alternatively — and more cleanly — detect your platform via `os.name`:
+Alternatively detect your platform via compile-time conditions:
 
 ```swift
-case "Linux":
-    return MyLinuxToolkit.shared
+#if os(Linux)
+    return java.awt.toolkit.myplatform.MyPlatformToolkit.shared
+#endif
 ```
 
 ## Checklist
@@ -193,11 +263,13 @@ Before shipping your toolkit, verify these are working:
 - [ ] Window resize calls `frame.validate()` and triggers a repaint
 - [ ] `Frame.setMinimumSize` / `getMinimumSize` is enforced during resize
 - [ ] `Frame.setMenuBar` attaches menus to the native menu bar
+- [ ] Separator items (`item.isSeparator == true`) render as native divider lines
 - [ ] Mouse click on a `Button` triggers `actionPerformed`
 - [ ] Keyboard input reaches the focused `TextField` / `TextArea`
 - [ ] `Dialog` (modal and non-modal) blocks / does not block correctly
 - [ ] `FileDialog` opens the native file chooser
-- [ ] `Window.dispose()` closes the window and fires `WINDOW_CLOSED`
+- [ ] `Window.dispose()` fires `WINDOW_CLOSING` then `WINDOW_CLOSED`
+- [ ] Native close button fires `WINDOW_CLOSING` exactly once
 - [ ] `WindowListener` receives `opened`, `closing`, `closed`, `activated`, `deactivated`
 - [ ] `PopupMenu.show` appears at the correct screen position
 - [ ] `Choice` popup appears and dismisses correctly
@@ -209,9 +281,10 @@ Before shipping your toolkit, verify these are working:
 
 | File | What it shows |
 |------|--------------|
-| `Sources/JavApi/SwiftExtensions/SwiftUI/AWTWindowHost.swift` | Complete Apple implementation — window lifecycle, render loop, input dispatch |
-| `Sources/JavApi/awt/HeadlessToolkit.swift` | Minimal no-op toolkit — starting point for a new backend |
-| `Sources/JavApi/awt/SwiftUIToolkit.swift` | How `Toolkit` delegates to the platform host |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowHost.swift` + `+macOS.swift` | Complete Apple implementation — window lifecycle, render loop, input dispatch |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowSizeDelegate.swift` | NSWindowDelegate — size constraints and `WINDOW_CLOSING` dispatch with duplicate guard |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIPopupMenu.swift` | PopupMenu rendering on macOS |
+| `Sources/JavApi/awt/toolkit/swiftui/SwiftUIToolkit.swift` | How `Toolkit` delegates to the platform host |
+| `Sources/JavApi/awt/toolkit/HeadlessToolkit.swift` | Minimal no-op toolkit — starting point for a new backend |
 | `Sources/JavApi/awt/Toolkit.swift` | `getDefaultToolkit()` selection logic and `awt.toolkit` system property |
-| `Sources/JavApi/SwiftExtensions/SwiftUI/AWTHitTest.swift` | Component hit-testing — reuse in your input handler |
-| `Sources/JavApi/SwiftExtensions/AWTFocusManager.swift` | Keyboard focus and text input — reuse directly |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIComponentView.swift` | Self-drawing component approach (Ansatz A) vs. native SwiftUI elements (Ansatz B) |

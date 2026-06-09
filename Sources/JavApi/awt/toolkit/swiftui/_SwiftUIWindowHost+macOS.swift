@@ -3,11 +3,11 @@
  * SPDX-License-Identifier: MIT
  */
 
-import Foundation
+#if canImport(SwiftUI)
+import SwiftUI
 
 #if os(macOS)
 import AppKit
-import SwiftUI
 
 // ---------------------------------------------------------------------------
 // MARK: NSWindowDelegate — erzwingt Mindest- und Höchstgröße aus AWT
@@ -15,14 +15,14 @@ import SwiftUI
 
 
 
-extension AWTWindowHost {
+extension _SwiftUIWindowHost {
   
   /// Öffnet ein `java.awt.Window` als eigenständiges `NSWindow`.
   ///
   /// Rufe dies statt `show(_:)` auf, wenn du echte separate Fenster
   /// mit nativem macOS-Chrome möchtest:
   /// ```swift
-  /// AWTWindowHost.shared.openNewWindow(for: myFrame)
+  /// _SwiftUIWindowHost.shared.openNewWindow(for: myFrame)
   /// ```
   @MainActor
   public func openNewWindow(for awtWindow: java.awt.Window) {
@@ -30,9 +30,9 @@ extension AWTWindowHost {
     awtWindow.validate()
 
     // Kein festes .frame() → NSHostingView füllt das NSWindow aus;
-    // setFrameSize in _AWTNativeCanvas löst validate() aus, wenn sich die Größe ändert.
+    // setFrameSize in _SwiftUINativeCanvas löst validate() aus, wenn sich die Größe ändert.
     let hostingView = NSHostingView(
-      rootView: _AWTCanvasViewRepresentable(component: awtWindow)
+      rootView: _SwiftUICanvasViewRepresentable(component: awtWindow)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea())
     hostingView.autoresizingMask = [.width, .height]
@@ -51,10 +51,10 @@ extension AWTWindowHost {
 
     // Delegate erzwingt Mindest-/Höchstgröße zuverlässig über windowWillResize.
     // Der Delegate muss stark gehalten werden — wir hängen ihn ans NSWindow.
-    let sizeDelegate = _AWTWindowSizeDelegate(awtWindow)
+    let sizeDelegate = _SwiftUIWindowSizeDelegate(awtWindow)
     nsWindow.delegate = sizeDelegate
     // NSWindow hält delegate nur weak → wir speichern ihn als assoziiertes Objekt.
-    objc_setAssociatedObject(nsWindow, &AWTWindowHost.delegateKey,
+    objc_setAssociatedObject(nsWindow, &_SwiftUIWindowHost.delegateKey,
                              sizeDelegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
     if awtWindow.bounds.x == 0 && awtWindow.bounds.y == 0 {
@@ -125,8 +125,10 @@ extension AWTWindowHost {
   /// Erzeugt ein einzelnes `NSMenuItem` aus einem `java.awt.MenuItem`.
   @MainActor
   func makeNSMenuItem(from item: java.awt.MenuItem) -> NSMenuItem {
-    // Trennstrich
-    if item.getLabel() == "-" {
+    // Separator — typsicher über MenuItem.isSeparator geprüft.
+    // AppKit rendert NSMenuItem.separator() als native Trennlinie,
+    // Dark-Mode-aware ohne weiteres Zutun.
+    if item.isSeparator {
       return NSMenuItem.separator()
     }
 
@@ -134,13 +136,13 @@ extension AWTWindowHost {
 
     if let cbItem = item as? java.awt.CheckboxMenuItem {
       // CheckboxMenuItem
-      let handler = AWTMenuItemTarget(menuItem: cbItem as java.awt.MenuItem)
+      let handler = _SwiftUIMenuItemTarget(menuItem: cbItem as java.awt.MenuItem)
       nsItem = NSMenuItem(title: cbItem.getLabel(),
-                          action: #selector(AWTMenuItemTarget.trigger),
+                          action: #selector(_SwiftUIMenuItemTarget.trigger),
                           keyEquivalent: keyEquivalent(for: cbItem))
       nsItem.target = handler
       nsItem.state  = cbItem.getState() ? .on : .off
-      objc_setAssociatedObject(nsItem, &AWTWindowHost.menuTargetKey,
+      objc_setAssociatedObject(nsItem, &_SwiftUIWindowHost.menuTargetKey,
                                handler, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     } else if let subMenu = item as? java.awt.Menu {
       // Untermenü
@@ -148,15 +150,15 @@ extension AWTWindowHost {
       nsItem.submenu = buildNSSubmenu(from: subMenu)
     } else {
       // Normaler MenuItem
-      let handler = AWTMenuItemTarget(menuItem: item)
+      let handler = _SwiftUIMenuItemTarget(menuItem: item)
       nsItem = NSMenuItem(title: item.getLabel(),
-                          action: #selector(AWTMenuItemTarget.trigger),
+                          action: #selector(_SwiftUIMenuItemTarget.trigger),
                           keyEquivalent: keyEquivalent(for: item))
       nsItem.target = handler
       if let sc = item.shortcut {
         nsItem.keyEquivalentModifierMask = sc.usesShiftModifier() ? [.command, .shift] : [.command]
       }
-      objc_setAssociatedObject(nsItem, &AWTWindowHost.menuTargetKey,
+      objc_setAssociatedObject(nsItem, &_SwiftUIWindowHost.menuTargetKey,
                                handler, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
     }
 
@@ -199,7 +201,7 @@ extension AWTWindowHost {
     dialog.validate()
 
     let hostingView = NSHostingView(
-      rootView: _AWTCanvasViewRepresentable(component: dialog)
+      rootView: _SwiftUICanvasViewRepresentable(component: dialog)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .ignoresSafeArea())
     hostingView.autoresizingMask = [.width, .height]
@@ -222,13 +224,13 @@ extension AWTWindowHost {
     nsPanel.becomesKeyOnlyIfNeeded = !dialog.isModal()
 
     // Größenconstraints
-    let sizeDelegate = _AWTWindowSizeDelegate(dialog)
+    let sizeDelegate = _SwiftUIWindowSizeDelegate(dialog)
     nsPanel.delegate = sizeDelegate
-    objc_setAssociatedObject(nsPanel, &AWTWindowHost.delegateKey,
+    objc_setAssociatedObject(nsPanel, &_SwiftUIWindowHost.delegateKey,
                              sizeDelegate, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
     // nsPanel am Dialog-Objekt hängen — damit closeDialog(_:) es findet
-    objc_setAssociatedObject(dialog, &AWTWindowHost.dialogPanelKey,
+    objc_setAssociatedObject(dialog, &_SwiftUIWindowHost.dialogPanelKey,
                              nsPanel, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
     // Schließen über nativen X-Button → AWT-Zustand aufräumen
@@ -263,7 +265,7 @@ extension AWTWindowHost {
   /// Beendet `runModal`-Loop oder Sheet und schließt das NSPanel.
   @MainActor
   public func closeDialog(_ dialog: java.awt.Dialog) {
-    guard let nsPanel = objc_getAssociatedObject(dialog, &AWTWindowHost.dialogPanelKey)
+    guard let nsPanel = objc_getAssociatedObject(dialog, &_SwiftUIWindowHost.dialogPanelKey)
             as? NSPanel else {
       // Fallback: einfach hide
       hide(dialog)
@@ -285,3 +287,4 @@ extension AWTWindowHost {
 }
 
 #endif   // os(macOS)
+#endif   // canImport(SwiftUI)

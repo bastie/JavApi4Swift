@@ -32,7 +32,7 @@ extension java.awt {
     let scrollbarWidth: Int = 12
 
     // -------------------------------------------------------------------------
-    // MARK: Scrollbar drag state  (used by AWTWindowHost)
+    // MARK: Scrollbar drag state  (used by _SwiftUIWindowHost)
     // -------------------------------------------------------------------------
 
     var isScrollbarDragging: Bool = false

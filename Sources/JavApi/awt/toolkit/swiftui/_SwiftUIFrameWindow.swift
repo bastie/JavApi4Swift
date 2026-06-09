@@ -2,20 +2,19 @@
  * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
  * SPDX-License-Identifier: MIT
  */
-import Foundation
 
 #if canImport(SwiftUI)
 import SwiftUI
 
 // =============================================================================
-// MARK: - AWTFrameWindow  (ein Fenster pro java.awt.Window)
+// MARK: - _SwiftUIFrameWindow  (ein Fenster pro java.awt.Window)
 // =============================================================================
 
 /// SwiftUI-View, das ein `java.awt.Window` als vollständiges Fenster darstellt
 /// — Titelzeile (falls `Frame`) + Inhalt.
-public struct AWTFrameWindow: View {
+public struct _SwiftUIFrameWindow: View {
   
-  @ObservedObject var host = AWTWindowHost.shared
+  @ObservedObject var host = _SwiftUIWindowHost.shared
   public let window: java.awt.Window
   
   /// Rückwärtskompatibel: nimmt weiterhin einen Frame an.
@@ -36,14 +35,14 @@ public struct AWTFrameWindow: View {
           .font(.headline)
           .padding(.horizontal, 8)
         Spacer()
-        Button("✕") { AWTWindowHost.shared.hide(window) }
+        Button("✕") { _SwiftUIWindowHost.shared.hide(window) }
           .padding(.trailing, 8)
       }
       .frame(height: 28)
       .background(Color(white: 0.85))
       
       // Zeichenfläche
-      AWTCanvasView(component: window)
+      _SwiftUICanvasView(component: window)
     }
     .frame(
       width:  CGFloat(window.bounds.width),

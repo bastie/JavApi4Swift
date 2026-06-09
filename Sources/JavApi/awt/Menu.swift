@@ -9,11 +9,15 @@ extension java.awt {
   ///
   /// `Menu` extends `MenuItem`, becaue submenus are item of menu or menubars
   ///
-  /// - Note: you can add an own separator String over System property `javapi.menu.separator`
+  /// - Note: Native toolkits (AppKit, UIKit) draw separator lines using the
+  ///   platform-native appearance (Dark-Mode-aware). TUI rendering uses
+  ///   `_SEPARATOR_LINE` as a text fallback, which can be customised via the
+  ///   `javapi.menu.separator` system property.
   @MainActor
   open class Menu: MenuItem {
-    
-    // change implementation to single point of failure
+
+    /// Text representation of a separator for TUI rendering.
+    /// Override via system property `javapi.menu.separator`.
     public static let _SEPARATOR_LINE = System.getProperty("javapi.menu.separator", "--- ¯\\_(ツ)_/¯ ---")
 
     /// Menuitems
@@ -33,7 +37,7 @@ extension java.awt {
 
     /// Add separator
     public func addSeparator() {
-      items.append(MenuItem(Menu._SEPARATOR_LINE))
+      items.append(MenuItem(isSeparator: true))
     }
 
     /// Insert a menuitem to this menu at given index
@@ -48,7 +52,7 @@ extension java.awt {
     /// Insert a separator at given index
     /// - Parameter index: postion of menu
     public func insertSeparator(_ index: Int) {
-      insert(MenuItem(Menu._SEPARATOR_LINE), index)
+      insert(MenuItem(isSeparator: true), index)
     }
 
     /// Remove menuitem at given index or do nothing
@@ -92,7 +96,7 @@ extension java.awt {
     /// - Returns: `true` if at index is an separator item
     public func isSeparator(at index: Int) -> Bool {
       guard index >= 0, index < items.count else { return false }
-      return items[index].getLabel() == Menu._SEPARATOR_LINE
+      return items[index].isSeparator
     }
   }
 }

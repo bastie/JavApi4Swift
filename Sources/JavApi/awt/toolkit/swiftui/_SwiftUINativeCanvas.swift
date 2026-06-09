@@ -14,7 +14,7 @@ import SwiftUI
 /// Natives NSView, das `component.paint(g)` in `draw(_:)` aufruft
 /// und Mausereignisse als AWT-Events weiterleitet.
 @MainActor
-final class _AWTNativeCanvas: NSView {
+final class _SwiftUINativeCanvas: NSView {
   
   var component: java.awt.Component? {
     didSet { subscribeCursorNotification() }
@@ -118,16 +118,16 @@ final class _AWTNativeCanvas: NSView {
         choice.isOpen = false
         openChoice    = nil
         needsDisplay  = true
-        let closeHit = AWTHitTest.find(at: pt, in: component)
+        let closeHit = _SwiftUIHitTest.find(at: pt, in: component)
         if closeHit === choice { return }
         // Otherwise fall through so the actual click target is dispatched normally.
       }
     }
     
-    let hit = AWTHitTest.find(at: pt, in: component)
+    let hit = _SwiftUIHitTest.find(at: pt, in: component)
     
     // Transfer keyboard focus
-    AWTFocusManager.shared.requestFocus(hit)
+    _SwiftUIFocusManager.shared.requestFocus(hit)
     
     if let btn = hit as? java.awt.Button {
       pressedButton = btn
@@ -309,7 +309,7 @@ final class _AWTNativeCanvas: NSView {
     }
     
     // TextField selection drag
-    if let tf = AWTFocusManager.shared.focusOwner as? java.awt.TextField {
+    if let tf = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextField {
       let idx = tf.charIndex(at: Int(pt.x))
       tf.extendSelection(to: idx)
       needsDisplay = true
@@ -317,7 +317,7 @@ final class _AWTNativeCanvas: NSView {
     }
     
     // TextArea selection drag
-    if let ta = AWTFocusManager.shared.focusOwner as? java.awt.TextArea {
+    if let ta = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextArea {
       let idx = ta.charIndex(atX: Int(pt.x), atY: Int(pt.y))
       ta.extendSelection(to: idx)
       needsDisplay = true
@@ -375,7 +375,7 @@ final class _AWTNativeCanvas: NSView {
       pressedButton  = nil
       self.setNeedsDisplay(bounds)
       let pt = awtPoint(from: event)
-      if let hit = AWTHitTest.find(at: pt, in: component ?? btn),
+      if let hit = _SwiftUIHitTest.find(at: pt, in: component ?? btn),
          hit === btn {
         btn.doClick()
       }
@@ -386,9 +386,9 @@ final class _AWTNativeCanvas: NSView {
     // Other components — TextComponent handled in mouseDown/mouseDragged
     guard let component else { return }
     let pt = awtPoint(from: event)
-    if let hit = AWTHitTest.find(at: pt, in: component),
+    if let hit = _SwiftUIHitTest.find(at: pt, in: component),
        !(hit is java.awt.TextComponent) {
-      AWTHitTest.dispatch(click: hit)
+      _SwiftUIHitTest.dispatch(click: hit)
       needsDisplay = true
     }
   }
@@ -396,7 +396,7 @@ final class _AWTNativeCanvas: NSView {
   override func scrollWheel(with event: NSEvent) {
     guard let component else { return }
     let pt  = awtPoint(from: event)
-    guard let hit = AWTHitTest.find(at: pt, in: component) else { return }
+    guard let hit = _SwiftUIHitTest.find(at: pt, in: component) else { return }
     
     if let sp = hit as? java.awt.ScrollPane {
       let dy = Int(event.scrollingDeltaY * -3)
@@ -464,9 +464,9 @@ final class _AWTNativeCanvas: NSView {
     case java.awt.Cursor.E_RESIZE_CURSOR,
          java.awt.Cursor.W_RESIZE_CURSOR:   return .resizeLeftRight
     case java.awt.Cursor.NE_RESIZE_CURSOR,
-         java.awt.Cursor.SW_RESIZE_CURSOR:  return _AWTDiagonalCursor.neSwCursor
+         java.awt.Cursor.SW_RESIZE_CURSOR:  return _SwiftUIDiagonalCursor.neSwCursor
     case java.awt.Cursor.NW_RESIZE_CURSOR,
-         java.awt.Cursor.SE_RESIZE_CURSOR:  return _AWTDiagonalCursor.nwSeCursor
+         java.awt.Cursor.SE_RESIZE_CURSOR:  return _SwiftUIDiagonalCursor.nwSeCursor
     default:                                return .arrow
     }
   }
@@ -474,7 +474,7 @@ final class _AWTNativeCanvas: NSView {
   override func mouseMoved(with event: NSEvent) {
     guard let component else { super.mouseMoved(with: event); return }
     let pt = awtPoint(from: event)
-    let hit = AWTHitTest.find(at: pt, in: component)
+    let hit = _SwiftUIHitTest.find(at: pt, in: component)
     effectiveCursor(for: hit).set()
   }
 
@@ -516,13 +516,13 @@ final class _AWTNativeCanvas: NSView {
   override func rightMouseDown(with event: NSEvent) {
     guard let component else { return }
     let pt  = awtPoint(from: event)
-    guard let hit = AWTHitTest.find(at: pt, in: component) else { return }
+    guard let hit = _SwiftUIHitTest.find(at: pt, in: component) else { return }
     guard let popup = hit.popupMenu else { return }
-    popup.showAtEvent(event, in: self)
+    popup._showAtEvent(event, in: self)
   }
   
   override func keyDown(with event: NSEvent) {
-    let fm   = AWTFocusManager.shared
+    let fm   = _SwiftUIFocusManager.shared
     let mods = event.modifierFlags
     let hasCmd   = mods.contains(.command)
     let hasShift = mods.contains(.shift)
@@ -613,7 +613,7 @@ import UIKit
 /// Natives UIView, das `component.paint(g)` in `draw(_:)` aufruft
 /// und Touch-Events als AWT-Events weiterleitet.
 @MainActor
-final class _AWTNativeCanvas: UIView {
+final class _SwiftUINativeCanvas: UIView {
   
   var component: java.awt.Component?
   
@@ -628,8 +628,8 @@ final class _AWTNativeCanvas: UIView {
     guard let component, let touch = touches.first else { return }
     let p = touch.location(in: self)
     // UIKit: Y already goes down — same as AWT, no conversion needed
-    if let hit = AWTHitTest.find(at: p, in: component) {
-      AWTHitTest.dispatch(click: hit)
+    if let hit = _SwiftUIHitTest.find(at: p, in: component) {
+      _SwiftUIHitTest.dispatch(click: hit)
       setNeedsDisplay()
     }
   }

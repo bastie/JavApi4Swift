@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.awt {
+extension java.awt.toolkit {
 
   /// Headless toolkit stub for platforms without a native window system
   /// (Linux, Windows, WASI, …).
@@ -11,7 +11,7 @@ extension java.awt {
   /// All operations are no-ops. Extend this class to add a real backend
   /// for a new platform.
   @MainActor
-  public final class HeadlessToolkit: Toolkit {
+  public final class HeadlessToolkit: java.awt.Toolkit {
 
     public override init() {}
 

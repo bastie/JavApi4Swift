@@ -8,7 +8,7 @@ import Foundation
 
 /// Hit-testing and click-dispatch for the AWT component tree.
 @MainActor
-enum AWTHitTest {
+enum _SwiftUIHitTest {
 
   // ---------------------------------------------------------------------------
   // MARK: Hit test
@@ -65,19 +65,19 @@ enum AWTHitTest {
       _ = tf   // focus already set in mouseDown; no extra click action needed
 
     case let ta as java.awt.TextArea:
-      _ = ta   // handled via mouseDown / mouseDragged in _AWTNativeCanvas
+      _ = ta   // handled via mouseDown / mouseDragged in _SwiftUINativeCanvas
 
     case let sb as java.awt.Scrollbar:
-      _ = sb   // handled via mouseDown / mouseDragged in _AWTNativeCanvas
+      _ = sb   // handled via mouseDown / mouseDragged in _SwiftUINativeCanvas
 
     case let sp as java.awt.ScrollPane:
-      _ = sp   // scrollbar strips handled via mouseDown / mouseDragged in _AWTNativeCanvas
+      _ = sp   // scrollbar strips handled via mouseDown / mouseDragged in _SwiftUINativeCanvas
 
     case let ch as java.awt.Choice:
-      _ = ch   // popup toggle handled via mouseDown in _AWTNativeCanvas
+      _ = ch   // popup toggle handled via mouseDown in _SwiftUINativeCanvas
 
     case let list as java.awt.List:
-      _ = list // selection and scrollbar drag handled via mouseDown in _AWTNativeCanvas
+      _ = list // selection and scrollbar drag handled via mouseDown in _SwiftUINativeCanvas
 
     default:
       // Fire a generic mouse-clicked event so custom Components can react

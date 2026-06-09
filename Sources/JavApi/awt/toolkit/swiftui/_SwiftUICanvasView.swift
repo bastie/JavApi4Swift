@@ -11,13 +11,13 @@ import SwiftUI
 ///
 /// Die SwiftUI `Canvas` stellt einen `CGContext` bereit; daraus wird eine
 /// `Java.awt.Graphics2D`-Instanz gebaut und an `component.paint` übergeben.
-struct AWTCanvasView: View {
+struct _SwiftUICanvasView: View {
   
   /// Die zu rendernde AWT-Komponente.
   let component: java.awt.Component
   
   var body: some View {
-    _AWTCanvasViewRepresentable(component: component)
+    _SwiftUICanvasViewRepresentable(component: component)
       .frame(
         width:  CGFloat(component.bounds.width),
         height: CGFloat(component.bounds.height))

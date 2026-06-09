@@ -191,15 +191,11 @@ extension java.awt {
 
     /// Returns `true` when this component currently holds keyboard focus.
     ///
-    /// Using a computed property (rather than `let hasFocus = false`) prevents
-    /// the Swift compiler from constant-folding focus-guarded blocks as dead code
-    /// on platforms where `AWTFocusManager` is unavailable.
+    /// Delegates to `Toolkit.getDefaultToolkit().isFocusOwner(_:)` so that
+    /// platform-specific focus systems (SwiftUI, headless, …) can be queried
+    /// without a direct dependency on `_SwiftUIFocusManager`.
     public var isFocusOwner: Bool {
-      #if canImport(SwiftUI)
-      return AWTFocusManager.shared.focusOwner === self
-      #else
-      return false
-      #endif
+      java.awt.Toolkit.getDefaultToolkit().isFocusOwner(self)
     }
 
     // -------------------------------------------------------------------------

@@ -18,8 +18,7 @@ extension java.awt {
 
     /// Returns a new `Shape` representing the stroked outline of `shape`.
     ///
-    /// - Note: Full implementation requires `Path2D`/`GeneralPath`, which are
-    ///   not yet available. Conforming types may return a stub until then.
+    /// Returns a `Path2D` describing the stroked outline of `shape`.
     func createStrokedShape(_ shape: any java.awt.Shape) -> any java.awt.Shape
   }
 }
