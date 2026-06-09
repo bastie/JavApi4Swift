@@ -398,25 +398,25 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | static method | isWhiteSpace()           | (char)->boolean
 
 
-##### java.lang.Class (8/1/⭕️)
+##### java.lang.Class (8/8/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | static method | forName()      | (String)->Class
-1.0.2   | ⭕️          | ⭕️       | method        | getClassLoader()      | ()->ClassLoader
-1.0.2   | ⭕️          | ⭕️       | method        | getInterfaces()      | ()->Class[]
-1.0.2   | ✔️          | ✔️       | method        | getName()      | ()->String
-1.0.2   | ⭕️          | ⭕️       | method        | getSuperclass()      | ()->Class
-1.0.2   | ⭕️          | ⭕️       | method        | isInterface()      | ()->boolean
-1.0.2   | ⭕️          | ⭕️       | method        | newInstance()      | ()->Object
-1.0.2   | ⭕️          | ⭕️       | method        | toString()     | ()->String
+1.0.2   | ✔️          | ⭕️       | static method | forName()      | (String)->Class — Apple platforms only (bundle scan); throws on Linux/Windows
+1.0.2   | ✔️          | ⭕️       | method        | getClassLoader() | ()->ClassLoader — fatalError/TODO: no class-loader concept in Swift
+1.0.2   | ✔️          | ⭕️       | method        | getInterfaces()  | ()->Class[] — fatalError/TODO: Swift reflection does not expose protocol conformances
+1.0.2   | ✔️          | ✔️       | method        | getName()        | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getSuperclass()  | ()->Class — fatalError/TODO: Swift reflection does not expose superclass generically
+1.0.2   | ✔️          | ⭕️       | method        | isInterface()    | ()->boolean — fatalError/TODO: Swift cannot distinguish protocols from classes
+1.0.2   | ✔️          | ⭕️       | method        | newInstance()    | ()->Object — fatalError/TODO: Swift requires explicit initializer calls
+1.0.2   | ✔️          | ⭕️       | method        | toString()       | ()->String
 
 
-##### java.lang.ClassLoader (1/0/⭕️)
+##### java.lang.ClassLoader (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | ClassLoader()  | no class-loader concept in Swift; not portierbar
+1.0.2   | ✔️          | ⭕️       | constructor   | ClassLoader()  | fatalError/TODO: future implementation via `dlopen`/`dlsym` (POSIX) or `NSBundle` (Apple)
 
 
 ##### java.lang.Compiler (6/6/⭕️)
@@ -2007,53 +2007,53 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt.peer
 
 
-##### java.awt.peer.WindowPeer (2/0/⭕️)
+##### java.awt.peer.WindowPeer (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | toFront()      | ()
-1.0.2   | ⭕️          | ⭕️       | method        | toBack()       | ()
+1.0.2   | ✔️          | ⭕️       | method        | toFront()      | ()
+1.0.2   | ✔️          | ⭕️       | method        | toBack()       | ()
 
 
-##### java.awt.peer.TextFieldPeer (3/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setEchoCharacter() | (char)
-1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int)->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
-
-
-##### java.awt.peer.TextComponentPeer (6/0/⭕️)
+##### java.awt.peer.TextFieldPeer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setEditable()  | (boolean)
-1.0.2   | ⭕️          | ⭕️       | method        | getText()      | ()->String
-1.0.2   | ⭕️          | ⭕️       | method        | setText()      | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | getSelectionStart() | ()->int
-1.0.2   | ⭕️          | ⭕️       | method        | getSelectionEnd() | ()->int
-1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setEchoCharacter() | (char)
+1.0.2   | ✔️          | ⭕️       | method        | preferredSize() | (int)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
 
 
-##### java.awt.peer.TextAreaPeer (4/0/⭕️)
+##### java.awt.peer.TextComponentPeer (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | insertText()   | (String,int)
-1.0.2   | ⭕️          | ⭕️       | method        | replaceText()  | (String,int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int,int)->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int,int)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | setEditable()  | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | getText()      | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | setText()      | (String)
+1.0.2   | ✔️          | ⭕️       | method        | getSelectionStart() | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | getSelectionEnd() | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | select()       | (int,int)
 
 
-##### java.awt.peer.ScrollbarPeer (4/0/⭕️)
+##### java.awt.peer.TextAreaPeer (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setValue()     | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | setValues()    | (int,int,int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | setLineIncrement() | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | setPageIncrement() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | insertText()   | (String,int)
+1.0.2   | ✔️          | ⭕️       | method        | replaceText()  | (String,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | preferredSize() | (int,int)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int,int)->Dimension
+
+
+##### java.awt.peer.ScrollbarPeer (4/4/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | setValue()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setValues()    | (int,int,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setLineIncrement() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setPageIncrement() | (int)
 
 
 ##### java.awt.peer.PanelPeer (0/0/⭕️)
@@ -2062,151 +2062,151 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.peer.MenuPeer (3/0/⭕️)
+##### java.awt.peer.MenuPeer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addSeparator() | ()
-1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (MenuItem)
-1.0.2   | ⭕️          | ⭕️       | method        | delItem()      | (int)
+1.0.2   | ✔️          | ⭕️       | method        | addSeparator() | ()
+1.0.2   | ✔️          | ⭕️       | method        | addItem()      | (MenuItem)
+1.0.2   | ✔️          | ⭕️       | method        | delItem()      | (int)
 
 
-##### java.awt.peer.MenuItemPeer (3/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | enable()       | ()
-1.0.2   | ⭕️          | ⭕️       | method        | disable()      | ()
-
-
-##### java.awt.peer.MenuComponentPeer (1/0/⭕️)
+##### java.awt.peer.MenuItemPeer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | dispose()      | ()
+1.0.2   | ✔️          | ⭕️       | method        | setLabel()     | (String)
+1.0.2   | ✔️          | ⭕️       | method        | enable()       | ()
+1.0.2   | ✔️          | ⭕️       | method        | disable()      | ()
 
 
-##### java.awt.peer.MenuBarPeer (3/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addMenu()      | (Menu)
-1.0.2   | ⭕️          | ⭕️       | method        | delMenu()      | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | addHelpMenu()  | (Menu)
-
-
-##### java.awt.peer.ListPeer (10/0/⭕️)
+##### java.awt.peer.MenuComponentPeer (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getSelectedIndexes() | ()->int[]
-1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (String,int)
-1.0.2   | ⭕️          | ⭕️       | method        | delItems()     | (int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | clear()        | ()
-1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | deselect()     | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | makeVisible()  | (int)
-1.0.2   | ⭕️          | ⭕️       | method        | setMultipleSelections() | (boolean)
-1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | (int)->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | dispose()      | ()
 
 
-##### java.awt.peer.LabelPeer (2/0/⭕️)
+##### java.awt.peer.MenuBarPeer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setText()      | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | setAlignment() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | addMenu()      | (Menu)
+1.0.2   | ✔️          | ⭕️       | method        | delMenu()      | (int)
+1.0.2   | ✔️          | ⭕️       | method        | addHelpMenu()  | (Menu)
 
 
-##### java.awt.peer.FramePeer (5/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setTitle()     | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | setIconImage() | (Image)
-1.0.2   | ⭕️          | ⭕️       | method        | setMenuBar()   | (MenuBar)
-1.0.2   | ⭕️          | ⭕️       | method        | setResizable() | (boolean)
-1.0.2   | ⭕️          | ⭕️       | method        | setCursor()    | (int)
-
-
-##### java.awt.peer.FileDialogPeer (3/0/⭕️)
+##### java.awt.peer.ListPeer (10/10/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setFile()      | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | setDirectory() | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | setFilenameFilter() | (FilenameFilter)
+1.0.2   | ✔️          | ⭕️       | method        | getSelectedIndexes() | ()->int[]
+1.0.2   | ✔️          | ⭕️       | method        | addItem()      | (String,int)
+1.0.2   | ✔️          | ⭕️       | method        | delItems()     | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | clear()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | select()       | (int)
+1.0.2   | ✔️          | ⭕️       | method        | deselect()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | makeVisible()  | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setMultipleSelections() | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | preferredSize() | (int)->Dimension
+1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
 
 
-##### java.awt.peer.DialogPeer (2/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setTitle()     | (String)
-1.0.2   | ⭕️          | ⭕️       | method        | setResizable() | (boolean)
-
-
-##### java.awt.peer.ContainerPeer (1/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | insets()       | ()->Insets
-
-
-##### java.awt.peer.ComponentPeer (24/0/⭕️)
+##### java.awt.peer.LabelPeer (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | show()         | ()
-1.0.2   | ⭕️          | ⭕️       | method        | hide()         | ()
-1.0.2   | ⭕️          | ⭕️       | method        | enable()       | ()
-1.0.2   | ⭕️          | ⭕️       | method        | disable()      | ()
-1.0.2   | ⭕️          | ⭕️       | method        | paint()        | (Graphics)
-1.0.2   | ⭕️          | ⭕️       | method        | repaint()      | (long,int,int,int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | print()        | (Graphics)
-1.0.2   | ⭕️          | ⭕️       | method        | reshape()      | (int,int,int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | handleEvent()  | (Event)
-1.0.2   | ⭕️          | ⭕️       | method        | minimumSize()  | ()
-1.0.2   | ⭕️          | ⭕️       | method        | preferredSize() | ()
-1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()
-1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()
-1.0.2   | ⭕️          | ⭕️       | method        | getFontMetrics() | (Font)
-1.0.2   | ⭕️          | ⭕️       | method        | dispose()      | ()
-1.0.2   | ⭕️          | ⭕️       | method        | setForeground() | (Color)
-1.0.2   | ⭕️          | ⭕️       | method        | setBackground() | (Color)
-1.0.2   | ⭕️          | ⭕️       | method        | setFont()      | (Font)
-1.0.2   | ⭕️          | ⭕️       | method        | requestFocus() | ()
-1.0.2   | ⭕️          | ⭕️       | method        | nextFocus()    | ()
-1.0.2   | ⭕️          | ⭕️       | method        | createImage()  | (ImageProducer)
-1.0.2   | ⭕️          | ⭕️       | method        | createImage()  | (int,int)
-1.0.2   | ⭕️          | ⭕️       | method        | prepareImage() | (Image,int,int,ImageObserver)
-1.0.2   | ⭕️          | ⭕️       | method        | checkImage()   | (Image,int,int,ImageObserver)
+1.0.2   | ✔️          | ⭕️       | method        | setText()      | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setAlignment() | (int)
 
 
-##### java.awt.peer.ChoicePeer (2/0/⭕️)
+##### java.awt.peer.FramePeer (5/5/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | addItem()      | (String,int)
-1.0.2   | ⭕️          | ⭕️       | method        | select()       | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setTitle()     | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setIconImage() | (Image)
+1.0.2   | ✔️          | ⭕️       | method        | setMenuBar()   | (MenuBar)
+1.0.2   | ✔️          | ⭕️       | method        | setResizable() | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | setCursor()    | (int)
 
 
-##### java.awt.peer.CheckboxPeer (3/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setState()     | (boolean)
-1.0.2   | ⭕️          | ⭕️       | method        | setCheckboxGroup() | (CheckboxGroup)
-1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
-
-
-##### java.awt.peer.CheckboxMenuItemPeer (1/0/⭕️)
+##### java.awt.peer.FileDialogPeer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setState()     | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | setFile()      | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setDirectory() | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setFilenameFilter() | (FilenameFilter)
+
+
+##### java.awt.peer.DialogPeer (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | setTitle()     | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setResizable() | (boolean)
+
+
+##### java.awt.peer.ContainerPeer (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | insets()       | ()->Insets
+
+
+##### java.awt.peer.ComponentPeer (24/24/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | show()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | hide()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | enable()       | ()
+1.0.2   | ✔️          | ⭕️       | method        | disable()      | ()
+1.0.2   | ✔️          | ⭕️       | method        | paint()        | (Graphics)
+1.0.2   | ✔️          | ⭕️       | method        | repaint()      | (long,int,int,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | print()        | (Graphics)
+1.0.2   | ✔️          | ⭕️       | method        | reshape()      | (int,int,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | handleEvent()  | (Event)
+1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | ()
+1.0.2   | ✔️          | ⭕️       | method        | preferredSize() | ()
+1.0.2   | ✔️          | ⭕️       | method        | getColorModel() | ()
+1.0.2   | ✔️          | ⭕️       | method        | getGraphics()  | ()
+1.0.2   | ✔️          | ⭕️       | method        | getFontMetrics() | (Font)
+1.0.2   | ✔️          | ⭕️       | method        | dispose()      | ()
+1.0.2   | ✔️          | ⭕️       | method        | setForeground() | (Color)
+1.0.2   | ✔️          | ⭕️       | method        | setBackground() | (Color)
+1.0.2   | ✔️          | ⭕️       | method        | setFont()      | (Font)
+1.0.2   | ✔️          | ⭕️       | method        | requestFocus() | ()
+1.0.2   | ✔️          | ⭕️       | method        | nextFocus()    | ()
+1.0.2   | ✔️          | ⭕️       | method        | createImage()  | (ImageProducer)
+1.0.2   | ✔️          | ⭕️       | method        | createImage()  | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | prepareImage() | (Image,int,int,ImageObserver)
+1.0.2   | ✔️          | ⭕️       | method        | checkImage()   | (Image,int,int,ImageObserver)
+
+
+##### java.awt.peer.ChoicePeer (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | addItem()      | (String,int)
+1.0.2   | ✔️          | ⭕️       | method        | select()       | (int)
+
+
+##### java.awt.peer.CheckboxPeer (3/3/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | setState()     | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | setCheckboxGroup() | (CheckboxGroup)
+1.0.2   | ✔️          | ⭕️       | method        | setLabel()     | (String)
+
+
+##### java.awt.peer.CheckboxMenuItemPeer (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | method        | setState()     | (boolean)
 
 
 ##### java.awt.peer.CanvasPeer (0/0/⭕️)
@@ -2215,9 +2215,9 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.peer.ButtonPeer (1/0/⭕️)
+##### java.awt.peer.ButtonPeer (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | setLabel()     | (String)
+1.0.2   | ✔️          | ⭕️       | method        | setLabel()     | (String)
 
