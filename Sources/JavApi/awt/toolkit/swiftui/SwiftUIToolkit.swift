@@ -17,7 +17,7 @@ extension java.awt.toolkit.swiftui {
 
   /// SwiftUI-backed toolkit for Apple platforms (macOS, iOS, tvOS, visionOS).
   ///
-  /// Delegates window lifecycle to `_SwiftUIWindowHost`.
+  /// - Note: Delegates window lifecycle to `_SwiftUIWindowHost`.
   @MainActor
   public final class SwiftUIToolkit: java.awt.Toolkit {
 

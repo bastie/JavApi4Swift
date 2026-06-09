@@ -281,7 +281,7 @@ Before shipping your toolkit, verify these are working:
 
 | File | What it shows |
 |------|--------------|
-| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowHost.swift` + `+macOS.swift` | Complete Apple implementation — window lifecycle, render loop, input dispatch |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowHost.swift` + `+macOS.swift` | Complete implementation for Apple platforms — window lifecycle, render loop, input dispatch |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowSizeDelegate.swift` | NSWindowDelegate — size constraints and `WINDOW_CLOSING` dispatch with duplicate guard |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIPopupMenu.swift` | PopupMenu rendering on macOS |
 | `Sources/JavApi/awt/toolkit/swiftui/SwiftUIToolkit.swift` | How `Toolkit` delegates to the platform host |
