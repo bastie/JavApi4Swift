@@ -111,7 +111,12 @@ extension java.awt.toolkit.myplatform {
 
 ## Step 3 — Provide a `Graphics` implementation
 
-`java.awt.Graphics` wraps a `CGContext` on Apple platforms. On other platforms you need to provide your own drawing surface. The cleanest approach is to subclass `Graphics` and override all drawing methods:
+`java.awt.Graphics` has two internal variants:
+
+- **Platforms with CoreGraphics** (`canImport(CoreGraphics)` — Apple and Linux with swift-corelibs): backed by a real `CGContext`.
+- **Platforms without CoreGraphics** (e.g. Windows, bare Linux without swift-corelibs): `CGContext` is a local stub protocol defined in `Graphics.swift`. There is no real graphics context — `Graphics.stub` provides a no-op instance.
+
+On a new platform you subclass `Graphics` and override all drawing methods to route to your native surface. The `CGContext` constructor parameter is only used to satisfy the compiler; on non-Apple platforms pass `_StubCGContext()` or your own conforming type:
 
 ```swift
 // TODO: replace MySurface with your platform's actual graphics context type
@@ -121,9 +126,9 @@ public final class MyGraphics: java.awt.Graphics {
 
     public init(surface: MySurface) {
         self.surface = surface
-        // The CGContext parameter is only used by the Apple implementation.
-        // Pass a placeholder that satisfies the compiler.
-        super.init(MyGraphicsBridge())
+        // On non-Apple platforms CGContext is a local stub protocol.
+        // Pass a conforming placeholder — all real drawing happens in the overrides below.
+        super.init(_StubCGContext())
     }
 
     public override func fillRect(_ x: Int, _ y: Int,

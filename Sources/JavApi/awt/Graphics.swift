@@ -211,7 +211,7 @@ extension java.awt {
   }
 }
 
-#else // Non-Apple OSs
+#else // Platforms without CoreGraphics (e.g. Windows, bare Linux without swift-corelibs)
 
 extension java.awt {
   public protocol CGContext {}
