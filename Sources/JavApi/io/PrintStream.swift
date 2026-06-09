@@ -3,24 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 extension java.io {
-  open class PrintStream : OutputStream {// TODO: FilterOutputStream between PrintStream and OutputStream
-    let delegate : OutputStream
-    
-    public init (_ newDelegate : OutputStream){
-      self.delegate = newDelegate
-    }
-    
-    public override func close() throws {
-      try self.delegate.close()
-    }
-    public override func flush() throws {
-      try self.delegate.flush ()
-    }
-    
-    public override func write(_ value: [byte]) throws {
-      try self.delegate.write(value)
-    }
-    
+  open class PrintStream : FilterOutputStream {
+
     public func print (_ s : String) {
       do {
         try self.write([UInt8] (s.data(using: .utf8)!))
@@ -39,5 +23,5 @@ extension java.io {
       }
     }
   } // EOT
-  
+
 } // EOP

@@ -18,7 +18,7 @@ This article covers the fundamental building blocks:
 - `Frame` — a top-level window
 - `Panel` — a container for grouping components
 - `Canvas` — a surface for custom drawing
-- Layout managers — rules for arranging components automatically
+- Layout managers — `BorderLayout`, `FlowLayout`, `GridLayout`, `CardLayout`, `GridBagLayout`
 - `Label` — a read-only text component
 - `Button`, `Checkbox`, `TextField`, `TextArea` — interactive controls
 - `Scrollbar` — a standalone scroll-bar component
@@ -31,7 +31,7 @@ This article covers the fundamental building blocks:
 - `Dialog` — a secondary modal or modeless window
 - `WindowListener` — reacting to window lifecycle events
 - `BufferedImage` — off-screen image drawing
-- The `java.awt.event` listener model — reacting to user input
+- `MouseListener`, `MouseMotionListener`, `KeyListener`, `FocusListener`, `ComponentListener` — the 1.1 delegation event model
 
 ## Frames
 
@@ -73,6 +73,56 @@ frame.add(toolbar,   java.awt.BorderLayout.NORTH)
 frame.add(sidebar,   java.awt.BorderLayout.WEST)
 frame.add(canvas,    java.awt.BorderLayout.CENTER)
 frame.add(statusbar, java.awt.BorderLayout.SOUTH)
+```
+
+**GridLayout** arranges components in a uniform grid of equal-sized cells, filling left-to-right, top-to-bottom.
+Pass rows and columns; set either to 0 to let the layout calculate it automatically.
+
+```swift
+let grid = java.awt.Panel(java.awt.GridLayout(3, 4, hgap: 4, vgap: 4))
+for i in 1...12 {
+    grid.add(java.awt.Button("\(i)"))
+}
+```
+
+**CardLayout** stacks multiple components in the same space and shows only one at a time — ideal for wizard steps or tab-body panels.
+
+```swift
+let deck  = java.awt.Panel()
+let cards = java.awt.CardLayout()
+deck.setLayout(cards)
+deck.add(pageOne,  "page1")
+deck.add(pageTwo,  "page2")
+deck.add(pageThree,"page3")
+
+cards.show(deck, "page2")   // jump to a named card
+cards.next(deck)            // advance one card
+cards.first(deck)           // go back to the first card
+```
+
+**GridBagLayout** is the most flexible layout manager. Each component gets its own `GridBagConstraints` that specifies its cell coordinates, spanning, fill, and weight.
+
+```swift
+let gbl = java.awt.GridBagLayout()
+let panel = java.awt.Panel()
+panel.setLayout(gbl)
+
+func add(_ comp: java.awt.Component, gridx: Int, gridy: Int,
+         gridwidth: Int = 1, gridheight: Int = 1,
+         fill: Int = java.awt.GridBagConstraints.NONE,
+         weightx: Double = 0, weighty: Double = 0) {
+    let c = java.awt.GridBagConstraints()
+    c.gridx = gridx; c.gridy = gridy
+    c.gridwidth = gridwidth; c.gridheight = gridheight
+    c.fill = fill; c.weightx = weightx; c.weighty = weighty
+    gbl.setConstraints(comp, c)
+    panel.add(comp)
+}
+
+add(java.awt.Label("Name:"),       gridx: 0, gridy: 0)
+add(java.awt.TextField(20),        gridx: 1, gridy: 0, fill: java.awt.GridBagConstraints.HORIZONTAL, weightx: 1.0)
+add(java.awt.Label("Address:"),    gridx: 0, gridy: 1)
+add(java.awt.TextArea("", 3, 20),  gridx: 1, gridy: 1, fill: java.awt.GridBagConstraints.BOTH, weightx: 1.0, weighty: 1.0)
 ```
 
 ## Panel
@@ -556,6 +606,75 @@ final class MyWindowListener: java.awt.event.WindowListener {
 The most commonly used callbacks are `windowClosing` (user clicks the red button) and
 `windowOpened` (first time the window becomes visible).
 
+## Mouse and Keyboard Input
+
+Any `Component` can receive mouse and keyboard events via listeners registered in Java 1.1's delegation event model.
+
+**MouseListener** reacts to press, release, click, enter, and exit:
+
+```swift
+myCanvas.addMouseListener(MyMouseListener())
+
+final class MyMouseListener: java.awt.event.MouseListener {
+    func mouseClicked (_ e: java.awt.event.MouseEvent) { print("click at \(e.x),\(e.y)") }
+    func mousePressed (_ e: java.awt.event.MouseEvent) { print("pressed") }
+    func mouseReleased(_ e: java.awt.event.MouseEvent) { print("released") }
+    func mouseEntered (_ e: java.awt.event.MouseEvent) { print("entered") }
+    func mouseExited  (_ e: java.awt.event.MouseEvent) { print("exited") }
+}
+```
+
+`e.getClickCount()` returns 1 for a single click, 2 for a double click. `e.getX()` / `e.getY()` give the position relative to the component.
+
+**MouseMotionListener** tracks dragging and hovering:
+
+```swift
+myCanvas.addMouseMotionListener(MyMotionListener())
+
+final class MyMotionListener: java.awt.event.MouseMotionListener {
+    func mouseDragged(_ e: java.awt.event.MouseEvent) { print("drag \(e.x),\(e.y)") }
+    func mouseMoved  (_ e: java.awt.event.MouseEvent) { print("move \(e.x),\(e.y)") }
+}
+```
+
+**KeyListener** reacts to key press, release, and typed events. The component must have focus:
+
+```swift
+myTextField.addKeyListener(MyKeyListener())
+
+final class MyKeyListener: java.awt.event.KeyListener {
+    func keyPressed (_ e: java.awt.event.KeyEvent) { print("pressed:  \(e.keyCode)") }
+    func keyReleased(_ e: java.awt.event.KeyEvent) { print("released: \(e.keyCode)") }
+    func keyTyped   (_ e: java.awt.event.KeyEvent) { print("typed:    \(e.keyChar)") }
+}
+```
+
+Use `e.getKeyCode()` for virtual key codes (`KeyEvent.VK_ENTER`, `VK_ESCAPE`, etc.) and `e.getKeyChar()` for the resulting Unicode character. Modifier state is available via `e.getModifiers()` (`InputEvent.SHIFT_MASK`, `CTRL_MASK`, `ALT_MASK`).
+
+**FocusListener** reacts when a component gains or loses keyboard focus:
+
+```swift
+myTextField.addFocusListener(MyFocusListener())
+
+final class MyFocusListener: java.awt.event.FocusListener {
+    func focusGained(_ e: java.awt.event.FocusEvent) { print("focus gained") }
+    func focusLost  (_ e: java.awt.event.FocusEvent) { print("focus lost") }
+}
+```
+
+**ComponentListener** reacts to resize, move, show, and hide events:
+
+```swift
+frame.addComponentListener(MyComponentListener())
+
+final class MyComponentListener: java.awt.event.ComponentListener {
+    func componentResized(_ e: java.awt.event.ComponentEvent) { print("resized") }
+    func componentMoved  (_ e: java.awt.event.ComponentEvent) { print("moved") }
+    func componentShown  (_ e: java.awt.event.ComponentEvent) { print("shown") }
+    func componentHidden (_ e: java.awt.event.ComponentEvent) { print("hidden") }
+}
+```
+
 ## BufferedImage
 
 `BufferedImage` is an off-screen ARGB image you can draw into pixel-by-pixel and then
@@ -736,6 +855,9 @@ This lets you compile and test the same code everywhere without conditional impo
 - `Panel` groups components and defines its own layout policy; panels can be freely nested.
 - `Canvas` is for custom drawing — override `paint(_ g: Graphics)`.
 - `BorderLayout` divides a container into five regions; `FlowLayout` flows components left-to-right.
+- `GridLayout` fills a uniform grid of equal-sized cells; set either rows or cols to 0 for automatic calculation.
+- `CardLayout` stacks components and shows one at a time; use `show`, `next`, `previous`, `first`, `last` to navigate.
+- `GridBagLayout` is the most flexible layout manager; each component gets its own `GridBagConstraints` specifying cell, span, fill, and weight.
 - `Label` shows read-only text; use `Label.LEFT`, `Label.CENTER`, or `Label.RIGHT` to control alignment.
 - `Button` fires `ActionEvent` on click; register an `ActionListener` to handle it.
 - `TextField` provides single-line text input; `TextListener` reacts to changes, `ActionListener` to Return.
@@ -750,6 +872,7 @@ This lets you compile and test the same code everywhere without conditional impo
 - `Dialog` is a secondary window (modal or modeless); call `dispose()` to close it.
 - `WindowListener` reacts to `windowOpened`, `windowClosing`, `windowClosed`, and other lifecycle events.
 - `BufferedImage` enables off-screen ARGB drawing via `fill`, `setRGB`, and `drawImage`.
+- `MouseListener` handles click/press/release/enter/exit; `MouseMotionListener` tracks drag and move; `KeyListener` handles key press/release/typed; `FocusListener` reacts to focus changes; `ComponentListener` reacts to resize/move/show/hide.
 - `Checkbox` is a toggle; add it to a `CheckboxGroup` to make it a radio button.
 - Use `setPreferredSize` and `setMinimumSize` to give the layout manager size hints; avoid hard-coding `bounds` for components inside a layout manager.
 
