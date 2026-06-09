@@ -7,6 +7,8 @@
 import SwiftUI
 #if os(macOS) && canImport(AppKit)
 import AppKit
+#elseif os(watchOS) && canImport(WatchKit)
+import WatchKit
 #elseif canImport(UIKit)
 import UIKit
 #endif
@@ -62,6 +64,12 @@ extension java.awt {
         return java.awt.Dimension(Int(frame.width), Int(frame.height))
       }
       return java.awt.Dimension(0, 0)
+#elseif os(watchOS) && canImport(WatchKit)
+      let bounds = WKInterfaceDevice.current().screenBounds
+      return java.awt.Dimension(Int(bounds.width), Int(bounds.height))
+#elseif os(visionOS)
+      // visionOS has no fixed screen — return (0,0) as headless sentinel
+      return java.awt.Dimension(0, 0)
 #elseif canImport(UIKit)
       let bounds = UIScreen.main.bounds
       return java.awt.Dimension(Int(bounds.width), Int(bounds.height))
@@ -80,6 +88,11 @@ extension java.awt {
 #if os(macOS) && canImport(AppKit)
       let scale = AppKit.NSScreen.main?.backingScaleFactor ?? 1.0
       return Int(72.0 * scale)
+#elseif os(watchOS) && canImport(WatchKit)
+      let scale = WKInterfaceDevice.current().screenScale
+      return Int(160.0 * scale)
+#elseif os(visionOS)
+      return 96   // reasonable default; no physical screen concept on visionOS
 #elseif canImport(UIKit)
       let scale = UIScreen.main.scale
       return Int(160.0 * scale)

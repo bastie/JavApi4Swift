@@ -9,6 +9,10 @@ This project provides a Java like API in 100%-pure Swift instead bridging to Jav
 
 This project use [MinD](https://sword-lang.org/sword-entwicklungsrichtlinien.html) pattern to reduce dependency and eat other great resources.
 
+## AI-assisted development
+
+Starting 2026 June 1, this project uses AI (artificial intelligence) in addition to HI (human intelligence) to support the porting work. AI assistance is applied on top of the existing implementation base.
+
 ## License
 
 This project use only business friendly **permissive licenses**.
@@ -71,11 +75,11 @@ When working with XCode add dependency
     
 When working with SwiftPM add dependency
 
-    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.46.0")
+    .package(url: "https://github.com/bastie/JavApi4Swift.git", from: "0.48.0")
 
 or
 
-    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.46.0"))
+    .Package(url: "https://github.com/bastie/JavApi4Swift.git", .upToNextMajor(from: "0.48.0"))
 
 ## Ports
 

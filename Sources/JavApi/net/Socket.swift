@@ -14,6 +14,12 @@ import Android
 import WinSDK
 #endif
 
+// `linger` is named `linger` on POSIX (Glibc/Musl/Android) but `LINGER` on
+// Windows. Use a single alias so the non-Windows code path can refer to one name.
+#if !canImport(WinSDK) && !os(WASI)
+private typealias linger_t = linger
+#endif
+
 extension java.net {
 
   /// A TCP client socket, Java 1.0 `java.net.Socket`.
@@ -229,13 +235,16 @@ extension java.net {
     public func setSoLinger(_ on: Bool, _ linger: Int) throws {
 #if !os(WASI)
       guard fd >= 0 else { throw SocketException("Socket is closed") }
-      var l = Foundation.linger()
+#if canImport(WinSDK)
+      var l = LINGER()
+      l.l_onoff  = on ? 1 : 0
+      l.l_linger = UInt16(linger)
+      platformSetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<LINGER>.size))
+#else
+      var l = linger_t()
       l.l_onoff  = on ? 1 : 0
       l.l_linger = Int32(linger)
-#if canImport(WinSDK)
-      platformSetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<Foundation.linger>.size))
-#else
-      setsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<Foundation.linger>.size))
+      setsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<linger_t>.size))
 #endif
 #endif
     }
@@ -246,15 +255,17 @@ extension java.net {
     public func getSoLinger() throws -> Int {
 #if os(WASI)
       return -1
+#elseif canImport(WinSDK)
+      guard fd >= 0 else { throw SocketException("Socket is closed") }
+      var l = LINGER()
+      var len = socklen_t(MemoryLayout<LINGER>.size)
+      platformGetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, &len)
+      return l.l_onoff != 0 ? Int(l.l_linger) : -1
 #else
       guard fd >= 0 else { throw SocketException("Socket is closed") }
-      var l = Foundation.linger()
-      var len = socklen_t(MemoryLayout<Foundation.linger>.size)
-#if canImport(WinSDK)
-      platformGetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, &len)
-#else
+      var l = linger_t()
+      var len = socklen_t(MemoryLayout<linger_t>.size)
       getsockopt(fd, SOL_SOCKET, SO_LINGER, &l, &len)
-#endif
       return l.l_onoff != 0 ? Int(l.l_linger) : -1
 #endif
     }
@@ -267,7 +278,7 @@ extension java.net {
       guard fd >= 0 else { throw SocketException("Socket is closed") }
       var flag: Int32 = on ? 1 : 0
 #if canImport(WinSDK)
-      platformSetsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, socklen_t(MemoryLayout<Int32>.size))
+      platformSetsockopt(fd, IPPROTO_TCP.rawValue, TCP_NODELAY, &flag, socklen_t(MemoryLayout<Int32>.size))
 #else
       setsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, socklen_t(MemoryLayout<Int32>.size))
 #endif
@@ -285,7 +296,7 @@ extension java.net {
       var flag: Int32 = 0
       var len = socklen_t(MemoryLayout<Int32>.size)
 #if canImport(WinSDK)
-      platformGetsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, &len)
+      platformGetsockopt(fd, IPPROTO_TCP.rawValue, TCP_NODELAY, &flag, &len)
 #else
       getsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, &len)
 #endif

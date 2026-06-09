@@ -131,6 +131,14 @@ public func platformSetsockopt(_ fd: Int32, _ level: Int32, _ optname: Int32,
                            optval.assumingMemoryBound(to: CChar.self), optlen)
 }
 
+// getsockopt(2)
+@discardableResult @inline(__always)
+public func platformGetsockopt(_ fd: Int32, _ level: Int32, _ optname: Int32,
+                                _ optval: UnsafeMutableRawPointer!, _ optlen: UnsafeMutablePointer<socklen_t>!) -> Int32 {
+  return WinSDK.getsockopt(SOCKET(bitPattern: Int64(fd)), level, optname,
+                           optval.assumingMemoryBound(to: CChar.self), optlen)
+}
+
 // getsockname(2)
 @discardableResult @inline(__always)
 public func platformGetsockname(_ fd: Int32, _ addr: UnsafeMutablePointer<sockaddr>!,
