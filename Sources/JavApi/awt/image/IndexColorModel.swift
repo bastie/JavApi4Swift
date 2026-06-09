@@ -12,19 +12,6 @@ extension java.awt.image {
   /// `map_size` entries.  An optional transparent index designates one palette
   /// entry as fully transparent (alpha = 0).
   ///
-  /// ### Java 1.0 API coverage
-  /// | Member | Status |
-  /// |---|---|
-  /// | `map_size` field | ✔️ |
-  /// | `transparent_index` field | ✔️ |
-  /// | `IndexColorModel(int,int,byte[],byte[],byte[])` | ✔️ |
-  /// | `IndexColorModel(int,int,byte[],byte[],byte[],int)` | ✔️ |
-  /// | `IndexColorModel(int,int,byte[],byte[],byte[],byte[])` | ✔️ |
-  /// | `IndexColorModel(int,int,byte[],int,boolean)` | ✔️ |
-  /// | `getMapSize()` | ✔️ |
-  /// | `getTransparentPixel()` | ✔️ |
-  /// | `getReds(_:)` / `getGreens(_:)` / `getBlues(_:)` / `getAlphas(_:)` | ✔️ |
-  /// | `getRGB(_:)` override | ✔️ |
   public final class IndexColorModel: ColorModel {
 
     // -------------------------------------------------------------------------
@@ -116,27 +103,71 @@ extension java.awt.image {
       super.init(bits)
     }
 
-    /// Creates a palette from a single packed-ARGB (or RGB) `Int` array.
+    /// Creates a palette from a single interleaved `byte` array (Java §2.6.4).
+    ///
+    /// The layout of `cmap` depends on `hasalpha`:
+    /// - `false`: each entry occupies 3 bytes — R, G, B — starting at
+    ///   `cmap[start + 3*i]`.
+    /// - `true`:  each entry occupies 4 bytes — R, G, B, A — starting at
+    ///   `cmap[start + 4*i]`.
     ///
     /// - Parameters:
     ///   - bits: Number of bits per pixel.
-    ///   - size: Number of entries to use from `cmap`.
-    ///   - cmap: Packed colour values.  If `hasalpha` is `true` the format is
-    ///           `0xAARRGGBB`; otherwise `0x00RRGGBB` and alpha is 255.
-    ///   - start: Offset into `cmap` of the first entry.
-    ///   - hasalpha: Whether `cmap` entries include an alpha channel.
+    ///   - size: Number of colour entries.
+    ///   - cmap: Interleaved colour component array.
+    ///   - start: Offset of the first component in `cmap`.
+    ///   - hasalpha: Whether every entry includes an alpha byte.
     public init(_ bits: Int, _ size: Int,
-                _ cmap: [Int], _ start: Int, _ hasalpha: Bool) {
-      let clamped = min(size, cmap.count - start)
-      self.map_size          = max(0, clamped)
+                _ cmap: [UInt8], _ start: Int, _ hasalpha: Bool) {
+      let stride  = hasalpha ? 4 : 3
+      let avail   = (cmap.count - start) / stride
+      let clamped = max(0, min(size, avail))
+      self.map_size          = clamped
       self.transparent_index = -1
       var r = [UInt8](), g = [UInt8](), b = [UInt8](), a = [UInt8]()
-      for i in 0 ..< max(0, clamped) {
-        let v = cmap[start + i]
-        r.append(UInt8((v >> 16) & 0xFF))
-        g.append(UInt8((v >>  8) & 0xFF))
-        b.append(UInt8( v        & 0xFF))
-        a.append(hasalpha ? UInt8((v >> 24) & 0xFF) : 255)
+      for i in 0 ..< clamped {
+        let base = start + i * stride
+        r.append(cmap[base])
+        g.append(cmap[base + 1])
+        b.append(cmap[base + 2])
+        a.append(hasalpha ? cmap[base + 3] : 255)
+      }
+      self.reds   = r
+      self.greens = g
+      self.blues  = b
+      self.alphas = a
+      super.init(bits)
+    }
+
+    /// Creates a palette from a single interleaved `byte` array with a
+    /// designated transparent index (Java §2.6.5).
+    ///
+    /// Same layout as `init(_:_:_:_:_:)` above; in addition the entry at
+    /// `trans` is treated as fully transparent regardless of its stored alpha.
+    ///
+    /// - Parameters:
+    ///   - bits: Number of bits per pixel.
+    ///   - size: Number of colour entries.
+    ///   - cmap: Interleaved colour component array.
+    ///   - start: Offset of the first component in `cmap`.
+    ///   - hasalpha: Whether every entry includes an alpha byte.
+    ///   - trans: Index of the fully transparent pixel (-1 for none).
+    public init(_ bits: Int, _ size: Int,
+                _ cmap: [UInt8], _ start: Int, _ hasalpha: Bool, _ trans: Int) {
+      let stride  = hasalpha ? 4 : 3
+      let avail   = (cmap.count - start) / stride
+      let clamped = max(0, min(size, avail))
+      let transIdx = (trans >= 0 && trans < clamped) ? trans : -1
+      self.map_size          = clamped
+      self.transparent_index = transIdx
+      var r = [UInt8](), g = [UInt8](), b = [UInt8](), a = [UInt8]()
+      for i in 0 ..< clamped {
+        let base = start + i * stride
+        r.append(cmap[base])
+        g.append(cmap[base + 1])
+        b.append(cmap[base + 2])
+        let alpha: UInt8 = (i == transIdx) ? 0 : (hasalpha ? cmap[base + 3] : 255)
+        a.append(alpha)
       }
       self.reds   = r
       self.greens = g

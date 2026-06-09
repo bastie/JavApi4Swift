@@ -1847,56 +1847,75 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt.image
 
 
-##### java.awt.image.RGBImageFilter (2/0/⭕️)
+##### java.awt.image.RGBImageFilter (11/11/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | canFilterIndexColorModel | boolean
-1.0.2   | ⭕️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ✔️          | ⭕️       | field         | canFilterIndexColorModel | boolean
+1.0.2   | ✔️          | ⭕️       | field         | origmodel      | ColorModel
+1.0.2   | ✔️          | ⭕️       | field         | newmodel       | ColorModel
+1.0.2   | ✔️          | ⭕️       | constructor   | RGBImageFilter() |
+1.0.2   | ✔️          | ⭕️       | method        | filterIndexColorModel() | (IndexColorModel)->IndexColorModel
+1.0.2   | ✔️          | ⭕️       | method        | filterRGB()    | (int,int,int)->int — open/abstract, subclasses override
+1.0.2   | ✔️          | ⭕️       | method        | filterRGBPixels() | (int,int,int,int,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | substituteColorModel() | (ColorModel,ColorModel)
 
 
-##### java.awt.image.PixelGrabber (12/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | dstX           | int
-1.0.2   | ⭕️          | ⭕️       | field         | dstY           | int
-1.0.2   | ⭕️          | ⭕️       | field         | dstW           | int
-1.0.2   | ⭕️          | ⭕️       | field         | dstH           | int
-1.0.2   | ⭕️          | ⭕️       | field         | dstOff         | int
-1.0.2   | ⭕️          | ⭕️       | field         | dstScan        | int
-1.0.2   | ⭕️          | ⭕️       | field         | GRABBEDBITS    | int
-1.0.2   | ⭕️          | ⭕️       | field         | DONEBITS       | int
-1.0.2   | ⭕️          | ⭕️       | field         | h,             | int
-1.0.2   | ⭕️          | ⭕️       | field         | h,             | int
-1.0.2   | ⭕️          | ⭕️       | method        | grabPixels()   | ()->boolean
-1.0.2   | ⭕️          | ⭕️       | method        | grabPixels()   | (0)->return
-
-
-##### java.awt.image.MemoryImageSource (6/0/⭕️)
+##### java.awt.image.PixelGrabber (12/12/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
-1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
-1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
-1.0.2   | ⭕️          | ⭕️       | field         | cm,            | int
-1.0.2   | ⭕️          | ⭕️       | field         | cm,            | void
-1.0.2   | ⭕️          | ⭕️       | constructor   | MemoryImageSource() | int,int,int,int,int
+1.0.2   | ✔️          | ⭕️       | constructor   | PixelGrabber() | (Image,int,int,int,int,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | PixelGrabber() | (ImageProducer,int,int,int,int,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | grabPixels()   | ()->boolean throws
+1.0.2   | ✔️          | ⭕️       | method        | grabPixels()   | (long)->boolean throws
+1.0.2   | ✔️          | ⭕️       | method        | imageComplete() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ✔️          | ⭕️       | method        | setDimensions() | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setHints()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
+1.0.2   | ✔️          | ⭕️       | method        | status()       | ()->int
 
 
-##### java.awt.image.IndexColorModel (8/0/⭕️)
+##### java.awt.image.MemoryImageSource (11/11/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | map_size       | int
-1.0.2   | ⭕️          | ⭕️       | field         | transparent_index | int
-1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
-1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
-1.0.2   | ⭕️          | ⭕️       | field         | size,          | int
-1.0.2   | ⭕️          | ⭕️       | field         | start,         | int
-1.0.2   | ⭕️          | ⭕️       | field         | start,         | int
-1.0.2   | ⭕️          | ⭕️       | method        | getMapSize()   | ()->int
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,ColorModel,byte[],int,int,Hashtable)
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,ColorModel,int[],int,int,Hashtable)
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | MemoryImageSource() | (int,int,int[],int,int,Hashtable)
+1.0.2   | ✔️          | ⭕️       | method        | addConsumer()  | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | isConsumer()   | (ImageConsumer)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | removeConsumer() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | startProduction() | (ImageConsumer)
+
+
+##### java.awt.image.IndexColorModel (13/13/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | field         | map_size       | int
+1.0.2   | ✔️          | ⭕️       | field         | transparent_index | int
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexColorModel() | (int,int,byte[],byte[],byte[])
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexColorModel() | (int,int,byte[],byte[],byte[],byte[]) — with alpha array
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexColorModel() | (int,int,byte[],byte[],byte[],int) — with transparent index
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexColorModel() | (int,int,byte[],int,boolean) — interleaved byte array
+1.0.2   | ✔️          | ⭕️       | constructor   | IndexColorModel() | (int,int,byte[],int,boolean,int) — interleaved byte array with transparent index
+1.0.2   | ✔️          | ⭕️       | method        | getMapSize()   | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | getTransparentPixel() | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | getReds()      | (byte[])
+1.0.2   | ✔️          | ⭕️       | method        | getGreens()    | (byte[])
+1.0.2   | ✔️          | ⭕️       | method        | getBlues()     | (byte[])
+1.0.2   | ✔️          | ⭕️       | method        | getAlphas()    | (byte[])
 
 
 ##### java.awt.image.ImageProducer (5/5/⭕️)
@@ -1910,11 +1929,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
 
 
-##### java.awt.image.ImageObserver (9/8/⭕️)
+##### java.awt.image.ImageObserver (9/9/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | infoflags,     | boolean
+1.0.2   | ✔️          | ⭕️       | method        | imageUpdate()  | (Image,int,int,int,int,int)->boolean
 1.0.2   | ✔️          | ⭕️       | final field   | WIDTH          | int
 1.0.2   | ✔️          | ⭕️       | final field   | HEIGHT         | int
 1.0.2   | ✔️          | ⭕️       | final field   | PROPERTIES     | int
@@ -1925,11 +1944,22 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | ABORT          | int
 
 
-##### java.awt.image.ImageFilter (1/0/⭕️)
+##### java.awt.image.ImageFilter (12/12/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getFilterInstance() | (ImageConsumer)->ImageFilter
+1.0.2   | ✔️          | ⭕️       | field         | consumer       | ImageConsumer
+1.0.2   | ✔️          | ⭕️       | constructor   | ImageFilter()  |
+1.0.2   | ✔️          | ⭕️       | method        | clone()        | ()->Object — implemented via makeInstance() factory
+1.0.2   | ✔️          | ⭕️       | method        | getFilterInstance() | (ImageConsumer)->ImageFilter
+1.0.2   | ✔️          | ⭕️       | method        | imageComplete() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | resendTopDownLeftRight() | (ImageProducer)
+1.0.2   | ✔️          | ⭕️       | method        | setColorModel() | (ColorModel)
+1.0.2   | ✔️          | ⭕️       | method        | setDimensions() | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setHints()     | (int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels()    | (int,int,int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
 
 
 ##### java.awt.image.ImageConsumer (18/18/⭕️)
@@ -1954,26 +1984,27 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | imageComplete() | (int)
 
 
-##### java.awt.image.FilteredImageSource (1/0/⭕️)
+##### java.awt.image.FilteredImageSource (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | constructor   | FilteredImageSource() | ImageProducer,ImageFilter
+1.0.2   | ✔️          | ⭕️       | constructor   | FilteredImageSource() | (ImageProducer,ImageFilter)
+1.0.2   | ✔️          | ⭕️       | method        | addConsumer()  | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | isConsumer()   | (ImageConsumer)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | removeConsumer() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
+1.0.2   | ✔️          | ⭕️       | method        | startProduction() | (ImageConsumer)
 
 
-##### java.awt.image.CropImageFilter (9/0/⭕️)
+##### java.awt.image.CropImageFilter (5/5/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | cropX          | int
-1.0.2   | ⭕️          | ⭕️       | field         | cropY          | int
-1.0.2   | ⭕️          | ⭕️       | field         | cropW          | int
-1.0.2   | ⭕️          | ⭕️       | field         | cropH          | int
-1.0.2   | ⭕️          | ⭕️       | field         | cropX          | 
-1.0.2   | ⭕️          | ⭕️       | field         | cropY          | 
-1.0.2   | ⭕️          | ⭕️       | field         | cropW          | 
-1.0.2   | ⭕️          | ⭕️       | field         | cropH          | 
-1.0.2   | ⭕️          | ⭕️       | constructor   | CropImageFilter() | int,int,int,int
+1.0.2   | ✔️          | ⭕️       | constructor   | CropImageFilter() | int,int,int,int
+1.0.2   | ✔️          | ⭕️       | method        | setDimensions() | (int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels() | (int,int,int,int,ColorModel,byte[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setPixels() | (int,int,int,int,ColorModel,int[],int,int)
+1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
 
 
 ##### java.awt.image.ColorModel (3/3/⭕️)
