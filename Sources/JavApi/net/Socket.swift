@@ -219,6 +219,79 @@ extension java.net {
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getSoTimeout() -> Int { return soTimeout }
+
+    /// Enables/disables SO_LINGER with the specified linger time in seconds.
+    ///
+    /// If `on` is `false`, SO_LINGER is disabled. If `true`, the socket will
+    /// block on ``close()`` for up to `linger` seconds until all data is sent.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func setSoLinger(_ on: Bool, _ linger: Int) throws {
+#if !os(WASI)
+      guard fd >= 0 else { throw SocketException("Socket is closed") }
+      var l = Foundation.linger()
+      l.l_onoff  = on ? 1 : 0
+      l.l_linger = Int32(linger)
+#if canImport(WinSDK)
+      platformSetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<Foundation.linger>.size))
+#else
+      setsockopt(fd, SOL_SOCKET, SO_LINGER, &l, socklen_t(MemoryLayout<Foundation.linger>.size))
+#endif
+#endif
+    }
+
+    /// Returns the SO_LINGER setting in seconds, or `-1` if disabled.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getSoLinger() throws -> Int {
+#if os(WASI)
+      return -1
+#else
+      guard fd >= 0 else { throw SocketException("Socket is closed") }
+      var l = Foundation.linger()
+      var len = socklen_t(MemoryLayout<Foundation.linger>.size)
+#if canImport(WinSDK)
+      platformGetsockopt(fd, SOL_SOCKET, SO_LINGER, &l, &len)
+#else
+      getsockopt(fd, SOL_SOCKET, SO_LINGER, &l, &len)
+#endif
+      return l.l_onoff != 0 ? Int(l.l_linger) : -1
+#endif
+    }
+
+    /// Enables/disables TCP_NODELAY (Nagle's algorithm).
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func setTcpNoDelay(_ on: Bool) throws {
+#if !os(WASI)
+      guard fd >= 0 else { throw SocketException("Socket is closed") }
+      var flag: Int32 = on ? 1 : 0
+#if canImport(WinSDK)
+      platformSetsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, socklen_t(MemoryLayout<Int32>.size))
+#else
+      setsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, socklen_t(MemoryLayout<Int32>.size))
+#endif
+#endif
+    }
+
+    /// Returns whether TCP_NODELAY is enabled.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getTcpNoDelay() throws -> Bool {
+#if os(WASI)
+      return false
+#else
+      guard fd >= 0 else { throw SocketException("Socket is closed") }
+      var flag: Int32 = 0
+      var len = socklen_t(MemoryLayout<Int32>.size)
+#if canImport(WinSDK)
+      platformGetsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, &len)
+#else
+      getsockopt(fd, Int32(IPPROTO_TCP), TCP_NODELAY, &flag, &len)
+#endif
+      return flag != 0
+#endif
+    }
   }
 }
 

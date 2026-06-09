@@ -61,6 +61,24 @@ extension java.net {
     private var connectTimeout: Int = 0   // 0 = no timeout (Java default)
     private var readTimeout: Int = 0
 
+    // MARK: - Java 1.0 public fields
+
+    /// Default value of `allowUserInteraction` for new connections (class-level).
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    nonisolated(unsafe) public static var defaultAllowUserInteraction: Bool = false
+
+    /// Whether user interaction (e.g. auth dialogs) is allowed for this connection.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public var allowUserInteraction: Bool = URLConnection.defaultAllowUserInteraction
+
+    /// Default value of `useCaches` for new connections (class-level).
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    nonisolated(unsafe) public static var defaultUseCaches: Bool = true
+
+    /// If non-zero, only fetches the resource if it was modified after this epoch-millisecond timestamp.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public var ifModifiedSince: Int64 = 0
+
     private var responseData: Data?
 #if !os(WASI)
     private var httpResponse: HTTPURLResponse?
@@ -96,6 +114,15 @@ extension java.net {
         request.timeoutInterval = Double(connectTimeout) / 1000.0
       }
       request.httpMethod = doOutput ? "POST" : "GET"
+      if ifModifiedSince > 0 {
+        // Convert epoch-milliseconds to HTTP date string
+        let date = Date(timeIntervalSince1970: Double(ifModifiedSince) / 1000.0)
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = Foundation.TimeZone(abbreviation: "GMT") ?? Foundation.TimeZone(secondsFromGMT: 0)!
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
+        request.setValue(formatter.string(from: date), forHTTPHeaderField: "If-Modified-Since")
+      }
 
       let semaphore = DispatchSemaphore(value: 0)
       nonisolated(unsafe) var fetchError: (any Error)?
@@ -268,6 +295,46 @@ extension java.net {
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getUseCaches() -> Bool { return useCaches }
+
+    /// Returns whether user interaction is allowed for this connection.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getAllowUserInteraction() -> Bool { return allowUserInteraction }
+
+    /// Sets whether user interaction is allowed for this connection.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func setAllowUserInteraction(_ allow: Bool) { allowUserInteraction = allow }
+
+    /// Returns the default `allowUserInteraction` value for all new connections.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func getDefaultAllowUserInteraction() -> Bool { return defaultAllowUserInteraction }
+
+    /// Sets the default `allowUserInteraction` value for all new connections.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func setDefaultAllowUserInteraction(_ allow: Bool) { defaultAllowUserInteraction = allow }
+
+    /// Returns the default `useCaches` value for all new connections.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func getDefaultUseCaches() -> Bool { return defaultUseCaches }
+
+    /// Sets the default `useCaches` value for all new connections.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public static func setDefaultUseCaches(_ flag: Bool) { defaultUseCaches = flag }
+
+    /// Returns the `ifModifiedSince` value in epoch milliseconds.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func getIfModifiedSince() -> Int64 { return ifModifiedSince }
+
+    /// Sets the `ifModifiedSince` value in epoch milliseconds.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func setIfModifiedSince(_ time: Int64) { ifModifiedSince = time }
 
     /// Sets the connect timeout in milliseconds. `0` means no timeout.
     ///

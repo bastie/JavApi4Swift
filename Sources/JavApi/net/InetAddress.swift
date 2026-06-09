@@ -160,6 +160,16 @@ extension java.net {
 
     // MARK: - toString
 
+    /// Returns `true` if this address equals the given object.
+    ///
+    /// Two `InetAddress` instances are equal if they represent the same IP address.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public func equals(_ other: AnyObject?) -> Bool {
+      guard let other = other as? InetAddress else { return false }
+      return addressString == other.addressString
+    }
+
     /// Returns `"hostname/address"` or just `"/address"` if no hostname is known.
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)

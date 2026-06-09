@@ -18,6 +18,8 @@ Java 1.1 introduced the delegation event model, inner classes, JavaBeans, JDBC, 
 - 🪄 no test needed 😜
 - ⭕️ implementation or test is missing 😭
 
+> **Note:** Package-private members (default access in Java) are **not** part of the public API and are therefore not ported. Only `public` and `protected` members are in scope for this implementation.
+
 ## Java Core Packages
 
 ### java.lang

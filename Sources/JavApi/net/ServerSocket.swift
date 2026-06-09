@@ -44,6 +44,13 @@ extension java.net {
 
     // MARK: - Constructors
 
+    /// Creates an unbound server socket.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    public init() {
+      self._localPort = -1
+    }
+
     /// Creates a server socket bound to the given port with a default backlog of 50.
     ///
     /// - Throws: ``BindException`` if the port is already in use or cannot be bound.

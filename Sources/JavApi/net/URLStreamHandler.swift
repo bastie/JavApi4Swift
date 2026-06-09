@@ -25,6 +25,25 @@ extension java.net {
       throw java.io.IOException("URLStreamHandler.openConnection not implemented")
     }
 
+    /// Parses the string representation of a URL into a ``URL`` object.
+    ///
+    /// The default implementation delegates to `Foundation.URL` for parsing.
+    /// Subclasses can override this to handle custom protocol syntax.
+    ///
+    /// Java signature: `parseURL(URL u, String spec, int start, int limit)`
+    ///
+    /// - Parameters:
+    ///   - u: The URL context (ignored by the default implementation).
+    ///   - spec: The string to parse.
+    ///   - start: Index in `spec` at which parsing should begin.
+    ///   - limit: Index in `spec` at which parsing should stop (exclusive).
+    /// - Returns: A new ``URL`` parsed from the substring, or `nil` if unparseable.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func parseURL(_ u: java.net.URL, _ spec: String, _ start: Int, _ limit: Int) -> java.net.URL? {
+      let sub = String(spec[spec.index(spec.startIndex, offsetBy: start)..<spec.index(spec.startIndex, offsetBy: limit)])
+      return try? java.net.URL(sub)
+    }
+
     /// Converts the URL to its external String representation.
     ///
     /// The default implementation builds the string from the URL's components.

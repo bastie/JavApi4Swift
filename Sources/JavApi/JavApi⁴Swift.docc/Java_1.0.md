@@ -41,6 +41,8 @@ Java 1.0 splits his packages in two parts.
 - 🪄 no test needed 😜
 - ⭕️ implementation or test is missing 😭
 
+> **Note:** Package-private members (default access in Java) are **not** part of the public API and are therefore not ported. Only `public` and `protected` members are in scope for this implementation.
+
 ### Java Core packages
 
 #### java.lang
@@ -109,11 +111,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | RuntimeException() | 
 
 
-##### java.lang.Runnable (1/0/⭕️)
+##### java.lang.Runnable (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | run()          | ()
+1.0.2   | ✔️          | ⭕️       | method        | run()          | () — implemented as Swift `protocol` requirement
 
 
 ##### java.lang.OutOfMemoryError (1/1/⭕️)
@@ -256,22 +258,31 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessError() | 
 
 
-##### java.lang.Exception (0/0/⭕️)
+##### java.lang.Exception (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Exception()    |
+1.0.2   | ✔️          | ⭕️       | constructor   | Exception(String) |
+1.0.2   | ✔️          | ⭕️       | constructor   | Exception(String, Throwable) |
+1.0.2   | ✔️          | ⭕️       | constructor   | Exception(Throwable) |
 
 
-##### java.lang.Error (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-
-
-##### java.lang.Cloneable (0/0/⭕️)
+##### java.lang.Error (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Error()        | implemented as `JError` (avoids clash with Swift's `Error` protocol)
+1.0.2   | ✔️          | ⭕️       | constructor   | Error(String)  |
+1.0.2   | ✔️          | ⭕️       | constructor   | Error(String, Throwable) |
+1.0.2   | ✔️          | ⭕️       | constructor   | Error(Throwable) |
+
+
+##### java.lang.Cloneable (1/1/⭕️)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | interface     | Cloneable      | implemented as Swift `protocol`
 
 
 ##### java.lang.CloneNotSupportedException (1/1/⭕️)
@@ -594,11 +605,11 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | field         | LINENO         | int
-1.0.2   | ✔️          | ⭕️       | final field   | CT_WHITESPACE  | byte
-1.0.2   | ✔️          | ⭕️       | final field   | CT_ALPHA       | byte
-1.0.2   | ✔️          | ⭕️       | final field   | CT_QUOTE       | byte
-1.0.2   | ✔️          | ⭕️       | final field   | CT_COMMENT     | byte
+1.0.2   | ✔️          | ⭕️       | method        | lineno()       | ()->int — replaces LINENO field (Java uses method, not field)
+1.0.2   | ✔️          | ⭕️       | final field   | CT_WHITESPACE  | byte — public static
+1.0.2   | ✔️          | ⭕️       | final field   | CT_ALPHA       | byte — public static
+1.0.2   | ✔️          | ⭕️       | final field   | CT_QUOTE       | byte — public static
+1.0.2   | ✔️          | ⭕️       | final field   | CT_COMMENT     | byte — public static
 1.0.2   | ✔️          | ⭕️       | final field   | TT_EOF         | int
 1.0.2   | ✔️          | ⭕️       | final field   | TT_EOL         | int
 1.0.2   | ✔️          | ⭕️       | final field   | TT_NUMBER      | int
@@ -899,45 +910,53 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | createURLStreamHandler() | (String)->URLStreamHandler
 
 
-##### java.net.URLStreamHandler (2/1/⭕️)
+##### java.net.URLStreamHandler (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | openConnection() | (URL)->URLConnection
-1.0.2   | ⭕️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
+1.0.2   | ✔️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
 
 
-##### java.net.URLEncoder (3/1/⭕️)
+##### java.net.URLEncoder (2/2/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | static field  | dontNeedEncoding | BitSet
 1.0.2   | ✔️          | ⭕️       | static method | encode()       | (String)->String
-1.0.2   | ⭕️          | ⭕️       | method        | ByteArrayOutputStream() | (s.length()->new
+1.1     | ✔️          | ⭕️       | static method | encode()       | (String,String)->String
 
 
-##### java.net.URLConnection (9/2/⭕️)
+##### java.net.URLConnection (17/17/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | doInput        | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | doOutput       | boolean
-1.0.2   | ⭕️          | ⭕️       | static field  | defaultAllowUserInteraction | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | allowUserInteraction | boolean
-1.0.2   | ⭕️          | ⭕️       | static field  | defaultUseCaches | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | useCaches      | boolean
-1.0.2   | ⭕️          | ⭕️       | field         | ifModifiedSince | long
+1.0.2   | ✔️          | ⭕️       | field         | doInput        | boolean — private mit getDoInput()/setDoInput()
+1.0.2   | ✔️          | ⭕️       | field         | doOutput       | boolean — private mit getDoOutput()/setDoOutput()
+1.0.2   | ✔️          | ⭕️       | static field  | defaultAllowUserInteraction | boolean
+1.0.2   | ✔️          | ⭕️       | field         | allowUserInteraction | boolean
+1.0.2   | ✔️          | ⭕️       | static field  | defaultUseCaches | boolean
+1.0.2   | ✔️          | ⭕️       | field         | useCaches      | boolean — private mit getUseCaches()/setUseCaches()
+1.0.2   | ✔️          | ⭕️       | field         | ifModifiedSince | long — wird als If-Modified-Since Header gesendet
 1.0.2   | ✔️          | ⭕️       | constructor   | URLConnection() | URL
 1.0.2   | ✔️          | ⭕️       | method        | connect()      | ()
+1.0.2   | ✔️          | ⭕️       | method        | getAllowUserInteraction() | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | setAllowUserInteraction() | (boolean)
+1.0.2   | ✔️          | ⭕️       | static method | getDefaultAllowUserInteraction() | ()->boolean
+1.0.2   | ✔️          | ⭕️       | static method | setDefaultAllowUserInteraction() | (boolean)
+1.0.2   | ✔️          | ⭕️       | static method | getDefaultUseCaches() | ()->boolean
+1.0.2   | ✔️          | ⭕️       | static method | setDefaultUseCaches() | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | getIfModifiedSince() | ()->long
+1.0.2   | ✔️          | ⭕️       | method        | setIfModifiedSince() | (long)
 
 
-##### java.net.URL (3/2/⭕️)
+##### java.net.URL (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | MalformedURLException | throws
+1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | (String) throws MalformedURLException
 1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | String,String,int,String
 1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | String,String,String
+1.0.2   | ✔️          | ⭕️       | constructor   | URL()          | URL,String — relative URL
 
 
 ##### java.net.SocketOutputStream (0/0/⭕️)
@@ -983,18 +1002,36 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | SocketException() | String
 
 
-##### java.net.Socket (0/0/⭕️)
+##### java.net.Socket (15/15/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | ()
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | (String,int)
+1.0.2   | ✔️          | ⭕️       | constructor   | Socket()       | (InetAddress,int)
+1.0.2   | ✔️          | ⭕️       | method        | getInputStream() | ()->InputStream
+1.0.2   | ✔️          | ⭕️       | method        | getOutputStream() | ()->OutputStream
+1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ⭕️       | method        | getInetAddress() | ()->InetAddress
+1.0.2   | ✔️          | ⭕️       | method        | getPort()      | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | getLocalPort() | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | isClosed()     | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | isConnected()  | ()->boolean
+1.0.2   | ✔️          | ⭕️       | method        | setSoTimeout() | (int)
+1.0.2   | ✔️          | ⭕️       | method        | getSoTimeout() | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | setSoLinger()  | (boolean,int)
+1.0.2   | ✔️          | ⭕️       | method        | getSoLinger()  | ()->int
+1.0.2   | ✔️          | ⭕️       | method        | setTcpNoDelay() | (boolean)
+1.0.2   | ✔️          | ⭕️       | method        | getTcpNoDelay() | ()->boolean
 
 
-##### java.net.ServerSocket (2/2/⭕️)
+##### java.net.ServerSocket (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | 
+1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | ()
 1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | int
+1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | int,int
 
 
 ##### java.net.ProtocolException (1/1/⭕️)
@@ -1017,14 +1054,19 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | MalformedURLException() | 
 
 
-##### java.net.InetAddress (4/3/⭕️)
+##### java.net.InetAddress (9/9/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | field         | hostName       | String
 1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | 
 1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | String,byte
+1.0.2   | ✔️          | ⭕️       | static method | getByName()    | (String)->InetAddress
+1.0.2   | ✔️          | ⭕️       | static method | getAllByName()  | (String)->InetAddress[]
+1.0.2   | ✔️          | ⭕️       | static method | getLocalHost() | ()->InetAddress
 1.0.2   | ✔️          | ⭕️       | method        | getHostName()  | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getHostAddress() | ()->String
+1.0.2   | ✔️          | ⭕️       | method        | getAddress()   | ()->byte[]
+1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 
 
 ##### java.net.DatagramSocket (3/1/⭕️)
@@ -1043,11 +1085,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | DatagramPacket() | byte,int
 
 
-##### java.net.ContentHandlerFactory (1/0/⭕️)
+##### java.net.ContentHandlerFactory (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | createContentHandler() | (String)->ContentHandler
+1.0.2   | ✔️          | ⭕️       | method        | createContentHandler() | (String)->ContentHandler — als Swift protocol
 
 
 ##### java.net.ContentHandler (1/1/⭕️)

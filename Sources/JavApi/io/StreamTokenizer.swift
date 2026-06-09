@@ -53,12 +53,12 @@ extension java.io {
 
     // MARK: - Character classification
 
-    private static let CT_WHITESPACE  = 1
-    private static let CT_ALPHA       = 2
-    private static let CT_NUMERIC     = 4
-    private static let CT_QUOTE       = 8
-    private static let CT_COMMENT     = 16
-    private static let CT_ORDINARY    = 32
+    public static let CT_WHITESPACE  = 1
+    public static let CT_ALPHA       = 2
+    public static let CT_NUMERIC     = 4
+    public static let CT_QUOTE       = 8
+    public static let CT_COMMENT     = 16
+    public static let CT_ORDINARY    = 32
 
     /// Syntax table: one entry per character 0–255.
     private var ct: [Int]
