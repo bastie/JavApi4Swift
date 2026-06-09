@@ -65,5 +65,67 @@ extension java.awt {
     /// Bindet eine `MenuBar` an einen `Frame`.
     /// Plattform-Implementierungen überschreiben diese Methode.
     open func attachMenuBar(_ menuBar: MenuBar?, to frame: Frame) {}
+
+    // -------------------------------------------------------------------------
+    // MARK: Screen properties
+    // -------------------------------------------------------------------------
+
+    /// Returns the screen size in pixels.
+    ///
+    /// Override in platform-specific subclasses. The base implementation
+    /// returns a zero-size `Dimension`.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func getScreenSize() -> Dimension {
+      return Dimension(0, 0)
+    }
+
+    /// Returns the screen resolution in dots-per-inch.
+    ///
+    /// Override in platform-specific subclasses. The base implementation
+    /// returns 72 (a common default).
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func getScreenResolution() -> Int {
+      return 72
+    }
+
+    /// Synchronizes this toolkit's graphics state.
+    ///
+    /// On most modern platforms this is a no-op. Override in subclasses
+    /// that buffer drawing operations.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func sync() {}
+
+    // -------------------------------------------------------------------------
+    // MARK: Color model
+    // -------------------------------------------------------------------------
+
+    /// Returns the `ColorModel` of the screen (default: 24-bit RGB).
+    /// Override in platform subclasses for accurate screen color depth.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func getColorModel() -> java.awt.image.ColorModel {
+      return java.awt.image.ColorModel.getRGBdefault()
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Font list & metrics
+    // -------------------------------------------------------------------------
+
+    /// Returns the names of the available fonts on this platform.
+    ///
+    /// On Apple platforms returns system font family names via AppKit/UIKit;
+    /// elsewhere returns the five logical AWT font names.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func getFontList() -> [String] {
+      return ["Dialog", "DialogInput", "Monospaced", "SansSerif", "Serif"]
+    }
+
+    /// Returns the `FontMetrics` for the specified font.
+    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    open func getFontMetrics(_ font: java.awt.Font) -> java.awt.FontMetrics {
+      return java.awt.FontMetrics(font)
+    }
   }
 }

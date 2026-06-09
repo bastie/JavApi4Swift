@@ -7,7 +7,7 @@ extension java.awt {
 
   /// Base class for all AWT components — mirrors `java.awt.Component`.
   @MainActor
-  open class Component {
+  open class Component: MenuContainer {
 
     // -------------------------------------------------------------------------
     // MARK: Visual properties
@@ -17,6 +17,7 @@ extension java.awt {
     public var foreground: java.awt.Color = java.awt.SystemColor.windowText
     public var bounds: java.awt.Rectangle = .zero
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
+    public func getFont() -> java.awt.Font { font }
     public var visible: Bool = true
     public var enabled: Bool = true
 

@@ -46,6 +46,21 @@ extension System {
     _propertiesStorage.withLock { $0 }
   }
 
+  /// Returns all system properties as a `java.util.Properties` object.
+  ///
+  /// The returned object is a snapshot — changes to it do not affect the
+  /// underlying property store. Use ``setProperty(_:_:)`` to modify properties.
+  ///
+  /// - Since: JavaApi (Java 1.0)
+  public static func getProperties() -> java.util.Properties {
+    let snapshot = _propertiesStorage.withLock { $0 }
+    let props = java.util.Properties()
+    for (key, value) in snapshot {
+      props.setProperty(key, value)
+    }
+    return props
+  }
+
   /// Thread-safe storage for system properties backed by Synchronization.Mutex
   private static let _propertiesStorage: Mutex<[String:String]> = {
     var result : [String:String] = [

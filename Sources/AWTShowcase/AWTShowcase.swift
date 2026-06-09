@@ -326,6 +326,10 @@ func buildShowcase(width: Int, height: Int) -> java.awt.Frame {
   let aboutItem = java.awt.MenuItem("Über JavApi⁴Swift…")
   aboutItem.addActionListener(AboutListener(owner: frame))
   helpMenu.add(aboutItem)
+  helpMenu.addSeparator()
+  let sysInfoItem = java.awt.MenuItem("Systeminformationen…")
+  sysInfoItem.addActionListener(SystemInfoListener(owner: frame))
+  helpMenu.add(sysInfoItem)
   menuBar.setHelpMenu(helpMenu)
 
   frame.setMenuBar(menuBar)

@@ -7,7 +7,7 @@ extension java.awt {
 
   /// Gemeinsame Basisklasse aller Menü-Komponenten — mirrors `java.awt.MenuComponent`.
   @MainActor
-  open class MenuComponent {
+  open class MenuComponent: MenuContainer {
 
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
     public private(set) var name: String = ""

@@ -1372,16 +1372,16 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | class         | Window         | implemented as Container subclass with setVisible, dispose, pack, toFront, toBack
 
 
-##### java.awt.Toolkit (7/1/⭕️)
+##### java.awt.Toolkit (7/7/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ⭕️          | ⭕️       | method        | getScreenSize() | ()->Dimension
-1.0.2   | ⭕️          | ⭕️       | method        | getScreenResolution() | ()->int
-1.0.2   | ⭕️          | ⭕️       | method        | getColorModel() | ()->ColorModel
-1.0.2   | ⭕️          | ⭕️       | method        | getFontList()  | ()->String[]
-1.0.2   | ⭕️          | ⭕️       | method        | getFontMetrics() | (Font)->FontMetrics
-1.0.2   | ⭕️          | ⭕️       | method        | sync()         | ()
+1.0.2   | ✔️          | ⭕️       | method        | getScreenSize() | ()->Dimension — macOS via NSScreen, iOS via UIScreen, headless returns (0,0)
+1.0.2   | ✔️          | ⭕️       | method        | getScreenResolution() | ()->int — macOS: 72×scale, iOS: 160×scale, headless: 72
+1.0.2   | ✔️          | ⭕️       | method        | getColorModel() | ()->ColorModel
+1.0.2   | ✔️          | ⭕️       | method        | getFontList()  | ()->String[]
+1.0.2   | ✔️          | ⭕️       | method        | getFontMetrics() | (Font)->FontMetrics
+1.0.2   | ✔️          | 🪄       | method        | sync()         | () — no-op on modern platforms
 1.0.2   | ✔️          | ⭕️       | static method | getDefaultToolkit() | ()->Toolkit
 
 
@@ -1450,12 +1450,12 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuItem()     | String
 
 
-##### java.awt.MenuContainer (3/2/⭕️)
+##### java.awt.MenuContainer (3/3/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | getFont()      | ()->Font
-1.0.2   | ⭕️          | ⭕️       | method        | postEvent()    | (Event)->boolean
+1.0.2   | ✔️          | ⭕️       | method        | postEvent()    | (Event)->boolean
 1.0.2   | ✔️          | ⭕️       | method        | remove()       | (MenuComponent)
 
 
@@ -1539,15 +1539,15 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | class         | Insets         | implemented with top,left,bottom,right fields, constructors, clone, equals
 
 
-##### java.awt.Image (6/3/⭕️)
+##### java.awt.Image (6/6/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | getWidth()     | (ImageObserver)->int
 1.0.2   | ✔️          | ⭕️       | method        | getHeight()    | (ImageObserver)->int
-1.0.2   | ⭕️          | ⭕️       | method        | getSource()    | ()->ImageProducer
-1.0.2   | ⭕️          | ⭕️       | method        | getGraphics()  | ()->Graphics
-1.0.2   | ⭕️          | ⭕️       | method        | getProperty()  | (String,ImageObserver)->Object
+1.0.2   | ✔️          | ⭕️       | method        | getSource()    | ()->ImageProducer
+1.0.2   | ✔️          | ⭕️       | method        | getGraphics()  | ()->Graphics
+1.0.2   | ✔️          | ⭕️       | method        | getProperty()  | (String,ImageObserver)->Object
 1.0.2   | ✔️          | ⭕️       | method        | flush()        | ()
 
 
@@ -1652,7 +1652,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FileDialog()   | Frame,String
 
 
-##### java.awt.Event (58/52/⭕️)
+##### java.awt.Event (58/58/⭕️)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1680,34 +1680,34 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | F10            | int
 1.0.2   | ✔️          | ⭕️       | final field   | F11            | int
 1.0.2   | ✔️          | ⭕️       | final field   | F12            | int
-1.0.2   | ⭕️          | ⭕️       | final field   | WINDOW_EVENT   | int
+1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_EVENT   | int
 1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_DESTROY | int
 1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_EXPOSE  | int
 1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_ICONIFY | int
 1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_DEICONIFY | int
 1.0.2   | ✔️          | ⭕️       | final field   | WINDOW_MOVED   | int
-1.0.2   | ⭕️          | ⭕️       | final field   | KEY_EVENT      | int
+1.0.2   | ✔️          | ⭕️       | final field   | KEY_EVENT      | int
 1.0.2   | ✔️          | ⭕️       | final field   | KEY_PRESS      | int
 1.0.2   | ✔️          | ⭕️       | final field   | KEY_RELEASE    | int
 1.0.2   | ✔️          | ⭕️       | final field   | KEY_ACTION     | int
 1.0.2   | ✔️          | ⭕️       | final field   | KEY_ACTION_RELEASE | int
-1.0.2   | ⭕️          | ⭕️       | final field   | MOUSE_EVENT    | int
+1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_EVENT    | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_DOWN     | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_UP       | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_MOVE     | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_ENTER    | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_EXIT     | int
 1.0.2   | ✔️          | ⭕️       | final field   | MOUSE_DRAG     | int
-1.0.2   | ⭕️          | ⭕️       | final field   | SCROLL_EVENT   | int
+1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_EVENT   | int
 1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_LINE_UP | int
 1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_LINE_DOWN | int
 1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_PAGE_UP | int
 1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_PAGE_DOWN | int
 1.0.2   | ✔️          | ⭕️       | final field   | SCROLL_ABSOLUTE | int
-1.0.2   | ⭕️          | ⭕️       | final field   | LIST_EVENT     | int
+1.0.2   | ✔️          | ⭕️       | final field   | LIST_EVENT     | int
 1.0.2   | ✔️          | ⭕️       | final field   | LIST_SELECT    | int
 1.0.2   | ✔️          | ⭕️       | final field   | LIST_DESELECT  | int
-1.0.2   | ⭕️          | ⭕️       | final field   | MISC_EVENT     | int
+1.0.2   | ✔️          | ⭕️       | final field   | MISC_EVENT     | int
 1.0.2   | ✔️          | ⭕️       | final field   | ACTION_EVENT   | int
 1.0.2   | ✔️          | ⭕️       | final field   | LOAD_FILE      | int
 1.0.2   | ✔️          | ⭕️       | final field   | SAVE_FILE      | int

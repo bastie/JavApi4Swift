@@ -26,6 +26,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     // Window
+    public static let WINDOW_EVENT     = 200
     public static let WINDOW_DESTROY   = 201
     public static let WINDOW_EXPOSE    = 202
     public static let WINDOW_ICONIFY   = 203
@@ -33,12 +34,14 @@ extension java.awt {
     public static let WINDOW_MOVED     = 205
 
     // Keyboard
+    public static let KEY_EVENT          = 400
     public static let KEY_PRESS          = 401
     public static let KEY_RELEASE        = 402
     public static let KEY_ACTION         = 403
     public static let KEY_ACTION_RELEASE = 404
 
     // Mouse
+    public static let MOUSE_EVENT = 500
     public static let MOUSE_DOWN  = 501
     public static let MOUSE_UP    = 502
     public static let MOUSE_MOVE  = 503
@@ -47,6 +50,7 @@ extension java.awt {
     public static let MOUSE_DRAG  = 506
 
     // Scrollbar
+    public static let SCROLL_EVENT     = 600
     public static let SCROLL_LINE_UP   = 601
     public static let SCROLL_LINE_DOWN = 602
     public static let SCROLL_PAGE_UP   = 603
@@ -56,10 +60,12 @@ extension java.awt {
     public static let SCROLL_END       = 607
 
     // List
+    public static let LIST_EVENT    = 700
     public static let LIST_SELECT   = 701
     public static let LIST_DESELECT = 702
 
     // Misc
+    public static let MISC_EVENT   = 1000
     public static let ACTION_EVENT = 1001
     public static let LOAD_FILE    = 1002
     public static let SAVE_FILE    = 1003
