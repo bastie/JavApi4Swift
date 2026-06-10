@@ -15,6 +15,14 @@ extension java.awt {
     private var textListeners: [java.awt.event.TextListener] = []
 
     // -------------------------------------------------------------------------
+    // MARK: Caret visibility — simply follows focus, no blinking
+    // -------------------------------------------------------------------------
+
+    /// True when this component has keyboard focus (caret is always visible
+    /// while focused; never visible when unfocused).
+    public var caretVisible: Bool = false
+
+    // -------------------------------------------------------------------------
     // MARK: Selection / caret model  (shared by TextField and TextArea)
     // -------------------------------------------------------------------------
 
@@ -77,6 +85,15 @@ extension java.awt {
     }
     public func removeTextListener(_ l: java.awt.event.TextListener) {
       textListeners.removeAll { $0 === l }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Focus — show/hide caret
+    // -------------------------------------------------------------------------
+
+    open override func processFocusEvent(_ e: java.awt.event.FocusEvent) {
+      super.processFocusEvent(e)
+      caretVisible = (e.getID() == java.awt.event.FocusEvent.FOCUS_GAINED)
     }
 
     internal func fireTextEvent() {

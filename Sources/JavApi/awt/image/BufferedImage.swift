@@ -52,6 +52,32 @@ extension java.awt.image {
       self.pixels = [UInt32](repeating: 0xFF_FF_FF_FF, count: self.width * self.height)
     }
 
+    /// Erstellt ein `BufferedImage` aus einem bestehenden `CGImage`.
+    ///
+    /// Die Pixel werden einmalig in den internen ARGB-Puffer kopiert.
+    ///
+    /// - Since: JavaApi > 0.19.1
+#if canImport(CoreGraphics)
+    public convenience init?(cgImage: CGImage) {
+      let w = cgImage.width
+      let h = cgImage.height
+      guard w > 0, h > 0 else { return nil }
+      self.init(w, h, BufferedImage.TYPE_INT_ARGB)
+      guard let ctx = CGContext(
+        data:             &self.pixels,
+        width:            w,
+        height:           h,
+        bitsPerComponent: 8,
+        bytesPerRow:      w * 4,
+        space:            CGColorSpaceCreateDeviceRGB(),
+        bitmapInfo:       CGBitmapInfo(rawValue:
+                            CGImageAlphaInfo.premultipliedFirst.rawValue |
+                            CGBitmapInfo.byteOrder32Big.rawValue).rawValue)
+      else { return nil }
+      ctx.draw(cgImage, in: CGRect(x: 0, y: 0, width: CGFloat(w), height: CGFloat(h)))
+    }
+#endif
+
     /// Lädt ein Bild aus einer Datei (PNG / JPEG / BMP / TIFF …).
     /// Gibt `nil` zurück wenn die Datei nicht gelesen werden kann.
     public convenience init?(fromFile path: String) {

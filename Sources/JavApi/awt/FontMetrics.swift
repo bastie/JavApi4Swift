@@ -160,6 +160,8 @@ extension java.awt.FontMetrics {
   static func make(for font: java.awt.Font) -> java.awt.FontMetrics {
 #if canImport(CoreText)
     return java.awt.CoreTextFontMetrics(font)
+#elseif os(Windows)
+    return java.awt.toolkit.gdi._GDIFontMetrics(font)
 #else
     return java.awt.FontMetrics(font)   // headless approximation
 #endif

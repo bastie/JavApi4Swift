@@ -65,6 +65,16 @@ extension java.awt {
 
     /// Returns a PostScript / CTFont name for this logical or physical font.
     internal var platformName: String {
+#if os(Windows)
+      // Windows font name mappings — "Segoe UI" has broad Unicode coverage
+      // including geometric shapes (◀▶▲▼ etc.) needed for UI buttons.
+      switch name {
+      case "Dialog", "SansSerif": return "Segoe UI"
+      case "Serif":               return "Georgia"
+      case "Monospaced", "DialogInput": return "Courier New"
+      default:                    return name
+      }
+#else
       switch name {
       case "Dialog", "SansSerif":
         switch style {
@@ -94,6 +104,7 @@ extension java.awt {
         if isItalic()             { return "\(name)-Italic"      }
         return name
       }
+#endif
     }
   }
 }

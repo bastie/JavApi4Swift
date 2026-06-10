@@ -228,10 +228,14 @@ extension java.awt {
       g.fillRect(x, y, w, h)
 
       // ── Child — clipped to viewport, translated by scroll offset ───────────
+      // All component bounds in this system are absolute window coordinates.
+      // The child's bounds start at (0,0) — its content coordinate space.
+      // We translate so that child coordinate (0,0) lands at (x - scrollX, y - scrollY)
+      // in absolute window space, i.e. inside the ScrollPane viewport, shifted by scroll.
       if let child = children.first {
         g.save()
         g.clipRect(x, y, vp.width, vp.height)
-        g.translate(-_scrollX, -_scrollY)
+        g.translate(x - _scrollX, y - _scrollY)
         child.paint(g)
         g.restore()
       }
@@ -299,15 +303,17 @@ extension java.awt {
       let cx = r.x + r.width / 2
       let cy = r.y + r.height / 2
       if vertical {
-        let base = up ? cy + 2 : cy - 2
-        for row in 0...2 {
-          let dy = up ? base - row : base + row
+        // ▲ (up): tip at top (cy-3), base at bottom (cy+1)
+        // ▼ (!up): tip at bottom (cy+3), base at top (cy-1)
+        for row in 0...3 {
+          let dy = up ? (cy - 3 + row) : (cy + 3 - row)
           g.drawLine(cx - row, dy, cx + row, dy)
         }
       } else {
-        let base = up ? cx + 2 : cx - 2
-        for col in 0...2 {
-          let dx = up ? base - col : base + col
+        // ◀ (up/left): tip at left (cx-3), base at right (cx+1)
+        // ▶ (!up/right): tip at right (cx+3), base at left (cx-1)
+        for col in 0...3 {
+          let dx = up ? (cx - 3 + col) : (cx + 3 - col)
           g.drawLine(dx, cy - col, dx, cy + col)
         }
       }

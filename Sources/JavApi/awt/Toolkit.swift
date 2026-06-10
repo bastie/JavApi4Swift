@@ -3,6 +3,21 @@
  * SPDX-License-Identifier: MIT
  */
 
+#if canImport(Darwin)
+import Darwin
+#elseif canImport(Glibc)
+import Glibc
+#elseif canImport(Musl)
+import Musl
+#elseif canImport(Android)
+import Android
+#elseif canImport(WinSDK)
+import WinSDK
+#else
+// Fallback for platforms without a known C stdlib module (e.g. WASM, Bionic)
+@_silgen_name("exit") func exit(_ code: Int32) -> Never
+#endif
+
 extension java.awt {
 
   /// Abstract base class for AWT platform toolkits.
@@ -26,9 +41,12 @@ extension java.awt {
     /// Returns the platform-appropriate Toolkit.
     ///
     /// Resolution order:
-    /// 1. `awt.toolkit` system property — `"Headless"` forces `HeadlessToolkit`
+    /// 1. `awt.toolkit` system property:
+    ///    - `"Headless"` → `HeadlessToolkit`
+    ///    - `"SwiftUI"`  → `SwiftUIToolkit` (Apple platforms) or `HeadlessToolkit`
+    ///    - `"GDI"` → `GDIToolkit` (Windows) or `HeadlessToolkit`
     /// 2. `os.name` system property — macOS / iOS / tvOS / visionOS → `SwiftUIToolkit`,
-    ///    everything else → `HeadlessToolkit`
+    ///    Windows → `GDIToolkit`, everything else → `HeadlessToolkit`
     public static func getDefaultToolkit() -> Toolkit {
       // 1. Explicit override via system property
       let override : String? = try? System.getProperty("awt.toolkit")
@@ -36,6 +54,18 @@ extension java.awt {
         switch override {
         case "Headless":
           return java.awt.toolkit.HeadlessToolkit()
+        case "SwiftUI":
+#if canImport(SwiftUI)
+          return java.awt.toolkit.swiftui.SwiftUIToolkit.shared
+#else
+          return java.awt.toolkit.HeadlessToolkit()
+#endif
+        case "GDI":
+#if os(Windows)
+          return java.awt.toolkit.gdi.GDIToolkit.shared
+#else
+          return java.awt.toolkit.HeadlessToolkit()
+#endif
         default:
           break   // unknown value → fall through to platform default
         }
@@ -47,6 +77,12 @@ extension java.awt {
       case "macOS", "iOS", "tvOS", "visionOS":
 #if canImport(SwiftUI)
         return java.awt.toolkit.swiftui.SwiftUIToolkit.shared
+#else
+        return java.awt.toolkit.HeadlessToolkit()
+#endif
+      case "Windows":
+#if os(Windows)
+        return java.awt.toolkit.gdi.GDIToolkit.shared
 #else
         return java.awt.toolkit.HeadlessToolkit()
 #endif
@@ -137,6 +173,73 @@ extension java.awt {
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     open func getFontMetrics(_ font: java.awt.Font) -> java.awt.FontMetrics {
       return java.awt.FontMetrics(font)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Application lifecycle
+    // -------------------------------------------------------------------------
+
+    /// Java 1.0–style entry point: shows `frame` and starts the platform
+    /// event loop.
+    ///
+    /// Internally calls `frame.setVisible(true)` and then `runEventLoop()`.
+    /// Prefer `EventQueue.invokeLater` (Java 1.1 style) for new code.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    open func run(frame: Frame) {
+      frame.setVisible(true)
+      runEventLoop()
+    }
+
+    /// Drains the `EventQueue` and enters the platform's native event loop.
+    ///
+    /// Called implicitly by `run(frame:)` and — on platforms that need an
+    /// explicit loop start — directly from `@main`.
+    ///
+    /// The base implementation (headless / Linux) only drains pending
+    /// `EventQueue` runnables and returns immediately.
+    /// Platform toolkits (`SwiftUIToolkit`, `Direct2DToolkit`) override this
+    /// to additionally block in their native event loop.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    open func runEventLoop() {
+      java.awt.EventQueue.drainAndMarkRunning()
+    }
+
+    /// Terminates the application cleanly.
+    ///
+    /// Delegates to the platform-appropriate mechanism:
+    /// - **macOS/iOS**: `NSApp.terminate(nil)`
+    /// - **Windows**: `PostQuitMessage(0)` — exits the Win32 message loop
+    /// - **Headless / Linux**: `exit(0)`
+    ///
+    /// Call this instead of platform-specific APIs so that application code
+    /// stays free of `#if canImport(AppKit)` / `#if os(Windows)` guards.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    open func terminate() {
+      exit(0)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Image loading
+    // -------------------------------------------------------------------------
+
+    /// Loads a named image resource from the application bundle.
+    ///
+    /// Override in platform-specific subclasses to load images via native APIs
+    /// (e.g. `NSImage` on macOS, `UIImage` on iOS).  The base implementation
+    /// always returns `nil`.
+    ///
+    /// - Parameter name: The resource name (without extension), looked up in
+    ///   the module bundle's `Assets.xcassets/AppIcon.appiconset` or as a
+    ///   top-level named image.
+    /// - Returns: A `java.awt.Image` ready for use with `Graphics.drawImage`,
+    ///   or `nil` if the image could not be found or loaded.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    open func loadImage(named name: String) -> java.awt.Image? {
+      return nil
     }
 
     // -------------------------------------------------------------------------

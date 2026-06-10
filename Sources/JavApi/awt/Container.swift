@@ -8,16 +8,16 @@ extension java.awt {
   open class Container: Component {
 
     internal var children: [Component] = []
-    private var layout: LayoutManager? = FlowLayout()
+    private var layoutManager: LayoutManager? = FlowLayout()
 
-    // -------------------------------------------------------------------------
-    // MARK: Layout
-    // -------------------------------------------------------------------------
+    /// Set the LayoutManager for this Container
+    /// - Parameter mgr: LayoutManager instance
+    public func setLayout(_ mgr: LayoutManager?) {
+      layoutManager = mgr
+    }
+    public func getLayout() -> LayoutManager?    { layoutManager       }
 
-    public func setLayout(_ mgr: LayoutManager?) { layout = mgr }
-    public func getLayout() -> LayoutManager?    { layout       }
-
-    public func doLayout() { layout?.layoutContainer(self) }
+    public func doLayout() { layoutManager?.layoutContainer(self) }
 
     /// Recursively lay out this container and all Container children.
     /// Mirrors `java.awt.Container.validate()`.
@@ -35,7 +35,7 @@ extension java.awt {
     public func add(_ comp: Component) {
       comp.parent = self
       children.append(comp)
-      layout?.addLayoutComponent("", comp)
+      layoutManager?.addLayoutComponent("", comp)
       invalidate()
     }
 
@@ -43,10 +43,10 @@ extension java.awt {
     public func add(_ comp: Component, _ constraint: String) {
       comp.parent = self
       children.append(comp)
-      if let mgr2 = layout as? LayoutManager2 {
+      if let mgr2 = layoutManager as? LayoutManager2 {
         mgr2.addLayoutComponent(comp, constraint as AnyObject)
       } else {
-        layout?.addLayoutComponent(constraint, comp)
+        layoutManager?.addLayoutComponent(constraint, comp)
       }
       invalidate()
     }
@@ -55,7 +55,7 @@ extension java.awt {
     public func add(_ comp: Component, _ constraints: AnyObject?) {
       comp.parent = self
       children.append(comp)
-      if let mgr2 = layout as? LayoutManager2 {
+      if let mgr2 = layoutManager as? LayoutManager2 {
         mgr2.addLayoutComponent(comp, constraints)
       }
       invalidate()
@@ -64,14 +64,14 @@ extension java.awt {
     public func remove(_ comp: Component) {
       comp.parent = nil
       children.removeAll { $0 === comp }
-      layout?.removeLayoutComponent(comp)
+      layoutManager?.removeLayoutComponent(comp)
       invalidate()
     }
 
     public func removeAll() {
       for comp in children {
         comp.parent = nil
-        layout?.removeLayoutComponent(comp)
+        layoutManager?.removeLayoutComponent(comp)
       }
       children.removeAll()
       invalidate()

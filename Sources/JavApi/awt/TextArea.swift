@@ -378,8 +378,8 @@ extension java.awt {
           }
         }
 
-        // Cursor
-        if editable && hasFocus && !hasSelection {
+        // Cursor — shown in the current blink phase when focused.
+        if editable && caretVisible && !hasSelection {
           let (caretLine, caretCol) = lineAndCol(for: caretPosition)
           if caretLine == lineIdx {
             let cxOff = fm.stringWidth(String(lineChars.prefix(caretCol)))

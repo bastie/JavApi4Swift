@@ -141,6 +141,7 @@ extension java.awt {
     /// Shows the next card; wraps around to the first.
     public func next(_ parent: java.awt.Container) {
       guard !cards.isEmpty else { return }
+      
       currentIndex = (currentIndex + 1) % cards.count
       updateVisibility()
     }

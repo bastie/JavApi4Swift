@@ -33,6 +33,15 @@ JavApi⁴Swift handles this internally.
 
 `CryptoKit` is not available on Windows. JavApi⁴Swift's `MessageDigest` implementation does not depend on CryptoKit and works on all platforms.
 
+## Image resources
+
+SPM does **not** deploy `.xcassets` resource bundles on Windows — the `resources: [.process("Assets.xcassets")]` directive in `Package.swift` is silently ignored. To load bundled images at runtime:
+
+1. Copy PNG files next to the compiled executable (e.g. `JavApi4Swift256.png`), or
+2. Rely on the search-path fallback in `GDIToolkit.loadImage(named:)`, which looks for the file relative to the executable and also up the tree to `Sources/AWTShowcase/Assets.xcassets/AppIcon.appiconset/` — this works when running via `swift run` from the package root.
+
+`GDIToolkit` uses `_PNGLoader` — a pure-Swift PNG decoder with its own DEFLATE implementation — to load images without any external dependency.
+
 ## Known limitations
 
 - `java.lang.Process` (process spawning via `Runtime.exec`) may behave differently on Windows due to path and shell differences.

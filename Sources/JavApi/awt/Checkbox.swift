@@ -126,9 +126,9 @@ extension java.awt {
     }
 
     private func paintRadio(_ g: java.awt.Graphics, x: Int, y: Int) {
-      // Circle background
+      // Circle background (same size as border so no pixel overhang)
       g.setColor(java.awt.SystemColor.window)
-      g.fillOval(x, y, boxSize, boxSize)
+      g.fillOval(x, y, boxSize - 1, boxSize - 1)
       // Border
       g.setColor(java.awt.SystemColor.windowBorder)
       g.drawOval(x, y, boxSize - 1, boxSize - 1)
@@ -138,7 +138,7 @@ extension java.awt {
       let margin = 3
       g.setColor(java.awt.SystemColor.controlText)
       g.fillOval(x + margin, y + margin,
-                 boxSize - 2 * margin, boxSize - 2 * margin)
+                 boxSize - 1 - 2 * margin, boxSize - 1 - 2 * margin)
     }
   }
 }

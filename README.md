@@ -1,6 +1,6 @@
 # JavApi⁴Swift
 
-<img width="1024" alt="Floss-license-slide-image" src="https://github.com/bastie/JavApi4Swift/blob/main/1024JavApi4Swift.png">
+<img width="1024" alt="JavApi⁴Swift Logo shows an coffee bean for Java with wings for Swift" src="https://raw.githubusercontent.com/bastie/JavApi4Swift/main/1024JavApi4Swift.png">
 
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fbastie%2FJavApi4Swift%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/bastie/JavApi4Swift)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fbastie%2FJavApi4Swift%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/bastie/JavApi4Swift)
@@ -18,7 +18,7 @@ Starting 2026 June 1, this project uses AI (artificial intelligence) in addition
 This project use only business friendly **permissive licenses**.
 
 <p><figure>
-<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://github.com/bastie/JavApi4Swift/blob/main/Sources/JavApi/JavApi⁴Swift.docc/Resources/Floss-license-slide-image.svg"></a>
+<a title="David A. Wheeler, et al., CC BY-SA 3.0 &lt;https://creativecommons.org/licenses/by-sa/3.0&gt;, via Wikimedia Commons" href="https://commons.wikimedia.org/wiki/File:Floss-license-slide-image.svg"><img width="1024" alt="Floss-license-slide-image" src="https://raw.githubusercontent.com/bastie/JavApi4Swift/blob/main/Sources/JavApi/JavApi⁴Swift.docc/Resources/Floss-license-slide-image.svg"></a>
 <figcaption style="text-align: right;display: inline-block">Image: David A. Wheeler, et al., CC BY-SA 3.0 <https://creativecommons.org/licenses/by-sa/3.0>, via Wikimedia Commons</figcaption>
 </figure></p>
 

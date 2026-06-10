@@ -161,7 +161,7 @@ extension java.awt {
     func maxScrollOffset() -> Int { max(0, items.count - visibleRows()) }
 
     /// Returns the rect of the scroll-thumb, or `nil` when not scrollable.
-    public func scrollbarThumbRect() -> java.awt.Rectangle? {
+    func scrollbarThumbRect() -> java.awt.Rectangle? {
       guard needsScrollbar(), items.count > 0 else { return nil }
       let trackX = bounds.x + bounds.width - scrollbarWidth
       let trackH = bounds.height
@@ -173,8 +173,16 @@ extension java.awt {
       return java.awt.Rectangle(trackX, thumbY, scrollbarWidth, thumbH)
     }
 
+    /// Returns the full scrollbar track rect, or `nil` when not scrollable.
+    func scrollbarTrackRect() -> java.awt.Rectangle? {
+      guard needsScrollbar() else { return nil }
+      return java.awt.Rectangle(bounds.x + bounds.width - scrollbarWidth,
+                                bounds.y, scrollbarWidth, bounds.height)
+    }
+
     /// The item index at AWT y coordinate `y` (frame space), or `nil`.
-    public func itemIndex(atY y: Int) -> Int? {
+    /// Returns `nil` when `x` falls inside the scrollbar column.
+    func itemIndex(atY y: Int) -> Int? {
       let relY = y - bounds.y
       guard relY >= 0, relY < bounds.height else { return nil }
       let idx = scrollOffset + relY / itemHeight

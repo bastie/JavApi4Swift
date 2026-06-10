@@ -217,7 +217,9 @@ extension java.awt {
   public protocol CGContext {}
 
   /// Concrete no-op implementation used as a stub on non-Apple platforms.
-  internal struct _StubCGContext: CGContext {}
+  public struct _StubCGContext: CGContext {
+    public init() {}
+  }
 
   public class Graphics {
     internal var cgContext: CGContext
@@ -261,9 +263,13 @@ extension java.awt {
                         _ observer: java.awt.ImageObserver? = nil) -> Bool { false }
 
     open func drawPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {}
-    open func drawPolygon(_ p: java.awt.Polygon) {}
+    open func drawPolygon(_ p: java.awt.Polygon) {
+      drawPolygon(p.xpoints, p.ypoints, p.npoints)
+    }
     open func fillPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {}
-    open func fillPolygon(_ p: java.awt.Polygon) {}
+    open func fillPolygon(_ p: java.awt.Polygon) {
+      fillPolygon(p.xpoints, p.ypoints, p.npoints)
+    }
   }
 }
 #endif

@@ -233,28 +233,28 @@ extension _SwiftUIWindowHost {
     objc_setAssociatedObject(dialog, &_SwiftUIWindowHost.dialogPanelKey,
                              nsPanel, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
-    // Schließen über nativen X-Button → AWT-Zustand aufräumen
+    // Schließen über nativen X-Button → modal loop beenden + AWT-Zustand aufräumen
     NotificationCenter.default.addObserver(
       forName: NSWindow.willCloseNotification,
       object: nsPanel,
       queue: .main) { [weak self] _ in
         guard let self else { return }
-        Task { @MainActor in self.hide(dialog) }
+        Task { @MainActor in
+          if dialog.isModal() { NSApp.stopModal() }
+          self.hide(dialog)
+        }
       }
 
     if dialog.isModal() {
       // Besitzerfenster als Sheet, falls vorhanden
       let ownerNS = NSApp.windows.first { $0.title == (dialog.owner as? java.awt.Frame)?.title
                                        || $0.title == (dialog.owner as? java.awt.Dialog)?.getTitle() }
-      if let ownerNS {
-        ownerNS.beginSheet(nsPanel) { _ in }
-        // Sheet-Panel ebenfalls am Dialog merken (gleicher Key)
-      } else {
-        // Kein Besitzer → modaler Loop
-        if dialog.bounds.x == 0 && dialog.bounds.y == 0 { nsPanel.center() }
-        nsPanel.makeKeyAndOrderFront(nil)
-        NSApp.runModal(for: nsPanel)
-      }
+      // Java AWT dialogs are always independent windows with a title bar —
+      // never sheets. Use runModal so they block like Java modal dialogs.
+      _ = ownerNS  // owner found but unused; keep as standalone window
+      if dialog.bounds.x == 0 && dialog.bounds.y == 0 { nsPanel.center() }
+      nsPanel.makeKeyAndOrderFront(nil)
+      NSApp.runModal(for: nsPanel)
     } else {
       if dialog.bounds.x == 0 && dialog.bounds.y == 0 { nsPanel.center() }
       nsPanel.makeKeyAndOrderFront(nil)

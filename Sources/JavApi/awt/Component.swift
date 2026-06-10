@@ -246,5 +246,7 @@ import Foundation
 extension Notification.Name {
   /// Posted when a java.awt.Component's cursor changes, so native views can update cursor rects.
   public static let awtCursorChanged = Notification.Name("java.awt.Component.cursorChanged")
+  /// Posted by the caret blink timer so the owning native view can redraw.
+  public static let awtCaretBlink    = Notification.Name("java.awt.TextComponent.caretBlink")
 }
 #endif

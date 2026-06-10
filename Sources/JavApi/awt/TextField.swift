@@ -158,8 +158,8 @@ extension java.awt {
         }
       }
 
-      // Cursor (vertical bar at caretPosition — only when focused and no selection)
-      if editable && hasFocus && !hasSelection {
+      // Cursor (vertical bar) — shown in the current blink phase when focused.
+      if editable && caretVisible && !hasSelection {
         let cx = x + pad + fm.stringWidth(String(chars.prefix(caretPosition))) + 1
         g.setColor(foreground)
         g.drawLine(cx, y + 3, cx, y + h - 3)

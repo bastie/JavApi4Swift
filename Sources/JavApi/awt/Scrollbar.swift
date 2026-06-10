@@ -79,11 +79,7 @@ extension java.awt {
       super.init()
     }
 
-    public init(_ orientation: Int,
-                value: Int,
-                visible: Int,
-                minimum: Int,
-                maximum: Int) {
+    public init(_ orientation: Int, value: Int, visible: Int, minimum: Int, maximum: Int) {
       self.orientation   = orientation
       self.minimum       = minimum
       self.maximum       = maximum
@@ -105,17 +101,52 @@ extension java.awt {
       }
     }
 
-    public func getMinimum() -> Int       { minimum }
-    public func setMinimum(_ v: Int)      { minimum = v; _value = clampedValue(_value) }
-    public func getMaximum() -> Int       { maximum }
-    public func setMaximum(_ v: Int)      { maximum = v; _value = clampedValue(_value) }
-    public func getVisibleAmount() -> Int { visibleAmount }
-    public func setVisibleAmount(_ v: Int){ visibleAmount = v; _value = clampedValue(_value) }
-    public func getUnitIncrement() -> Int { unitIncrement }
-    public func setUnitIncrement(_ v: Int){ unitIncrement = v }
-    public func getBlockIncrement() -> Int{ blockIncrement }
-    public func setBlockIncrement(_ v: Int){ blockIncrement = v }
-    public func getOrientation() -> Int   { orientation }
+    public func getMinimum() -> Int       {
+      minimum
+    }
+    
+    public func setMinimum(_ v: Int)      {
+      minimum = v;
+      _value = clampedValue(_value)
+    }
+    
+    public func getMaximum() -> Int       {
+      maximum
+    }
+    
+    public func setMaximum(_ v: Int)      {
+      maximum = v;
+      _value = clampedValue(_value)
+    }
+    
+    public func getVisibleAmount() -> Int {
+      visibleAmount
+    }
+    
+    public func setVisibleAmount(_ v: Int){
+      visibleAmount = v;
+      _value = clampedValue(_value)
+    }
+    
+    public func getUnitIncrement() -> Int {
+      unitIncrement
+    }
+    
+    public func setUnitIncrement(_ v: Int){
+      unitIncrement = v
+    }
+    
+    public func getBlockIncrement() -> Int{
+      blockIncrement
+    }
+    
+    public func setBlockIncrement(_ v: Int){
+      blockIncrement = v
+    }
+    
+    public func getOrientation() -> Int   {
+      orientation
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Button / Thumb geometry
@@ -223,25 +254,22 @@ extension java.awt {
       let cx = r.x + r.width / 2
       let cy = r.y + r.height / 2
       let vert = orientation == Scrollbar.VERTICAL
-      // Draw a small 3-row triangle
+      // Draw a small 3-row triangle.
+      // row 0 = tip (width 0), row 2 = base (width 2×2).
       if vert {
-        // ▲ or ▼
-        let tip = decrement ? cy - 2 : cy + 2
-        let base = decrement ? cy + 2 : cy - 2
-        for row in 0...2 {
-          let dy = decrement ? base - row : base + row
+        // ▲: tip at top (cy-3), base at bottom (cy+1)
+        // ▼: tip at bottom (cy+3), base at top (cy-1)
+        for row in 0...3 {
+          let dy = decrement ? (cy - 3 + row) : (cy + 3 - row)
           g.drawLine(cx - row, dy, cx + row, dy)
         }
-        let _ = tip  // suppress warning
       } else {
-        // ◀ or ▶
-        let tip = decrement ? cx - 2 : cx + 2
-        let base = decrement ? cx + 2 : cx - 2
-        for col in 0...2 {
-          let dx = decrement ? base - col : base + col
+        // ◀: tip at left (cx-3), base at right (cx+1)
+        // ▶: tip at right (cx+3), base at left (cx-1)
+        for col in 0...3 {
+          let dx = decrement ? (cx - 3 + col) : (cx + 3 - col)
           g.drawLine(dx, cy - col, dx, cy + col)
         }
-        let _ = tip  // suppress warning
       }
     }
   }

@@ -17,15 +17,14 @@ import SwiftUI
 final class _SwiftUINativeCanvas: NSView {
   
   var component: java.awt.Component? {
-    didSet { subscribeCursorNotification() }
+    didSet { subscribeNotifications() }
   }
 
   private var cursorObserver: NSObjectProtocol?
 
-  private func subscribeCursorNotification() {
-    if let obs = cursorObserver {
-      NotificationCenter.default.removeObserver(obs)
-    }
+  private func subscribeNotifications() {
+    if let obs = cursorObserver { NotificationCenter.default.removeObserver(obs) }
+
     cursorObserver = NotificationCenter.default.addObserver(
       forName: .awtCursorChanged, object: nil, queue: .main) { [weak self] _ in
       MainActor.assumeIsolated {
@@ -164,34 +163,54 @@ final class _SwiftUINativeCanvas: NSView {
       needsDisplay = true
       
     } else if let sb = hit as? java.awt.Scrollbar {
-      let thumb = sb.thumbRect()
       let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
       let coord  = isVert ? Int(pt.y) : Int(pt.x)
-      if thumb.contains(Int(pt.x), Int(pt.y)) {
-        // Klick auf Thumb — Drag starten
-        draggingScrollbar    = sb
-        sb.isDragging        = true
-        sb.dragStartCoord    = coord
-        sb.dragStartValue    = sb.value
+      let ptI    = (x: Int(pt.x), y: Int(pt.y))
+      if sb.decrementButtonRect().contains(ptI.x, ptI.y) {
+        // Decrement arrow — step by unitIncrement
+        sb.value = sb.value - sb.unitIncrement
+        sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_DECREMENT, isAdjusting: false)
+      } else if sb.incrementButtonRect().contains(ptI.x, ptI.y) {
+        // Increment arrow — step by unitIncrement
+        sb.value = sb.value + sb.unitIncrement
+        sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_INCREMENT, isAdjusting: false)
+      } else if sb.thumbRect().contains(ptI.x, ptI.y) {
+        // Thumb drag
+        draggingScrollbar = sb
+        sb.isDragging     = true
+        sb.dragStartCoord = coord
+        sb.dragStartValue = sb.value
       } else {
-        // Klick in Track — Sprung zur Klick-Position (Thumb-Mitte zum Cursor)
+        // Track click — jump to position, then allow drag
         let range  = sb.maximum - sb.minimum
         let track  = isVert ? sb.bounds.height : sb.bounds.width
         let origin = isVert ? sb.bounds.y      : sb.bounds.x
         let newVal = sb.minimum + (coord - origin) * range / max(1, track) - sb.visibleAmount / 2
         sb.value   = newVal
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: false)
-        // Danach sofort in Drag-Modus wechseln, damit der User ziehen kann
-        draggingScrollbar    = sb
-        sb.isDragging        = true
-        sb.dragStartCoord    = coord
-        sb.dragStartValue    = sb.value
+        draggingScrollbar = sb
+        sb.isDragging     = true
+        sb.dragStartCoord = coord
+        sb.dragStartValue = sb.value
       }
       needsDisplay = true
       
     } else if let sp = hit as? java.awt.ScrollPane {
       let ptI = (x: Int(pt.x), y: Int(pt.y))
-      if let thumb = sp.vThumbRect(), thumb.contains(ptI.x, ptI.y) {
+      let (maxX, maxY) = sp.maxScroll()
+      if let btn = sp.vDecrementButtonRect(), btn.contains(ptI.x, ptI.y) {
+        // V-Pfeil aufwärts — unitIncrement
+        sp.setScrollPosition(sp.scrollX, max(0, sp.scrollY - sp.scrollbarSize))
+      } else if let btn = sp.vIncrementButtonRect(), btn.contains(ptI.x, ptI.y) {
+        // V-Pfeil abwärts — unitIncrement
+        sp.setScrollPosition(sp.scrollX, min(maxY, sp.scrollY + sp.scrollbarSize))
+      } else if let btn = sp.hDecrementButtonRect(), btn.contains(ptI.x, ptI.y) {
+        // H-Pfeil links — unitIncrement
+        sp.setScrollPosition(max(0, sp.scrollX - sp.scrollbarSize), sp.scrollY)
+      } else if let btn = sp.hIncrementButtonRect(), btn.contains(ptI.x, ptI.y) {
+        // H-Pfeil rechts — unitIncrement
+        sp.setScrollPosition(min(maxX, sp.scrollX + sp.scrollbarSize), sp.scrollY)
+      } else if let thumb = sp.vThumbRect(), thumb.contains(ptI.x, ptI.y) {
         // Klick auf V-Thumb — Drag starten
         draggingScrollPane      = sp
         sp.isDraggingV          = true
@@ -199,7 +218,6 @@ final class _SwiftUINativeCanvas: NSView {
         sp.dragStartScrollY     = sp.scrollY
       } else if let track = sp.vScrollbarRect(), track.contains(ptI.x, ptI.y) {
         // Klick in V-Track — Sprung zur Position
-        let (_, maxY) = sp.maxScroll()
         let relY      = ptI.y - track.y
         sp.scrollY    = max(0, min(maxY, relY * maxY / max(1, track.height)))
         draggingScrollPane      = sp
@@ -214,7 +232,6 @@ final class _SwiftUINativeCanvas: NSView {
         sp.dragStartScrollX     = sp.scrollX
       } else if let track = sp.hScrollbarRect(), track.contains(ptI.x, ptI.y) {
         // Klick in H-Track — Sprung zur Position
-        let (maxX, _) = sp.maxScroll()
         let relX      = ptI.x - track.x
         sp.scrollX    = max(0, min(maxX, relX * maxX / max(1, track.width)))
         draggingScrollPane      = sp
@@ -233,11 +250,20 @@ final class _SwiftUINativeCanvas: NSView {
     } else if let list = hit as? java.awt.List {
       let ptI = (x: Int(pt.x), y: Int(pt.y))
       if let thumb = list.scrollbarThumbRect(), thumb.contains(ptI.x, ptI.y) {
-        // Begin scrollbar thumb drag
-        draggingList                = list
-        list.isScrollbarDragging   = true
-        list.scrollDragStartY      = ptI.y
-        list.scrollDragStartOff    = list.scrollOffset
+        // Thumb drag
+        draggingList             = list
+        list.isScrollbarDragging = true
+        list.scrollDragStartY   = ptI.y
+        list.scrollDragStartOff = list.scrollOffset
+      } else if let track = list.scrollbarTrackRect(), track.contains(ptI.x, ptI.y) {
+        // Track click — jump to position, then allow drag
+        let maxOff = list.maxScrollOffset()
+        let relY   = ptI.y - track.y
+        list.scrollOffset       = max(0, min(maxOff, relY * maxOff / max(1, track.height)))
+        draggingList             = list
+        list.isScrollbarDragging = true
+        list.scrollDragStartY   = ptI.y
+        list.scrollDragStartOff = list.scrollOffset
       } else {
         // Item selection
         if let idx = list.itemIndex(atY: ptI.y) {
@@ -439,11 +465,20 @@ final class _SwiftUINativeCanvas: NSView {
   }
 
   private func addCursorRects(for comp: java.awt.Component) {
+    // Explicit cursor takes priority; TextComponents implicitly get iBeam.
+    let effectiveCur: NSCursor?
     if let cur = comp.cursor {
+      effectiveCur = nsCursor(for: cur)
+    } else if comp is java.awt.TextComponent {
+      effectiveCur = .iBeam
+    } else {
+      effectiveCur = nil
+    }
+    if let cur = effectiveCur {
       let r = comp.bounds
       let ns = NSRect(x: r.x, y: Int(bounds.height) - r.y - r.height,
                       width: r.width, height: r.height)
-      addCursorRect(ns, cursor: nsCursor(for: cur))
+      addCursorRect(ns, cursor: cur)
     }
     if let container = comp as? java.awt.Container {
       for child in container.getComponents() {

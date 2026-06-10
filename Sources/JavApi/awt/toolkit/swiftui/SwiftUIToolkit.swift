@@ -69,6 +69,67 @@ extension java.awt.toolkit.swiftui {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Application lifecycle
+    // -------------------------------------------------------------------------
+
+    /// `true` once `runEventLoop()` has been called — prevents double-starting
+    /// the AppKit / UIKit event loop.
+    private var eventLoopStarted = false
+
+    /// Java 1.0–style entry point: shows `frame` and starts the event loop.
+    /// - Since: JavaApi > 0.19.1
+    public override func run(frame: java.awt.Frame) {
+      frame.setVisible(true)
+      runEventLoop()
+    }
+
+    /// Drains pending `EventQueue` runnables and starts the AppKit / UIKit
+    /// event loop (once only).
+    ///
+    /// - Since: JavaApi > 0.19.1
+    public override func runEventLoop() {
+      guard !eventLoopStarted else { return }
+      eventLoopStarted = true
+      java.awt.EventQueue.drainAndMarkRunning()
+      _startPlatformLoop()
+    }
+
+    /// Platform-specific loop entry — separated so subclasses can override
+    /// just this part without duplicating the guard logic.
+    @MainActor
+    private func _startPlatformLoop() {
+#if os(macOS) && canImport(AppKit)
+      let delegate = _AWTLoopDelegate()
+      NSApplication.shared.delegate = delegate
+      NSApplication.shared.setActivationPolicy(.regular)
+      NSApp.run()
+#elseif canImport(UIKit) && !os(watchOS)
+      // UIApplicationMain does not return; store delegate class name.
+      UIApplicationMain(
+        CommandLine.argc, CommandLine.unsafeArgv,
+        nil, NSStringFromClass(_AWTUILoopDelegate.self))
+#endif
+      // visionOS / watchOS / headless: no blocking loop needed
+    }
+
+    /// Terminates the application via `NSApp.terminate(nil)` (macOS) or
+    /// `UIApplication.shared.perform(#selector(NSXPCConnection.suspend))`
+    /// (iOS/tvOS). Falls back to `exit(0)` on all other Apple platforms.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    public override func terminate() {
+#if os(macOS) && canImport(AppKit)
+      AppKit.NSApp.terminate(nil)
+#elseif canImport(UIKit) && !os(watchOS)
+      UIApplication.shared.perform(#selector(NSXPCConnection.suspend))
+      // Give the OS a moment, then force-exit if needed
+      DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { exit(0) }
+#else
+      exit(0)
+#endif
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Screen properties
     // -------------------------------------------------------------------------
 
@@ -146,6 +207,94 @@ extension java.awt.toolkit.swiftui {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Image loading
+    // -------------------------------------------------------------------------
+
+    /// Loads a named image from the module bundle via AppKit (macOS) or UIKit (iOS/tvOS).
+    ///
+    /// On macOS the lookup order is:
+    /// 1. `Assets.xcassets/AppIcon.appiconset/<name>.png` inside `Bundle.module`
+    /// 2. `NSImage(named:)` — works for app-bundle assets and system images
+    ///
+    /// The `NSImage` / `UIImage` is converted to a `java.awt.image.BufferedImage`
+    /// backed by a CGImage so that `Graphics.drawImage` can render it.
+    ///
+    /// - Since: JavaApi > 0.19.1
+    public override func loadImage(named name: String) -> java.awt.Image? {
+#if os(macOS) && canImport(AppKit)
+      let nsImg: NSImage? = {
+        // Build the full list of bundles to search:
+        // 1. All already-loaded bundles (covers .app deployments)
+        var candidates: [Bundle] = Bundle.allBundles + Bundle.allFrameworks
+        candidates.append(Bundle.main)
+        candidates.append(Bundle(for: SwiftUIToolkit.self))
+
+        // 2. Search directories where SPM/Xcode place resource bundles:
+        //    - swift run:  next to executable (.build/.../debug/)
+        //    - .app bundle: Contents/Resources/
+        let execURL = URL(fileURLWithPath: CommandLine.arguments[0])
+          .deletingLastPathComponent()
+        var searchDirs: [URL] = [execURL]
+        // .app bundle: go up from Contents/MacOS → Contents/Resources
+        let resourcesURL = execURL
+          .deletingLastPathComponent()          // Contents/
+          .appendingPathComponent("Resources")
+        searchDirs.append(resourcesURL)
+        // Also try Bundle.main.resourceURL (covers both cases)
+        if let mainResources = Bundle.main.resourceURL {
+          searchDirs.append(mainResources)
+        }
+
+        for dir in searchDirs {
+          guard let enumerator = FileManager.default.enumerator(
+              at: dir,
+              includingPropertiesForKeys: nil,
+              options: [.skipsSubdirectoryDescendants]) else { continue }
+          for case let url as URL in enumerator
+          where url.pathExtension == "bundle" {
+            if let b = Bundle(url: url) {
+              candidates.append(b)
+            }
+          }
+        }
+
+        let subdirs = [
+          "Assets.xcassets/AppIcon.appiconset",
+          "Assets.xcassets",
+          "",
+        ]
+        for bundle in candidates {
+          for subdir in subdirs {
+            let url: URL?
+            if subdir.isEmpty {
+              url = bundle.url(forResource: name, withExtension: "png")
+            } else {
+              url = bundle.url(forResource: name, withExtension: "png",
+                               subdirectory: subdir)
+            }
+            if let url, let img = NSImage(contentsOf: url) {
+              return img
+            }
+          }
+        }
+        // Final fallback: named image / asset catalog
+        return NSImage(named: name)
+      }()
+      guard let nsImg,
+            let cgImg = nsImg.cgImage(forProposedRect: nil, context: nil, hints: nil)
+      else { return nil }
+      return java.awt.image.BufferedImage(cgImage: cgImg)
+#elseif canImport(UIKit)
+      guard let uiImg = UIImage(named: name),
+            let cgImg = uiImg.cgImage
+      else { return nil }
+      return java.awt.image.BufferedImage(cgImage: cgImg)
+#else
+      return nil
+#endif
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Color model
     // -------------------------------------------------------------------------
 
@@ -159,4 +308,37 @@ extension java.awt.toolkit.swiftui {
   }
 }
 
+// =============================================================================
+// MARK: Internal platform loop delegates
+// =============================================================================
+
+#if os(macOS) && canImport(AppKit)
+/// AppKit delegate used by `SwiftUIToolkit.runEventLoop()`.
+/// Opens the first AWT frame after `NSApp` finishes launching.
+@MainActor
+private final class _AWTLoopDelegate: NSObject, NSApplicationDelegate {
+  func applicationDidFinishLaunching(_ notification: Notification) {
+    NSApp.activate(ignoringOtherApps: true)
+    // EventQueue runnables have already been drained by drainAndMarkRunning()
+    // before NSApp.run() was called, so pending frames are already visible.
+  }
+  func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+    true
+  }
+}
 #endif
+
+#if canImport(UIKit) && !os(watchOS)
+/// UIKit delegate used by `SwiftUIToolkit.runEventLoop()` on iOS/tvOS.
+@MainActor
+private final class _AWTUILoopDelegate: UIResponder, UIApplicationDelegate {
+  var window: UIWindow?
+  func application(_ application: UIApplication,
+                   didFinishLaunchingWithOptions options: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+    // EventQueue runnables already drained — frames are visible.
+    return true
+  }
+}
+#endif
+
+#endif  // canImport(SwiftUI)

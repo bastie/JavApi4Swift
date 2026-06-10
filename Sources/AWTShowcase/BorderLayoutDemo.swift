@@ -4,59 +4,38 @@
  */
 
 import JavApi
-import Foundation
-#if canImport(AppKit)
-import AppKit
-#endif
 
-// ---------------------------------------------------------------------------
-// MARK: - BorderLayout demo
-// ---------------------------------------------------------------------------
-
-/// Öffnet den BorderLayout-Demo-Dialog.
-@MainActor
-final class BorderLayoutDemoListener: java.awt.event.ActionListener {
-  private weak var owner: java.awt.Frame?
-  init(owner: java.awt.Frame) { self.owner = owner }
-
-  func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    guard let owner else { return }
-    let dialog = BorderLayoutDemoDialog(owner: owner)
-    dialog.validate()
-    dialog.setVisible(true)
-  }
-}
-
-/// Dialog demonstriert alle fünf BorderLayout-Regionen.
+/// Demo dialog of all fice  BorderLayout regions.
 ///
 /// ```
 /// ┌─────────────────────────────────────┐
-/// │            NORTH (blau)             │
+/// │            NORTH (blue)             │
 /// ├──────────┬──────────────┬───────────┤
 /// │  WEST    │    CENTER    │   EAST    │
-/// │ (grün)   │   (grau)     │  (lila)  │
+/// │ (green)  │   (gray)     │  (lila)   │
 /// ├──────────┴──────────────┴───────────┤
-/// │            SOUTH (rot)              │
+/// │            SOUTH (red)              │
 /// └─────────────────────────────────────┘
 ///                              [Schließen]
 /// ```
 @MainActor
 final class BorderLayoutDemoDialog: java.awt.Dialog {
 
-  init(owner: java.awt.Frame) {
+  init (owner: java.awt.Frame) {
     super.init(owner, "LayoutManager – BorderLayout", true)
-    let W = 440, H = 300
-    bounds = java.awt.Rectangle(0, 0, W, H)
-    setPreferredSize(java.awt.Dimension(W, H))
+    let width = 440
+    let height = 300
+    bounds = java.awt.Rectangle (0, 0, width, height)
+    setPreferredSize (java.awt.Dimension(width, height))
     // hgap/vgap=0: Regionen stoßen direkt aneinander, kein Rand nach außen.
     // Abstände entstehen nur durch setPreferredSize der einzelnen Regionen.
-    setLayout(java.awt.BorderLayout(0, 0))
+    setLayout (java.awt.BorderLayout(0, 0))
 
     // NORTH — volle Breite, 44px hoch
     let north = java.awt.Label("NORTH", java.awt.Label.CENTER)
     north.background = .blue
     north.foreground = .white
-    north.setPreferredSize(java.awt.Dimension(W, 44))
+    north.setPreferredSize(java.awt.Dimension(width, 44))
     add(north, java.awt.BorderLayout.NORTH)
 
     // SOUTH — Panel mit BorderLayout(0,0): Label nimmt CENTER (gesamte Restbreite),
@@ -64,7 +43,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     // hgap=0 → Panel geht exakt über die volle Dialog-Breite.
     let south = java.awt.Panel(java.awt.BorderLayout(0, 0))
     south.background = java.awt.Color(180, 0, 0)
-    south.setPreferredSize(java.awt.Dimension(W, 44))
+    south.setPreferredSize(java.awt.Dimension(width, 44))
     let southLbl = java.awt.Label("SOUTH", java.awt.Label.LEFT)
     southLbl.background = java.awt.Color(180, 0, 0)
     southLbl.foreground = .white
