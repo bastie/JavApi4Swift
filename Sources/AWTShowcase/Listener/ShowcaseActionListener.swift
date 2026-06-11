@@ -5,7 +5,10 @@
 
 import JavApi
 
-/// Simple ActionListener that prints to console — beendet die App bei "Beenden".
+/// ActionListener that logs button clicks and terminates the application.
+///
+/// Prints each action command to the console. When the "Beenden" (Exit) button
+/// is clicked, terminates the application by calling Toolkit.terminate().
 @MainActor
 final class ShowcaseActionListener: java.awt.event.ActionListener {
   func actionPerformed(_ e: java.awt.event.ActionEvent) {

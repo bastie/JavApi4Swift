@@ -5,7 +5,11 @@
 
 import JavApi
 
-/// Opens the GridBagLayout demo dialog.
+/// ActionListener that opens the GridBagLayout demo dialog.
+///
+/// Demonstrates how GridBagLayout allows precise control over component
+/// positioning using grid cells and constraints. The demo dialog contains
+/// form fields arranged in a grid with customizable spacing and alignment.
 @MainActor
 final class OpenGridBagDemoActionListener: java.awt.event.ActionListener {
   private weak var owner: java.awt.Frame?

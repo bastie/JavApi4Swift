@@ -5,6 +5,11 @@
 
 import JavApi
 
+/// ActionListener that navigates between cards in a CardLayout.
+///
+/// Moves to the next or previous card when its action button is clicked.
+/// Direction is determined by the initialization parameter: positive moves next,
+/// negative moves previous. Works with CardLayout to flip between card panels.
 @MainActor
 final class CardNavListener: java.awt.event.ActionListener {
   

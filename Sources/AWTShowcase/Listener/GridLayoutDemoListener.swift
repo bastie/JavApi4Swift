@@ -5,7 +5,10 @@
 
 import JavApi
 
-/// Öffnet den GridLayout-Demo-Dialog.
+/// ActionListener that opens the GridLayout demo dialog.
+///
+/// Demonstrates how GridLayout arranges components in a uniform grid
+/// with specified rows and columns. Each component gets equal space.
 @MainActor
 final class GridLayoutDemoListener: java.awt.event.ActionListener {
   private weak var owner: java.awt.Frame?

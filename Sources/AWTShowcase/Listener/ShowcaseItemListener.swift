@@ -5,7 +5,11 @@
 
 import JavApi
 
-/// ItemListener für Choice und List - print the selected item on clonsole
+/// ItemListener that logs selection changes in Choice and List components.
+///
+/// Prints each item selection/deselection event to the console with the item
+/// name and whether it was selected or deselected. Useful for tracking
+/// user interactions with dropdown menus and lists.
 @MainActor
 final class ShowcaseItemListener: java.awt.event.ItemListener {
   private let label: String

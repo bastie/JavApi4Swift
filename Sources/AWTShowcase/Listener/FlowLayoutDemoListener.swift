@@ -5,7 +5,10 @@
 
 import JavApi
 
-/// open FlowLayout-Demo dialog
+/// ActionListener that opens the FlowLayout demo dialog.
+///
+/// Demonstrates how FlowLayout arranges components in rows, flowing from
+/// left to right and wrapping to the next line when space is exhausted.
 @MainActor
 final class FlowLayoutDemoListener: java.awt.event.ActionListener {
   private weak var owner: java.awt.Frame?

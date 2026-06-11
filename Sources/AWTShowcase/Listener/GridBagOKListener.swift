@@ -5,6 +5,11 @@
 
 import JavApi
 
+/// ActionListener that handles the OK button in the GridBagLayout demo.
+///
+/// Collects form data (name, city, note) from input fields, prints it to
+/// the console for verification, and closes the demo dialog. Demonstrates
+/// accessing component state and proper dialog cleanup.
 @MainActor
 final class GridBagDemoOKListener : java.awt.event.ActionListener {
   

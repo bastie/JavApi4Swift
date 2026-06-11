@@ -5,11 +5,15 @@
 
 import JavApi
 
-/// WindowListener — gibt Fenster-Lebenszyklusereignisse auf der Konsole aus.
+/// WindowListener that logs all window lifecycle events to the console.
 ///
-/// `windowClosing` wird sowohl durch den roten macOS-Schließen-Button als auch
-/// durch `dispose()` ausgelöst. In beiden Fällen wird die App beendet — damit
-/// verhält sich der rote Button identisch zum Menüpunkt „Beenden".
+/// Implements all WindowListener methods to demonstrate and track window state
+/// changes including: open, close, iconify/deiconify, and focus changes.
+///
+/// The `windowClosing` event is triggered by both the platform close button
+/// (red button on macOS, X on Windows) and by calling `dispose()`. In both
+/// cases the app terminates via Toolkit.terminate(), so the close button
+/// behaves identically to clicking the "Exit" menu item.
 @MainActor
 final class ShowcaseWindowListener: java.awt.event.WindowListener {
   func windowOpened     (_ e: java.awt.event.WindowEvent) {

@@ -5,6 +5,11 @@
 
 import JavApi
 
+/// ActionListener that opens the "About JavApi⁴Swift" dialog.
+///
+/// Displays a modal dialog with the JavApi⁴Swift logo, project name,
+/// and a "Close" button. Demonstrates modal dialog creation using
+/// BorderLayout and basic AWT components.
 @MainActor
 final class AboutListener: java.awt.event.ActionListener {
   private weak var owner: java.awt.Frame?

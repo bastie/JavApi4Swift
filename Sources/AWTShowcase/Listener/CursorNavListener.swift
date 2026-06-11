@@ -5,6 +5,11 @@
 
 import JavApi
 
+/// ActionListener that navigates through cursor types in the cursor demo.
+///
+/// Increments or decrements the current cursor index in the CursorDemoPanel
+/// based on the button clicked (next/previous). Updates the displayed cursor
+/// and demonstration text for each cursor type.
 @MainActor
 final class CursorNavListener: java.awt.event.ActionListener {
   

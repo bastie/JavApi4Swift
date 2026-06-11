@@ -5,7 +5,10 @@
 
 import JavApi
 
-/// Öffnet den CardLayout-Demo-Dialog.
+/// ActionListener that opens the CardLayout demo dialog.
+///
+/// Demonstrates how CardLayout works by displaying a dialog with cards
+/// that can be navigated through via CardNavListener.
 @MainActor
 final class CardLayoutDemoListener: java.awt.event.ActionListener {
   private weak var owner: java.awt.Frame?

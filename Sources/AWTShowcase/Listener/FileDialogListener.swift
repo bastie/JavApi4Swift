@@ -5,7 +5,11 @@
 
 import JavApi
 
-/// Öffnet einen FileDialog und gibt das Ergebnis auf der Konsole aus.
+/// ActionListener that opens a FileDialog and prints the result.
+///
+/// Handles both file open and file save dialogs. Prints the selected file path
+/// to the console if a file was chosen, or "canceled" if the user dismissed
+/// the dialog without selecting a file.
 @MainActor
 final class FileDialogListener: java.awt.event.ActionListener {
   private weak var frame: java.awt.Frame?
