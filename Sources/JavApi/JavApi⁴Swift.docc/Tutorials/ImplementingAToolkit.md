@@ -539,11 +539,20 @@ The `openDialog` method should:
 
 ## Step 6 — Input events
 
-Hit-testing and focus management are **platform-independent** utilities that can be used directly from any backend:
+Hit-testing is a **platform-independent** utility that can be used directly from any backend:
 
 - `_AWTHitTest.find(x:y:in:)` — recursively finds the deepest visible component at a point in AWT coordinates (Y from top). Lives in `toolkit/_AWTHitTest.swift`; no CoreGraphics or SwiftUI dependency.
 - `_AWTHitTest.dispatch(click:)` — dispatches a click to the hit component (Button, Checkbox, TextField, …).
-- `_SwiftUIFocusManager.shared` — tracks the focused component and routes keyboard/clipboard input to the active `TextComponent`.
+
+**Focus management is platform-specific.** Each backend provides its own focus manager with identical text-input logic but a platform-native clipboard implementation:
+
+| Backend | Focus manager class | Clipboard API |
+|---------|--------------------|--------------------|
+| Apple (SwiftUI) | `_SwiftUIFocusManager` | `NSPasteboard` / `UIPasteboard` |
+| Windows (GDI) | `_Win32FocusManager` | `OpenClipboard` / `SetClipboardData` |
+| New platform | `_MyPlatformFocusManager` | platform clipboard API |
+
+For your new backend, copy `_Win32FocusManager.swift` as a starting point — the text-input methods are identical across all backends, only the clipboard section needs replacing.
 
 Translate your native events into AWT coordinates, then call these utilities:
 
@@ -552,27 +561,25 @@ Translate your native events into AWT coordinates, then call these utilities:
 // Win32 / Linux: Y is already from top — no flip needed (same as AWT)
 // NSEvent on non-flipped NSView: flip with  y = windowHeight - ny
 let hit = _AWTHitTest.find(x: nx, y: ny, in: awtWindow)
-_SwiftUIFocusManager.shared.requestFocus(hit)
+_MyPlatformFocusManager.shared.requestFocus(hit)
 _AWTHitTest.dispatch(click: hit ?? awtWindow)
 
 // Key input — printable characters
-_SwiftUIFocusManager.shared.typeCharacter(character)
+_MyPlatformFocusManager.shared.typeCharacter(character)
 
 // Special keys
-_SwiftUIFocusManager.shared.handleBackspace()
-_SwiftUIFocusManager.shared.handleDelete()
-_SwiftUIFocusManager.shared.handleEnter()
-_SwiftUIFocusManager.shared.moveCaret(by: 1, extending: false)  // Right arrow
-_SwiftUIFocusManager.shared.moveCaretUp(extending: false)
-_SwiftUIFocusManager.shared.moveCaretToEnd(end: true, extending: false)
+_MyPlatformFocusManager.shared.handleBackspace()
+_MyPlatformFocusManager.shared.handleDelete()
+_MyPlatformFocusManager.shared.handleEnter()
+_MyPlatformFocusManager.shared.moveCaret(by: 1, extending: false)  // Right arrow
+_MyPlatformFocusManager.shared.moveCaretUp(extending: false)
+_MyPlatformFocusManager.shared.moveCaretToEnd(end: true, extending: false)
 
-// Clipboard (Ctrl+C / Ctrl+V / Ctrl+X on Windows — Cmd on macOS)
-_SwiftUIFocusManager.shared.copySelection()
-_SwiftUIFocusManager.shared.pasteText()
-_SwiftUIFocusManager.shared.cutSelection()
+// Clipboard (Ctrl+C / Ctrl+V / Ctrl+X on Windows/Linux — Cmd on macOS)
+_MyPlatformFocusManager.shared.copySelection()
+_MyPlatformFocusManager.shared.pasteText()
+_MyPlatformFocusManager.shared.cutSelection()
 ```
-
-> **Clipboard:** `_SwiftUIFocusManager` uses `NSPasteboard` (macOS) and `UIPasteboard` (iOS). On other platforms the clipboard methods are no-ops — you must override or replace them for Win32 (`OpenClipboard` / `SetClipboardData`) or GTK (`GtkClipboard`).
 
 > **ScrollPane coordinate translation:** `_AWTHitTest.find(x:y:in:)` already handles `ScrollPane` by translating the hit-point into the child's scrolled coordinate space. No extra work is needed in your input handler.
 
