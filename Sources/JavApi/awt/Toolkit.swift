@@ -45,8 +45,9 @@ extension java.awt {
     ///    - `"Headless"` → `HeadlessToolkit`
     ///    - `"SwiftUI"`  → `SwiftUIToolkit` (Apple platforms) or `HeadlessToolkit`
     ///    - `"GDI"` → `GDIToolkit` (Windows) or `HeadlessToolkit`
+    ///    - `"X11"` → `X11Toolkit` (Linux / FreeBSD) or `HeadlessToolkit`
     /// 2. `os.name` system property — macOS / iOS / tvOS / visionOS → `SwiftUIToolkit`,
-    ///    Windows → `GDIToolkit`, everything else → `HeadlessToolkit`
+    ///    Windows → `GDIToolkit`, Linux / FreeBSD → `X11Toolkit`, everything else → `HeadlessToolkit`
     public static func getDefaultToolkit() -> Toolkit {
       // 1. Explicit override via system property
       let override : String? = try? System.getProperty("awt.toolkit")
@@ -63,6 +64,12 @@ extension java.awt {
         case "GDI":
 #if os(Windows)
           return java.awt.toolkit.gdi.GDIToolkit.shared
+#else
+          return java.awt.toolkit.HeadlessToolkit()
+#endif
+        case "X11":
+#if os(Linux) || os(FreeBSD)
+          return java.awt.toolkit.x11.X11Toolkit.shared
 #else
           return java.awt.toolkit.HeadlessToolkit()
 #endif
@@ -83,6 +90,12 @@ extension java.awt {
       case "Windows":
 #if os(Windows)
         return java.awt.toolkit.gdi.GDIToolkit.shared
+#else
+        return java.awt.toolkit.HeadlessToolkit()
+#endif
+      case "Linux", "FreeBSD":
+#if os(Linux) || os(FreeBSD)
+        return java.awt.toolkit.x11.X11Toolkit.shared
 #else
         return java.awt.toolkit.HeadlessToolkit()
 #endif
