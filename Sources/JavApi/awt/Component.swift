@@ -94,6 +94,20 @@ extension java.awt {
       java.awt.Dimension(bounds.width, bounds.height)
     }
 
+    // Java 1.1 convenience accessors (java.awt.Component)
+    public func getX() -> Int { bounds.x }
+    public func getY() -> Int { bounds.y }
+    public func getWidth() -> Int { bounds.width }
+    public func getHeight() -> Int { bounds.height }
+
+    public func getBounds() -> java.awt.Rectangle { bounds }
+    public func setBounds(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      bounds = java.awt.Rectangle(x, y, width, height)
+    }
+    public func setBounds(_ r: java.awt.Rectangle) {
+      bounds = r
+    }
+
     /// Liefert den übergeordneten Container, oder `nil`.
     public func getParent() -> java.awt.Container? { parent }
 
