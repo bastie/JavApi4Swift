@@ -19,7 +19,7 @@ final class AboutListener: java.awt.event.ActionListener {
     let dialog = java.awt.Dialog (owner, "About JavApi⁴Swift", true)
     dialog.setLayout (java.awt.BorderLayout())
     dialog.setPreferredSize (java.awt.Dimension(320, 260))
-    dialog.bounds = java.awt.Rectangle(0, 0, 320, 260)
+    dialog.setBounds(0, 0, 320, 260)
     
     // Logo oben
     let logo = LogoCanvas()

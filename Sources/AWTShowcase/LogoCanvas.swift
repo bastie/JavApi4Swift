@@ -13,27 +13,27 @@ import JavApi
 final class LogoCanvas: java.awt.Canvas {
   
   override func paint(_ g: java.awt.Graphics) {
-    let w = bounds.width
-    let h = bounds.height
+    let w = getWidth()
+    let h = getHeight()
     guard w > 0, h > 0 else { return }
-    
+
     // Background
     g.setColor(background)
-    g.fillRect(bounds.x, bounds.y, w, h)
-    
+    g.fillRect(getX(), getY(), w, h)
+
     // Logo laden über Toolkit — kein plattformspezifischer Code nötig
     let toolkit = java.awt.Toolkit.getDefaultToolkit()
     if let img = toolkit.loadImage(named: "JavApi4Swift256") {
       let side = Swift.min(w, h)
-      let ox   = bounds.x + (w - side) / 2
-      let oy   = bounds.y + (h - side) / 2
+      let ox   = getX() + (w - side) / 2
+      let oy   = getY() + (h - side) / 2
       g.drawImage(img, ox, oy, side, side)
     }
     else {
       // Fallback: Placeholder wenn kein Bild gefunden
       g.setColor(.darkGray)
-      g.drawRect(bounds.x + 2, bounds.y + 2, w - 4, h - 4)
-      g.drawString("JavApi⁴Swift img not found", bounds.x + w / 2 - 12, bounds.y + h / 2 + 6)
+      g.drawRect(getX() + 2, getY() + 2, w - 4, h - 4)
+      g.drawString("JavApi⁴Swift img not found", getX() + w / 2 - 12, getY() + h / 2 + 6)
     }
   }
 }

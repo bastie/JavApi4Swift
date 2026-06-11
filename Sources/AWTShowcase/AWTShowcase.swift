@@ -45,9 +45,9 @@ struct AWTShowcaseApp {
     let centerPanel = java.awt.Panel(java.awt.BorderLayout())
     // CENTER im äußeren BorderLayout füllt den verbleibenden Platz automatisch
     
-    // ColourGridCanvas (doppelte Höhe) — bounds bestimmen den virtuellen Inhalt der ScrollPane
-    let bigCanvas = ColourGridCanvas()
-    bigCanvas.bounds = java.awt.Rectangle(0, 0, width / 2, centerH * 2)
+    // ColorGridCanvas (doppelte Höhe) — setBounds bestimmt den virtuellen Inhalt der ScrollPane
+    let bigCanvas = ColorGridCanvas()
+    bigCanvas.setBounds(0, 0, width / 2, centerH * 2)
     
     // PopupMenu auf dem Canvas
     let canvasPopup = java.awt.PopupMenu("Canvas")

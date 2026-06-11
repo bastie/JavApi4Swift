@@ -15,7 +15,7 @@ final class CursorDemoDialog {
   static func show(owner: java.awt.Frame) {
     let dialog = java.awt.Dialog(owner, "Cursor-Demo", false)
     dialog.setLayout(java.awt.BorderLayout())
-    dialog.bounds = java.awt.Rectangle(0, 0, 320, 160)
+    dialog.setBounds(0, 0, 320, 160)
 
     // ── Cursor-Panel (wiederverwendet bestehende Logik) ───────────────────
     let panel = CursorDemoPanel()

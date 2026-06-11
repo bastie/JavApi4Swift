@@ -17,7 +17,7 @@ final class SystemInfoDialog {
     let dialog = java.awt.Dialog(owner, "Systeminformationen", true)
     dialog.setLayout(java.awt.BorderLayout())
     dialog.setPreferredSize(java.awt.Dimension(600, 500))
-    dialog.bounds = java.awt.Rectangle(0, 0, 600, 500)
+    dialog.setBounds(0, 0, 600, 500)
 
     // ── Tabs via CardLayout ──────────────────────────────────────────────
     let cardLayout = java.awt.CardLayout()

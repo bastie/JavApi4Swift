@@ -9,14 +9,14 @@ import JavApi
 @MainActor
 final class PolygonCanvas: java.awt.Canvas {
   override func paint(_ g: java.awt.Graphics) {
-    let w = bounds.width, h = bounds.height
+    let w = getWidth(), h = getHeight()
     guard w > 4, h > 4 else { return }
-    
+
     // Hintergrund
     g.setColor(.darkGray)
-    g.fillRect(bounds.x, bounds.y, w, h)
-    
-    let ox = bounds.x, oy = bounds.y
+    g.fillRect(getX(), getY(), w, h)
+
+    let ox = getX(), oy = getY()
     
     // Gefülltes Dreieck (blau)
     g.setColor(.blue)

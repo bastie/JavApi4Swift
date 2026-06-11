@@ -25,7 +25,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     super.init(owner, "LayoutManager – BorderLayout", true)
     let width = 440
     let height = 300
-    bounds = java.awt.Rectangle (0, 0, width, height)
+    setBounds(0, 0, width, height)
     setPreferredSize (java.awt.Dimension(width, height))
     // hgap/vgap=0: Regionen stoßen direkt aneinander, kein Rand nach außen.
     // Abstände entstehen nur durch setPreferredSize der einzelnen Regionen.

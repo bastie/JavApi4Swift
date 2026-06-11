@@ -22,7 +22,7 @@ final class GridBagDemoDialog: java.awt.Dialog {
     super.init (owner, "LayoutManager – GridBagLayout", true)
     let width = 400
     let height = 300
-    bounds = java.awt.Rectangle (0, 0, width, height)
+    setBounds(0, 0, width, height)
     setPreferredSize (java.awt.Dimension(width, height))
 
     let gbl = java.awt.GridBagLayout()

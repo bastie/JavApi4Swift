@@ -25,7 +25,7 @@ final class FlowLayoutDemoDialog: java.awt.Dialog {
     super.init(owner, "LayoutManager – FlowLayout", true)
     let width = 440
     let height = 260
-    bounds = java.awt.Rectangle (0, 0, width, height)
+    setBounds(0, 0, width, height)
     setPreferredSize (java.awt.Dimension(width, height))
     setLayout (java.awt.BorderLayout())
 

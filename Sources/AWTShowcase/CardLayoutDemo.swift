@@ -21,7 +21,7 @@ final class CardLayoutDemoDialog: java.awt.Dialog {
   init(owner: java.awt.Frame) {
     super.init(owner, "LayoutManager – CardLayout", true)
     let W = 380, H = 220
-    bounds = java.awt.Rectangle(0, 0, W, H)
+    setBounds(0, 0, W, H)
     setPreferredSize(java.awt.Dimension(W, H))
     setLayout(java.awt.BorderLayout())
 
