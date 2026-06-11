@@ -79,14 +79,16 @@ private typealias XMoveResizeWindowFunc     = @convention(c) (X11DisplayPtr, X11
 private typealias XGetDefaultFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>, UnsafePointer<CChar>) -> UnsafePointer<CChar>?
 
 // X11 event type constants (from X.h)
-private let X11_ExposureMask:   CLong = 1 << 15
-private let X11_KeyPressMask:   CLong = 1 << 0
-private let X11_ButtonPressMask:CLong = 1 << 2
+private let X11_ExposureMask:        CLong = 1 << 15
+private let X11_KeyPressMask:        CLong = 1 << 0
+private let X11_ButtonPressMask:     CLong = 1 << 2
+private let X11_PointerMotionMask:   CLong = 1 << 6
 private let X11_StructureNotifyMask: CLong = 1 << 17
 
 private let X11_Expose:         Int32 = 12
 private let X11_KeyPress:       Int32 = 2
 private let X11_ButtonPress:    Int32 = 4
+private let X11_MotionNotify:   Int32 = 6
 private let X11_ConfigureNotify:Int32 = 22
 private let X11_ClientMessage:  Int32 = 33
 private let X11_DestroyNotify:  Int32 = 17
@@ -165,6 +167,9 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var registry: [X11WindowID: java.awt.Window] = [:]
   private var reverseRegistry: [ObjectIdentifier: X11WindowID] = [:]
   private var gcRegistry: [X11WindowID: UnsafeMutableRawPointer] = [:]
+
+  // MenuBar attached to each Frame (keyed by X11 window ID)
+  @MainActor private var menuBarRegistry: [X11WindowID: _X11MenuBar] = [:]
 
   // ---------------------------------------------------------------------------
   // MARK: Library loading
@@ -300,7 +305,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     }
 
     // Subscribe to events
-    let mask = X11_ExposureMask | X11_KeyPressMask | X11_ButtonPressMask | X11_StructureNotifyMask
+    let mask = X11_ExposureMask | X11_KeyPressMask | X11_ButtonPressMask | X11_PointerMotionMask | X11_StructureNotifyMask
     _ = fnSel(dpy, xwin, mask)
 
     // Create a GC for this window
@@ -309,6 +314,18 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     registry[xwin] = awtWindow
     reverseRegistry[ObjectIdentifier(awtWindow)] = xwin
+
+    // If a MenuBar was attached before the window was opened (the common case —
+    // frame.setMenuBar() is usually called before setVisible()), attach it now.
+    if let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
+      menuBarRegistry[xwin] = _X11MenuBar(mb)
+      // Shrink AWT content area so layout managers don't paint under the bar
+      let logH = awtWindow.getHeight() - _X11MenuBar.menuBarHeight
+      if logH > 0 {
+        awtWindow.setBounds(awtWindow.getX(), awtWindow.getY(), awtWindow.getWidth(), logH)
+        awtWindow.validate()
+      }
+    }
 
     // Register WM_DELETE_WINDOW so the close button sends a ClientMessage
     // instead of forcibly killing the X connection.
@@ -319,6 +336,35 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     _ = fnMap(dpy, xwin)
     _ = fnFlush(dpy)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Menu bar
+  // ---------------------------------------------------------------------------
+
+  /// Attaches a `MenuBar` to the given frame and redraws.
+  /// Called by `X11Toolkit.attachMenuBar(_:to:)`.
+  @MainActor
+  public func attachMenuBar(_ menuBar: java.awt.MenuBar?, to frame: java.awt.Frame) {
+    // Window may not be open yet — openWindow() will pick up the menu bar from
+    // frame.getMenuBar() once the frame becomes visible.
+    guard let xwin = reverseRegistry[ObjectIdentifier(frame)] else { return }
+    let alreadyAttached = menuBarRegistry[xwin] != nil
+    if let mb = menuBar {
+      menuBarRegistry[xwin] = _X11MenuBar(mb)
+      if !alreadyAttached {
+        // Shrink the AWT content area so layout managers don't paint under the bar
+        let logH = frame.getHeight() - _X11MenuBar.menuBarHeight
+        if logH > 0 {
+          frame.setBounds(frame.getX(), frame.getY(), frame.getWidth(), logH)
+          frame.validate()
+        }
+      }
+    } else {
+      menuBarRegistry.removeValue(forKey: xwin)
+      // Height restore not tracked — just repaint
+    }
+    repaint(frame, xwin: xwin)
   }
 
   @MainActor
@@ -468,18 +514,12 @@ public final class _X11WindowHost: @unchecked Sendable {
       repaint(awtWindow, xwin: xwin)
 
     case X11_ConfigureNotify:
-      // XConfigureEvent: after the common fields comes x(Int32), y(Int32), width(Int32), height(Int32)
-      let baseOffset = MemoryLayout<Int32>.size      // type
-                     + MemoryLayout<UInt>.size       // serial
-                     + MemoryLayout<Int32>.size      // send_event
-                     + MemoryLayout<UnsafeRawPointer>.size // display
-                     + MemoryLayout<X11WindowID>.size      // event window
-                     + MemoryLayout<X11WindowID>.size      // window
-                     + MemoryLayout<Int32>.size      // x
-                     + MemoryLayout<Int32>.size      // y
-      // X11 reports physical pixels; convert back to logical AWT coordinates
-      let physW = Int(buf.load(fromByteOffset: baseOffset,                        as: Int32.self))
-      let physH = Int(buf.load(fromByteOffset: baseOffset + MemoryLayout<Int32>.size, as: Int32.self))
+      // XConfigureEvent layout on 64-bit Linux (verified via offsetof):
+      //   0: type(4)  8: serial(8)  16: send_event(4) [+4 pad]
+      //  24: display*(8)  32: event(XID/8)  40: window(XID/8)
+      //  48: x(int)  52: y(int)  56: width(int)  60: height(int)
+      let physW = Int(buf.load(fromByteOffset: 56, as: Int32.self))
+      let physH = Int(buf.load(fromByteOffset: 60, as: Int32.self))
       let logW = Int((Double(physW) / scaleFactor).rounded())
       let logH = Int((Double(physH) / scaleFactor).rounded())
       if logW > 0 && logH > 0 &&
@@ -490,25 +530,84 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
 
     case X11_ButtonPress:
-      // XButtonEvent: after common fields: root, subwindow, time, x, y (relative to window)
-      let btnBaseOffset = MemoryLayout<Int32>.size
-                        + MemoryLayout<UInt>.size
-                        + MemoryLayout<Int32>.size
-                        + MemoryLayout<UnsafeRawPointer>.size
-                        + MemoryLayout<X11WindowID>.size  // event window
-                        + MemoryLayout<X11WindowID>.size  // root
-                        + MemoryLayout<X11WindowID>.size  // subwindow
-                        + MemoryLayout<UInt>.size          // time
-      let clickX = Int(buf.load(fromByteOffset: btnBaseOffset,                        as: Int32.self))
-      let clickY = Int(buf.load(fromByteOffset: btnBaseOffset + MemoryLayout<Int32>.size, as: Int32.self))
-      let hit = _AWTHitTest.find(x: clickX, y: clickY, in: awtWindow)
-      _X11FocusManager.shared.requestFocus(hit)
-      _AWTHitTest.dispatch(click: hit ?? awtWindow)
+      // XButtonEvent layout on 64-bit Linux (verified via offsetof):
+      //   0: type(int/4)  8: serial(ulong/8)  16: send_event(int/4)  [+4 pad]
+      //  24: display*(8) 32: window(XID/8)    40: root(XID/8)
+      //  48: subwindow(XID/8)  56: time(ulong/8)  64: x(int)  68: y(int)
+      let physClickX = Int(buf.load(fromByteOffset: 64, as: Int32.self))
+      let physClickY = Int(buf.load(fromByteOffset: 68, as: Int32.self))
+      // Convert physical pixels back to logical coordinates for hit testing
+      let clickX = Int((Double(physClickX) / scaleFactor).rounded())
+      let clickY = Int((Double(physClickY) / scaleFactor).rounded())
+
+      // If a popup is open: check click in popup first, dismiss if outside
+      if let popup = _X11PopupWindow.activePopup {
+        if popup.contains(clickX, clickY) {
+          if let (item, _) = popup.item(at: clickX, py: clickY) {
+            popup.activate(item: item)
+            // Close open menu highlight
+            if let x11mb = menuBarRegistry[xwin] { x11mb.openMenu = nil }
+          }
+        } else {
+          // Click outside popup — dismiss
+          popup.dismiss()
+          if let x11mb = menuBarRegistry[xwin] { x11mb.openMenu = nil }
+          repaint(awtWindow, xwin: xwin)
+        }
+        return
+      }
+
+      // Check if click is in the menu bar
+      if let x11mb = menuBarRegistry[xwin],
+         clickY < _X11MenuBar.menuBarHeight,
+         let menu = x11mb.menu(at: clickX, y: clickY) {
+        // Toggle: close if already open, else open
+        if x11mb.openMenu === menu {
+          x11mb.openMenu = nil
+          repaint(awtWindow, xwin: xwin)
+        } else {
+          x11mb.openMenu = menu
+          repaint(awtWindow, xwin: xwin)
+          // Show popup — find the title rect for screen-relative positioning
+          if let rect = x11mb.menuRects.first(where: { $0.menu === menu })?.rect {
+            // Popup coordinates are window-local (logical px)
+            _X11PopupWindow.show(menu: menu,
+                                 at: rect.x, y: _X11MenuBar.menuBarHeight,
+                                 host: self, ownerXwin: xwin,
+                                 ownerWindow: awtWindow)
+          }
+        }
+      } else {
+        // Normal content area click — adjust y to account for menu bar offset
+        let contentY = menuBarRegistry[xwin] != nil
+                     ? clickY - _X11MenuBar.menuBarHeight
+                     : clickY
+        let hit = _AWTHitTest.find(x: clickX, y: contentY, in: awtWindow)
+        _X11FocusManager.shared.requestFocus(hit)
+        _AWTHitTest.dispatch(click: hit ?? awtWindow)
+      }
+
+    case X11_MotionNotify:
+      // XMotionEvent has same layout as XButtonEvent — x at offset 64, y at 68
+      guard _X11PopupWindow.activePopup != nil || menuBarRegistry[xwin] != nil else { break }
+      let physMX = Int(buf.load(fromByteOffset: 64, as: Int32.self))
+      let physMY = Int(buf.load(fromByteOffset: 68, as: Int32.self))
+      let mx = Int((Double(physMX) / scaleFactor).rounded())
+      let my = Int((Double(physMY) / scaleFactor).rounded())
+      var needsRepaint = false
+      if let popup = _X11PopupWindow.activePopup {
+        let newIdx = popup.itemRects.indices.first {
+          !popup.itemRects[$0].item.isSeparator && popup.itemRects[$0].rect.contains(mx, my)
+        } ?? -1
+        if newIdx != popup.highlightedIndex {
+          popup.highlightedIndex = newIdx
+          needsRepaint = true
+        }
+      }
+      if needsRepaint { repaint(awtWindow, xwin: xwin) }
 
     case X11_KeyPress:
       // Minimal key handling — full implementation needs XLookupString
-      // KeySym offset: after common + root/sub/time/x/y/x_root/y_root/state/keycode
-      // For now route raw keycode to focus manager as a placeholder
       break
 
     case X11_ClientMessage:
@@ -539,12 +638,36 @@ public final class _X11WindowHost: @unchecked Sendable {
   // MARK: Rendering
   // ---------------------------------------------------------------------------
 
+  /// Public variant called by `_X11PopupWindow` to trigger a repaint.
+  @MainActor
+  func repaintWindow(_ awtWindow: java.awt.Window) {
+    guard let xwin = reverseRegistry[ObjectIdentifier(awtWindow)] else { return }
+    repaint(awtWindow, xwin: xwin)
+  }
+
   @MainActor
   private func repaint(_ awtWindow: java.awt.Window, xwin: X11WindowID) {
     guard let dpy = display, let gc = gcRegistry[xwin] else { return }
     let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
                                                scaleFactor: scaleFactor)
+
+    // Draw menu bar at top if one is attached to this window
+    if let x11mb = menuBarRegistry[xwin] {
+      x11mb.draw(using: g, windowWidth: awtWindow.getWidth())
+      // Shift origin down so component painting starts below the menu bar
+      g.translate(0, _X11MenuBar.menuBarHeight)
+    }
+
     awtWindow.paint(g)
+
+    // Draw popup overlay on top of everything (reset origin first)
+    if let popup = _X11PopupWindow.activePopup {
+      // Restore translation so popup coords are window-relative
+      let savedG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
+                                                      scaleFactor: scaleFactor)
+      popup.draw(using: savedG)
+    }
+
     _ = fnFlush?(dpy)
   }
 }

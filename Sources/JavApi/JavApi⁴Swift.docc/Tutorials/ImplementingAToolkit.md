@@ -239,15 +239,80 @@ public final class MyGraphics: java.awt.Graphics {
 
 ### X11 text rendering
 
-On X11, **do not use `XDrawString`** — it is Latin-1 only and will corrupt any non-ASCII character (Umlauts, accented letters, etc.). Use `XmbDrawString` with an `XFontSet` instead:
+On X11, **do not use `XDrawString`** — it is Latin-1 only and silently drops non-ASCII characters
+(Umlauts, accented letters, etc.).  Use **Xft** (X FreeType) as the primary renderer — it uses
+fontconfig to select a Unicode-capable font and renders via FreeType, giving correct output for all
+UTF-8 text.  Fall back to `Xutf8DrawString` + `XFontSet` only if `libXft` is unavailable.
 
-1. Call `setlocale(LC_ALL, posixLocale)` **before** `XOpenDisplay`. Derive the locale from `java.util.Locale.getDefault().toPosixLocale()` so the X11 locale matches the JavApi locale (e.g. `"de_DE.UTF-8"`).
-2. Create an `XFontSet` via `XCreateFontSet` with a comma-separated XLFD list. Use `*` for the encoding field so X selects the correct charset for the locale automatically:
+#### Primary: Xft via `libXft.so.2`
+
+1. Open `libXft.so.2` (or `libXft.so`) with `dlopen` using `RTLD_LAZY`.  **Do not call `dlclose`
+   on the returned handle** — closing it invalidates all resolved function pointers and causes a crash
+   on the next `XftFontOpenName` call.  The library must remain open for the process lifetime.
+
+2. Resolve with `dlsym`: `XftDrawCreate`, `XftDrawDestroy`, `XftFontOpenName`, `XftFontClose`,
+   `XftDrawStringUtf8`, `XftColorAllocValue`, `XftColorFree`.
+
+3. Key type pitfalls in Swift:
+   - `Drawable` and `Colormap` are **XIDs** (`UInt`, i.e. `unsigned long`) — **not pointers**.
+     Use `UInt` in your Swift type aliases, not `UnsafeMutableRawPointer`.
+   - `XRenderColor` and `XftColor` are C structs.  Swift's `@convention(c)` does not accept Swift
+     structs as function arguments.  Pass them as `UnsafeMutableRawPointer` via `withUnsafeMutableBytes`:
+
+     ```swift
+     // XRenderColor: 4 × UInt16 = 8 bytes
+     struct XRenderColor { var red, green, blue, alpha: UInt16 }
+     // XftColor: UInt (pixel) + XRenderColor = 16 bytes on 64-bit
+     struct XftColor { var pixel: UInt; var color: XRenderColor }
+
+     var renderColor = XRenderColor(red: r16, green: g16, blue: b16, alpha: 0xFFFF)
+     var xftColor    = XftColor(pixel: 0, color: renderColor)
+     withUnsafeMutableBytes(of: &renderColor) { rBuf in
+       withUnsafeMutableBytes(of: &xftColor)  { cBuf in
+         _ = fnXftColorAllocValue(display, visual, colormap,
+                                  rBuf.baseAddress!, cBuf.baseAddress!)
+       }
+     }
+     ```
+
+4. Select a font with `XftFontOpenName` using a fontconfig pattern:
+   ```swift
+   let pattern = "sans-serif:pixelsize=\(physicalPixelSize)"
    ```
-   "-adobe-helvetica-medium-r-normal--24-*-*-*-p-*-*-*,fixed"
+   `sans-serif` resolves to a Unicode-capable font (DejaVu Sans, Liberation Sans, Noto Sans, …)
+   on all modern Linux desktops.  Cache the result per pixel size — font loading is expensive.
+
+5. Draw text:
+   ```swift
+   let utf8 = Array(str.utf8)
+   utf8.withUnsafeBufferPointer { buf in
+     withUnsafeMutableBytes(of: &xftColor) { cBuf in
+       fnXftDrawStringUtf8(xftDraw, cBuf.baseAddress!, xftFont,
+                           x, y, buf.baseAddress!, Int32(utf8.count))
+     }
+   }
    ```
-3. Call `XmbDrawString(display, drawable, fontSet, gc, x, y, utf8Bytes, byteCount)`. Pass the raw UTF-8 byte count — not the Swift character count.
-4. Cache `XFontSet` per physical pixel size to avoid calling `XCreateFontSet` on every draw.
+
+#### Fallback: `Xutf8DrawString` + `XFontSet`
+
+If `libXft` is not available, fall back to `XCreateFontSet` + `Xutf8DrawString`:
+
+1. Call `setlocale(LC_ALL, posixLocale)` **before** `XOpenDisplay`. Derive the locale from
+   `java.util.Locale.getDefault().toPosixLocale()` so the X11 locale matches the JavApi locale
+   (e.g. `"de_DE.UTF-8"`).
+2. Try progressively broader XLFD patterns until `XCreateFontSet` succeeds, ending with a
+   fully-wildcarded `"-*-*-*-*-*-*-*-*-*-*-*-*-*-*"` that always matches.  Prefer patterns
+   with `iso10646-1` encoding to get a font with Unicode coverage.
+3. Call `Xutf8DrawString` (not `XmbDrawString` or `XDrawString`).  Pass the raw UTF-8 byte count
+   — not the Swift character count.
+4. Cache `XFontSet` per physical pixel size in a **shared static** dictionary (process-lifetime),
+   not per-instance — `_X11Graphics` objects are short-lived and per-instance caches cause
+   `XCreateFontSet` to be called on every draw.
+
+> **Why `XFontSet` + `Xutf8DrawString` can still fail:** even though `Xutf8DrawString` handles
+> the locale encoding, the selected XLFD font may not contain glyphs for all Unicode codepoints.
+> Characters like `Ö` (U+00D6) are absent from many bitmap fonts.  Xft is the only reliable way
+> to render arbitrary Unicode on X11 on modern Linux systems.
 
 ### HiDPI scaling on X11
 
@@ -764,7 +829,11 @@ Before shipping your toolkit, verify these are working:
 - [ ] `Scrollbar` arrow buttons scroll by `unitIncrement`, not to the clicked position
 - [ ] HiDPI: `Xft.dpi` (X11) / system DPI API is queried; window size and all drawing coordinates are multiplied by `scaleFactor`
 - [ ] HiDPI: `XConfigureNotify` / resize events divide physical pixels by `scaleFactor` before storing logical AWT bounds
-- [ ] Unicode text: `XmbDrawString` + `XFontSet` used instead of `XDrawString` + `XFontStruct`; `setlocale` called with `java.util.Locale.getDefault().toPosixLocale()` before `XOpenDisplay`
+- [ ] Unicode text: Xft (`XftDrawStringUtf8` via `libXft.so.2`) used as primary renderer; `Xutf8DrawString` + `XFontSet` as fallback; `XDrawString` + `XFontStruct` never used; `setlocale` called with `java.util.Locale.getDefault().toPosixLocale()` before `XOpenDisplay`
+- [ ] `libXft.so.2` handle kept open for process lifetime — `dlclose` on the Xft handle invalidates function pointers and causes a crash on `XftFontOpenName`
+- [ ] `XftColor` / `XRenderColor` passed as `UnsafeMutableRawPointer` via `withUnsafeMutableBytes` (Swift `@convention(c)` cannot accept struct types)
+- [ ] `Drawable` and `Colormap` parameters in Xft type aliases are `UInt` (XIDs), not pointers
+- [ ] Xft font cache is a **shared static** dictionary keyed by pixel size — not per-`Graphics`-instance
 - [ ] X11 event loop: `XNextEvent` runs on a background thread; main thread uses `RunLoop.main.run(until:)` polling; `terminate()` calls `CFRunLoopStop(CFRunLoopGetMain())`
 - [ ] `ScrollPane` arrow buttons scroll by `scrollbarSize` pixels, not to the clicked position
 - [ ] Arrow button hit-tests are checked **before** thumb and track in the mouse-down handler

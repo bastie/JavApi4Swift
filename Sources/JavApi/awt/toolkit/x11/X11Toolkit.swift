@@ -70,13 +70,17 @@ extension java.awt.toolkit.x11 {
 
     public override func attachMenuBar(_ menuBar: java.awt.MenuBar?,
                                        to frame: java.awt.Frame) {
-      // TODO: Implement native menu bar via X11/Motif hints or a custom rendered menu
+      _X11WindowHost.shared.attachMenuBar(menuBar, to: frame)
     }
 
     public override func showPopupMenu(_ menu: java.awt.PopupMenu,
                                        origin: java.awt.Component,
                                        x: Int, y: Int) {
-      // TODO: Implement popup menu rendering
+      let screenX = origin.getX() + x
+      let screenY = origin.getY() + y
+      _X11PopupWindow.show(menu: menu, at: screenX, y: screenY,
+                           host: _X11WindowHost.shared, ownerXwin: 0,
+                           ownerWindow: nil)
     }
 
     public override func isFocusOwner(_ component: java.awt.Component) -> Bool {

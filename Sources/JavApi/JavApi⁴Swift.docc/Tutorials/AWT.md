@@ -845,9 +845,23 @@ frame.setVisible(true)
 
 ## Platform Notes
 
-On macOS and iOS, `setVisible(true)` opens a native window via SwiftUI.
-On Linux, the HeadlessToolkit is used — `setVisible` is a no-op and no window appears.
-This lets you compile and test the same code everywhere without conditional imports.
+On **macOS and iOS**, `setVisible(true)` opens a native window via SwiftUI.
+
+On **Linux**, the **X11 toolkit** is available for X11-based desktops (including XWayland).
+Activate it before any AWT code:
+
+```swift
+try? System.setProperty("awt.toolkit", "X11")
+```
+
+The X11 toolkit renders menus, buttons, and all other components by drawing directly onto the X11
+window — there are no native widgets.  It requires `libX11.so.6` and `libXft.so.2` (for Unicode text).
+Without `libXft`, text falls back to `Xutf8DrawString` + `XFontSet`, which may not render all characters
+correctly depending on the installed fonts.
+
+Without setting `awt.toolkit`, the `HeadlessToolkit` is selected automatically — `setVisible` is a
+no-op and no window appears.  This allows the same code to compile and run on servers or CI systems
+that have no X server.
 
 ## What You Have Learned
 
