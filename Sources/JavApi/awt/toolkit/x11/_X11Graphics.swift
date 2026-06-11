@@ -4,7 +4,9 @@
  */
 
 #if os(Linux) || os(FreeBSD)
+#if canImport(Glibc)
 import Glibc
+#endif
 
 // X11 GC function signatures (subset needed for rendering)
 private typealias XDrawLineFunc          = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer, Int32, Int32, Int32, Int32) -> Int32
@@ -80,7 +82,15 @@ extension java.awt.toolkit.x11 {
     }
 
     private func resolveSymbols() {
+      // Works on glibc and dynamic MUSL
+      #if canImport(Glibc)
       guard let lib = dlopen(nil, RTLD_LAZY) else { return }
+      #else
+      guard let lib = dlopen(nil, 0x00001) else {
+        print("[X11Graphics] WARNING: dlopen() failed (may be static MUSL build).")
+        return
+      }
+      #endif
       func r<F>(_ sym: String) -> F? {
         guard let raw = dlsym(lib, sym) else { return nil }
         return unsafeBitCast(raw, to: F.self)
@@ -92,7 +102,7 @@ extension java.awt.toolkit.x11 {
       fnCreateFontSet = r("XCreateFontSet")
       fnFreeFontSet   = r("XFreeFontSet")
       fnMbDrawString  = r("XmbDrawString")
-      dlclose(lib)
+      _ = dlclose(lib)
     }
 
     // -------------------------------------------------------------------------

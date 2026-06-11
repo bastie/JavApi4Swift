@@ -105,7 +105,8 @@ extension java.awt.geom {
     ///   TODO: Implement platform-independent boolean polygon subtraction.
     public func subtract(_ other: Area) {
       if #available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, visionOS 1.0, *) {
-        let diff = _path.subtracting(other._path, using: .evenOdd)
+        // CGMutablePath doesn't have subtracting(), cast to CGPath first
+        let diff = (_path as CGPath).subtracting(other._path as CGPath, using: .evenOdd)
         _path = diff.mutableCopy() ?? CGMutablePath()
       } else {
         // TODO: Implement platform-independent boolean polygon operations

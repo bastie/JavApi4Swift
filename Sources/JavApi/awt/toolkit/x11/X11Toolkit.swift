@@ -4,7 +4,32 @@
  */
 
 #if os(Linux) || os(FreeBSD)
+#if canImport(Glibc)
 import Glibc
+#endif
+import Dispatch
+
+// TODO: Test X11 toolkit on MUSL systems (Alpine Linux, etc.)
+//
+// Current status:
+// - glibc systems (Debian, Ubuntu, Fedora, etc.): Fully tested ✓
+// - Dynamic MUSL systems (Alpine): Code path exists, untested in practice
+// - Static MUSL builds: Will compile but fail at runtime (dlopen unavailable)
+//
+// Required testing:
+// 1. Build on Alpine Linux (dynamic MUSL):
+//    `swift build --target AWTShowcase`
+//    Expected: X11 toolkit loads, dlopen succeeds, X11 display works
+//
+// 2. Build static MUSL binary:
+//    `swift build --target AWTShowcase --swift-sdk swift-6.3.2-RELEASE_static-linux-*`
+//    Expected: Binary compiles, but X11Toolkit.runEventLoop() fails at runtime
+//    Error message: "[X11Toolkit] ERROR: dlopen() unavailable (static MUSL build)"
+//
+// 3. Verify locale handling (setlocale) works on MUSL
+//    Should work via @_silgen_name declarations
+//
+// See: _X11WindowHost.swift loadLibrary() and _X11Graphics.swift resolveSymbols()
 
 extension java.awt.toolkit.x11 {
 
@@ -12,6 +37,11 @@ extension java.awt.toolkit.x11 {
   ///
   /// Mirrors `java.awt.toolkit.gdi.GDIToolkit` for X11 platforms.
   /// Window lifecycle is delegated to `_X11WindowHost`.
+  ///
+  /// Platform support:
+  /// - **glibc** (Linux, FreeBSD): Fully supported ✓
+  /// - **MUSL dynamic** (Alpine): Code implemented, needs real-system testing
+  /// - **MUSL static**: Partial support (POSIX functions work, X11 dlopen may fail)
   ///
   /// Activate by setting the system property before any AWT code:
   /// ```swift
@@ -122,7 +152,7 @@ extension java.awt.toolkit.x11 {
       var exeDir = "."
       #if os(Linux)
       var buf = [CChar](repeating: 0, count: 4096)
-      let len = Glibc.readlink("/proc/self/exe", &buf, buf.count - 1)
+      let len = readlink("/proc/self/exe", &buf, buf.count - 1)
       if len > 0 {
         let fullPath = buf.withUnsafeBufferPointer {
           String(bytes: $0.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""

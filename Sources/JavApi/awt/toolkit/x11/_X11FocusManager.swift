@@ -4,7 +4,9 @@
  */
 
 #if os(Linux) || os(FreeBSD)
+#if canImport(Glibc)
 import Glibc
+#endif
 
 // =============================================================================
 // MARK: _X11FocusManager

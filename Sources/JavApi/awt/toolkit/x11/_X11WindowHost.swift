@@ -4,9 +4,42 @@
  */
 
 #if os(Linux) || os(FreeBSD)
+#if canImport(Glibc)
 import Glibc
 import Foundation
 import CoreFoundation
+
+private let LC_ALL: CInt = 6
+private let RTLD_LAZY: CInt = 0x00001
+private let RTLD_GLOBAL: CInt = 0x00100
+
+#else
+// MUSL (static or dynamic): declare C functions directly since Glibc module not available
+import Foundation
+import CoreFoundation
+
+@_silgen_name("usleep")
+func usleep(_ useconds: UInt32) -> CInt
+
+@_silgen_name("setlocale")
+func setlocale(_ category: CInt, _ locale: UnsafePointer<CChar>?) -> UnsafeMutablePointer<CChar>?
+
+@_silgen_name("readlink")
+func readlink(_ path: UnsafePointer<CChar>, _ buf: UnsafeMutablePointer<CChar>, _ bufsiz: Int) -> Int
+
+@_silgen_name("dlopen")
+func dlopen(_ filename: UnsafePointer<CChar>?, _ flags: CInt) -> UnsafeMutableRawPointer?
+
+@_silgen_name("dlsym")
+func dlsym(_ handle: UnsafeMutableRawPointer?, _ symbol: UnsafePointer<CChar>) -> UnsafeMutableRawPointer?
+
+@_silgen_name("dlclose")
+func dlclose(_ handle: UnsafeMutableRawPointer?) -> CInt
+
+private let LC_ALL: CInt = 6
+private let RTLD_LAZY: CInt = 0x00001
+private let RTLD_GLOBAL: CInt = 0x00100
+#endif
 
 // =============================================================================
 // MARK: X11 type aliases (avoid collision with java.awt.Window)
@@ -147,7 +180,11 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
     }
     guard let lib = libHandle else {
+      #if canImport(Glibc)
       print("[X11Toolkit] ERROR: libX11 not found — running headless.")
+      #else
+      print("[X11Toolkit] ERROR: dlopen() unavailable (static MUSL build) or libX11 not found.")
+      #endif
       return
     }
 
@@ -193,7 +230,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     // can handle UTF-8. Derived from java.util.Locale.getDefault() so the
     // X11 locale matches the JavApi locale rather than raw env variables.
     let posixLocale = java.util.Locale.getDefault().toPosixLocale()
-    _ = Glibc.setlocale(LC_ALL, posixLocale)
+    _ = setlocale(LC_ALL, posixLocale)
     guard let dpy = fn(nil) else {
       print("[X11Toolkit] ERROR: Cannot connect to X server (check $DISPLAY).")
       return false
@@ -342,7 +379,9 @@ public final class _X11WindowHost: @unchecked Sendable {
       display = nil
     }
     if let lib = libHandle {
+      #if canImport(Glibc)
       dlclose(lib)
+      #endif
       libHandle = nil
     }
   }
@@ -368,7 +407,7 @@ public final class _X11WindowHost: @unchecked Sendable {
         }
       } else {
         // No events queued — sleep 16ms before polling again
-        Glibc.usleep(16_000)
+        _ = usleep(16_000)
       }
     }
   }
