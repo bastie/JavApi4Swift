@@ -311,6 +311,10 @@ extension java.awt {
         scrollbarVisibility == TextArea.SCROLLBARS_BOTH ||
         scrollbarVisibility == TextArea.SCROLLBARS_VERTICAL_ONLY
 
+      // Save graphics state and set clipping region to component bounds
+      g.save()
+      g.clipRect(x, y, w, h)
+
       // Background
       g.setColor(editable ? background : java.awt.SystemColor.control)
       g.fillRect(x, y, w, h)
@@ -416,6 +420,9 @@ extension java.awt {
       g.drawLine(x,     y,     x,     y+h-1)
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)
       g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+
+      // Restore graphics state (removes clipping region)
+      g.restore()
     }
   }
 }
