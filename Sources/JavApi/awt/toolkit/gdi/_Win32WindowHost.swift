@@ -304,20 +304,46 @@ public final class _Win32Canvas {
     guard let hdc = BeginPaint(hwnd, &ps) else { return }
     defer { EndPaint(hwnd, &ps) }
 
-    // Clear background
+    // Get client area dimensions
+    var clientRect = RECT()
+    GetClientRect(hwnd, &clientRect)
+    let width = Int(clientRect.right - clientRect.left)
+    let height = Int(clientRect.bottom - clientRect.top)
+    guard width > 0, height > 0 else { return }
+
+    // Create off-screen buffer (double-buffering to prevent flicker)
+    guard let memDC = CreateCompatibleDC(hdc) else { return }
+    defer { DeleteDC(memDC) }
+
+    guard let memBitmap = CreateCompatibleBitmap(hdc, INT32(width), INT32(height)) else { return }
+    defer { DeleteObject(memBitmap) }
+
+    let oldBitmap = SelectObject(memDC, memBitmap)
+    defer { if let old = oldBitmap { SelectObject(memDC, old) } }
+
+    // Set clipping region to prevent painting outside window bounds
+    // NOTE: Component-level clipping (for nested components) is a separate issue
+    // that requires Graphics.clipRect() support throughout the stack
+    guard let clipRegion = CreateRectRgn(0, 0, INT32(width), INT32(height)) else { return }
+    defer { DeleteObject(clipRegion) }
+    SelectClipRgn(memDC, clipRegion)
+
+    // Clear background in buffer
     let bg = awtWindow.background
     let colorRef = COLORREF(
       DWORD(bg.getRed()) |
       (DWORD(bg.getGreen()) << 8) |
       (DWORD(bg.getBlue())  << 16))
     let hBrush = CreateSolidBrush(colorRef)
-    var clientRect = RECT()
-    GetClientRect(hwnd, &clientRect)
-    FillRect(hdc, &clientRect, hBrush)
-    DeleteObject(hBrush)
+    defer { DeleteObject(hBrush) }
+    FillRect(memDC, &clientRect, hBrush)
 
-    let g = java.awt.toolkit.gdi._GDIRenderTarget(hdc: hdc)
+    // Paint into buffer
+    let g = java.awt.toolkit.gdi._GDIRenderTarget(hdc: memDC)
     awtWindow.paint(g)
+
+    // Blit buffer to screen (atomic operation, no flicker)
+    BitBlt(hdc, 0, 0, INT32(width), INT32(height), memDC, 0, 0, SRCCOPY)
   }
 
   // ---------------------------------------------------------------------------
