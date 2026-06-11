@@ -9,13 +9,14 @@ How to port JavApi⁴Swift's AWT to a new platform (Linux desktop, FreeBSD, Wind
 
 ## Overview
 
-JavApi⁴Swift ships two toolkit implementations out of the box:
+JavApi⁴Swift ships three toolkit implementations out of the box:
 
 - **`java.awt.toolkit.swiftui.SwiftUIToolkit`** — macOS, iOS, tvOS, visionOS (uses AppKit/UIKit + SwiftUI)
 - **`java.awt.toolkit.gdi.GDIToolkit`** — Windows (Win32 GDI for rendering, Win32 for windowing/events)
+- **`java.awt.toolkit.x11.X11Toolkit`** — Linux and FreeBSD (X11 via `libX11.so.6`, loaded at runtime via `dlopen`)
 - **`java.awt.toolkit.HeadlessToolkit`** — all other platforms (no-op, for headless/server use)
 
-If you want real windowing on Linux (e.g. via GTK, SDL2, Wayland, or X11), Windows (via GDI/Win32), or FreeBSD, you need to write a third toolkit. This document explains what you must implement and how to plug it in.
+If you want real windowing on an additional platform you need to write your own toolkit. This document explains what you must implement and how to plug it in.
 
 ## Architecture
 
@@ -121,9 +122,14 @@ extension java.awt.toolkit.myplatform {
             return java.awt.Dimension(0, 0)
         }
 
-        // Screen DPI — Java AWT convention: 96 dpi baseline on Windows/Linux
+        // Screen DPI — Java AWT convention: 96 dpi baseline on Windows/Linux.
+        // For HiDPI support query the platform's DPI setting and return the
+        // actual value (e.g. 192 on a 2× display). The X11 backend queries
+        // Xft.dpi via XGetDefault(display, "Xft", "dpi") and derives
+        // scaleFactor = Xft.dpi / 96.0 (rounded to nearest integer multiple).
         public override func getScreenResolution() -> Int {
-            // TODO: query native DPI (e.g. GetDpiForSystem() on Windows)
+            // TODO: query native DPI (e.g. GetDpiForSystem() on Windows,
+            //       XGetDefault(dpy, "Xft", "dpi") on X11)
             return 96
         }
 
@@ -230,6 +236,28 @@ public final class MyGraphics: java.awt.Graphics {
 ```
 
 > **Complete method list:** `Graphics.swift` declares every `open` method that a subclass may override.  On non-CoreGraphics platforms all of them are already stubs — you only need to override what your surface actually supports.
+
+### X11 text rendering
+
+On X11, **do not use `XDrawString`** — it is Latin-1 only and will corrupt any non-ASCII character (Umlauts, accented letters, etc.). Use `XmbDrawString` with an `XFontSet` instead:
+
+1. Call `setlocale(LC_ALL, posixLocale)` **before** `XOpenDisplay`. Derive the locale from `java.util.Locale.getDefault().toPosixLocale()` so the X11 locale matches the JavApi locale (e.g. `"de_DE.UTF-8"`).
+2. Create an `XFontSet` via `XCreateFontSet` with a comma-separated XLFD list. Use `*` for the encoding field so X selects the correct charset for the locale automatically:
+   ```
+   "-adobe-helvetica-medium-r-normal--24-*-*-*-p-*-*-*,fixed"
+   ```
+3. Call `XmbDrawString(display, drawable, fontSet, gc, x, y, utf8Bytes, byteCount)`. Pass the raw UTF-8 byte count — not the Swift character count.
+4. Cache `XFontSet` per physical pixel size to avoid calling `XCreateFontSet` on every draw.
+
+### HiDPI scaling on X11
+
+X11 reports all geometry in physical pixels but AWT components work in logical coordinates. Bridge the gap:
+
+1. After `XOpenDisplay`, call `XGetDefault(display, "Xft", "dpi")` to read the desktop DPI setting. Compute `scaleFactor = (xftDpi / 96.0).rounded()`. Falls back to 1.0 if `Xft.dpi` is not set.
+2. When creating a window, multiply the logical AWT size by `scaleFactor` to get the physical X11 window size.
+3. `XConfigureNotify` reports physical pixels — divide by `scaleFactor` before storing the logical AWT bounds.
+4. In your `Graphics` subclass, scale all coordinates and dimensions by `scaleFactor` before passing them to X11 drawing functions. Use separate helpers for signed coordinates (`Int32`) and unsigned sizes (`UInt32`).
+5. Scale the font pixel size: `physicalSize = (logicalSize × scaleFactor).rounded()`, minimum 8 px.
 
 > **Windows graphics API note (Swift 6.3):** Swift's WinSDK overlay does **not** expose Direct2D (`d2d1.h`) or DirectWrite (`dwrite.h`) as Swift modules — the `explicit module DirectX` in `winsdk_um.modulemap` contains only Direct3D 11/12, DXGI, XAudio, XInput, and DirectInput. For 2D rendering without a C bridging target, use **GDI** via `import WinSDK` (includes `wingdi.h`). Win32 event handling, cursor management, menus, and clipboard are rendering-API-independent — separate your `_Win32WindowHost` (events/windowing) from your `_GDIRenderTarget` (drawing) so you can swap in a D3D11 renderer later without touching the event layer.
 
@@ -485,6 +513,44 @@ func startRenderLoop(for awtWindow: java.awt.Window,
 }
 ```
 
+### X11 event loop pattern
+
+`XNextEvent` blocks the calling thread indefinitely. If called on the main thread it prevents `DispatchQueue.main.async` blocks from running — causing a deadlock when `windowClosing` tries to call `terminate()`.
+
+The correct pattern for X11:
+
+1. Run `XNextEvent` on a **background thread** (`Foundation.Thread`, not `java.awt.Thread` which requires a `Runnable`).
+2. Copy the raw event bytes to a `[UInt8]` array before crossing the thread boundary (Swift 6 `Sendable` requirement for `UnsafeMutableRawPointer`).
+3. Dispatch to the main thread via `DispatchQueue.main.async { self.handleEventBytes(bytes) }`.
+4. Use `MainActor.assumeIsolated { }` inside the async block to access `@MainActor`-isolated types.
+5. Spin the main thread's `RunLoop` with `RunLoop.main.run(until: Date(...))` in a `while !shouldQuit` loop so dispatched blocks can execute.
+6. In `terminate()`, set `shouldQuit = true` and call `CFRunLoopStop(CFRunLoopGetMain())` to wake the main thread immediately.
+7. Replace blocking `XNextEvent` with an `XPending` poll loop + `usleep(16_000)` so the background thread checks `shouldQuit` regularly without needing a wakeup event.
+
+```swift
+// Background thread
+while !shouldQuit {
+    if fnPending(display) > 0 {
+        fnNextEvent(display, eventBuffer)
+        let bytes = Array(UnsafeBufferPointer(...))
+        DispatchQueue.main.async { self.handleEventBytes(bytes) }
+    } else {
+        Glibc.usleep(16_000)   // 16 ms — check shouldQuit ~60×/s
+    }
+}
+
+// Main thread
+while !shouldQuit {
+    RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.016))
+}
+
+// terminate() — called from main thread via WindowListener
+func terminate() {
+    shouldQuit = true
+    CFRunLoopStop(CFRunLoopGetMain())   // wake immediately, don't wait 16 ms
+}
+```
+
 > **Window close event semantics**
 >
 > - `WINDOW_CLOSING` fires in two situations: (a) your native `onClose` handler above, and (b) `Window.dispose()` for programmatic closes.
@@ -550,6 +616,7 @@ Hit-testing is a **platform-independent** utility that can be used directly from
 |---------|--------------------|--------------------|
 | Apple (SwiftUI) | `_SwiftUIFocusManager` | `NSPasteboard` / `UIPasteboard` |
 | Windows (GDI) | `_Win32FocusManager` | `OpenClipboard` / `SetClipboardData` |
+| Linux / FreeBSD (X11) | `_X11FocusManager` | X11 selection / CLIPBOARD atom (TODO) |
 | New platform | `_MyPlatformFocusManager` | platform clipboard API |
 
 For your new backend, copy `_Win32FocusManager.swift` as a starting point — the text-input methods are identical across all backends, only the clipboard section needs replacing.
@@ -695,6 +762,10 @@ Before shipping your toolkit, verify these are working:
 - [ ] `Graphics.drawImage` renders transparency correctly (premultiplied BGRA + `AlphaBlend`, not `StretchBlt`)
 - [ ] `FontMetrics` uses native text measurements (`GetTextMetricsW` / `GetTextExtentPoint32W`), not the fixed 0.6× fallback — required for correct `Label` centering and caret positioning
 - [ ] `Scrollbar` arrow buttons scroll by `unitIncrement`, not to the clicked position
+- [ ] HiDPI: `Xft.dpi` (X11) / system DPI API is queried; window size and all drawing coordinates are multiplied by `scaleFactor`
+- [ ] HiDPI: `XConfigureNotify` / resize events divide physical pixels by `scaleFactor` before storing logical AWT bounds
+- [ ] Unicode text: `XmbDrawString` + `XFontSet` used instead of `XDrawString` + `XFontStruct`; `setlocale` called with `java.util.Locale.getDefault().toPosixLocale()` before `XOpenDisplay`
+- [ ] X11 event loop: `XNextEvent` runs on a background thread; main thread uses `RunLoop.main.run(until:)` polling; `terminate()` calls `CFRunLoopStop(CFRunLoopGetMain())`
 - [ ] `ScrollPane` arrow buttons scroll by `scrollbarSize` pixels, not to the clicked position
 - [ ] Arrow button hit-tests are checked **before** thumb and track in the mouse-down handler
 

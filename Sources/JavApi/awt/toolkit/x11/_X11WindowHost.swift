@@ -43,6 +43,7 @@ private typealias XFreeGCFunc               = @convention(c) (X11DisplayPtr, Uns
 private typealias XSetForegroundFunc        = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer, UInt) -> Int32
 private typealias XResizeWindowFunc         = @convention(c) (X11DisplayPtr, X11WindowID, UInt32, UInt32) -> Int32
 private typealias XMoveResizeWindowFunc     = @convention(c) (X11DisplayPtr, X11WindowID, Int32, Int32, UInt32, UInt32) -> Int32
+private typealias XGetDefaultFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>, UnsafePointer<CChar>) -> UnsafePointer<CChar>?
 
 // X11 event type constants (from X.h)
 private let X11_ExposureMask:   CLong = 1 << 15
@@ -116,9 +117,13 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnInternAtom:        XInternAtomFunc?
   private var fnChangeProperty:    XChangePropertyFunc?
   private var fnSetWMProtocols:    XSetWMProtocolsFunc?
+  private var fnGetDefault:        XGetDefaultFunc?
 
   // Cached atoms
   private var atomWMDeleteWindow: UInt = 0
+
+  // HiDPI scale factor: Xft.dpi / 96.0 (1.0 on standard displays, 2.0 on HiDPI)
+  private(set) var scaleFactor: Double = 1.0
 
   // ---------------------------------------------------------------------------
   // MARK: Window registry
@@ -174,6 +179,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnInternAtom         = resolve("XInternAtom",         as: XInternAtomFunc.self)
     fnChangeProperty     = resolve("XChangeProperty",     as: XChangePropertyFunc.self)
     fnSetWMProtocols     = resolve("XSetWMProtocols",     as: XSetWMProtocolsFunc.self)
+    fnGetDefault         = resolve("XGetDefault",         as: XGetDefaultFunc.self)
   }
 
   // ---------------------------------------------------------------------------
@@ -183,11 +189,27 @@ public final class _X11WindowHost: @unchecked Sendable {
   /// Opens the X11 display connection. Called once by `X11Toolkit.runEventLoop()`.
   func openDisplay() -> Bool {
     guard display == nil, let fn = fnOpenDisplay else { return display != nil }
+    // Enable locale-aware multibyte text so XCreateFontSet / XmbDrawString
+    // can handle UTF-8. Derived from java.util.Locale.getDefault() so the
+    // X11 locale matches the JavApi locale rather than raw env variables.
+    let posixLocale = java.util.Locale.getDefault().toPosixLocale()
+    _ = Glibc.setlocale(LC_ALL, posixLocale)
     guard let dpy = fn(nil) else {
       print("[X11Toolkit] ERROR: Cannot connect to X server (check $DISPLAY).")
       return false
     }
     display = dpy
+
+    // Query HiDPI scale factor from Xft.dpi (set by desktop environment).
+    // Standard DPI baseline is 96; a value of 192 means 2× scaling.
+    // Falls back to 1.0 if Xft.dpi is not set.
+    if let fnDef = fnGetDefault,
+       let cstr  = fnDef(dpy, "Xft", "dpi"),
+       let xftDpi = Double(String(cString: cstr)), xftDpi > 0 {
+      scaleFactor = (xftDpi / 96.0).rounded()
+    }
+    print("[X11Toolkit] scaleFactor=\(scaleFactor)")
+
     // Cache WM_DELETE_WINDOW atom once — reused for every window
     if let fnAtom = fnInternAtom {
       atomWMDeleteWindow = fnAtom(dpy, "WM_DELETE_WINDOW", 0)
@@ -219,8 +241,8 @@ public final class _X11WindowHost: @unchecked Sendable {
     let root    = fnRoot(dpy)
     let black   = fnBlack(dpy, screen)
     let white   = fnWhite(dpy, screen)
-    let w       = UInt32(max(awtWindow.getWidth(), 1))
-    let h       = UInt32(max(awtWindow.getHeight(), 1))
+    let w       = UInt32(max(Int(Double(awtWindow.getWidth())  * scaleFactor), 1))
+    let h       = UInt32(max(Int(Double(awtWindow.getHeight()) * scaleFactor), 1))
 
     let xwin = fnCreate(dpy, root, 100, 100, w, h, 1, black, white)
 
@@ -416,11 +438,14 @@ public final class _X11WindowHost: @unchecked Sendable {
                      + MemoryLayout<X11WindowID>.size      // window
                      + MemoryLayout<Int32>.size      // x
                      + MemoryLayout<Int32>.size      // y
-      let newW = Int(buf.load(fromByteOffset: baseOffset,                        as: Int32.self))
-      let newH = Int(buf.load(fromByteOffset: baseOffset + MemoryLayout<Int32>.size, as: Int32.self))
-      if newW > 0 && newH > 0 &&
-         (newW != awtWindow.getWidth() || newH != awtWindow.getHeight()) {
-        awtWindow.setBounds(awtWindow.getX(), awtWindow.getY(), newW, newH)
+      // X11 reports physical pixels; convert back to logical AWT coordinates
+      let physW = Int(buf.load(fromByteOffset: baseOffset,                        as: Int32.self))
+      let physH = Int(buf.load(fromByteOffset: baseOffset + MemoryLayout<Int32>.size, as: Int32.self))
+      let logW = Int((Double(physW) / scaleFactor).rounded())
+      let logH = Int((Double(physH) / scaleFactor).rounded())
+      if logW > 0 && logH > 0 &&
+         (logW != awtWindow.getWidth() || logH != awtWindow.getHeight()) {
+        awtWindow.setBounds(awtWindow.getX(), awtWindow.getY(), logW, logH)
         awtWindow.validate()
         repaint(awtWindow, xwin: xwin)
       }
@@ -478,7 +503,8 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor
   private func repaint(_ awtWindow: java.awt.Window, xwin: X11WindowID) {
     guard let dpy = display, let gc = gcRegistry[xwin] else { return }
-    let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc)
+    let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
+                                               scaleFactor: scaleFactor)
     awtWindow.paint(g)
     _ = fnFlush?(dpy)
   }

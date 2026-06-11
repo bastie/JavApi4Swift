@@ -645,11 +645,11 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | Locale()       | (String language, String country)
+1.1     | ✔️          | ⭕️       | constructor   | Locale()       | (String language) — single-arg only; (String language, String country) missing
 1.1     | ✔️          | ⭕️       | static method | getDefault()   | ()->Locale
 1.1     | ✔️          | ⭕️       | method        | getLanguage()  | ()->String
 1.1     | ✔️          | ⭕️       | method        | getCountry()   | ()->String
-1.1     | ✔️          | ⭕️       | static field  | ENGLISH, GERMAN, FRENCH, US, UK, GERMANY, … | Locale constants
+1.1     | ❌          | ⭕️       | static field  | ENGLISH, GERMAN, FRENCH, US, UK, GERMANY, … | Locale constants not yet implemented
 
 ##### java.util.TimeZone (0/0/⭕️)
 

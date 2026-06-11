@@ -88,11 +88,12 @@ extension java.awt.toolkit.x11 {
       return java.awt.Dimension(0, 0)
     }
 
-    /// Returns 96 dpi — Linux/X11 conventional baseline.
+    /// Returns the screen resolution in dpi, derived from Xft.dpi.
     ///
-    /// TODO: Query via `XGetDefault(display, "Xft", "dpi")` for HiDPI support.
+    /// On HiDPI displays (e.g. 192 dpi) this returns the actual value so that
+    /// font metrics and size calculations reflect the physical display density.
     public override func getScreenResolution() -> Int {
-      return 96
+      return Int(96.0 * _X11WindowHost.shared.scaleFactor)
     }
 
     // -------------------------------------------------------------------------

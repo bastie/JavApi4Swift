@@ -22,6 +22,23 @@ extension java.util {
       delegate = Foundation.Locale(identifier: languageCode)
     }
     
+    /// The country (region) code of this Locale, uppercase.
+    /// - Returns The ISO 3166-2 country code, or the empty string if none is defined.
+    public func getCountry() -> String {
+      delegate.region?.identifier ?? ""
+    }
+
+    /// Returns a POSIX locale string suitable for `setlocale(3)`, e.g. `"de_DE.UTF-8"`.
+    /// Always appends `.UTF-8` so X11 font sets and multibyte rendering work correctly.
+    /// - Note: Not part of the Java API — JavApi4Swift internal helper for platform bridges.
+    func toPosixLocale() -> String {
+      let lang    = getLanguage()
+      let country = getCountry()
+      guard !lang.isEmpty else { return "en_US.UTF-8" }
+      if country.isEmpty { return "\(lang).UTF-8" }
+      return "\(lang)_\(country).UTF-8"
+    }
+
     /// The language code of Locale
     /// - Returns The language code, or the empty string if none is defined.
     ///
