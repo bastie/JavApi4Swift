@@ -1053,7 +1053,10 @@ private func _win32WndProc(
     let mx = _GET_X_LPARAM(lParam), my = _GET_Y_LPARAM(lParam)
     let idcMove: UInt = MainActor.assumeIsolated { canvas.cursorIDC(x: mx, y: my) }
     SetCursor(LoadCursorW(nil, UnsafePointer<WCHAR>(bitPattern: idcMove)))
-    MainActor.assumeIsolated { canvas.onMouseDrag(x: mx, y: my) }
+    // Only process drag events if left mouse button is actually pressed (wParam & MK_LBUTTON)
+    if (wParam & WPARAM(MK_LBUTTON)) != 0 {
+      MainActor.assumeIsolated { canvas.onMouseDrag(x: mx, y: my) }
+    }
     return DefWindowProcW(hwnd, msg, wParam, lParam)
 
   case UINT(WM_LBUTTONDOWN):
