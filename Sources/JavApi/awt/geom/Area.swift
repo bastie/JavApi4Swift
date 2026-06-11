@@ -99,12 +99,21 @@ extension java.awt.geom {
     /// Subtracts the specified `Area` from this `Area`.
     ///
     /// Mirrors `java.awt.geom.Area.subtract(Area)`.
+    ///
+    /// - Note: On Apple platforms uses `CGPath.subtracting()` (macOS 10.13+, iOS 11.0+).
+    ///   On Windows, Linux, FreeBSD this is currently a no-op.
+    ///   TODO: Implement platform-independent boolean polygon subtraction.
     public func subtract(_ other: Area) {
       if #available(macOS 10.13, iOS 11.0, tvOS 11.0, watchOS 4.0, visionOS 1.0, *) {
         let diff = _path.subtracting(other._path, using: .evenOdd)
         _path = diff.mutableCopy() ?? CGMutablePath()
       } else {
-        // Fallback: keep original (cannot subtract without CoreGraphics boolean ops)
+        // TODO: Implement platform-independent boolean polygon operations
+        // Currently no-op on Windows/Linux/FreeBSD platforms.
+        // Options:
+        // 1. Use external library (Boost.Geometry, clipper-lib, etc.)
+        // 2. Implement Sutherland-Hodgman or Weiler-Atherton algorithm
+        // See test: Tests/JavApiTests/JavApi_awt_geom_Area_Tests.swift
       }
     }
 

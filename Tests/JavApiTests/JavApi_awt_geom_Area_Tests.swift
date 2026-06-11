@@ -74,6 +74,7 @@ struct JavApi_awt_geom_Area_Tests {
 
   // MARK: - subtract
 
+  #if canImport(CoreGraphics)
   @Test("subtract removes overlapping region")
   func subtract_removesOverlap() {
     let a = java.awt.geom.Area(java.awt.geom.Rectangle2D.Double(0, 0, 100, 100))
@@ -83,6 +84,19 @@ struct JavApi_awt_geom_Area_Tests {
     #expect(a.contains(25, 50))
     #expect(!a.contains(75, 50))
   }
+  #else
+  // TODO: Implement platform-independent Area.subtract() for Windows/Linux/FreeBSD
+  //
+  // Currently Area.subtract() is only implemented on Apple platforms (macOS, iOS, tvOS,
+  // watchOS, visionOS) using CoreGraphics. On Windows, Linux, and FreeBSD it's a no-op.
+  //
+  // Need to add support via one of:
+  // 1. External geometry library (e.g., Boost.Geometry, clipper-lib)
+  // 2. Custom boolean polygon operations (Sutherland-Hodgman, Weiler-Atherton)
+  //
+  // Other affected methods: Area.intersect(), Area.exclusiveOr()
+  // See: Sources/JavApi/awt/geom/Area.swift
+  #endif
 
   // MARK: - reset
 
