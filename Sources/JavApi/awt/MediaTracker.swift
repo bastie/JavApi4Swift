@@ -81,7 +81,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     /// Returns `true` if all images have finished loading (successfully or not).
-    public func checkAll(load: Bool = false) -> Bool {
+    public func checkAll(_ load: Bool = false) -> Bool {
       entries.allSatisfy { $0.status == MediaTracker.COMPLETE || $0.status == MediaTracker.ERRORED }
     }
 
@@ -92,7 +92,7 @@ extension java.awt {
     }
 
     /// Returns the combined status flags for all tracked images.
-    public func statusAll(load: Bool) -> Int {
+    public func statusAll(_ load: Bool) -> Int {
       entries.reduce(0) { $0 | $1.status }
     }
 
@@ -116,7 +116,7 @@ extension java.awt {
     /// Waits at most `ms` milliseconds for all images to finish loading.
     ///
     /// - Returns: `true` if all images finished within the timeout.
-    public func waitForAll(ms: Int64) throws -> Bool {
+    public func waitForAll(_ ms: Int64) throws -> Bool {
       return checkAll()
     }
 

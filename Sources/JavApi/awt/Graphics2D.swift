@@ -51,7 +51,7 @@ extension java.awt {
     public func setStroke(_ stroke: any java.awt.Stroke) {
       _stroke = stroke
       if let bs = stroke as? java.awt.BasicStroke {
-        bs.apply(to: cgContext)
+        bs._apply(to: cgContext)
       }
     }
 

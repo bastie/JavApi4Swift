@@ -135,7 +135,7 @@ final class _SwiftUINativeCanvas: NSView {
       needsDisplay  = true
       
     } else if let tf = hit as? java.awt.TextField {
-      let clickIdx = tf.charIndex(at: Int(pt.x))
+      let clickIdx = tf._charIndex(at: Int(pt.x))
       if event.modifierFlags.contains(.shift) {
         tf.extendSelection(to: clickIdx)
       } else {
@@ -153,7 +153,7 @@ final class _SwiftUINativeCanvas: NSView {
         ta.scrollDragStartOff  = ta.scrollOffsetY
       } else {
         // Position caret in text area
-        let idx = ta.charIndex(atX: Int(pt.x), atY: Int(pt.y))
+        let idx = ta._charIndex(atX: Int(pt.x), atY: Int(pt.y))
         if event.modifierFlags.contains(.shift) {
           ta.extendSelection(to: idx)
         } else {
@@ -336,7 +336,7 @@ final class _SwiftUINativeCanvas: NSView {
     
     // TextField selection drag
     if let tf = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextField {
-      let idx = tf.charIndex(at: Int(pt.x))
+      let idx = tf._charIndex(at: Int(pt.x))
       tf.extendSelection(to: idx)
       needsDisplay = true
       return
@@ -344,7 +344,7 @@ final class _SwiftUINativeCanvas: NSView {
     
     // TextArea selection drag
     if let ta = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextArea {
-      let idx = ta.charIndex(atX: Int(pt.x), atY: Int(pt.y))
+      let idx = ta._charIndex(atX: Int(pt.x), atY: Int(pt.y))
       ta.extendSelection(to: idx)
       needsDisplay = true
       return

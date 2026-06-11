@@ -160,7 +160,7 @@ extension java.awt {
 
     /// Returns the flat character index closest to (`awtX`, `awtY`) within the
     /// text area's coordinate space.
-    public func charIndex(atX awtX: Int, atY awtY: Int) -> Int {
+    internal func _charIndex(atX awtX: Int, atY awtY: Int) -> Int {
       let fm       = getFontMetrics(font)
       let lineH    = fm.getHeight()
       guard lineH > 0 else { return 0 }
@@ -193,7 +193,7 @@ extension java.awt {
 
     /// Move the caret to the same column on the line above (`up = true`) or
     /// below (`up = false`), optionally extending the selection.
-    public func moveCaretToAdjacentLine(up: Bool, extending: Bool) {
+    internal func _moveCaretToAdjacentLine(up: Bool, extending: Bool) {
       let (line, col) = lineAndCol(for: caretPosition)
       let lines       = computeLines()
       let targetLine: Int
@@ -217,7 +217,7 @@ extension java.awt {
 
     /// Move the caret to the beginning (`end = false`) or end (`end = true`)
     /// of the **current line**, optionally extending the selection.
-    public func moveCaretToLineEdge(end: Bool, extending: Bool) {
+    internal func _moveCaretToLineEdge(end: Bool, extending: Bool) {
       let (line, _) = lineAndCol(for: caretPosition)
       let lines     = computeLines()
       let safeL     = min(line, lines.count - 1)

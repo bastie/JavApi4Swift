@@ -134,6 +134,8 @@ public final class _Win32Canvas {
 
   internal var modalDone:    Bool = false
   private  var didFireClosing = false
+  /// Set to `true` by `destroy()` so WM_CLOSE does not call `DestroyWindow` twice.
+  internal private(set) var isDestroyed: Bool = false
 
   internal let isDialog: Bool
   private  let isModal:  Bool
@@ -214,7 +216,7 @@ public final class _Win32Canvas {
     let smSize  = GetSystemMetrics(SM_CXSMICON)
 
     // Versuche Icon zu laden - erst aus Ressource, dann aus PNG (RT_RCDATA 256)
-    var hIconBig: HICON? = LoadImageW(hInst, iconName, UINT(IMAGE_ICON), bigSize, bigSize, 0) as HICON?
+    var hIconBig: HICON? = LoadImageW(hInst, iconName, UINT(IMAGE_ICON), bigSize, bigSize, 0).map { $0.assumingMemoryBound(to: HICON__.self) }
     if hIconBig == nil { hIconBig = LoadIconW(hInst, iconName) }
     if hIconBig == nil {
       // Fallback: PNG-Ressource → HICON via CreateIconIndirect
@@ -225,7 +227,7 @@ public final class _Win32Canvas {
                    LPARAM(Int(bitPattern: hIconBig)))
     }
 
-    var hIconSm: HICON? = LoadImageW(hInst, iconName, UINT(IMAGE_ICON), smSize, smSize, 0) as HICON?
+    var hIconSm: HICON? = LoadImageW(hInst, iconName, UINT(IMAGE_ICON), smSize, smSize, 0).map { $0.assumingMemoryBound(to: HICON__.self) }
     if hIconSm == nil { hIconSm = LoadIconW(hInst, iconName) }
     if hIconSm == nil {
       hIconSm = _makeHIconFromPNG(size: smSize)
@@ -270,6 +272,7 @@ public final class _Win32Canvas {
   }
 
   func destroy() {
+    isDestroyed = true
     if let hwnd { DestroyWindow(hwnd) }
     hwnd = nil
   }
@@ -281,7 +284,11 @@ public final class _Win32Canvas {
   func runModalLoop() {
     var msg = MSG()
     while !modalDone {
-      guard GetMessageW(&msg, nil, 0, 0) else { break }
+      guard GetMessageW(&msg, nil, 0, 0) else {
+        // WM_QUIT was received — re-post it so the outer runEventLoop also exits.
+        PostQuitMessage(Int32(msg.wParam))
+        break
+      }
       TranslateMessage(&msg)
       DispatchMessageW(&msg)
     }
@@ -394,7 +401,7 @@ public final class _Win32Canvas {
     }
     // Position caret / scrollbar in text components
     if let tf = hit as? java.awt.TextField {
-      tf.setCaretPosition(tf.charIndex(at: x))
+      tf.setCaretPosition(tf._charIndex(at: x))
     } else if let ta = hit as? java.awt.TextArea {
       if let thumb = ta.verticalScrollbarThumbRect(), thumb.contains(x, y) {
         // TextArea internal scrollbar thumb drag
@@ -404,7 +411,7 @@ public final class _Win32Canvas {
         ta.scrollDragStartOff  = ta.scrollOffsetY
       } else {
         // Caret placement; Shift extends selection
-        let idx = ta.charIndex(atX: x, atY: y)
+        let idx = ta._charIndex(atX: x, atY: y)
         let shiftDown = (GetKeyState(VK_SHIFT) & Int16(bitPattern: 0x8000)) != 0
         if shiftDown { ta.extendSelection(to: idx) } else { ta.setCaretPosition(idx) }
       }
@@ -624,13 +631,13 @@ public final class _Win32Canvas {
     }
     // TextField selection drag
     if let tf = _Win32FocusManager.shared.focusOwner as? java.awt.TextField {
-      tf.extendSelection(to: tf.charIndex(at: x))
+      tf.extendSelection(to: tf._charIndex(at: x))
       invalidate()
       return
     }
     // TextArea selection drag
     if let ta = _Win32FocusManager.shared.focusOwner as? java.awt.TextArea {
-      ta.extendSelection(to: ta.charIndex(atX: x, atY: y))
+      ta.extendSelection(to: ta._charIndex(atX: x, atY: y))
       invalidate()
       return
     }
@@ -851,15 +858,15 @@ public final class _Win32Canvas {
       let bigSz   = GetSystemMetrics(SM_CXICON)
       let smSz    = GetSystemMetrics(SM_CXSMICON)
 
-      var hIcon: HICON? = LoadImageW(hInst, iconId, UINT(IMAGE_ICON), bigSz, bigSz, 0) as HICON?
+      var hIcon: HICON? = LoadImageW(hInst, iconId, UINT(IMAGE_ICON), bigSz, bigSz, 0).map { $0.assumingMemoryBound(to: HICON__.self) }
       if hIcon == nil { hIcon = LoadIconW(hInst, iconId) }
       if hIcon == nil { hIcon = _makeHIconFromPNG(size: bigSz) }
-      if hIcon == nil { hIcon = LoadIconW(nil, IDI_APPLICATION) }
+      if hIcon == nil { hIcon = LoadIconW(nil, UnsafePointer<WCHAR>(bitPattern: 32512)) } // IDI_APPLICATION = 32512
 
-      var hIconSm: HICON? = LoadImageW(hInst, iconId, UINT(IMAGE_ICON), smSz, smSz, 0) as HICON?
+      var hIconSm: HICON? = LoadImageW(hInst, iconId, UINT(IMAGE_ICON), smSz, smSz, 0).map { $0.assumingMemoryBound(to: HICON__.self) }
       if hIconSm == nil { hIconSm = LoadIconW(hInst, iconId) }
       if hIconSm == nil { hIconSm = _makeHIconFromPNG(size: smSz) }
-      if hIconSm == nil { hIconSm = LoadIconW(nil, IDI_APPLICATION) }
+      if hIconSm == nil { hIconSm = LoadIconW(nil, UnsafePointer<WCHAR>(bitPattern: 32512)) } // IDI_APPLICATION = 32512
 
       var wc = WNDCLASSEXW()
       wc.cbSize        = UINT(MemoryLayout<WNDCLASSEXW>.size)
@@ -1001,6 +1008,11 @@ private func _win32WndProc(
 
   case UINT(WM_CLOSE):
     MainActor.assumeIsolated { canvas.onClose() }
+    // `onClose()` may have already called `destroy()` (e.g. dialog with no
+    // WindowListener).  Only call DestroyWindow if the canvas is still alive;
+    // a second call on the same hwnd would destroy whatever window Win32
+    // happens to have reused that handle for — including the main frame.
+    if !MainActor.assumeIsolated({ canvas.isDestroyed }) { DestroyWindow(hwnd) }
     return 0
 
   case UINT(WM_DESTROY):

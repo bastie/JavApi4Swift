@@ -94,7 +94,7 @@ extension java.awt {
     }
 
     /// - Returns: `true` if at index is an separator item
-    public func isSeparator(at index: Int) -> Bool {
+    internal func _isSeparator(at index: Int) -> Bool {
       guard index >= 0, index < items.count else { return false }
       return items[index].isSeparator
     }

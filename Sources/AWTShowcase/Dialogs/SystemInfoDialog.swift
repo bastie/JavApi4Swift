@@ -4,7 +4,6 @@
  */
 
 import JavApi
-import Foundation
 
 // ---------------------------------------------------------------------------
 // MARK: - SystemInfoDialog
@@ -72,21 +71,18 @@ final class SystemInfoDialog {
     lines.append("")
     let osName = (try? java.lang.System.getProperty("os.name")) ?? nil
     lines.append("os.name:    \(osName ?? "(unbekannt)")")
-    lines.append("os.arch:    \(ProcessInfo.processInfo.environment["PROCESSOR_ARCHITECTURE"] ?? hostArch())")
-    lines.append("CPUs:       \(ProcessInfo.processInfo.processorCount)")
-    lines.append("RAM:        \(ProcessInfo.processInfo.physicalMemory / 1_073_576_448) GB")
+    let osArch = (try? java.lang.System.getProperty("os.arch")) ?? nil
+    lines.append("os.arch:    \(osArch ?? "(unbekannt)")")
+    lines.append("CPUs:       \(java.lang.Runtime.getRuntime().availableProcessors())")
+    let rt = java.lang.Runtime.getRuntime()
+    let ramGB = Double(rt.maxMemory()) / 1_073_741_824.0
+    let usedMemory = rt.totalMemory()
+    let usedStr = usedMemory >= 0
+      ? String(format: "%.0f MB genutzt", Double(usedMemory) / 1_048_576.0)
+      : "(nicht verfügbar)"
+    lines.append("RAM:        \(String(format: "%.1f", ramGB)) GB gesamt, \(usedStr)")
 
     return makeTextArea(lines.joined(separator: "\n"))
-  }
-
-  private static func hostArch() -> String {
-#if arch(arm64)
-    return "arm64"
-#elseif arch(x86_64)
-    return "x86_64"
-#else
-    return "unknown"
-#endif
   }
 
   // ── Netzwerk-Tab ────────────────────────────────────────────────────────
@@ -121,7 +117,7 @@ final class SystemInfoDialog {
     let proxyKeys = ["http.proxyHost", "http.proxyPort", "https.proxyHost", "https.proxyPort",
                      "ftp.proxyHost",  "ftp.proxyPort",  "socksProxyHost",  "socksProxyPort"]
     for key in proxyKeys {
-      let val = ProcessInfo.processInfo.environment[key] ?? "(nicht gesetzt)"
+      let val = java.lang.System.getenv(key) ?? "(nicht gesetzt)"
       lines.append("\(key.padding(toLength: 18, withPad: " ", startingAt: 0)) = \(val)")
     }
 
@@ -134,7 +130,7 @@ final class SystemInfoDialog {
     var lines = [String]()
     lines.append("=== Umgebungsvariablen ===")
     lines.append("")
-    let env = ProcessInfo.processInfo.environment
+    let env = java.lang.System.getenv()
     for key in env.keys.sorted() {
       let val = env[key] ?? ""
       lines.append("\(key) = \(val)")

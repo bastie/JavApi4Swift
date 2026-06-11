@@ -95,6 +95,11 @@ extension java.net {
         throw UnknownHostException("localhost")
       }
       let name = String(bytes: buf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? ""
+      // Prefer IPv4 — resolve all addresses and return the first IPv4 one.
+      let all = (try? getAllByName(name)) ?? []
+      if let ipv4 = all.first(where: { $0.addressString.contains(".") && !$0.addressString.contains(":") }) {
+        return ipv4
+      }
       return try getByName(name)
 #endif
     }
@@ -128,28 +133,28 @@ extension java.net {
 
     /// Returns `true` if this is a loopback address (`127.x.x.x` or `::1`).
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func isLoopbackAddress() -> Bool {
       return addressString.hasPrefix("127.") || addressString == "::1"
     }
 
     /// Returns `true` if this is the wildcard address (`0.0.0.0` or `::`).
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func isAnyLocalAddress() -> Bool {
       return addressString == "0.0.0.0" || addressString == "::"
     }
 
     /// Returns `true` if this is a link-local address.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func isLinkLocalAddress() -> Bool {
       return addressString.hasPrefix("169.254.") || addressString.lowercased().hasPrefix("fe80")
     }
 
     /// Returns `true` if this is a multicast address.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func isMulticastAddress() -> Bool {
       if let first = addressString.split(separator: ".").first,
          let octet = Int(first), octet >= 224, octet <= 239 {
@@ -164,7 +169,7 @@ extension java.net {
     ///
     /// Two `InetAddress` instances are equal if they represent the same IP address.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func equals(_ other: AnyObject?) -> Bool {
       guard let other = other as? InetAddress else { return false }
       return addressString == other.addressString
@@ -172,7 +177,7 @@ extension java.net {
 
     /// Returns `"hostname/address"` or just `"/address"` if no hostname is known.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     public func toString() -> String {
       if let h = hostname { return "\(h)/\(addressString)" }
       return "/\(addressString)"

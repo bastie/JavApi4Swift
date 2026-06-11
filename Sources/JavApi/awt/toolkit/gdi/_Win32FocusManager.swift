@@ -117,7 +117,7 @@ public final class _Win32FocusManager {
 
   func moveCaretUp(extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToAdjacentLine(up: true, extending: extending)
+      ta._moveCaretToAdjacentLine(up: true, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       extending ? tc.extendSelection(to: 0) : tc.setCaretPosition(0)
     }
@@ -125,7 +125,7 @@ public final class _Win32FocusManager {
 
   func moveCaretDown(extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToAdjacentLine(up: false, extending: extending)
+      ta._moveCaretToAdjacentLine(up: false, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       let end = tc.getText().count
       extending ? tc.extendSelection(to: end) : tc.setCaretPosition(end)
@@ -134,7 +134,7 @@ public final class _Win32FocusManager {
 
   func moveCaretToEnd(end: Bool, extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToLineEdge(end: end, extending: extending)
+      ta._moveCaretToLineEdge(end: end, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       let newPos = end ? tc.getText().count : 0
       extending ? tc.extendSelection(to: newPos) : tc.setCaretPosition(newPos)

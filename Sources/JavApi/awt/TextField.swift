@@ -60,7 +60,7 @@ extension java.awt {
 
     /// Returns the character-gap index (0 … text.count) closest to `awtX`
     /// (absolute x in frame / component coordinate space).
-    public func charIndex(at awtX: Int) -> Int {
+    internal func _charIndex(at awtX: Int) -> Int {
       let display = echoCharIsSet()
         ? String(repeating: echoChar, count: text.count)
         : text

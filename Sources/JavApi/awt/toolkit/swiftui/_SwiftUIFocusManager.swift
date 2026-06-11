@@ -136,7 +136,7 @@ public final class _SwiftUIFocusManager {
   /// Move caret up one line (TextArea) or to start of text (TextField).
   func moveCaretUp(extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToAdjacentLine(up: true, extending: extending)
+      ta._moveCaretToAdjacentLine(up: true, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       // TextField: Up → go to beginning
       if extending { tc.extendSelection(to: 0) } else { tc.setCaretPosition(0) }
@@ -146,7 +146,7 @@ public final class _SwiftUIFocusManager {
   /// Move caret down one line (TextArea) or to end of text (TextField).
   func moveCaretDown(extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToAdjacentLine(up: false, extending: extending)
+      ta._moveCaretToAdjacentLine(up: false, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       // TextField: Down → go to end
       let end = tc.getText().count
@@ -158,7 +158,7 @@ public final class _SwiftUIFocusManager {
   /// line (TextArea) or whole text (TextField).
   func moveCaretToEnd(end: Bool, extending: Bool) {
     if let ta = focusOwner as? java.awt.TextArea {
-      ta.moveCaretToLineEdge(end: end, extending: extending)
+      ta._moveCaretToLineEdge(end: end, extending: extending)
     } else if let tc = focusOwner as? java.awt.TextComponent {
       let newPos = end ? tc.getText().count : 0
       if extending { tc.extendSelection(to: newPos) } else { tc.setCaretPosition(newPos) }

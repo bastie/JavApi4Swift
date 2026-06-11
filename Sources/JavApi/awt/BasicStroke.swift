@@ -280,7 +280,7 @@ extension java.awt {
     ///
     /// Call this from `Graphics2D.setStroke(_:)` so the next draw call
     /// uses the correct pen style.
-    public func apply(to context: CGContext) {
+    internal func _apply(to context: CGContext) {
       context.setLineWidth(CGFloat(lineWidth))
       context.setLineCap(endCap.cgLineCap)
       context.setLineJoin(lineJoin.cgLineJoin)

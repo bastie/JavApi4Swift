@@ -96,10 +96,21 @@ public struct System {
     }
   }
   
-  /// Return the value from environment variable
-  /// - Returns value of environment variable or nil
+  /// Returns the value of the specified environment variable.
+  ///
+  /// - Parameter name: The name of the environment variable.
+  /// - Returns: The value of the variable, or `nil` if not set.
+  /// - Since: Java 1.5
   public static func getenv (_ name : String) -> String? {
     return ProcessInfo.processInfo.environment[name]
+  }
+
+  /// Returns an unmodifiable snapshot of all environment variables.
+  ///
+  /// - Returns: A dictionary mapping environment variable names to their values.
+  /// - Since: Java 1.5
+  public static func getenv() -> [String:String] {
+    return ProcessInfo.processInfo.environment
   }
 
   // MARK: - Security
