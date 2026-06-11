@@ -337,6 +337,29 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | remove()       | (Component)
 1.1     | ✔️          | ⭕️       | method        | removeAll()    | ()
 
+##### java.awt.FontMetrics (9/9/⭕️)
+
+> **Note:** `FontMetrics` is an abstract class. On Apple platforms the concrete
+> implementation is `CoreTextFontMetrics` (backed by `CTFont`). On all other
+> platforms a proportional-approximation fallback is used. Instances are
+> obtained via `Graphics.getFontMetrics()` or `Graphics.getFontMetrics(Font)`.
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.0     | ✔️          | ⭕️       | constructor   | FontMetrics()     | (Font) — protected
+1.0     | ✔️          | ⭕️       | method        | getFont()         | ()->Font
+1.0     | ✔️          | ⭕️       | method        | getAscent()       | ()->int — CoreText: CTFontGetAscent; fallback: font.size×0.75
+1.0     | ✔️          | ⭕️       | method        | getDescent()      | ()->int — CoreText: CTFontGetDescent; fallback: font.size×0.20
+1.0     | ✔️          | ⭕️       | method        | getLeading()      | ()->int — CoreText: CTFontGetLeading; fallback: font.size×0.10
+1.0     | ✔️          | ⭕️       | method        | getHeight()       | ()->int — ascent + descent + leading (final)
+1.0     | ✔️          | ⭕️       | method        | getMaxAscent()    | ()->int
+1.0     | ✔️          | ⭕️       | method        | getMaxDescent()   | ()->int
+1.0     | ✔️          | ⭕️       | method        | getMaxAdvance()   | ()->int — CoreText: advance of 'M'; fallback: -1
+1.0     | ✔️          | ⭕️       | method        | charWidth()       | (char)->int — CoreText: CTLine width; fallback: font.size×0.60
+1.0     | ✔️          | ⭕️       | method        | charsWidth()      | (char[],int,int)->int
+1.0     | ✔️          | ⭕️       | method        | stringWidth()     | (String)->int — CoreText: CTLineGetTypographicBounds
+1.0     | ✔️          | ⭕️       | method        | getWidths()       | ()->[int] — widths of first 256 Unicode scalars
+
 ## Java Core Packages — Continued
 
 ### java.io — Character-Stream Hierarchy (new in 1.1)
