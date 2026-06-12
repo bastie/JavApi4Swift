@@ -574,14 +574,15 @@ public final class _X11WindowHost: @unchecked Sendable {
       if let popup = _X11PopupWindow.activePopup {
         if popup.contains(clickX, clickY) {
           if let (item, _) = popup.item(at: clickX, py: clickY) {
-            popup.activate(item: item)
-            // Close open menu highlight
+            // Clear menu highlight BEFORE activate() so the dismiss-repaint
+            // inside activate() already sees openMenu == nil
             if let x11mb = menuBarRegistry[xwin] { x11mb.openMenu = nil }
+            popup.activate(item: item)
           }
         } else {
           // Click outside popup — dismiss
-          popup.dismiss()
           if let x11mb = menuBarRegistry[xwin] { x11mb.openMenu = nil }
+          popup.dismiss()
           repaint(awtWindow, xwin: xwin)
         }
         return
