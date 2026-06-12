@@ -118,7 +118,7 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Popup geometry  (used by _SwiftUIWindowHost for hit-testing)
+    // MARK: Popup geometry  (used by platform Toolkit _XXXWindowHost for hit-testing)
     // -------------------------------------------------------------------------
 
     /// The bounding rectangle of the popup list (below the component).
@@ -173,15 +173,15 @@ extension java.awt {
 
       // Border
       g.setColor(java.awt.SystemColor.windowBorder)
-      g.drawLine(x,     y,     x+w-1, y)
-      g.drawLine(x,     y,     x,     y+h-1)
-      g.drawLine(x+w-1, y,     x+w-1, y+h-1)
-      g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+      g.drawLine(x, y, x+w-1, y)
+      g.drawLine(x, y, x, y+h-1)
+      g.drawLine(x+w-1, y, x+w-1, y+h-1)
+      g.drawLine(x, y+h-1, x+w-1, y+h-1)
 
       // ── Popup overlay ──────────────────────────────────────────────────────
       guard isOpen, !items.isEmpty else { return }
 
-      let pr      = popupRect()
+      let pr  = popupRect()
       let visRows = min(items.count, maxVisiblePopupRows)
 
       // Popup background
@@ -195,7 +195,8 @@ extension java.awt {
           g.setColor(java.awt.SystemColor.textHighlight)
           g.fillRect(pr.x + 1, iy, pr.width - 2, itemHeight)
           g.setColor(java.awt.SystemColor.textHighlightText)
-        } else {
+        }
+        else {
           g.setColor(java.awt.SystemColor.controlText)
         }
         let ty = iy + (itemHeight - fm.getHeight()) / 2 + fm.getAscent()
@@ -204,10 +205,10 @@ extension java.awt {
 
       // Popup border
       g.setColor(java.awt.SystemColor.windowBorder)
-      g.drawLine(pr.x,            pr.y,            pr.x + pr.width - 1, pr.y)
-      g.drawLine(pr.x,            pr.y,            pr.x,                pr.y + pr.height - 1)
-      g.drawLine(pr.x + pr.width-1, pr.y,          pr.x + pr.width - 1, pr.y + pr.height - 1)
-      g.drawLine(pr.x,            pr.y + pr.height-1, pr.x + pr.width - 1, pr.y + pr.height - 1)
+      g.drawLine(pr.x, pr.y, pr.x + pr.width - 1, pr.y)
+      g.drawLine(pr.x, pr.y, pr.x, pr.y + pr.height - 1)
+      g.drawLine(pr.x + pr.width-1, pr.y, pr.x + pr.width - 1, pr.y + pr.height - 1)
+      g.drawLine(pr.x, pr.y + pr.height-1, pr.x + pr.width - 1, pr.y + pr.height - 1)
     }
   }
 }

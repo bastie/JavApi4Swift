@@ -29,6 +29,8 @@ extension java.awt {
   ///     dashPhase: 0.0)
   /// g2d.setStroke(stroke)
   /// ```
+  ///
+  /// - Since: Java 1.2
   public final class BasicStroke: java.awt.Stroke {
     
     // =========================================================================

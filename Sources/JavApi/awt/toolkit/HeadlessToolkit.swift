@@ -5,8 +5,7 @@
 
 extension java.awt.toolkit {
 
-  /// Headless toolkit stub for platforms without a native window system
-  /// (Linux, Windows, WASI, …).
+  /// Headless toolkit stub for platforms without a implemented native window system
   ///
   /// All operations are no-ops. Extend this class to add a real backend
   /// for a new platform.

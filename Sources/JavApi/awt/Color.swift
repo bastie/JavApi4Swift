@@ -13,10 +13,10 @@ extension java.awt {
     // MARK: Components  (0.0 … 1.0)
     // -------------------------------------------------------------------------
 
-    public let red:   Double
-    public let green: Double
-    public let blue:  Double
-    public let alpha: Double
+    internal let red:   Double
+    internal let green: Double
+    internal let blue:  Double
+    internal let alpha: Double
 
     // -------------------------------------------------------------------------
     // MARK: Standard color constants  (Java field names kept)

@@ -5,7 +5,7 @@
 
 extension java.awt {
 
-  /// Base class for all AWT components — mirrors `java.awt.Component`.
+  /// Base class for all AWT components.
   @MainActor
   open class Component: MenuContainer {
 
@@ -13,11 +13,42 @@ extension java.awt {
     // MARK: Visual properties
     // -------------------------------------------------------------------------
 
-    public var background: java.awt.Color = java.awt.SystemColor.window
-    public var foreground: java.awt.Color = java.awt.SystemColor.windowText
-    var bounds: java.awt.Rectangle = .zero
+    internal var background: java.awt.Color = java.awt.SystemColor.window
+    internal var foreground: java.awt.Color = java.awt.SystemColor.windowText
+    internal var bounds: java.awt.Rectangle = .zero
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
     public func getFont() -> java.awt.Font { font }
+    
+    /// - Since: Java 1.0
+    public func getBackgroundColor () -> java.awt.Color {
+      return self.background
+    }
+    
+    /// - Since: Java 1.0
+    public func getForegroundColor () -> java.awt.Color {
+      return self.foreground
+    }
+    
+    /// - Since: Java 1.0
+    public func setForegroundColor (_ color : java.awt.Color?) {
+      if let color {
+        self.foreground = color
+        self.foregroundSetOnSelf = true
+      }
+      else {
+        self.foreground = self.parent?.foreground ?? java.awt.SystemColor.windowText
+        self.foregroundSetOnSelf = false
+      }
+    }
+    
+    /// contains state to detect of color set directly on this Component
+    private var foregroundSetOnSelf : Bool = false
+    
+    /// - Since: Java 1.4
+    public func isForegroundSet () -> Bool {
+      return self.foregroundSetOnSelf
+    }
+    
     public var visible: Bool = true
     public var enabled: Bool = true
 
@@ -36,17 +67,26 @@ extension java.awt {
     private var _maximumSize:   java.awt.Dimension? = nil
 
     /// Hint für LayoutManager; `nil` bedeutet „komponenteneigener Standardwert".
-    public func setPreferredSize(_ d: java.awt.Dimension?) { _preferredSize = d }
+    public func setPreferredSize(_ d: java.awt.Dimension?) {
+      _preferredSize = d
+    }
+    
     public func getPreferredSize() -> java.awt.Dimension {
       _preferredSize ?? java.awt.Dimension(bounds.width, bounds.height)
     }
 
-    public func setMinimumSize(_ d: java.awt.Dimension?) { _minimumSize = d }
+    public func setMinimumSize(_ d: java.awt.Dimension?) {
+      _minimumSize = d
+    }
+    
     public func getMinimumSize() -> java.awt.Dimension {
       _minimumSize ?? java.awt.Dimension(0, 0)
     }
 
-    public func setMaximumSize(_ d: java.awt.Dimension?) { _maximumSize = d }
+    public func setMaximumSize(_ d: java.awt.Dimension?) {
+      _maximumSize = d
+    }
+    
     public func getMaximumSize() -> java.awt.Dimension {
       _maximumSize ?? java.awt.Dimension(Int.max, Int.max)
     }
@@ -59,8 +99,12 @@ extension java.awt {
     // MARK: Visibility
     // -------------------------------------------------------------------------
 
-    open func setVisible(_ v: Bool) { visible = v }
-    open func isVisible() -> Bool   { visible     }
+    open func setVisible(_ v: Bool) {
+      visible = v
+    }
+    open func isVisible() -> Bool   {
+      return visible
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Position & size
@@ -95,10 +139,18 @@ extension java.awt {
     }
 
     // Java 1.1 convenience accessors (java.awt.Component)
-    public func getX() -> Int { bounds.x }
-    public func getY() -> Int { bounds.y }
-    public func getWidth() -> Int { bounds.width }
-    public func getHeight() -> Int { bounds.height }
+    public func getX() -> Int {
+      bounds.x
+    }
+    public func getY() -> Int {
+      bounds.y
+    }
+    public func getWidth() -> Int {
+      bounds.width
+    }
+    public func getHeight() -> Int {
+      bounds.height
+    }
 
     public func getBounds() -> java.awt.Rectangle { bounds }
     public func setBounds(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {

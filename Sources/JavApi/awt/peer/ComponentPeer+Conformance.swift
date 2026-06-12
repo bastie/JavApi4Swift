@@ -49,9 +49,9 @@ extension java.awt.Component: java.awt.peer.ComponentPeer {
   // getGraphics() and dispose() are defined as open func on Component directly.
 
   /// Sets the foreground color.
-  public func setForeground(_ c: java.awt.Color) { foreground = c }
+  public func setForegroundColor(_ c: java.awt.Color) { foreground = c }
   /// Sets the background color.
-  public func setBackground(_ c: java.awt.Color) { background = c }
+  public func setBackgroundColor(_ c: java.awt.Color) { background = c }
   /// Sets the font.
   public func setFont(_ f: java.awt.Font) { font = f }
 
@@ -76,13 +76,6 @@ extension java.awt.Component: java.awt.peer.ComponentPeer {
                           _ observer: any java.awt.ImageObserver) -> Int {
     32 // ImageObserver.ALLBITS
   }
-}
-
-// MARK: - Container → ContainerPeer
-
-extension java.awt.Container: java.awt.peer.ContainerPeer {
-  /// Returns the container's insets (Java 1.0 peer API).
-  public func insets() -> java.awt.Insets { java.awt.Insets(0, 0, 0, 0) }
 }
 
 // MARK: - Button → ButtonPeer

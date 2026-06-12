@@ -57,8 +57,8 @@ final class GridLayoutDemoDialog: java.awt.Dialog {
     ]
     for (col, name) in colours {
       let lbl = java.awt.Label(name, java.awt.Label.CENTER)
-      lbl.background = col
-      lbl.foreground = .white
+      lbl.setBackgroundColor(col)
+      lbl.setForegroundColor(.white)
       panel.add(lbl)
     }
     return panel

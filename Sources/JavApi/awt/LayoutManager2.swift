@@ -6,6 +6,7 @@
 extension java.awt {
 
   /// Extended layout manager for constraint-based layouts.
+  /// - Since: Java 1.2
   @MainActor
   public protocol LayoutManager2: LayoutManager {
     func addLayoutComponent(_ comp: java.awt.Component, _ constraints: AnyObject?)

@@ -44,7 +44,7 @@ final class FlowLayoutDemoDialog: java.awt.Dialog {
       (java.awt.FlowLayout.RIGHT,  "RIGHT"),
     ] {
       let row = java.awt.Panel (java.awt.FlowLayout(alignment, 6, 4))
-      row.background = java.awt.SystemColor.control
+      row.setBackgroundColor(java.awt.SystemColor.control)
 
       // Beschriftung der Zeile
       let info = java.awt.Label ("\(label):", java.awt.Label.LEFT)

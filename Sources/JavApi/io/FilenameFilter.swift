@@ -6,10 +6,9 @@
 extension java.io {
   /// Filter for filenames, used with File.list(FilenameFilter)
   ///
-  /// Mirrors `java.io.FilenameFilter` from Java 1.0.
-  ///
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol FilenameFilter {
+
     /// Tests if a specified file should be included in a file list.
     ///
     /// - Parameters:

@@ -19,14 +19,14 @@ final class CardDemoPanel: java.awt.Panel {
     
     // Drei Karten
     let card1 = java.awt.Label("Karte 1 — Start", java.awt.Label.CENTER)
-    card1.background = .blue
-    card1.foreground = .white
+    card1.setBackgroundColor(.blue)
+    card1.setForegroundColor(.white)
     let card2 = java.awt.Label("Karte 2 — Mitte", java.awt.Label.CENTER)
-    card2.background = .green
-    card2.foreground = .white
+    card2.setBackgroundColor(.green)
+    card2.setForegroundColor(.white)
     let card3 = java.awt.Label("Karte 3 — Ende",  java.awt.Label.CENTER)
-    card3.background = .red
-    card3.foreground = .white
+    card3.setBackgroundColor(.red)
+    card3.setForegroundColor(.white)
     
     cardBox.add(card1, "1")
     cardBox.add(card2, "2")

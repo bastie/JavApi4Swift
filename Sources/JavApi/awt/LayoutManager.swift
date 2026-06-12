@@ -10,6 +10,9 @@ extension java.awt {
   public protocol LayoutManager: AnyObject {
     
     /// Called when a component is added with a name constraint.
+    /// - Parameters:
+    ///   - name: name of child component
+    ///   - comp: the child component
     func addLayoutComponent(_ name: String, _ comp: java.awt.Component)
 
     /// Called when a component is removed from the container.
@@ -25,7 +28,9 @@ extension java.awt {
     /// - Parameter parent: the parent container
     /// - Returns: the dimension of minimum size
     func minimumLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension
-    /// Lay out the container's children.
+    
+    /// Layout the container's children.
+    /// - Parameter parent: the parent container
     func layoutContainer(_ parent: java.awt.Container)
   }
 }

@@ -18,7 +18,7 @@ final class LogoCanvas: java.awt.Canvas {
     guard w > 0, h > 0 else { return }
 
     // Background
-    g.setColor(background)
+    g.setColor(self.getBackgroundColor())
     g.fillRect(getX(), getY(), w, h)
 
     // Logo laden über Toolkit — kein plattformspezifischer Code nötig

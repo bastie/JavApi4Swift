@@ -5,9 +5,9 @@
 
 extension java.awt.peer {
 
-  /// Native peer interface for ``java.awt.Component`` — mirrors `java.awt.peer.ComponentPeer`.
+  /// Native peer interface for ``java.awt.Component``.
   ///
-  /// In JavApi⁴Swift the AWT components render themselves directly; there is no
+  /// If in JavApi⁴Swift the AWT components render themselves directly; there is no
   /// separate native widget.  The peer protocol is implemented by the AWT
   /// component classes themselves so that code expecting a peer object receives
   /// the component as its own peer.
@@ -56,9 +56,9 @@ extension java.awt.peer {
     func dispose()
 
     /// Sets the foreground color.
-    func setForeground(_ c: java.awt.Color)
+    func setForegroundColor(_ c: java.awt.Color)
     /// Sets the background color.
-    func setBackground(_ c: java.awt.Color)
+    func setBackgroundColor(_ c: java.awt.Color)
     /// Sets the font.
     func setFont(_ f: java.awt.Font)
 

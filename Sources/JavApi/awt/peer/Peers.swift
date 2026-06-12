@@ -12,41 +12,41 @@ extension java.awt.peer {
   // MARK: Container hierarchy
   // ---------------------------------------------------------------------------
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol ContainerPeer: ComponentPeer {
     func insets() -> java.awt.Insets
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol PanelPeer: ContainerPeer {}
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol CanvasPeer: ComponentPeer {}
 
   // ---------------------------------------------------------------------------
   // MARK: Window hierarchy
   // ---------------------------------------------------------------------------
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol WindowPeer: ContainerPeer {
     func toFront()
     func toBack()
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol DialogPeer: WindowPeer {
     func setTitle(_ title: String)
     func setResizable(_ resizable: Bool)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol FileDialogPeer: DialogPeer {
     func setFile(_ file: String)
     func setDirectory(_ dir: String)
     func setFilenameFilter(_ filter: any java.io.FilenameFilter)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol FramePeer: WindowPeer {
     func setTitle(_ title: String)
     func setResizable(_ resizable: Bool)
@@ -59,36 +59,36 @@ extension java.awt.peer {
   // MARK: Simple components
   // ---------------------------------------------------------------------------
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol ButtonPeer: ComponentPeer {
     func setLabel(_ label: String)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol LabelPeer: ComponentPeer {
     func setText(_ text: String)
     func setAlignment(_ alignment: Int)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol CheckboxPeer: ComponentPeer {
     func setState(_ state: Bool)
     func setCheckboxGroup(_ g: java.awt.CheckboxGroup?)
     func setLabel(_ label: String)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol CheckboxMenuItemPeer: MenuItemPeer {
     func setState(_ state: Bool)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol ChoicePeer: ComponentPeer {
     func addItem(_ item: String, _ index: Int)
     func select(_ index: Int)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol ListPeer: ComponentPeer {
     func addItem(_ item: String, _ index: Int)
     func delItems(_ start: Int, _ end: Int)
@@ -102,7 +102,7 @@ extension java.awt.peer {
     func makeVisible(_ index: Int)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol ScrollbarPeer: ComponentPeer {
     func setValue(_ value: Int)
     func setValues(_ value: Int, _ visible: Int, _ minimum: Int, _ maximum: Int)
@@ -114,7 +114,7 @@ extension java.awt.peer {
   // MARK: Text components
   // ---------------------------------------------------------------------------
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: JJava 1.0
   public protocol TextComponentPeer: ComponentPeer {
     func setEditable(_ editable: Bool)
     func getText() -> String
@@ -124,14 +124,14 @@ extension java.awt.peer {
     func select(_ selStart: Int, _ selEnd: Int)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol TextFieldPeer: TextComponentPeer {
     func setEchoCharacter(_ c: Character)
     func preferredSize(_ cols: Int) -> java.awt.Dimension
     func minimumSize(_ cols: Int) -> java.awt.Dimension
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol TextAreaPeer: TextComponentPeer {
     func insertText(_ text: String, _ pos: Int)
     func replaceText(_ text: String, _ start: Int, _ end: Int)
@@ -143,27 +143,27 @@ extension java.awt.peer {
   // MARK: Menu peers
   // ---------------------------------------------------------------------------
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   @MainActor
   public protocol MenuComponentPeer: AnyObject {
     func dispose()
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol MenuItemPeer: MenuComponentPeer {
     func setLabel(_ label: String)
     func enable()
     func disable()
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol MenuPeer: MenuItemPeer {
     func addSeparator()
     func addItem(_ item: java.awt.MenuItem)
     func delItem(_ index: Int)
   }
 
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol MenuBarPeer: MenuComponentPeer {
     func addMenu(_ m: java.awt.Menu)
     func delMenu(_ index: Int)
