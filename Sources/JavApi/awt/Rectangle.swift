@@ -21,7 +21,10 @@ extension java.awt {
   /// print(r.width)          // → 200
   /// print(r.contains(15, 25)) // → true
   /// ```
-  public class Rectangle: Equatable {
+  public class Rectangle: Equatable, CustomStringConvertible {
+
+    public var description: String {self.toString()}
+    
     
     // -------------------------------------------------------------------------
     // MARK: Fields  (Java field names kept for porting fidelity)

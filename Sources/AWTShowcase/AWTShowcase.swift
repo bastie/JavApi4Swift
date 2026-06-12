@@ -82,7 +82,7 @@ struct AWTShowcaseApp {
     frame.add(centerPanel, java.awt.BorderLayout.CENTER)
     
     // ── EAST: standalone vertical Scrollbar — Breite fix per preferredSize ───
-    let scrollbar = java.awt.Scrollbar(java.awt.Scrollbar.VERTICAL, value: 0, visible: 20, minimum: 0, maximum: 100)
+    let scrollbar = java.awt.Scrollbar(java.awt.Scrollbar.VERTICAL, 0, 20, 0, 100)
     scrollbar.setPreferredSize(java.awt.Dimension(18, centerH))
     scrollbar.setMinimumSize(java.awt.Dimension(12, 40))
     frame.add(scrollbar, java.awt.BorderLayout.EAST)

@@ -5,8 +5,7 @@
 
 extension java.awt {
 
-  /// Kontextmenü das an einer beliebigen Position eingeblendet wird —
-  /// mirrors `java.awt.PopupMenu`.
+  /// Contextmenu
   @MainActor
   open class PopupMenu: Menu {
 
@@ -14,10 +13,16 @@ extension java.awt {
       super.init(label, tearOff: tearOff)
     }
 
-    /// Zeigt das PopupMenu an Position `(x, y)` relativ zu `origin`.
+    /// Show the PopupMenu on position `(x, y)` relativ to `origin`.
     ///
     /// Delegates to `Toolkit.getDefaultToolkit().showPopupMenu(_:origin:x:y:)`
     /// so that the platform-specific rendering stays in the toolkit layer.
+    ///
+    /// - Parameters:
+    ///   - origin: component to compute relative position
+    ///   - x: move x
+    ///   - y: move y
+    ///
     open func show(_ origin: Component, _ x: Int, _ y: Int) {
       java.awt.Toolkit.getDefaultToolkit().showPopupMenu(self, origin: origin, x: x, y: y)
     }

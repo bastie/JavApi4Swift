@@ -29,7 +29,7 @@ extension java.awt {
   ///
   /// - authors Denis M. Kishenko
   /// - authors Sebastian Ritter (port to Swift and documentation)
-  /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public class Point : java.awt.geom.Point2D /*implements Serializable*/ {
     
     private let serialVersionUID : Int64 = -5276940640259749850

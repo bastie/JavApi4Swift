@@ -5,9 +5,9 @@
 
 extension java.awt {
 
-  /// Generic container with a FlowLayout default — mirrors `java.awt.Panel`.
+  /// Generic container with a FlowLayout default.
   ///
-  /// In Java, Panel is the simplest concrete Container and the base class for Applet.
+  /// Panel is the simplest concrete Container.
   /// It differs from Container only in having FlowLayout as the explicit default.
   open class Panel: Container {
 

@@ -25,16 +25,16 @@ extension java.awt {
     // MARK: Model
     // -------------------------------------------------------------------------
 
-    public var orientation:    Int = Scrollbar.VERTICAL
-    public var minimum:        Int = 0
-    public var maximum:        Int = 100
-    public var visibleAmount:  Int = 10
-    public var unitIncrement:  Int = 1
-    public var blockIncrement: Int = 10
+    internal var orientation:    Int = Scrollbar.VERTICAL
+    internal var minimum:        Int = 0
+    internal var maximum:        Int = 100
+    internal var visibleAmount:  Int = 10
+    internal var unitIncrement:  Int = 1
+    internal var blockIncrement: Int = 10
 
     private var _value: Int = 0
 
-    public var value: Int {
+    internal var value: Int {
       get { _value }
       set { _value = clampedValue(newValue) }
     }
@@ -57,12 +57,7 @@ extension java.awt {
     }
 
     internal func fireAdjustment(type: Int, isAdjusting: Bool = false) {
-      let e = java.awt.event.AdjustmentEvent(
-        self,
-        java.awt.event.AdjustmentEvent.ADJUSTMENT_VALUE_CHANGED,
-        type,
-        _value,
-        isAdjusting: isAdjusting)
+      let e = java.awt.event.AdjustmentEvent (self, java.awt.event.AdjustmentEvent.ADJUSTMENT_VALUE_CHANGED, type, _value, isAdjusting: isAdjusting)
       adjustmentListeners.forEach { $0.adjustmentValueChanged(e) }
     }
 
@@ -79,7 +74,7 @@ extension java.awt {
       super.init()
     }
 
-    public init(_ orientation: Int, value: Int, visible: Int, minimum: Int, maximum: Int) {
+    public init(_ orientation: Int, _ value: Int, _ visible: Int, _ minimum: Int, _ maximum: Int) {
       self.orientation   = orientation
       self.minimum       = minimum
       self.maximum       = maximum

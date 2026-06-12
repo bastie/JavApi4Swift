@@ -21,7 +21,7 @@ extension java.awt {
   /// print(p.contains(30, 60))  // → true
   /// ```
   ///
-  /// - Since: JavaApi > 0.x (Java 1.0)
+  /// - Since: Java 1.0
   public class Polygon: Shape {
 
     // -------------------------------------------------------------------------
@@ -38,7 +38,7 @@ extension java.awt {
     public var ypoints: [Int]
 
     /// Cached bounding box, invalidated whenever the polygon changes.
-    private var bounds: java.awt.Rectangle? = nil
+    public private(set) var bounds: java.awt.Rectangle? = nil
 
     // -------------------------------------------------------------------------
     // MARK: Init
