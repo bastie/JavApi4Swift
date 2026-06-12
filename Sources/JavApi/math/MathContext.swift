@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: MIT
  */
 

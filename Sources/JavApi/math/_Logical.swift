@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
-  enum Logical {
+  struct _Logical {
 
     static func not(_ val: BigInteger) -> BigInteger {
       if val.sign == 0 { return BigInteger.MINUS_ONE }

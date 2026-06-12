@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
-  enum Multiplication {
+  struct _Multiplication {
 
     // MARK: - Constants
 
@@ -191,7 +191,7 @@ extension java.math {
         }
         res[i + aLen] = Int(UInt32(truncatingIfNeeded: carry))
       }
-      BitLevel.shiftLeftOneBit(&res, res, aLen << 1)
+      _BitLevel.shiftLeftOneBit(&res, res, aLen << 1)
       var carry: Int64 = 0
       var index = 0
       for i in 0..<aLen {

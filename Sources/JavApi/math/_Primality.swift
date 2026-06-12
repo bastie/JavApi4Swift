@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
-  enum Primality {
+  struct _Primality {
 
     // MARK: - Tables
 
@@ -55,15 +55,16 @@ extension java.math {
       let startPoint = BigInteger(1, n.numberLength, [Int](repeating: 0, count: n.numberLength + 1))
       System.arraycopy(n.digits, 0, &startPoint.digits, 0, n.numberLength)
       if try n.testBit(0) {
-        Elementary.inplaceAdd(startPoint, 2)
-      } else {
+        _Elementary.inplaceAdd(startPoint, 2)
+      }
+      else {
         startPoint.digits[0] |= 1
       }
       var j = startPoint.bitLength()
       var certainty = 2
       while j < BITS[certainty] { certainty += 1 }
       for i in 0..<primes.count {
-        modules[i] = Division.remainder(startPoint, primes[i]) - gapSize
+        modules[i] = _Division.remainder(startPoint, primes[i]) - gapSize
       }
       while true {
         for i in 0..<gapSize { isDivisible[i] = false }
@@ -78,11 +79,11 @@ extension java.math {
         for j in 0..<gapSize {
           if !isDivisible[j] {
             let probPrime = startPoint.copy()
-            Elementary.inplaceAdd(probPrime, j)
+            _Elementary.inplaceAdd(probPrime, j)
             if try millerRabin(probPrime, certainty) { return probPrime }
           }
         }
-        Elementary.inplaceAdd(startPoint, gapSize)
+        _Elementary.inplaceAdd(startPoint, gapSize)
       }
     }
 
@@ -114,7 +115,7 @@ extension java.math {
         return primes.binarySearch(n.digits[0]) >= 0
       }
       for i in 1..<primes.count {
-        if Division.remainderArrayByInt(n.digits, n.numberLength, primes[i]) == 0 { return false }
+        if _Division.remainderArrayByInt(n.digits, n.numberLength, primes[i]) == 0 { return false }
       }
       let bitLength = n.bitLength()
       var i = 2

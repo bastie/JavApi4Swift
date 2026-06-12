@@ -5,7 +5,7 @@
 
 extension java.awt.peer {
 
-  /// Native peer interface for ``java.awt.Component``.
+  /// Native peer interface for `java.awt.Component`.
   ///
   /// If in JavApi⁴Swift the AWT components render themselves directly; there is no
   /// separate native widget.  The peer protocol is implemented by the AWT

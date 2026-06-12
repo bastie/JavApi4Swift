@@ -8,8 +8,8 @@ extension java.net {
   /// Interface for socket implementation factories.
   ///
   /// Java 1.0 `java.net.SocketImplFactory`. Implement this protocol and
-  /// register the factory via ``Socket/setSocketImplFactory(_:)`` or
-  /// ``ServerSocket/setSocketFactory(_:)`` to provide custom ``SocketImpl``
+  /// register the factory via `Socket/setSocketImplFactory(_:)` or
+  /// `ServerSocket/setSocketFactory(_:)` to provide custom `SocketImpl`
   /// instances.
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)

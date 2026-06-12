@@ -1,5 +1,5 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -146,7 +146,7 @@ extension java.math {
 
     public init(_ bitLength: Int, _ certainty: Int, _ rnd: java.util.Random) throws {
       guard bitLength >= 2 else { throw ArithmeticException("bitLength < 2") }
-      let me = try Primality.consBigInteger(bitLength, certainty, rnd)
+      let me = try _Primality.consBigInteger(bitLength, certainty, rnd)
       sign = me.sign; numberLength = me.numberLength; digits = me.digits
     }
 
@@ -158,7 +158,7 @@ extension java.math {
       guard radix >= 2 && radix <= 36 else { throw NumberFormatException("Radix out of range") }
       guard !val.isEmpty else { throw NumberFormatException("Zero length BigInteger") }
       sign = 0; numberLength = 0; digits = []
-      try Conversion.setFromString(self, val, radix)
+      try _Conversion.setFromString(self, val, radix)
     }
 
     public init(_ signum: Int, _ magnitude: [UInt8]) throws(NumberFormatException) {
@@ -245,16 +245,16 @@ extension java.math {
     }
 
     public func add(_ val: BigInteger) -> BigInteger {
-      return Elementary.add(self, val)
+      return _Elementary.add(self, val)
     }
 
     public func subtract(_ val: BigInteger) -> BigInteger {
-      return Elementary.subtract(self, val)
+      return _Elementary.subtract(self, val)
     }
 
     public func multiply(_ val: BigInteger) -> BigInteger {
       if val.sign == 0 || sign == 0 { return BigInteger.ZERO }
-      return Multiplication.multiply(self, val)
+      return _Multiplication.multiply(self, val)
     }
 
     public func divide(_ divisor: BigInteger) throws(ArithmeticException) -> BigInteger {
@@ -265,19 +265,18 @@ extension java.math {
         let val = (Int64(digits[0]) & 0xFFFFFFFF) / (Int64(divisor.digits[0]) & 0xFFFFFFFF)
         return BigInteger.valueOf(thisSign != divisor.sign ? -val : val)
       }
-      let cmp = thisLen != divisorLen
-        ? (thisLen > divisorLen ? 1 : -1)
-        : Elementary.compareArrays(digits, divisor.digits, thisLen)
+      let cmp = thisLen != divisorLen ? (thisLen > divisorLen ? 1 : -1) : _Elementary.compareArrays(digits, divisor.digits, thisLen)
       if cmp == BigInteger.EQUALS { return thisSign == divisor.sign ? BigInteger.ONE : BigInteger.MINUS_ONE }
       if cmp == BigInteger.LESS { return BigInteger.ZERO }
       let resLength = thisLen - divisorLen + 1
       var resDigits = [Int](repeating: 0, count: resLength)
       let resSign = thisSign == divisor.sign ? 1 : -1
       if divisorLen == 1 {
-        Division.divideArrayByInt(&resDigits, digits, thisLen, divisor.digits[0])
-      } else {
+        _Division.divideArrayByInt(&resDigits, digits, thisLen, divisor.digits[0])
+      }
+      else {
         var nil_quot: [Int]? = resDigits
-        Division.divide(&nil_quot, resLength, digits, thisLen, divisor.digits, divisorLen)
+        _Division.divide(&nil_quot, resLength, digits, thisLen, divisor.digits, divisorLen)
         resDigits = nil_quot!
       }
       let result = BigInteger(resSign, resLength, resDigits)
@@ -288,17 +287,15 @@ extension java.math {
     public func remainder(_ divisor: BigInteger) throws(ArithmeticException) -> BigInteger {
       if divisor.sign == 0 { throw ArithmeticException("BigInteger divide by zero") }
       let thisLen = numberLength, divisorLen = divisor.numberLength
-      let cmp = thisLen != divisorLen
-        ? (thisLen > divisorLen ? 1 : -1)
-        : Elementary.compareArrays(digits, divisor.digits, thisLen)
+      let cmp = thisLen != divisorLen ? (thisLen > divisorLen ? 1 : -1) : _Elementary.compareArrays(digits, divisor.digits, thisLen)
       if cmp == BigInteger.LESS { return self }
       var resDigits = [Int](repeating: 0, count: divisorLen)
       if divisorLen == 1 {
-        resDigits[0] = Division.remainderArrayByInt(digits, thisLen, divisor.digits[0])
+        resDigits[0] = _Division.remainderArrayByInt(digits, thisLen, divisor.digits[0])
       } else {
         let qLen = thisLen - divisorLen + 1
         var nil_quot: [Int]? = nil
-        resDigits = Division.divide(&nil_quot, qLen, digits, thisLen, divisor.digits, divisorLen)
+        resDigits = _Division.divide(&nil_quot, qLen, digits, thisLen, divisor.digits, divisorLen)
       }
       let result = BigInteger(sign, divisorLen, resDigits)
       result.cutOffLeadingZeroes()
@@ -309,17 +306,15 @@ extension java.math {
       if divisor.sign == 0 { throw ArithmeticException("BigInteger divide by zero") }
       let divisorLen = divisor.numberLength
       if divisorLen == 1 {
-        return Division.divideAndRemainderByInteger(self, divisor.digits[0], divisor.sign)
+        return _Division.divideAndRemainderByInteger(self, divisor.digits[0], divisor.sign)
       }
-      let cmp = numberLength != divisorLen
-        ? (numberLength > divisorLen ? 1 : -1)
-        : Elementary.compareArrays(digits, divisor.digits, numberLength)
+      let cmp = numberLength != divisorLen ? (numberLength > divisorLen ? 1 : -1) : _Elementary.compareArrays(digits, divisor.digits, numberLength)
       if cmp < 0 { return [BigInteger.ZERO, self] }
       let quotientLength = numberLength - divisorLen + 1
       let quotientSign = sign == divisor.sign ? 1 : -1
       var quotientDigits = [Int](repeating: 0, count: quotientLength)
       var quot: [Int]? = quotientDigits
-      let remainderDigits = Division.divide(&quot, quotientLength, digits, numberLength, divisor.digits, divisorLen)
+      let remainderDigits = _Division.divide(&quot, quotientLength, digits, numberLength, divisor.digits, divisorLen)
       quotientDigits = quot!
       let result0 = BigInteger(quotientSign, quotientLength, quotientDigits)
       let result1 = BigInteger(sign, divisorLen, remainderDigits)
@@ -345,7 +340,7 @@ extension java.math {
         }
         return try BigInteger.getPowerOfTwo(x * exp).multiply(self.shiftRight(x).pow(exp))
       }
-      return Multiplication.pow(self, exp)
+      return _Multiplication.pow(self, exp)
     }
 
     public func gcd(_ val: BigInteger) -> BigInteger {
@@ -355,9 +350,9 @@ extension java.math {
       if val2.signum() == 0 { return val1 }
       if (val1.numberLength == 1 || (val1.numberLength == 2 && val1.digits[1] > 0))
           && (val2.numberLength == 1 || (val2.numberLength == 2 && val2.digits[1] > 0)) {
-        return BigInteger.valueOf(Division.gcdBinary(val1.longValue(), val2.longValue()))
+        return BigInteger.valueOf(_Division.gcdBinary(val1.longValue(), val2.longValue()))
       }
-      return Division.gcdBinary(val1.copy(), val2.copy())
+      return _Division.gcdBinary(val1.copy(), val2.copy())
     }
 
     public func modInverse(_ m: BigInteger) throws  -> BigInteger {
@@ -366,7 +361,7 @@ extension java.math {
       let test2 = try m.testBit(0)
       if !((test1) || test2) { throw ArithmeticException("BigInteger not invertible.") }
       if m.isOne() { return BigInteger.ZERO }
-      var res = try Division.modInverseMontgomery(try abs().mod(m), m)
+      var res = try _Division.modInverseMontgomery(try abs().mod(m), m)
       if res.sign == 0 { throw ArithmeticException("BigInteger not invertible.") }
       res = sign < 0 ? m.subtract(res) : res
       return res
@@ -374,14 +369,14 @@ extension java.math {
 
     public func modPow(_ exponent: BigInteger, _ m: BigInteger) throws -> BigInteger {
       var exponent = exponent
-      if m.sign <= 0 { throw ArithmeticException("BigInteger: modulus not positive") }
+      if m.sign <= 0 {
+        throw ArithmeticException("BigInteger: modulus not positive")
+      }
       var base = self
       if m.isOne() || (exponent.sign > 0 && base.sign == 0) { return BigInteger.ZERO }
       if exponent.sign == 0 { return try BigInteger.ONE.mod(m) }
       if exponent.sign < 0 { base = try modInverse(m); exponent = exponent.negate() }
-      let res = try m.testBit(0)
-        ? try Division.oddModPow(base.abs(), exponent, m)
-        : try Division.evenModPow(base.abs(), exponent, m)
+      let res = try m.testBit(0) ? try _Division.oddModPow(base.abs(), exponent, m) : try _Division.evenModPow(base.abs(), exponent, m)
       let rightTest = try exponent.testBit(0)
       if base.sign < 0 && rightTest {
         return try m.subtract(BigInteger.ONE).multiply(res).mod(m)
@@ -393,9 +388,13 @@ extension java.math {
 
     public func signum() -> Int { return sign }
 
-    public func bitLength() -> Int { return BitLevel.bitLength(self) }
+    public func bitLength() -> Int {
+      return _BitLevel.bitLength(self)
+    }
 
-    public func bitCount() -> Int { return BitLevel.bitCount(self) }
+    public func bitCount() -> Int {
+      return _BitLevel.bitCount(self)
+    }
 
     public func testBit(_ n: Int) throws (ArithmeticException) -> Bool {
       if n < 0 { throw ArithmeticException("Negative bit address") }
@@ -414,19 +413,23 @@ extension java.math {
 
     public func setBit(_ n: Int) throws(ArithmeticException) -> BigInteger {
       if n < 0 { throw ArithmeticException("Negative bit address") }
-      if try !testBit(n) { return BitLevel.flipBit(self, n) }
+      if try !testBit(n) {
+        return _BitLevel.flipBit(self, n)
+      }
       return self
     }
 
     public func clearBit(_ n: Int) throws(ArithmeticException) -> BigInteger {
       if n < 0 { throw ArithmeticException("Negative bit address") }
-      if try testBit(n) { return BitLevel.flipBit(self, n) }
+      if try testBit(n) {
+        return _BitLevel.flipBit(self, n)
+      }
       return self
     }
 
     public func flipBit(_ n: Int) throws(ArithmeticException) -> BigInteger {
       if n < 0 { throw ArithmeticException("Negative bit address") }
-      return BitLevel.flipBit(self, n)
+      return _BitLevel.flipBit(self, n)
     }
 
     public func getLowestSetBit() -> Int {
@@ -437,25 +440,25 @@ extension java.math {
 
     public func shiftRight(_ n: Int) -> BigInteger {
       if n == 0 || sign == 0 { return self }
-      return n > 0 ? BitLevel.shiftRight(self, n) : BitLevel.shiftLeft(self, -n)
+      return n > 0 ? _BitLevel.shiftRight(self, n) : _BitLevel.shiftLeft(self, -n)
     }
 
     public func shiftLeft(_ n: Int) -> BigInteger {
       if n == 0 || sign == 0 { return self }
-      return n > 0 ? BitLevel.shiftLeft(self, n) : BitLevel.shiftRight(self, -n)
+      return n > 0 ? _BitLevel.shiftLeft(self, n) : _BitLevel.shiftRight(self, -n)
     }
 
     func shiftLeftOneBit() -> BigInteger {
-      return sign == 0 ? self : BitLevel.shiftLeftOneBit(self)
+      return sign == 0 ? self : _BitLevel.shiftLeftOneBit(self)
     }
 
     // MARK: - Logical operations
 
-    public func not() -> BigInteger { return Logical.not(self) }
-    public func and(_ val: BigInteger) -> BigInteger { return Logical.and(self, val) }
-    public func or(_ val: BigInteger) -> BigInteger { return Logical.or(self, val) }
-    public func xor(_ val: BigInteger) -> BigInteger { return Logical.xor(self, val) }
-    public func andNot(_ val: BigInteger) -> BigInteger { return Logical.andNot(self, val) }
+    public func not() -> BigInteger { return _Logical.not(self) }
+    public func and(_ val: BigInteger) -> BigInteger { return _Logical.and(self, val) }
+    public func or(_ val: BigInteger) -> BigInteger { return _Logical.or(self, val) }
+    public func xor(_ val: BigInteger) -> BigInteger { return _Logical.xor(self, val) }
+    public func andNot(_ val: BigInteger) -> BigInteger { return _Logical.andNot(self, val) }
 
     // MARK: - Conversion
 
@@ -470,7 +473,7 @@ extension java.math {
 
     public func floatValue() -> Float { return Float(doubleValue()) }
 
-    public func doubleValue() -> Double { return Conversion.bigInteger2Double(self) }
+    public func doubleValue() -> Double { return _Conversion.bigInteger2Double(self) }
 
     // MARK: - Comparison
 
@@ -479,7 +482,7 @@ extension java.math {
       if sign < val.sign { return BigInteger.LESS }
       if numberLength > val.numberLength { return sign }
       if numberLength < val.numberLength { return -val.sign }
-      return sign * Elementary.compareArrays(digits, val.digits, numberLength)
+      return sign * _Elementary.compareArrays(digits, val.digits, numberLength)
     }
 
     public static func < (lhs: BigInteger, rhs: BigInteger) -> Bool { lhs.compareTo(rhs) < 0 }
@@ -528,18 +531,21 @@ extension java.math {
 
     // MARK: - String representation
 
-    public func toString() -> String { return Conversion.bigInteger2String(self, 10) }
+    public func toString() -> String { return _Conversion.bigInteger2String(self, 10) }
 
-    public func toString(_ radix: Int) -> String { return Conversion.bigInteger2String(self, radix) }
+    public func toString(_ radix: Int) -> String {
+      return _Conversion.bigInteger2String(self, radix)
+    }
 
     // MARK: - Primality
 
-    public func isProbablePrime(_ certainty: Int) throws -> Bool { return try Primality.isProbablePrime(abs(), certainty)
+    public func isProbablePrime(_ certainty: Int) throws -> Bool {
+      return try _Primality.isProbablePrime(abs(), certainty)
     }
 
     public func nextProbablePrime() throws  -> BigInteger {
       if sign < 0 { throw ArithmeticException("start < 0: \(toString())") }
-      return try Primality.nextProbablePrime(self)
+      return try _Primality.nextProbablePrime(self)
     }
 
     public static func probablePrime(_ bitLength: Int, _ rnd: java.util.Random) -> BigInteger {

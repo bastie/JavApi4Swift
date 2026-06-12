@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
-  enum Conversion {
+  struct _Conversion {
 
     /// Max exponent for each radix such that radix^digitFitInInt[radix] fits in Int32.
     static let digitFitInInt: [Int] = [
@@ -53,7 +53,7 @@ extension java.math {
         let charsPerInt = digitFitInInt[radix]
         let bigRadix = bigRadices[radix - 2]
         while true {
-          var resDigit = Division.divideArrayByInt(&temp, temp, tempLen, bigRadix)
+          var resDigit = _Division.divideArrayByInt(&temp, temp, tempLen, bigRadix)
           let previous = currentChar
           repeat {
             currentChar -= 1
@@ -180,8 +180,8 @@ extension java.math {
         guard let bigRadixDigit = Int(chunk, radix: radix) else {
           throw NumberFormatException("Invalid character in BigInteger string")
         }
-        var newDigit = Multiplication.multiplyByInt(&digits, digitIndex, bigRadix)
-        newDigit += Elementary.inplaceAdd(&digits, digitIndex, bigRadixDigit)
+        var newDigit = _Multiplication.multiplyByInt(&digits, digitIndex, bigRadix)
+        newDigit += _Elementary.inplaceAdd(&digits, digitIndex, bigRadixDigit)
         digits[digitIndex] = newDigit
         digitIndex += 1
         substrStart = substrEnd
@@ -211,7 +211,7 @@ extension java.math {
         if mantissa == Int64(0x1FFFFFFFFFFFFF) { return val.sign > 0 ? Double.infinity : -Double.infinity }
         if mantissa == Int64(0x1FFFFFFFFFFFFE) { return val.sign > 0 ? Double.greatestFiniteMagnitude : -Double.greatestFiniteMagnitude }
       }
-      if ((mantissa & 1) == 1) && (((mantissa & 2) == 2) || BitLevel.nonZeroDroppedBits(delta, val.digits)) {
+      if ((mantissa & 1) == 1) && (((mantissa & 2) == 2) || _BitLevel.nonZeroDroppedBits(delta, val.digits)) {
         mantissa += 2
       }
       mantissa = mantissa >> 1

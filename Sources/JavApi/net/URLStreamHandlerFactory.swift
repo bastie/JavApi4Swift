@@ -8,7 +8,7 @@ extension java.net {
   /// Interface for URL stream handler factories.
   ///
   /// Java 1.0 `java.net.URLStreamHandlerFactory`. Implement this protocol and
-  /// register the factory via ``URL/setURLStreamHandlerFactory(_:)`` to
+  /// register the factory via `URL/setURLStreamHandlerFactory(_:)` to
   /// provide custom ``URLStreamHandler`` instances for specific protocols.
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)

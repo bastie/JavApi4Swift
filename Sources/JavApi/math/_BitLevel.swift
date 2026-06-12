@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
   /// Static library for all bit-level operations on BigInteger.
-  enum BitLevel {
+  struct _BitLevel {
 
     // MARK: - Bit metrics
 

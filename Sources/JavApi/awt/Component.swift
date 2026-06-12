@@ -310,8 +310,10 @@ extension java.awt {
 
     /// Returns a graphics context for this component.
     /// Real graphics contexts are only available during `paint(_:)` — this stub
-    /// satisfies the ``java.awt.peer.ComponentPeer`` protocol requirement.
-    open func getGraphics() -> java.awt.Graphics { java.awt.Graphics.stub }
+    /// satisfies the `java.awt.peer.ComponentPeer` protocol requirement.
+    open func getGraphics() -> java.awt.Graphics {
+      java.awt.Graphics.stub
+    }
 
     public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: f)

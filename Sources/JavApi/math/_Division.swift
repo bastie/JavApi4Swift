@@ -1,11 +1,11 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
-  enum Division {
+  struct _Division {
 
     // MARK: - Core division
 
@@ -20,9 +20,10 @@ extension java.math {
       let normBLength = bLength
       let divisorShift = Int.numberOfLeadingZeros(b[bLength - 1])
       if divisorShift != 0 {
-        BitLevel.shiftLeft(&normB, b, 0, divisorShift)
-        BitLevel.shiftLeft(&normA, a, 0, divisorShift)
-      } else {
+        _BitLevel.shiftLeft(&normB, b, 0, divisorShift)
+        _BitLevel.shiftLeft(&normA, a, 0, divisorShift)
+      }
+      else {
         System.arraycopy(a, 0, &normA, 0, aLength)
         System.arraycopy(b, 0, &normB, 0, bLength)
       }
@@ -79,7 +80,7 @@ extension java.math {
         i -= 1
       }
       if divisorShift != 0 {
-        BitLevel.shiftRight(&normB, normBLength, normA, 0, divisorShift)
+        _BitLevel.shiftRight(&normB, normBLength, normA, 0, divisorShift)
         return normB
       }
       System.arraycopy(normA, 0, &normB, 0, bLength)
@@ -200,7 +201,7 @@ extension java.math {
       var carry0: Int64 = 0
       var carry1: Int64 = 0
       for i in 0..<bLen {
-        carry0 = Multiplication.unsignedMultAddAdd(b[i], c, Int(truncatingIfNeeded: carry0), 0)
+        carry0 = _Multiplication.unsignedMultAddAdd(b[i], c, Int(truncatingIfNeeded: carry0), 0)
         carry1 = (Int64(a[start + i]) & 0xFFFFFFFF) - (carry0 & 0xFFFFFFFF) + carry1
         a[start + i] = Int(truncatingIfNeeded: carry1)
         carry1 >>= 32
@@ -218,8 +219,8 @@ extension java.math {
       let lsb1 = op1.getLowestSetBit()
       let lsb2 = op2.getLowestSetBit()
       let pow2Count = Swift.min(lsb1, lsb2)
-      BitLevel.inplaceShiftRight(op1, lsb1)
-      BitLevel.inplaceShiftRight(op2, lsb2)
+      _BitLevel.inplaceShiftRight(op1, lsb1)
+      _BitLevel.inplaceShiftRight(op2, lsb2)
       if op1.compareTo(op2) == BigInteger.GREATER { swap(&op1, &op2) }
       repeat {
         if op2.numberLength == 1
@@ -230,12 +231,12 @@ extension java.math {
         if Double(op2.numberLength) > Double(op1.numberLength) * 1.2 {
           op2 = try! op2.remainder(op1)
           if op2.signum() != 0 {
-            BitLevel.inplaceShiftRight(op2, op2.getLowestSetBit())
+            _BitLevel.inplaceShiftRight(op2, op2.getLowestSetBit())
           }
         } else {
           repeat {
-            Elementary.inplaceSubtract(op2, op1)
-            BitLevel.inplaceShiftRight(op2, op2.getLowestSetBit())
+            _Elementary.inplaceSubtract(op2, op1)
+            _BitLevel.inplaceShiftRight(op2, op2.getLowestSetBit())
           } while op2.compareTo(op1) >= BigInteger.EQUALS
         }
         swap(&op1, &op2)
@@ -283,40 +284,41 @@ extension java.math {
       let lsbv = v.getLowestSetBit()
 
       if lsbu > lsbv {
-        BitLevel.inplaceShiftRight(u, lsbu)
-        BitLevel.inplaceShiftRight(v, lsbv)
-        BitLevel.inplaceShiftLeft(r, lsbv)
+        _BitLevel.inplaceShiftRight(u, lsbu)
+        _BitLevel.inplaceShiftRight(v, lsbv)
+        _BitLevel.inplaceShiftLeft(r, lsbv)
         k += lsbu - lsbv
-      } else {
-        BitLevel.inplaceShiftRight(u, lsbu)
-        BitLevel.inplaceShiftRight(v, lsbv)
-        BitLevel.inplaceShiftLeft(s, lsbu)
+      }
+      else {
+        _BitLevel.inplaceShiftRight(u, lsbu)
+        _BitLevel.inplaceShiftRight(v, lsbv)
+        _BitLevel.inplaceShiftLeft(s, lsbu)
         k += lsbv - lsbu
       }
       r.sign = 1
 
       while v.signum() > 0 {
         while u.compareTo(v) > BigInteger.EQUALS {
-          Elementary.inplaceSubtract(u, v)
+          _Elementary.inplaceSubtract(u, v)
           let toShift = u.getLowestSetBit()
-          BitLevel.inplaceShiftRight(u, toShift)
-          Elementary.inplaceAdd(r, s)
-          BitLevel.inplaceShiftLeft(s, toShift)
+          _BitLevel.inplaceShiftRight(u, toShift)
+          _Elementary.inplaceAdd(r, s)
+          _BitLevel.inplaceShiftLeft(s, toShift)
           k += toShift
         }
         while u.compareTo(v) <= BigInteger.EQUALS {
-          Elementary.inplaceSubtract(v, u)
+          _Elementary.inplaceSubtract(v, u)
           if v.signum() == 0 { break }
           let toShift = v.getLowestSetBit()
-          BitLevel.inplaceShiftRight(v, toShift)
-          Elementary.inplaceAdd(s, r)
-          BitLevel.inplaceShiftLeft(r, toShift)
+          _BitLevel.inplaceShiftRight(v, toShift)
+          _Elementary.inplaceAdd(s, r)
+          _BitLevel.inplaceShiftLeft(r, toShift)
           k += toShift
         }
       }
       if !u.isOne() { throw ArithmeticException("BigInteger not invertible.") }
       var result = r.compareTo(p) >= BigInteger.EQUALS
-        ? { Elementary.inplaceSubtract(r, p); return r }()
+        ? { _Elementary.inplaceSubtract(r, p); return r }()
         : r
       result = p.subtract(result)
 
@@ -347,7 +349,9 @@ extension java.math {
       var i = exponent.bitLength() - 1
       while i >= 0 {
         res = monPro(res, res, modulus, n2)
-        if BitLevel.testBit(exponent, i) { res = monPro(res, a2, modulus, n2) }
+        if _BitLevel.testBit(exponent, i) {
+          res = monPro(res, a2, modulus, n2)
+        }
         i -= 1
       }
       return res
@@ -394,11 +398,11 @@ extension java.math {
 
       var i = exponent.bitLength() - 1
       while i >= 0 {
-        if BitLevel.testBit(exponent, i) {
+        if _BitLevel.testBit(exponent, i) {
           var lowexp = 1, acc3 = i
           let jMin = Swift.max(i - 3, 0)
           for j in jMin..<i {
-            if BitLevel.testBit(exponent, j) {
+            if _BitLevel.testBit(exponent, j) {
               if j < acc3 {
                 acc3 = j; lowexp = (lowexp << (i - j)) ^ 1
               } else {
@@ -453,7 +457,7 @@ extension java.math {
         let res2 = res.copy()
         inplaceModPow2(res2, j)
         res = res.multiply(res2)
-        if BitLevel.testBit(e, i) {
+        if _BitLevel.testBit(e, i) {
           res = res.multiply(baseMod)
           inplaceModPow2(res, j)
         }
@@ -469,9 +473,9 @@ extension java.math {
       var outerCarry: Int64 = 0
       for i in 0..<modulusLen {
         var innerCarry: Int64 = 0
-        let m = Int(truncatingIfNeeded: Multiplication.unsignedMultAddAdd(res[i], n2, 0, 0))
+        let m = Int(truncatingIfNeeded: _Multiplication.unsignedMultAddAdd(res[i], n2, 0, 0))
         for j in 0..<modulusLen {
-          innerCarry = Multiplication.unsignedMultAddAdd(m, modulusDigits[j], res[i + j], Int(truncatingIfNeeded: innerCarry))
+          innerCarry = _Multiplication.unsignedMultAddAdd(m, modulusDigits[j], res[i + j], Int(truncatingIfNeeded: innerCarry))
           res[i + j] = Int(truncatingIfNeeded: innerCarry)
           innerCarry = Int64(bitPattern: UInt64(bitPattern: innerCarry) >> 32)
         }
@@ -487,7 +491,7 @@ extension java.math {
                         _ modulus: BigInteger, _ n2: Int) -> BigInteger {
       let modulusLen = modulus.numberLength
       var res = [Int](repeating: 0, count: (modulusLen << 1) + 1)
-      Multiplication.multArraysPAP(a.digits, Swift.min(modulusLen, a.numberLength),
+      _Multiplication.multArraysPAP(a.digits, Swift.min(modulusLen, a.numberLength),
                                    b.digits, Swift.min(modulusLen, b.numberLength), &res)
       monReduction(&res, modulus, n2)
       return finalSubtraction(&res, modulus)
@@ -509,7 +513,9 @@ extension java.math {
         }
       }
       let result = BigInteger(1, modulusLen + 1, res)
-      if doSub { Elementary.inplaceSubtract(result, modulus) }
+      if doSub {
+        _Elementary.inplaceSubtract(result, modulus)
+      }
       result.cutOffLeadingZeroes()
       return result
     }
@@ -520,7 +526,7 @@ extension java.math {
       y.digits[0] = 1
       y.sign = 1
       for i in 1..<n {
-        if BitLevel.testBit(x.multiply(y), i) {
+        if _BitLevel.testBit(x.multiply(y), i) {
           y.digits[i >> 5] |= (1 << (i & 31))
         }
       }

@@ -32,7 +32,8 @@ extension java.awt.Component: java.awt.peer.ComponentPeer {
     bounds = java.awt.Rectangle(x, y, width, height)
   }
 
-  /// Dispatches a legacy ``java.awt.Event`` — returns false by default.
+  /// Dispatches a legacy `java.awt.Event`.
+  /// - Returns: `false` by default
   @available(*, deprecated, message: "Java 1.0 peer API — use java.awt.event listeners for new code")
   public func handleEvent(_ e: java.awt.Event) -> Bool { false }
 

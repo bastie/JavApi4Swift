@@ -1,12 +1,12 @@
 /*
- * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com> and contributors
  * SPDX-License-Identifier: Apache-2.0
  */
 
 extension java.math {
 
   /// Static library providing basic arithmetic mutable operations for BigInteger.
-  enum Elementary {
+  struct _Elementary {
 
     // MARK: - Compare
 
@@ -90,7 +90,7 @@ extension java.math {
 
       let cmp = op1Len != op2Len
         ? (op1Len > op2Len ? 1 : -1)
-        : Elementary.compareArrays(op1.digits, op2.digits, op1Len)
+        : _Elementary.compareArrays(op1.digits, op2.digits, op1Len)
 
       let resSign: Int
       let resDigits: [Int]
