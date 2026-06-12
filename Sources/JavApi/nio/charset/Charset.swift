@@ -16,6 +16,15 @@ extension java.nio.charset {
       self.delegate = Charset.defaultCharset()
     }
     
+    public func name () -> String {
+      if #available(macOS 26.4, *) {
+        return self.delegate.ianaName ?? "unknown"
+      } else {
+        // Fallback on earlier versions
+        return "unknown"
+      }
+    }
+    
     public static func defaultCharset () -> String.Encoding {
       switch System.getProperty("file.encoding", "UTF-8").uppercased() {
       case "UTF-8" : return .utf8

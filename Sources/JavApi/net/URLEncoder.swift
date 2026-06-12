@@ -20,8 +20,8 @@ extension java.net {
   /// > RFC 3986 percent-encoding. The key difference is that spaces become `+`, not `%20`.
   /// > Use `Foundation.URL` percent-encoding APIs when you need RFC 3986 compliance.
   ///
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
-  public final class URLEncoder {
+  /// - Since: Java 1.0
+  public struct URLEncoder {
 
     /// `URLEncoder` cannot be instantiated.
     private init() {}
@@ -34,15 +34,27 @@ extension java.net {
       charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_-.*"
     )
 
-    /// Encodes a string using the UTF-8 charset.
+    /// Encodes a string using the default UTF-8 charset.
     ///
     /// This is equivalent to Java 1.4's `URLEncoder.encode(String, "UTF-8")`.
     ///
     /// - Parameter s: The string to encode.
     /// - Returns: The encoded string.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
+    @available(*, deprecated, renamed: "URLEncoder.encode(_:_:)", message: "use encode (string, \"UTF-8\") instead")
     public static func encode(_ s: String) -> String {
-      return encode(s, "UTF-8")
+      return try! encode(s, "UTF-8") /// UTF-8 exists, so we use `try!`
+    }
+    
+    /// - Since: Java 10
+    /// - Note: Java throws `NullPointerException` but we can use non-optional parameters
+    public static func encode (_ s: String, _ charset: java.nio.charset.Charset) -> String {
+      do {
+        return try URLEncoder.encode(s, charset.name())
+      }
+      catch {
+        return try! URLEncoder.encode(s, "UTF-8")
+      }
     }
 
     /// Encodes a string using the specified charset name.
@@ -54,13 +66,17 @@ extension java.net {
     ///   - s: The string to encode.
     ///   - enc: The charset name (e.g. `"UTF-8"`).
     /// - Returns: The encoded string.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
-    public static func encode(_ s: String, _ enc: String) -> String {
+    /// - Since: Java 1.4
+    public static func encode(_ s: String, _ enc: String) throws -> String {
       // Replace spaces with '+' first (application/x-www-form-urlencoded)
       // then percent-encode everything else that isn't unreserved.
       var result = ""
       result.reserveCapacity(s.count)
 
+      // TODO: accept all implemented encodings
+      guard enc.uppercased() == "UTF-8" || enc.uppercased() == "US-ASCII" else {
+        throw java.io.UnsupportedEncodingException("\(enc) is not supported")
+      }
       let encoding: String.Encoding = enc.uppercased() == "US-ASCII" ? .ascii : .utf8
 
       for char in s.unicodeScalars {

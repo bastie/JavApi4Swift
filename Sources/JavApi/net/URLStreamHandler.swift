@@ -38,7 +38,7 @@ extension java.net {
     ///   - start: Index in `spec` at which parsing should begin.
     ///   - limit: Index in `spec` at which parsing should stop (exclusive).
     /// - Returns: A new ``URL`` parsed from the substring, or `nil` if unparseable.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func parseURL(_ u: java.net.URL, _ spec: String, _ start: Int, _ limit: Int) -> java.net.URL? {
       let sub = String(spec[spec.index(spec.startIndex, offsetBy: start)..<spec.index(spec.startIndex, offsetBy: limit)])
       return try? java.net.URL(sub)
@@ -49,7 +49,7 @@ extension java.net {
     /// The default implementation builds the string from the URL's components.
     ///
     /// - Parameter u: The URL to convert.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func toExternalForm(_ u: java.net.URL) -> String {
       var result = u.getProtocol() + ":"
       let host = u.getHost()
