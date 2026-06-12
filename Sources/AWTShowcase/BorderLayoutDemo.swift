@@ -32,7 +32,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     setLayout (java.awt.BorderLayout(0, 0))
 
     // NORTH — volle Breite, 44px hoch
-    let north = java.awt.Label("NORTH", java.awt.Label.CENTER)
+    let north = try! java.awt.Label("NORTH", java.awt.Label.CENTER)
     north.setBackgroundColor(.blue)
     north.setForegroundColor(.white)
     north.setPreferredSize(java.awt.Dimension(width, 44))
@@ -44,7 +44,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     let south = java.awt.Panel(java.awt.BorderLayout(0, 0))
     south.setBackgroundColor(java.awt.Color(180, 0, 0))
     south.setPreferredSize(java.awt.Dimension(width, 44))
-    let southLbl = java.awt.Label("SOUTH", java.awt.Label.CENTER)
+    let southLbl = try! java.awt.Label("SOUTH", java.awt.Label.CENTER)
     southLbl.setBackgroundColor(java.awt.Color(180, 0, 0))
     southLbl.setForegroundColor(.white)
     south.add(southLbl, java.awt.BorderLayout.CENTER)
@@ -55,14 +55,14 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     add(south, java.awt.BorderLayout.SOUTH)
 
     // WEST — 80px breit, Höhe vom BorderLayout bestimmt
-    let west = java.awt.Label("WEST", java.awt.Label.CENTER)
+    let west = try! java.awt.Label("WEST", java.awt.Label.CENTER)
     west.setBackgroundColor(java.awt.Color(0, 140, 0))
     west.setForegroundColor(.white)
     west.setPreferredSize(java.awt.Dimension(80, 212))
     add(west, java.awt.BorderLayout.WEST)
 
     // EAST — 80px breit
-    let east = java.awt.Label("EAST", java.awt.Label.CENTER)
+    let east = try! java.awt.Label("EAST", java.awt.Label.CENTER)
     east.setBackgroundColor(java.awt.Color(120, 0, 180))
     east.setForegroundColor(.white)
     east.setPreferredSize(java.awt.Dimension(80, 212))
@@ -70,7 +70,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
 
     // CENTER — füllt den gesamten verbleibenden Platz.
     // Java-1.4-Aliases: PAGE_START=NORTH, PAGE_END=SOUTH, LINE_START=WEST, LINE_END=EAST
-    let center = java.awt.Label("CENTER", java.awt.Label.CENTER)
+    let center = try! java.awt.Label("CENTER", java.awt.Label.CENTER)
     center.setBackgroundColor(java.awt.SystemColor.control)
     center.setForegroundColor(java.awt.SystemColor.controlText)
     add(center, java.awt.BorderLayout.CENTER)

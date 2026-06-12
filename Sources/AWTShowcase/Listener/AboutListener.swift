@@ -27,7 +27,7 @@ final class AboutListener: java.awt.event.ActionListener {
     dialog.add(logo, java.awt.BorderLayout.NORTH)
     
     // Text center
-    let info = java.awt.Label ("JavApi⁴Swift  •  Java AWT 4 Swift", java.awt.Label.CENTER)
+    let info = try! java.awt.Label ("JavApi⁴Swift  •  Java AWT 4 Swift", java.awt.Label.CENTER)
     info.setPreferredSize (java.awt.Dimension(320, 40))
     dialog.add (info, java.awt.BorderLayout.CENTER)
     

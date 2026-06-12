@@ -17,9 +17,9 @@ extension java.awt {
     public static let SCALE_REPLICATE  = 8
     public static let SCALE_AREA_AVERAGING = 16
 
-    /// Breite in Pixeln, oder -1 wenn noch nicht bekannt.
+    /// width in pixel or -1 if unknonw
     open func getWidth(_ observer: ImageObserver? = nil) -> Int  { -1 }
-    /// Höhe in Pixeln, oder -1 wenn noch nicht bekannt.
+    /// height in pixel or -1 if unknonw
     open func getHeight(_ observer: ImageObserver? = nil) -> Int { -1 }
 
     /// - Returns: the `ImageProducer` that produces the pixels for this image.
@@ -50,7 +50,7 @@ extension java.awt {
       return nil
     }
 
-    /// Gibt Ressourcen frei.
+    /// free ressources
     open func flush() {}
   }
 }

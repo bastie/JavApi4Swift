@@ -3,6 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 extension java {
-  /// The namespace of utility types
+  /// The namespace of abstract window toolkit types
   public enum awt{}
 }

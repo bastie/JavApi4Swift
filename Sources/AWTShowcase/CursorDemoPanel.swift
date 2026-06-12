@@ -30,7 +30,7 @@ final class CursorDemoPanel: java.awt.Panel {
   private let nameLabel: java.awt.Label
   
   override init() {
-    nameLabel = java.awt.Label("Cursor: DEFAULT", java.awt.Label.CENTER)
+    nameLabel = try! java.awt.Label("Cursor: DEFAULT", java.awt.Label.CENTER)
     super.init()
     setLayout(java.awt.BorderLayout())
     

@@ -30,7 +30,7 @@ final class FlowLayoutDemoDialog: java.awt.Dialog {
     setLayout (java.awt.BorderLayout())
 
     // Titel
-    let title = java.awt.Label ("FlowLayout — LEFT / CENTER / RIGHT", java.awt.Label.CENTER)
+    let title = try! java.awt.Label ("FlowLayout — LEFT / CENTER / RIGHT", java.awt.Label.CENTER)
     title.setPreferredSize (java.awt.Dimension(width, 28))
     add (title, java.awt.BorderLayout.NORTH)
 
@@ -47,7 +47,7 @@ final class FlowLayoutDemoDialog: java.awt.Dialog {
       row.setBackgroundColor(java.awt.SystemColor.control)
 
       // Beschriftung der Zeile
-      let info = java.awt.Label ("\(label):", java.awt.Label.LEFT)
+      let info = try! java.awt.Label ("\(label):", java.awt.Label.LEFT)
       info.setPreferredSize (java.awt.Dimension(60, 24))
       row.add (info)
 

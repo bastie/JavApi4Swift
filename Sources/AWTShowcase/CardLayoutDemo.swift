@@ -26,9 +26,7 @@ final class CardLayoutDemoDialog: java.awt.Dialog {
     setLayout(java.awt.BorderLayout())
 
     // Titel-Label
-    let title = java.awt.Label(
-      "CardLayout — 3 Karten, umschaltbar per ◀ ▶",
-      java.awt.Label.CENTER)
+    let title = try!java.awt.Label("CardLayout — 3 Karten, umschaltbar per ◀ ▶", java.awt.Label.CENTER)
     title.setPreferredSize(java.awt.Dimension(W, 28))
     add(title, java.awt.BorderLayout.NORTH)
 

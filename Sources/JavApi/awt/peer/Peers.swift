@@ -65,12 +65,6 @@ extension java.awt.peer {
   }
 
   /// - Since: Java 1.0
-  public protocol LabelPeer: ComponentPeer {
-    func setText(_ text: String)
-    func setAlignment(_ alignment: Int)
-  }
-
-  /// - Since: Java 1.0
   public protocol CheckboxPeer: ComponentPeer {
     func setState(_ state: Bool)
     func setCheckboxGroup(_ g: java.awt.CheckboxGroup?)

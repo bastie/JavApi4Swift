@@ -84,12 +84,6 @@ extension java.awt.Button: java.awt.peer.ButtonPeer {
   // setLabel(_ label: String) already exists on Button
 }
 
-// MARK: - Label → LabelPeer
-
-extension java.awt.Label: java.awt.peer.LabelPeer {
-  // setText(_ text: String) and setAlignment(_ alignment: Int) already exist on Label
-}
-
 // MARK: - Checkbox → CheckboxPeer
 
 extension java.awt.Checkbox: java.awt.peer.CheckboxPeer {

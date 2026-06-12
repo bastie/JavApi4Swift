@@ -35,8 +35,7 @@ struct AWTShowcaseApp {
     let centerH   = height - northH - southH
     
     // ── NORTH: title label ───────────────────────────────────────────────────
-    let title = java.awt.Label(
-      "Panel · Canvas · Button · Checkbox · TextField · Label · TextArea · Scrollbar · ScrollPane · Choice · List", java.awt.Label.CENTER)
+    let title = try! java.awt.Label("Panel · Canvas · Button · Checkbox · TextField · Label · TextArea · Scrollbar · ScrollPane · Choice · List", java.awt.Label.CENTER)
     title.setPreferredSize(java.awt.Dimension(width, northH))
     title.setMinimumSize(java.awt.Dimension(200, 30))
     frame.add(title, java.awt.BorderLayout.NORTH)

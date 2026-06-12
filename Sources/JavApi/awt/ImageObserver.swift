@@ -17,7 +17,7 @@ extension java.awt {
 }
 
 extension java.awt.ImageObserver {
-  // Flags (als Konstanten nutzbar ohne Instanz)
+  // Flags 
   public static var WIDTH:      Int { 1 }
   public static var HEIGHT:     Int { 2 }
   public static var PROPERTIES: Int { 4 }

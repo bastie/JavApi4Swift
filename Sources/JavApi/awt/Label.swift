@@ -22,11 +22,11 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     /// Align text to the left edge of the label.
-    public static let LEFT   = 0
+    public static let LEFT   = LabelAlignment.LEFT.rawValue
     /// Align text centred within the label.
-    public static let CENTER = 1
+    public static let CENTER = LabelAlignment.CENTER.rawValue
     /// Align text to the right edge of the label.
-    public static let RIGHT  = 2
+    public static let RIGHT  = LabelAlignment.RIGHT.rawValue
 
     // -------------------------------------------------------------------------
     // MARK: Properties
@@ -58,7 +58,10 @@ extension java.awt {
     /// - Parameters:
     ///   - text:      The text to display.
     ///   - alignment: `Label.LEFT`, `Label.CENTER`, or `Label.RIGHT`.
-    public init(_ text: String, _ alignment: Int) {
+    public init(_ text: String, _ alignment: Int) throws {
+      guard [0, 1, 2].contains(alignment) else {
+        throw IllegalArgumentException("Illegal alignment: \(alignment)")
+      }
       _text      = text
       _alignment = alignment
       super.init()
@@ -75,9 +78,14 @@ extension java.awt {
       repaint()
     }
 
-    public func getAlignment() -> Int { _alignment }
+    public func getAlignment() -> Int {
+      _alignment
+    }
 
-    public func setAlignment(_ alignment: Int) {
+    public func setAlignment(_ alignment: Int) throws {
+      guard [0, 1, 2].contains(alignment) else {
+        throw IllegalArgumentException("Illegal alignment: \(alignment)")
+      }
       _alignment = alignment
       repaint()
     }

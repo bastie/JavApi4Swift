@@ -28,7 +28,7 @@ final class GridLayoutDemoDialog: java.awt.Dialog {
     setLayout(java.awt.BorderLayout())
 
     // Titel-Label
-    let title = java.awt.Label( "GridLayout(2, 3, 2, 2) — 2 Zeilen × 3 Spalten, Abstand 2px", java.awt.Label.CENTER)
+    let title = try! java.awt.Label( "GridLayout(2, 3, 2, 2) — 2 Zeilen × 3 Spalten, Abstand 2px", java.awt.Label.CENTER)
     title.setPreferredSize(java.awt.Dimension(W, 28))
     add(title, java.awt.BorderLayout.NORTH)
 
@@ -56,7 +56,7 @@ final class GridLayoutDemoDialog: java.awt.Dialog {
       (.yellow,  "Gelb"),   (.cyan,    "Cyan"),  (.magenta,"Magenta")
     ]
     for (col, name) in colours {
-      let lbl = java.awt.Label(name, java.awt.Label.CENTER)
+      let lbl = try! java.awt.Label(name, java.awt.Label.CENTER)
       lbl.setBackgroundColor(col)
       lbl.setForegroundColor(.white)
       panel.add(lbl)

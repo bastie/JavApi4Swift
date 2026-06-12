@@ -18,8 +18,10 @@ extension java.awt {
   /// print(insets.top)   // → 10
   /// ```
   ///
-  /// - Since: JavaApi > 0.x (Java 1.0)
-  public class Insets: Equatable {
+  /// - Since: Java 1.0
+  public class Insets : Equatable, CustomStringConvertible {
+    public var description: String {self.toString()}
+    
 
     // -------------------------------------------------------------------------
     // MARK: Fields  (Java field names kept for porting fidelity)

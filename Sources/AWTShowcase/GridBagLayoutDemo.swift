@@ -49,21 +49,21 @@ final class GridBagDemoDialog: java.awt.Dialog {
     }
 
     // Row 0 — Name
-    let lblName = java.awt.Label ("Name:", java.awt.Label.RIGHT)
+    let lblName = try! java.awt.Label ("Name:", java.awt.Label.RIGHT)
     add (lblName, gx: 0, gy: 0)
 
     let tfName = java.awt.TextField ("Max Mustermann", columns: 20)
     add (tfName, gx: 1, gy: 0, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
     // Row 1 — Stadt
-    let lblStadt = java.awt.Label ("City:", java.awt.Label.RIGHT)
+    let lblStadt = try! java.awt.Label ("City:", java.awt.Label.RIGHT)
     add (lblStadt, gx: 0, gy: 1)
 
     let tfStadt = java.awt.TextField ("Berlin", columns: 20)
     add (tfStadt, gx: 1, gy: 1, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
     // Row 2 — Note (expandable text area)
-    let lblNotiz = java.awt.Label ("Note:", java.awt.Label.RIGHT)
+    let lblNotiz = try! java.awt.Label ("Note:", java.awt.Label.RIGHT)
     add (lblNotiz, gx: 0, gy: 2, anchor: java.awt.GridBagConstraints.NORTHEAST)
 
     let ta = java.awt.TextArea ("Hier Notizen eingeben…", 4, 20)
