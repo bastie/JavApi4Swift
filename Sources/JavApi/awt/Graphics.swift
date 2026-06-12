@@ -12,7 +12,7 @@ import CoreText
 extension java.awt {
 
   /// java.awt.Graphics — mapped auf CGContext
-  public class Graphics {
+  open class Graphics {
     internal var cgContext: CGContext
 
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
@@ -221,7 +221,7 @@ extension java.awt {
     public init() {}
   }
 
-  public class Graphics {
+  open class Graphics {
     internal var cgContext: CGContext
     public var font: java.awt.Font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
 
