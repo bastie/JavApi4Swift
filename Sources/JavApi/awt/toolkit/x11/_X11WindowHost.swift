@@ -237,6 +237,12 @@ public final class _X11WindowHost: @unchecked Sendable {
   // Button being held down — isPressed set on ButtonPress, doClick() on ButtonRelease
   @MainActor private weak var pressedButton: java.awt.Button?
   @MainActor private weak var pressedButtonWindow: java.awt.Window?
+  // Double-click detection: timestamp (ms) and position of last ButtonPress
+  @MainActor private var lastClickTime: UInt = 0
+  @MainActor private var lastClickX:    Int  = -1
+  @MainActor private var lastClickY:    Int  = -1
+  private let doubleClickIntervalMs: UInt = 400
+  private let doubleClickRadius:     Int  = 4
 
   // ---------------------------------------------------------------------------
   // MARK: Library loading
@@ -618,11 +624,47 @@ public final class _X11WindowHost: @unchecked Sendable {
       //   0: type(int/4)  8: serial(ulong/8)  16: send_event(int/4)  [+4 pad]
       //  24: display*(8) 32: window(XID/8)    40: root(XID/8)
       //  48: subwindow(XID/8)  56: time(ulong/8)  64: x(int)  68: y(int)
+      //  72: x_root(int) 76: y_root(int)  80: state(uint)  84: button(uint)
       let physClickX = Int(buf.load(fromByteOffset: 64, as: Int32.self))
       let physClickY = Int(buf.load(fromByteOffset: 68, as: Int32.self))
+      let buttonNum  = buf.load(fromByteOffset: 84, as: UInt32.self)
       // Convert physical pixels back to logical coordinates for hit testing
       let clickX = Int((Double(physClickX) / scaleFactor).rounded())
       let clickY = Int((Double(physClickY) / scaleFactor).rounded())
+      // XButtonEvent: time field at offset 56 (unsigned long)
+      let eventTime = buf.load(fromByteOffset: 56, as: UInt.self)
+
+      // ── Button 3 = right-click → PopupMenu ──────────────────────────────────
+      if buttonNum == 3 {
+        // contentY for hit-testing (below menu bar); clickX/clickY for popup position
+        let contentX = clickX
+        let contentY = menuBarRegistry[xwin] != nil
+                     ? clickY - _X11MenuBar.menuBarHeight : clickY
+        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow),
+           let popup = hit.popupMenu {
+          // Popup top-left corner = cursor position in window coordinates
+          _X11PopupWindow.show(menu: popup,
+                               at: clickX, y: clickY,
+                               host: self, ownerXwin: xwin,
+                               ownerWindow: awtWindow)
+        }
+        return
+      }
+
+      // ── Double-click detection (Button 1) ────────────────────────────────────
+      let isDoubleClick: Bool
+      let timeDelta = eventTime > lastClickTime ? eventTime - lastClickTime : UInt.max
+      let dx = abs(clickX - lastClickX), dy = abs(clickY - lastClickY)
+      if buttonNum == 1
+          && timeDelta < doubleClickIntervalMs
+          && dx <= doubleClickRadius && dy <= doubleClickRadius {
+        isDoubleClick = true
+      } else {
+        isDoubleClick = false
+      }
+      lastClickTime = eventTime
+      lastClickX    = clickX
+      lastClickY    = clickY
 
       // If a popup is open: check click in popup first, dismiss if outside
       if let popup = _X11PopupWindow.activePopup {
@@ -743,6 +785,11 @@ public final class _X11WindowHost: @unchecked Sendable {
           pressedButton       = btn
           pressedButtonWindow = awtWindow
           repaint(awtWindow, xwin: xwin)
+        } else if isDoubleClick, let list = hit as? java.awt.List {
+          // Double-click on List fires actionPerformed (same as GDI onDoubleClick)
+          if let idx = list.itemIndex(atY: contentY) {
+            list.fireActionEvent(index: idx)
+          }
         } else {
           _AWTHitTest.dispatch(click: hit ?? awtWindow)
         }
