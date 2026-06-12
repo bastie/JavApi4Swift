@@ -267,6 +267,10 @@ extension java.awt {
     /// - Since: JavaApi > 0.19.1 (Java 1.1)
     open func showPopupMenu(_ menu: PopupMenu, origin: Component, x: Int, y: Int) {}
 
+    /// Requests a repaint of the window that contains `window`.
+    /// Called by `Component.repaint()` to propagate repaint requests to the platform layer.
+    open func repaint(_ window: Window) {}
+
     // -------------------------------------------------------------------------
     // MARK: Focus
     // -------------------------------------------------------------------------

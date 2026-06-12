@@ -53,11 +53,12 @@ extension java.awt {
       if notifyGroup && s, let g = checkboxGroup {
         g.checkboxSelected(self)
       }
+      repaint()
       fireItemEvent()
     }
 
     public func getLabel() -> String     { label }
-    public func setLabel(_ l: String)    { label = l }
+    public func setLabel(_ l: String)    { label = l; repaint() }
 
     public func getCheckboxGroup() -> CheckboxGroup? { checkboxGroup }
     public func setCheckboxGroup(_ g: CheckboxGroup?) {

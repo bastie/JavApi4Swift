@@ -83,6 +83,10 @@ extension java.awt.toolkit.x11 {
                            ownerWindow: nil)
     }
 
+    public override func repaint(_ window: java.awt.Window) {
+      _X11WindowHost.shared.repaintWindow(window)
+    }
+
     public override func isFocusOwner(_ component: java.awt.Component) -> Bool {
       return _X11FocusManager.shared.focusOwner === component
     }

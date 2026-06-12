@@ -77,10 +77,19 @@ private typealias XSetForegroundFunc        = @convention(c) (X11DisplayPtr, Uns
 private typealias XResizeWindowFunc         = @convention(c) (X11DisplayPtr, X11WindowID, UInt32, UInt32) -> Int32
 private typealias XMoveResizeWindowFunc     = @convention(c) (X11DisplayPtr, X11WindowID, Int32, Int32, UInt32, UInt32) -> Int32
 private typealias XGetDefaultFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>, UnsafePointer<CChar>) -> UnsafePointer<CChar>?
+// XLookupString: translates a key event to a string + keysym
+// XKeyEvent* is passed as raw pointer; keysym_return is UnsafeMutablePointer<UInt>?
+private typealias XLookupStringFunc         = @convention(c) (UnsafeMutableRawPointer, UnsafeMutablePointer<CChar>?, Int32, UnsafeMutablePointer<UInt>?, UnsafeMutableRawPointer?) -> Int32
+// Cursor functions
+private typealias XCreateFontCursorFunc     = @convention(c) (X11DisplayPtr, UInt32) -> UInt   // returns Cursor (XID)
+private typealias XDefineCursorFunc         = @convention(c) (X11DisplayPtr, X11WindowID, UInt) -> Int32
+private typealias XUndefineCursorFunc       = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
+private typealias XFreeCursorFunc           = @convention(c) (X11DisplayPtr, UInt) -> Int32
 
 // X11 event type constants (from X.h)
 private let X11_ExposureMask:        CLong = 1 << 15
 private let X11_KeyPressMask:        CLong = 1 << 0
+private let X11_KeyReleaseMask:      CLong = 1 << 1
 private let X11_ButtonPressMask:     CLong = 1 << 2
 private let X11_ButtonReleaseMask:   CLong = 1 << 3
 private let X11_PointerMotionMask:   CLong = 1 << 6
@@ -94,6 +103,38 @@ private let X11_MotionNotify:    Int32 = 6
 private let X11_ConfigureNotify: Int32 = 22
 private let X11_ClientMessage:   Int32 = 33
 private let X11_DestroyNotify:   Int32 = 17
+
+// XK keysym constants (from keysymdef.h) for special keys
+private let XK_BackSpace: UInt = 0xFF08
+private let XK_Tab:       UInt = 0xFF09
+private let XK_Return:    UInt = 0xFF0D
+private let XK_Delete:    UInt = 0xFFFF
+private let XK_Left:      UInt = 0xFF51
+private let XK_Up:        UInt = 0xFF52
+private let XK_Right:     UInt = 0xFF53
+private let XK_Down:      UInt = 0xFF54
+private let XK_Home:      UInt = 0xFF50
+private let XK_End:       UInt = 0xFF57
+
+// X11 modifier mask bits (from X.h)
+private let X11_ShiftMask:   UInt32 = 1 << 0
+private let X11_ControlMask: UInt32 = 1 << 2
+
+// X Font Cursor shapes (from cursorfont.h)
+private let XC_xterm:         UInt32 = 152
+private let XC_left_ptr:      UInt32 = 68
+private let XC_crosshair:     UInt32 = 34
+private let XC_watch:         UInt32 = 150
+private let XC_hand2:         UInt32 = 60
+private let XC_fleur:         UInt32 = 52   // move
+private let XC_top_side:      UInt32 = 138  // N resize
+private let XC_bottom_side:   UInt32 = 16   // S resize
+private let XC_right_side:    UInt32 = 96   // E resize
+private let XC_left_side:     UInt32 = 70   // W resize
+private let XC_top_right_corner:    UInt32 = 136  // NE
+private let XC_top_left_corner:     UInt32 = 134  // NW
+private let XC_bottom_right_corner: UInt32 = 14   // SE
+private let XC_bottom_left_corner:  UInt32 = 12   // SW
 
 // XEvent buffer size — 192 bytes on x86_64, use 512 for safety on all archs
 private let X11EventBufferSize = 512
@@ -159,6 +200,14 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnChangeProperty:    XChangePropertyFunc?
   private var fnSetWMProtocols:    XSetWMProtocolsFunc?
   private var fnGetDefault:        XGetDefaultFunc?
+  private var fnLookupString:      XLookupStringFunc?
+  private var fnCreateFontCursor:  XCreateFontCursorFunc?
+  private var fnDefineCursor:      XDefineCursorFunc?
+  private var fnUndefineCursor:    XUndefineCursorFunc?
+  private var fnFreeCursor:        XFreeCursorFunc?
+
+  // Cursor cache: AWT cursor type → X11 Cursor XID
+  private var cursorCache: [Int: UInt] = [:]
 
   // Cached atoms
   private var atomWMDeleteWindow: UInt = 0
@@ -240,6 +289,11 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnChangeProperty     = resolve("XChangeProperty",     as: XChangePropertyFunc.self)
     fnSetWMProtocols     = resolve("XSetWMProtocols",     as: XSetWMProtocolsFunc.self)
     fnGetDefault         = resolve("XGetDefault",         as: XGetDefaultFunc.self)
+    fnLookupString       = resolve("XLookupString",       as: XLookupStringFunc.self)
+    fnCreateFontCursor   = resolve("XCreateFontCursor",   as: XCreateFontCursorFunc.self)
+    fnDefineCursor       = resolve("XDefineCursor",       as: XDefineCursorFunc.self)
+    fnUndefineCursor     = resolve("XUndefineCursor",     as: XUndefineCursorFunc.self)
+    fnFreeCursor         = resolve("XFreeCursor",         as: XFreeCursorFunc.self)
   }
 
   // ---------------------------------------------------------------------------
@@ -754,7 +808,9 @@ public final class _X11WindowHost: @unchecked Sendable {
           needsRepaint = true
         }
       }
-      // Menu bar hover highlight — update hoveredMenu and repaint if changed
+      // Menu bar hover highlight — update hoveredMenu and repaint if changed.
+      // If another menu is already open and the pointer moves over a different
+      // menu title, switch immediately (standard menu-bar hot-tracking behaviour).
       if let menuBarHelper = menuBarRegistry[xwin] {
         let newHover: java.awt.Menu? = my < _X11MenuBar.menuBarHeight
           ? menuBarHelper.menu(at: mx, y: my)
@@ -763,12 +819,78 @@ public final class _X11WindowHost: @unchecked Sendable {
           menuBarHelper.hoveredMenu = newHover
           needsRepaint = true
         }
+        // Hot-track: if a menu is open and pointer moves to another menu title, switch
+        if let open = menuBarHelper.openMenu,
+           let hovered = newHover,
+           hovered !== open {
+          // Close old popup, open new one
+          _X11PopupWindow.activePopup?.dismiss(repaint: false)
+          menuBarHelper.openMenu = hovered
+          if let rect = menuBarHelper.menuRects.first(where: { $0.menu === hovered })?.rect {
+            _X11PopupWindow.show(menu: hovered,
+                                 at: rect.x, y: _X11MenuBar.menuBarHeight,
+                                 host: self, ownerXwin: xwin,
+                                 ownerWindow: awtWindow)
+          }
+          needsRepaint = true
+        }
       }
+      // Update cursor based on component under pointer
+      let hitForCursor = _AWTHitTest.find(x: mx, y: contentMY, in: awtWindow)
+      updateCursor(for: hitForCursor, xwin: xwin)
+
       if needsRepaint { repaint(awtWindow, xwin: xwin) }
 
     case X11_KeyPress:
-      // Minimal key handling — full implementation needs XLookupString
-      break
+      // XKeyEvent layout (64-bit Linux, same header as XButtonEvent):
+      //  0:type(4) 8:serial(8) 16:send_event(4)[+4pad] 24:display*(8)
+      //  32:window(8) 40:root(8) 48:subwindow(8) 56:time(8)
+      //  64:x(4) 68:y(4) 72:x_root(4) 76:y_root(4)
+      //  80:state(4=modifiers) 84:keycode(4) 88:same_screen(4)
+      let state = buf.load(fromByteOffset: 80, as: UInt32.self)
+      let isCtrl  = (state & X11_ControlMask) != 0
+      let isShift = (state & X11_ShiftMask)   != 0
+
+      // XLookupString fills a char buffer and returns the keysym
+      var keysym: UInt = 0
+      var charBuf = [CChar](repeating: 0, count: 16)
+      let nChars: Int32
+      if let fn = fnLookupString {
+        nChars = fn(buf, &charBuf, Int32(charBuf.count), &keysym, nil)
+      } else {
+        nChars = 0
+      }
+
+      let fm = _X11FocusManager.shared
+      switch keysym {
+      case XK_BackSpace:                    fm.handleBackspace();                          repaint(awtWindow, xwin: xwin)
+      case XK_Delete:                       fm.handleDelete();                             repaint(awtWindow, xwin: xwin)
+      case XK_Return:                       fm.handleEnter();                              repaint(awtWindow, xwin: xwin)
+      case XK_Left  where isCtrl:           fm.moveCaretToEnd(end: false, extending: isShift); repaint(awtWindow, xwin: xwin)
+      case XK_Left:                         fm.moveCaret(by: -1, extending: isShift);     repaint(awtWindow, xwin: xwin)
+      case XK_Right where isCtrl:           fm.moveCaretToEnd(end: true,  extending: isShift); repaint(awtWindow, xwin: xwin)
+      case XK_Right:                        fm.moveCaret(by:  1, extending: isShift);     repaint(awtWindow, xwin: xwin)
+      case XK_Up:                           fm.moveCaretUp(extending: isShift);           repaint(awtWindow, xwin: xwin)
+      case XK_Down:                         fm.moveCaretDown(extending: isShift);         repaint(awtWindow, xwin: xwin)
+      case XK_Home:                         fm.moveCaretToEnd(end: false, extending: isShift); repaint(awtWindow, xwin: xwin)
+      case XK_End:                          fm.moveCaretToEnd(end: true,  extending: isShift); repaint(awtWindow, xwin: xwin)
+      case 0x61 where isCtrl, 0x41 where isCtrl: // Ctrl+A
+        fm.selectAll();                                                                    repaint(awtWindow, xwin: xwin)
+      case 0x63 where isCtrl, 0x43 where isCtrl: // Ctrl+C
+        fm.copySelection()
+      case 0x76 where isCtrl, 0x56 where isCtrl: // Ctrl+V
+        fm.pasteText();                                                                    repaint(awtWindow, xwin: xwin)
+      case 0x78 where isCtrl, 0x58 where isCtrl: // Ctrl+X
+        fm.cutSelection();                                                                 repaint(awtWindow, xwin: xwin)
+      default:
+        // Printable character from XLookupString
+        if nChars > 0,
+           let scalar = Unicode.Scalar(charBuf[0] > 0 ? UInt32(UInt8(bitPattern: charBuf[0])) : 0),
+           scalar.value >= 32 && scalar.value != 127 {
+          fm.typeCharacter(Character(scalar))
+          repaint(awtWindow, xwin: xwin)
+        }
+      }
 
     case X11_ClientMessage:
       // XClientMessageEvent layout (64-bit Linux):
@@ -797,6 +919,64 @@ public final class _X11WindowHost: @unchecked Sendable {
   // ---------------------------------------------------------------------------
   // MARK: Rendering
   // ---------------------------------------------------------------------------
+
+  // ---------------------------------------------------------------------------
+  // MARK: Cursor
+  // ---------------------------------------------------------------------------
+
+  /// Updates the X11 cursor for `xwin` based on the component under `(x, y)`.
+  /// Walks up the parent chain for an explicit cursor, infers from component type.
+  @MainActor
+  private func updateCursor(for component: java.awt.Component?, xwin: X11WindowID) {
+    guard let dpy = display,
+          let fnDef = fnDefineCursor,
+          let fnCreate = fnCreateFontCursor else { return }
+
+    // Walk parent chain for explicit cursor
+    var current: java.awt.Component? = component
+    var awtType: Int = java.awt.Cursor.DEFAULT_CURSOR
+    while let c = current {
+      if let t = c.cursor?.type { awtType = t; break }
+      current = c.parent
+    }
+    // Infer from component type if no explicit cursor set
+    if awtType == java.awt.Cursor.DEFAULT_CURSOR {
+      if component is java.awt.TextField || component is java.awt.TextArea {
+        awtType = java.awt.Cursor.TEXT_CURSOR
+      }
+    }
+
+    // Map AWT cursor type to X font cursor shape
+    let xcShape: UInt32
+    switch awtType {
+    case java.awt.Cursor.TEXT_CURSOR:        xcShape = XC_xterm
+    case java.awt.Cursor.CROSSHAIR_CURSOR:   xcShape = XC_crosshair
+    case java.awt.Cursor.WAIT_CURSOR:        xcShape = XC_watch
+    case java.awt.Cursor.HAND_CURSOR:        xcShape = XC_hand2
+    case java.awt.Cursor.MOVE_CURSOR:        xcShape = XC_fleur
+    case java.awt.Cursor.N_RESIZE_CURSOR:    xcShape = XC_top_side
+    case java.awt.Cursor.S_RESIZE_CURSOR:    xcShape = XC_bottom_side
+    case java.awt.Cursor.E_RESIZE_CURSOR:    xcShape = XC_right_side
+    case java.awt.Cursor.W_RESIZE_CURSOR:    xcShape = XC_left_side
+    case java.awt.Cursor.NE_RESIZE_CURSOR:   xcShape = XC_top_right_corner
+    case java.awt.Cursor.NW_RESIZE_CURSOR:   xcShape = XC_top_left_corner
+    case java.awt.Cursor.SE_RESIZE_CURSOR:   xcShape = XC_bottom_right_corner
+    case java.awt.Cursor.SW_RESIZE_CURSOR:   xcShape = XC_bottom_left_corner
+    default:                                  xcShape = XC_left_ptr
+    }
+
+    // Get or create X11 cursor (cached per type)
+    let xCursor: UInt
+    if let cached = cursorCache[awtType] {
+      xCursor = cached
+    } else {
+      let created = fnCreate(dpy, xcShape)
+      cursorCache[awtType] = created
+      xCursor = created
+    }
+    _ = fnDef(dpy, xwin, xCursor)
+    _ = fnFlush?(dpy)
+  }
 
   /// Public variant called by `_X11PopupWindow` to trigger a repaint.
   @MainActor

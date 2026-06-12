@@ -35,7 +35,7 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     public func getLabel() -> String         { label }
-    public func setLabel(_ l: String)        { label = l; actionCommand = l }
+    public func setLabel(_ l: String)        { label = l; actionCommand = l; repaint() }
     public func getActionCommand() -> String { actionCommand }
     public func setActionCommand(_ cmd: String) { actionCommand = cmd }
 

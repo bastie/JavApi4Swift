@@ -239,7 +239,19 @@ extension java.awt {
 
     open func paint(_ g: java.awt.Graphics) {}
 
-    open func repaint() {}
+    open func repaint() {
+      // Walk up the parent chain to find the containing Window, then ask the
+      // toolkit to repaint it. This allows setText(), setState() etc. to trigger
+      // a visual update without the call site knowing about the platform layer.
+      var node: java.awt.Component? = self
+      while let current = node {
+        if let window = current as? java.awt.Window {
+          java.awt.Toolkit.getDefaultToolkit().repaint(window)
+          return
+        }
+        node = current.parent
+      }
+    }
 
     /// Releases resources held by this component. Subclasses (Window, Dialog) override this.
     open func dispose() {}
