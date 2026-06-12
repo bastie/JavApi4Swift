@@ -11,32 +11,33 @@ extension java {
 // types to place in default namespace like Java
 extension java.lang {
   public typealias Array = Swift.Array
+  public typealias ArrayIndexOutOfBoundsException = JavApi.ArrayIndexOutOfBoundsException
   public typealias Cloneable = JavApi.Cloneable
   public typealias Comparable = JavApi.ComparableJ
+  public typealias Compiler = JavApi.Compiler
+  public typealias Exception = JavApi.Exception
+  public typealias Error = JavApi.JError
+  public typealias Float = Swift.Float
+  public typealias Iterable = JavApi.Iterable
+  public typealias IllegalArgumentException = JavApi.IllegalArgumentException
+  public typealias IllegalStateException = JavApi.IllegalStateException
+  public typealias IllegalThreadStateException = JavApi.IllegalThreadStateException
+  public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
+  public typealias IO = JavApi.IO
+  public typealias Math = JavApi.Math
+  public typealias Number = JavApi.Number
   public typealias Runnable = JavApi.Runnable
+  public typealias RuntimeException = JavApi.RuntimeException
   public typealias System = JavApi.System
   public typealias String = Swift.String
   public typealias StringBuilder = JavApi.StringBuilder
   public typealias StringBuffer = JavApi.StringBuffer
-  public typealias Float = Swift.Float
-  public typealias Compiler = JavApi.Compiler
+  public typealias ThreadGroup = JavApi.ThreadGroup
+  public typealias Throwable = JavApi.Throwable
+  public typealias UnsupportedOperationException = JavApi.UnsupportedOperationException
   /* because SecurityManager is deprecated no typealias are provided
   public typealias SecurityManager = JavApi.SecurityManager
    */
-  public typealias ThreadGroup = JavApi.ThreadGroup
-  public typealias Math = JavApi.Math
-  public typealias Number = JavApi.Number
-  public typealias Iterable = JavApi.Iterable
-  public typealias Throwable = JavApi.Throwable
-  public typealias Exception = JavApi.Exception
-  public typealias Error = JavApi.JError
-  public typealias RuntimeException = JavApi.RuntimeException
-  public typealias IllegalArgumentException = JavApi.IllegalArgumentException
-  public typealias IllegalStateException = JavApi.IllegalStateException
-  public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
-  public typealias ArrayIndexOutOfBoundsException = JavApi.ArrayIndexOutOfBoundsException
-  public typealias UnsupportedOperationException = JavApi.UnsupportedOperationException
-  public typealias IllegalThreadStateException = JavApi.IllegalThreadStateException
 }
 
 /// This type alias provides the byte keyword with UInt8 as data type
