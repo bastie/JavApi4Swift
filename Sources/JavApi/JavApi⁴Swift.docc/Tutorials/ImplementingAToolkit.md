@@ -507,6 +507,72 @@ open override func processWindowEvent(_ e: java.awt.event.WindowEvent) {
 
 > **Do not add a default `WindowListener` to `Dialog`.** Overriding `processWindowEvent` is the correct Java AWT pattern and ensures subclasses that want different behaviour (e.g. confirmation dialogs) can override it without removing a listener.
 
+### Dialog and Frame window titles on X11
+
+When creating an X11 window, set the title for both `Frame` and `Dialog` — not just `Frame`. A common mistake is to cast `awtWindow as? Frame` and use `""` as fallback, which leaves all dialog windows untitled:
+
+```swift
+// WRONG — Dialog titles are always empty:
+let title = (awtWindow as? java.awt.Frame)?.getTitle() ?? ""
+
+// CORRECT — check both:
+let title: String
+if let frame = awtWindow as? java.awt.Frame {
+    title = frame.getTitle()
+} else if let dialog = awtWindow as? java.awt.Dialog {
+    title = dialog.getTitle()
+} else {
+    title = ""
+}
+```
+
+Set the title via both `XStoreName` (Latin-1 fallback for older WMs) and `_NET_WM_NAME` (UTF-8, required for non-ASCII titles and modern window managers).
+
+### Menu bar hover highlight on X11
+
+A drawn X11 menu bar should highlight the title under the mouse pointer — matching the behaviour of native menu bars on macOS and Windows. The implementation mirrors the popup-window hover pattern already used for open popup menus.
+
+Add a `hoveredMenu` property alongside `openMenu` in your menu-bar helper:
+
+```swift
+var openMenu:   java.awt.Menu? = nil   // menu currently shown as open
+var hoveredMenu: java.awt.Menu? = nil  // menu title under the pointer (no popup open)
+```
+
+In `MotionNotify`, update `hoveredMenu` and trigger a repaint when it changes:
+
+```swift
+if let menuBarHelper = menuBarRegistry[xwin] {
+    let newHover: java.awt.Menu? = my < _X11MenuBar.menuBarHeight
+        ? menuBarHelper.menu(at: mx, y: my)
+        : nil
+    if newHover !== menuBarHelper.hoveredMenu {
+        menuBarHelper.hoveredMenu = newHover
+        needsRepaint = true
+    }
+}
+```
+
+The hover is reset automatically: when the pointer moves below `menuBarHeight`, `newHover` becomes `nil` and the bar repaints with the normal background.
+
+In `draw`, apply `controlHighlight` for hover and `textHighlight` for the open menu — and suppress hover when a menu is already open (the open highlight takes precedence):
+
+```swift
+let isOpen    = openMenu    != nil && openMenu    === menu
+let isHovered = hoveredMenu != nil && hoveredMenu === menu && openMenu == nil
+if isOpen {
+    g.setColor(SystemColor.textHighlight)
+    g.fillRect(rect.x, rect.y, rect.width, rect.height - 1)
+    g.setColor(SystemColor.textHighlightText)
+} else if isHovered {
+    g.setColor(SystemColor.controlHighlight)
+    g.fillRect(rect.x, rect.y, rect.width, rect.height - 1)
+    g.setColor(SystemColor.menuText)
+} else {
+    g.setColor(SystemColor.menuText)
+}
+```
+
 ### Scrollbar and ScrollPane arrow buttons
 
 When a user clicks an arrow button on a `Scrollbar` or `ScrollPane`, the correct Java AWT behaviour is to scroll by `unitIncrement` (default 1 for `Scrollbar`, `scrollbarSize` pixels for `ScrollPane`) — not jump to the clicked position. In your mouse-down handler, check the arrow button rects **before** checking the thumb and track:
@@ -918,6 +984,8 @@ Before shipping your toolkit, verify these are working:
 - [ ] X11 drawn menu bar: `applyClip` adds `originX`/`originY` to clip coordinates before scaling (same as all other draw calls)
 - [ ] `Dialog.processWindowEvent` overridden to call `dispose()` on `WINDOW_CLOSING` — makes the platform X button close the dialog without a registered `WindowListener`
 - [ ] RTLD flags (`RTLD_LAZY`, `RTLD_NOLOAD`) are written as numeric literals (`0x00001`, `0x00004`) — the Glibc symbols are inaccessible under static MUSL builds
+- [ ] Window title is set for both `Frame` and `Dialog` — not just `Frame`; uses `XStoreName` + `_NET_WM_NAME` (UTF-8)
+- [ ] Menu bar hover: `hoveredMenu` state updated in `MotionNotify`; repaint triggered on change; hover suppressed when a menu is open; pointer leaving the bar resets hover automatically
 
 ## Reference implementations
 

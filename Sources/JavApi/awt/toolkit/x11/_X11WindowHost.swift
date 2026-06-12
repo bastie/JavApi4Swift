@@ -305,7 +305,14 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     // Window title — use _NET_WM_NAME (UTF-8) for full Unicode support,
     // XStoreName as Latin-1 fallback for older window managers.
-    let title = (awtWindow as? java.awt.Frame)?.getTitle() ?? ""
+    let title: String
+    if let frame = awtWindow as? java.awt.Frame {
+      title = frame.getTitle()
+    } else if let dialog = awtWindow as? java.awt.Dialog {
+      title = dialog.getTitle()
+    } else {
+      title = ""
+    }
     if let fnName = fnStoreName {
       _ = fnName(dpy, xwin, title)  // Latin-1 fallback
     }
@@ -726,6 +733,16 @@ public final class _X11WindowHost: @unchecked Sendable {
         } ?? -1
         if newIdx != popup.highlightedIndex {
           popup.highlightedIndex = newIdx
+          needsRepaint = true
+        }
+      }
+      // Menu bar hover highlight — update hoveredMenu and repaint if changed
+      if let menuBarHelper = menuBarRegistry[xwin] {
+        let newHover: java.awt.Menu? = my < _X11MenuBar.menuBarHeight
+          ? menuBarHelper.menu(at: mx, y: my)
+          : nil
+        if newHover !== menuBarHelper.hoveredMenu {
+          menuBarHelper.hoveredMenu = newHover
           needsRepaint = true
         }
       }

@@ -47,6 +47,9 @@ final class _X11MenuBar {
   /// The menu currently shown as open (highlighted).
   var openMenu: java.awt.Menu? = nil
 
+  /// The menu title currently under the mouse pointer (hover highlight).
+  var hoveredMenu: java.awt.Menu? = nil
+
   // ---------------------------------------------------------------------------
   // MARK: Init
   // ---------------------------------------------------------------------------
@@ -110,11 +113,18 @@ final class _X11MenuBar {
 
     // Menu titles
     for (menu, rect) in menuRects {
-      // Highlight open menu
-      if let open = openMenu, open === menu {
+      let isOpen    = openMenu   != nil && openMenu   === menu
+      let isHovered = hoveredMenu != nil && hoveredMenu === menu && openMenu == nil
+      if isOpen {
+        // Open menu: full highlight colour
         g.setColor(java.awt.SystemColor.textHighlight)
         g.fillRect(rect.x, rect.y, rect.width, rect.height - 1)
         g.setColor(java.awt.SystemColor.textHighlightText)
+      } else if isHovered {
+        // Hover: lighter tint — blend menu background toward highlight
+        g.setColor(java.awt.SystemColor.controlHighlight)
+        g.fillRect(rect.x, rect.y, rect.width, rect.height - 1)
+        g.setColor(java.awt.SystemColor.menuText)
       } else {
         g.setColor(java.awt.SystemColor.menuText)
       }
