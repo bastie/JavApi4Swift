@@ -5,10 +5,8 @@
 
 extension java.awt {
 
-  /// Die Menüleiste eines Fensters — mirrors `java.awt.MenuBar`.
+  /// Menubar of a `Frame`.
   ///
-  /// Wird einem Frame über `frame.setMenuBar(menuBar)` zugewiesen.
-  /// Auf macOS mappt sie auf `NSMenu.mainMenu`.
   @MainActor
   open class MenuBar: MenuComponent {
 
@@ -36,20 +34,40 @@ extension java.awt {
       menus.removeAll { $0 === menu }
     }
 
-    public func getMenu(_ index: Int) -> Menu { menus[index] }
-    public func getMenuCount() -> Int          { menus.count }
-    public func getMenus() -> [Menu]           { menus }
+    public func getMenu(_ index: Int) -> Menu {
+      menus[index]
+    }
+    
+    /// - Since: Java 1.1
+    public func getMenuCount() -> Int {
+      menus.count
+    }
+    
+    public func getMenus() -> [Menu] {
+      menus
+    }
+    
+    @available(*, deprecated, renamed: "getMenuCount", message: "replaced by getMenuCount()")
+    public func countMenus() -> Int {
+      return self.getMenuCount()
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Help-Menü (erscheint rechts, Java-Konvention)
     // -------------------------------------------------------------------------
 
     public func setHelpMenu(_ menu: Menu?) {
-      if let old = helpMenu { remove(old) }
+      if let old = helpMenu {
+        remove(old)
+      }
       helpMenu = menu
-      if let m = menu { menus.append(m) }
+      if let menu {
+        menus.append(menu)
+      }
     }
 
-    public func getHelpMenu() -> Menu? { helpMenu }
+    public func getHelpMenu() -> Menu? {
+      helpMenu
+    }
   }
 }
