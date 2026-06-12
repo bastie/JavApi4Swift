@@ -54,10 +54,40 @@ private typealias XftColorAllocValueFunc = @convention(c) (UnsafeMutableRawPoint
 // XftColorFree(Display*, Visual*, Colormap/XID, XftColor* as RawPtr)
 private typealias XftColorFreeFunc       = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
                                                             UInt, UnsafeMutableRawPointer) -> Void
+// XftTextExtentsUtf8(Display*, XftFont*, FcChar8*, int len, XGlyphInfo* out)
+private typealias XftTextExtentsUtf8Func = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
+                                                            UnsafePointer<UInt8>, Int32,
+                                                            UnsafeMutableRawPointer) -> Void
 private typealias XDefaultVisualFunc     = @convention(c) (UnsafeMutableRawPointer, Int32) -> UnsafeMutableRawPointer?
 // XDefaultColormap returns an XID (unsigned long), not a pointer
 private typealias XDefaultColormapFunc   = @convention(c) (UnsafeMutableRawPointer, Int32) -> UInt
 private typealias XDefaultScreenFunc2    = @convention(c) (UnsafeMutableRawPointer) -> Int32
+// XSetClipRectangles(Display*, GC, clip_x_origin, clip_y_origin, XRectangle[], n, ordering)
+// Sets a clip region on the GC. clip_x_origin/clip_y_origin are always 0 here because
+// we pass absolute physical coordinates in the rectangles themselves.
+// XRectangle: { x: Int16, y: Int16, width: UInt16, height: UInt16 } — 8 bytes
+private typealias XSetClipRectanglesFunc = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
+                                                            Int32, Int32,
+                                                            UnsafeRawPointer, Int32, Int32) -> Int32
+// XSetClipMask(Display*, GC, None/0) — removes the clip region (clip = entire drawable)
+private typealias XSetClipMaskFunc       = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
+
+// =============================================================================
+// MARK: X11 oval / arc / polygon type aliases
+// =============================================================================
+// XDrawArc / XFillArc(Display*, Drawable, GC, x, y, w, h, angle1*64, angle2*64)
+// Angles are in 1/64 degree units. Full circle: angle1=0, angle2=360*64.
+private typealias XDrawArcFunc           = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+                                                            Int32, Int32, UInt32, UInt32, Int32, Int32) -> Int32
+private typealias XFillArcFunc           = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+                                                            Int32, Int32, UInt32, UInt32, Int32, Int32) -> Int32
+// XDrawLines / XFillPolygon use XPoint arrays: { x: Int16, y: Int16 }
+// XDrawLines(Display*, Drawable, GC, XPoint[], npoints, CoordModeOrigin=0)
+private typealias XDrawLinesFunc         = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+                                                            UnsafeRawPointer, Int32, Int32) -> Int32
+// XFillPolygon(Display*, Drawable, GC, XPoint[], npoints, Complex=0, CoordModeOrigin=0)
+private typealias XFillPolygonFunc       = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+                                                            UnsafeRawPointer, Int32, Int32, Int32) -> Int32
 
 // XRenderColor: 4 × UInt16 = 8 bytes total.
 // Map 8-bit (0–255) → 16-bit (0–65535) by multiplying by 257 (= 0x101).
@@ -121,8 +151,9 @@ extension java.awt.toolkit.x11 {
     private var fnXftDrawDestroy:    XftDrawDestroyFunc?
     private var fnXftFontOpenName:   XftFontOpenNameFunc?
     private var fnXftFontClose:      XftFontCloseFunc?
-    private var fnXftDrawStringUtf8: XftDrawStringUtf8Func?
-    private var fnXftColorAllocValue:XftColorAllocValueFunc?
+    private var fnXftDrawStringUtf8:  XftDrawStringUtf8Func?
+    private var fnXftTextExtentsUtf8: XftTextExtentsUtf8Func?
+    private var fnXftColorAllocValue: XftColorAllocValueFunc?
     private var fnXftColorFree:      XftColorFreeFunc?
     private var fnDefaultVisual:     XDefaultVisualFunc?
     private var fnDefaultColormap:   XDefaultColormapFunc?
@@ -137,6 +168,15 @@ extension java.awt.toolkit.x11 {
     // XFontSet fallback cache
     nonisolated(unsafe) private static var sharedFontSetCache: [Int: UnsafeMutableRawPointer] = [:]
 
+    // Clip functions
+    private var fnSetClipRectangles: XSetClipRectanglesFunc?
+    private var fnSetClipMask:       XSetClipMaskFunc?
+    // Oval / arc / polygon
+    private var fnDrawArc:           XDrawArcFunc?
+    private var fnFillArc:           XFillArcFunc?
+    private var fnDrawLines:         XDrawLinesFunc?
+    private var fnFillPolygon:       XFillPolygonFunc?
+
     // Current drawing color (mirrors setColor — base class has no getColor on non-CG)
     private var currentColor:      java.awt.Color = java.awt.Color.black
     private var backgroundColor:   java.awt.Color = java.awt.Color.white
@@ -145,8 +185,12 @@ extension java.awt.toolkit.x11 {
     private var originX: Int = 0
     private var originY: Int = 0
 
-    // Save/restore stack: (originX, originY, currentColor)
-    private var saveStack: [(Int, Int, java.awt.Color)] = []
+    // Active clip rect in logical coordinates (nil = no clip / clip to everything)
+    // Stored as logical coords; converted to physical pixels when applied to the GC.
+    private var clipLogical: java.awt.Rectangle? = nil
+
+    // Save/restore stack: (originX, originY, currentColor, clipLogical)
+    private var saveStack: [(Int, Int, java.awt.Color, java.awt.Rectangle?)] = []
 
     public init(display: UnsafeMutableRawPointer,
                 drawable: UInt,
@@ -163,14 +207,12 @@ extension java.awt.toolkit.x11 {
 
     private func resolveSymbols() {
       // Works on glibc and dynamic MUSL
-      #if canImport(Glibc)
-      guard let lib = dlopen(nil, RTLD_LAZY) else { return }
-      #else
-      guard let lib = dlopen(nil, 0x00001) else {
+      // Use numeric constant — RTLD_LAZY is inaccessible under static MUSL builds.
+      let rtldLazy: CInt = 0x00001
+      guard let lib = dlopen(nil, rtldLazy) else {
         print("[X11Graphics] WARNING: dlopen() failed (may be static MUSL build).")
         return
       }
-      #endif
       func r<F>(_ sym: String) -> F? {
         guard let raw = dlsym(lib, sym) else { return nil }
         return unsafeBitCast(raw, to: F.self)
@@ -183,20 +225,22 @@ extension java.awt.toolkit.x11 {
       fnDefaultColormap = r("XDefaultColormap")
       fnDefaultScreen  = r("XDefaultScreen")
       // XFontSet fallback
-      fnCreateFontSet  = r("XCreateFontSet")
-      fnFreeFontSet    = r("XFreeFontSet")
-      fnUtf8DrawString = r("Xutf8DrawString")
+      fnCreateFontSet      = r("XCreateFontSet")
+      fnFreeFontSet        = r("XFreeFontSet")
+      fnUtf8DrawString     = r("Xutf8DrawString")
+      // Clip region
+      fnSetClipRectangles  = r("XSetClipRectangles")
+      fnSetClipMask        = r("XSetClipMask")
+      // Oval / arc / polygon
+      fnDrawArc            = r("XDrawArc")
+      fnFillArc            = r("XFillArc")
+      fnDrawLines          = r("XDrawLines")
+      fnFillPolygon        = r("XFillPolygon")
       _ = dlclose(lib)
       // Load Xft from libXft — separate library from libX11
       let xftCandidates = ["libXft.so.2", "libXft.so"]
-      let xftFlags: CInt
-      #if canImport(Glibc)
-      xftFlags = RTLD_LAZY
-      #else
-      xftFlags = 0x00001
-      #endif
       for name in xftCandidates {
-        if let xftLib = dlopen(name, xftFlags) {
+        if let xftLib = dlopen(name, rtldLazy) {
           func rx<F>(_ sym: String) -> F? {
             guard let raw = dlsym(xftLib, sym) else { return nil }
             return unsafeBitCast(raw, to: F.self)
@@ -206,6 +250,7 @@ extension java.awt.toolkit.x11 {
           fnXftFontOpenName    = rx("XftFontOpenName")
           fnXftFontClose       = rx("XftFontClose")
           fnXftDrawStringUtf8  = rx("XftDrawStringUtf8")
+          fnXftTextExtentsUtf8 = rx("XftTextExtentsUtf8")
           fnXftColorAllocValue = rx("XftColorAllocValue")
           fnXftColorFree       = rx("XftColorFree")
           // NOTE: intentionally NOT calling dlclose(xftLib) —
@@ -268,6 +313,55 @@ extension java.awt.toolkit.x11 {
                       scaledSize(width), scaledSize(height))
     }
 
+    public override func drawOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      guard width > 0 && height > 0 else { return }
+      applyColor()
+      _ = fnDrawArc?(display, drawable, gc,
+                     scaled(x + originX), scaled(y + originY),
+                     scaledSize(width), scaledSize(height),
+                     0, 360 * 64)
+    }
+
+    public override func fillOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      guard width > 0 && height > 0 else { return }
+      applyColor()
+      _ = fnFillArc?(display, drawable, gc,
+                     scaled(x + originX), scaled(y + originY),
+                     scaledSize(width), scaledSize(height),
+                     0, 360 * 64)
+    }
+
+    /// Draws a polygon outline. The last point is automatically connected back to
+    /// the first by appending the first point — matching Java AWT semantics.
+    public override func drawPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {
+      guard npoints >= 2, let fn = fnDrawLines else { return }
+      applyColor()
+      // XPoint: Int16 x, Int16 y (4 bytes each, packed)
+      // Close the polygon by repeating the first point at the end.
+      var pts = (0..<npoints).map { i -> (Int16, Int16) in
+        (Int16(truncatingIfNeeded: scaled(xpoints[i] + originX)),
+         Int16(truncatingIfNeeded: scaled(ypoints[i] + originY)))
+      }
+      pts.append(pts[0])  // close
+      pts.withUnsafeBytes { buf in
+        _ = fn(display, drawable, gc, buf.baseAddress!, Int32(pts.count), 0 /* CoordModeOrigin */)
+      }
+    }
+
+    /// Fills a polygon. Uses X11 `XFillPolygon` with `Complex` shape hint.
+    public override func fillPolygon(_ xpoints: [Int], _ ypoints: [Int], _ npoints: Int) {
+      guard npoints >= 3, let fn = fnFillPolygon else { return }
+      applyColor()
+      let pts = (0..<npoints).map { i -> (Int16, Int16) in
+        (Int16(truncatingIfNeeded: scaled(xpoints[i] + originX)),
+         Int16(truncatingIfNeeded: scaled(ypoints[i] + originY)))
+      }
+      pts.withUnsafeBytes { buf in
+        _ = fn(display, drawable, gc, buf.baseAddress!, Int32(npoints),
+               0 /* Complex */, 0 /* CoordModeOrigin */)
+      }
+    }
+
     public func clearRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
       let saved = currentColor
       setColor(backgroundColor)
@@ -318,6 +412,78 @@ extension java.awt.toolkit.x11 {
         }
       }
       return nil
+    }
+
+    /// Returns FontMetrics whose `stringWidth` uses `XftTextExtentsUtf8` —
+    /// so horizontal measurements (e.g. Label CENTER) match the Xft renderer.
+    /// Vertical metrics (ascent/descent) use the headless approximation because
+    /// they don't affect centering and the XftFont struct offsets vary by platform.
+    public override func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
+      let pixelSize = max(8, Int((Double(f.getSize()) * scaleFactor).rounded()))
+      if let xftFnt = xftFont(pixelSize: pixelSize),
+         let fnExt  = fnXftTextExtentsUtf8 {
+        let rawFn = unsafeBitCast(fnExt, to: UnsafeMutableRawPointer.self)
+        return _X11InlineMetrics(font: f, display: display,
+                                 xftFont: xftFnt, fnTextExtentsRaw: rawFn,
+                                 scaleFactor: scaleFactor)
+      }
+      return java.awt.FontMetrics.make(for: f)
+    }
+
+    public override func getFontMetrics() -> java.awt.FontMetrics {
+      getFontMetrics(font)
+    }
+
+    /// Lightweight FontMetrics that reuses the already-loaded XftFont from
+    /// this `_X11Graphics` instance — no extra dlopen/dlsym needed.
+    /// `fnTextExtentsRaw` is stored as `UnsafeMutableRawPointer` to avoid
+    /// Swift access-level conflicts with the private `@convention(c)` typealias.
+    private final class _X11InlineMetrics: java.awt.FontMetrics {
+      private struct XGlyphInfo {
+        var width: UInt16 = 0; var height: UInt16 = 0
+        var x: Int16 = 0;     var y: Int16 = 0
+        var xOff: Int16 = 0;  var yOff: Int16 = 0
+      }
+      private let display:          UnsafeMutableRawPointer
+      private let xftFont:          UnsafeMutableRawPointer
+      private let fnTextExtentsRaw: UnsafeMutableRawPointer  // XftTextExtentsUtf8Func
+      private let scaleFactor:      Double
+      init(font: java.awt.Font,
+           display: UnsafeMutableRawPointer,
+           xftFont: UnsafeMutableRawPointer,
+           fnTextExtentsRaw: UnsafeMutableRawPointer,
+           scaleFactor: Double) {
+        self.display          = display
+        self.xftFont          = xftFont
+        self.fnTextExtentsRaw = fnTextExtentsRaw
+        self.scaleFactor      = scaleFactor
+        super.init(font)
+      }
+      override func stringWidth(_ str: String) -> Int {
+        guard !str.isEmpty else { return 0 }
+        typealias Fn = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
+                                       UnsafePointer<UInt8>, Int32,
+                                       UnsafeMutableRawPointer) -> Void
+        let fn = unsafeBitCast(fnTextExtentsRaw, to: Fn.self)
+        let utf8 = Array(str.utf8)
+        // Use a raw 12-byte buffer to avoid Swift struct padding surprises.
+        // XGlyphInfo layout: width(u16), height(u16), x(s16), y(s16), xOff(s16), yOff(s16)
+        // xOff is at byte offset 8 as a little-endian Int16.
+        var buf12 = [UInt8](repeating: 0, count: 12)
+        utf8.withUnsafeBufferPointer { ubuf in
+          buf12.withUnsafeMutableBytes { rbuf in
+            fn(display, xftFont, ubuf.baseAddress!, Int32(utf8.count), rbuf.baseAddress!)
+          }
+        }
+        // Read xOff (offset 8, Int16 LE) — advance width in physical pixels.
+        // Divide by scaleFactor to get logical pixels (matching AWT bounds).
+        let xOff = Int(Int16(bitPattern: UInt16(buf12[8]) | (UInt16(buf12[9]) << 8)))
+        // Read width (offset 0, UInt16 LE) — bounding box width, fallback
+        let width = Int(UInt16(buf12[0]) | (UInt16(buf12[1]) << 8))
+        let physical = xOff > 0 ? xOff : width
+        return Int((Double(physical) / scaleFactor).rounded())
+      }
+      override func charWidth(_ ch: Character) -> Int { stringWidth(String(ch)) }
     }
 
     public override func drawString(_ str: String, _ x: Int, _ y: Int) {
@@ -435,22 +601,69 @@ extension java.awt.toolkit.x11 {
     // -------------------------------------------------------------------------
 
     public override func save() {
-      saveStack.append((originX, originY, currentColor))
+      saveStack.append((originX, originY, currentColor, clipLogical))
     }
 
     public override func restore() {
-      guard let (ox, oy, col) = saveStack.popLast() else { return }
+      guard let (ox, oy, col, clip) = saveStack.popLast() else { return }
       originX = ox
       originY = oy
       currentColor = col
+      clipLogical = clip
+      applyClip()
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Clip (stub — full implementation needs XSetClipRectangles)
+    // MARK: Clip
     // -------------------------------------------------------------------------
 
+    /// Sets a clip rectangle in **logical** coordinates (same space as all draw calls).
+    ///
+    /// Intersects with the current clip — matching GDI `IntersectClipRect` semantics
+    /// so that nested `clipRect` calls inside `ScrollPane.paint` restrict rather than
+    /// replace the parent clip.
+    ///
+    /// The clip is stored as logical coords and re-applied (scaled to physical pixels)
+    /// whenever `applyClip()` is called.  `restore()` reinstates the saved clip.
     public override func clipRect(_ x: Int, _ y: Int, _ w: Int, _ h: Int) {
-      // TODO: XSetClipRectangles(display, gc, originX, originY, &rect, 1, Unsorted)
+      let newClip = java.awt.Rectangle(x, y, w, h)
+      if let existing = clipLogical {
+        // Intersect with existing clip
+        let ix = max(existing.x, newClip.x)
+        let iy = max(existing.y, newClip.y)
+        let ix2 = min(existing.x + existing.width,  newClip.x + newClip.width)
+        let iy2 = min(existing.y + existing.height, newClip.y + newClip.height)
+        clipLogical = java.awt.Rectangle(ix, iy, max(0, ix2 - ix), max(0, iy2 - iy))
+      } else {
+        clipLogical = newClip
+      }
+      applyClip()
+    }
+
+    /// Pushes the current `clipLogical` to the GC via `XSetClipRectangles`,
+    /// or removes the clip with `XSetClipMask(None)` when `clipLogical` is nil.
+    ///
+    /// XRectangle is a packed C struct: Int16 x, Int16 y, UInt16 width, UInt16 height (8 bytes).
+    /// Coordinates must be in physical (device) pixels, so logical coords are scaled.
+    /// clip_x_origin and clip_y_origin are 0 — absolute coords are in the XRectangle itself.
+    private func applyClip() {
+      if let clip = clipLogical, let fn = fnSetClipRectangles {
+        // Physical pixels — apply origin offset (from translate) then scale,
+        // clamped to XRectangle's Int16/UInt16 range.
+        // Must match the same (x + originX) / (y + originY) pattern used in all draw calls.
+        let px = Int16(max(Int32(Int16.min), min(Int32(Int16.max), scaled(clip.x + originX))))
+        let py = Int16(max(Int32(Int16.min), min(Int32(Int16.max), scaled(clip.y + originY))))
+        let pw = UInt16(min(Int32(UInt16.max), Int32(scaledSize(clip.width))))
+        let ph = UInt16(min(Int32(UInt16.max), Int32(scaledSize(clip.height))))
+        // XRectangle layout: Int16, Int16, UInt16, UInt16 = 8 bytes
+        var rect: (Int16, Int16, UInt16, UInt16) = (px, py, pw, ph)
+        withUnsafeBytes(of: &rect) { buf in
+          _ = fn(display, gc, 0, 0, buf.baseAddress!, 1, 0 /* Unsorted */)
+        }
+      } else if let fn = fnSetClipMask {
+        // None = 0: remove clip region (draw everywhere)
+        _ = fn(display, gc, 0)
+      }
     }
   }
 }

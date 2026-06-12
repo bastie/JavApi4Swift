@@ -38,10 +38,10 @@ extension java.awt {
     public func setFont(_ f: java.awt.Font) { font = f }
     public func getFont() -> java.awt.Font  { font     }
 
-    public func getFontMetrics() -> java.awt.FontMetrics {
+    open func getFontMetrics() -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: font)
     }
-    public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
+    open func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: f)
     }
 
@@ -235,10 +235,10 @@ extension java.awt {
     public func setFont(_ f: java.awt.Font) { font = f }
     public func getFont() -> java.awt.Font  { font     }
 
-    public func getFontMetrics() -> java.awt.FontMetrics {
+    open func getFontMetrics() -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: font)
     }
-    public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
+    open func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: f)
     }
 

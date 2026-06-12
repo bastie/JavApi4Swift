@@ -111,7 +111,9 @@ extension java.awt {
 
       guard !_text.isEmpty, w > 0, h > 0 else { return }
 
-      let fm  = getFontMetrics(font)
+      // Use the Graphics object's FontMetrics so the measurement matches the
+      // actual renderer (e.g. Xft on X11 vs. the headless approximation).
+      let fm  = g.getFontMetrics(font)
       let tw  = fm.stringWidth(_text)
       let ty  = y + (h - fm.getHeight()) / 2 + fm.getAscent()
       let pad = 2
@@ -121,7 +123,7 @@ extension java.awt {
       case Label.RIGHT:
         tx = x + w - tw - pad
       case Label.CENTER:
-        tx = x + (w - tw) / 2
+        tx = tw < w ? x + (w - tw) / 2 : x + pad
       default: // LEFT
         tx = x + pad
       }

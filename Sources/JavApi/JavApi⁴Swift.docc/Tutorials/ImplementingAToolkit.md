@@ -432,6 +432,81 @@ static func make(for font: java.awt.Font) -> java.awt.FontMetrics {
 
 > **Why this matters:** The headless fallback uses a fixed 0.6× ratio for character width. Without a proper GDI implementation, `Label` centering, `TextField` caret positioning, and any layout depending on text measurements will be visibly wrong.
 
+### FontMetrics on X11
+
+On X11 the correct place to provide Xft-backed measurements is **inside your `Graphics` subclass**, not in the global `FontMetrics.make(for:)` factory. Override `getFontMetrics(_:)` and `getFontMetrics()` in your `Graphics` subclass so they return an Xft-aware implementation. This guarantees that measurements used for layout (e.g. `Label.paint`) come from exactly the same font instance that `drawStringXft` renders.
+
+```swift
+// In _X11Graphics:
+public override func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
+    let pixelSize = max(8, Int((Double(f.getSize()) * scaleFactor).rounded()))
+    if let xftFnt = xftFont(pixelSize: pixelSize),
+       let fnExt  = fnXftTextExtentsUtf8 {
+        let rawFn = unsafeBitCast(fnExt, to: UnsafeMutableRawPointer.self)
+        return _X11InlineMetrics(font: f, display: display,
+                                 xftFont: xftFnt, fnTextExtentsRaw: rawFn,
+                                 scaleFactor: scaleFactor)
+    }
+    return java.awt.FontMetrics.make(for: f)   // headless fallback
+}
+```
+
+The inner `_X11InlineMetrics` class calls `XftTextExtentsUtf8` to measure strings and **divides the result by `scaleFactor`** before returning it. This is essential: Xft returns advance widths in physical pixels (matching the `pixelsize=N` font), but AWT bounds are in logical pixels. Without the division the measured width is too large, and centered text ends up pushed left past the label midpoint.
+
+```swift
+override func stringWidth(_ str: String) -> Int {
+    // … call XftTextExtentsUtf8 into a raw 12-byte buffer …
+    // XGlyphInfo.xOff is at byte offset 8, little-endian Int16 — advance width in physical px
+    let xOff = Int(Int16(bitPattern: UInt16(buf12[8]) | (UInt16(buf12[9]) << 8)))
+    let width = Int(UInt16(buf12[0]) | (UInt16(buf12[1]) << 8))   // bounding box fallback
+    let physical = xOff > 0 ? xOff : width
+    return Int((Double(physical) / scaleFactor).rounded())        // → logical pixels
+}
+```
+
+> **Use a raw byte buffer, not a Swift struct, for `XGlyphInfo`.** Swift may insert padding into structs with mixed `UInt16`/`Int16` fields. Allocate a `[UInt8](repeating: 0, count: 12)` buffer and read fields manually at fixed byte offsets to match the packed C layout guaranteed by Xft.
+
+> **`Graphics.getFontMetrics` must be `open`, not `public`.** Swift only allows overriding methods declared `open`. If the base class declares `public func getFontMetrics`, subclasses in the same module can override it, but subclasses in *other* modules (or in conditional compilation branches) cannot. Declare it `open` in `Graphics` so any backend can specialise it.
+
+> **Do not override `FontMetrics.make(for:)` for X11.** Calling `_X11WindowHost.shared.currentDisplay` from `make(for:)` may return `nil` during layout passes that happen before the display is fully opened, causing silent fallback to headless metrics. The `Graphics`-override approach is safe because `_X11Graphics` is only instantiated during a repaint cycle when the display is guaranteed to be open.
+
+> **Vertical metrics (ascent/descent) can use headless approximations.** Reading ascent/descent from the XftFont C struct at raw byte offsets is fragile across libXft versions. The headless ratios (0.75×/0.20× of font size) work well in practice for vertical centering; only `stringWidth` needs Xft accuracy.
+
+### X11 clipRect and the drawn menu bar
+
+X11 backends that draw the menu bar inside the window (rather than using a native menu bar) set a `translate(0, menuBarHeight)` origin at the start of each repaint. `clipRect` must account for this origin when converting from logical to physical coordinates — otherwise clip rectangles are placed at the wrong position on screen.
+
+```swift
+// In _X11Graphics.applyClip() — WRONG (clips at wrong position when menu bar is present):
+let px = Int16(scaled(clip.x))
+let py = Int16(scaled(clip.y))
+
+// CORRECT — add originX/originY before scaling:
+let px = Int16(scaled(clip.x + originX))
+let py = Int16(scaled(clip.y + originY))
+```
+
+This matches the behaviour of all other drawing calls which already apply `+ originX`/`+ originY` before scaling.
+
+### Dialog close button (X11 and other backends)
+
+By default `java.awt.Dialog` does **not** dispose itself when the platform close button is clicked. The X11 `WM_DELETE_WINDOW` atom sends a `ClientMessage` which calls `awtWindow.processWindowEvent(WINDOW_CLOSING)` — this fires registered `WindowListener` callbacks but takes no further action unless a listener explicitly calls `dispose()`.
+
+The correct fix is to override `processWindowEvent` in `Dialog` so that a `WINDOW_CLOSING` event automatically calls `dispose()` — matching standard Java AWT behaviour:
+
+```swift
+open override func processWindowEvent(_ e: java.awt.event.WindowEvent) {
+    super.processWindowEvent(e)   // notify registered WindowListeners first
+    if e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING {
+        dispose()
+    }
+}
+```
+
+`Dialog.dispose()` calls `Toolkit.closeDialog(self)` which calls `hide()` — this fires `WINDOW_CLOSED`, not `WINDOW_CLOSING`, so there is no infinite loop.
+
+> **Do not add a default `WindowListener` to `Dialog`.** Overriding `processWindowEvent` is the correct Java AWT pattern and ensures subclasses that want different behaviour (e.g. confirmation dialogs) can override it without removing a listener.
+
 ### Scrollbar and ScrollPane arrow buttons
 
 When a user clicks an arrow button on a `Scrollbar` or `ScrollPane`, the correct Java AWT behaviour is to scroll by `unitIncrement` (default 1 for `Scrollbar`, `scrollbarSize` pixels for `ScrollPane`) — not jump to the clicked position. In your mouse-down handler, check the arrow button rects **before** checking the thumb and track:
@@ -837,6 +912,12 @@ Before shipping your toolkit, verify these are working:
 - [ ] X11 event loop: `XNextEvent` runs on a background thread; main thread uses `RunLoop.main.run(until:)` polling; `terminate()` calls `CFRunLoopStop(CFRunLoopGetMain())`
 - [ ] `ScrollPane` arrow buttons scroll by `scrollbarSize` pixels, not to the clicked position
 - [ ] Arrow button hit-tests are checked **before** thumb and track in the mouse-down handler
+- [ ] X11 `Graphics.getFontMetrics` is overridden in the `Graphics` subclass (not in `FontMetrics.make`); Xft advance width is divided by `scaleFactor` to convert physical → logical pixels
+- [ ] `Graphics.getFontMetrics` is declared `open` (not just `public`) in the base class — required for backend subclasses to override it
+- [ ] `XGlyphInfo` is read from a raw 12-byte buffer, not a Swift struct, to avoid padding mismatch
+- [ ] X11 drawn menu bar: `applyClip` adds `originX`/`originY` to clip coordinates before scaling (same as all other draw calls)
+- [ ] `Dialog.processWindowEvent` overridden to call `dispose()` on `WINDOW_CLOSING` — makes the platform X button close the dialog without a registered `WindowListener`
+- [ ] RTLD flags (`RTLD_LAZY`, `RTLD_NOLOAD`) are written as numeric literals (`0x00001`, `0x00004`) — the Glibc symbols are inaccessible under static MUSL builds
 
 ## Reference implementations
 

@@ -104,6 +104,23 @@ extension java.awt {
       super.setVisible(visible)
     }
 
+    // -------------------------------------------------------------------------
+    // MARK: WindowEvent-Verarbeitung
+    // -------------------------------------------------------------------------
+
+    /// Fires registered `WindowListener` callbacks **and** disposes the dialog
+    /// automatically when the platform close button (X) is clicked.
+    ///
+    /// Java AWT's default close operation for `Dialog` is equivalent to
+    /// `DISPOSE_ON_CLOSE`: clicking the X button calls `dispose()`.  Subclasses
+    /// that want different behaviour should override this method.
+    open override func processWindowEvent(_ e: java.awt.event.WindowEvent) {
+      super.processWindowEvent(e)   // notify registered WindowListeners first
+      if e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING {
+        dispose()
+      }
+    }
+
     /// Schließt den Dialog und beendet ggf. den modalen Loop.
     open override func dispose() {
       java.awt.Toolkit.getDefaultToolkit().closeDialog(self)

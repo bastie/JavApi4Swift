@@ -162,6 +162,8 @@ extension java.awt.FontMetrics {
     return java.awt.CoreTextFontMetrics(font)
 #elseif os(Windows)
     return java.awt.toolkit.gdi._GDIFontMetrics(font)
+#elseif os(Linux) || os(FreeBSD)
+    return java.awt.FontMetrics(font)   // headless approximation (Xft path disabled until calibrated)
 #else
     return java.awt.FontMetrics(font)   // headless approximation
 #endif

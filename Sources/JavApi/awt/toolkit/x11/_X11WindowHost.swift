@@ -82,16 +82,18 @@ private typealias XGetDefaultFunc           = @convention(c) (X11DisplayPtr, Uns
 private let X11_ExposureMask:        CLong = 1 << 15
 private let X11_KeyPressMask:        CLong = 1 << 0
 private let X11_ButtonPressMask:     CLong = 1 << 2
+private let X11_ButtonReleaseMask:   CLong = 1 << 3
 private let X11_PointerMotionMask:   CLong = 1 << 6
 private let X11_StructureNotifyMask: CLong = 1 << 17
 
-private let X11_Expose:         Int32 = 12
-private let X11_KeyPress:       Int32 = 2
-private let X11_ButtonPress:    Int32 = 4
-private let X11_MotionNotify:   Int32 = 6
-private let X11_ConfigureNotify:Int32 = 22
-private let X11_ClientMessage:  Int32 = 33
-private let X11_DestroyNotify:  Int32 = 17
+private let X11_Expose:          Int32 = 12
+private let X11_KeyPress:        Int32 = 2
+private let X11_ButtonPress:     Int32 = 4
+private let X11_ButtonRelease:   Int32 = 5
+private let X11_MotionNotify:    Int32 = 6
+private let X11_ConfigureNotify: Int32 = 22
+private let X11_ClientMessage:   Int32 = 33
+private let X11_DestroyNotify:   Int32 = 17
 
 // XEvent buffer size — 192 bytes on x86_64, use 512 for safety on all archs
 private let X11EventBufferSize = 512
@@ -127,6 +129,10 @@ public final class _X11WindowHost: @unchecked Sendable {
 
   private var libHandle: UnsafeMutableRawPointer?
   private var display:   X11DisplayPtr?
+
+  /// The open X11 display connection, or `nil` if not yet connected.
+  /// Used by `_X11FontMetrics` to create Xft font measurements.
+  var currentDisplay: X11DisplayPtr? { display }
 
   // Resolved function pointers
   private var fnOpenDisplay:       XOpenDisplayFunc?
@@ -170,6 +176,15 @@ public final class _X11WindowHost: @unchecked Sendable {
 
   // MenuBar attached to each Frame (keyed by X11 window ID)
   @MainActor private var menuBarRegistry: [X11WindowID: _X11MenuBar] = [:]
+
+  // ---------------------------------------------------------------------------
+  // MARK: Drag state (mouse-button held)
+  // ---------------------------------------------------------------------------
+
+  // Scrollbar being thumb-dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingScrollbar:  java.awt.Scrollbar?
+  // ScrollPane whose thumb is being dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingScrollPane: java.awt.ScrollPane?
 
   // ---------------------------------------------------------------------------
   // MARK: Library loading
@@ -305,7 +320,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     }
 
     // Subscribe to events
-    let mask = X11_ExposureMask | X11_KeyPressMask | X11_ButtonPressMask | X11_PointerMotionMask | X11_StructureNotifyMask
+    let mask = X11_ExposureMask | X11_KeyPressMask | X11_ButtonPressMask | X11_ButtonReleaseMask | X11_PointerMotionMask | X11_StructureNotifyMask
     _ = fnSel(dpy, xwin, mask)
 
     // Create a GC for this window
@@ -521,7 +536,12 @@ public final class _X11WindowHost: @unchecked Sendable {
       let physW = Int(buf.load(fromByteOffset: 56, as: Int32.self))
       let physH = Int(buf.load(fromByteOffset: 60, as: Int32.self))
       let logW = Int((Double(physW) / scaleFactor).rounded())
-      let logH = Int((Double(physH) / scaleFactor).rounded())
+      var logH = Int((Double(physH) / scaleFactor).rounded())
+      // On X11 the menu bar is drawn inside the window — subtract its height
+      // so AWT layout managers see only the content area below the bar.
+      if menuBarRegistry[xwin] != nil {
+        logH = max(1, logH - _X11MenuBar.menuBarHeight)
+      }
       if logW > 0 && logH > 0 &&
          (logW != awtWindow.getWidth() || logH != awtWindow.getHeight()) {
         awtWindow.setBounds(awtWindow.getX(), awtWindow.getY(), logW, logH)
@@ -579,22 +599,127 @@ public final class _X11WindowHost: @unchecked Sendable {
         }
       } else {
         // Normal content area click — adjust y to account for menu bar offset
+        let contentX = clickX
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight
                      : clickY
-        let hit = _AWTHitTest.find(x: clickX, y: contentY, in: awtWindow)
+        let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow)
         _X11FocusManager.shared.requestFocus(hit)
-        _AWTHitTest.dispatch(click: hit ?? awtWindow)
+
+        // --- Scrollbar ---
+        if let sb = hit as? java.awt.Scrollbar {
+          let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
+          if sb.decrementButtonRect().contains(contentX, contentY) {
+            sb.value = sb.value - sb.unitIncrement
+            sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_DECREMENT, isAdjusting: false)
+          } else if sb.incrementButtonRect().contains(contentX, contentY) {
+            sb.value = sb.value + sb.unitIncrement
+            sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_INCREMENT, isAdjusting: false)
+          } else if sb.thumbRect().contains(contentX, contentY) {
+            draggingScrollbar = sb
+            sb.isDragging      = true
+            sb.dragStartCoord  = isVert ? contentY : contentX
+            sb.dragStartValue  = sb.value
+          } else {
+            // Track click — jump to position, then allow drag
+            let coord  = isVert ? contentY : contentX
+            let origin = isVert ? sb.bounds.y : sb.bounds.x
+            let track  = isVert ? sb.bounds.height : sb.bounds.width
+            let range  = sb.maximum - sb.minimum
+            let newVal = sb.minimum + (coord - origin) * range / max(1, track) - sb.visibleAmount / 2
+            sb.value   = newVal
+            sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: false)
+            draggingScrollbar = sb
+            sb.isDragging      = true
+            sb.dragStartCoord  = isVert ? contentY : contentX
+            sb.dragStartValue  = sb.value
+          }
+          repaint(awtWindow, xwin: xwin)
+
+        // --- ScrollPane ---
+        } else if let sp = hit as? java.awt.ScrollPane {
+          let (maxX, maxY) = sp.maxScroll()
+          if let btn = sp.vDecrementButtonRect(), btn.contains(contentX, contentY) {
+            sp.setScrollPosition(sp.scrollX, max(0, sp.scrollY - sp.scrollbarSize))
+          } else if let btn = sp.vIncrementButtonRect(), btn.contains(contentX, contentY) {
+            sp.setScrollPosition(sp.scrollX, min(maxY, sp.scrollY + sp.scrollbarSize))
+          } else if let btn = sp.hDecrementButtonRect(), btn.contains(contentX, contentY) {
+            sp.setScrollPosition(max(0, sp.scrollX - sp.scrollbarSize), sp.scrollY)
+          } else if let btn = sp.hIncrementButtonRect(), btn.contains(contentX, contentY) {
+            sp.setScrollPosition(min(maxX, sp.scrollX + sp.scrollbarSize), sp.scrollY)
+          } else if let thumb = sp.vThumbRect(), thumb.contains(contentX, contentY) {
+            draggingScrollPane  = sp
+            sp.isDraggingV      = true
+            sp.dragStartY       = contentY
+            sp.dragStartScrollY = sp.scrollY
+          } else if let track = sp.vScrollbarRect(), track.contains(contentX, contentY) {
+            sp.scrollY          = max(0, min(maxY, (contentY - track.y) * maxY / max(1, track.height)))
+            draggingScrollPane  = sp
+            sp.isDraggingV      = true
+            sp.dragStartY       = contentY
+            sp.dragStartScrollY = sp.scrollY
+          } else if let thumb = sp.hThumbRect(), thumb.contains(contentX, contentY) {
+            draggingScrollPane  = sp
+            sp.isDraggingH      = true
+            sp.dragStartX       = contentX
+            sp.dragStartScrollX = sp.scrollX
+          } else if let track = sp.hScrollbarRect(), track.contains(contentX, contentY) {
+            sp.scrollX          = max(0, min(maxX, (contentX - track.x) * maxX / max(1, track.width)))
+            draggingScrollPane  = sp
+            sp.isDraggingH      = true
+            sp.dragStartX       = contentX
+            sp.dragStartScrollX = sp.scrollX
+          }
+          repaint(awtWindow, xwin: xwin)
+
+        } else {
+          _AWTHitTest.dispatch(click: hit ?? awtWindow)
+        }
       }
+
+    case X11_ButtonRelease:
+      if let sb = draggingScrollbar  { sb.isDragging  = false }
+      if let sp = draggingScrollPane { sp.isDraggingV = false; sp.isDraggingH = false }
+      draggingScrollbar  = nil
+      draggingScrollPane = nil
 
     case X11_MotionNotify:
       // XMotionEvent has same layout as XButtonEvent — x at offset 64, y at 68
-      guard _X11PopupWindow.activePopup != nil || menuBarRegistry[xwin] != nil else { break }
       let physMX = Int(buf.load(fromByteOffset: 64, as: Int32.self))
       let physMY = Int(buf.load(fromByteOffset: 68, as: Int32.self))
       let mx = Int((Double(physMX) / scaleFactor).rounded())
       let my = Int((Double(physMY) / scaleFactor).rounded())
+      let contentMY = menuBarRegistry[xwin] != nil ? my - _X11MenuBar.menuBarHeight : my
       var needsRepaint = false
+
+      // Scrollbar thumb drag
+      if let sb = draggingScrollbar {
+        let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
+        let coord  = isVert ? contentMY : mx
+        let delta  = coord - sb.dragStartCoord
+        let track  = isVert ? sb.bounds.height : sb.bounds.width
+        let range  = sb.maximum - sb.minimum
+        sb.value   = sb.dragStartValue + delta * range / max(1, track)
+        sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: true)
+        needsRepaint = true
+      }
+      // ScrollPane thumb drag
+      if let sp = draggingScrollPane {
+        let (maxX, maxY) = sp.maxScroll()
+        if sp.isDraggingV, let track = sp.vScrollbarRect() {
+          let delta  = contentMY - sp.dragStartY
+          let range  = track.height
+          sp.scrollY = max(0, min(maxY, sp.dragStartScrollY + delta * maxY / max(1, range)))
+          needsRepaint = true
+        }
+        if sp.isDraggingH, let track = sp.hScrollbarRect() {
+          let delta  = mx - sp.dragStartX
+          let range  = track.width
+          sp.scrollX = max(0, min(maxX, sp.dragStartScrollX + delta * maxX / max(1, range)))
+          needsRepaint = true
+        }
+      }
+      // Popup hover highlight
       if let popup = _X11PopupWindow.activePopup {
         let newIdx = popup.itemRects.indices.first {
           !popup.itemRects[$0].item.isSeparator && popup.itemRects[$0].rect.contains(mx, my)
