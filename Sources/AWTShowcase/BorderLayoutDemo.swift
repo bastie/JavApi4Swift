@@ -44,7 +44,7 @@ final class BorderLayoutDemoDialog: java.awt.Dialog {
     let south = java.awt.Panel(java.awt.BorderLayout(0, 0))
     south.background = java.awt.Color(180, 0, 0)
     south.setPreferredSize(java.awt.Dimension(width, 44))
-    let southLbl = java.awt.Label("SOUTH", java.awt.Label.LEFT)
+    let southLbl = java.awt.Label("SOUTH", java.awt.Label.CENTER)
     southLbl.background = java.awt.Color(180, 0, 0)
     southLbl.foreground = .white
     south.add(southLbl, java.awt.BorderLayout.CENTER)
