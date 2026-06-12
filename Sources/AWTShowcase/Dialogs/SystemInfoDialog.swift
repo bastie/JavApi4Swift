@@ -199,6 +199,8 @@ final class SystemInfoListener: java.awt.event.ActionListener {
   init(owner: java.awt.Frame) { self.owner = owner }
 
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    if let owner { SystemInfoDialog.show(owner: owner) }
+    if let owner {
+      SystemInfoDialog.show(owner: owner)
+    }
   }
 }

@@ -1138,7 +1138,7 @@ Implement the actual native file chooser inside `java.awt.FileDialog.setVisible(
 Linux has no universal system file dialog API. The standard approach is to shell out to a desktop dialog tool — `zenity` on GNOME/GTK systems and `kdialog` on KDE/Qt systems. Both block until the user confirms or cancels, so calling them with `Process` + `waitUntilExit()` naturally produces the synchronous behavior the Java specification requires.
 
 ```swift
-private func _runLinuxFileDialog() {
+private func _runX11FileDialog() {
     let isSave = (mode == java.awt.FileDialog.SAVE)
     let title  = getTitle().isEmpty ? (isSave ? "Save" : "Open") : getTitle()
 

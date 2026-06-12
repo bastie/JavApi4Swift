@@ -21,17 +21,17 @@ final class AboutListener: java.awt.event.ActionListener {
     dialog.setPreferredSize (java.awt.Dimension(320, 260))
     dialog.setBounds(0, 0, 320, 260)
     
-    // Logo oben
+    // Logo on top
     let logo = LogoCanvas()
     logo.setPreferredSize (java.awt.Dimension(320, 140))
     dialog.add(logo, java.awt.BorderLayout.NORTH)
     
-    // Text mittig
+    // Text center
     let info = java.awt.Label ("JavApi⁴Swift  •  Java AWT 4 Swift", java.awt.Label.CENTER)
     info.setPreferredSize (java.awt.Dimension(320, 40))
     dialog.add (info, java.awt.BorderLayout.CENTER)
     
-    // Schließen-Button unten
+    // close button down under
     let closeBtn = java.awt.Button ("Close")
     closeBtn.setPreferredSize (java.awt.Dimension(100, 30))
     let south = java.awt.Panel (java.awt.FlowLayout(java.awt.FlowLayout.CENTER))

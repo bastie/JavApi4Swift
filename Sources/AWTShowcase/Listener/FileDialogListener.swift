@@ -17,12 +17,12 @@ final class FileDialogListener: java.awt.event.ActionListener {
   
   init(frame: java.awt.Frame, mode: Int) {
     self.frame = frame
-    self.mode  = mode
+    self.mode  = (mode != java.awt.FileDialog.LOAD && mode != java.awt.FileDialog.SAVE) ? java.awt.FileDialog.LOAD : mode
   }
   
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    let title = mode == java.awt.FileDialog.LOAD ? "File open" : "File save"
-    let fd    = java.awt.FileDialog (frame, title, mode)
+    let title = self.mode == java.awt.FileDialog.LOAD ? "File open" : "File save"
+    let fd    = try! java.awt.FileDialog (frame, title, mode)
     fd.setVisible (true)
     if let file = fd.getFile(), let dir = fd.getDirectory() {
       System.out.println ("FileDialog: \(dir)\(file)")
