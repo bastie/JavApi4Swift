@@ -18,6 +18,21 @@ enum _AWTHitTest {
   // MARK: Hit test
   // ---------------------------------------------------------------------------
 
+  /// Walk up the parent chain from `component` and return the nearest
+  /// `ScrollPane`, or `nil` if none is found.
+  ///
+  /// Used by mouse-wheel handlers: the hit-test returns the deepest component
+  /// (e.g. a Canvas inside a ScrollPane), but scrolling should be applied to
+  /// the enclosing pane.
+  static func nearestScrollPane(_ component: java.awt.Component?) -> java.awt.ScrollPane? {
+    var node: java.awt.Component? = component
+    while let n = node {
+      if let sp = n as? java.awt.ScrollPane { return sp }
+      node = n.parent
+    }
+    return nil
+  }
+
   /// Recursively find the deepest visible component that contains `(x, y)`.
   /// Coordinates are in the coordinate system of `root` (i.e. the Frame).
   static func find(x: Int, y: Int, in root: java.awt.Component) -> java.awt.Component? {

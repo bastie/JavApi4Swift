@@ -424,7 +424,7 @@ final class _SwiftUINativeCanvas: NSView {
     let pt  = awtPoint(from: event)
     guard let hit = _SwiftUIHitTest.find(at: pt, in: component) else { return }
     
-    if let sp = hit as? java.awt.ScrollPane {
+    if let sp = _AWTHitTest.nearestScrollPane(hit) {
       let dy = Int(event.scrollingDeltaY * -3)
       let dx = Int(event.scrollingDeltaX * -3)
       sp.setScrollPosition(sp.scrollX + dx, sp.scrollY + dy)

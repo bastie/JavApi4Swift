@@ -472,6 +472,25 @@ override func stringWidth(_ str: String) -> Int {
 
 > **Vertical metrics (ascent/descent) can use headless approximations.** Reading ascent/descent from the XftFont C struct at raw byte offsets is fragile across libXft versions. The headless ratios (0.75×/0.20× of font size) work well in practice for vertical centering; only `stringWidth` needs Xft accuracy.
 
+### XClearWindow before every repaint
+
+X11 does not automatically erase stale pixels when you draw over a window. Components paint only their own `bounds` rectangle, so any content that extends **outside** those bounds — most notably a `Choice` dropdown popup, which renders below the component — leaves stale pixels behind when it is dismissed.
+
+Call `XClearWindow` at the start of every repaint cycle to fill the window with its background colour before drawing:
+
+```swift
+private func repaint(_ awtWindow: java.awt.Window, xwin: X11WindowID) {
+    guard let dpy = display, let gc = gcRegistry[xwin] else { return }
+    _ = fnClearWindow?(dpy, xwin)   // erase stale pixels first
+    let g = _X11Graphics(display: dpy, drawable: xwin, gc: gc, scaleFactor: scaleFactor)
+    // … draw menu bar, awtWindow.paint(g), popup overlay, XFlush …
+}
+```
+
+> **Why not clip-based clearing?** Clipping-based approaches require tracking the exact dirty region of the closed popup. `XClearWindow` is simpler and correct — the subsequent `awtWindow.paint(g)` immediately redraws all components on top of the blank background, so there is no visible flash.
+
+> **Background colour** is set when the X11 window is created via `XSetWindowBackground` or via the `background_pixel` attribute of `XCreateSimpleWindow`. If you used `BlackPixel`/`WhitePixel` as a placeholder, set the actual AWT background colour before the first `XMapWindow` call so `XClearWindow` fills with the right colour.
+
 ### X11 clipRect and the drawn menu bar
 
 X11 backends that draw the menu bar inside the window (rather than using a native menu bar) set a `translate(0, menuBarHeight)` origin at the start of each repaint. `clipRect` must account for this origin when converting from logical to physical coordinates — otherwise clip rectangles are placed at the wrong position on screen.
@@ -912,6 +931,179 @@ _MyPlatformFocusManager.shared.cutSelection()
 
 For scrollbars, Choice popups, List selection, and TextArea scrolling, see `_SwiftUINativeCanvas` — it is the complete reference for translating mouse drag and scroll-wheel events into AWT component operations.
 
+### Mouse-wheel scrolling (vertical and horizontal)
+
+`_AWTHitTest.find(x:y:in:)` returns the **deepest** child component — typically the content panel inside a `ScrollPane`, not the `ScrollPane` itself. Walk the parent chain to find the nearest enclosing `ScrollPane`:
+
+```swift
+static func nearestScrollPane(_ component: java.awt.Component?) -> java.awt.ScrollPane? {
+    var node: java.awt.Component? = component
+    while let n = node {
+        if let sp = n as? java.awt.ScrollPane { return sp }
+        node = n.parent
+    }
+    return nil
+}
+```
+
+On **X11** (Xlib `XButtonEvent`), buttons 4/5 are vertical scroll and buttons 6/7 are horizontal scroll:
+
+```swift
+// buttonNum from XButtonEvent.button (offset 84 in XEvent)
+if buttonNum >= 4 && buttonNum <= 7 {
+    let linesY = buttonNum == 4 ? -3 : (buttonNum == 5 ?  3 : 0)
+    let linesX = buttonNum == 6 ? -3 : (buttonNum == 7 ?  3 : 0)
+    if let sp = nearestScrollPane(hit) {
+        let vp   = sp.getViewportSize()
+        let stepY = max(20, vp.height / 10)
+        let stepX = max(20, vp.width  / 10)
+        let (maxX, maxY) = sp.maxScroll()
+        sp.setScrollPosition(
+            max(0, min(maxX, sp.scrollX + linesX * stepX / 3)),
+            max(0, min(maxY, sp.scrollY + linesY * stepY / 3)))
+        repaint(awtWindow, xwin: xwin)
+    }
+}
+```
+
+On **Win32**, `WM_MOUSEWHEEL` carries a `wParam` that includes modifier keys. Detect `MK_SHIFT` for horizontal scroll (used by many touchpad drivers that do not send `WM_MOUSEHWHEEL`). Also handle `WM_MOUSEHWHEEL` directly for mice with a tilt wheel:
+
+```swift
+case WM_MOUSEWHEEL:
+    let delta     = Int(GET_WHEEL_DELTA_WPARAM(wParam)) / 120  // +1 up, -1 down
+    let keyState  = GET_KEYSTATE_WPARAM(wParam)
+    let isHoriz   = (keyState & UINT(MK_SHIFT)) != 0
+    canvas.onMouseWheel(x: …, y: …,
+                        deltaY: isHoriz ? 0 : delta,
+                        deltaX: isHoriz ? delta : 0)
+case WM_MOUSEHWHEEL:
+    let delta = Int(GET_WHEEL_DELTA_WPARAM(wParam)) / 120
+    canvas.onMouseWheel(x: …, y: …, deltaY: 0, deltaX: delta)
+```
+
+> **`WM_MOUSEHWHEEL` is only delivered to the focused window.** Call `SetFocus(hwnd)` in `WM_LBUTTONDOWN` and in `WM_ACTIVATE` (when `LOWORD(wParam) != 0`) to ensure the window accepts horizontal wheel events.
+
+### Caret positioning on mouse click
+
+When the user clicks inside a `TextField` or `TextArea`, position the caret at the character boundary closest to the click point. Use `FontMetrics.stringWidth` to measure prefix widths and compare against the midpoint of each character:
+
+```swift
+func _charIndex(at awtX: Int) -> Int {
+    let fm   = getFontMetrics(font)
+    let pad  = 4                             // must match paint()'s left padding
+    let relX = awtX - bounds.x - pad
+    guard relX > 0 else { return 0 }
+
+    let chars = Array(text)
+    var prevW = 0
+    for i in 0..<chars.count {
+        let nextW    = fm.stringWidth(String(chars.prefix(i + 1)))
+        let midpoint = (prevW + nextW) / 2
+        if relX <= midpoint { return i }     // click left of midpoint → before char i
+        prevW = nextW
+    }
+    return chars.count                       // click past last char → end of text
+}
+```
+
+Call `setCaretPosition(_:)` (not direct assignment to `caretPosition`) so that `selectionAnchor` is reset and `caretVisible` is set to `true` immediately, regardless of the blink phase.
+
+For `TextArea`, compute the line index from the Y coordinate first, then apply the same character-index logic within that line:
+
+```swift
+func _charIndex(atX awtX: Int, atY awtY: Int) -> Int {
+    let fm      = getFontMetrics(font)
+    let lineH   = fm.getHeight()
+    let textTop = bounds.y + padY - scrollOffsetY
+    let lineIdx = max(0, (awtY - textTop) / lineH)
+    let lines   = computeLines()
+    let line    = lines[min(lineIdx, lines.count - 1)]
+    // … same midpoint loop over line's characters …
+}
+```
+
+> **Repaint on every text-component click**, not only on focus change. A re-click on an already-focused field must still repaint to move the caret visually. Use a `needsTextRepaint` flag set whenever the hit component is a `TextComponent`.
+
+### Text selection via mouse drag
+
+Track drag state with a weak reference to the text component where the button was pressed:
+
+```swift
+// ButtonPress
+if let tf = hit as? java.awt.TextField {
+    tf.setCaretPosition(tf._charIndex(at: contentX))
+    draggingTextComponent = tf   // weak var
+}
+
+// MotionNotify
+if let tc = draggingTextComponent {
+    if let tf = tc as? java.awt.TextField {
+        tf.extendSelection(to: tf._charIndex(at: mx))
+    }
+    needsRepaint = true
+}
+
+// ButtonRelease
+draggingTextComponent = nil
+```
+
+`extendSelection(to:)` moves `caretPosition` while keeping `selectionAnchor` fixed, extending the highlighted range. Calling `setCaretPosition(_:)` on a fresh click resets `selectionAnchor` to the new position, clearing the selection.
+
+### X11 FontMetrics factory registration
+
+`FontMetrics.make(for:)` on Linux falls back to a headless approximation unless a platform factory is registered. The factory must be set after the X11 display is opened — not in `FontMetrics.make` itself (the display may be `nil` during early layout passes). Register it at the end of `openDisplay()`:
+
+```swift
+// At the end of openDisplay(), after display is confirmed non-nil:
+java.awt.FontMetrics._platformFactory = { [weak self] font in
+    guard let dpy = self?.display else { return nil }
+    return _X11FontMetrics.make(for: font, display: dpy)
+}
+```
+
+`_platformFactory` is declared `nonisolated(unsafe) static var` on `FontMetrics` so it can be written from a non-`@MainActor` context without triggering concurrency errors.
+
+`_X11FontMetrics.stringWidth` must **divide `xOff` by `scaleFactor`** before returning, matching `_X11Graphics.drawString` which also works in logical pixels. Without this division, character widths appear doubled on HiDPI displays, causing `_charIndex` to return an index one character too far to the right for every click.
+
+```swift
+override func stringWidth(_ str: String) -> Int {
+    // … XftTextExtentsUtf8 into extents …
+    let scaleFactor = _X11WindowHost.shared.scaleFactor
+    return Int((Double(extents.xOff) / scaleFactor).rounded())
+}
+```
+
+### X11 modal dialog loop
+
+On X11 there is no `NSApp.runModal` equivalent. Implement modal blocking with a `RunLoop` poll on the main thread and a per-dialog exit flag:
+
+```swift
+// In _X11WindowHost — called from openWindow(for:) after the window is mapped:
+if let dialog = awtWindow as? java.awt.Dialog, dialog.isModal() {
+    let key = ObjectIdentifier(dialog)
+    MainActor.assumeIsolated { modalDoneFlags[key] = false }
+    while true {
+        let done = MainActor.assumeIsolated { modalDoneFlags[key] ?? true }
+        if done { break }
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.016))
+    }
+    MainActor.assumeIsolated { modalDoneFlags.removeValue(forKey: key) }
+}
+```
+
+`closeDialog(_:)` sets the flag and calls `CFRunLoopStop(CFRunLoopGetMain())` to wake the polling loop immediately instead of waiting up to 16 ms:
+
+```swift
+@MainActor
+public func closeDialog(_ dialog: java.awt.Dialog) {
+    modalDoneFlags[ObjectIdentifier(dialog)] = true
+    CFRunLoopStop(CFRunLoopGetMain())
+    hide(dialog)
+}
+```
+
+The background `XNextEvent` thread continues uninterrupted — only the main-thread `show()` call blocks. Use `MainActor.assumeIsolated` to read/write `@MainActor`-isolated state from the non-isolated `openWindow` context (safe because `openWindow` is called on the main thread).
+
 ## Step 7 — Separator rendering
 
 `MenuItem.isSeparator` is `true` for separator items created via `Menu.addSeparator()`. Use it to render a native divider line instead of a menu label:
@@ -1054,8 +1246,10 @@ Before shipping your toolkit, verify these are working:
 - [ ] Native close button fires `WINDOW_CLOSING` exactly once
 - [ ] `WindowListener` receives `opened`, `closing`, `closed`, `activated`, `deactivated`
 - [ ] `PopupMenu.show` appears at the correct screen position
-- [ ] `Choice` popup appears and dismisses correctly
-- [ ] `List` scrolls and fires `ItemEvent` / `ActionEvent`
+- [ ] `Choice` popup appears and dismisses correctly; selecting an item closes the popup and fires `ItemEvent`; clicking outside also closes it; the dismissed popup leaves no stale pixels (`XClearWindow` called before every repaint on X11)
+- [ ] `Choice` pre-check in `ButtonPress` runs before normal hit-test; every click while a popup is open is fully consumed with `return` (no fall-through that re-opens the popup)
+- [ ] `List` scrolls and fires `ItemEvent` / `ActionEvent`; List scrollbar thumb drag and track click handled in `ButtonPress` and `MotionNotify`
+- [ ] `TextArea` internal scrollbar thumb drag handled in `ButtonPress` and `MotionNotify`
 - [ ] `Scrollbar` fires `AdjustmentEvent`
 - [ ] `Graphics.drawImage` renders a `BufferedImage` correctly
 - [ ] Clipboard copy/paste works in `TextField` and `TextArea`
@@ -1096,6 +1290,16 @@ Before shipping your toolkit, verify these are working:
 - [ ] X11 popup drawn checkbox uses lines not Unicode glyph; box aligned to text baseline not item height; fixed `checkW` column reserved for all items
 - [ ] Linux `FileDialog` shells out to `zenity` (GNOME) or `kdialog` (KDE) via `Process`; falls back to `nil` if neither is installed; `terminationStatus == 0` guards against cancel; result path split into `file` + `directory` with trailing `/`
 - [ ] `X11Toolkit.show(_:)` returns early for `FileDialog` — the dialog is self-managed via `setVisible` and must not receive an X11 window
+- [ ] Mouse-wheel scroll uses `nearestScrollPane(_:)` parent-chain walk — `_AWTHitTest.find` returns the deepest child, not the `ScrollPane` itself
+- [ ] X11 scroll buttons 4/5 (vertical) and 6/7 (horizontal) handled in `ButtonPress`; step size proportional to viewport dimension
+- [ ] Win32 `WM_MOUSEWHEEL` with `MK_SHIFT` detected for horizontal scroll; `WM_MOUSEHWHEEL` handled separately for tilt wheels; `SetFocus(hwnd)` called in `WM_LBUTTONDOWN` and `WM_ACTIVATE` so `WM_MOUSEHWHEEL` is delivered
+- [ ] `TextField._charIndex(at:)` and `TextArea._charIndex(atX:atY:)` use `FontMetrics.stringWidth` with prefix strings to find the nearest character boundary; `padding` constant matches `paint()`'s padding
+- [ ] `setCaretPosition(_:)` always resets `selectionAnchor` and sets `caretVisible = true` — calling it on a re-click clears the selection and shows the caret immediately
+- [ ] Repaint triggered on every click into a `TextComponent`, not only on focus change — use a `needsTextRepaint` flag
+- [ ] Text selection drag: `draggingTextComponent` (weak var) set on `ButtonPress`, `extendSelection(to:)` called in `MotionNotify`, cleared on `ButtonRelease`
+- [ ] `FontMetrics._platformFactory` closure registered in `openDisplay()` after display is confirmed open; closure captures `self` weakly; factory returns `nil` when display is not yet available
+- [ ] `_X11FontMetrics.stringWidth` divides `xOff` by `scaleFactor` — Xft returns physical pixels, AWT expects logical pixels; mismatch causes `_charIndex` to return one character too far right on HiDPI displays
+- [ ] X11 modal dialog loop: `modalDoneFlags` dictionary keyed by `ObjectIdentifier`; main thread polls `RunLoop.main.run(until:)` in 16 ms steps; `closeDialog(_:)` sets flag and calls `CFRunLoopStop` to wake immediately
 
 ## Reference implementations
 

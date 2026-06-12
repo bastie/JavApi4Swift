@@ -19,6 +19,12 @@ extension java.awt {
   /// - All others                           → `HeadlessFontMetrics`
   open class FontMetrics {
 
+    /// Platform-specific factory registered at startup (e.g. by X11Toolkit).
+    /// Called by `make(for:)` on Linux/FreeBSD to return Xft-backed metrics so
+    /// that hit-testing and caret positioning agree with actual rendering.
+    /// Must be nonisolated-safe (no MainActor dependency).
+    nonisolated(unsafe) static var _platformFactory: ((java.awt.Font) -> java.awt.FontMetrics?)? = nil
+
     public let font: java.awt.Font
 
     public init(_ font: java.awt.Font) {
@@ -163,7 +169,10 @@ extension java.awt.FontMetrics {
 #elseif os(Windows)
     return java.awt.toolkit.gdi._GDIFontMetrics(font)
 #elseif os(Linux) || os(FreeBSD)
-    return java.awt.FontMetrics(font)   // headless approximation (Xft path disabled until calibrated)
+    // Use platform-registered factory if available (set by X11Toolkit at startup),
+    // so hit-testing/caret agree with Xft rendering. Falls back to headless.
+    if let fm = java.awt.FontMetrics._platformFactory?(font) { return fm }
+    return java.awt.FontMetrics(font)
 #else
     return java.awt.FontMetrics(font)   // headless approximation
 #endif

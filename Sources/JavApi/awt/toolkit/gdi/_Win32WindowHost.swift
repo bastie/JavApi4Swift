@@ -669,28 +669,29 @@ public final class _Win32Canvas {
     }
   }
 
-  fileprivate func onMouseWheel(x: Int, y: Int, delta: Int) {
+  fileprivate func onMouseWheel(x: Int, y: Int, deltaY: Int, deltaX: Int = 0) {
     guard let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow) else { return }
-    let lines = delta / 40
+    let linesY = deltaY / 40
+    let linesX = deltaX / 40
 
-    if let sp = hit as? java.awt.ScrollPane {
-      sp.setScrollPosition(sp.scrollX, sp.scrollY - lines)
+    if let sp = _AWTHitTest.nearestScrollPane(hit) {
+      sp.setScrollPosition(sp.scrollX - linesX, sp.scrollY - linesY)
     } else if let ta = hit as? java.awt.TextArea {
       let lineH    = max(1, ta.getFontMetrics(ta.font).getHeight())
       let totalH   = ta.computeLines().count * lineH
       let visibleH = ta.bounds.height - 2 * ta.padY
       ta.scrollOffsetY = max(0, min(max(0, totalH - visibleH),
-                                    ta.scrollOffsetY - lines))
+                                    ta.scrollOffsetY - linesY))
     } else if let sb = hit as? java.awt.Scrollbar {
       let old  = sb.value
       sb.value = sb.value - (sb.orientation == java.awt.Scrollbar.VERTICAL
-                              ? lines : -lines)
+                              ? linesY : -linesY)
       if sb.value != old {
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_INCREMENT)
       }
     } else if let list = hit as? java.awt.List {
       list.scrollOffset = max(0, min(list.maxScrollOffset(),
-                                      list.scrollOffset - lines))
+                                      list.scrollOffset - linesY))
     }
     invalidate()
   }
@@ -1067,7 +1068,13 @@ private func _win32WndProc(
     }
     return DefWindowProcW(hwnd, msg, wParam, lParam)
 
+  case UINT(WM_ACTIVATE):
+    // When the window is activated, claim keyboard focus so WM_MOUSEHWHEEL is delivered
+    if _LOWORD(DWORD_PTR(wParam)) != 0 { SetFocus(hwnd) }
+    return 0
+
   case UINT(WM_LBUTTONDOWN):
+    SetFocus(hwnd)  // Ensure our window has keyboard focus so WM_MOUSEHWHEEL is delivered
     MainActor.assumeIsolated {
       canvas.onMouseDown(x: _GET_X_LPARAM(lParam),
                           y: _GET_Y_LPARAM(lParam))
@@ -1089,12 +1096,27 @@ private func _win32WndProc(
     return 0
 
   case UINT(WM_MOUSEWHEEL):
+    let delta    = Int(Int16(bitPattern: _HIWORD(DWORD_PTR(wParam))))
+    let keyState = UINT(_LOWORD(DWORD_PTR(wParam)))
+    var pt       = POINT(x: LONG(_GET_X_LPARAM(lParam)),
+                         y: LONG(_GET_Y_LPARAM(lParam)))
+    ScreenToClient(hwnd, &pt)
+    // Some touchpad drivers send WM_MOUSEWHEEL+MK_SHIFT for horizontal scroll
+    let isHorizontal = (keyState & UINT(MK_SHIFT)) != 0
+    MainActor.assumeIsolated {
+      canvas.onMouseWheel(x: Int(pt.x), y: Int(pt.y),
+                          deltaY: isHorizontal ? 0 : delta,
+                          deltaX: isHorizontal ? delta : 0)
+    }
+    return 0
+
+  case UINT(WM_MOUSEHWHEEL):  // 0x020E — horizontal scroll (touchpad two-finger swipe)
     let delta = Int(Int16(bitPattern: _HIWORD(DWORD_PTR(wParam))))
     var pt    = POINT(x: LONG(_GET_X_LPARAM(lParam)),
                       y: LONG(_GET_Y_LPARAM(lParam)))
     ScreenToClient(hwnd, &pt)
     MainActor.assumeIsolated {
-      canvas.onMouseWheel(x: Int(pt.x), y: Int(pt.y), delta: delta)
+      canvas.onMouseWheel(x: Int(pt.x), y: Int(pt.y), deltaY: 0, deltaX: delta)
     }
     return 0
 

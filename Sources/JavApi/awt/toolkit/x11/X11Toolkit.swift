@@ -60,7 +60,7 @@ extension java.awt.toolkit.x11 {
     public override func show(_ window: java.awt.Window) {
       // FileDialog manages its own native panel — skip here
       if window is java.awt.FileDialog { return }
-      // Dialogs: for now treat like a regular window (modal loop not yet implemented)
+      // openWindow blocks for modal dialogs until closeDialog() is called
       _X11WindowHost.shared.openWindow(for: window)
     }
 
@@ -92,7 +92,7 @@ extension java.awt.toolkit.x11 {
     }
 
     public override func closeDialog(_ dialog: java.awt.Dialog) {
-      hide(dialog)
+      _X11WindowHost.shared.closeDialog(dialog)
     }
 
     // -------------------------------------------------------------------------
@@ -143,6 +143,17 @@ extension java.awt.toolkit.x11 {
     /// TODO: Implement via `fc-list` (fontconfig) or `XListFonts`.
     public override func getFontList() -> [String] {
       return super.getFontList()
+    }
+
+    /// Returns Xft-backed font metrics when a display is open, falling back to
+    /// headless approximation otherwise.  Used by `FontMetrics.make(for:)` so
+    /// that hit-testing and caret positioning agree with actual X11 rendering.
+    public override func getFontMetrics(_ font: java.awt.Font) -> java.awt.FontMetrics {
+      if let dpy = _X11WindowHost.shared.currentDisplay,
+         let xft = _X11FontMetrics.make(for: font, display: dpy) {
+        return xft
+      }
+      return super.getFontMetrics(font)
     }
 
     // -------------------------------------------------------------------------

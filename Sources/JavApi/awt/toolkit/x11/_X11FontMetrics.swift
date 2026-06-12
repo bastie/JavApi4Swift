@@ -87,7 +87,10 @@ extension java.awt.toolkit.x11 {
           fnTextExtentsUtf8(display, xftFont, buf.baseAddress!, Int32(utf8.count), ext.baseAddress!)
         }
       }
-      return Int(extents.xOff)   // xOff = total advance width (not 'width' which is bounding box)
+      // xOff is physical pixels; divide by scaleFactor to get logical AWT pixels,
+      // matching _X11Graphics.drawString which also divides by scaleFactor.
+      let scaleFactor = _X11WindowHost.shared.scaleFactor
+      return Int((Double(extents.xOff) / scaleFactor).rounded())
     }
 
     override func charWidth(_ ch: Character) -> Int {

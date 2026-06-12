@@ -67,6 +67,7 @@ private typealias XSelectInputFunc          = @convention(c) (X11DisplayPtr, X11
 private typealias XMapWindowFunc            = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XUnmapWindowFunc          = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XDestroyWindowFunc        = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
+private typealias XClearWindowFunc          = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XFlushFunc                = @convention(c) (X11DisplayPtr) -> Int32
 private typealias XNextEventFunc            = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer) -> Int32
 private typealias XPendingFunc              = @convention(c) (X11DisplayPtr) -> Int32
@@ -188,6 +189,7 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnMapWindow:         XMapWindowFunc?
   private var fnUnmapWindow:       XUnmapWindowFunc?
   private var fnDestroyWindow:     XDestroyWindowFunc?
+  private var fnClearWindow:       XClearWindowFunc?
   private var fnFlush:             XFlushFunc?
   private var fnNextEvent:         XNextEventFunc?
   private var fnPending:           XPendingFunc?
@@ -226,6 +228,9 @@ public final class _X11WindowHost: @unchecked Sendable {
   // MenuBar attached to each Frame (keyed by X11 window ID)
   @MainActor private var menuBarRegistry: [X11WindowID: _X11MenuBar] = [:]
 
+  // Modal dialog bookkeeping — set to true by closeDialog() to break the nested RunLoop
+  @MainActor private var modalDoneFlags: [ObjectIdentifier: Bool] = [:]
+
   // ---------------------------------------------------------------------------
   // MARK: Drag state (mouse-button held)
   // ---------------------------------------------------------------------------
@@ -234,6 +239,14 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private weak var draggingScrollbar:  java.awt.Scrollbar?
   // ScrollPane whose thumb is being dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingScrollPane: java.awt.ScrollPane?
+  // TextComponent being selection-dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingTextComponent: java.awt.TextComponent?
+  // List whose scrollbar thumb is being dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingList: java.awt.List?
+  // TextArea whose internal scrollbar thumb is being dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingTextAreaScroll: java.awt.TextArea?
+  // Currently open Choice — tracked so outside clicks close it
+  @MainActor private weak var openChoice: java.awt.Choice?
   // Button being held down — isPressed set on ButtonPress, doClick() on ButtonRelease
   @MainActor private weak var pressedButton: java.awt.Button?
   @MainActor private weak var pressedButtonWindow: java.awt.Window?
@@ -283,6 +296,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnMapWindow          = resolve("XMapWindow",          as: XMapWindowFunc.self)
     fnUnmapWindow        = resolve("XUnmapWindow",        as: XUnmapWindowFunc.self)
     fnDestroyWindow      = resolve("XDestroyWindow",      as: XDestroyWindowFunc.self)
+    fnClearWindow        = resolve("XClearWindow",        as: XClearWindowFunc.self)
     fnFlush              = resolve("XFlush",              as: XFlushFunc.self)
     fnNextEvent          = resolve("XNextEvent",          as: XNextEventFunc.self)
     fnPending            = resolve("XPending",            as: XPendingFunc.self)
@@ -334,6 +348,14 @@ public final class _X11WindowHost: @unchecked Sendable {
     if let fnAtom = fnInternAtom {
       atomWMDeleteWindow = fnAtom(dpy, "WM_DELETE_WINDOW", 0)
     }
+
+    // Register platform FontMetrics factory so FontMetrics.make(for:) returns
+    // Xft-backed metrics on Linux/FreeBSD — caret positioning agrees with rendering.
+    java.awt.FontMetrics._platformFactory = { [weak self] font in
+      guard let dpy = self?.display else { return nil }
+      return java.awt.toolkit.x11._X11FontMetrics.make(for: font, display: dpy)
+    }
+
     return true
   }
 
@@ -421,6 +443,21 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     _ = fnMap(dpy, xwin)
     _ = fnFlush(dpy)
+
+    // Modal dialog: spin a nested RunLoop on the main thread until closeDialog()
+    // sets the done-flag. The background X11 event loop keeps running normally,
+    // dispatching events via DispatchQueue.main.async — so the nested RunLoop
+    // will drain those async blocks and the dialog responds to user input.
+    if let dialog = awtWindow as? java.awt.Dialog, dialog.isModal() {
+      let key = ObjectIdentifier(dialog)
+      MainActor.assumeIsolated { modalDoneFlags[key] = false }
+      while true {
+        let done = MainActor.assumeIsolated { modalDoneFlags[key] ?? true }
+        if done { break }
+        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.016))
+      }
+      MainActor.assumeIsolated { _ = modalDoneFlags.removeValue(forKey: key) }
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -465,6 +502,15 @@ public final class _X11WindowHost: @unchecked Sendable {
     _ = fnFlush?(dpy)
     registry.removeValue(forKey: xwin)
     reverseRegistry.removeValue(forKey: id)
+  }
+
+  /// Closes a modal dialog: hides the window and signals the nested RunLoop to exit.
+  @MainActor
+  public func closeDialog(_ dialog: java.awt.Dialog) {
+    let key = ObjectIdentifier(dialog)
+    modalDoneFlags[key] = true
+    CFRunLoopStop(CFRunLoopGetMain())
+    hide(dialog)
   }
 
   // ---------------------------------------------------------------------------
@@ -666,6 +712,47 @@ public final class _X11WindowHost: @unchecked Sendable {
       lastClickX    = clickX
       lastClickY    = clickY
 
+      // ── Button 4/5 = vertical scroll wheel, 6/7 = horizontal ───────────────
+      if buttonNum >= 4 && buttonNum <= 7 {
+        let linesY = buttonNum == 4 ? -3 : (buttonNum == 5 ? 3 : 0)
+        let linesX = buttonNum == 6 ? -3 : (buttonNum == 7 ? 3 : 0)
+        let contentX = clickX
+        let contentY = menuBarRegistry[xwin] != nil
+                     ? clickY - _X11MenuBar.menuBarHeight : clickY
+        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow) {
+          // Walk up the parent chain to find the nearest ScrollPane —
+          // the hit may land on a child component (e.g. Canvas) inside the pane.
+          if let sp = _AWTHitTest.nearestScrollPane(hit) {
+            let (maxX, maxY) = sp.maxScroll()
+            // Use ~10% of viewport size as scroll step, minimum 20px
+            let vp   = sp.getViewportSize()
+            let stepY = max(20, vp.height / 10)
+            let stepX = max(20, vp.width  / 10)
+            sp.setScrollPosition(
+              max(0, min(maxX, sp.scrollX + linesX * stepX / 3)),
+              max(0, min(maxY, sp.scrollY + linesY * stepY / 3)))
+          } else if let ta = hit as? java.awt.TextArea {
+            let lineH    = max(1, ta.getFontMetrics(ta.font).getHeight())
+            let totalH   = ta.computeLines().count * lineH
+            let visibleH = ta.bounds.height - 2 * ta.padY
+            ta.scrollOffsetY = max(0, min(max(0, totalH - visibleH),
+                                          ta.scrollOffsetY + linesY))
+          } else if let sb = hit as? java.awt.Scrollbar {
+            let old = sb.value
+            sb.value = sb.value + (sb.orientation == java.awt.Scrollbar.VERTICAL
+                                    ? linesY : -linesY)
+            if sb.value != old {
+              sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_INCREMENT)
+            }
+          } else if let list = hit as? java.awt.List {
+            list.scrollOffset = max(0, min(list.maxScrollOffset(),
+                                           list.scrollOffset + linesY))
+          }
+        }
+        repaint(awtWindow, xwin: xwin)
+        return
+      }
+
       // If a popup is open: check click in popup first, dismiss if outside
       if let popup = _X11PopupWindow.activePopup {
         if popup.contains(clickX, clickY) {
@@ -710,8 +797,48 @@ public final class _X11WindowHost: @unchecked Sendable {
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight
                      : clickY
+
+        // ── Choice popup handling (must come before normal hit-test) ──────────
+        if let choice = openChoice {
+          let pr = choice.popupRect()
+          if pr.contains(contentX, contentY) {
+            // Click inside popup → select item and close
+            if let idx = choice.popupItemIndex(atY: contentY) {
+              choice.select(idx)
+              choice.fireItemEvent(index: idx)
+            }
+            choice.isOpen = false
+            openChoice    = nil
+            repaint(awtWindow, xwin: xwin)
+            return
+          } else {
+            // Click outside popup → close it and consume the event entirely.
+            // Do NOT fall through — the click that dismissed the popup should
+            // not simultaneously activate whatever is underneath it (matches
+            // standard Java AWT / GDI behaviour).
+            choice.isOpen = false
+            openChoice    = nil
+            repaint(awtWindow, xwin: xwin)
+            return
+          }
+        }
+
         let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow)
+        let prevFocus = _X11FocusManager.shared.focusOwner
         _X11FocusManager.shared.requestFocus(hit)
+        // Set caret position on click for TextField/TextArea BEFORE repaint
+        var needsTextRepaint = false
+        if let ta = hit as? java.awt.TextArea {
+          ta.setCaretPosition(ta._charIndex(atX: contentX, atY: contentY))
+          draggingTextComponent = ta
+          needsTextRepaint = true
+        } else if let tf = hit as? java.awt.TextField {
+          tf.setCaretPosition(tf._charIndex(at: contentX))
+          draggingTextComponent = tf
+          needsTextRepaint = true
+        }
+        // Repaint on focus change OR on any TextComponent click (collapses selection)
+        if prevFocus !== hit || needsTextRepaint { repaint(awtWindow, xwin: xwin) }
 
         // --- Scrollbar ---
         if let sb = hit as? java.awt.Scrollbar {
@@ -779,6 +906,44 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
           repaint(awtWindow, xwin: xwin)
 
+        // --- Choice ---
+        } else if let ch = hit as? java.awt.Choice {
+          ch.isOpen  = !ch.isOpen
+          openChoice = ch.isOpen ? ch : nil
+          repaint(awtWindow, xwin: xwin)
+
+        // --- List ---
+        } else if let list = hit as? java.awt.List {
+          if let thumb = list.scrollbarThumbRect(), thumb.contains(contentX, contentY) {
+            draggingList             = list
+            list.isScrollbarDragging = true
+            list.scrollDragStartY    = contentY
+            list.scrollDragStartOff  = list.scrollOffset
+          } else if let track = list.scrollbarTrackRect(), track.contains(contentX, contentY) {
+            let maxOff = list.maxScrollOffset()
+            list.scrollOffset        = max(0, min(maxOff, (contentY - track.y) * maxOff / max(1, track.height)))
+            draggingList             = list
+            list.isScrollbarDragging = true
+            list.scrollDragStartY    = contentY
+            list.scrollDragStartOff  = list.scrollOffset
+          } else {
+            if let idx = list.itemIndex(atY: contentY) {
+              list.select(idx)
+              list.fireItemEvent(index: idx,
+                                 stateChange: java.awt.event.ItemEvent.SELECTED)
+            }
+          }
+          repaint(awtWindow, xwin: xwin)
+
+        // --- TextArea internal scrollbar ---
+        } else if let ta = hit as? java.awt.TextArea,
+                  let thumb = ta.verticalScrollbarThumbRect(),
+                  thumb.contains(contentX, contentY) {
+          draggingTextAreaScroll  = ta
+          ta.isScrollbarDragging  = true
+          ta.scrollDragStartY     = contentY
+          ta.scrollDragStartOff   = ta.scrollOffsetY
+
         } else if let btn = hit as? java.awt.Button {
           // Set pressed state for visual feedback; dispatch on ButtonRelease (AWT convention)
           btn.isPressed = true
@@ -796,10 +961,15 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
 
     case X11_ButtonRelease:
-      if let sb = draggingScrollbar  { sb.isDragging  = false }
-      if let sp = draggingScrollPane { sp.isDraggingV = false; sp.isDraggingH = false }
-      draggingScrollbar  = nil
-      draggingScrollPane = nil
+      if let sb = draggingScrollbar        { sb.isDragging         = false }
+      if let sp = draggingScrollPane       { sp.isDraggingV = false; sp.isDraggingH = false }
+      if let list = draggingList           { list.isScrollbarDragging = false }
+      if let ta = draggingTextAreaScroll   { ta.isScrollbarDragging   = false }
+      draggingScrollbar      = nil
+      draggingScrollPane     = nil
+      draggingList           = nil
+      draggingTextAreaScroll = nil
+      draggingTextComponent  = nil
       // Fire button action on release (correct AWT behaviour) and clear pressed state
       if let btn = pressedButton, let win = pressedButtonWindow {
         btn.isPressed       = false
@@ -827,6 +997,27 @@ public final class _X11WindowHost: @unchecked Sendable {
         let range  = sb.maximum - sb.minimum
         sb.value   = sb.dragStartValue + delta * range / max(1, track)
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: true)
+        needsRepaint = true
+      }
+      // List scrollbar thumb drag
+      if let list = draggingList {
+        guard list.needsScrollbar() else { break }
+        let maxOff = list.maxScrollOffset()
+        let dy     = contentMY - list.scrollDragStartY
+        list.scrollOffset = max(0, min(maxOff,
+          list.scrollDragStartOff + dy * maxOff / max(1, list.bounds.height)))
+        needsRepaint = true
+      }
+      // TextArea internal scrollbar thumb drag
+      if let ta = draggingTextAreaScroll {
+        let fm       = ta.getFontMetrics(ta.font)
+        let lineH    = max(1, fm.getHeight())
+        let totalH   = ta.computeLines().count * lineH
+        let visibleH = ta.bounds.height - 2 * ta.padY
+        guard totalH > visibleH else { break }
+        let dy     = contentMY - ta.scrollDragStartY
+        let newOff = ta.scrollDragStartOff + dy * totalH / max(1, ta.bounds.height)
+        ta.scrollOffsetY = max(0, min(totalH - visibleH, newOff))
         needsRepaint = true
       }
       // ScrollPane thumb drag
@@ -881,6 +1072,15 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
           needsRepaint = true
         }
+      }
+      // Text selection drag
+      if let tc = draggingTextComponent {
+        if let ta = tc as? java.awt.TextArea {
+          ta.extendSelection(to: ta._charIndex(atX: mx, atY: contentMY))
+        } else if let tf = tc as? java.awt.TextField {
+          tf.extendSelection(to: tf._charIndex(at: mx))
+        }
+        needsRepaint = true
       }
       // Update cursor based on component under pointer
       let hitForCursor = _AWTHitTest.find(x: mx, y: contentMY, in: awtWindow)
@@ -1035,6 +1235,9 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor
   private func repaint(_ awtWindow: java.awt.Window, xwin: X11WindowID) {
     guard let dpy = display, let gc = gcRegistry[xwin] else { return }
+    // Clear the window before redrawing so stale pixels (e.g. a closed Choice
+    // popup that extends below the component bounds) are erased.
+    _ = fnClearWindow?(dpy, xwin)
     let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
                                                scaleFactor: scaleFactor)
 

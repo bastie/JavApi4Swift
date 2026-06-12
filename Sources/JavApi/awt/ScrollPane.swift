@@ -146,7 +146,9 @@ extension java.awt {
       case ScrollPane.SCROLLBARS_ALWAYS: return true
       default:
         guard let child = children.first else { return false }
-        return child.bounds.width > bounds.width
+        // Account for vertical scrollbar reducing the effective viewport width
+        let effectiveW = bounds.width - (needsVScrollbar ? scrollbarSize : 0)
+        return child.bounds.width > effectiveW
       }
     }
 

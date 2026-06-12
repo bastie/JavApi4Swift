@@ -41,10 +41,13 @@ extension java.awt {
     public var hasSelection:  Bool { selectionAnchor != caretPosition }
 
     /// Move the caret and collapse the selection to `pos`.
+    /// Also forces the caret to be visible — a click or programmatic move
+    /// should always show the caret regardless of the current blink phase.
     public func setCaretPosition(_ pos: Int) {
       let c       = max(0, min(pos, text.count))
       caretPosition   = c
       selectionAnchor = c
+      caretVisible    = true  // reset blink phase so caret appears immediately
     }
 
     /// Extend the moving end of the selection to `pos` (anchor stays fixed).
