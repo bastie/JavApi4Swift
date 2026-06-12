@@ -4,12 +4,11 @@
  */
 
 extension java.io.File {
+
   /// Returns a result with information about file is only root directory.
   /// - Returns .success(true) if is root directory and .success(false) if is no root directory && .failure(Error) if unknown
   internal func isRootDirectory() -> Result<Bool,Error> {
-#if os(WASI)
-    return .failure(java.lang.UnsupportedOperationException())
-#elseif os(PS4)
+#if os(WASI) || os(PS4)
     return .failure(java.lang.UnsupportedOperationException())
 #elseif os(Cygwin)
     let url = URL(fileURLWithPath: self.file)

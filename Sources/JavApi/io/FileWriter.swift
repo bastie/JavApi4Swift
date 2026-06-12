@@ -26,7 +26,7 @@ extension java.io {
     ///
     /// - Parameter fileName: The path of the file to open or create.
     /// - Throws: `IOException` if the file cannot be opened for writing.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ fileName: String) throws {
       let fos = try java.io.FileOutputStream(fileName)
       super.init(fos)
@@ -36,7 +36,7 @@ extension java.io {
     ///
     /// - Parameter file: The `File` to open or create.
     /// - Throws: `IOException` if the file cannot be opened for writing.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ file: java.io.File) throws {
       let fos = try java.io.FileOutputStream(file)
       super.init(fos)

@@ -69,7 +69,7 @@ extension java.io {
     }
     
     /// - Since: JavaApi &gt; 0.19.1 (Java 1.0)
-    open override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
+    open override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws (IOException) -> Int {
       guard length > 0 else {
         throw java.io.IOException("Length must be greater than zero")
       }

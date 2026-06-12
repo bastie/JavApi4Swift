@@ -28,7 +28,7 @@ extension java.io {
       try src.connect(self)
     }
 
-    public override func read() throws -> Int {
+    public override func read() throws (IOException) -> Int {
       guard let fh = pipe?.fileHandleForReading else {
         throw IOException("Pipe not connected")
       }
@@ -37,7 +37,7 @@ extension java.io {
       return Int(data[0])
     }
 
-    public override func read(_ b: inout [UInt8], _ off: Int, _ len: Int) throws -> Int {
+    public override func read(_ b: inout [UInt8], _ off: Int, _ len: Int) throws (IOException) -> Int {
       guard let fh = pipe?.fileHandleForReading else {
         throw IOException("Pipe not connected")
       }

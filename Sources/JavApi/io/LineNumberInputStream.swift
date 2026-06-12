@@ -76,9 +76,9 @@ extension java.io {
 
     /// Reads up to `length` bytes into `array`, counting line terminators.
     /// - Since: JavaApi (Java 1.0)
-    public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
+    public override func read (_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
       guard offset >= 0, length >= 0, offset + length <= array.count else {
-        throw IndexOutOfBoundsException()
+        throw IOException("", IndexOutOfBoundsException())
       }
       var bytesRead = 0
       while bytesRead < length {
@@ -91,14 +91,15 @@ extension java.io {
     }
 
     /// Marks the current position, saving the line number.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Parameter readlimit: limit of bytes to read
+    /// - Since: Java 1.0
     public func mark(_ readlimit: Int) {
       markLineNumber = lineNumber
       // Note: underlying stream mark not called — FilterInputStream has no mark by default
     }
 
     /// Resets to the last mark, restoring the line number.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func reset() throws {
       lineNumber = markLineNumber
       lastWasCR = false

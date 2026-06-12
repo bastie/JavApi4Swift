@@ -5,6 +5,7 @@
 
 extension java.io {
   /// Filter for files, usually use with File.listFiles function
+  /// - Since: Java 1.2
   public protocol FileFilter {
     
     associatedtype FileFilter: java.io.FileFilter

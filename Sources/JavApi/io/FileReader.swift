@@ -15,7 +15,7 @@ extension java.io {
   /// let line   = try java.io.BufferedReader(reader).readLine()
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class FileReader : InputStreamReader, @unchecked Sendable {
 
     // MARK: - Initialisers
@@ -24,7 +24,7 @@ extension java.io {
     ///
     /// - Parameter fileName: The path of the file to open.
     /// - Throws: `FileNotFoundException` if the file does not exist or cannot be opened.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ fileName: String) throws {
       let fis = try java.io.FileInputStream(fileName)
       super.init(fis)
@@ -34,7 +34,7 @@ extension java.io {
     ///
     /// - Parameter file: The `File` to open.
     /// - Throws: `FileNotFoundException` if the file does not exist or cannot be opened.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ file: java.io.File) throws {
       let fis = try java.io.FileInputStream(file)
       super.init(fis)

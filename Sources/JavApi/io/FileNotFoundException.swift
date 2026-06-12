@@ -5,6 +5,7 @@
 
 extension java.io {
   
+  /// - Since: Java 1.0
   open class FileNotFoundException : IOException, @unchecked Sendable {
     
     public override init () {

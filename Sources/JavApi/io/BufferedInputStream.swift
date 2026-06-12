@@ -22,24 +22,29 @@ extension java.io {
   /// let first  = try buffered.read()   // reads a full buffer chunk internally
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.0)
+  /// - Since: Java 1.0
   open class BufferedInputStream : FilterInputStream {
 
     // MARK: - Fields (public, matching Java spec)
 
     /// The internal byte buffer.
+    /// - Note: protected in Java
     public var buf: [UInt8]
 
     /// The number of valid bytes in ``buf``.
+    /// - Note: protected in Java
     public var count: Int = 0
 
     /// The current read position within ``buf``.
+    /// - Note: protected in Java
     public var pos: Int = 0
 
     /// The position of the last `mark()` call, or -1 if not marked.
+    /// - Note: protected in Java
     public var markpos: Int = -1
 
     /// The maximum look-ahead allowed after a `mark()` call.
+    /// - Note: protected in Java
     public var marklimit: Int = 0
 
     // MARK: - Default buffer size
@@ -51,7 +56,8 @@ extension java.io {
     /// Creates a `BufferedInputStream` with the default buffer size (8192 bytes).
     ///
     /// - Parameter inputStream: The underlying `InputStream` to buffer.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public init(_ inputStream: java.io.InputStream) {
       buf = [UInt8](repeating: 0, count: BufferedInputStream.defaultBufferSize)
       super.init(inputStream)
@@ -62,7 +68,8 @@ extension java.io {
     /// - Parameters:
     ///   - inputStream: The underlying `InputStream` to buffer.
     ///   - size: Buffer size in bytes.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public init(_ inputStream: java.io.InputStream, _ size: Int) {
       buf = [UInt8](repeating: 0, count: max(size, 1))
       super.init(inputStream)
@@ -75,20 +82,24 @@ extension java.io {
       if markpos < 0 {
         // No mark — reset to start of buffer
         pos = 0
-      } else if pos >= buf.count {
-        if marklimit > buf.count {
-          // Grow buffer to accommodate mark look-ahead
-          let newSize = min(marklimit, buf.count * 2)
-          var newBuf = [UInt8](repeating: 0, count: newSize)
-          let valid = count - markpos
-          newBuf[0..<valid] = buf[markpos..<count]
-          buf = newBuf
-          pos = valid
-          markpos = 0
-        } else {
-          // Mark expired — discard it
-          markpos = -1
-          pos = 0
+      }
+      else {
+        if pos >= buf.count {
+          if marklimit > buf.count {
+            // Grow buffer to accommodate mark look-ahead
+            let newSize = min(marklimit, buf.count * 2)
+            var newBuf = [UInt8](repeating: 0, count: newSize)
+            let valid = count - markpos
+            newBuf[0..<valid] = buf[markpos..<count]
+            buf = newBuf
+            pos = valid
+            markpos = 0
+          }
+          else {
+            // Mark expired — discard it
+            markpos = -1
+            pos = 0
+          }
         }
       }
       count = pos
@@ -96,13 +107,11 @@ extension java.io {
       if read > 0 { count = pos + read }
     }
 
-    // MARK: - InputStream overrides
-
     /// Reads a single byte from the buffer, refilling from the underlying
     /// stream if necessary.
     ///
     /// - Returns: The byte value (0–255), or -1 at end of stream.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override func read() throws -> Int {
       if pos >= count { try fill() }
       guard pos < count else { return -1 }
@@ -117,8 +126,10 @@ extension java.io {
     ///   - array: Destination buffer.
     ///   - offset: Start index in `array`.
     ///   - length: Maximum number of bytes to read.
+    ///
     /// - Returns: Number of bytes actually read, or -1 at end of stream.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
       guard offset >= 0, length >= 0, offset + length <= array.count else {
         throw IndexOutOfBoundsException()
@@ -140,8 +151,9 @@ extension java.io {
       return bytesRead == 0 ? -1 : bytesRead
     }
 
-    /// Returns an estimate of the number of bytes available without blocking.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Returns: Returns an estimate of the number of bytes available without blocking.
+    ///
+    /// - Since: Java 1.0
     public override func available() throws -> Int {
       let inAvailable = try `in`.available()
       return (count - pos) + inAvailable
@@ -151,7 +163,8 @@ extension java.io {
     ///
     /// - Parameter n: Maximum number of bytes to skip.
     /// - Returns: Actual number of bytes skipped.
-    /// - Since: JavaApi (Java 1.0)
+    /// 
+    /// - Since: Java 1.0
     public override func skip(_ n: Int) throws -> Int {
       var remaining = n
       var skipped = 0

@@ -19,7 +19,7 @@ extension java.io {
   /// let again    = try pushback.read()   // 65 ('A') again
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.0)
+  /// - Since: Java 1.0
   open class PushbackInputStream : FilterInputStream {
 
     /// The pushback buffer. Bytes are stored from the end towards the front.
@@ -34,7 +34,7 @@ extension java.io {
     /// Creates a `PushbackInputStream` with a pushback buffer of one byte.
     ///
     /// - Parameter inputStream: The underlying `InputStream`.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public init(_ inputStream: java.io.InputStream) {
       buf = [UInt8](repeating: 0, count: 1)
       pos = 1
@@ -46,7 +46,8 @@ extension java.io {
     /// - Parameters:
     ///   - inputStream: The underlying `InputStream`.
     ///   - size: Number of bytes that may be pushed back.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public init(_ inputStream: java.io.InputStream, _ size: Int) {
       buf = [UInt8](repeating: 0, count: max(size, 1))
       pos = buf.count
@@ -69,7 +70,13 @@ extension java.io {
     }
 
     /// Reads up to `length` bytes, consuming pushed-back bytes first.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Parameters:
+    ///   - array: array to store data within
+    ///   - offset: start offset at array
+    ///   - length: count of data
+    ///
+    /// - Since: Java 1.0
     public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
       guard offset >= 0, length >= 0, offset + length <= array.count else {
         throw IndexOutOfBoundsException()
@@ -99,7 +106,8 @@ extension java.io {
     ///
     /// - Parameter b: The byte to push back (only the lowest 8 bits are used).
     /// - Throws: `java.io.IOException` if the pushback buffer is full.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public func unread(_ b: Int) throws {
       guard pos > 0 else {
         throw java.io.IOException("Push back buffer is full")
@@ -112,7 +120,8 @@ extension java.io {
     ///
     /// - Parameter b: The bytes to push back.
     /// - Throws: `java.io.IOException` if the pushback buffer has insufficient space.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public func unread(_ b: [UInt8]) throws {
       try unread(b, 0, b.count)
     }
@@ -123,8 +132,10 @@ extension java.io {
     ///   - b: Source byte array.
     ///   - offset: Start index in `b`.
     ///   - length: Number of bytes to push back.
+    ///
     /// - Throws: `java.io.IOException` if the pushback buffer has insufficient space.
-    /// - Since: JavaApi (Java 1.0)
+    ///
+    /// - Since: Java 1.0
     public func unread(_ b: [UInt8], _ offset: Int, _ length: Int) throws {
       guard pos >= length else {
         throw java.io.IOException("Push back buffer is full")
@@ -135,8 +146,9 @@ extension java.io {
 
     // MARK: - available
 
-    /// Returns the number of bytes available (pushed-back + underlying stream).
-    /// - Since: JavaApi (Java 1.0)
+    /// - Returns: Returns the number of bytes available (pushed-back + underlying stream).
+    ///
+    /// - Since: Java 1.0
     public override func available() throws -> Int {
       return (buf.count - pos) + (try `in`.available())
     }

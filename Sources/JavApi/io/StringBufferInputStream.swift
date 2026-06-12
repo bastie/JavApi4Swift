@@ -52,9 +52,9 @@ extension java.io {
 
     /// Reads up to `length` bytes into `array` starting at `offset`.
     /// - Since: JavaApi (Java 1.0)
-    public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws -> Int {
+    public override func read(_ array: inout [UInt8], _ offset: Int, _ length: Int) throws (IOException) -> Int {
       guard offset >= 0, length >= 0, offset + length <= array.count else {
-        throw IndexOutOfBoundsException()
+        throw IOException("", IndexOutOfBoundsException())
       }
       guard length > 0, pos < count else { return -1 }
       let toCopy = Swift.min(length, count - pos)
