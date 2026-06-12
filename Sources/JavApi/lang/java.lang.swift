@@ -24,6 +24,7 @@ extension java.lang {
   public typealias IllegalThreadStateException = JavApi.IllegalThreadStateException
   public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
   public typealias IO = JavApi.IO
+  public typealias MatchException = JavApi.MatchException
   public typealias Math = JavApi.Math
   public typealias Number = JavApi.Number
   public typealias Runnable = JavApi.Runnable
