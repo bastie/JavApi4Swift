@@ -573,6 +573,58 @@ if isOpen {
 }
 ```
 
+### CheckboxMenuItem state synchronisation
+
+`CheckboxMenuItem.doAction()` toggles the internal state and fires `ItemListener` callbacks, but the platform menu widget cannot detect that change automatically. After calling `doAction()` you must explicitly sync the checkmark in the native menu.
+
+**macOS (AppKit):** `NSMenuItem` action targets receive the `sender` as the clicked `NSMenuItem`. In your `@objc trigger` method, cast `sender` to `NSMenuItem` and update its state:
+
+```swift
+@objc func trigger(_ sender: Any?) {
+    menuItem.doAction()
+    if let nsItem = sender as? NSMenuItem,
+       let cbItem = menuItem as? java.awt.CheckboxMenuItem {
+        nsItem.state = cbItem.getState() ? .on : .off
+    }
+}
+```
+
+**Windows (GDI):** In your `WM_COMMAND` handler, call `CheckMenuItem` with `MF_BYCOMMAND` after `doAction()`:
+
+```swift
+func onCommand(itemId: UINT) {
+    guard let item = menuItems[itemId] else { return }
+    item.doAction()
+    if let cbItem = item as? java.awt.CheckboxMenuItem, let hwnd {
+        let hMenu = GetMenu(hwnd)
+        _ = CheckMenuItem(hMenu, itemId,
+            UINT(cbItem.getState() ? MF_CHECKED : MF_UNCHECKED) | UINT(MF_BYCOMMAND))
+    }
+}
+```
+
+**X11 (drawn popup):** Draw the checkbox indicator yourself — do not use a Unicode glyph (e.g. `✓`) because many Xft fonts render it as an empty box. Instead, draw a 10×10px rectangle and a two-line checkmark inside it. Align the box vertically to the text baseline, not to the item height:
+
+```swift
+if let cbItem = item as? java.awt.CheckboxMenuItem {
+    let bx = rect.x + 2
+    let bSize = 10
+    // Align to text baseline: use ascent+descent span, not full item height
+    let by = textY - fm.getAscent() + (fm.getAscent() + fm.getDescent() - bSize) / 2
+    g.drawRect(bx, by, bSize, bSize)       // box outline
+    if cbItem.getState() {
+        // Two-line checkmark inside the box
+        g.drawLine(bx + 2, by + 5, bx + 4, by + 8)
+        g.drawLine(bx + 4, by + 8, bx + 8, by + 2)
+    }
+}
+g.drawString(item.getLabel(), rect.x + checkColumnWidth, textY)
+```
+
+Reserve a fixed `checkColumnWidth` (e.g. 16 px) for all items — including non-checkbox ones — so labels stay left-aligned regardless of item type.
+
+> **Do not use Unicode checkmark glyphs for drawn menus.** Characters like `✓` (U+2713) are absent from many system fonts on Linux. A drawn indicator is font-independent and always visible.
+
 ### Scrollbar and ScrollPane arrow buttons
 
 When a user clicks an arrow button on a `Scrollbar` or `ScrollPane`, the correct Java AWT behaviour is to scroll by `unitIncrement` (default 1 for `Scrollbar`, `scrollbarSize` pixels for `ScrollPane`) — not jump to the clicked position. In your mouse-down handler, check the arrow button rects **before** checking the thumb and track:
@@ -889,6 +941,60 @@ public override func show(_ window: java.awt.Window) {
 
 Implement the actual native file chooser inside `java.awt.FileDialog.setVisible(_:)` using a platform extension (e.g. `extension java.awt.FileDialog { … }` under `#if os(Windows)`), following the same pattern as the macOS implementation.  On Win32 use `IFileOpenDialog` / `IFileSaveDialog` (preferred) or the legacy `GetOpenFileNameW`.
 
+### FileDialog on Linux / X11
+
+Linux has no universal system file dialog API. The standard approach is to shell out to a desktop dialog tool — `zenity` on GNOME/GTK systems and `kdialog` on KDE/Qt systems. Both block until the user confirms or cancels, so calling them with `Process` + `waitUntilExit()` naturally produces the synchronous behavior the Java specification requires.
+
+```swift
+private func _runLinuxFileDialog() {
+    let isSave = (mode == java.awt.FileDialog.SAVE)
+    let title  = getTitle().isEmpty ? (isSave ? "Save" : "Open") : getTitle()
+
+    if let path = _runZenity(title: title, isSave: isSave) {
+        _setResult(path: path); return
+    }
+    if let path = _runKdialog(title: title, isSave: isSave) {
+        _setResult(path: path); return
+    }
+    file = nil; directory = nil   // no dialog tool available
+}
+
+private func _runZenity(title: String, isSave: Bool) -> String? {
+    var args = ["zenity", "--file-selection", "--title=\(title)"]
+    if isSave { args.append("--save") }
+    if let dir = directory { args.append("--filename=\(dir)") }
+    // … append --file-filter for extensions …
+    return _runTool(args)
+}
+
+private func _runKdialog(title: String, isSave: Bool) -> String? {
+    let verb = isSave ? "--getsavefilename" : "--getopenfilename"
+    return _runTool(["kdialog", verb, directory ?? ".", "--title", title])
+}
+
+private func _runTool(_ args: [String]) -> String? {
+    let p = Process()
+    p.executableURL = URL(fileURLWithPath: "/usr/bin/env")
+    p.arguments = args
+    let pipe = Pipe()
+    p.standardOutput = pipe
+    p.standardError  = Pipe()
+    try? p.run(); p.waitUntilExit()
+    guard p.terminationStatus == 0 else { return nil }
+    let out = String(data: pipe.fileHandleForReading.readDataToEndOfFile(),
+                     encoding: .utf8)?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+    return out.isEmpty ? nil : out
+}
+```
+
+Key points:
+
+- Try `zenity` first; fall back to `kdialog`; fall back to `nil` (no file chosen) if neither is installed.
+- Parse `stdout` of the chosen tool to extract the full path, then split into `file` and `directory`.
+- `directory` gets a trailing `/` to match the macOS/Windows convention.
+- Pass `--file-filter` to `zenity` or a glob pattern as a positional arg to `kdialog` when `filenameFilter` is set.
+- Extension parsing strips `*` and leading `.` from patterns like `"*.swift;*.txt"` → `["swift", "txt"]`.
+
 ## Step 9 — Register your toolkit and write the entry point
 
 Add your toolkit to `Toolkit.getDefaultToolkit()` in `Toolkit.swift`:
@@ -986,6 +1092,10 @@ Before shipping your toolkit, verify these are working:
 - [ ] RTLD flags (`RTLD_LAZY`, `RTLD_NOLOAD`) are written as numeric literals (`0x00001`, `0x00004`) — the Glibc symbols are inaccessible under static MUSL builds
 - [ ] Window title is set for both `Frame` and `Dialog` — not just `Frame`; uses `XStoreName` + `_NET_WM_NAME` (UTF-8)
 - [ ] Menu bar hover: `hoveredMenu` state updated in `MotionNotify`; repaint triggered on change; hover suppressed when a menu is open; pointer leaving the bar resets hover automatically
+- [ ] `CheckboxMenuItem` checkmark synced after `doAction()`: `NSMenuItem.state` on macOS, `CheckMenuItem(MF_BYCOMMAND)` on GDI, drawn box+lines on X11
+- [ ] X11 popup drawn checkbox uses lines not Unicode glyph; box aligned to text baseline not item height; fixed `checkW` column reserved for all items
+- [ ] Linux `FileDialog` shells out to `zenity` (GNOME) or `kdialog` (KDE) via `Process`; falls back to `nil` if neither is installed; `terminationStatus == 0` guards against cancel; result path split into `file` + `directory` with trailing `/`
+- [ ] `X11Toolkit.show(_:)` returns early for `FileDialog` — the dialog is self-managed via `setVisible` and must not receive an X11 window
 
 ## Reference implementations
 

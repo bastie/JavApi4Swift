@@ -185,6 +185,9 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private weak var draggingScrollbar:  java.awt.Scrollbar?
   // ScrollPane whose thumb is being dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingScrollPane: java.awt.ScrollPane?
+  // Button being held down — isPressed set on ButtonPress, doClick() on ButtonRelease
+  @MainActor private weak var pressedButton: java.awt.Button?
+  @MainActor private weak var pressedButtonWindow: java.awt.Window?
 
   // ---------------------------------------------------------------------------
   // MARK: Library loading
@@ -679,6 +682,12 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
           repaint(awtWindow, xwin: xwin)
 
+        } else if let btn = hit as? java.awt.Button {
+          // Set pressed state for visual feedback; dispatch on ButtonRelease (AWT convention)
+          btn.isPressed = true
+          pressedButton       = btn
+          pressedButtonWindow = awtWindow
+          repaint(awtWindow, xwin: xwin)
         } else {
           _AWTHitTest.dispatch(click: hit ?? awtWindow)
         }
@@ -689,6 +698,14 @@ public final class _X11WindowHost: @unchecked Sendable {
       if let sp = draggingScrollPane { sp.isDraggingV = false; sp.isDraggingH = false }
       draggingScrollbar  = nil
       draggingScrollPane = nil
+      // Fire button action on release (correct AWT behaviour) and clear pressed state
+      if let btn = pressedButton, let win = pressedButtonWindow {
+        btn.isPressed       = false
+        pressedButton       = nil
+        pressedButtonWindow = nil
+        repaint(win, xwin: xwin)
+        btn.doClick()
+      }
 
     case X11_MotionNotify:
       // XMotionEvent has same layout as XButtonEvent — x at offset 64, y at 68

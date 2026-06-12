@@ -780,7 +780,15 @@ public final class _Win32Canvas {
   // ---------------------------------------------------------------------------
 
   fileprivate func onCommand(itemId: UINT) {
-    menuItems[itemId]?.doAction()
+    guard let item = menuItems[itemId] else { return }
+    item.doAction()
+    // Sync Win32 checkmark after doAction() — CheckboxMenuItem.doAction() toggles
+    // the state but Win32 cannot detect that automatically via MF_CHECKED.
+    if let cbItem = item as? java.awt.CheckboxMenuItem, let hwnd {
+      let hMenu = GetMenu(hwnd)
+      _ = CheckMenuItem(hMenu, itemId,
+                        UINT(cbItem.getState() ? MF_CHECKED : MF_UNCHECKED) | UINT(MF_BYCOMMAND))
+    }
   }
 
   // ---------------------------------------------------------------------------

@@ -40,6 +40,8 @@ final class _X11PopupWindow {
   static let paddingX:       Int = 12
   static let separatorH:     Int = 5
   static let minWidth:       Int = 120
+  /// Width reserved on the left for a checkbox/checkmark indicator.
+  static let checkW:         Int = 16
 
   // ---------------------------------------------------------------------------
   // MARK: State
@@ -109,11 +111,11 @@ final class _X11PopupWindow {
     let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
     let fm   = java.awt.FontMetrics.make(for: font)
 
-    // Compute width: widest label + padding
+    // Compute width: widest label + left padding + checkmark column + right padding
     var maxW = Self.minWidth
     for item in menu.getItems() {
       if !item.isSeparator {
-        let w = fm.stringWidth(item.getLabel()) + Self.paddingX * 2
+        let w = fm.stringWidth(item.getLabel()) + Self.paddingX + Self.checkW + Self.paddingX
         if w > maxW { maxW = w }
       }
     }
@@ -195,7 +197,23 @@ final class _X11PopupWindow {
         // Baseline: center vertically, clamp so text is never above rect.y
         let leading = max(0, rect.height - fm.getAscent() - fm.getDescent())
         let textY = rect.y + leading / 2 + fm.getAscent()
-        g.drawString(item.getLabel(), rect.x + Self.paddingX, textY)
+        // Checkbox indicator for CheckboxMenuItems — drawn, not a glyph,
+        // so it works regardless of which glyphs the Xft font has.
+        if let cbItem = item as? java.awt.CheckboxMenuItem {
+          let bx = rect.x + 2
+          let bSize = 10
+          // Align box bottom to text baseline so checkbox sits on the same line as the label
+          let by = textY - fm.getAscent() + (fm.getAscent() + fm.getDescent() - bSize) / 2
+          // Box outline
+          g.drawRect(bx, by, bSize, bSize)
+          if cbItem.getState() {
+            // Checkmark: two lines forming a "✓" shape inside the box
+            g.drawLine(bx + 2, by + 5, bx + 4, by + 8)
+            g.drawLine(bx + 4, by + 8, bx + 8, by + 2)
+          }
+        }
+        // Label — offset by checkmark column width
+        g.drawString(item.getLabel(), rect.x + Self.checkW, textY)
       }
     }
   }

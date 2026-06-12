@@ -13,7 +13,7 @@ struct AWTShowcaseApp {
   @MainActor
   static func main() {
     java.awt.EventQueue.invokeLater {
-      AWTShowcaseApp().buildShowcase(width: 520, height: 420).setVisible(true)
+      AWTShowcaseApp().buildShowcase(width: 520, height: 450).setVisible(true)
     }
     java.awt.Toolkit.getDefaultToolkit().runEventLoop()
   }
@@ -29,7 +29,7 @@ struct AWTShowcaseApp {
     // ── Höhenaufteilung ──────────────────────────────────────────────────────
     // Alle Höhen sind hier zentral definiert; centerH ergibt sich automatisch.
     let northH    = 40
-    let controlsH = 90   // oberer SOUTH-Block: FlowLayout mit Widgets
+    let controlsH = 120  // oberer SOUTH-Block: FlowLayout mit Widgets (2 Zeilen)
     let demosH    = 60   // unterer SOUTH-Block: GridLayout + CardLayout Demo
     let southH    = controlsH + demosH
     let centerH   = height - northH - southH

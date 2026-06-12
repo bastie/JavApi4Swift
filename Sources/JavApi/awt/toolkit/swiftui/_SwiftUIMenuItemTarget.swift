@@ -21,6 +21,12 @@ import SwiftUI
 
   @objc func trigger(_ sender: Any?) {
     menuItem.doAction()
+    // Sync NSMenuItem checkmark after doAction() — CheckboxMenuItem.doAction()
+    // toggles the state, but AppKit cannot see that change automatically.
+    if let nsItem = sender as? NSMenuItem,
+       let cbItem = menuItem as? java.awt.CheckboxMenuItem {
+      nsItem.state = cbItem.getState() ? .on : .off
+    }
   }
 }
 
