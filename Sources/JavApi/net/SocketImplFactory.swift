@@ -12,13 +12,13 @@ extension java.net {
   /// `ServerSocket/setSocketFactory(_:)` to provide custom `SocketImpl`
   /// instances.
   ///
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  /// - Since: Java 1.0
   public protocol SocketImplFactory: Sendable {
 
     /// Creates a new ``SocketImpl`` instance.
     ///
     /// - Returns: A new ``SocketImpl``.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     func createSocketImpl() -> java.net.SocketImpl
   }
 }
