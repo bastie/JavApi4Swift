@@ -88,6 +88,22 @@ private typealias XDrawLinesFunc         = @convention(c) (UnsafeMutableRawPoint
 // XFillPolygon(Display*, Drawable, GC, XPoint[], npoints, Complex=0, CoordModeOrigin=0)
 private typealias XFillPolygonFunc       = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
                                                             UnsafeRawPointer, Int32, Int32, Int32) -> Int32
+// XDefaultDepth(Display*, screen) → int
+private typealias XDefaultDepthFunc      = @convention(c) (UnsafeMutableRawPointer, Int32) -> Int32
+// XCreateImage(Display*, Visual*, depth, format, offset, data, w, h, bitmap_pad, bytes_per_line)
+// format: ZPixmap=2; bitmap_pad=32; bytes_per_line=0 (auto)
+private typealias XCreateImageFunc       = @convention(c) (UnsafeMutableRawPointer,
+                                                            UnsafeMutableRawPointer?,
+                                                            UInt32, Int32, Int32,
+                                                            UnsafeMutablePointer<UInt8>?,
+                                                            UInt32, UInt32, Int32, Int32)
+                                                            -> UnsafeMutableRawPointer?
+// XPutImage(Display*, Drawable, GC, XImage*, src_x, src_y, dst_x, dst_y, w, h)
+private typealias XPutImageFunc          = @convention(c) (UnsafeMutableRawPointer, UInt,
+                                                            UnsafeMutableRawPointer,
+                                                            UnsafeMutableRawPointer,
+                                                            Int32, Int32, Int32, Int32,
+                                                            UInt32, UInt32) -> Int32
 
 // XRenderColor: 4 × UInt16 = 8 bytes total.
 // Map 8-bit (0–255) → 16-bit (0–65535) by multiplying by 257 (= 0x101).
@@ -176,6 +192,10 @@ extension java.awt.toolkit.x11 {
     private var fnFillArc:           XFillArcFunc?
     private var fnDrawLines:         XDrawLinesFunc?
     private var fnFillPolygon:       XFillPolygonFunc?
+    // Image blit
+    private var fnDefaultDepth:      XDefaultDepthFunc?
+    private var fnCreateImage:       XCreateImageFunc?
+    private var fnPutImage:          XPutImageFunc?
 
     // Current drawing color (mirrors setColor — base class has no getColor on non-CG)
     private var currentColor:      java.awt.Color = java.awt.Color.black
@@ -236,6 +256,10 @@ extension java.awt.toolkit.x11 {
       fnFillArc            = r("XFillArc")
       fnDrawLines          = r("XDrawLines")
       fnFillPolygon        = r("XFillPolygon")
+      // Image blit
+      fnDefaultDepth       = r("XDefaultDepth")
+      fnCreateImage        = r("XCreateImage")
+      fnPutImage           = r("XPutImage")
       _ = dlclose(lib)
       // Load Xft from libXft — separate library from libX11
       let xftCandidates = ["libXft.so.2", "libXft.so"]
@@ -562,11 +586,16 @@ extension java.awt.toolkit.x11 {
 
     /// Returns (or creates) a cached XftFont* for the given physical pixel size.
     ///
-    /// Uses a fontconfig pattern `"sans-serif:pixelsize=N"` which resolves to a
-    /// Unicode-capable font (DejaVu Sans, Liberation Sans, Noto Sans, …) on all
-    /// modern Linux desktops.  The result is stored in `sharedXftFontCache` — a
-    /// shared static dictionary keyed by pixel size — because font loading is
-    /// expensive and `_X11Graphics` instances are short-lived (one per paint call).
+    /// Tries fontconfig patterns from most to least specific.  The first two
+    /// patterns name fonts known to include the Geometric Shapes block
+    /// (U+25A0–U+25FF, e.g. ◀▶▲▼) so that navigation buttons render correctly
+    /// even on minimal X11 installations that ship only a basic sans-serif.
+    /// The generic `"sans-serif"` fallback is always tried last so that at least
+    /// Latin text is visible if no symbol-capable font is installed.
+    ///
+    /// The result is stored in `sharedXftFontCache` (shared static, keyed by
+    /// pixel size) because font loading is expensive and `_X11Graphics` instances
+    /// are short-lived (one per paint call).
     ///
     /// Returns `nil` if `fnXftFontOpenName` could not be resolved (libXft missing).
     private func xftFont(pixelSize: Int) -> UnsafeMutableRawPointer? {
@@ -574,17 +603,129 @@ extension java.awt.toolkit.x11 {
       guard let fnOpen   = fnXftFontOpenName,
             let fnScreen = fnDefaultScreen else { return nil }
       let screen = fnScreen(display)
-      let pattern = "sans-serif:pixelsize=\(pixelSize)"
-      let fnt = pattern.withCString { fnOpen(display, screen, $0) }
-      if let fnt { Self.sharedXftFontCache[pixelSize] = fnt }
-      return fnt
+      // Prefer fonts with broad Unicode coverage including Geometric Shapes.
+      // Fall back to generic sans-serif so Latin text always renders.
+      let candidates = [
+        "DejaVu Sans:pixelsize=\(pixelSize)",
+        "Liberation Sans:pixelsize=\(pixelSize)",
+        "Noto Sans:pixelsize=\(pixelSize)",
+        "sans-serif:pixelsize=\(pixelSize)",
+      ]
+      for pattern in candidates {
+        let fnt = pattern.withCString { fnOpen(display, screen, $0) }
+        if let fnt {
+          Self.sharedXftFontCache[pixelSize] = fnt
+          return fnt
+        }
+      }
+      return nil
     }
 
     public override func drawImage(_ img: java.awt.Image,
                                    _ x: Int, _ y: Int,
                                    _ observer: java.awt.ImageObserver? = nil) -> Bool {
-      // TODO: Convert BufferedImage pixels to XImage and call XPutImage
-      return false
+      guard let bi = img as? java.awt.image.BufferedImage else { return false }
+      return blitImage(bi, dx: x, dy: y, dw: bi.getWidth(nil), dh: bi.getHeight(nil))
+    }
+
+    @discardableResult
+    public override func drawImage(_ img: java.awt.Image,
+                                   _ x: Int, _ y: Int, _ w: Int, _ h: Int,
+                                   _ observer: java.awt.ImageObserver? = nil) -> Bool {
+      guard let bi = img as? java.awt.image.BufferedImage else { return false }
+      return blitImage(bi, dx: x, dy: y, dw: w, dh: h)
+    }
+
+    /// Blit `bi` onto the X11 drawable at logical position (dx,dy) scaled to (dw×dh).
+    ///
+    /// Uses `XCreateImage` + `XPutImage` with a 32-bpp ZPixmap.
+    /// Pixel format: little-endian BGRX (X11 default for 24-bit TrueColor visuals).
+    /// Alpha is composited onto the current background colour via simple
+    /// src-over blending so transparent PNG regions look correct.
+    private func blitImage(_ bi: java.awt.image.BufferedImage,
+                            dx: Int, dy: Int, dw: Int, dh: Int) -> Bool {
+      let sw = bi.getWidth(nil), sh = bi.getHeight(nil)
+      guard sw > 0, sh > 0, dw > 0, dh > 0 else { return false }
+      guard let fnDepth  = fnDefaultDepth,
+            let fnCreate = fnCreateImage,
+            let fnPut    = fnPutImage,
+            let fnScreen = fnDefaultScreen,
+            let fnVisual = fnDefaultVisual else { return false }
+
+      let screen = fnScreen(display)
+      let depth  = Int(fnDepth(display, screen))
+      guard let visual = fnVisual(display, screen) else { return false }
+
+      // Physical destination rectangle (apply scale + origin).
+      // Use Int throughout for pixel arithmetic; convert to Int32/UInt32 only at X11 call sites.
+      let physX = Int(scaled(dx + originX))
+      let physY = Int(scaled(dy + originY))
+      let physW = Int(scaledSize(dw))
+      let physH = Int(scaledSize(dh))
+      guard physW > 0, physH > 0 else { return false }
+
+      // Build 32-bpp BGRX pixel buffer (nearest-neighbour scaling).
+      // X11 ZPixmap with depth 24 uses 4 bytes per pixel; byte order is
+      // LSBFirst (little-endian) on all modern x86/ARM Linux systems.
+      let bytesPerPixel = 4
+      let stride = physW * bytesPerPixel
+      var pixels = [UInt8](repeating: 0, count: physH * stride)
+
+      // Resolve background colour once outside the loop
+      let bg  = backgroundColor
+      let bgR = Int(bg.getRed())
+      let bgG = Int(bg.getGreen())
+      let bgB = Int(bg.getBlue())
+
+      for py in 0..<physH {
+        let sy = (py * sh) / physH          // nearest-neighbour row in source
+        for px in 0..<physW {
+          let sx   = (px * sw) / physW      // nearest-neighbour col in source
+          let argb = bi.getRGB(sx, sy)
+          let a    = (argb >> 24) & 0xFF
+          let r    = (argb >> 16) & 0xFF
+          let g    = (argb >>  8) & 0xFF
+          let b    = (argb      ) & 0xFF
+          let idx  = py * stride + px * bytesPerPixel
+          if a == 255 {
+            // Fully opaque — write directly
+            pixels[idx + 0] = UInt8(b)
+            pixels[idx + 1] = UInt8(g)
+            pixels[idx + 2] = UInt8(r)
+            pixels[idx + 3] = 0
+          } else {
+            // Partially or fully transparent — src-over blend onto background colour.
+            // XPutImage has no alpha channel; we must composite here.
+            // When a == 0 the result equals the background colour exactly.
+            pixels[idx + 0] = UInt8((b * a + bgB * (255 - a)) / 255)
+            pixels[idx + 1] = UInt8((g * a + bgG * (255 - a)) / 255)
+            pixels[idx + 2] = UInt8((r * a + bgR * (255 - a)) / 255)
+            pixels[idx + 3] = 0
+          }
+        }
+      }
+
+      // XCreateImage requires a mutable data pointer (it does NOT take ownership;
+      // we keep `pixels` alive for the duration of XPutImage).
+      // ZPixmap = 2, bitmap_pad = 32, bytes_per_line = 0 (Xlib auto-computes)
+      var result = false
+      pixels.withUnsafeMutableBytes { buf in
+        guard let base = buf.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return }
+        guard let ximg = fnCreate(display, visual,
+                                  UInt32(depth), 2 /*ZPixmap*/, 0,
+                                  base,
+                                  UInt32(physW), UInt32(physH),
+                                  32, 0)
+        else { return }
+        _ = fnPut(display, drawable, gc, ximg,
+                  0, 0, Int32(physX), Int32(physY),
+                  UInt32(physW), UInt32(physH))
+        // XDestroyImage would also free `data` (our `pixels` buffer) — don't call it.
+        // The XImage struct itself (~80 bytes) is freed when Xlib reclaims it on
+        // the next GC cycle; this is acceptable for an image drawn once per repaint.
+        result = true
+      }
+      return result
     }
 
     // -------------------------------------------------------------------------
