@@ -164,7 +164,7 @@ public struct StrictMath {
     return Foundation.llround(d)
   }
   public static func round (_ f : Float) -> Int {
-    return Foundation.lroundf(f)
+    return Int(Foundation.lroundf(f)) // fix because on Windows Foundation.lroundf returns Int32 also on aarch64
   }
 
   // TODO: scalb
