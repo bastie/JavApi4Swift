@@ -18,8 +18,9 @@ extension java.io {
   /// let again = try pr.read()   // 'H' again
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class PushbackReader : Reader, @unchecked Sendable {
+    public typealias Readable = PushbackReader
 
     private let inner: java.io.Reader
     /// Pushback buffer; characters pushed back are stored from the end towards front.
@@ -33,7 +34,7 @@ extension java.io {
     /// Creates a `PushbackReader` with a pushback buffer of one character.
     ///
     /// - Parameter reader: The underlying `Reader`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader) {
       inner = reader
       buf   = [Character](repeating: "\u{0}", count: 1)
@@ -46,7 +47,7 @@ extension java.io {
     /// - Parameters:
     ///   - reader: The underlying `Reader`.
     ///   - size: Number of characters that may be pushed back.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader, _ size: Int) throws {
       guard size > 0 else { throw IllegalArgumentException("size <= 0") }
       inner = reader
@@ -66,7 +67,7 @@ extension java.io {
     /// Reads a single character, returning a previously un-read character first.
     ///
     /// - Returns: The character as `Int`, or -1 at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       try ensureOpen()
       if pos < buf.count {
@@ -79,7 +80,7 @@ extension java.io {
 
     /// Reads up to `len` characters into `cbuf` starting at `offset`,
     /// consuming pushed-back characters first.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read(_ cbuf: inout [Character], _ offset: Int, _ len: Int) throws -> Int {
       try ensureOpen()
       guard offset >= 0, len >= 0, offset + len <= cbuf.count else {
@@ -110,7 +111,7 @@ extension java.io {
     ///
     /// - Parameter c: The character code to push back.
     /// - Throws: `IOException` if the pushback buffer is full.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func unread(_ c: Int) throws {
       try ensureOpen()
       guard pos > 0 else { throw java.io.IOException("Pushback buffer is full") }
@@ -125,7 +126,7 @@ extension java.io {
     ///
     /// - Parameter cbuf: The characters to push back (last element returned first).
     /// - Throws: `IOException` if the pushback buffer has insufficient space.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func unread(_ cbuf: [Character]) throws {
       try unread(cbuf, 0, cbuf.count)
     }
@@ -137,7 +138,7 @@ extension java.io {
     ///   - offset: Start index in `cbuf`.
     ///   - len: Number of characters to push back.
     /// - Throws: `IOException` if the pushback buffer has insufficient space.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func unread(_ cbuf: [Character], _ offset: Int, _ len: Int) throws {
       try ensureOpen()
       guard pos >= len else { throw java.io.IOException("Pushback buffer is full") }
@@ -146,7 +147,7 @@ extension java.io {
     }
 
     /// Returns `true` if there are pushed-back characters or the underlying reader is ready.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       try ensureOpen()
       if pos < buf.count { return true }
@@ -154,23 +155,23 @@ extension java.io {
     }
 
     /// `PushbackReader` does not support `mark`/`reset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func markSupported() -> Bool { return false }
 
     /// Always throws — `PushbackReader` does not support `mark`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func mark(_ readAheadLimit: Int) throws {
       throw java.io.IOException("mark/reset not supported")
     }
 
     /// Always throws — `PushbackReader` does not support `reset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func reset() throws {
       throw java.io.IOException("mark/reset not supported")
     }
 
     /// Closes the reader and the underlying stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       if !closed {
         closed = true

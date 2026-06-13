@@ -27,6 +27,7 @@ extension java.lang {
   public typealias MatchException = JavApi.MatchException
   public typealias Math = JavApi.Math
   public typealias Number = JavApi.Number
+  public typealias Readable = JavApi.Readable
   public typealias Runnable = JavApi.Runnable
   public typealias RuntimeException = JavApi.RuntimeException
   public typealias System = JavApi.System

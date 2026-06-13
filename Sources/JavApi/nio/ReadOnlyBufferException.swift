@@ -4,7 +4,8 @@
  */
 
 extension java.nio.charset {
-  
+
+  /// - Since Java 1.4
   open class ReadOnlyBufferException : UnsupportedOperationException, @unchecked Sendable {
     
     public override init () {

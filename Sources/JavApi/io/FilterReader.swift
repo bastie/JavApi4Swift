@@ -13,6 +13,7 @@ extension java.io {
   ///
   /// - Since: JavaApi (Java 1.1)
   open class FilterReader : Reader, @unchecked Sendable {
+    public typealias Readable = FilterReader
 
     /// The underlying reader.
     public var `in`: java.io.Reader

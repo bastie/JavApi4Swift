@@ -17,6 +17,7 @@ extension java.io {
   ///
   /// - Since: Java 1.1
   open class FileReader : InputStreamReader, @unchecked Sendable {
+    public typealias Readable = FileReader
 
     // MARK: - Initialisers
 

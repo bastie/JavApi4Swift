@@ -18,8 +18,9 @@ extension java.io {
   /// let eof    = try br.readLine()  // nil
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class BufferedReader : Reader, @unchecked Sendable {
+    public typealias Readable = BufferedReader
 
     private static let defaultBufferSize = 8192
 
@@ -40,7 +41,7 @@ extension java.io {
     /// Creates a `BufferedReader` wrapping `reader` with the default buffer (8192 chars).
     ///
     /// - Parameter reader: The underlying `Reader`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader) {
       inner = reader
       buf = Array(repeating: "\u{0}", count: BufferedReader.defaultBufferSize)
@@ -52,7 +53,7 @@ extension java.io {
     /// - Parameters:
     ///   - reader: The underlying `Reader`.
     ///   - sz: Buffer size in characters.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader, _ sz: Int) throws {
       guard sz > 0 else { throw IllegalArgumentException("Buffer size <= 0") }
       inner = reader
@@ -95,7 +96,7 @@ extension java.io {
     // MARK: - Reader overrides
 
     /// Reads a single character; returns -1 at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       try ensureOpen()
       if bufPos >= bufCount {
@@ -107,7 +108,7 @@ extension java.io {
     }
 
     /// Reads up to `count` characters into `buf` starting at `offset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read(_ cbuf: inout [Character], _ offset: Int, _ count: Int) throws -> Int {
       try ensureOpen()
       guard offset >= 0, count >= 0, offset + count <= cbuf.count else {
@@ -137,7 +138,7 @@ extension java.io {
     /// Reads a line of text, stripping the line terminator (`\n`, `\r`, `\r\n`).
     ///
     /// - Returns: The line content, or `nil` at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func readLine() throws -> String? {
       try ensureOpen()
       var line = ""
@@ -172,7 +173,7 @@ extension java.io {
     }
 
     /// Returns `true` if there is buffered data or the underlying reader is ready.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       try ensureOpen()
       if bufPos < bufCount { return true }
@@ -180,14 +181,14 @@ extension java.io {
     }
 
     /// Returns `true` — `BufferedReader` supports `mark`/`reset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func markSupported() -> Bool { return true }
 
     /// Marks the current position; the mark is valid while fewer than
     /// `readAheadLimit` additional characters are read.
     ///
     /// - Parameter readAheadLimit: Maximum look-ahead before the mark is invalidated.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func mark(_ readAheadLimit: Int) throws {
       guard readAheadLimit >= 0 else {
         throw IllegalArgumentException("Read-ahead limit < 0")
@@ -207,7 +208,7 @@ extension java.io {
     }
 
     /// Resets the stream to the last mark.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func reset() throws {
       try ensureOpen()
       guard markPos >= 0 else {
@@ -217,7 +218,7 @@ extension java.io {
     }
 
     /// Skips up to `count` characters.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func skip(_ count: Int64) throws -> Int64 {
       guard count >= 0 else { throw IllegalArgumentException("skip value is negative") }
       try ensureOpen()
@@ -235,7 +236,7 @@ extension java.io {
     }
 
     /// Closes the reader and the underlying stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       if !closed {
         closed = true

@@ -16,8 +16,9 @@ extension java.io {
   /// let ch = try reader.read()   // 72 ('H')
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class CharArrayReader : Reader, @unchecked Sendable {
+    public typealias Readable = CharArrayReader
 
     private var buf: [Character]
     private var pos: Int
@@ -30,7 +31,7 @@ extension java.io {
     /// Creates a `CharArrayReader` over the entire array.
     ///
     /// - Parameter buf: The character array to read from (copied by reference).
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ buf: [Character]) {
       self.buf   = buf
       self.pos   = 0
@@ -44,7 +45,7 @@ extension java.io {
     ///   - buf: The character array to read from.
     ///   - offset: Index of the first character to read.
     ///   - length: Number of characters to make available.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ buf: [Character], _ offset: Int, _ length: Int) {
       self.buf   = buf
       self.pos   = offset
@@ -62,7 +63,7 @@ extension java.io {
     // MARK: - Reader overrides
 
     /// Reads a single character; returns -1 at end of array.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       try ensureOpen()
       guard pos < count else { return -1 }
@@ -72,7 +73,7 @@ extension java.io {
     }
 
     /// Reads up to `len` characters into `cbuf` starting at `offset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read(_ cbuf: inout [Character], _ offset: Int, _ len: Int) throws -> Int {
       try ensureOpen()
       guard offset >= 0, len >= 0, offset + len <= cbuf.count else {
@@ -86,7 +87,7 @@ extension java.io {
     }
 
     /// Skips up to `n` characters.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func skip(_ n: Int64) throws -> Int64 {
       try ensureOpen()
       let available = Int64(count - pos)
@@ -96,34 +97,34 @@ extension java.io {
     }
 
     /// Returns `true` — a `CharArrayReader` is always ready.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       try ensureOpen()
       return pos < count
     }
 
     /// Returns `true` — `CharArrayReader` supports `mark`/`reset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func markSupported() -> Bool { return true }
 
     /// Marks the current position.
     ///
     /// - Parameter readAheadLimit: Ignored — no limit on a `CharArrayReader`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func mark(_ readAheadLimit: Int) throws {
       try ensureOpen()
       markPos = pos
     }
 
     /// Resets to the last marked position.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func reset() throws {
       try ensureOpen()
       pos = markPos
     }
 
     /// Closes the reader.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       closed = true
     }

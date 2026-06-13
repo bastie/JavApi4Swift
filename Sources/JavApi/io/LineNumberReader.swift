@@ -17,7 +17,7 @@ extension java.io {
   /// _ = try reader.readLine()   // "line2", lineNumber → 2
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class LineNumberReader : Reader, @unchecked Sendable {
 
     private let inner: java.io.Reader
@@ -31,7 +31,7 @@ extension java.io {
     /// Creates a `LineNumberReader` wrapping `reader` with a default buffer.
     ///
     /// - Parameter reader: The underlying `Reader`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader) {
       inner = reader
       super.init()
@@ -42,7 +42,7 @@ extension java.io {
     /// - Parameters:
     ///   - reader: The underlying `Reader`.
     ///   - sz: Buffer size hint (currently ignored — no internal buffering).
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ reader: java.io.Reader, _ sz: Int) {
       inner = reader
       super.init()
@@ -51,13 +51,13 @@ extension java.io {
     // MARK: - Line number access
 
     /// Returns the current line number.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func getLineNumber() -> Int { return lineNumber }
 
     /// Sets the current line number.
     ///
     /// - Parameter lineNumber: The new line number.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func setLineNumber(_ lineNumber: Int) {
       self.lineNumber = lineNumber
     }
@@ -69,7 +69,7 @@ extension java.io {
     /// `\r\n` is treated as a single newline. Returns `\n` for all terminators.
     ///
     /// - Returns: The character as `Int`, or -1 at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       if let pb = pushback {
         pushback = nil
@@ -96,7 +96,12 @@ extension java.io {
     }
 
     /// Reads up to `count` characters into `buf` starting at `offset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Parameters:
+    ///   - buf: buffer to read into
+    ///   - offset: position in buffer
+    ///   - count: count of read
+    /// - Throws: IndexOutOfBoundsException if not `offset >= 0, count >= 0, offset + count <= buf.count`
+    /// - Since: Java 1.1
     public override func read(_ buf: inout [Character], _ offset: Int, _ count: Int) throws -> Int {
       guard offset >= 0, count >= 0, offset + count <= buf.count else {
         throw IndexOutOfBoundsException()
@@ -114,7 +119,7 @@ extension java.io {
     /// Reads a full line, stripping the line terminator.
     ///
     /// - Returns: The line content, or `nil` at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func readLine() throws -> String? {
       var line = ""
       var gotChar = false
@@ -128,19 +133,22 @@ extension java.io {
       }
     }
 
-    /// Returns `true` — delegates to the underlying reader.
-    /// - Since: JavaApi (Java 1.1)
-    public override func markSupported() -> Bool { return true }
+    /// - Returns: `true` — delegates to the underlying reader.
+    /// - Since: Java 1.1
+    public override func markSupported() -> Bool {
+      return true
+    }
 
     /// Marks the current stream position and saves the line number.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Parameter readLimit: the readLimit
+    /// - Since: Java 1.1
     public override func mark(_ readLimit: Int) throws {
       markLineNumber = lineNumber
       try inner.mark(readLimit)
     }
 
     /// Resets to the last mark, restoring the line number.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func reset() throws {
       lineNumber = markLineNumber
       lastWasCR = false
@@ -149,13 +157,15 @@ extension java.io {
     }
 
     /// Skips up to `count` characters.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Parameter count: skip bytes count
+    /// - Returns: bytes really skiped
+    /// - Since: Java 1.1
     public override func skip(_ count: Int64) throws -> Int64 {
       return try inner.skip(count)
     }
 
     /// Closes the underlying reader.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       try inner.close()
     }

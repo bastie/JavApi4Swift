@@ -20,8 +20,9 @@ extension java.io {
   /// let line = try java.io.BufferedReader(reader).readLine()  // "Hello"
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   public class PipedReader : java.io.Reader, @unchecked Sendable {
+    public typealias Readable = PipedReader
 
     internal var pipe: Foundation.Pipe?
 
@@ -30,7 +31,7 @@ extension java.io {
     private var charPos: Int = 0
 
     /// Creates an unconnected `PipedReader`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override init() {
       super.init()
     }
@@ -39,7 +40,7 @@ extension java.io {
     ///
     /// - Parameter src: The `PipedWriter` to connect to.
     /// - Throws: `IOException` if `src` is already connected.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ src: PipedWriter) throws {
       super.init()
       try src.connect(self)
@@ -49,7 +50,7 @@ extension java.io {
     ///
     /// - Parameter src: The `PipedWriter` to connect to.
     /// - Throws: `IOException` if already connected.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func connect(_ src: PipedWriter) throws {
       try src.connect(self)
     }
@@ -71,7 +72,7 @@ extension java.io {
     // MARK: - Reader overrides
 
     /// Reads a single character; returns -1 when no data is available.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       guard pipe != nil else { throw IOException("Pipe not connected") }
       if charPos >= charBuf.count {
@@ -85,7 +86,7 @@ extension java.io {
     }
 
     /// Reads up to `len` characters into `cbuf` starting at `offset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read(_ cbuf: inout [Character], _ offset: Int, _ len: Int) throws -> Int {
       guard pipe != nil else { throw IOException("Pipe not connected") }
       guard offset >= 0, len >= 0, offset + len <= cbuf.count else {
@@ -104,14 +105,14 @@ extension java.io {
     }
 
     /// Returns `true` if decoded characters are buffered.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       guard pipe != nil else { throw IOException("Pipe not connected") }
       return charPos < charBuf.count
     }
 
     /// Closes the read end of the pipe.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       try? pipe?.fileHandleForReading.close()
     }

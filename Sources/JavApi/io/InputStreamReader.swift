@@ -20,8 +20,9 @@ extension java.io {
   /// let first = try isr.read()   // 'H'
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.1)
+  /// - Since: Java 1.1
   open class InputStreamReader : Reader, @unchecked Sendable {
+    public typealias Readable = InputStreamReader
 
     private let inner: java.io.InputStream
     private let encoding: String.Encoding
@@ -38,7 +39,7 @@ extension java.io {
     /// Creates an `InputStreamReader` using UTF-8 encoding.
     ///
     /// - Parameter stream: The underlying `InputStream`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ stream: java.io.InputStream) {
       inner    = stream
       encoding = .utf8
@@ -54,7 +55,7 @@ extension java.io {
     ///   - stream: The underlying `InputStream`.
     ///   - charsetName: The IANA charset name.
     /// - Throws: `UnsupportedEncodingException` if the charset is not recognised.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public init(_ stream: java.io.InputStream, _ charsetName: String) throws {
       inner = stream
       switch charsetName.uppercased() {
@@ -78,7 +79,7 @@ extension java.io {
     }
 
     /// Returns the name of the encoding used by this reader.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public func getEncoding() -> String {
       switch encoding {
       case .utf8:              return "UTF-8"
@@ -130,7 +131,7 @@ extension java.io {
     // MARK: - Reader overrides
 
     /// Reads a single character; returns -1 at end of stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read() throws -> Int {
       try ensureOpen()
       if charPos >= charBuf.count {
@@ -142,7 +143,7 @@ extension java.io {
     }
 
     /// Reads up to `count` characters into `cbuf` starting at `offset`.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func read(_ cbuf: inout [Character], _ offset: Int, _ count: Int) throws -> Int {
       try ensureOpen()
       guard offset >= 0, count >= 0, offset + count <= cbuf.count else {
@@ -164,8 +165,8 @@ extension java.io {
       return totalRead == 0 ? -1 : totalRead
     }
 
-    /// Returns `true` if characters are buffered or the underlying stream has data.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Returns: `true` if characters are buffered or the underlying stream has data.
+    /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       try ensureOpen()
       if charPos < charBuf.count { return true }
@@ -173,7 +174,7 @@ extension java.io {
     }
 
     /// Closes the reader and the underlying stream.
-    /// - Since: JavaApi (Java 1.1)
+    /// - Since: Java 1.1
     public override func close() throws {
       if !closed {
         closed = true

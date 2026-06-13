@@ -23,9 +23,9 @@ extension java.io {
    *
    * @see Writer
    */
-  open class Reader : @unchecked Sendable /*: Readable*/ ,Closeable {
+  open class Reader : @unchecked Sendable, Readable ,Closeable {
+    public typealias Readable = Reader    
     public typealias Closeable = Reader
-    
     
     /**
      * The object used to synchronize access to the reader.
