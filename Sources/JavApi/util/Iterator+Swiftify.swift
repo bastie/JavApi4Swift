@@ -3,21 +3,19 @@
  * SPDX-License-Identifier: MIT
  */
 extension java.util.Iterator {
-  
-  // Brücke: erfüllt IteratorProtocol.next() -> Element?
-  // "as Element" disambiguiert explizit zur Java-Variante
-  mutating func next() throws (java.util.NoSuchElementException) -> Element? {
-    guard hasNext() else {
-      throw java.util.NoSuchElementException()
+
+  /// Default `makeIterator()` for `Sequence` conformance.
+  /// Wraps the Java-style iterator in an `AnyIterator` so `for-in` works
+  /// without requiring concrete types to implement `IteratorProtocol` directly.
+  public func makeIterator() -> AnyIterator<Element?> {
+    let it = self
+    return AnyIterator {
+      guard it.hasNext() else { return nil }
+      return try? it.next()
     }
-    // hasNext checked so try!
-    return (try! next() as Element)
   }
-  
-  // self ist sein eigener Iterator – wie bei Enumeration
-  func makeIterator() -> Self { self }
-  
-  mutating func remove() throws (java.lang.Throwable){
-    fatalError("remove() not supported by this iterator")
+
+  public func remove() throws (java.lang.IllegalStateException) {
+    throw java.lang.IllegalStateException()
   }
 }
