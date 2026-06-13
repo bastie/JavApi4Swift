@@ -26,11 +26,6 @@ extension java.util {
   }
 }
 
-extension java.util.Collection {
-  public func makeIterator() -> Iterator {
-    self.iterator() as! Self.Iterator
-  }
-}
 
 extension java.util.Collection {
   public func equals (_ object : Any) -> Bool {

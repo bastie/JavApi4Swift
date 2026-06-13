@@ -16,10 +16,13 @@ extension java.util {
    */
   open class AbstractCollection<E> : Collection where E: Equatable {
     
-    public typealias IteratorType = AbstractCollection<E>
-    
-    public typealias Element = E
-    
+    // Sequence.Iterator — AnyIterator wraps the java.util.Iterator without a forced cast.
+    public typealias Element = E?
+
+    public func makeIterator() -> AnyIterator<E?> {
+      return self.iterator().makeIterator()
+    }
+
     /**
      * Constructs a new instance of this AbstractCollection.
      */
@@ -63,7 +66,7 @@ extension java.util {
       var result = false;
       let it = collection.iterator();
       while (it.hasNext()) {
-        let next = try it.next()!
+        let next = try it.next()
         if try add(next) {
           result = true
         }
@@ -90,7 +93,7 @@ extension java.util {
     public func clear() {
       let it = iterator();
       while (it.hasNext()) {
-        _ = try! it.next();
+        _ = try? it.next()
         try? it.remove();
       }
     }
@@ -118,24 +121,21 @@ extension java.util {
       let it = iterator()
       if (element != nil) {
         while (it.hasNext()) {
-          if (element == (try! it.next())) {
+          if (element == (try? it.next())) {
             return true;
           }
         }
       }
       else {
         while (it.hasNext()) {
-          do {
-            _ = try it.next()
-          }
-          catch {
+          if (try? it.next()) == nil {
             return true;
           }
         }
       }
       return false;
     }
-    
+
     /**
      * Tests whether this {@code Collection} contains all objects contained in the
      * specified {@code Collection}. This implementation iterates over the specified
@@ -159,8 +159,8 @@ extension java.util {
     open func containsAll(_ collection: any java.util.Collection<E?>) -> Bool {
       let it = collection.iterator();
       while (it.hasNext()) {
-        let next = try! it.next()
-        if !self.contains(next!) {
+        let next : E? = try? it.next()
+        if !self.contains(next) {
           return false;
         }
       }
@@ -223,7 +223,7 @@ extension java.util {
       let it = iterator();
       if (element != nil) {
         while (it.hasNext()) {
-          if (element == (try! it.next())) {
+          if (element == (try? it.next())) {
             try? it.remove();
             return true
           }
@@ -231,10 +231,7 @@ extension java.util {
       }
       else {
         while (it.hasNext()) {
-          do {
-            _ = try it.next()
-          }
-          catch {
+          if (try? it.next()) == nil {
             try? it.remove();
             return true;
           }
@@ -276,7 +273,7 @@ extension java.util {
       var result = false;
       let it = iterator();
       while (it.hasNext()) {
-        if (collection.contains(try! it.next())) {
+        if (collection.contains((try? it.next()) ?? nil)) {
           try? it.remove();
           result = true;
         }
@@ -317,8 +314,7 @@ extension java.util {
       var result = false;
       let it = iterator();
       while (it.hasNext()) {
-        let next : E? = try! it.next()
-        _ = collection.contains(next)
+        let next : E? = try? it.next()
         if !collection.contains(next) {
           try? it.remove()
           result = true
@@ -345,7 +341,7 @@ extension java.util {
       var array : [E?] = []
       let iterator = self.iterator()
       while iterator.hasNext() {
-        let next : E? = try! iterator.next()
+        let next : E? = try? iterator.next()
         array.append(next)
       }
       return array;
@@ -383,7 +379,7 @@ extension java.util {
       _ = buffer.append("[")
       let it = iterator();
       while (it.hasNext()) {
-        let next = try! it.next()
+        let next = try? it.next()
         if (next != self as? E) {
           _ = buffer.append("\(String(describing: next))")
         } else {
@@ -398,9 +394,5 @@ extension java.util {
     }
 
 
-    public func next() -> E? {
-      fatalError("need to implement in concrete subtype")
-    }
-    
   }
 }

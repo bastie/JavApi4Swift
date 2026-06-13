@@ -13,8 +13,8 @@ extension java.util {
     func hashCode() -> Int
     func indexOf(element : Any?) -> Int
     func lastIndexOf(_ element : Any?) -> Int
-    func listIterator() -> any java.util.ListIterator<E?>
-    func listIterator(_ location : Int) -> any java.util.ListIterator<E?>
+    func listIterator() -> any java.util.ListIterator<E>
+    func listIterator(_ location : Int) -> any java.util.ListIterator<E>
     func remove(_ location : Int) throws -> E?
     func set(_ location : Int, _ element : E?) throws -> E?
     func subList(_ start : Int, _ end : Int) -> any java.util.List
