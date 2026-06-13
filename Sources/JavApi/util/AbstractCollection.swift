@@ -23,6 +23,7 @@ extension java.util {
       return self.iterator().makeIterator()
     }
 
+
     /**
      * Constructs a new instance of this AbstractCollection.
      */

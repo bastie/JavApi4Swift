@@ -67,14 +67,6 @@ extension java.util {
       return true
     }
 
-    /// Non-throwing convenience overload for the common case.
-    /// Matches Java's typical usage where `ArrayList.add` never actually throws.
-    @discardableResult
-    public func add(_ element: E) -> Bool {
-      elements.append(element)
-      return true
-    }
-
     /// Inserts the specified element at the specified position in this list.
     ///
     /// Shifts the element currently at that position and any subsequent elements to the right.
