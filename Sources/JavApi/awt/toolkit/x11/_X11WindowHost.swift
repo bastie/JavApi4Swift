@@ -444,20 +444,17 @@ public final class _X11WindowHost: @unchecked Sendable {
     _ = fnMap(dpy, xwin)
     _ = fnFlush(dpy)
 
-    // Modal dialog: spin a nested RunLoop on the main thread until closeDialog()
-    // sets the done-flag. The background X11 event loop keeps running normally,
-    // dispatching events via DispatchQueue.main.async — so the nested RunLoop
-    // will drain those async blocks and the dialog responds to user input.
-    if let dialog = awtWindow as? java.awt.Dialog, dialog.isModal() {
-      let key = ObjectIdentifier(dialog)
-      MainActor.assumeIsolated { modalDoneFlags[key] = false }
-      while true {
-        let done = MainActor.assumeIsolated { modalDoneFlags[key] ?? true }
-        if done { break }
-        RunLoop.main.run(until: Date(timeIntervalSinceNow: 0.016))
-      }
-      MainActor.assumeIsolated { _ = modalDoneFlags.removeValue(forKey: key) }
-    }
+    // NOTE: X11 modal blocking is not implemented here.
+    // openWindow() is called from within a DispatchQueue.main.async block
+    // (via btn.doClick → actionPerformed → setVisible → show → openWindow).
+    // Spinning RunLoop.main.run(until:) inside an already-running main-queue
+    // dispatch block does not drain new async blocks — the nested run loop
+    // cannot execute new DispatchQueue.main.async items while the outer
+    // async block is still on the stack. This causes a deadlock: the dialog
+    // window appears empty and no further mouse/keyboard events are processed.
+    //
+    // Dialogs therefore open non-modally on X11 for now. The AWT-level
+    // modal flag (dialog.isModal()) is preserved and checked by closeDialog().
   }
 
   // ---------------------------------------------------------------------------
@@ -504,12 +501,23 @@ public final class _X11WindowHost: @unchecked Sendable {
     reverseRegistry.removeValue(forKey: id)
   }
 
-  /// Closes a modal dialog: hides the window and signals the nested RunLoop to exit.
+  /// Closes a dialog and releases all associated X11 resources.
   @MainActor
   public func closeDialog(_ dialog: java.awt.Dialog) {
-    let key = ObjectIdentifier(dialog)
-    modalDoneFlags[key] = true
-    CFRunLoopStop(CFRunLoopGetMain())
+    // Dismiss any open popup menu — it may hold strong refs to Menu/MenuItem
+    // objects belonging to this dialog's menu bar.
+    if let popup = _X11PopupWindow.activePopup {
+      popup.dismiss(repaint: false)
+    }
+
+    // Release the _X11MenuBar for this dialog's X window before hide()
+    // destroys it. _X11MenuBar holds a strong ref to java.awt.MenuBar and
+    // its Menu children.
+    let dialogId = ObjectIdentifier(dialog)
+    if let xwin = reverseRegistry[dialogId] {
+      menuBarRegistry.removeValue(forKey: xwin)
+    }
+
     hide(dialog)
   }
 

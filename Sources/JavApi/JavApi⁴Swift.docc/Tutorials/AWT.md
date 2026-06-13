@@ -918,8 +918,20 @@ On **Windows (GDI)**, no such retain cycle exists — the `_Win32Canvas` is free
 show as a sustained leak in Task Manager. `dispose()` still clears the menu-item
 dictionary and the component hierarchy eagerly, which is good practice regardless.
 
-On **Linux (X11)**, the same Win32-style model applies — no SwiftUI object graph,
-no retain cycles. `dispose()` cleans up the component hierarchy as on all platforms.
+On **Linux (X11)**, there is no SwiftUI object graph and no retain cycle. However,
+the X11 toolkit maintains several internal registries that must be flushed when a
+dialog closes:
+
+- **`menuBarRegistry`** — maps each X window to an `_X11MenuBar` instance, which
+  holds a strong reference to the `java.awt.MenuBar` and its `Menu` children. This
+  entry is removed by `closeDialog()` before the X window is destroyed.
+- **`_X11PopupWindow.activePopup`** — a static strong reference to the currently
+  open dropdown menu. If a dialog closes while a popup is visible, `closeDialog()`
+  calls `dismiss()` to release the popup and its `MenuItem` references.
+- **Component hierarchy** — `dispose()` calls `removeAll()` to clear listener arrays
+  and break child–parent references, exactly as on macOS and Windows.
+
+All three cleanups happen automatically; no additional code is needed in application logic.
 
 ### Summary checklist
 
