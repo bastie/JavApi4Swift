@@ -249,11 +249,148 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ✔️       | method        | intersects()            | (double,double,double,double)->bool
 1.2     | ✔️          | ⭕️       | method        | createTransformedArea() | (AffineTransform)->Area
 
+### java.awt.geom.Arc2D (✔️/✔️)
+
+> Arc segment defined by a bounding rectangle, start angle, angular extent and closure type (OPEN/CHORD/PIE).
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | final field   | OPEN / CHORD / PIE      | int 0/1/2
+1.2     | ✔️          | ✔️       | inner class   | Arc2D.Double            | extends RectangularShape
+1.2     | ✔️          | ✔️       | inner class   | Arc2D.Float             | extends RectangularShape
+1.2     | ✔️          | ✔️       | method        | getAngleStart()         | ()->double
+1.2     | ✔️          | ✔️       | method        | getAngleExtent()        | ()->double
+1.2     | ✔️          | ✔️       | method        | containsAngle()         | (double)->bool
+1.2     | ✔️          | ✔️       | method        | getStartPoint()         | ()->Point2D
+1.2     | ✔️          | ✔️       | method        | getEndPoint()           | ()->Point2D
+1.2     | ✔️          | ✔️       | method        | setArc()                | (double,double,double,double,double,double,int)
+1.2     | ✔️          | ✔️       | method        | isEmpty()               | ()->bool
+1.2     | ✔️          | ✔️       | method        | getBounds()             | ()->Rectangle
+1.2     | ✔️          | ✔️       | method        | contains()              | (double,double)->bool
+1.2     | ✔️          | ⭕️       | method        | intersects()            | (double,double,double,double)->bool
+
+### java.awt.geom.QuadCurve2D (✔️/✔️)
+
+> Quadratic Bézier curve defined by start, one control point, and end.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | inner class   | QuadCurve2D.Double      |
+1.2     | ✔️          | ✔️       | inner class   | QuadCurve2D.Float       |
+1.2     | ✔️          | ✔️       | method        | getX1/Y1/X2/Y2()        | ()->double
+1.2     | ✔️          | ✔️       | method        | getCtrlX() / getCtrlY() | ()->double
+1.2     | ✔️          | ✔️       | method        | setCurve()              | (double×6)
+1.2     | ✔️          | ✔️       | method        | getFlatness()           | ()->double
+1.2     | ✔️          | ✔️       | method        | getFlatnessSq()         | ()->double
+1.2     | ✔️          | ✔️       | static method | solveQuadratic()        | ([double], inout [double])->int
+1.2     | ✔️          | ✔️       | method        | getBounds()             | ()->Rectangle
+1.2     | ✔️          | ⭕️       | method        | contains()              | (double,double)->bool
+1.2     | ✔️          | ⭕️       | method        | intersects()            | (double,double,double,double)->bool
+
+### java.awt.geom.CubicCurve2D (✔️/✔️)
+
+> Cubic Bézier curve defined by start, two control points, and end.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | inner class   | CubicCurve2D.Double     |
+1.2     | ✔️          | ✔️       | inner class   | CubicCurve2D.Float      |
+1.2     | ✔️          | ✔️       | method        | getX1/Y1/X2/Y2()        | ()->double
+1.2     | ✔️          | ✔️       | method        | getCtrlX1/Y1/X2/Y2()    | ()->double
+1.2     | ✔️          | ✔️       | method        | setCurve()              | (double×8)
+1.2     | ✔️          | ✔️       | static method | solveCubic()            | ([double], inout [double])->int — Cardano
+1.2     | ✔️          | ✔️       | method        | getBounds()             | ()->Rectangle
+1.2     | ✔️          | ⭕️       | method        | contains()              | (double,double)->bool
+1.2     | ✔️          | ⭕️       | method        | intersects()            | (double,double,double,double)->bool
+
 ### java.awt.geom.NoninvertibleTransformException (✔️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ✔️          | ⭕️       | constructor   | NoninvertibleTransformException() | (String)
+
+---
+
+## java.awt.font
+
+### java.awt.font.FontRenderContext (✔️/⭕️)
+
+> Encapsulates antialiasing and fractional-metrics hints for font measurement.
+> Obtain via `Graphics2D.getFontRenderContext()`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | FontRenderContext       |
+1.2     | ✔️          | ⭕️       | constructor   | FontRenderContext()     | ()
+1.2     | ✔️          | ⭕️       | constructor   | FontRenderContext()     | (antiAliasing:fractionalMetrics:)
+1.2     | ✔️          | ⭕️       | method        | isAntiAliased()         | ()->bool
+1.2     | ✔️          | ⭕️       | method        | usesFractionalMetrics() | ()->bool
+1.2     | ✔️          | ⭕️       | method        | equals()                | (FontRenderContext)->bool
+
+### java.awt.font.LineMetrics (✔️/⭕️)
+
+> Per-string line metrics including strikethrough and underline geometry.
+> On Apple platforms CoreText-backed; elsewhere proportional approximation.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | abstract class| LineMetrics             |
+1.2     | ✔️          | ⭕️       | class         | DefaultLineMetrics      | concrete subclass
+1.2     | ✔️          | ⭕️       | method        | getNumChars()           | ()->int
+1.2     | ✔️          | ⭕️       | method        | getAscent()             | ()->float
+1.2     | ✔️          | ⭕️       | method        | getDescent()            | ()->float
+1.2     | ✔️          | ⭕️       | method        | getLeading()            | ()->float
+1.2     | ✔️          | ⭕️       | method        | getHeight()             | ()->float (final)
+1.2     | ✔️          | ⭕️       | method        | getStrikethroughOffset()    | ()->float
+1.2     | ✔️          | ⭕️       | method        | getStrikethroughThickness() | ()->float
+1.2     | ✔️          | ⭕️       | method        | getUnderlineOffset()    | ()->float
+1.2     | ✔️          | ⭕️       | method        | getUnderlineThickness() | ()->float
+1.2     | ✔️          | ⭕️       | method        | getBaselineIndex()      | ()->int
+1.2     | ✔️          | ⭕️       | method        | getBaselineOffsets()    | ()->[float]
+
+### java.awt.font.TextLayout (✔️/⭕️)
+
+> Immutable, styled single-direction text layout. Supports measuring, hit-testing,
+> caret positioning and drawing. Single font, LTR only in current implementation.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | TextLayout              |
+1.2     | ✔️          | ⭕️       | constructor   | TextLayout()            | (String,Font,FontRenderContext)
+1.2     | ✔️          | ⭕️       | method        | getAdvance()            | ()->float
+1.2     | ✔️          | ⭕️       | method        | getVisibleAdvance()     | ()->float
+1.2     | ✔️          | ⭕️       | method        | getAscent()             | ()->float
+1.2     | ✔️          | ⭕️       | method        | getDescent()            | ()->float
+1.2     | ✔️          | ⭕️       | method        | getLeading()            | ()->float
+1.2     | ✔️          | ⭕️       | method        | getBounds()             | ()->Rectangle2D
+1.2     | ✔️          | ⭕️       | method        | hitTestChar()           | (float,float)->TextHitInfo
+1.2     | ✔️          | ⭕️       | method        | getCaretInfo()          | (TextHitInfo)->[float]
+1.2     | ✔️          | ⭕️       | method        | draw()                  | (Graphics2D,float,float)
+
+### java.awt.font.GlyphVector (stub/⭕️)
+
+> Immutable collection of glyphs and positions. Glyph outlines return empty Path2D; advance positions use proportional approximation. Full CoreText backing planned.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | 🔧          | ⭕️       | abstract class| GlyphVector             | stub
+1.2     | 🔧          | ⭕️       | method        | getNumGlyphs()          | ()->int
+1.2     | 🔧          | ⭕️       | method        | getGlyphCode()          | (int)->int
+1.2     | 🔧          | ⭕️       | method        | getGlyphCodes()         | (int,int)->[int]
+1.2     | 🔧          | ⭕️       | method        | getLogicalBounds()      | ()->Rectangle2D
+1.2     | 🔧          | ⭕️       | method        | getVisualBounds()       | ()->Rectangle2D
+1.2     | 🔧          | ⭕️       | method        | getGlyphPosition()      | (int)->Point2D
+1.2     | 🔧          | ⭕️       | method        | getGlyphOutline()       | (int)->Shape (empty)
+1.2     | 🔧          | ⭕️       | method        | getOutline()            | ()->Shape (empty)
+
+### java.awt.font.TextHitInfo (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | struct        | TextHitInfo             |
+1.2     | ✔️          | ⭕️       | static method | leading()               | (int)->TextHitInfo
+1.2     | ✔️          | ⭕️       | static method | trailing()              | (int)->TextHitInfo
+1.2     | ✔️          | ⭕️       | method        | getInsertionIndex()     | ()->int
 
 ---
 
@@ -318,7 +455,7 @@ version | implemented | tested   | type          | name                    | mor
 
 - **javax.swing** — tracked separately once Java 2D foundation is complete
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
-- **java.awt.font** (`TextLayout`, `FontRenderContext`, `GlyphVector`) — planned for Java 2D Phase 2
+- **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority
 - **java.awt.image.renderable** — not in scope
 - **java.util.Collections framework** (`ArrayList`, `HashMap`, `LinkedList`, etc.) — tracked separately
