@@ -215,6 +215,109 @@ With **Swift 6.0** typed throws is provided.
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
 
+
+#### Generic Variance, Wildcards, and Collection Semantics
+Java and Swift use fundamentally different generic systems.
+Java relies on type erasure, wildcard variance (? extends / ? super), and reference-based mutable collections. Swift relies on compile-time generics, protocol constraints, existential types (any), opaque types (some), and value-based collections.
+There is no direct 1:1 mapping between Java wildcard variance and Swift generics. Therefore, automated translation must prioritize semantic equivalence and test correctness over Swift idioms.
+
+##### Translation Priority (Mandatory)
+All automated translations must follow this order:
+1. Preserve Java semantics (type relationships, mutability, aliasing).
+2. Produce compilable Swift code using JavApi4Swift abstractions.
+3. Preserve behavioral equivalence (tests must pass).
+4. Only then apply Swift idiomatic refactoring (optional Phase 2).
+Semantic correctness always overrides stylistic improvements.
+
+##### Core Collection Mapping
+
+| **Java Construct** | **Default Translation Strategy** |
+| java.util.List<T> | java.util.List<T> |
+| java.util.Set<T> | java.util.Set<T> |
+| java.util.Map<K,V> | java.util.Map<K,V> |
+| java.util.Collection<T> | java.util.JavaCollection<T> |
+| Native Swift Array/Set/Dictionary | Only in Phase 2 (safe optimization) |
+
+Wildcard Decision Rules (Quick Reference)
+| **Java Pattern** | **Safe Translation Strategy** |
+| java.util.List<T> | java.util.List<T> |
+| java.util.List<? extends T> | <E: T> generic constraint (if safe) |
+| java.util.List<? super T> | Preserve via java.utilList<T> abstraction |
+| Complex wildcard expressions | Preserve + mark for review |
+
+##### Upper-Bounded Wildcards (? extends T) – Producer
+
+```Java
+double total(List<? extends MonetaryAmount> amounts)
+```
+
+Recommended translation:
+```Swift
+public static func total<E: MonetaryAmount>(_ amounts: JavaList<E>) -> Double
+```
+
+Rationale
+* ? extends T = producer (read-only intent)
+* Swift generic constraints preserve type relationships better than any
+* Avoid some T as a default mapping (may break cross-parameter type coupling)
+
+❌ Do not translate blindly to:
+
+```Swift
+  java.util.List<any MonetaryAmount> [some MonetaryAmount]
+```
+
+Use Swift existentials or some only after semantic validation.
+
+##### Lower-Bounded Wildcards (? super T) – Consumer
+
+```Java
+void addEuro(List<? super EuroAmount> target)
+```
+
+Swift has no equivalent of lower-bounded variance.
+Recommended strategy (in order of preference):
+
+1. Preserve Java abstraction (preferred):
+  ```Swift
+    public static func addEuro(_ target: JavaList<MonetaryAmount>) {
+      target.add(EuroAmount(10.0))
+  }
+  ```
+2. Use JavaList<Any> only if no shared base type exists
+3. Introduce wrapper type only if required by API design
+
+Do NOT:
+* ❌ use inout to simulate reference semantics
+* ❌ use any as a variance substitute
+* ❌ attempt to encode lower bounds via Swift generics
+
+##### Collection Semantics (Critical Rule)
+
+Java collections are **mutable reference objects**. Shared references are part of the language model.
+
+**Translation rules:**
+
+* Always prefer JavaList, JavaSet, JavaMap when mutability or sharing exists.
+* Do NOT replace Java collections with Swift value types (Array, Set, Dictionary) during Phase 1.
+* Do NOT use inout as a substitute for Java reference behavior.
+* Preserve aliasing: multiple references must observe shared mutations.
+
+**Phase 2 Translation rules exception:**
+
+Swift native collections may be introduced only if:
+
+* no shared references exist
+* no wildcard variance is involved
+* all behavioral tests pass unchanged
+
+**AI Translation Rules (Mandatory for AST Translators)**
+
+1. Preserve JavApi4Swift abstractions whenever variance is present.
+2. Prefer <E: Protocol> over any Protocol.
+3. Treat some as an optimization, not a default mapping.
+4. Never assume ? super T ma
+
 #### hashCode method
 
 Java provides a `hashCode` method on each object. Swift realize same with the `Swift.Hashable` protocol. To implement a Java like hashcode methode use something like this:
