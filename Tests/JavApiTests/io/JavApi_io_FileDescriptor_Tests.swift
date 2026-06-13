@@ -27,9 +27,18 @@ struct JavApi_io_FileDescriptor_Tests {
 
   @Test("Descriptor backed by an open FileHandle is valid")
   func testFileHandleValid() throws {
-    // Use a well-known readable file that exists on every Apple/Linux platform
-    let url = URL(fileURLWithPath: "/dev/null")
-    let handle = try FileHandle(forReadingFrom: url)
+#if os(Windows)
+    let tmp = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+    guard FileManager.default.createFile(atPath: tmp.path, contents: Data()) else {
+      Issue.record("Could not create temp file at \(tmp.path)")
+      return
+    }
+    defer { try? FileManager.default.removeItem(at: tmp) }
+    let handle = try FileHandle(forReadingFrom: tmp)
+#else
+    let handle = try FileHandle(forReadingFrom: URL(fileURLWithPath: "/dev/null"))
+#endif
     defer { try? handle.close() }
 
     let fd = java.io.FileDescriptor(handle: handle)
@@ -38,8 +47,18 @@ struct JavApi_io_FileDescriptor_Tests {
 
   @Test("Descriptor is invalid after markClosed()")
   func testFileHandleInvalidAfterMarkClosed() throws {
-    let url = URL(fileURLWithPath: "/dev/null")
-    let handle = try FileHandle(forReadingFrom: url)
+#if os(Windows)
+    let tmp = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+    guard FileManager.default.createFile(atPath: tmp.path, contents: Data()) else {
+      Issue.record("Could not create temp file at \(tmp.path)")
+      return
+    }
+    defer { try? FileManager.default.removeItem(at: tmp) }
+    let handle = try FileHandle(forReadingFrom: tmp)
+#else
+    let handle = try FileHandle(forReadingFrom: URL(fileURLWithPath: "/dev/null"))
+#endif
     defer { try? handle.close() }
 
     let fd = java.io.FileDescriptor(handle: handle)
