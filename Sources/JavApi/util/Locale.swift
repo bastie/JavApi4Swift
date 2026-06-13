@@ -8,6 +8,27 @@ import Foundation
 extension java.util {
   
   open class Locale {
+
+    // MARK: - Language constants (Java 1.1)
+    nonisolated(unsafe) public static let ENGLISH  = Locale("en")
+    nonisolated(unsafe) public static let FRENCH   = Locale("fr")
+    nonisolated(unsafe) public static let GERMAN   = Locale("de")
+    nonisolated(unsafe) public static let ITALIAN  = Locale("it")
+    nonisolated(unsafe) public static let JAPANESE = Locale("ja")
+    nonisolated(unsafe) public static let KOREAN   = Locale("ko")
+    nonisolated(unsafe) public static let CHINESE  = Locale("zh")
+
+    // MARK: - Country/region constants (Java 1.1)
+    nonisolated(unsafe) public static let US      = Locale("en_US")
+    nonisolated(unsafe) public static let UK      = Locale("en_GB")
+    nonisolated(unsafe) public static let CANADA  = Locale("en_CA")
+    nonisolated(unsafe) public static let FRANCE  = Locale("fr_FR")
+    nonisolated(unsafe) public static let GERMANY = Locale("de_DE")
+    nonisolated(unsafe) public static let ITALY   = Locale("it_IT")
+    nonisolated(unsafe) public static let JAPAN   = Locale("ja_JP")
+    nonisolated(unsafe) public static let KOREA   = Locale("ko_KR")
+    nonisolated(unsafe) public static let CHINA   = Locale("zh_CN")
+
     public var delegate : Foundation.Locale!
     
     public static func getDefault() -> Locale {

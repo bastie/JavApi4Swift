@@ -476,15 +476,15 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | ()
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | (PipedReader)
 
-##### java.io.PrintWriter (3/3/⭕️)
+##### java.io.PrintWriter (5/5/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | PrintWriter()        | (OutputStream)
-1.1     | ✔️          | ⭕️       | constructor   | PrintWriter()        | (OutputStream,boolean)
-1.1     | ✔️          | ⭕️       | method        | println()            | (String)
-1.1     | ⭕️          | ⭕️       | constructor   | PrintWriter()        | (Writer)
-1.1     | ⭕️          | ⭕️       | constructor   | PrintWriter()        | (Writer,boolean)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (OutputStream)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (OutputStream,boolean)
+1.1     | ✔️          | ✔️       | method        | println()            | (String)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer,boolean)
 
 ##### java.io.StringWriter (2/2/⭕️)
 
@@ -641,15 +641,18 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int)
 1.1     | ✔️          | ⭕️       | method        | isLeapYear()         | (int)->boolean
 
-##### java.util.Locale (0/0/⭕️)
+##### java.util.Locale (0/0/✔️)
+
+> **Note:** Locale delegates to `Foundation.Locale` internally. Constants use the same `init(String)` path and are backed by `Foundation.Locale(identifier:)`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | Locale()       | (String language) — single-arg only; (String language, String country) missing
-1.1     | ✔️          | ⭕️       | static method | getDefault()   | ()->Locale
-1.1     | ✔️          | ⭕️       | method        | getLanguage()  | ()->String
-1.1     | ✔️          | ⭕️       | method        | getCountry()   | ()->String
-1.1     | ❌          | ⭕️       | static field  | ENGLISH, GERMAN, FRENCH, US, UK, GERMANY, … | Locale constants not yet implemented
+1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language) — single-arg; (String,String) not needed due to Foundation delegation
+1.1     | ✔️          | ✔️       | static method | getDefault()   | ()->Locale
+1.1     | ✔️          | ✔️       | method        | getLanguage()  | ()->String
+1.1     | ✔️          | ✔️       | method        | getCountry()   | ()->String
+1.1     | ✔️          | ✔️       | static field  | ENGLISH, FRENCH, GERMAN, ITALIAN, JAPANESE, KOREAN, CHINESE | language-only constants
+1.1     | ✔️          | ✔️       | static field  | US, UK, CANADA, FRANCE, GERMANY, ITALY, JAPAN, KOREA, CHINA | country/region constants
 
 ##### java.util.TimeZone (0/0/⭕️)
 
