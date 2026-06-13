@@ -305,8 +305,19 @@ extension java.awt {
       }
     }
 
-    /// Releases resources held by this component. Subclasses (Window, Dialog) override this.
-    open func dispose() {}
+    /// Releases resources held by this component.
+    ///
+    /// Leert alle Listener-Arrays damit ARC die Listener-Objekte freigeben kann.
+    /// Subklassen (Container, Window, Dialog) rufen `super.dispose()` auf.
+    open func dispose() {
+      mouseListeners.removeAll()
+      mouseMotionListeners.removeAll()
+      keyListeners.removeAll()
+      focusListeners.removeAll()
+      componentListeners.removeAll()
+      windowListeners.removeAll()
+      popupMenu = nil
+    }
 
     /// Returns a graphics context for this component.
     /// Real graphics contexts are only available during `paint(_:)` — this stub

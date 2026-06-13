@@ -267,5 +267,10 @@ extension java.awt {
         }
       }
     }
+    override open func dispose() {
+      adjustmentListeners.removeAll()
+      super.dispose()
+    }
+
   }
 }

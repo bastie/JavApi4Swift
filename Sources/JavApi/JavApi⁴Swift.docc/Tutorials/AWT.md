@@ -843,6 +843,75 @@ frame.addWindowListener(MyWindowListener())
 frame.setVisible(true)
 ```
 
+## Dialog Memory Management
+
+Unlike Java (where the garbage collector reclaims unreachable objects automatically),
+Swift uses Automatic Reference Counting (ARC). ARC frees an object only when no strong
+references to it remain. Dialogs create several objects that hold references to each
+other — understanding this prevents memory leaks.
+
+### Always use `weak` in close-button listeners
+
+The close-button listener holds a reference to the dialog it closes. If that reference
+is strong, a cycle forms:
+
+```
+dialog → south Panel → closeBtn → ActionListener → dialog  (cycle!)
+```
+
+Declare the dialog reference `weak` to break the cycle:
+
+```swift
+final class CloseListener: java.awt.event.ActionListener {
+  private weak var dialog: java.awt.Dialog?          // weak — no cycle
+  init(dialog: java.awt.Dialog) { self.dialog = dialog }
+  func actionPerformed(_ e: java.awt.event.ActionEvent) { dialog?.dispose() }
+}
+```
+
+`DialogCloseListener` (the built-in utility class in AWTShowcase) already does this.
+When you write your own listener, follow the same pattern.
+
+### Call `dispose()`, not `setVisible(false)`
+
+`setVisible(false)` hides the dialog but keeps the entire component hierarchy
+(children, listeners, layout manager) alive. `dispose()` releases all of it:
+
+1. Tears down the native window (NSPanel on macOS).
+2. Fires `WINDOW_CLOSING` / `WINDOW_CLOSED` to registered `WindowListener`s.
+3. Removes the dialog from the toolkit registry.
+4. Calls `removeAll()` recursively — empties every `children` array and calls
+   `dispose()` on each child component, which in turn clears all listener arrays.
+
+```swift
+// ✗ only hides — component tree stays alive
+dialog.setVisible(false)
+
+// ✓ hides + fully releases resources
+dialog.dispose()
+```
+
+### Re-entrancy is handled automatically
+
+`Dialog.dispose()` sets an internal `_disposing` flag before it begins. If the native
+close button fires a second `WINDOW_CLOSING` event during teardown, the flag prevents
+`dispose()` from running a second time.  You do not need to guard against this yourself.
+
+### Listener arrays are cleared on dispose
+
+Every component class (`Button`, `Checkbox`, `Choice`, `List`, `TextField`,
+`TextArea`, `Scrollbar`, …) clears its own listener arrays when `dispose()` is called.
+This means all `ActionListener`, `ItemListener`, `TextListener`, and similar objects are
+released at dispose time, even if the caller still holds a strong reference to the
+dialog — the listeners go away because the components no longer reference them.
+
+### Summary checklist
+
+- Use `weak var dialog` in every ActionListener that closes a dialog.
+- Call `dispose()` (not `setVisible(false)`) to close a dialog.
+- Do not hold long-lived strong references to a closed dialog — the `_disposing` flag
+  prevents double-dispose, but a stale strong reference delays ARC deallocation.
+
 ## Platform Notes
 
 On **macOS and iOS**, `setVisible(true)` opens a native window via SwiftUI.

@@ -260,5 +260,11 @@ extension java.awt {
       g.drawLine(x+w-1, y,     x+w-1, y+h-1)
       g.drawLine(x,     y+h-1, x+w-1, y+h-1)
     }
+    override open func dispose() {
+      itemListeners.removeAll()
+      actionListeners.removeAll()
+      super.dispose()
+    }
+
   }
 }

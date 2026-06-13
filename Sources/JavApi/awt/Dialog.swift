@@ -41,6 +41,9 @@ extension java.awt {
     /// Ob das Dialogfenster in der Größe verändert werden kann.
     public var resizable: Bool = true
 
+    /// Re-Entrancy-Guard für `dispose()`.
+    private var _disposing: Bool = false
+
     // -------------------------------------------------------------------------
     // MARK: Konstruktoren
     // -------------------------------------------------------------------------
@@ -116,14 +119,28 @@ extension java.awt {
     /// that want different behaviour should override this method.
     open override func processWindowEvent(_ e: java.awt.event.WindowEvent) {
       super.processWindowEvent(e)   // notify registered WindowListeners first
-      if e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING {
+      // WINDOW_CLOSING: nur reagieren wenn nicht bereits dispose() aktiv ist.
+      // Window.dispose() feuert WINDOW_CLOSING intern — ohne diesen Guard
+      // entsteht ein Rekursions-Loop: dispose→WINDOW_CLOSING→dispose→…
+      if e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING && !_disposing {
         dispose()
       }
     }
 
-    /// Schließt den Dialog und beendet ggf. den modalen Loop.
+    /// Schließt den Dialog, beendet ggf. den modalen Loop und gibt Ressourcen frei.
+    ///
+    /// Reihenfolge:
+    /// 1. Re-Entrancy-Guard setzen
+    /// 2. Plattform-Teardown (modaler Loop, natives Fenster)
+    /// 3. `super.dispose()` (Window) — feuert WINDOW_CLOSING + WINDOW_CLOSED,
+    ///    ruft `setVisible(false)` auf, entfernt den Dialog aus dem Toolkit-Registry
+    /// 4. Kind-Komponenten freigeben (bricht ARC-Zyklen)
     open override func dispose() {
+      guard !_disposing else { return }
+      _disposing = true
       java.awt.Toolkit.getDefaultToolkit().closeDialog(self)
+      super.dispose()   // feuert Events, ruft setVisible(false), entfernt aus Registry
+      removeAll()       // bricht ARC-Zyklen in der Komponentenhierarchie
     }
   }
 }
