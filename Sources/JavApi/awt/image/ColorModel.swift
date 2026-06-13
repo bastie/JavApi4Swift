@@ -10,6 +10,8 @@ extension java.awt.image {
   /// This is the abstract base class for all color models.  Concrete subclasses
   /// (`DirectColorModel`, `IndexColorModel`) provide the actual pixel-to-color
   /// mapping.
+  ///
+  /// - Since: Java 1.0
   open class ColorModel {
 
     // -------------------------------------------------------------------------
@@ -56,12 +58,7 @@ extension java.awt.image {
     // -------------------------------------------------------------------------
 
     /// The default RGB color model (8 bits per channel, packed ARGB).
-    nonisolated(unsafe) public static var RGBdefault: ColorModel = DirectColorModel(
-      32,
-      redMask:   0x00FF0000,
-      greenMask: 0x0000FF00,
-      blueMask:  0x000000FF,
-      alphaMask: Int(bitPattern: 0xFF000000))
+    nonisolated(unsafe) public static var RGBdefault: ColorModel = DirectColorModel (32, 0x00FF0000, 0x0000FF00, 0x000000FF, Int(bitPattern: 0xFF000000))
 
     /// Returns the default RGB color model.
     public static func getRGBdefault() -> ColorModel { RGBdefault }

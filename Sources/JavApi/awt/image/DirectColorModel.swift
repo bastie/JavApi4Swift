@@ -40,9 +40,7 @@ extension java.awt.image {
 
     /// Creates a model with separate masks for each channel and an explicit
     /// alpha mask.
-    public init(_ bits: Int,
-                redMask: Int, greenMask: Int, blueMask: Int,
-                alphaMask: Int = 0) {
+    public init(_ bits: Int, _ redMask: Int, _ greenMask: Int, _ blueMask: Int, _ alphaMask: Int = 0) {
       self.red_mask   = redMask
       self.green_mask = greenMask
       self.blue_mask  = blueMask
@@ -76,8 +74,7 @@ extension java.awt.image {
     /// Opaque RGB model (no alpha channel).
     public convenience init(_ bits: Int,
                              redMask: Int, greenMask: Int, blueMask: Int) {
-      self.init(bits, redMask: redMask, greenMask: greenMask,
-                blueMask: blueMask, alphaMask: 0)
+      self.init(bits, redMask, greenMask, blueMask, 0)
     }
 
     // -------------------------------------------------------------------------

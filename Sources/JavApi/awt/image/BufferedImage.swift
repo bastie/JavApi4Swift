@@ -150,6 +150,51 @@ extension java.awt.image {
       let argb = (a << 24) | (r << 16) | (g << 8) | b
       pixels = [UInt32](repeating: argb, count: width * height)
     }
+
+    // =========================================================================
+    // MARK: - Raster access (Java 1.2)
+    // =========================================================================
+
+    /// Returns the `WritableRaster` for this image.
+    ///
+    /// The raster is built from the current pixel snapshot. Writes to the raster
+    /// are NOT automatically reflected back into this `BufferedImage`; use
+    /// `setRGB` for direct pixel writes.
+    ///
+    /// - Since: JavaApi > 0.x (Java 1.2)
+    public func getRaster() -> java.awt.image.WritableRaster {
+      let bandMasks: [Int] = [
+        Int(bitPattern: 0xFF000000),  // alpha
+        0x00FF0000,                   // red
+        0x0000FF00,                   // green
+        0x000000FF,                   // blue
+      ]
+      let sm = java.awt.image.SinglePixelPackedSampleModel(
+        dataType: java.awt.image.DataBuffer.TYPE_INT,
+        width: width, height: height,
+        bitMasks: bandMasks)
+      let intPixels = pixels.map { Int32(bitPattern: $0) }
+      let db = java.awt.image.DataBufferInt(dataArray: intPixels, size: width * height)
+      return java.awt.image.WritableRaster(sampleModel: sm, dataBuffer: db)
+    }
+
+    /// Returns a read-only snapshot of the pixel data as a `Raster`.
+    ///
+    /// - Since: JavaApi > 0.x (Java 1.2)
+    public func getData() -> java.awt.image.Raster { getRaster() }
+
+    /// Returns the `ColorModel` for this image.
+    ///
+    /// - Since: JavaApi > 0.x (Java 1.2)
+    public func getColorModel() -> java.awt.image.ColorModel {
+      java.awt.image.DirectColorModel(
+        32,
+        Int(bitPattern: 0xFF000000),  // alpha mask
+        0x00FF0000,                   // red mask
+        0x0000FF00,                   // green mask
+        0x000000FF                    // blue mask
+      )
+    }
   }
 }
 
