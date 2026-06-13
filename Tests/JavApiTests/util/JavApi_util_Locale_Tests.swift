@@ -93,4 +93,31 @@ struct JavApi_util_Locale_Tests {
     let l = java.util.Locale("es")
     #expect(l.getLanguage() == "es")
   }
+
+  // MARK: - Two-arg constructor (Java 1.1)
+
+  @Test("Locale(language, country) sets both codes correctly")
+  func testTwoArgConstructor() {
+    let l = java.util.Locale("de", "DE")
+    #expect(l.getLanguage() == "de")
+    #expect(l.getCountry() == "DE")
+  }
+
+  @Test("Locale(language, country) with empty country falls back to language only")
+  func testTwoArgConstructorEmptyCountry() {
+    let l = java.util.Locale("fr", "")
+    #expect(l.getLanguage() == "fr")
+    #expect(l.getCountry() == "")
+  }
+
+  @Test("Locale(language, country) works for various combinations")
+  func testTwoArgConstructorVariants() {
+    let us = java.util.Locale("en", "US")
+    #expect(us.getLanguage() == "en")
+    #expect(us.getCountry() == "US")
+
+    let jp = java.util.Locale("ja", "JP")
+    #expect(jp.getLanguage() == "ja")
+    #expect(jp.getCountry() == "JP")
+  }
 }

@@ -42,6 +42,14 @@ extension java.util {
     public init (_ languageCode: String) {
       delegate = Foundation.Locale(identifier: languageCode)
     }
+
+    /// Creates a Locale from a language code and a country/region code.
+    /// - Parameters:
+    ///   - language: ISO 639 language code, e.g. `"de"`
+    ///   - country: ISO 3166-1 alpha-2 country code, e.g. `"DE"`
+    public init (_ language: String, _ country: String) {
+      delegate = Foundation.Locale(identifier: country.isEmpty ? language : "\(language)_\(country)")
+    }
     
     /// The country (region) code of this Locale, uppercase.
     /// - Returns The ISO 3166-2 country code, or the empty string if none is defined.

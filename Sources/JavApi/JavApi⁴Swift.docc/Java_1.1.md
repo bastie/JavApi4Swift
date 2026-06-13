@@ -647,7 +647,8 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language) — single-arg; (String,String) not needed due to Foundation delegation
+1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language)
+1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language, String country)
 1.1     | ✔️          | ✔️       | static method | getDefault()   | ()->Locale
 1.1     | ✔️          | ✔️       | method        | getLanguage()  | ()->String
 1.1     | ✔️          | ✔️       | method        | getCountry()   | ()->String
