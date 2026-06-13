@@ -105,5 +105,10 @@ extension java.awt {
       g.setColor(java.awt.SystemColor.controlText)
       g.drawString(label, tx, ty)
     }
+    override open func dispose() {
+      actionListeners.removeAll()
+      super.dispose()
+    }
+
   }
 }

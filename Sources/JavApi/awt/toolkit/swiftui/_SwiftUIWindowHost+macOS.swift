@@ -234,11 +234,13 @@ extension _SwiftUIWindowHost {
                              nsPanel, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
 
     // Schließen über nativen X-Button → modal loop beenden + AWT-Zustand aufräumen
+    // [weak dialog]: verhindert Retain-Cycle Observer→dialog, da dialog ohnehin
+    // über closeDialog() aufgeräumt wird.
     NotificationCenter.default.addObserver(
       forName: NSWindow.willCloseNotification,
       object: nsPanel,
-      queue: .main) { [weak self] _ in
-        guard let self else { return }
+      queue: .main) { [weak self, weak dialog] _ in
+        guard let self, let dialog else { return }
         Task { @MainActor in
           if dialog.isModal() { NSApp.stopModal() }
           self.hide(dialog)
@@ -280,7 +282,16 @@ extension _SwiftUIWindowHost {
       }
     }
     nsPanel.orderOut(nil)
-    hide(dialog)
+    // Alle assoziierten Objekte am Panel freigeben (Delegate, ggf. menuTargetKey)
+    nsPanel.delegate = nil
+    objc_setAssociatedObject(nsPanel, &_SwiftUIWindowHost.delegateKey,
+                             nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    // Retain-Cycle brechen: dialog → nsPanel → NSHostingView → dialog
+    nsPanel.contentView = nil
+    objc_setAssociatedObject(dialog, &_SwiftUIWindowHost.dialogPanelKey,
+                             nil, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+    // Synchron aus Registry entfernen (wir sind bereits auf dem Main-Thread)
+    hideNow(dialog)
   }
 
   private static var dialogPanelKey: UInt8 = 2

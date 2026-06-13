@@ -72,6 +72,7 @@ extension java.awt {
       for comp in children {
         comp.parent = nil
         layoutManager?.removeLayoutComponent(comp)
+        comp.dispose()   // Listener-Arrays leeren, LayoutManager-Refs in Sub-Containern freigeben
       }
       children.removeAll()
       invalidate()
@@ -92,6 +93,13 @@ extension java.awt {
 
     override open func paint(_ g: java.awt.Graphics) {
       for child in children where child.visible { child.paint(g) }
+    }
+
+    /// Gibt Kinder, LayoutManager und eigene Listener frei.
+    override open func dispose() {
+      removeAll()          // dispose() auf Kinder, dann children.removeAll()
+      layoutManager = nil
+      super.dispose()      // Component-Listener leeren
     }
   }
 }

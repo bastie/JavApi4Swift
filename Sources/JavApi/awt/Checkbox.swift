@@ -141,5 +141,10 @@ extension java.awt {
       g.fillOval(x + margin, y + margin,
                  boxSize - 1 - 2 * margin, boxSize - 1 - 2 * margin)
     }
+    override open func dispose() {
+      itemListeners.removeAll()
+      super.dispose()
+    }
+
   }
 }

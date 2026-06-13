@@ -15,7 +15,7 @@ extension java.awt.font {
   /// identifying a text attribute (Java uses `AttributedCharacterIterator.Attribute`
   /// objects; here plain `String` constants serve the same purpose).
   ///
-  /// - Since: JavaApi > 0.x (Java 1.2)
+  /// - Since: Java 1.2
   public enum TextAttribute {
 
     // =========================================================================

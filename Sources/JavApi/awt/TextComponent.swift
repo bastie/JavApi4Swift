@@ -105,5 +105,10 @@ extension java.awt {
         java.awt.event.TextEvent.TEXT_VALUE_CHANGED)
       textListeners.forEach { $0.textValueChanged(e) }
     }
+    override open func dispose() {
+      textListeners.removeAll()
+      super.dispose()
+    }
+
   }
 }

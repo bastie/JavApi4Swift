@@ -92,10 +92,19 @@ public final class _SwiftUIWindowHost: ObservableObject, Sendable {
   public func hide(_ window: java.awt.Window) {
     DispatchQueue.main.async { [weak self] in
       guard let self else { return }
-      let id = ObjectIdentifier(window)
-      self.frameRegistry.removeValue(forKey: id)
-      self.visibleFrames.removeAll { ObjectIdentifier($0) == id }
+      self._removeFromRegistry(window)
     }
+  }
+
+  /// Synchrone Variante — nur aufrufen wenn bereits auf dem Main-Thread.
+  public func hideNow(_ window: java.awt.Window) {
+    _removeFromRegistry(window)
+  }
+
+  private func _removeFromRegistry(_ window: java.awt.Window) {
+    let id = ObjectIdentifier(window)
+    frameRegistry.removeValue(forKey: id)
+    visibleFrames.removeAll { ObjectIdentifier($0) == id }
   }
 }
 
