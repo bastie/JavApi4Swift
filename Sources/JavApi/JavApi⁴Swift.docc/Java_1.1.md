@@ -722,31 +722,39 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.lang — New wrapper classes in 1.1
 
-##### java.lang.Byte (0/0/⭕️)
+##### java.lang.Byte (0/0/✔️)
+
+> **Note:** `byte` in this project is `UInt8` for Swift compatibility. Therefore `Byte` wraps `UInt8`.
+> `MIN_VALUE` / `MAX_VALUE` alias `UMIN_VALUE` (0) / `UMAX_VALUE` (255).
+> Signed Java constants `SMIN_VALUE` (-128) / `SMAX_VALUE` (127) and `parseSignedByte()` / `signedByteValue()` are in `Byte+Java.swift`.
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ✔️       | final field   | UMIN_VALUE / MIN_VALUE | UInt8 = 0 (unsigned project-byte minimum)
+1.1     | ✔️          | ✔️       | final field   | UMAX_VALUE / MAX_VALUE | UInt8 = 255 (unsigned project-byte maximum)
+1.1     | ✔️          | ✔️       | final field   | SMIN_VALUE          | Int8 = -128 (signed Java byte minimum, Byte+Java.swift)
+1.1     | ✔️          | ✔️       | final field   | SMAX_VALUE          | Int8 = 127 (signed Java byte maximum, Byte+Java.swift)
+1.1     | ✔️          | ✔️       | constructor   | Byte()              | (UInt8)
+1.1     | ✔️          | ✔️       | static method | parseByte()         | (String)->UInt8 (unsigned)
+1.1     | ✔️          | ✔️       | static method | parseSignedByte()   | (String)->Int8 (Byte+Java.swift)
+1.1     | ✔️          | ✔️       | static method | valueOf()           | (String)->Byte
+1.1     | ✔️          | ✔️       | method        | byteValue()         | ()->UInt8
+1.1     | ✔️          | ✔️       | method        | signedByteValue()   | ()->Int8 (Byte+Java.swift)
+1.1     | ✔️          | ✔️       | method        | equals()            | via Equatable
+1.1     | ✔️          | ✔️       | method        | toString()          | ()->String
+
+##### java.lang.Short (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | final field   | MIN_VALUE      | byte = -128
-1.1     | ⭕️          | ⭕️       | final field   | MAX_VALUE      | byte = 127
-1.1     | ⭕️          | ⭕️       | constructor   | Byte()         | (byte)
-1.1     | ⭕️          | ⭕️       | static method | parseByte()    | (String)->byte
-1.1     | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Byte
-1.1     | ⭕️          | ⭕️       | method        | byteValue()    | ()->byte
-1.1     | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.1     | ⭕️          | ⭕️       | method        | toString()     | ()->String
-
-##### java.lang.Short (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | final field   | MIN_VALUE      | short = -32768
-1.1     | ⭕️          | ⭕️       | final field   | MAX_VALUE      | short = 32767
-1.1     | ⭕️          | ⭕️       | constructor   | Short()        | (short)
-1.1     | ⭕️          | ⭕️       | static method | parseShort()   | (String)->short
-1.1     | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Short
-1.1     | ⭕️          | ⭕️       | method        | shortValue()   | ()->short
-1.1     | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.1     | ⭕️          | ⭕️       | method        | toString()     | ()->String
+1.1     | ✔️          | ✔️       | final field   | MIN_VALUE      | Int16 = -32768
+1.1     | ✔️          | ✔️       | final field   | MAX_VALUE      | Int16 = 32767
+1.1     | ✔️          | ✔️       | constructor   | Short()        | (Int16)
+1.1     | ✔️          | ✔️       | static method | parseShort()   | (String)->Int16
+1.1     | ✔️          | ✔️       | static method | valueOf()      | (String)->Short
+1.1     | ✔️          | ✔️       | method        | shortValue()   | ()->Int16
+1.1     | ✔️          | ✔️       | method        | equals()       | via Equatable
+1.1     | ✔️          | ✔️       | method        | toString()     | ()->String
 
 ##### java.lang.Void (0/0/✔️)
 
