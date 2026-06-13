@@ -90,9 +90,15 @@ public final class _Win32WindowHost {
     let id = ObjectIdentifier(dialog)
     if let canvas = registry[id] {
       canvas.modalDone = true
-      canvas.destroy()
+      canvas.destroy()          // DestroyWindow — gibt HWND frei
+      canvas.clearMenuItems()   // MenuItem-Dictionary leeren (starke Refs)
       registry.removeValue(forKey: id)
     }
+    // Komponenten-Hierarchie freigeben — analog zur macOS-Lösung.
+    // removeAll() ruft dispose() auf allen Kindern auf → leert Listener-Arrays.
+    // Dialog.dispose() hat bereits _disposing=true gesetzt wenn wir hier landen,
+    // also direkt removeAll() aufrufen statt nochmals dispose().
+    dialog.removeAll()
   }
 
   // ---------------------------------------------------------------------------
@@ -277,6 +283,12 @@ public final class _Win32Canvas {
     hwnd = nil
   }
 
+  /// Leert das MenuItem-Dictionary — gibt alle starken MenuItem-Referenzen frei.
+  /// Muss nach destroy() aufgerufen werden wenn der Canvas für einen Dialog gilt.
+  func clearMenuItems() {
+    menuItems.removeAll()
+  }
+
   // ---------------------------------------------------------------------------
   // MARK: Modal loop
   // ---------------------------------------------------------------------------
@@ -369,11 +381,10 @@ public final class _Win32Canvas {
       awtWindow.processWindowEvent(
         java.awt.event.WindowEvent(awtWindow,
           java.awt.event.WindowEvent.WINDOW_CLOSING))
-      // For dialogs without a WindowListener, close the dialog explicitly.
-      // For the main frame the WindowListener is responsible (e.g. terminate()).
-      if let dialog = awtWindow as? java.awt.Dialog {
-        java.awt.Toolkit.getDefaultToolkit().closeDialog(dialog)
-      }
+      // Dialog.processWindowEvent() calls dispose() automatically when !_disposing,
+      // which in turn calls closeDialog() → canvas.destroy() + dialog.removeAll().
+      // No explicit closeDialog() call needed here — it would be a redundant second
+      // call after dispose() has already cleaned up.
     }
     modalDone = true
   }

@@ -877,7 +877,7 @@ When you write your own listener, follow the same pattern.
 `setVisible(false)` hides the dialog but keeps the entire component hierarchy
 (children, listeners, layout manager) alive. `dispose()` releases all of it:
 
-1. Tears down the native window (NSPanel on macOS).
+1. Tears down the native window (NSPanel on macOS, HWND on Windows).
 2. Fires `WINDOW_CLOSING` / `WINDOW_CLOSED` to registered `WindowListener`s.
 3. Removes the dialog from the toolkit registry.
 4. Calls `removeAll()` recursively — empties every `children` array and calls
@@ -904,6 +904,22 @@ Every component class (`Button`, `Checkbox`, `Choice`, `List`, `TextField`,
 This means all `ActionListener`, `ItemListener`, `TextListener`, and similar objects are
 released at dispose time, even if the caller still holds a strong reference to the
 dialog — the listeners go away because the components no longer reference them.
+
+### Platform behaviour
+
+On **macOS**, dialogs use SwiftUI's `NSHostingView` inside an `NSPanel`. Without
+explicit cleanup, a retain cycle forms between the dialog object and its native panel
+(`dialog → NSPanel → NSHostingView → dialog`). `dispose()` breaks this cycle by
+clearing `contentView` and the associated-object references before releasing the panel.
+
+On **Windows (GDI)**, no such retain cycle exists — the `_Win32Canvas` is freed by
+`Unmanaged.release()` in `WM_DESTROY`, which also drops its strong reference to
+`awtWindow`. Memory is reclaimed by ARC shortly after the window closes and will not
+show as a sustained leak in Task Manager. `dispose()` still clears the menu-item
+dictionary and the component hierarchy eagerly, which is good practice regardless.
+
+On **Linux (X11)**, the same Win32-style model applies — no SwiftUI object graph,
+no retain cycles. `dispose()` cleans up the component hierarchy as on all platforms.
 
 ### Summary checklist
 
