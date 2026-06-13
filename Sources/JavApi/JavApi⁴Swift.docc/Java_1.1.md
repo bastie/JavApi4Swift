@@ -823,13 +823,16 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ⭕️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
 
-##### java.util.SimpleTimeZone (0/0/⭕️)
+##### java.util.SimpleTimeZone (0/0/✔️)
+
+> **Note:** `@available(*, deprecated)` — deprecated in Java 26 for removal. Use `java.time.ZoneId` / `ZonedDateTime` instead.
+> DST rule parameters in the long constructor are accepted for API compatibility; actual DST logic is delegated to `Foundation.TimeZone`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | SimpleTimeZone() | (int rawOffset, String ID)
-1.1     | ⭕️          | ⭕️       | constructor   | SimpleTimeZone() | (int,String,int,int,int,int,int,int,int,int) — with DST rules
-1.1     | ⭕️          | ⭕️       | method        | inDaylightTime() | (Date)->boolean
+1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int rawOffset, String ID)
+1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int,String,int,int,int,int,int,int,int,int) — with DST rules
+1.1     | ✔️          | ✔️       | method        | inDaylightTime() | (Date)->boolean
 
 ### java.math — New package in 1.1
 
