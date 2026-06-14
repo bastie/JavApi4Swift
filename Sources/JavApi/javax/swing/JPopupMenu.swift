@@ -102,8 +102,9 @@ extension javax.swing {
       setVisible(true)
     }
 
-    /// Hides the popup.
+    /// Hides the popup and clears the armed state on all items.
     public func closePopup() {
+      for item in items { item.isArmed = false }
       setVisible(false)
     }
 
