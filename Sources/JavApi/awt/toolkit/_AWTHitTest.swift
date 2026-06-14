@@ -34,31 +34,41 @@ enum _AWTHitTest {
   }
 
   /// Recursively find the deepest visible component that contains `(x, y)`.
-  /// Coordinates are in the coordinate system of `root` (i.e. the Frame).
+  ///
+  /// `x` and `y` are in the **parent's** coordinate system on entry — i.e. when
+  /// called from outside pass window-local coordinates; the recursion translates
+  /// into each child's local space automatically.
+  ///
+  /// For the root call the window-level component (JFrame / JDialog / Frame) has
+  /// its own bounds at (0,0,w,h), so the initial `x,y` are already "inside" it.
   static func find(x: Int, y: Int, in root: java.awt.Component) -> java.awt.Component? {
     let b = root.bounds
+    // Check whether (x,y) — in the parent's coordinate space — falls inside root.
     guard root.visible,
           x >= b.x, x < b.x + b.width,
           y >= b.y, y < b.y + b.height
     else { return nil }
 
+    // Translate into root's LOCAL coordinate space for child testing.
+    let lx = x - b.x
+    let ly = y - b.y
+
     // ScrollPane: translate hit-point into child's coordinate space
     if let sp = root as? java.awt.ScrollPane {
       let vp = sp.getViewportSize()
-      let vpMaxX = b.x + vp.width
-      let vpMaxY = b.y + vp.height
-      if x < vpMaxX, y < vpMaxY, let child = sp.getChild() {
-        let childX = x + sp.scrollX
-        let childY = y + sp.scrollY
+      if lx < vp.width, ly < vp.height, let child = sp.getChild() {
+        let childX = lx + sp.scrollX
+        let childY = ly + sp.scrollY
         if let hit = find(x: childX, y: childY, in: child) { return hit }
       }
       return root  // scrollbar strip or empty viewport
     }
 
-    // Depth-first: check children first (last added = visually on top)
+    // Depth-first: check children first (last added = visually on top).
+    // Pass LOCAL coordinates so children can compare against their own bounds.
     if let container = root as? java.awt.Container {
       for child in container.getComponents().reversed() {
-        if let hit = find(x: x, y: y, in: child) { return hit }
+        if let hit = find(x: lx, y: ly, in: child) { return hit }
       }
     }
     return root
@@ -71,6 +81,9 @@ enum _AWTHitTest {
   /// React to a click on the given component.
   static func dispatch(click component: java.awt.Component) {
     switch component {
+    case let btn as javax.swing.JButton:
+      btn.doClick()
+
     case let btn as java.awt.Button:
       btn.doClick()
 

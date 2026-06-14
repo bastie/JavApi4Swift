@@ -41,11 +41,25 @@ extension java.awt {
     public func removeLayoutComponent(_ comp: java.awt.Component) {}
 
     public func preferredLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {
-      java.awt.Dimension(parent.bounds.width, parent.bounds.height)
+      // Height = tallest child + 2*vgap; width = sum of children + gaps
+      let comps = parent.getComponents()
+      if comps.isEmpty {
+        return java.awt.Dimension(parent.bounds.width, 2 * vgap)
+      }
+      var maxH = 0
+      var totalW = hgap
+      for c in comps {
+        let ps = c.getPreferredSize()
+        maxH   = max(maxH, ps.height)
+        totalW += ps.width + hgap
+      }
+      let h = maxH + 2 * vgap
+      let w = parent.bounds.width > 0 ? parent.bounds.width : totalW
+      return java.awt.Dimension(w, h)
     }
 
     public func minimumLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {
-      java.awt.Dimension(0, 0)
+      preferredLayoutSize(parent)
     }
     
     public func getAlignment () -> Int {
@@ -76,9 +90,10 @@ extension java.awt {
     public func layoutContainer(_ parent: java.awt.Container) {
       guard !parent.children.isEmpty else { return }
 
-      let containerX = parent.bounds.x
+      // Child bounds are in the parent's LOCAL coordinate space (origin = 0,0).
+      let containerX = 0
       let containerW = parent.bounds.width
-      var y = parent.bounds.y + vgap
+      var y = vgap
 
       // Collect components into rows, then apply alignment offset per row.
       // A "row" is the sequence of components that fit on one line.

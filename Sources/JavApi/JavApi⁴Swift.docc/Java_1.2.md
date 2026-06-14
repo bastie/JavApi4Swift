@@ -451,9 +451,156 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+---
+
+## javax.swing
+
+### javax.swing.SwingConstants (✔️/🪄)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | interface     | SwingConstants          | alignment/orientation constants
+1.2     | ✔️          | 🪄       | final field   | CENTER                  | int = 0
+1.2     | ✔️          | 🪄       | final field   | TOP                     | int = 1
+1.2     | ✔️          | 🪄       | final field   | LEFT                    | int = 2
+1.2     | ✔️          | 🪄       | final field   | BOTTOM                  | int = 3
+1.2     | ✔️          | 🪄       | final field   | RIGHT                   | int = 4
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL              | int = 0
+1.2     | ✔️          | 🪄       | final field   | VERTICAL                | int = 1
+
+### javax.swing.JComponent (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | abstract class| JComponent              | extends java.awt.Container
+1.2     | ✔️          | ⭕️       | method        | paint()                 | fills bg if opaque (no UI), then paintComponent + paintChildren
+1.2     | ✔️          | ⭕️       | method        | paintComponent()        | hook for subclasses
+1.2     | ✔️          | ⭕️       | method        | paintChildren()         | translates g to each child's origin
+1.2     | ✔️          | ⭕️       | method        | updateUI()              | no-op; subclasses override
+1.2     | ✔️          | ⭕️       | method        | setUI()                 | installs ComponentUI delegate
+1.2     | ✔️          | ⭕️       | method        | isOpaque() / setOpaque()| controls background fill
+1.2     | ✔️          | ⭕️       | method        | getBackground() / setBackground() |
+1.2     | ✔️          | ⭕️       | method        | getForeground() / setForeground() |
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | delegates to UI then LayoutManager
+1.2     | ✔️          | ⭕️       | method        | getMinimumSize()        | delegates to UI
+1.2     | ✔️          | ⭕️       | method        | getMaximumSize()        | delegates to UI
+
+### javax.swing.JPanel (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JPanel                  | opaque=true, default FlowLayout
+1.2     | ✔️          | ⭕️       | constructor   | JPanel()                | FlowLayout default
+1.2     | ✔️          | ⭕️       | constructor   | JPanel(LayoutManager?)  |
+
+### javax.swing.JLabel (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JLabel                  |
+1.2     | ✔️          | ⭕️       | constructor   | JLabel()                | ()
+1.2     | ✔️          | ⭕️       | constructor   | JLabel()                | (String)
+1.2     | ✔️          | ⭕️       | method        | getText() / setText()   |
+1.2     | ✔️          | ⭕️       | method        | setHorizontalAlignment()| SwingConstants.LEFT/CENTER/RIGHT
+1.2     | ✔️          | ⭕️       | method        | setVerticalAlignment()  | SwingConstants.TOP/CENTER/BOTTOM
+
+### javax.swing.JButton (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JButton                 |
+1.2     | ✔️          | ⭕️       | constructor   | JButton()               | (String)
+1.2     | ✔️          | ⭕️       | method        | getText() / setText()   |
+1.2     | ✔️          | ⭕️       | method        | addActionListener()     | closure-based
+1.2     | ✔️          | ⭕️       | method        | doClick()               | fires ACTION_PERFORMED
+1.2     | ✔️          | ⭕️       | method        | processMouseEvent()     | tracks isPressed / isRollover
+
+### javax.swing.JFrame (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JFrame                  | extends java.awt.Frame
+1.2     | ✔️          | ⭕️       | constructor   | JFrame()                | (String)
+1.2     | ✔️          | ⭕️       | method        | setDefaultCloseOperation()| EXIT_ON_CLOSE etc.
+1.2     | ✔️          | ⭕️       | method        | setJMenuBar()           |
+1.2     | ✔️          | ⭕️       | method        | getContentPane()        |
+1.2     | ✔️          | ⭕️       | method        | processWindowEvent()    | handles WINDOW_CLOSING
+
+### javax.swing.JDialog (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JDialog                 | extends java.awt.Dialog
+1.2     | ✔️          | ⭕️       | constructor   | JDialog()               | (owner:title:modal:)
+1.2     | ✔️          | ⭕️       | method        | setDefaultCloseOperation()| HIDE_ON_CLOSE (default), DISPOSE_ON_CLOSE
+1.2     | ✔️          | ⭕️       | method        | getContentPane()        |
+1.2     | ✔️          | ⭕️       | method        | add()                   | delegates to content pane
+
+### javax.swing.JMenuBar / JMenu / JMenuItem (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JMenuBar                |
+1.2     | ✔️          | ⭕️       | class         | JMenu                   |
+1.2     | ✔️          | ⭕️       | class         | JMenuItem               |
+1.2     | ✔️          | ⭕️       | method        | addActionListener()     | closure-based
+1.2     | ✔️          | ⭕️       | method        | addSeparator()          | JMenu only
+
+### javax.swing.JRootPane / JLayeredPane (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JRootPane               | manages layeredPane + contentPane + glassPane
+1.2     | ✔️          | ⭕️       | class         | JLayeredPane            | layer-ordered painting
+1.2     | ✔️          | 🪄       | final field   | DEFAULT_LAYER           | 0
+1.2     | ✔️          | 🪄       | final field   | POPUP_LAYER             | 300
+1.2     | ✔️          | 🪄       | final field   | FRAME_CONTENT_LAYER     | -30000
+
+### javax.swing.plaf.ComponentUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | abstract class| ComponentUI             |
+1.2     | ✔️          | ⭕️       | method        | installUI() / uninstallUI() |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | (Graphics, JComponent)
+1.2     | ✔️          | ⭕️       | method        | update()                | fills bg if opaque, then paint()
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | ()->Dimension?
+
+### javax.swing.plaf.basic.BasicButtonUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicButtonUI           | 3D raised rectangle, centred text
+1.2     | ✔️          | ⭕️       | method        | paint()                 | highlight/shadow border, pressed offset
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | text width+20, height+10
+
+### javax.swing.plaf.basic.BasicLabelUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicLabelUI            |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | aligned text via SwingConstants
+
+### javax.swing.plaf.basic.BasicMenuBarUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicMenuBarUI          |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | bg fill + menu titles; selected title highlighted
+1.2     | ✔️          | ⭕️       | method        | layoutMenuTitles()      | sets menu.bounds for hit-testing
+
+### javax.swing.plaf.basic.BasicPopupMenuUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicPopupMenuUI        |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | bg + items; armed item highlighted
+
+---
+
 ## Not in scope for Java 1.2
 
-- **javax.swing** — tracked separately once Java 2D foundation is complete
+- **javax.swing** advanced — `JTextField`, `JTextArea`, `JScrollPane`, `JList`, `JComboBox`, `JTable`, `JTree`, `JOptionPane`
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority

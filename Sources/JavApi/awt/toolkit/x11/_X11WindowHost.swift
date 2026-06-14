@@ -487,7 +487,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     // JFrame is a Swing window — it draws its own JMenuBar via JRootPane/JLayeredPane,
     // so we must NOT register an _X11MenuBar for it (that would double-draw a menu bar
     // and incorrectly shrink the AWT bounds that JFrame.doLayout() manages itself).
-    if !(awtWindow is javax.swing.JFrame),
+    if !(awtWindow is javax.swing.JFrame) && !(awtWindow is javax.swing.JDialog),
        let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
       menuBarRegistry[xwin] = _X11MenuBar(mb)
       // Shrink AWT content area so layout managers don't paint under the bar
@@ -825,8 +825,8 @@ public final class _X11WindowHost: @unchecked Sendable {
         return
       }
 
-      // ── Swing JMenu popup handling (JFrame only; must come before AWT checks) ──
-      if awtWindow is javax.swing.JFrame {
+      // ── Swing JMenu popup handling (JFrame/JDialog; must come before AWT checks) ──
+      if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
         if let menu = openSwingMenu {
           let popup = menu.swingPopupMenu
           let pb    = popup.bounds
@@ -1157,8 +1157,8 @@ public final class _X11WindowHost: @unchecked Sendable {
           needsRepaint = true
         }
       }
-      // ── Swing JFrame hover handling ──────────────────────────────────────────
-      if awtWindow is javax.swing.JFrame {
+      // ── Swing JFrame/JDialog hover handling ─────────────────────────────────
+      if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
         // Switch open menu when hovering over a different menu title
         if openSwingMenu != nil,
            let bar = _swingMenuBar(in: awtWindow) {
@@ -1408,8 +1408,8 @@ public final class _X11WindowHost: @unchecked Sendable {
     let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
                                                scaleFactor: scaleFactor)
 
-    if awtWindow is javax.swing.JFrame {
-      // Swing window: JFrame.paint() → JRootPane → JLayeredPane → JMenuBar +
+    if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
+      // Swing window: JFrame/JDialog.paint() → JRootPane → JLayeredPane → JMenuBar +
       // contentPane + JPopupMenu (in POPUP_LAYER). The JLayeredPane.paintChildren
       // already translates the graphics context to each child's origin, so no
       // manual translate is needed here.

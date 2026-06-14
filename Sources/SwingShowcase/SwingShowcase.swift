@@ -56,6 +56,15 @@ struct SwingShowcaseApp {
     }
     menuBar.add(editMenu)
 
+    // Demo menu — opens the CardLayout dialog
+    let demoMenu = javax.swing.JMenu("Demo")
+    let cardDialogItem = javax.swing.JMenuItem("CardLayout Dialog…")
+    cardDialogItem.addActionListener { [frame] _ in
+      SwingShowcaseApp().showCardDialog(owner: frame)
+    }
+    demoMenu.add(cardDialogItem)
+    menuBar.add(demoMenu)
+
     // Help menu
     let helpMenu = javax.swing.JMenu("Help")
     helpMenu.add(javax.swing.JMenuItem("About…")).addActionListener { _ in
@@ -66,5 +75,41 @@ struct SwingShowcaseApp {
     frame.setJMenuBar(menuBar)
 
     return frame
+  }
+
+  // -------------------------------------------------------------------------
+  // MARK: - CardLayout dialog
+  // -------------------------------------------------------------------------
+
+  /// A non-modal JDialog that demonstrates CardLayout navigation.
+  ///
+  /// Three coloured cards are stacked in a CardLayout panel (analogous to
+  /// AWTShowcase's CardLayoutDemoDialog).  ◀ / ▶ buttons cycle through them;
+  /// "Schließen" dismisses the dialog.
+  @MainActor
+  private func showCardDialog(owner: javax.swing.JFrame) {
+    let dialog = javax.swing.JDialog(owner: owner, title: "LayoutManager – CardLayout", modal: false)
+    dialog.setSize(380, 240)
+
+    // Title label
+    let title = javax.swing.JLabel("CardLayout — 3 Karten, umschaltbar per ◀ ▶")
+    title.setHorizontalAlignment(javax.swing.JLabel.CENTER)
+    dialog.add(title, java.awt.BorderLayout.NORTH)
+
+    // Card demo panel (coloured cards + ◀ ▶ navigation)
+    let cardDemo = SwingCardDemoPanel()
+    dialog.add(cardDemo, java.awt.BorderLayout.CENTER)
+
+    // Close button
+    let closeBtn = javax.swing.JButton("Schließen")
+    closeBtn.addActionListener { [dialog] _ in
+      dialog.setVisible(false)
+    }
+    let south = javax.swing.JPanel()
+    south.setLayout(java.awt.FlowLayout())
+    south.add(closeBtn)
+    dialog.add(south, java.awt.BorderLayout.SOUTH)
+
+    dialog.setVisible(true)
   }
 }

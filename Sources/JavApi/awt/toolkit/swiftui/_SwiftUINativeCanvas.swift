@@ -52,10 +52,6 @@ final class _SwiftUINativeCanvas: NSView {
     if let container = component as? java.awt.Container {
       let newW = Int(newSize.width)
       let newH = Int(newSize.height)
-      guard container.bounds.width != newW || container.bounds.height != newH else {
-        needsDisplay = true
-        return
-      }
       container.bounds = java.awt.Rectangle(0, 0, newW, newH)
       container.validate()
     }
@@ -81,6 +77,7 @@ final class _SwiftUINativeCanvas: NSView {
   }
   
   private var pressedButton: java.awt.Button?
+  private var pressedJButton: javax.swing.JButton?
   
   // Scrollbar being dragged (for thumb drag)
   private var draggingScrollbar: java.awt.Scrollbar?
@@ -233,12 +230,19 @@ final class _SwiftUINativeCanvas: NSView {
     // Transfer keyboard focus
     _SwiftUIFocusManager.shared.requestFocus(hit)
     
-    if let btn = hit as? java.awt.Button {
+    if let btn = hit as? javax.swing.JButton {
+      pressedJButton = btn
+      btn.processMouseEvent(java.awt.event.MouseEvent(
+        btn, java.awt.event.MouseEvent.MOUSE_PRESSED, 0, 0,
+        Int(pt.x), Int(pt.y), 1, false))
+      needsDisplay = true
+
+    } else if let btn = hit as? java.awt.Button {
       pressedButton = btn
       btn.isPressed = true
       self.setNeedsDisplay(bounds)
       needsDisplay  = true
-      
+
     } else if let tf = hit as? java.awt.TextField {
       let clickIdx = tf._charIndex(at: Int(pt.x))
       if event.modifierFlags.contains(.shift) {
@@ -507,6 +511,22 @@ final class _SwiftUINativeCanvas: NSView {
       self.setNeedsDisplay(bounds)
       let pt = awtPoint(from: event)
       if let hit = _SwiftUIHitTest.find(at: pt, in: component ?? btn),
+         hit === btn {
+        btn.doClick()
+      }
+      needsDisplay = true
+      return
+    }
+
+    // Swing JButton release
+    if let btn = pressedJButton {
+      pressedJButton = nil
+      let upPt = awtPoint(from: event)
+      btn.processMouseEvent(java.awt.event.MouseEvent(
+        btn, java.awt.event.MouseEvent.MOUSE_RELEASED, 0, 0,
+        Int(upPt.x), Int(upPt.y), 1, false))
+      // Only fire action if mouse released over the same button
+      if let hit = _SwiftUIHitTest.find(at: upPt, in: component ?? btn),
          hit === btn {
         btn.doClick()
       }

@@ -4,6 +4,86 @@ Lessons learned and non-obvious design decisions for future contributors.
 
 ---
 
+## Swing Hit-Test Coordinate Translation — `_AWTHitTest.find()` (2026-06)
+
+### Problem
+`_AWTHitTest.find(x:y:in:)` checked whether a point fell within a child component's `bounds`,
+but then passed the **original** (parent-relative) `x, y` unchanged when recursing into that child.
+Because a child's own children store their bounds relative to the child's origin (not the root),
+every nested hit-test was wrong: clicking a `JButton` inside a `JPanel` inside a `JFrame`
+never returned the button.
+
+This bug affected **all backends** (SwiftUI, X11, GDI) because the code lives in
+platform-independent `_AWTHitTest.swift`.
+
+### Solution
+Translate into the child's local space before recursing:
+
+```swift
+let lx = x - b.x   // b = child.bounds (parent-relative)
+let ly = y - b.y
+// recurse with lx, ly  (child-local coordinates)
+```
+
+This mirrors how Java's own `Component.contains()` works: bounds are always
+expressed relative to the parent, so you must subtract `b.x/b.y` at each level.
+
+### Impact
+Single fix unblocked JButton clicks, CardLayout navigation, menu interaction,
+and every other pointer-driven event in Swing hierarchies across all platforms.
+
+---
+
+## Swing Layout Validation — `setFrameSize` Guard Removed (2026-06)
+
+### Problem
+`_SwiftUINativeCanvas.setFrameSize` had a size-equality guard:
+if the incoming size matched `container.bounds.size`, it returned early and skipped `validate()`.
+When `setSize()` was called on a `JDialog`/`JFrame` **before** the window appeared,
+the container bounds were already set to the requested size — so when SwiftUI later called
+`setFrameSize`, the guard fired and `validate()` was never called.
+Result: all child component bounds remained `(0,0,0,0)`, nothing rendered.
+
+### Solution
+Remove the guard. Always set `container.bounds` and call `validate()`:
+
+```swift
+container.bounds = java.awt.Rectangle(0, 0, newW, newH)
+container.validate()
+```
+
+The cost is negligible — `validate()` is cheap when the layout is already current
+(it propagates `isValid` flags and stops early).
+
+---
+
+## Swing Dialog Close on macOS — `closeDialog()` vs `hide()` (2026-06)
+
+### Problem
+`SwiftUIToolkit.hide(dialog)` called `_SwiftUIWindowHost.shared.hide(dialog)`, which only
+removed the dialog from the Swift-level registry. It did **not** call `nsPanel.orderOut(nil)`,
+so the NSPanel remained visible on screen.
+
+### Solution
+Override `hide(_:)` in `SwiftUIToolkit` to detect `java.awt.Dialog` and route to `closeDialog()`:
+
+```swift
+public override func hide(_ window: java.awt.Window) {
+  #if os(macOS)
+  if let dialog = window as? java.awt.Dialog {
+    _SwiftUIWindowHost.shared.closeDialog(dialog)
+    return
+  }
+  #endif
+  _SwiftUIWindowHost.shared.hide(window)
+}
+```
+
+`closeDialog()` calls `NSApp.stopModal()` (for modal dialogs) and `nsPanel.orderOut(nil)`,
+which actually removes the panel from the screen.
+
+---
+
 ## `java.util.ArrayList` — Reference Type Implementation (2026-06)
 
 ### Problem

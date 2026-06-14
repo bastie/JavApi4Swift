@@ -41,6 +41,12 @@ extension java.awt.toolkit.swiftui {
     }
 
     public override func hide(_ window: java.awt.Window) {
+#if os(macOS)
+      if let dialog = window as? java.awt.Dialog {
+        _SwiftUIWindowHost.shared.closeDialog(dialog)
+        return
+      }
+#endif
       _SwiftUIWindowHost.shared.hide(window)
     }
 

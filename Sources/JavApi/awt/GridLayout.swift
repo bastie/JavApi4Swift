@@ -113,8 +113,9 @@ extension java.awt {
       for (i, child) in children.enumerated() {
         let row = i / c
         let col = i % c
-        let x = parent.bounds.x + col * (cellW + hgap)
-        let y = parent.bounds.y + row * (cellH + vgap)
+        // Child bounds are in the parent's LOCAL coordinate space (origin = 0,0).
+        let x = col * (cellW + hgap)
+        let y = row * (cellH + vgap)
         child.bounds = java.awt.Rectangle(x, y, cellW, cellH)
       }
     }

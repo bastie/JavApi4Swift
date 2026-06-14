@@ -103,8 +103,9 @@ extension java.awt {
 
     /// Sizes and positions all cards identically; only the current card is shown.
     public func layoutContainer(_ parent: java.awt.Container) {
-      let x = parent.bounds.x + hgap
-      let y = parent.bounds.y + vgap
+      // Child bounds are in the parent's LOCAL coordinate space (origin = 0,0).
+      let x = hgap
+      let y = vgap
       let w = max(0, parent.bounds.width  - 2 * hgap)
       let h = max(0, parent.bounds.height - 2 * vgap)
       for card in cards {
@@ -122,6 +123,7 @@ extension java.awt {
       guard let idx = cards.firstIndex(where: { $0.name == name }) else { return }
       currentIndex = idx
       updateVisibility()
+      parent.repaint()
     }
 
     /// Shows the first card in `parent`.
@@ -129,6 +131,7 @@ extension java.awt {
       guard !cards.isEmpty else { return }
       currentIndex = 0
       updateVisibility()
+      parent.repaint()
     }
 
     /// Shows the last card in `parent`.
@@ -136,14 +139,15 @@ extension java.awt {
       guard !cards.isEmpty else { return }
       currentIndex = cards.count - 1
       updateVisibility()
+      parent.repaint()
     }
 
     /// Shows the next card; wraps around to the first.
     public func next(_ parent: java.awt.Container) {
       guard !cards.isEmpty else { return }
-      
       currentIndex = (currentIndex + 1) % cards.count
       updateVisibility()
+      parent.repaint()
     }
 
     /// Shows the previous card; wraps around to the last.
@@ -151,6 +155,7 @@ extension java.awt {
       guard !cards.isEmpty else { return }
       currentIndex = (currentIndex - 1 + cards.count) % cards.count
       updateVisibility()
+      parent.repaint()
     }
 
     // -------------------------------------------------------------------------

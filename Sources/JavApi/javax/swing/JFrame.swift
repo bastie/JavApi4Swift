@@ -187,22 +187,30 @@ extension javax.swing {
     // MARK: Close handling
     // -------------------------------------------------------------------------
 
-    /// Processes the WINDOW_CLOSING event according to `defaultCloseOperation`.
+    /// Processes WINDOW_CLOSING according to `defaultCloseOperation`.
     ///
-    /// Called automatically when the user clicks the native close button.
-    override open func dispose() {
-      switch defaultCloseOperation {
-      case JFrame.DO_NOTHING_ON_CLOSE:
-        break
-      case JFrame.HIDE_ON_CLOSE:
-        setVisible(false)
-      case JFrame.DISPOSE_ON_CLOSE:
-        super.dispose()
-      case JFrame.EXIT_ON_CLOSE:
-        java.lang.System.exit(0)
-      default:
-        super.dispose()
+    /// X11/GDI call `processWindowEvent(WINDOW_CLOSING)` when the native close
+    /// button is clicked — so this is the correct override point, not `dispose()`.
+    override open func processWindowEvent(_ e: java.awt.event.WindowEvent) {
+      super.processWindowEvent(e)   // fire registered WindowListeners
+      if e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING {
+        switch defaultCloseOperation {
+        case JFrame.DO_NOTHING_ON_CLOSE:
+          break
+        case JFrame.HIDE_ON_CLOSE:
+          setVisible(false)
+        case JFrame.DISPOSE_ON_CLOSE:
+          super.dispose()
+        case JFrame.EXIT_ON_CLOSE:
+          java.lang.System.exit(0)
+        default:
+          super.dispose()
+        }
       }
+    }
+
+    override open func dispose() {
+      super.dispose()
     }
 
     // -------------------------------------------------------------------------

@@ -129,8 +129,10 @@ extension javax.swing.plaf.basic {
       for menu in bar.getMenus() {
         let textW = fm.stringWidth(menu.getText())
         let w     = textW + Self.titlePadX * 2
-        menuRects.append((menu: menu,
-                          rect: java.awt.Rectangle(x, 0, w, h)))
+        let rect  = java.awt.Rectangle(x, 0, w, h)
+        menuRects.append((menu: menu, rect: rect))
+        // Also set bounds on the JMenu component so _AWTHitTest.find() can locate it
+        menu.bounds = rect
         x += w
       }
     }

@@ -79,7 +79,10 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     public func getBackground() -> java.awt.Color { background }
+    public func setBackground(_ color: java.awt.Color) { background = color }
+
     public func getForeground() -> java.awt.Color { foreground }
+    public func setForeground(_ color: java.awt.Color) { foreground = color }
 
     // -------------------------------------------------------------------------
     // MARK: Paint hook
@@ -96,6 +99,10 @@ extension javax.swing {
     override open func paint(_ g: java.awt.Graphics) {
       if let ui {
         ui.update(g, on: self)
+      } else if isOpaque() {
+        // No UI delegate but opaque — fill background directly.
+        g.setColor(background)
+        g.fillRect(0, 0, bounds.width, bounds.height)
       }
       paintComponent(g)
       paintChildren(g)

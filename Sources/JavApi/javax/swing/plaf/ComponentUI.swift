@@ -71,8 +71,9 @@ extension javax.swing.plaf {
     open func update(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
       if component.isOpaque() {
         g.setColor(component.getBackground())
-        g.fillRect(component.bounds.x, component.bounds.y,
-                   component.bounds.width, component.bounds.height)
+        // The graphics context is already translated to this component's origin
+        // by paintChildren — so fill from (0,0), not (bounds.x, bounds.y).
+        g.fillRect(0, 0, component.bounds.width, component.bounds.height)
       }
       paint(g, on: component)
     }

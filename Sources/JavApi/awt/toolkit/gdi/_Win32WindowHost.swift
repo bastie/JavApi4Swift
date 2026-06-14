@@ -59,10 +59,10 @@ public final class _Win32WindowHost {
     registry[id] = canvas
     canvas.show()
     // MenuBar may have been set before the window existed — attach now.
-    // JFrame is a Swing window — it draws its own JMenuBar via JRootPane/JLayeredPane
+    // JFrame/JDialog are Swing windows — they draw their own JMenuBar via JRootPane/JLayeredPane
     // and must NOT get a native Win32 menu bar (that would double the menu and
-    // incorrectly shrink the client area that JFrame.doLayout() manages itself).
-    if !(awtWindow is javax.swing.JFrame),
+    // incorrectly shrink the client area that JFrame/JDialog.doLayout() manages itself).
+    if !(awtWindow is javax.swing.JFrame) && !(awtWindow is javax.swing.JDialog),
        let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
       canvas.attachMenuBar(mb)
     }
@@ -456,8 +456,8 @@ public final class _Win32Canvas {
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseDown(x: Int, y: Int) {
-    // ── Swing JMenu popup handling (JFrame only; must come before Choice) ───
-    if awtWindow is javax.swing.JFrame {
+    // ── Swing JMenu popup handling (JFrame/JDialog; must come before Choice) ─
+    if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
       if let menu = openSwingMenu {
         let popup = menu.swingPopupMenu
         let pb    = popup.bounds
@@ -810,7 +810,7 @@ public final class _Win32Canvas {
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseMove(x: Int, y: Int) {
-    guard awtWindow is javax.swing.JFrame else { return }
+    guard awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog else { return }
 
     // Switch open menu when hovering over a different menu title
     if openSwingMenu != nil,

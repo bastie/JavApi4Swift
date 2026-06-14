@@ -341,12 +341,181 @@ cases to avoid:
 | `JPopupMenu.hide()` | `java.awt.Component.hide()` | `closePopup()` |
 | `JPopupMenu.removeAll()` | `java.awt.Container.removeAll()` | `removeAllItems()` |
 
+## JPanel
+
+`JPanel` is the standard lightweight container. It is opaque by default and uses `FlowLayout`
+unless you pass a different layout manager to the constructor:
+
+```swift
+// FlowLayout (default)
+let panel = javax.swing.JPanel()
+
+// BorderLayout
+let border = javax.swing.JPanel(java.awt.BorderLayout())
+border.add(myLabel,  java.awt.BorderLayout.NORTH)
+border.add(myButton, java.awt.BorderLayout.SOUTH)
+```
+
+`setBackground(_:)` and `setForeground(_:)` set the panel's colours. Because `JPanel` is
+opaque by default, the background is filled automatically before children are painted.
+
+## JLabel
+
+`JLabel` displays a single, non-interactive line of text:
+
+```swift
+let label = javax.swing.JLabel("Hello, Swing!")
+label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER)
+label.setVerticalAlignment(javax.swing.SwingConstants.CENTER)
+label.setForeground(java.awt.Color.white)
+```
+
+Alignment constants live in `javax.swing.SwingConstants`:
+
+| Constant | Value |
+|---|---|
+| `SwingConstants.LEFT` | 2 |
+| `SwingConstants.CENTER` | 0 |
+| `SwingConstants.RIGHT` | 4 |
+| `SwingConstants.TOP` | 1 |
+| `SwingConstants.BOTTOM` | 3 |
+
+`JLabel.CENTER` is **not** defined — always use `SwingConstants.CENTER`.
+
+## JButton
+
+`JButton` is a push button that fires registered `ActionListener` closures when clicked:
+
+```swift
+let btn = javax.swing.JButton("OK")
+btn.addActionListener { _ in
+    print("Clicked!")
+}
+panel.add(btn)
+```
+
+The visual state (pressed / rollover) is tracked internally and triggers a `repaint()`.
+The appearance is painted by `BasicButtonUI` — a 3D raised rectangle with centred text.
+`doClick()` programmatically fires all action listeners without a real mouse event.
+
+## JDialog
+
+`JDialog` is a secondary window with Swing's root-pane architecture — identical to
+`JFrame` but without a menu bar slot:
+
+```swift
+let dialog = javax.swing.JDialog(owner: frame, title: "Settings", modal: false)
+dialog.setSize(380, 240)
+
+// Add to content pane (same as JFrame)
+let label = javax.swing.JLabel("CardLayout — 3 Karten")
+label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER)
+dialog.add(label, java.awt.BorderLayout.NORTH)
+
+let closeBtn = javax.swing.JButton("Schließen")
+closeBtn.addActionListener { [dialog] _ in
+    dialog.setVisible(false)   // hides the NSPanel; use dispose() to release resources
+}
+let south = javax.swing.JPanel()
+south.add(closeBtn)
+dialog.add(south, java.awt.BorderLayout.SOUTH)
+
+dialog.setVisible(true)
+```
+
+`defaultCloseOperation` constants:
+
+| Constant | Value | Behaviour |
+|---|---|---|
+| `DO_NOTHING_ON_CLOSE` | 0 | Nothing |
+| `HIDE_ON_CLOSE` | 1 | `setVisible(false)` (default) |
+| `DISPOSE_ON_CLOSE` | 2 | Disposes and releases resources |
+
+On macOS, `JDialog` opens as an `NSPanel`. Calling `setVisible(false)` correctly closes
+the panel via `SwiftUIToolkit.hide()` → `closeDialog()` → `NSPanel.orderOut(nil)`.
+
+## CardLayout demo with JPanel, JLabel, JButton
+
+The following pattern mirrors the AWT `CardLayout` demo but uses Swing components:
+
+```swift
+@MainActor
+final class SwingCardDemoPanel: javax.swing.JPanel {
+
+    private let cards   = java.awt.CardLayout()
+    private let cardBox = javax.swing.JPanel()
+
+    init() {
+        super.init(java.awt.BorderLayout())
+        cardBox.setLayout(cards)
+
+        cardBox.add(makeCard("Karte 1", java.awt.Color(0x33, 0x66, 0xFF)), "1")
+        cardBox.add(makeCard("Karte 2", java.awt.Color(0x22, 0xAA, 0x44)), "2")
+        cardBox.add(makeCard("Karte 3", java.awt.Color(0xCC, 0x33, 0x33)), "3")
+        add(cardBox, java.awt.BorderLayout.CENTER)
+
+        let nav = javax.swing.JPanel()
+        let prevBtn = javax.swing.JButton("◀")
+        prevBtn.addActionListener { [weak self] _ in
+            guard let self else { return }
+            self.cards.previous(self.cardBox)   // triggers repaint automatically
+        }
+        let nextBtn = javax.swing.JButton("▶")
+        nextBtn.addActionListener { [weak self] _ in
+            guard let self else { return }
+            self.cards.next(self.cardBox)
+        }
+        nav.add(prevBtn)
+        nav.add(nextBtn)
+        nav.setPreferredSize(java.awt.Dimension(200, 36))
+        add(nav, java.awt.BorderLayout.SOUTH)
+    }
+
+    private func makeCard(_ text: String, _ bg: java.awt.Color) -> javax.swing.JPanel {
+        let panel = javax.swing.JPanel()
+        panel.setLayout(java.awt.BorderLayout())
+        panel.setBackground(bg)
+        let label = javax.swing.JLabel(text)
+        label.setHorizontalAlignment(javax.swing.SwingConstants.CENTER)
+        label.setForeground(java.awt.Color.white)
+        panel.add(label, java.awt.BorderLayout.CENTER)
+        return panel
+    }
+}
+```
+
+`CardLayout.next(_:)` and `previous(_:)` call `parent.repaint()` automatically after
+switching visibility — no manual redraw is needed.
+
+## Hit-test coordinate system
+
+The `_AWTHitTest.find(x:y:in:)` function translates coordinates into each child's local
+space before recursing. This is essential for the Swing component hierarchy, where all
+layout managers place children at **local** (0,0-relative) coordinates:
+
+```
+JDialog (0,0,380,240)
+  └── JRootPane (0,0,380,240)         ← local to JDialog
+        └── JLayeredPane (0,0,380,240) ← local to JRootPane
+              └── contentPane (0,0,380,240) ← local to JLayeredPane
+                    └── myPanel (0,20,380,200) ← local to contentPane
+                          └── myButton (5,5,80,28) ← local to myPanel
+```
+
+When the user clicks at window coordinate (45, 37), the hit test translates at each level:
+- Into contentPane: (45, 37)
+- Into myPanel: (45, 37-20) = (45, 17)
+- Into myButton: (45-5, 17-5) = (40, 12) ✓
+
+Without this translation every child panel at y=20+ would receive wrong coordinates and
+click events would land on the wrong component or miss entirely.
+
 ## What comes next
 
 The following Swing components are planned:
 
-- `JPanel`, `JLabel`, `JButton`, `JTextField`, `JTextArea`
-- `JDialog` and `JOptionPane`
+- `JTextField`, `JTextArea`
+- `JOptionPane`
 - `JScrollPane`, `JList`, `JComboBox`, `JTable`, `JTree`
 - `UIManager` and `UIDefaults` lookup table
 
