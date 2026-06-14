@@ -28,8 +28,12 @@ extension javax.swing {
     // MARK: Selection mode constants
     // -------------------------------------------------------------------------
 
-    // Note: constants are defined as static lets on DefaultListSelectionModel
-    // because Swift protocols cannot carry stored static properties.
+    /// At most one index can be selected at a time.
+    static var SINGLE_SELECTION:            Int { get }
+    /// One contiguous interval may be selected.
+    static var SINGLE_INTERVAL_SELECTION:   Int { get }
+    /// Any number of indices / intervals may be selected (default).
+    static var MULTIPLE_INTERVAL_SELECTION: Int { get }
 
     // -------------------------------------------------------------------------
     // MARK: Selection mode
@@ -96,4 +100,10 @@ extension javax.swing {
     func addListSelectionListener(_ l: javax.swing.event.ListSelectionListener)
     func removeListSelectionListener(_ l: javax.swing.event.ListSelectionListener)
   }
+}
+
+extension javax.swing.ListSelectionModel {
+  public static var SINGLE_SELECTION:            Int { 0 }
+  public static var SINGLE_INTERVAL_SELECTION:   Int { 1 }
+  public static var MULTIPLE_INTERVAL_SELECTION: Int { 2 }
 }

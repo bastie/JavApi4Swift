@@ -27,6 +27,12 @@ extension javax.swing.table {
     /// Returns the name of column `columnIndex`.
     func getColumnName(_ columnIndex: Int) -> String
 
+    /// Returns the type of the data in column `columnIndex`.
+    ///
+    /// In Java this returns `Class<?>`. In Swift we return `Any.Type`.
+    /// The default implementation in `AbstractTableModel` returns `Any.self`.
+    func getColumnClass(_ columnIndex: Int) -> Any.Type
+
     /// Returns the value at `(rowIndex, columnIndex)`.
     func getValueAt(_ rowIndex: Int, _ columnIndex: Int) -> Any?
 

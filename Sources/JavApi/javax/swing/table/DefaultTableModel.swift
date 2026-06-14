@@ -5,14 +5,14 @@
 
 extension javax.swing.table {
 
-  /// The default implementation of `TableModel`.
+  /// The default implementation of `TableModel`, extending `AbstractTableModel`.
   ///
   /// Data is stored as a two-dimensional array (`[[Any?]]`).
   /// Column names are stored separately; if no names are provided, columns
-  /// are labelled `"A"`, `"B"`, `"C"`, … (Java uses numeric indices by default,
-  /// but letter labels are more readable and match spreadsheet convention).
+  /// are labelled `"A"`, `"B"`, `"C"`, … (spreadsheet convention).
   ///
-  /// All mutations fire the appropriate `TableModelEvent`.
+  /// All mutations fire the appropriate `TableModelEvent` via the
+  /// fire-helpers inherited from `AbstractTableModel`.
   ///
   /// ## Example
   ///
@@ -27,15 +27,14 @@ extension javax.swing.table {
   ///
   /// - Since: Java 1.2
   @MainActor
-  open class DefaultTableModel: javax.swing.table.TableModel {
+  open class DefaultTableModel: javax.swing.table.AbstractTableModel {
 
     // -------------------------------------------------------------------------
     // MARK: Storage
     // -------------------------------------------------------------------------
 
-    private var dataVector:   [[Any?]]
-    private var columnNames:  [String]
-    private var listeners:    [javax.swing.event.TableModelListener] = []
+    private var dataVector:  [[Any?]]
+    private var columnNames: [String]
 
     // -------------------------------------------------------------------------
     // MARK: Initializers
@@ -43,15 +42,17 @@ extension javax.swing.table {
 
     /// Creates an empty model with `rowCount` empty rows and `columnCount` columns.
     public init(rowCount: Int = 0, columnCount: Int = 0) {
-      columnNames = (0..<columnCount).map { DefaultTableModel.defaultColumnName($0) }
+      columnNames = (0..<columnCount).map { AbstractTableModel.defaultColumnName($0) }
       dataVector  = Array(repeating: Array(repeating: nil, count: columnCount),
                           count: rowCount)
+      super.init()
     }
 
     /// Creates a model from existing data and column names.
     public init(_ data: [[Any?]], columnNames: [String]) {
       self.columnNames = columnNames
       self.dataVector  = data
+      super.init()
     }
 
     /// Creates a model with the given column names and `rowCount` empty rows.
@@ -59,53 +60,48 @@ extension javax.swing.table {
       self.columnNames = columnNames
       self.dataVector  = Array(repeating: Array(repeating: nil, count: columnNames.count),
                                count: rowCount)
+      super.init()
     }
 
     // -------------------------------------------------------------------------
-    // MARK: TableModel — counts
+    // MARK: AbstractTableModel — overrides
     // -------------------------------------------------------------------------
 
-    open func getRowCount()    -> Int { dataVector.count }
-    open func getColumnCount() -> Int { columnNames.count }
+    override open func getRowCount()    -> Int { dataVector.count }
+    override open func getColumnCount() -> Int { columnNames.count }
 
-    // -------------------------------------------------------------------------
-    // MARK: TableModel — column names
-    // -------------------------------------------------------------------------
-
-    open func getColumnName(_ columnIndex: Int) -> String {
+    override open func getColumnName(_ columnIndex: Int) -> String {
       guard columnIndex >= 0, columnIndex < columnNames.count else {
-        return DefaultTableModel.defaultColumnName(columnIndex)
+        return AbstractTableModel.defaultColumnName(columnIndex)
       }
       return columnNames[columnIndex]
     }
 
-    open func setColumnName(_ columnIndex: Int, _ name: String) {
-      guard columnIndex >= 0, columnIndex < columnNames.count else { return }
-      columnNames[columnIndex] = name
-      fireTableChanged(javax.swing.event.TableModelEvent(
-        self,
-        firstRow: javax.swing.event.TableModelEvent.HEADER_ROW,
-        lastRow:  javax.swing.event.TableModelEvent.HEADER_ROW))
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: TableModel — cell access
-    // -------------------------------------------------------------------------
-
-    open func getValueAt(_ rowIndex: Int, _ columnIndex: Int) -> Any? {
+    override open func getValueAt(_ rowIndex: Int, _ columnIndex: Int) -> Any? {
       guard rowIndex >= 0, rowIndex < dataVector.count,
             columnIndex >= 0, columnIndex < columnNames.count else { return nil }
       return dataVector[rowIndex][columnIndex]
     }
 
-    open func setValueAt(_ value: Any?, _ rowIndex: Int, _ columnIndex: Int) {
+    override open func setValueAt(_ value: Any?, _ rowIndex: Int, _ columnIndex: Int) {
       guard rowIndex >= 0, rowIndex < dataVector.count,
             columnIndex >= 0, columnIndex < columnNames.count else { return }
       dataVector[rowIndex][columnIndex] = value
       fireTableCellUpdated(rowIndex, columnIndex)
     }
 
-    open func isCellEditable(_ rowIndex: Int, _ columnIndex: Int) -> Bool { true }
+    /// Default: all cells are editable (Java default for `DefaultTableModel`).
+    override open func isCellEditable(_ rowIndex: Int, _ columnIndex: Int) -> Bool { true }
+
+    // -------------------------------------------------------------------------
+    // MARK: Column name mutation
+    // -------------------------------------------------------------------------
+
+    open func setColumnName(_ columnIndex: Int, _ name: String) {
+      guard columnIndex >= 0, columnIndex < columnNames.count else { return }
+      columnNames[columnIndex] = name
+      fireTableStructureChanged()
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Row mutation
@@ -132,7 +128,7 @@ extension javax.swing.table {
       fireTableRowsDeleted(index, index)
     }
 
-    /// Removes all rows.
+    /// Adjusts the row count; removes or appends empty rows as needed.
     open func setRowCount(_ rowCount: Int) {
       let oldCount = dataVector.count
       if rowCount < oldCount {
@@ -147,57 +143,6 @@ extension javax.swing.table {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Listeners
-    // -------------------------------------------------------------------------
-
-    open func addTableModelListener(_ l: javax.swing.event.TableModelListener) {
-      listeners.append(l)
-    }
-
-    open func removeTableModelListener(_ l: javax.swing.event.TableModelListener) {
-      listeners.removeAll { $0 === (l as AnyObject) }
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Fire helpers
-    // -------------------------------------------------------------------------
-
-    open func fireTableChanged(_ e: javax.swing.event.TableModelEvent) {
-      for l in listeners { l.tableChanged(e) }
-    }
-
-    open func fireTableDataChanged() {
-      fireTableChanged(javax.swing.event.TableModelEvent.allChanged(self))
-    }
-
-    open func fireTableCellUpdated(_ row: Int, _ column: Int) {
-      fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: row, lastRow: row, column: column,
-        type: javax.swing.event.TableModelEvent.UPDATE))
-    }
-
-    open func fireTableRowsInserted(_ firstRow: Int, _ lastRow: Int) {
-      fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.INSERT))
-    }
-
-    open func fireTableRowsDeleted(_ firstRow: Int, _ lastRow: Int) {
-      fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.DELETE))
-    }
-
-    open func fireTableRowsUpdated(_ firstRow: Int, _ lastRow: Int) {
-      fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.UPDATE))
-    }
-
-    // -------------------------------------------------------------------------
     // MARK: Private helpers
     // -------------------------------------------------------------------------
 
@@ -205,17 +150,6 @@ extension javax.swing.table {
       let count = columnNames.count
       if row.count >= count { return Array(row.prefix(count)) }
       return row + Array(repeating: nil, count: count - row.count)
-    }
-
-    private static func defaultColumnName(_ index: Int) -> String {
-      // A, B, …, Z, AA, AB, … (spreadsheet style)
-      var result = ""
-      var i = index
-      repeat {
-        result = String(UnicodeScalar(65 + (i % 26))!) + result
-        i = i / 26 - 1
-      } while i >= 0
-      return result
     }
   }
 }

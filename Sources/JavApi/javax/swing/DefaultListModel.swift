@@ -49,9 +49,8 @@ extension javax.swing {
     open func getSize() -> Int { elements.count }
 
     /// Returns the element at `index`, or `nil` if out of range.
-    open func getElementAt(_ index: Int) -> E? {
-      guard index >= 0, index < elements.count else { return nil }
-      return elements[index]
+    open func getElementAt(_ index: Int) -> E {
+      elements[index]
     }
 
     open func addListDataListener(_ l: javax.swing.event.ListDataListener) {
@@ -118,7 +117,7 @@ extension javax.swing {
     open func size() -> Int { elements.count }
 
     /// Returns the element at `index` (alias for `getElementAt(_:)`).
-    open func get(_ index: Int) -> E? { getElementAt(index) }
+    open func get(_ index: Int) -> E { getElementAt(index) }
 
     /// Returns the index of the first occurrence of `element`, or -1.
     ///

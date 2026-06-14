@@ -99,10 +99,19 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// Returns the current value as a `Double`.
+    ///
+    /// In Java, `getNumber()` returns `Number`; here we use `Double` as the
+    /// canonical numeric type. Use `getIntValue()` for integer values.
     open func getNumber() -> Double { _value }
+
+    /// Returns the current value as an `Int` (truncated).
+    open func getIntValue() -> Int { Int(_value) }
 
     /// Sets the current value from a `Double`.
     open func setNumber(_ value: Double) { setValue(value) }
+
+    /// Sets the current value from an `Int`.
+    open func setNumber(_ value: Int) { setValue(Double(value)) }
 
     /// Returns the minimum bound, or `nil` if unbounded.
     open func getMinimum() -> Double? { _minimum }

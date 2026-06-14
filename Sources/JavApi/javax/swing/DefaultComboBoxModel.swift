@@ -63,9 +63,8 @@ extension javax.swing {
 
     open func getSize() -> Int { elements.count }
 
-    open func getElementAt(_ index: Int) -> E? {
-      guard index >= 0, index < elements.count else { return nil }
-      return elements[index]
+    open func getElementAt(_ index: Int) -> E {
+      elements[index]
     }
 
     open func addListDataListener(_ l: javax.swing.event.ListDataListener) {

@@ -20,7 +20,7 @@ extension javax.swing {
   ///   typealias Element = String
   ///   private var items: [String] = []
   ///   func getSize() -> Int { items.count }
-  ///   func getElementAt(_ index: Int) -> String? { items[safe: index] }
+  ///   func getElementAt(_ index: Int) -> String { items[index] }
   ///   // listener management …
   /// }
   /// ```
@@ -35,8 +35,11 @@ extension javax.swing {
     /// Returns the number of elements in this list.
     func getSize() -> Int
 
-    /// Returns the element at the given index, or `nil` if `index` is out of range.
-    func getElementAt(_ index: Int) -> Element?
+    /// Returns the element at the given index.
+    ///
+    /// - Note: Like Java, this method does not guard against out-of-bounds
+    ///   access — callers must ensure `0 ≤ index < getSize()`.
+    func getElementAt(_ index: Int) -> Element
 
     /// Registers `l` to receive `ListDataEvent` notifications.
     func addListDataListener(_ l: javax.swing.event.ListDataListener)
