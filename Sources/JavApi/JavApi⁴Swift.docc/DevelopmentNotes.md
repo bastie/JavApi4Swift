@@ -96,3 +96,31 @@ list.remove(5)       // ambiguous if E == Int
 list.remove(5 as Int?)  // remove by value
 try list.remove(0)   // remove by index (throws)
 ```
+
+---
+
+## Tests for deprecated API — suppress warnings with `@available(*, deprecated)` (2026-06)
+
+### Problem
+Deprecated API (e.g. `SimpleTimeZone`, `URLEncoder.encode(_:)`) must remain in the library
+for backward compatibility, but calling it from test code produces:
+
+```
+warning: 'SimpleTimeZone' is deprecated: Deprecated in Java 26 for removal. [#DeprecatedDeclaration]
+```
+
+The warning is correct for production callers but noise in tests that intentionally cover the deprecated path.
+
+### Solution
+Annotate each test *method* (not the whole struct) with `@available(*, deprecated)`:
+
+```swift
+@available(*, deprecated)
+@Test("SimpleTimeZone.getAvailableIDs returns a non-empty list")
+func testGetAvailableIDsIsNotEmpty() {
+  #expect(SimpleTimeZone.getAvailableIDs().count > 0)
+}
+```
+
+Swift then treats the call site as intentionally deprecated and suppresses the warning.
+Annotating the method — not the struct — keeps non-deprecated tests in the same file warning-free.
