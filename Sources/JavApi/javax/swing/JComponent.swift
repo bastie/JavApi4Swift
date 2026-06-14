@@ -56,9 +56,13 @@ extension javax.swing {
 
     /// Fetches and installs the UI delegate for this component from `UIManager`.
     ///
-    /// Subclasses must override this and call `setUI(UIManager.getUI(self))`.
-    /// The base implementation is a no-op (no delegate is installed).
-    open func updateUI() {}
+    /// Subclasses may override this; the base implementation asks `UIManager`
+    /// for the appropriate delegate and installs it if found.
+    open func updateUI() {
+      if let newUI = javax.swing.UIManager.getUI(self) {
+        setUI(newUI)
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Opacity
