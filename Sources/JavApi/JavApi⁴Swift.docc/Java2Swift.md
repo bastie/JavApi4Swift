@@ -27,6 +27,8 @@ This bullet point list is an overview over methods. Look into source code for mo
 
 Abstract classes are implemented as interface with default methods.
 
+> **AI hint:** Replace `abstract class Foo { abstract void bar(); void baz() {} }` with a Swift `protocol Foo { func bar() }` plus an `extension Foo { func baz() {} }` for the concrete methods. Do not use Swift `class` as a stand-in for Java abstract classes.
+
 #### arrays
 
 The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property. If available use Swift `count` directly.
@@ -55,21 +57,31 @@ class NotTwice {
 }
 ```
 
+> **AI hint:** When Java code assigns one array variable to another (`int[] b = a`), do **not** translate this as two independent Swift arrays. Either keep the array on the enclosing class (shared state) or use a reference-wrapper class. Always check whether the aliased variable is modified after assignment — if yes, a value-type copy silently breaks semantics.
+
 #### assert
 
 Instead of `assert` use the `guard` with function `fatalError`.
+
+> **AI hint:** Translate `assert(condition, "msg")` to `guard condition else { fatalError("msg") }`. For `assert(false)` use `fatalError()` directly. Do not use Swift's built-in `assert()` — it is stripped in release builds, which differs from Java's behaviour when assertions are enabled.
 
 #### blocks of statements
 
 In Java blocks are between curly braces {}. Swift need the `do` keyword before the open brace.
 
+> **AI hint:** Translate bare Java `{ ... }` scoping blocks to Swift `do { ... }`. Do not confuse these with `do`-`catch` — add `catch` only when the block contains `try`.
+
 #### byte type
 
 Swift use `UInt8` instead `byte` but typealias are exported.
 
+> **AI hint:** Replace Java `byte` with Swift `UInt8`. Note that Java `byte` is **signed** (−128…127) while Swift `UInt8` is unsigned (0…255). If signed arithmetic is required use `Int8` instead and add a comment explaining the deviation.
+
 #### casting
 
 To cast in Swift use `as!` keyword. If in Java is first check with `instanceof` you should use `as?`.
+
+> **AI hint:** Translate `(Foo) obj` to `obj as! Foo`. Translate `if (obj instanceof Foo) { Foo f = (Foo) obj; ... }` to `if let f = obj as? Foo { ... }`. Never emit a bare `as!` without first verifying the Java code does not guard the cast with `instanceof`.
 
 #### char
 
@@ -80,11 +92,15 @@ let chars : [Character] : "a string to char array".toCharArray()
 let char : Character = "c"
 ```
 
-In extension you can compare Character with Int value with `==`. If you need the Int value of character use `asDigit()` function.    
+In extension you can compare Character with Int value with `==`. If you need the Int value of character use `asDigit()` function.
+
+> **AI hint:** Java `char` is a UTF-16 code unit (0–65535). Swift `Character` is a full Unicode grapheme cluster. For single-ASCII-character literals translate `'x'` to `"x" as Character`. For arrays translate `char[]` to `[Character]`. Use `asDigit()` from JavApi4Swift when the integer value of the character is needed.    
 
 #### do while loop
 
 Instead of `do` use keyword `repeat`.
+
+> **AI hint:** Translate `do { body } while (cond);` literally to `repeat { body } while cond`. Do not add a `catch` clause — `repeat` is not a `do`-`catch` block.
 
 #### equals method
 
@@ -115,6 +131,8 @@ enum java { enum awt { enum geom {
   }
 } /* geom */ } /* awt */ } /* java */ 
 ```
+
+> **AI hint:** Translate Java `equals(Object o)` by implementing **two** Swift overloads of `==`: one accepting `AnyObject` (Java-like) and one accepting the concrete type (Swift `Equatable`). Always check identity (`===`) first. Never omit the `Equatable` conformance declaration on the class.
 
 #### Equatable for Java interfaces (protocols)
 
@@ -149,6 +167,8 @@ extension java.util.Observer where Self: AnyObject {
 ```
 
 Value-type conformers must implement `hash(into:)` and `hashCode()` manually.
+
+> **AI hint:** When porting a Java interface that participates in collections (used as Map key or Set element), always generate all three extension files (`+Equatable.swift`, `+EquatableObject.swift`, `+Hashable.swift`). Do not collapse them into a single file — the `where Self: AnyObject` constraint must stay in its own extension to resolve correctly for both class and value-type conformers.
 
 #### exception handling
 
@@ -211,10 +231,13 @@ With **Swift 6.0** typed throws is provided.
   }
 ```
 
+> **AI hint:** Map each Java `catch (XException e)` to a `case Throwable.XException` inside a `switch error` block. Translate multi-catch `catch (A | B e)` to two separate `case` entries. In new code prefer Swift typed throws (`throws(XException)`) over the `Throwable` enum pattern. Never silently swallow exceptions — always translate at minimum to a `default: break` with a comment.
+
 #### final
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
 
+> **AI hint:** Translate Java `final` local variables and fields to Swift `let`. For `final` method parameters simply drop the keyword — Swift parameters are immutable by default. Do not add `inout` as a substitute for `final`; `inout` has call-site copy-in/copy-out semantics that do not match Java's `final`.
 
 #### Generic Variance, Wildcards, and Collection Semantics
 Java and Swift use fundamentally different generic systems.
@@ -232,18 +255,21 @@ Semantic correctness always overrides stylistic improvements.
 ##### Core Collection Mapping
 
 | **Java Construct** | **Default Translation Strategy** |
+|---|---|
 | java.util.List<T> | java.util.List<T> |
 | java.util.Set<T> | java.util.Set<T> |
 | java.util.Map<K,V> | java.util.Map<K,V> |
 | java.util.Collection<T> | java.util.JavaCollection<T> |
 | Native Swift Array/Set/Dictionary | Only in Phase 2 (safe optimization) |
 
-Wildcard Decision Rules (Quick Reference)
+##### Wildcard Decision Rules (Quick Reference)
+
 | **Java Pattern** | **Safe Translation Strategy** |
+|---|---|
 | java.util.List<T> | java.util.List<T> |
 | java.util.List<? extends T> | <E: T> generic constraint (if safe) |
-| java.util.List<? super T> | Preserve via java.utilList<T> abstraction |
-| Complex wildcard expressions | Preserve + mark for review |
+| java.util.List<? super T> | Preserve via java.util.List<T> abstraction |
+| Complex wildcard expressions | Preserve + mark for review |
 
 ##### Upper-Bounded Wildcards (? extends T) – Producer
 
@@ -316,7 +342,7 @@ Swift native collections may be introduced only if:
 1. Preserve JavApi4Swift abstractions whenever variance is present.
 2. Prefer <E: Protocol> over any Protocol.
 3. Treat some as an optimization, not a default mapping.
-4. Never assume ? super T ma
+4. Never assume `? super T` maps to a fixed base type — preserve the Java abstraction instead.
 
 #### hashCode method
 
@@ -347,9 +373,13 @@ class MyTypeNeedToBe : Hashable {
 }
 ```
 
+> **AI hint:** When a Java class overrides `hashCode()`, translate it by implementing `hash(into:)` and combining the same fields. Use `System.identityHashCode(self)` only as a fallback when no domain-specific fields are available. Always pair `hashCode` with `equals` — if one is translated the other must be too.
+
 #### instanceof
 
 The Swift keyword is `is`. If it is only a check before casting use `as?` to optional cast.
+
+> **AI hint:** Translate `obj instanceof Foo` to `obj is Foo`. When immediately followed by a cast, collapse both into `if let f = obj as? Foo { ... }` instead of emitting separate `is` + `as!`.
 
 #### integer literals and 32-bit platforms (Android, WASM)
 
@@ -367,6 +397,8 @@ let alphaMask: Int = Int(bitPattern: 0xFF000000)  // -16777216 on 32-bit, same b
 ```
 
 This compiles on all platforms and preserves the exact bit pattern needed for bitmask operations.
+
+> **AI hint:** Any Java hex literal used as a bitmask (e.g. `0xFF000000`, `0x80000000`) must be wrapped in `Int(bitPattern:)` when targeting 32-bit platforms (Android, WASM). Apply this unconditionally to all hex literals that set the MSB of a 32-bit value.
 
 #### interface
 
@@ -392,6 +424,8 @@ extension JavaInterfaceName {
 }
 ```
 
+> **AI hint:** For each Java interface, generate: (1) a `typealias` inside the package enum, (2) a `protocol` with an `associatedtype` bound to that typealias, (3) a separate `extension` for default methods. Never place default method bodies directly inside the `protocol` body.
+
 #### interfaces with constants
 
 To implements constants in protocols take computed properties and an extensions.
@@ -406,11 +440,15 @@ To implements constants in protocols take computed properties and an extensions.
   }
 ```
 
+> **AI hint:** Java interface constants (`static final TYPE NAME = value`) become computed `static var` properties in a protocol `extension`. Do not use stored properties — protocols cannot have stored static properties. The value lives in the extension, not in the protocol declaration.
+
 #### java.lang types
 
 All types in package java.lang doesn't need to import in Java. One solution is to set the full package name before. In result of Java-Swift name overlap it seems better to implement these types outside the java.lang enum structure (see package section).
 
 Also if default Swing type exists it is extended instead Java implementation is ported, see String type as example.
+
+> **AI hint:** Do not wrap `java.lang` types inside the `java.lang` enum namespace. Types like `String`, `Integer`, `Boolean` are implemented as extensions on their native Swift equivalents (e.g. Swift `String`). When you encounter a `java.lang.X` reference, check whether JavApi4Swift already provides it as a Swift extension before generating a new type.
 
 #### keyword masking
 
@@ -421,6 +459,8 @@ let ``in`` : Int
 ```
 
 But best, rename it before switch to swift.
+
+> **AI hint:** Before translating, scan the Java source for identifiers that collide with Swift keywords: `in`, `repeat`, `operator`, `where`, `some`, `any`, `actor`, `async`, `await`. Rename them in the Java source first (e.g. `in` → `inputStream`). Use backtick escaping only as a last resort.
 
 #### loops
 
@@ -456,6 +496,8 @@ for i in stride (from: 99, to: -1, by: -1){}
 for i in 0...99 where i % 2 != 0 && i % 3 != 0 {}
 ```
 
+> **AI hint:** Translate Java `for (int i = start; i < end; i++)` to `for i in start..<end`. For step values other than 1 use `stride(from:to:by:)`. For reverse iteration use `.reversed()`. Extract any compound condition from the loop header into the body or a `where` clause — never emit a Swift `for` loop with logic in a fake initialiser.
+
 ##### while
 
 Swift don't like composite statements. Not only in loops split in single statements is never a bad idea. For example let the loop header only check the termination condition.
@@ -475,6 +517,7 @@ while (count != -1) {
 }
 ```
 
+> **AI hint:** Never translate a Java `while` with a side-effectful condition (e.g. `while ((n = stream.read(buf)) != -1)`) directly. Extract the call before the loop and repeat it at the end of the loop body.
 
 #### Map
 
@@ -487,6 +530,8 @@ to
 ```swift
 var variable : [String: Double]
 ```
+
+> **AI hint:** In Phase 1, keep `java.util.Map<K,V>` as `java.util.Map<K,V>` (JavApi4Swift abstraction) when the map is passed between methods or shared. Only replace with Swift `[K: V]` dictionary in Phase 2 after confirming no aliasing or reference sharing. See the Generic Variance section for collection semantics rules.
 
 #### method
 
@@ -543,6 +588,8 @@ I assume there is more than one call to a function, so the call is the same for 
 
 The translation has a Optional problem because Java reference types are implicite nullable instead of Swift with explicite nilable. In result it exists not the only one way. Take a closer look to the method implementation and the documentation (for black box reimplementation). One way is to declerated some methods with (all) optional and non-optional variants of method. See System.arraycopy as example in the source files.  
 
+> **AI hint:** For each Java method parameter of reference type, decide explicitly: translate to Swift non-optional only if the Java code never passes `null` for that parameter; otherwise translate to optional (`Type?`). When unsure, generate both an optional and a non-optional overload. For mutable parameters use the `_ _paramName: Type` / `var paramName = _paramName` pattern — do not use `inout` as a substitute.
+
 ##### default methods
 
 Default methods are implemented in a extension, because the mapping of Java interfaces in a Java package like structures need a bit more code. 
@@ -567,13 +614,19 @@ public var description: String {
 
 Nested classes in Swift can not access to enclosing type variables. Give the nested class the needed variables as (weak) parameters.
 
+> **AI hint:** When a Java nested (inner) class accesses `OuterClass.this.field`, translate it as a constructor parameter `weak var outer: OuterClass?` on the Swift nested class. For static nested classes no reference to the enclosing type is needed.
+
 #### new instance
 
 We do not need the `new` keyword to create an instance of type.
 
+> **AI hint:** Strip `new` from all constructor calls: `new Foo(args)` → `Foo(args)`. For anonymous class instantiations there is no direct Swift equivalent — translate to a local `struct` or closure that conforms to the relevant protocol.
+
 #### operator >>>
 
-The operator >>> is implemented. Composite operator like >>>= need to separated
+The operator >>> is implemented. Composite operator like >>>= need to separated.
+
+> **AI hint:** `x >>> n` is available from JavApi4Swift. Translate `x >>>= n` by splitting: `x = x >>> n`. Do not attempt to define `>>>=` as a new Swift operator.
 
 #### operators
 
@@ -603,10 +656,14 @@ For example:
 
 Of course this are the easiest variants.
 
+> **AI hint:** Process operators in this order: (1) split composite assignments (`i+=1` → `i += 1`), (2) replace `++`/`--` with `+= 1`/`-= 1`, (3) move pre/post-increment out of expressions into separate statements before or after. For pre-increment in a loop header (`++i`) add the increment before the loop AND at the end of the loop body. For post-increment in a loop header (`i++`) adjust the termination condition by +1.
+
 #### package
 
 Java packages can be mapped as enum hierachy. Take a look to the CryptoKit, for example MD5 is placed in the enum Insecure and must called with Insecure.MD5
 Too add a new _package_ create an enum with same name. Subpackages can be add directly in the enum or maybe better as extension of these enum.
+
+> **AI hint:** Map Java package `com.example.foo.bar` to nested Swift enums `com.example.foo.bar {}` (all empty, no cases). Declare top-level enums in their own file; add sub-packages via `extension`. Never use `struct` or `class` as a namespace — only `enum` prevents instantiation.
 
 #### shortcuts
 
@@ -614,6 +671,8 @@ Java shortcuts for types need to be translated like
 
     1d    to    1.0         // double shortcut
     1l    to    Int64(1)    // long shortcut
+
+> **AI hint:** Scan every numeric literal for Java type suffixes: `d`/`D` → Swift `Double` literal (e.g. `1.0`), `l`/`L` → `Int64(...)`, `f`/`F` → `Float(...)`. Remove the suffix and wrap or annotate as needed. Hex literals with `L` suffix: `0xFFFFFFFFL` → `Int64(bitPattern: 0xFFFFFFFF)`.
 
 #### static block
 
@@ -650,6 +709,9 @@ static staticArray : [Something] = {
   //do more
   return _staticArray
 }()
+```
+
+> **AI hint:** Translate Java `static { ... }` blocks to a Swift `static let _init: Void = { ... }()` property. For static array/collection initialisation use a self-executing closure assigned to a `static let`. Do not use `lazy` here — the initialisation must be eager, matching Java class-loading semantics.
 
 #### static variables and Swift 6 concurrency
 
@@ -705,6 +767,8 @@ If the variable is only accessed on the main thread (e.g. UI state), annotate it
 
 > **Important:** `nonisolated(unsafe)` silences the compiler but does **not** add synchronisation. Only use it when you can reason that no data race is possible — the same way you would use `synchronized` in Java to assert thread safety without the compiler's help.
 
+> **AI hint:** For every Java `static` field, determine the access pattern: write-once → `nonisolated(unsafe) static let/var`; multi-threaded mutable → `actor`; main-thread only → `@MainActor static var`. Never emit a bare `static var` without one of these annotations in Swift 6 mode — it will not compile.
+
 #### String.format
 
 Replace `String.format` with Swift placeholders like from
@@ -719,9 +783,13 @@ to
 "Text \(intValue), more text \(stringValue)"
 ```
 
+> **AI hint:** Replace `String.format(fmt, args...)` with Swift string interpolation `"\(arg)"`. For format specifiers: `%d`/`%i` → `\(intVal)`, `%s` → `\(strVal)`, `%f` → `\(floatVal)` or `String(format: "%.2f", floatVal)` when precision matters. `%n` (newline) → `\n`.
+
 #### Swiftify
 
 Swiftify is a JavApi extension. It make additional implementations of Java methods with syntax more like Swift code. It can also implements additional Swift type to use the Java ported code like Swift in other real Swift code.
+
+> **AI hint:** After completing a Phase 1 port, check whether JavApi4Swift already provides a Swiftify extension for the translated type. If so, do not re-implement methods that Swiftify already covers. Swiftify additions are in files suffixed `+Swiftify.swift`.
 
 #### switch
 
@@ -744,6 +812,8 @@ default: break;
 }
 ```
 
+> **AI hint:** Java `switch` falls through by default — check every `case` for a missing `break`. If fall-through is intentional translate it with Swift `fallthrough`. Add `default:` only if Java has one or if Swift requires exhaustiveness. Prepend `.` to enum case names in Swift `case` labels.
+
 #### visibility
 
 Swift visiblilities are:
@@ -755,6 +825,8 @@ Swift visiblilities are:
 5. open: like public in Java - for class or function to be subclassed or overridden outside the current module.
 
 In result of these Java ported classes are by default `open` except they are final then `public`.
+
+> **AI hint:** Map Java `public class` → Swift `open class`. Map Java `public final class` → Swift `public final class`. Map Java `protected` → Swift `open` (no direct equivalent; use `open` to allow subclassing). Map Java package-private (no modifier) → Swift `internal`. Map Java `private` → Swift `private`.
 
 
 ----
