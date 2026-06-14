@@ -34,8 +34,20 @@ extension javax.swing {
     /// Create separators with `JMenuItem.separator()`.
     public var isSeparator: Bool = false
 
-    /// Whether the mouse is hovering over this item (used by the UI delegate).
-    internal var isArmed: Bool = false
+    // -------------------------------------------------------------------------
+    // MARK: Model
+    // -------------------------------------------------------------------------
+
+    private var _model: javax.swing.ButtonModel = javax.swing.DefaultButtonModel()
+
+    public func getModel() -> javax.swing.ButtonModel { _model }
+    public func setModel(_ model: javax.swing.ButtonModel) { _model = model }
+
+    /// Whether the mouse is hovering over this item — delegates to model.
+    internal var isArmed: Bool {
+      get { _model.isArmed }
+      set { _model.isArmed = newValue }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Init

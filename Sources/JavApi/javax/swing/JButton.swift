@@ -9,8 +9,9 @@ extension javax.swing {
   /// A push button with a text label.
   ///
   /// `JButton` is the standard Swing push button.  Clicking it fires all
-  /// registered `ActionListener` closures.  The visual appearance is delegated
-  /// to `BasicButtonUI`.
+  /// registered `ActionListener`s.  The visual appearance is delegated
+  /// to `BasicButtonUI`.  State (pressed, rollover, armed, enabled) is
+  /// managed by a `ButtonModel` (`DefaultButtonModel` by default).
   ///
   /// ## Usage
   ///
@@ -24,14 +25,34 @@ extension javax.swing {
   open class JButton: javax.swing.JComponent {
 
     // -------------------------------------------------------------------------
-    // MARK: State
+    // MARK: Text
     // -------------------------------------------------------------------------
 
     private var text: String
-    /// `true` while the mouse button is held down over this button.
-    internal var isPressed: Bool = false
-    /// `true` while the mouse cursor is over this button.
-    internal var isRollover: Bool = false
+
+    public func getText() -> String  { text }
+    public func setText(_ t: String) { text = t; invalidate() }
+
+    // -------------------------------------------------------------------------
+    // MARK: Model
+    // -------------------------------------------------------------------------
+
+    private var _model: javax.swing.ButtonModel = javax.swing.DefaultButtonModel()
+
+    public func getModel() -> javax.swing.ButtonModel { _model }
+
+    public func setModel(_ model: javax.swing.ButtonModel) { _model = model }
+
+    /// Convenience: pressed state via model.
+    internal var isPressed:  Bool {
+      get { _model.isPressed  }
+      set { _model.isPressed  = newValue }
+    }
+    /// Convenience: rollover state via model.
+    internal var isRollover: Bool {
+      get { _model.isRollover }
+      set { _model.isRollover = newValue }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Init
@@ -52,29 +73,25 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Accessors
-    // -------------------------------------------------------------------------
-
-    public func getText() -> String         { text }
-    public func setText(_ t: String)        { text = t; invalidate() }
-
-    // -------------------------------------------------------------------------
     // MARK: Mouse state tracking
     // -------------------------------------------------------------------------
 
     override open func processMouseEvent(_ e: java.awt.event.MouseEvent) {
       switch e.getID() {
       case java.awt.event.MouseEvent.MOUSE_PRESSED:
-        isPressed = true
+        _model.isArmed   = true
+        _model.isPressed = true
         repaint()
       case java.awt.event.MouseEvent.MOUSE_RELEASED:
-        isPressed = false
+        _model.isPressed = false
+        _model.isArmed   = false
         repaint()
       case java.awt.event.MouseEvent.MOUSE_ENTERED:
-        isRollover = true
+        _model.isRollover = true
         repaint()
       case java.awt.event.MouseEvent.MOUSE_EXITED:
-        isRollover = false
+        _model.isRollover = false
+        _model.isArmed    = false
         repaint()
       default: break
       }
