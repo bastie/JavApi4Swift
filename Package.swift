@@ -33,6 +33,11 @@ let package = Package(
       path: "Sources/AWTShowcase",
       resources: [.process("Assets.xcassets")]
     ),
+    .executableTarget(
+      name: "SwingShowcase",
+      dependencies: ["JavApi"],
+      path: "Sources/SwingShowcase"
+    ),
   ]
 )
 

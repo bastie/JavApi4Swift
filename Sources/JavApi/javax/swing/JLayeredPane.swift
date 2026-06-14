@@ -1,0 +1,68 @@
+/*
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: MIT
+ */
+
+extension javax.swing {
+
+  /// A container that manages its children in named Z-order layers.
+  ///
+  /// `JLayeredPane` divides its depth into a set of named layers.  Components
+  /// in higher-numbered layers are painted on top of components in lower-numbered
+  /// layers.  Within a single layer, components are ordered by their position in
+  /// the children array.
+  ///
+  /// ## Standard layers (low → high)
+  ///
+  /// | Constant | Value | Typical use |
+  /// |---|---|---|
+  /// | `DEFAULT_LAYER` | 0 | Normal components |
+  /// | `PALETTE_LAYER` | 100 | Floating toolbars |
+  /// | `MODAL_LAYER` | 200 | Modal dialog blocking layers |
+  /// | `POPUP_LAYER` | 300 | Pop-up menus, tool tips |
+  /// | `DRAG_LAYER` | 400 | Components being dragged |
+  ///
+  /// Inside `JRootPane`, the content pane sits in `DEFAULT_LAYER` and the menu
+  /// bar in `FRAME_CONTENT_LAYER` (a reserved negative value).
+  ///
+  /// - Note: This is a clean-room stub.  Layer-aware painting and per-component
+  ///   layer assignment will be added when `JRootPane` painting is implemented.
+  @MainActor
+  open class JLayeredPane: javax.swing.JComponent {
+
+    // -------------------------------------------------------------------------
+    // MARK: Layer constants
+    // -------------------------------------------------------------------------
+
+    public static let DEFAULT_LAYER:      Int = 0
+    public static let PALETTE_LAYER:      Int = 100
+    public static let MODAL_LAYER:        Int = 200
+    public static let POPUP_LAYER:        Int = 300
+    public static let DRAG_LAYER:         Int = 400
+    public static let FRAME_CONTENT_LAYER: Int = -30000
+
+    // -------------------------------------------------------------------------
+    // MARK: Layer assignment  (stub)
+    // -------------------------------------------------------------------------
+
+    /// Adds `component` to the specified layer.
+    ///
+    /// - Parameters:
+    ///   - component: The component to add.
+    ///   - layer: The layer constant (e.g. `JLayeredPane.POPUP_LAYER`).
+    public func add(_ component: java.awt.Component, layer: Int) {
+      // TODO: record per-component layer and sort children by layer on paint
+      add(component)
+    }
+
+    /// Returns the layer number for `component`, or `DEFAULT_LAYER` if unknown.
+    public func getLayer(_ component: java.awt.Component) -> Int {
+      return JLayeredPane.DEFAULT_LAYER
+    }
+
+    /// Moves `component` to `layer`.
+    public func setLayer(_ component: java.awt.Component, layer: Int) {
+      // TODO: update layer map and re-sort paint order
+    }
+  }
+}
