@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+
 extension javax.swing {
 
   /// A push button with a text label.
@@ -84,10 +85,20 @@ extension javax.swing {
     // MARK: ActionListener
     // -------------------------------------------------------------------------
 
-    private var actionListeners: [(java.awt.event.ActionEvent) -> Void] = []
+    private var actionListeners: [java.awt.event.ActionListener] = []
 
-    public func addActionListener(_ listener: @escaping (java.awt.event.ActionEvent) -> Void) {
+    /// Registers an `ActionListener` object (Java-style).
+    @discardableResult
+    public func addActionListener(_ listener: java.awt.event.ActionListener) -> javax.swing.JButton {
       actionListeners.append(listener)
+      return self
+    }
+
+    /// Convenience overload: wraps a closure in an `ActionListener`.
+    @discardableResult
+    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) -> javax.swing.JButton {
+      actionListeners.append(_SwingClosureActionListener(handler))
+      return self
     }
 
     public func removeActionListeners() {
@@ -97,7 +108,7 @@ extension javax.swing {
     /// Programmatically fires an `ACTION_PERFORMED` event.
     public func doClick() {
       let event = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, text)
-      for listener in actionListeners { listener(event) }
+      for listener in actionListeners { listener.actionPerformed(event) }
     }
   }
 }

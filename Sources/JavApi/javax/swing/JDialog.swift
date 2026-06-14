@@ -76,16 +76,16 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// Creates a dialog owned by `owner` with the given title and modality.
-    public init(owner: java.awt.Frame? = nil,
-                title: String = "",
-                modal: Bool = false) {
+    public override init(_ owner: java.awt.Frame? = nil,
+                _ title: String = "",
+                _ modal: Bool = false) {
       super.init(owner ?? java.awt.Frame(), title, modal)
       super.add(rootPane)
     }
 
     /// Convenience: positional title first (matches Java API style).
-    public convenience init(_ title: String, owner: java.awt.Frame? = nil, modal: Bool = false) {
-      self.init(owner: owner, title: title, modal: modal)
+    public convenience init(_ title: String, _ owner: java.awt.Frame? = nil, _ modal: Bool = false) {
+      self.init(owner, title, modal)
     }
 
     // -------------------------------------------------------------------------

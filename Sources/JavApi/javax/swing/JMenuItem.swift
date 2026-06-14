@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+
 extension javax.swing {
 
   /// A single item inside a `JPopupMenu`.
@@ -63,11 +64,20 @@ extension javax.swing {
     // MARK: ActionListener
     // -------------------------------------------------------------------------
 
-    private var actionListeners: [(java.awt.event.ActionEvent) -> Void] = []
+    private var actionListeners: [java.awt.event.ActionListener] = []
 
-    /// Appends a listener that is called when this item is clicked.
-    public func addActionListener(_ listener: @escaping (java.awt.event.ActionEvent) -> Void) {
+    /// Registers an `ActionListener` object (Java-style).
+    @discardableResult
+    public func addActionListener(_ listener: java.awt.event.ActionListener) -> javax.swing.JMenuItem {
       actionListeners.append(listener)
+      return self
+    }
+
+    /// Convenience overload: wraps a closure in an `ActionListener`.
+    @discardableResult
+    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) -> javax.swing.JMenuItem {
+      actionListeners.append(_SwingClosureActionListener(handler))
+      return self
     }
 
     /// Removes all action listeners.
@@ -79,7 +89,7 @@ extension javax.swing {
     public func doClick() {
       guard !isSeparator else { return }
       let e = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, text, 0, 0)
-      actionListeners.forEach { $0(e) }
+      actionListeners.forEach { $0.actionPerformed(e) }
     }
   }
 }

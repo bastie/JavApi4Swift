@@ -35,15 +35,9 @@ final class SwingCardDemoPanel: javax.swing.JPanel {
     nav.setLayout(java.awt.FlowLayout())
 
     let prevBtn = javax.swing.JButton("◀")
-    prevBtn.addActionListener { [weak self] _ in // FIXME: no Java like way - must be rewrite like AWTShowcase sample
-      guard let self else { return }
-      self.cards.previous(self.cardBox)
-    }
+    prevBtn.addActionListener(SwingCardNavListener(cards: cards, box: cardBox, dir: -1))
     let nextBtn = javax.swing.JButton("▶")
-    nextBtn.addActionListener { [weak self] _ in // FIXME: no Java like way - must be rewrite like AWTShowcase sample
-      guard let self else { return }
-      self.cards.next(self.cardBox)
-    }
+    nextBtn.addActionListener(SwingCardNavListener(cards: cards, box: cardBox, dir: 1))
     nav.add(prevBtn)
     nav.add(nextBtn)
     nav.setPreferredSize(java.awt.Dimension(200, 36))
