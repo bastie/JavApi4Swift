@@ -233,6 +233,64 @@ With **Swift 6.0** typed throws is provided.
 
 > **AI hint:** Map each Java `catch (XException e)` to a `case Throwable.XException` inside a `switch error` block. Translate multi-catch `catch (A | B e)` to two separate `case` entries. In new code prefer Swift typed throws (`throws(XException)`) over the `Throwable` enum pattern. Never silently swallow exceptions — always translate at minimum to a `default: break` with a comment.
 
+#### exception classes
+
+Each Java exception class is translated to a Swift class in its own file, placed in the namespace directory that matches the Java package. The class follows this fixed pattern:
+
+```swift
+extension java.<package> {
+
+  open class XyzException : <SuperException>, @unchecked Sendable {
+
+    public override init () {
+      super.init()
+    }
+
+    public override init (_ message: String) {
+      super.init(message)
+    }
+
+    public override init (_ newMessage : String, _ newCause : Throwable) {
+      super.init(newMessage, newCause)
+    }
+
+    public override init (_ newCause : Throwable) {
+      super.init(newCause)
+    }
+  }
+}
+```
+
+**Rules:**
+- One exception class per file, named `XyzException.swift`.
+- Always extend the correct Java supertype: `RuntimeException` for unchecked, `Exception` (or a checked subclass such as `IOException`) for checked exceptions. Use `java.lang.Error` for error subclasses.
+- Always mark the class `@unchecked Sendable` — the `Throwable` hierarchy predates Swift concurrency.
+- Always provide all four initialisers shown above (no-arg, message, message+cause, cause-only). Omit only initialisers that the Java source explicitly does not define.
+- If the exception carries extra fields (e.g. `MissingResourceException` stores `className` and `key`), add them as `private let` properties and expose them through `get…()` methods like Java. Store them before calling `super.init`.
+
+**Example with extra fields** (`java.util.MissingResourceException`):
+
+```swift
+extension java.util {
+  open class MissingResourceException : RuntimeException, @unchecked Sendable {
+
+    private let className : String
+    private let key : String
+
+    public init(_ message: String, _ className: String, _ key: String) {
+      self.className = className
+      self.key = key
+      super.init(message)
+    }
+
+    public func getKey() -> String { return self.key }
+    public func getClassName() -> String { return self.className }
+  }
+}
+```
+
+> **AI hint:** When porting a Java exception class, look up its supertype in the Java API docs and map it to the corresponding JavApi4Swift type. Do not use Swift's `Error` protocol directly — always subclass `RuntimeException` or `Exception` from JavApi4Swift. Do not collapse multiple exception classes into one file.
+
 #### final
 
 First let `let` the replacement be for `final`. For functions / method parameters the semantic of Java and Swift are "different". In Java you can be declare a parameter as not changeable with `final`. In todays Swift versions all parameteres are final by default, you can use `inout` but the semantic is little different. 
@@ -677,6 +735,17 @@ For example:
 Of course this are the easiest variants.
 
 > **AI hint:** Process operators in this order: (1) split composite assignments (`i+=1` → `i += 1`), (2) replace `++`/`--` with `+= 1`/`-= 1`, (3) move pre/post-increment out of expressions into separate statements before or after. For pre-increment in a loop header (`++i`) add the increment before the loop AND at the end of the loop body. For post-increment in a loop header (`i++`) adjust the termination condition by +1.
+
+#### one class per file
+
+In Java each public class must reside in its own file of the same name. JavApi4Swift follows the same rule for all `open` and `public` types — including exception classes, resource bundles, and any other top-level types.
+
+**Rules:**
+- Every `open class`, `public class`, and `public struct` lives in its own `.swift` file named exactly after the type (e.g. `ListResourceBundle.swift`).
+- Only `internal`, `private`, or `fileprivate` helper types may share a file with their primary type.
+- Place the file in the directory that corresponds to the Java package (e.g. `Sources/JavApi/util/`).
+
+> **AI hint:** When porting a Java file that contains only one public class, create exactly one Swift file with the same name. When porting a Java file that contains a public class and package-private helpers, the helpers may stay in the same file only if they are declared `internal` or `private`. Never place two `open` or `public` classes in the same `.swift` file, even if they belong to the same Java package.
 
 #### package
 
