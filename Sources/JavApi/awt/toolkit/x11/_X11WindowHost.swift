@@ -247,6 +247,8 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private weak var draggingTextAreaScroll: java.awt.TextArea?
   // Currently open Choice — tracked so outside clicks close it
   @MainActor private weak var openChoice: java.awt.Choice?
+  // Currently open Swing JMenu — tracked so outside clicks close the popup
+  @MainActor private weak var openSwingMenu: javax.swing.JMenu?
   // Button being held down — isPressed set on ButtonPress, doClick() on ButtonRelease
   @MainActor private weak var pressedButton: java.awt.Button?
   @MainActor private weak var pressedButtonWindow: java.awt.Window?
@@ -360,6 +362,64 @@ public final class _X11WindowHost: @unchecked Sendable {
   }
 
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // MARK: Swing menu helpers
+  // ---------------------------------------------------------------------------
+
+  /// Walks the AWT tree of `root` and returns the first `JMenuBar` found, or nil.
+  @MainActor private func _swingMenuBar(in root: java.awt.Component) -> javax.swing.JMenuBar? {
+    if let bar = root as? javax.swing.JMenuBar { return bar }
+    if let c = root as? java.awt.Container {
+      for child in c.getComponents() {
+        if let found = _swingMenuBar(in: child) { return found }
+      }
+    }
+    return nil
+  }
+
+  /// Opens `menu`'s popup in the POPUP_LAYER of the JFrame's layered pane.
+  @MainActor private func _openSwingMenu(_ menu: javax.swing.JMenu,
+                                          bar: javax.swing.JMenuBar,
+                                          awtWindow: java.awt.Window,
+                                          xwin: X11WindowID) {
+    guard let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+          let entry = barUI.menuRects.first(where: { $0.menu === menu })
+    else { return }
+
+    // Walk up to JLayeredPane
+    var node: java.awt.Component? = bar
+    var layeredPane: javax.swing.JLayeredPane? = nil
+    while let n = node {
+      if let lp = n as? javax.swing.JLayeredPane { layeredPane = lp; break }
+      node = n.parent
+    }
+    guard let lp = layeredPane else { return }
+
+    menu.isSelected = true
+    openSwingMenu   = menu
+
+    let popup = menu.swingPopupMenu
+    let barY  = bar.bounds.y
+    let popX  = bar.bounds.x + entry.rect.x
+    let popY  = barY + javax.swing.JMenuBar.defaultHeight
+    lp.add(popup, layer: javax.swing.JLayeredPane.POPUP_LAYER)
+    popup.show(x: popX, y: popY)
+    repaint(awtWindow, xwin: xwin)
+  }
+
+  /// Closes the currently open Swing popup, if any.
+  @MainActor private func _closeOpenSwingMenu(awtWindow: java.awt.Window,
+                                               xwin: X11WindowID,
+                                               repaintAfter: Bool) {
+    guard let menu = openSwingMenu else { return }
+    menu.isSelected = false
+    let popup = menu.swingPopupMenu
+    popup.parent?.remove(popup)
+    popup.closePopup()
+    openSwingMenu = nil
+    if repaintAfter { repaint(awtWindow, xwin: xwin) }
+  }
+
   // MARK: Window lifecycle
   // ---------------------------------------------------------------------------
 
@@ -424,7 +484,11 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     // If a MenuBar was attached before the window was opened (the common case —
     // frame.setMenuBar() is usually called before setVisible()), attach it now.
-    if let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
+    // JFrame is a Swing window — it draws its own JMenuBar via JRootPane/JLayeredPane,
+    // so we must NOT register an _X11MenuBar for it (that would double-draw a menu bar
+    // and incorrectly shrink the AWT bounds that JFrame.doLayout() manages itself).
+    if !(awtWindow is javax.swing.JFrame),
+       let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
       menuBarRegistry[xwin] = _X11MenuBar(mb)
       // Shrink AWT content area so layout managers don't paint under the bar
       let logH = awtWindow.getHeight() - _X11MenuBar.menuBarHeight
@@ -761,6 +825,55 @@ public final class _X11WindowHost: @unchecked Sendable {
         return
       }
 
+      // ── Swing JMenu popup handling (JFrame only; must come before AWT checks) ──
+      if awtWindow is javax.swing.JFrame {
+        if let menu = openSwingMenu {
+          let popup = menu.swingPopupMenu
+          let pb    = popup.bounds
+          if pb.contains(clickX, clickY) {
+            // Click inside open Swing popup → fire item, close
+            let localX = clickX - pb.x
+            let localY = clickY - pb.y
+            if let item = popup.itemAt(x: localX, y: localY) {
+              _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+              item.doClick()
+            } else {
+              _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+            }
+            repaint(awtWindow, xwin: xwin)
+            return
+          } else {
+            // Click outside popup — close; may fall through to open another menu title
+            _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+          }
+        }
+        // Check if click is in the JMenuBar
+        if let bar = _swingMenuBar(in: awtWindow) {
+          let bb = bar.bounds
+          if bb.contains(clickX, clickY) {
+            if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+               let hitMenu = barUI.menu(at: clickX - bb.x, y: clickY - bb.y) {
+              if hitMenu.isSelected {
+                _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: true)
+              } else {
+                _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+                _openSwingMenu(hitMenu, bar: bar, awtWindow: awtWindow, xwin: xwin)
+              }
+            } else {
+              _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: true)
+            }
+            return
+          }
+        }
+        // Normal Swing content click — hit-test and dispatch via _AWTHitTest
+        if let hit = _AWTHitTest.find(x: clickX, y: clickY, in: awtWindow) {
+          _X11FocusManager.shared.requestFocus(hit)
+          _AWTHitTest.dispatch(click: hit)
+          repaint(awtWindow, xwin: xwin)
+        }
+        return
+      }
+
       // If a popup is open: check click in popup first, dismiss if outside
       if let popup = _X11PopupWindow.activePopup {
         if popup.contains(clickX, clickY) {
@@ -1044,6 +1157,52 @@ public final class _X11WindowHost: @unchecked Sendable {
           needsRepaint = true
         }
       }
+      // ── Swing JFrame hover handling ──────────────────────────────────────────
+      if awtWindow is javax.swing.JFrame {
+        // Switch open menu when hovering over a different menu title
+        if openSwingMenu != nil,
+           let bar = _swingMenuBar(in: awtWindow) {
+          let bb = bar.bounds
+          if bb.contains(mx, my),
+             let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+             let hitMenu = barUI.menu(at: mx - bb.x, y: my - bb.y),
+             hitMenu !== openSwingMenu {
+            _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+            _openSwingMenu(hitMenu, bar: bar, awtWindow: awtWindow, xwin: xwin)
+            needsRepaint = false   // _openSwingMenu calls repaint() already
+          }
+        }
+        // Hover-highlight (armed) inside an open Swing popup
+        if let menu = openSwingMenu {
+          let popup = menu.swingPopupMenu
+          let pb    = popup.bounds
+          if pb.contains(mx, my),
+             let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+            let localX = mx - pb.x
+            let localY = my - pb.y
+            if popupUI.updateArmed(at: localX, y: localY) { needsRepaint = true }
+          } else if !pb.contains(mx, my) {
+            // Cursor left popup — clear armed state; check if moved to another title
+            if let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+              if popupUI.updateArmed(at: -1, y: -1) { needsRepaint = true }
+            }
+            if let bar = _swingMenuBar(in: awtWindow) {
+              let bb = bar.bounds
+              if bb.contains(mx, my),
+                 let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+                 let hitMenu = barUI.menu(at: mx - bb.x, y: my - bb.y),
+                 hitMenu !== openSwingMenu {
+                _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)
+                _openSwingMenu(hitMenu, bar: bar, awtWindow: awtWindow, xwin: xwin)
+                needsRepaint = false
+              }
+            }
+          }
+        }
+        if needsRepaint { repaint(awtWindow, xwin: xwin) }
+        break
+      }
+
       // Popup hover highlight
       if let popup = _X11PopupWindow.activePopup {
         let newIdx = popup.itemRects.indices.first {
@@ -1249,21 +1408,28 @@ public final class _X11WindowHost: @unchecked Sendable {
     let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
                                                scaleFactor: scaleFactor)
 
-    // Draw menu bar at top if one is attached to this window
-    if let x11mb = menuBarRegistry[xwin] {
-      x11mb.draw(using: g, windowWidth: awtWindow.getWidth())
-      // Shift origin down so component painting starts below the menu bar
-      g.translate(0, _X11MenuBar.menuBarHeight)
-    }
+    if awtWindow is javax.swing.JFrame {
+      // Swing window: JFrame.paint() → JRootPane → JLayeredPane → JMenuBar +
+      // contentPane + JPopupMenu (in POPUP_LAYER). The JLayeredPane.paintChildren
+      // already translates the graphics context to each child's origin, so no
+      // manual translate is needed here.
+      awtWindow.paint(g)
+    } else {
+      // AWT window: draw the menu bar at the top (if any), then shift origin down
+      // so component painting starts below it.
+      if let x11mb = menuBarRegistry[xwin] {
+        x11mb.draw(using: g, windowWidth: awtWindow.getWidth())
+        g.translate(0, _X11MenuBar.menuBarHeight)
+      }
 
-    awtWindow.paint(g)
+      awtWindow.paint(g)
 
-    // Draw popup overlay on top of everything (reset origin first)
-    if let popup = _X11PopupWindow.activePopup {
-      // Restore translation so popup coords are window-relative
-      let savedG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
-                                                      scaleFactor: scaleFactor)
-      popup.draw(using: savedG)
+      // Draw AWT popup overlay on top (reset origin first)
+      if let popup = _X11PopupWindow.activePopup {
+        let savedG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
+                                                        scaleFactor: scaleFactor)
+        popup.draw(using: savedG)
+      }
     }
 
     _ = fnFlush?(dpy)
