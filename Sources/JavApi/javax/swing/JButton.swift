@@ -69,7 +69,7 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func updateUI() {
-      setUI(javax.swing.plaf.basic.BasicButtonUI())
+      super.updateUI()
     }
 
     // -------------------------------------------------------------------------
