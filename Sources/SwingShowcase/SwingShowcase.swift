@@ -28,9 +28,41 @@ struct SwingShowcaseApp {
 
     // ── JMenuBar ─────────────────────────────────────────────────────────────
     let menuBar = javax.swing.JMenuBar()
-    menuBar.add(javax.swing.JMenu("File"))
-    menuBar.add(javax.swing.JMenu("Edit"))
-    menuBar.add(javax.swing.JMenu("Help"))
+
+    // File menu
+    let fileMenu = javax.swing.JMenu("File")
+    fileMenu.add(javax.swing.JMenuItem("Open…")).addActionListener { _ in
+      print("File > Open…")
+    }
+    fileMenu.add(javax.swing.JMenuItem("Save…")).addActionListener { _ in
+      print("File > Save…")
+    }
+    fileMenu.addSeparator()
+    let quitItem = javax.swing.JMenuItem("Quit")
+    quitItem.addActionListener { _ in java.lang.System.exit(0) }
+    fileMenu.add(quitItem)
+    menuBar.add(fileMenu)
+
+    // Edit menu
+    let editMenu = javax.swing.JMenu("Edit")
+    editMenu.add(javax.swing.JMenuItem("Cut")).addActionListener { _ in
+      print("Edit > Cut")
+    }
+    editMenu.add(javax.swing.JMenuItem("Copy")).addActionListener { _ in
+      print("Edit > Copy")
+    }
+    editMenu.add(javax.swing.JMenuItem("Paste")).addActionListener { _ in
+      print("Edit > Paste")
+    }
+    menuBar.add(editMenu)
+
+    // Help menu
+    let helpMenu = javax.swing.JMenu("Help")
+    helpMenu.add(javax.swing.JMenuItem("About…")).addActionListener { _ in
+      print("Help > About…")
+    }
+    menuBar.add(helpMenu)
+
     frame.setJMenuBar(menuBar)
 
     return frame

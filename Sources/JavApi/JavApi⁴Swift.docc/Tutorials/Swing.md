@@ -16,8 +16,8 @@ than delegating to native OS widgets.  The visual appearance is controlled by a
 pluggable **Look & Feel** (L&F).
 
 JavApi⁴Swift implements Swing on top of the same `Graphics2D` / CoreGraphics stack
-used by AWT, with its own `SwiftLookAndFeel` that produces a macOS/iOS-native
-appearance.
+used by AWT, with `BasicLookAndFeel` as the default L&F that produces a clean,
+cross-platform appearance.
 
 > **Note:** Swing builds on AWT.  If you are new to JavApi⁴Swift, read
 > <doc:AWT> first — concepts like `Graphics`, layout managers, and event listeners
@@ -42,9 +42,8 @@ correct delegate for each component type:
 
 ```
 LookAndFeel.getDefaults()
-  └── "ButtonUI"  → SwiftButtonUI   ← paints JButton
-  └── "LabelUI"   → SwiftLabelUI    ← paints JLabel
-  └── "PanelUI"   → SwiftPanelUI    ← paints JPanel
+  └── "MenuBarUI"   → BasicMenuBarUI    ← paints JMenuBar
+  └── "PopupMenuUI" → BasicPopupMenuUI  ← paints JPopupMenu
   └── …
 ```
 
@@ -53,72 +52,303 @@ The active L&F is managed by `UIManager`:
 ```swift
 // Query the active L&F
 let laf = UIManager.getLookAndFeel()
-print(laf.getName())   // "Swift"
+print(laf.getName())   // "Basic"
 
 // Install a different L&F (must call updateUI on all components afterwards)
 UIManager.setLookAndFeel(MyCustomLookAndFeel())
 ```
 
-JavApi⁴Swift ships one built-in L&F: **`SwiftLookAndFeel`** (package
-`javax.swing.plaf.swift`).  It is selected automatically on Apple platforms.
+JavApi⁴Swift ships one built-in L&F: **`BasicLookAndFeel`** (package
+`javax.swing.plaf.basic`).  It is selected automatically.
 
 ## JFrame — the Swing top-level window
 
-`JFrame` extends `java.awt.Frame` and adds Swing's **root pane** architecture:
+`JFrame` extends `java.awt.Frame` and adds Swing's **root pane** architecture.
+The internal hierarchy is:
 
 ```
 JFrame
   └── JRootPane
-        ├── contentPane  (JPanel, BorderLayout)  ← add your widgets here
-        ├── glassPane    (JComponent, invisible)  ← for overlays / drag & drop
-        └── JMenuBar (optional)
+        ├── JLayeredPane
+        │     ├── contentPane  (FRAME_CONTENT_LAYER, -30000)
+        │     ├── JMenuBar     (FRAME_CONTENT_LAYER, -30000)
+        │     └── JPopupMenu   (POPUP_LAYER, 300)  ← added at runtime
+        └── glassPane (invisible overlay)
 ```
 
 Always add components to the *content pane*, not directly to the frame:
 
 ```swift
-// coming soon
+let frame = javax.swing.JFrame("My App")
+frame.setSize(640, 480)
+frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE)
+
+// Access the content pane
+let content = frame.getContentPane()
+// content.add(myPanel)    // coming soon: JPanel, JLabel, etc.
+
+frame.setVisible(true)
 ```
 
-> **Status:** `JFrame`, `JRootPane`, `JLayeredPane`, `JPanel`, and `JComponent`
-> are not yet implemented.  This article will be expanded as each class is added.
+### doLayout and the root pane chain
+
+When the frame is resized, `JFrame.doLayout()` sets the root pane's bounds to
+fill the window, then calls `rootPane.validate()`. `JRootPane.doLayout()` then
+distributes that space between the menu bar (if any), the layered pane, and the
+content pane:
+
+```
+JFrame.doLayout()
+  └── rootPane.bounds = (0, 0, w, h)
+        └── JRootPane.doLayout()
+              ├── layeredPane.bounds = (0, 0, w, h)
+              ├── glassPane.bounds   = (0, 0, w, h)
+              ├── menuBar.bounds     = (0, 0, w, barH)   // if present
+              └── contentPane.bounds = (0, barH, w, h-barH)
+```
+
+Both `JFrame` and `JRootPane` call `setLayout(nil)` to prevent the default
+`FlowLayout` from overwriting the computed bounds during `validate()`.
+
+## JMenuBar, JMenu, and JMenuItem
+
+A `JMenuBar` is a horizontal strip of `JMenu` titles.  Clicking a title opens a
+`JPopupMenu` drop-down showing the menu's `JMenuItem` entries.
+
+```swift
+let menuBar = javax.swing.JMenuBar()
+
+// File menu
+let fileMenu = javax.swing.JMenu("File")
+fileMenu.add(javax.swing.JMenuItem("Open…")).addActionListener { _ in
+    print("File > Open…")
+}
+fileMenu.add(javax.swing.JMenuItem("Save…")).addActionListener { _ in
+    print("File > Save…")
+}
+fileMenu.addSeparator()
+let quitItem = javax.swing.JMenuItem("Quit")
+quitItem.addActionListener { _ in java.lang.System.exit(0) }
+fileMenu.add(quitItem)
+menuBar.add(fileMenu)
+
+// Edit menu
+let editMenu = javax.swing.JMenu("Edit")
+editMenu.add(javax.swing.JMenuItem("Cut")).addActionListener   { _ in print("Cut")   }
+editMenu.add(javax.swing.JMenuItem("Copy")).addActionListener  { _ in print("Copy")  }
+editMenu.add(javax.swing.JMenuItem("Paste")).addActionListener { _ in print("Paste") }
+menuBar.add(editMenu)
+
+frame.setJMenuBar(menuBar)
+```
+
+### Menu interaction model
+
+The SwiftUI toolkit handles all menu interaction directly in
+`_SwiftUINativeCanvas` — no additional setup is required in application code:
+
+- **Click** on a menu title → opens the drop-down (`JPopupMenu`)
+- **Hover** over another menu title while one is open → switches to that menu
+- **Click** on a menu item → fires all registered `ActionListener` closures
+- **Click outside** any open menu → closes the drop-down
+
+### Dynamic sizing
+
+All sizes are computed from `FontMetrics`, not hardcoded pixel values, so the
+menu bar and drop-down items scale with the system font on every platform:
+
+```swift
+// JMenuBar.defaultHeight — not a constant, a computed property:
+public static var defaultHeight: Int {
+    let fm = java.awt.FontMetrics.make(for: java.awt.Font("Dialog", java.awt.Font.PLAIN, 12))
+    return fm.getHeight() + verticalPad
+}
+```
+
+`BasicPopupMenuUI` uses the same pattern: `itemHeight = fm.getHeight() + itemVerticalPad`.
+
+## JLayeredPane — Z-order layers
+
+`JLayeredPane` manages its children in named layers.  Components in higher-numbered
+layers are painted on top:
+
+| Constant | Value | Typical use |
+|---|---|---|
+| `FRAME_CONTENT_LAYER` | -30000 | Content pane, menu bar |
+| `DEFAULT_LAYER` | 0 | Normal components |
+| `PALETTE_LAYER` | 100 | Floating toolbars |
+| `MODAL_LAYER` | 200 | Modal blocking overlays |
+| `POPUP_LAYER` | 300 | Drop-down menus, tool tips |
+| `DRAG_LAYER` | 400 | Dragged components |
+
+When a menu is opened, the `JPopupMenu` is added to `POPUP_LAYER` so it paints
+on top of the content pane.  `JLayeredPane.paintChildren` sorts children by layer
+and translates the graphics context to each child's origin before painting:
+
+```swift
+for child in sorted where child.visible {
+    let dx = child.bounds.x
+    let dy = child.bounds.y
+    g.translate(dx, dy)
+    child.paint(g)
+    g.translate(-dx, -dy)
+}
+```
+
+## Complete example — SwingShowcase
+
+```swift
+import JavApi
+
+@main
+struct SwingShowcaseApp {
+
+    @MainActor
+    static func main() {
+        java.awt.EventQueue.invokeLater {
+            SwingShowcaseApp().buildShowcase().setVisible(true)
+        }
+        java.awt.Toolkit.getDefaultToolkit().runEventLoop()
+    }
+
+    @MainActor
+    private func buildShowcase() -> javax.swing.JFrame {
+        let frame = javax.swing.JFrame("JavApi⁴Swift – Swing Showcase")
+        frame.setSize(520, 400)
+        frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE)
+
+        let menuBar = javax.swing.JMenuBar()
+
+        let fileMenu = javax.swing.JMenu("File")
+        fileMenu.add(javax.swing.JMenuItem("Open…")).addActionListener { _ in print("File > Open…") }
+        fileMenu.add(javax.swing.JMenuItem("Save…")).addActionListener { _ in print("File > Save…") }
+        fileMenu.addSeparator()
+        let quitItem = javax.swing.JMenuItem("Quit")
+        quitItem.addActionListener { _ in java.lang.System.exit(0) }
+        fileMenu.add(quitItem)
+        menuBar.add(fileMenu)
+
+        let editMenu = javax.swing.JMenu("Edit")
+        editMenu.add(javax.swing.JMenuItem("Cut")).addActionListener   { _ in print("Edit > Cut")   }
+        editMenu.add(javax.swing.JMenuItem("Copy")).addActionListener  { _ in print("Edit > Copy")  }
+        editMenu.add(javax.swing.JMenuItem("Paste")).addActionListener { _ in print("Edit > Paste") }
+        menuBar.add(editMenu)
+
+        let helpMenu = javax.swing.JMenu("Help")
+        helpMenu.add(javax.swing.JMenuItem("About…")).addActionListener { _ in print("Help > About…") }
+        menuBar.add(helpMenu)
+
+        frame.setJMenuBar(menuBar)
+        return frame
+    }
+}
+```
 
 ## Implementing a custom Look & Feel
 
-Subclass `javax.swing.LookAndFeel` and override the required methods:
+### ComponentUI — painting one component
+
+A `ComponentUI` subclass is responsible for painting one type of `JComponent`.
+Override `paint(_:on:)`, `getPreferredSize(of:)`, `installUI(_:)`, and
+`uninstallUI(_:)`:
+
+```swift
+import JavApi
+
+final class MyMenuBarUI: javax.swing.plaf.ComponentUI {
+
+    private let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 13)
+
+    override func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+        guard let bar = component as? javax.swing.JMenuBar else { return nil }
+        let fm = java.awt.FontMetrics.make(for: font)
+        let w  = bar.getMenus().reduce(0) { $0 + fm.stringWidth($1.getText()) + 16 }
+        return java.awt.Dimension(w, fm.getHeight() + 8)
+    }
+
+    override func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+        guard let bar = component as? javax.swing.JMenuBar else { return }
+        // fill background
+        g.setColor(java.awt.Color.darkGray)
+        g.fillRect(0, 0, bar.bounds.width, bar.bounds.height)
+        // draw titles …
+    }
+}
+```
+
+Each `JComponent` calls `updateUI()` to fetch the correct delegate:
+
+```swift
+open class MyJMenuBar: javax.swing.JMenuBar {
+    override open func updateUI() {
+        setUI(MyMenuBarUI())
+    }
+}
+```
+
+### LookAndFeel — the factory
+
+Subclass `javax.swing.LookAndFeel` to provide a complete set of delegates:
 
 ```swift
 import JavApi
 
 final class MyLookAndFeel: javax.swing.LookAndFeel {
 
-  override func getName()        -> String { "My L&F" }
-  override func getID()          -> String { "MyLaF" }
-  override func getDescription() -> String { "A custom Look & Feel" }
+    override func getName()        -> String { "My L&F" }
+    override func getID()          -> String { "MyLaF" }
+    override func getDescription() -> String { "A custom Look & Feel" }
 
-  override func isSupportedLookAndFeel() -> Bool { true }
-  override func isNativeLookAndFeel()    -> Bool { false }
+    override func isSupportedLookAndFeel() -> Bool { true }
+    override func isNativeLookAndFeel()    -> Bool { false }
 
-  override func initialize()   { /* allocate shared resources */ }
-  override func uninitialize() { /* release shared resources  */ }
+    override func initialize()   { /* allocate shared resources */ }
+    override func uninitialize() { /* release shared resources  */ }
 
-  // override func getDefaults() → UIDefaults  (once UIDefaults is available)
+    // override func getDefaults() → UIDefaults  (once UIDefaults is available)
 }
 ```
 
-## What You Will Learn
+Install it before any components are created:
 
-This article will be extended to cover:
+```swift
+javax.swing.UIManager.setLookAndFeel(MyLookAndFeel())
+```
 
-- `JFrame` and the root pane hierarchy
-- `JComponent` — `paintComponent`, borders, opacity
+### Colour conventions
+
+`BasicLookAndFeel` uses `java.awt.SystemColor` constants so colours adapt to
+the platform's appearance mode (Light / Dark):
+
+| Role | SystemColor constant |
+|---|---|
+| Menu bar background | `SystemColor.menu` |
+| Menu bar text | `SystemColor.menuText` |
+| Selected menu title background | `SystemColor.textHighlight` |
+| Selected menu title text | `SystemColor.textHighlightText` |
+| Popup background | `SystemColor.menu` |
+| Armed item background | `SystemColor.textHighlight` |
+| Border / separator | `SystemColor.controlShadow` |
+
+### Naming pitfalls when subclassing Swing components
+
+Some Swift names shadow identifiers from `java.awt` and its subpackages.  Known
+cases to avoid:
+
+| Symbol you want | Conflict | Safe alternative |
+|---|---|---|
+| `JMenu.popupMenu` | `java.awt.Component.popupMenu: PopupMenu?` | `swingPopupMenu` |
+| `JPopupMenu.hide()` | `java.awt.Component.hide()` | `closePopup()` |
+| `JPopupMenu.removeAll()` | `java.awt.Container.removeAll()` | `removeAllItems()` |
+
+## What comes next
+
+The following Swing components are planned:
+
 - `JPanel`, `JLabel`, `JButton`, `JTextField`, `JTextArea`
-- `JMenuBar`, `JMenu`, `JMenuItem`
 - `JDialog` and `JOptionPane`
 - `JScrollPane`, `JList`, `JComboBox`, `JTable`, `JTree`
-- `UIManager` and `UIDefaults`
-- Writing a custom `ComponentUI`
-- Writing a complete custom `LookAndFeel`
+- `UIManager` and `UIDefaults` lookup table
 
 ## Next Steps
 

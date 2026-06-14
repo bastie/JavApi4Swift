@@ -104,6 +104,15 @@ extension javax.swing {
       super.add(rootPane)
     }
 
+    /// Fills the root pane to the full frame bounds, then lets rootPane
+    /// lay out its own children (menuBar, contentPane, etc.).
+    /// Does NOT call super.doLayout() — JFrame has no LayoutManager and
+    /// the inherited FlowLayout would overwrite the bounds we just set.
+    override public func doLayout() {
+      rootPane.bounds = java.awt.Rectangle(0, 0, bounds.width, bounds.height)
+      rootPane.validate()
+    }
+
     // -------------------------------------------------------------------------
     // MARK: RootPaneContainer
     // -------------------------------------------------------------------------

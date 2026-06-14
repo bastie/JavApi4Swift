@@ -35,9 +35,15 @@ extension javax.swing {
     // MARK: Height constant
     // -------------------------------------------------------------------------
 
-    /// Default height of the menu bar in pixels.
-    /// `BasicMenuBarUI` uses this; a custom L&F may override via `getPreferredSize`.
-    public static let defaultHeight: Int = 24
+    /// Default vertical padding (top + bottom) added around the font height.
+    public static let verticalPad: Int = 6
+
+    /// Computed height of the menu bar based on the default font metrics.
+    /// Scales automatically with font size and platform DPI — not a hardcoded pixel value.
+    public static var defaultHeight: Int {
+      let fm = java.awt.FontMetrics.make(for: java.awt.Font("Dialog", java.awt.Font.PLAIN, 12))
+      return fm.getHeight() + verticalPad
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Menus

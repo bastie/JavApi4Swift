@@ -42,27 +42,63 @@ extension javax.swing {
     public static let FRAME_CONTENT_LAYER: Int = -30000
 
     // -------------------------------------------------------------------------
-    // MARK: Layer assignment  (stub)
+    // MARK: Layer map
+    // -------------------------------------------------------------------------
+
+    /// Maps ObjectIdentifier → layer number for each child component.
+    private var layerMap: [ObjectIdentifier: Int] = [:]
+
+    // -------------------------------------------------------------------------
+    // MARK: Layer assignment
     // -------------------------------------------------------------------------
 
     /// Adds `component` to the specified layer.
     ///
-    /// - Parameters:
-    ///   - component: The component to add.
-    ///   - layer: The layer constant (e.g. `JLayeredPane.POPUP_LAYER`).
+    /// Components in higher-numbered layers are painted last (on top).
+    /// Within the same layer, later-added components are on top.
     public func add(_ component: java.awt.Component, layer: Int) {
-      // TODO: record per-component layer and sort children by layer on paint
-      add(component)
+      layerMap[ObjectIdentifier(component)] = layer
+      add(component)   // appends to AWT children list
     }
 
     /// Returns the layer number for `component`, or `DEFAULT_LAYER` if unknown.
     public func getLayer(_ component: java.awt.Component) -> Int {
-      return JLayeredPane.DEFAULT_LAYER
+      layerMap[ObjectIdentifier(component)] ?? JLayeredPane.DEFAULT_LAYER
     }
 
     /// Moves `component` to `layer`.
     public func setLayer(_ component: java.awt.Component, layer: Int) {
-      // TODO: update layer map and re-sort paint order
+      layerMap[ObjectIdentifier(component)] = layer
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Layer-aware remove
+    // -------------------------------------------------------------------------
+
+    public override func remove(_ comp: java.awt.Component) {
+      layerMap.removeValue(forKey: ObjectIdentifier(comp))
+      super.remove(comp)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Layer-ordered painting
+    // -------------------------------------------------------------------------
+
+    /// Paints children in ascending layer order (lowest layer first → painted below),
+    /// translating the graphics context to each child's origin.
+    override open func paintChildren(_ g: java.awt.Graphics) {
+      let sorted = children.sorted {
+        let la = layerMap[ObjectIdentifier($0)] ?? JLayeredPane.DEFAULT_LAYER
+        let lb = layerMap[ObjectIdentifier($1)] ?? JLayeredPane.DEFAULT_LAYER
+        return la < lb
+      }
+      for child in sorted where child.visible {
+        let dx = child.bounds.x
+        let dy = child.bounds.y
+        g.translate(dx, dy)
+        child.paint(g)
+        g.translate(-dx, -dy)
+      }
     }
   }
 }

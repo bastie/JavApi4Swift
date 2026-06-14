@@ -101,10 +101,15 @@ extension javax.swing {
       paintChildren(g)
     }
 
-    /// Paints all visible child components.
+    /// Paints all visible child components, translating the graphics context
+    /// to each child's origin so the child can paint at (0,0).
     open func paintChildren(_ g: java.awt.Graphics) {
       for child in children where child.visible {
+        let dx = child.bounds.x
+        let dy = child.bounds.y
+        g.translate(dx, dy)
         child.paint(g)
+        g.translate(-dx, -dy)
       }
     }
 

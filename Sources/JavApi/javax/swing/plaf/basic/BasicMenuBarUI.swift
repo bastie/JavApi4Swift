@@ -83,25 +83,9 @@ extension javax.swing.plaf.basic {
     override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
       guard let bar = component as? javax.swing.JMenuBar else { return }
 
-      // Derive the available width from the CGContext clip path — this is always
-      // correct even on the first paint before layout has propagated bar.bounds.
-      // Fall back to the parent's width, then bar's own bounds as last resort.
-      let clipW: Int
-      #if canImport(CoreGraphics)
-      if let g2d = g as? java.awt.Graphics2D {
-        let box = g2d.cgContext.boundingBoxOfClipPath
-        if box.width > 0 {
-          clipW = Int(box.width)
-        } else {
-          clipW = bar.parent?.bounds.width ?? bar.bounds.width
-        }
-      } else {
-        clipW = bar.parent?.bounds.width ?? bar.bounds.width
-      }
-      #else
-      clipW = bar.parent?.bounds.width ?? bar.bounds.width
-      #endif
-      let w = clipW
+      // bar.bounds is now set correctly by JRootPane.doLayout() before paint is called.
+      // The graphics context origin is already translated to bar's position by paintChildren.
+      let w = bar.bounds.width
       let h = javax.swing.JMenuBar.defaultHeight
       let fm = java.awt.FontMetrics.make(for: font)
 
@@ -117,9 +101,16 @@ extension javax.swing.plaf.basic {
       g.drawLine(0, h - 1, w, h - 1)
 
       // Menu titles
-      g.setColor(java.awt.SystemColor.menuText)
       let textY = (h - fm.getHeight()) / 2 + fm.getAscent()
       for (menu, rect) in menuRects {
+        if menu.isSelected {
+          // Highlight selected menu title
+          g.setColor(java.awt.SystemColor.textHighlight)
+          g.fillRect(rect.x, 0, rect.width, h - 1)
+          g.setColor(java.awt.SystemColor.textHighlightText)
+        } else {
+          g.setColor(java.awt.SystemColor.menuText)
+        }
         g.drawString(menu.getText(), rect.x + Self.titlePadX, textY)
       }
     }

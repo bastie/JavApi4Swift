@@ -61,6 +61,10 @@ extension javax.swing {
 
       super.init()
 
+      // Swing root pane manages its own layout — no LayoutManager needed.
+      setLayout(nil)
+      lp.setLayout(nil)   // JLayeredPane also manages its own paint order
+
       // Wire up the hierarchy
       lp.add(cp, layer: javax.swing.JLayeredPane.DEFAULT_LAYER)
       super.add(lp)       // layeredPane fills the root pane
@@ -68,6 +72,41 @@ extension javax.swing {
       gp.setVisible(false)
 
       setOpaque(true)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Layout
+    // -------------------------------------------------------------------------
+
+    /// Lays out the root pane children to fill `bounds`.
+    ///
+    /// - `layeredPane` fills the entire root-pane bounds.
+    /// - `glassPane` does the same (it's an invisible overlay).
+    /// - `JMenuBar` (if present) is pinned to the top at its preferred height;
+    ///   `contentPane` fills the remaining area below it.
+    ///
+    /// This is called by `validate()` after `_SwiftUINativeCanvas.setFrameSize`
+    /// propagates the window size down the component tree.
+    override public func doLayout() {
+      let w = bounds.width
+      let h = bounds.height
+
+      // layeredPane and glassPane fill the whole root pane
+      layeredPane.bounds = java.awt.Rectangle(0, 0, w, h)
+      glassPane.bounds   = java.awt.Rectangle(0, 0, w, h)
+
+      // Position menuBar at top, contentPane below it
+      let barH: Int
+      if let bar = menuBar {
+        barH = javax.swing.JMenuBar.defaultHeight
+        bar.bounds = java.awt.Rectangle(0, 0, w, barH)
+      } else {
+        barH = 0
+      }
+      contentPane.bounds = java.awt.Rectangle(0, barH, w, max(0, h - barH))
+
+      // Recurse so contentPane's BorderLayout (and other child layouts) run
+      layeredPane.validate()
     }
 
     // -------------------------------------------------------------------------

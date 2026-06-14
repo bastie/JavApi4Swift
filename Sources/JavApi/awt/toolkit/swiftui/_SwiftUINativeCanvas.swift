@@ -92,11 +92,116 @@ final class _SwiftUINativeCanvas: NSView {
   private var draggingList: java.awt.List?
   // Currently open Choice popup (tracked so outside clicks close it)
   private weak var openChoice: java.awt.Choice?
+  // Currently open Swing JMenu (tracked so outside clicks close the popup)
+  private weak var openMenu: javax.swing.JMenu?
   
+  // ── Swing menu helpers ──────────────────────────────────────────────────────
+
+  /// Walks the AWT tree of `root` and returns the first `JMenuBar` found, or nil.
+  private func _swingMenuBar(in root: java.awt.Component) -> javax.swing.JMenuBar? {
+    if let bar = root as? javax.swing.JMenuBar { return bar }
+    if let c = root as? java.awt.Container {
+      for child in c.getComponents() {
+        if let found = _swingMenuBar(in: child) { return found }
+      }
+    }
+    return nil
+  }
+
+  /// Opens `menu`'s popup in the POPUP_LAYER of the root layered pane.
+  private func _openSwingMenu(_ menu: javax.swing.JMenu, bar: javax.swing.JMenuBar) {
+    // Locate the hit-rect for this menu from the bar's UI delegate
+    guard let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+          let entry = barUI.menuRects.first(where: { $0.menu === menu })
+    else { return }
+
+    // Find the JLayeredPane via the bar's ancestor chain
+    var node: java.awt.Component? = bar
+    var layeredPane: javax.swing.JLayeredPane? = nil
+    while let n = node {
+      if let lp = n as? javax.swing.JLayeredPane { layeredPane = lp; break }
+      node = n.parent
+    }
+    guard let lp = layeredPane else { return }
+
+    menu.isSelected = true
+    openMenu = menu
+
+    let popup = menu.swingPopupMenu
+    // Position popup below the menu title in layered-pane coordinates
+    let barY  = bar.bounds.y
+    let popX  = bar.bounds.x + entry.rect.x
+    let popY  = barY + javax.swing.JMenuBar.defaultHeight
+    lp.add(popup, layer: javax.swing.JLayeredPane.POPUP_LAYER)
+    popup.show(x: popX, y: popY)
+  }
+
+  /// Closes the currently open Swing menu popup, if any.
+  private func _closeOpenSwingMenu(repaint: Bool) {
+    guard let menu = openMenu else { return }
+    menu.isSelected = false
+    let popup = menu.swingPopupMenu
+    popup.parent?.remove(popup)   // remove from layeredPane
+    popup.closePopup()
+    openMenu = nil
+    if repaint { needsDisplay = true }
+  }
+
+  // ────────────────────────────────────────────────────────────────────────────
+
   override func mouseDown(with event: NSEvent) {
     guard let component else { return }
     let pt  = awtPoint(from: event)
     
+    // ── Swing JMenu popup handling (must come before normal hit-test) ────────
+    if let menu = openMenu {
+      let popup = menu.swingPopupMenu
+      let pb    = popup.bounds
+      if pb.contains(Int(pt.x), Int(pt.y)) {
+        // Click inside open popup → dispatch item, close
+        let localX = Int(pt.x) - pb.x
+        let localY = Int(pt.y) - pb.y
+        if let item = popup.itemAt(x: localX, y: localY) {
+          // Close popup first (so ActionListener sees a clean state)
+          _closeOpenSwingMenu(repaint: false)
+          item.doClick()
+        } else {
+          _closeOpenSwingMenu(repaint: false)
+        }
+        needsDisplay = true
+        return
+      } else {
+        // Click outside open popup
+        // Check if the click hit the JMenuBar — handled below; close first.
+        _closeOpenSwingMenu(repaint: false)
+        // Fall through to check if another menu title was clicked.
+      }
+    }
+
+    // ── JMenuBar click handling ──────────────────────────────────────────────
+    if let bar = _swingMenuBar(in: component) {
+      let bb = bar.bounds
+      if bb.contains(Int(pt.x), Int(pt.y)) {
+        // Point is inside the menu bar — ask BasicMenuBarUI for the hit menu
+        if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+           let hitMenu = barUI.menu(at: Int(pt.x) - bb.x, y: Int(pt.y) - bb.y) {
+          if hitMenu.isSelected {
+            // Click on already-open title → close
+            _closeOpenSwingMenu(repaint: true)
+          } else {
+            // Open the clicked menu's popup
+            _closeOpenSwingMenu(repaint: false)
+            _openSwingMenu(hitMenu, bar: bar)
+            needsDisplay = true
+          }
+        } else {
+          // Click in bar gutter → close any open menu
+          _closeOpenSwingMenu(repaint: true)
+        }
+        return
+      }
+    }
+
     // ── Choice popup handling (must come before normal hit-test) ────────────
     if let choice = openChoice {
       let pr = choice.popupRect()
@@ -509,6 +614,54 @@ final class _SwiftUINativeCanvas: NSView {
   override func mouseMoved(with event: NSEvent) {
     guard let component else { super.mouseMoved(with: event); return }
     let pt = awtPoint(from: event)
+
+    // If a menu is open and mouse is over the menubar → switch to hovered menu
+    if openMenu != nil,
+       let bar = _swingMenuBar(in: component) {
+      let bb = bar.bounds
+      if bb.contains(Int(pt.x), Int(pt.y)),
+         let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+         let hitMenu = barUI.menu(at: Int(pt.x) - bb.x, y: Int(pt.y) - bb.y),
+         hitMenu !== openMenu {
+        _closeOpenSwingMenu(repaint: false)
+        _openSwingMenu(hitMenu, bar: bar)
+        needsDisplay = true
+        return
+      }
+    }
+
+    // Hover highlight inside an open Swing popup
+    if let menu = openMenu {
+      let popup = menu.swingPopupMenu
+      let pb    = popup.bounds
+      if pb.contains(Int(pt.x), Int(pt.y)),
+         let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+        let localX = Int(pt.x) - pb.x
+        let localY = Int(pt.y) - pb.y
+        if popupUI.updateArmed(at: localX, y: localY) {
+          needsDisplay = true
+        }
+        return
+      } else {
+        // Cursor left the popup — clear armed state
+        if let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+          if popupUI.updateArmed(at: -1, y: -1) { needsDisplay = true }
+        }
+        // Check if cursor moved onto another menu title → switch popup
+        if let bar = _swingMenuBar(in: component) {
+          let bb = bar.bounds
+          if bb.contains(Int(pt.x), Int(pt.y)),
+             let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+             let hitMenu = barUI.menu(at: Int(pt.x) - bb.x, y: Int(pt.y) - bb.y),
+             hitMenu !== openMenu {
+            _closeOpenSwingMenu(repaint: false)
+            _openSwingMenu(hitMenu, bar: bar)
+            needsDisplay = true
+          }
+        }
+      }
+    }
+
     let hit = _SwiftUIHitTest.find(at: pt, in: component)
     effectiveCursor(for: hit).set()
   }
