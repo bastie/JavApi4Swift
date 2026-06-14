@@ -5,36 +5,60 @@
 
 /// Java-like 64-bit long Integer type
 public final class Long : Number {
+  // Java long arithmetic wraps on overflow (two's complement) — use &+/&-/&*
   public static func *= (lhs: inout Long, rhs: Long) {
-    lhs.value *= rhs.value
+    lhs.value = lhs.value &* rhs.value
+  }
+  public static func += (lhs: inout Long, rhs: Long) {
+    lhs.value = lhs.value &+ rhs.value
+  }
+  public static func -= (lhs: inout Long, rhs: Long) {
+    lhs.value = lhs.value &- rhs.value
   }
   
   public let magnitude: Int64.Magnitude
   
   public static func - (lhs: Long, rhs: Long) -> Self {
-    return .init(exactly: lhs.value - rhs.value)!
+    return .init(integerLiteral: lhs.value &- rhs.value)
   }
   
   public required init(integerLiteral value: Int64) {
     self.value = value
     self.magnitude = Int64.Magnitude(value)
   }
-  
+
+  /// Creates a `Long` wrapping the given value — mirrors Java autoboxing / `new Long(long)`.
+  public convenience init(_ value: Int64) {
+    self.init(integerLiteral: value)
+  }
+
+  /// Creates a `Long` from any `BinaryInteger` type (Int8, Int16, Int32, UInt8, UInt32, …).
+  ///
+  /// Mirrors Java's implicit widening conversion to `long`. For types wider than `Int64`
+  /// the value is truncated, matching Java's narrowing cast semantics (`(long) value`).
+  public convenience init<T: BinaryInteger>(_ source: T) {
+    self.init(integerLiteral: Int64(truncatingIfNeeded: source))
+  }
+
+  /// - Returns: The wrapped `Int64` value.
+  public func longValue() -> Int64 { value }
+
   public typealias Magnitude = Int64.Magnitude
-  
+
   internal var value : Int64
-  
+
   public required init?<T>(exactly source: T) where T : BinaryInteger {
-    self.value = Int64(exactly: source)!
-    self.magnitude = Int64.Magnitude(self.value)
+    guard let v = Int64(exactly: source) else { return nil }
+    self.value     = v
+    self.magnitude = Int64.Magnitude(v)
   }
   
   public static func * (lhs: Long, rhs: Long) -> Self {
-    return .init(exactly: lhs.value * rhs.value)!
+    return .init(integerLiteral: lhs.value &* rhs.value)
   }
-  
+
   public static func + (lhs: Long, rhs: Long) -> Self {
-    return .init(exactly: lhs.value + rhs.value)!
+    return .init(integerLiteral: lhs.value &+ rhs.value)
   }
   
   public typealias IntegerLiteralType = Int64
