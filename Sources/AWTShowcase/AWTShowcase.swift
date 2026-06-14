@@ -23,14 +23,13 @@ struct AWTShowcaseApp {
     
     let frame = java.awt.Frame("JavApi⁴Swift – AWT Showcase")
     frame.setSize(width, height)
-    frame.setMinimumSize(java.awt.Dimension(380, 280))
+    frame.setMinimumSize(java.awt.Dimension(480, 380))
     frame.setLayout(java.awt.BorderLayout())
     
-    // ── Höhenaufteilung ──────────────────────────────────────────────────────
-    // Alle Höhen sind hier zentral definiert; centerH ergibt sich automatisch.
+    // all height central defined
     let northH    = 40
-    let controlsH = 120  // oberer SOUTH-Block: FlowLayout mit Widgets (2 Zeilen)
-    let demosH    = 60   // unterer SOUTH-Block: GridLayout + CardLayout Demo
+    let controlsH = 120  // upper SOUTH-Block: FlowLayout width Widgets (2 lines)
+    let demosH    = 60   // down SOUTH-Block: GridLayout + CardLayout Demo
     let southH    = controlsH + demosH
     let centerH   = height - northH - southH
     
@@ -42,38 +41,38 @@ struct AWTShowcaseApp {
     
     // ── CENTER: split view — ScrollPane+Canvas (left) + TextArea (right) ───────
     let centerPanel = java.awt.Panel(java.awt.BorderLayout())
-    // CENTER im äußeren BorderLayout füllt den verbleibenden Platz automatisch
+    // CENTER on BorderLayout fill space
     
-    // ColorGridCanvas (doppelte Höhe) — setBounds bestimmt den virtuellen Inhalt der ScrollPane
+    // ColorGridCanvas (double height) — setBounds set the virtual content of  ScrollPane
     let bigCanvas = ColorGridCanvas()
     bigCanvas.setBounds(0, 0, width / 2, centerH * 2)
     
-    // PopupMenu auf dem Canvas
+    // PopupMenu on Canvas
     let canvasPopup = java.awt.PopupMenu("Canvas")
-    let copyItem = java.awt.MenuItem("Kopieren")
+    let copyItem = java.awt.MenuItem("Copy")
     copyItem.addActionListener(ShowcaseActionListener())
-    let pasteItem = java.awt.MenuItem("Einfügen")
+    let pasteItem = java.awt.MenuItem("Paste")
     pasteItem.addActionListener(ShowcaseActionListener())
     canvasPopup.add(copyItem)
     canvasPopup.add(pasteItem)
     canvasPopup.addSeparator()
-    let quitFromPopup = java.awt.MenuItem("Beenden")
+    let quitFromPopup = java.awt.MenuItem("Quit")
     quitFromPopup.addActionListener(ShowcaseActionListener())
     canvasPopup.add(quitFromPopup)
     bigCanvas.popupMenu = canvasPopup
     
-    // ScrollPane als WEST im centerPanel: Breite fix, Höhe vom BorderLayout gesetzt
+    // ScrollPane on WEST in centerPanel: width fix, height set by BorderLayout
     let scrollPane = java.awt.ScrollPane()
     scrollPane.setPreferredSize(java.awt.Dimension(width / 2, centerH))
     scrollPane.setMinimumSize(java.awt.Dimension(80, 60))
     scrollPane.add(bigCanvas)
     centerPanel.add(scrollPane, java.awt.BorderLayout.WEST)
     
-    // TextArea füllt CENTER — kein explizites preferredSize nötig
+    // TextArea fill CENTER — no preferredSize needed
     let textArea = java.awt.TextArea("Edit me here…\nLine 2\nLine 3", 5, 20)
     centerPanel.add(textArea, java.awt.BorderLayout.CENTER)
     
-    // PolygonCanvas rechts im centerPanel
+    // PolygonCanvas right side on centerPanel
     let polyCanvas = PolygonCanvas()
     polyCanvas.setPreferredSize(java.awt.Dimension(80, centerH))
     polyCanvas.setMinimumSize(java.awt.Dimension(60, 60))
@@ -81,13 +80,13 @@ struct AWTShowcaseApp {
     
     frame.add(centerPanel, java.awt.BorderLayout.CENTER)
     
-    // ── EAST: standalone vertical Scrollbar — Breite fix per preferredSize ───
+    // ── EAST: standalone vertical Scrollbar — width with preferredSize ───
     let scrollbar = java.awt.Scrollbar(java.awt.Scrollbar.VERTICAL, 0, 20, 0, 100)
     scrollbar.setPreferredSize(java.awt.Dimension(18, centerH))
     scrollbar.setMinimumSize(java.awt.Dimension(12, 40))
     frame.add(scrollbar, java.awt.BorderLayout.EAST)
     
-    // ── SOUTH: controls panel — Höhe fix per preferredSize ───────────────────
+    // ── SOUTH: controls panel — heigh with preferredSize ───────────────────
     let controls = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 4))
     controls.setPreferredSize(java.awt.Dimension(width, controlsH))
     controls.setMinimumSize(java.awt.Dimension(200, 60))
@@ -148,7 +147,7 @@ struct AWTShowcaseApp {
     choice.addItemListener(ShowcaseItemListener(label: "Choice"))
     controls.add(choice)
     
-    // List (scrollable, single-select, 3 sichtbare Zeilen — kompakter für SOUTH)
+    // List (scrollable, single-select, 3 viewable line — compact for SOUTH)
     let list = java.awt.List(3, false)
     list.add("Red")
     list.add("Green")
@@ -162,19 +161,19 @@ struct AWTShowcaseApp {
     list.addActionListener(ShowcaseActionListener())
     controls.add(list)
     
-    // FileDialog — Öffnen
+    // FileDialog — open
     let openBtn = java.awt.Button("Open…")
     openBtn.setPreferredSize(java.awt.Dimension(70, 28))
     openBtn.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.LOAD))
     controls.add(openBtn)
     
-    // FileDialog — Speichern
+    // FileDialog — save
     let saveBtn = java.awt.Button("Save…")
     saveBtn.setPreferredSize(java.awt.Dimension(70, 28))
     saveBtn.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.SAVE))
     controls.add(saveBtn)
     
-    // ── GridLayout + CardLayout Demo unten ───────────────────────────────────
+    // ── GridLayout + CardLayout Demo southpanel ───────────────────────────────────
     let southPanel = java.awt.Panel(java.awt.BorderLayout())
     southPanel.setPreferredSize(java.awt.Dimension(width, southH))
     southPanel.setMinimumSize(java.awt.Dimension(200, 100))
@@ -191,29 +190,29 @@ struct AWTShowcaseApp {
     // ── MenuBar ───────────────────────────────────────────────────────────────
     let menuBar = java.awt.MenuBar()
     
-    // Datei-Menü
-    let fileMenu = java.awt.Menu("Datei")
-    let openItem = java.awt.MenuItem("Öffnen…",
+    // file menu
+    let fileMenu = java.awt.Menu("File")
+    let openItem = java.awt.MenuItem("Open…",
                                      java.awt.MenuShortcut(79))   // Cmd+O
     openItem.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.LOAD))
-    let saveItem = java.awt.MenuItem("Speichern…", java.awt.MenuShortcut(83))   // Cmd+S
+    let saveItem = java.awt.MenuItem("Save…", java.awt.MenuShortcut(83))   // Cmd+S
     saveItem.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.SAVE))
     fileMenu.add(openItem)
     fileMenu.add(saveItem)
     fileMenu.addSeparator()
-    let quitItem = java.awt.MenuItem("Beenden", java.awt.MenuShortcut(81))   // Cmd+Q
+    let quitItem = java.awt.MenuItem("Quit", java.awt.MenuShortcut(81))   // Cmd+Q
     quitItem.addActionListener(ShowcaseActionListener())
     fileMenu.add(quitItem)
     menuBar.add(fileMenu)
     
-    // Ansicht-Menü mit CheckboxMenuItem
-    let viewMenu = java.awt.Menu("Ansicht")
-    let toolbarItem = java.awt.CheckboxMenuItem("Werkzeugleiste", true)
+    // View menu with CheckboxMenuItem
+    let viewMenu = java.awt.Menu("View")
+    let toolbarItem = java.awt.CheckboxMenuItem("Toolbar", true)
     toolbarItem.addItemListener(ShowcaseItemListener(label: "CheckboxMenuItem"))
     viewMenu.add(toolbarItem)
     viewMenu.addSeparator()
     
-    // Untermenü
+    // submenu
     let zoomMenu = java.awt.Menu("Zoom")
     for label in ["25 %", "50 %", "100 %", "200 %"] {
       let zi = java.awt.MenuItem(label)
@@ -228,7 +227,7 @@ struct AWTShowcaseApp {
     menuBar.add(viewMenu)
     
     
-    // LayoutManager-Menü
+    // LayoutManager-menu
     let layoutMenu = java.awt.Menu("LayoutManager")
     let blItem = java.awt.MenuItem("BorderLayout")
     blItem.addActionListener(BorderLayoutDemoListener(owner: frame))
@@ -248,20 +247,19 @@ struct AWTShowcaseApp {
     layoutMenu.add(gbItem)
     menuBar.add(layoutMenu)
     
-    // Hilfe-Menü
-    let helpMenu = java.awt.Menu("Hilfe")
-    let aboutItem = java.awt.MenuItem("Über JavApi⁴Swift…")
+    // help menu
+    let helpMenu = java.awt.Menu("Help")
+    let aboutItem = java.awt.MenuItem("About JavApi⁴Swift…")
     aboutItem.addActionListener(AboutListener(owner: frame))
     helpMenu.add(aboutItem)
     helpMenu.addSeparator()
-    let sysInfoItem = java.awt.MenuItem("Systeminformationen…")
+    let sysInfoItem = java.awt.MenuItem("Systeminformations…")
     sysInfoItem.addActionListener(SystemInfoListener(owner: frame))
     helpMenu.add(sysInfoItem)
     menuBar.setHelpMenu(helpMenu)
     
     frame.setMenuBar(menuBar)
     
-    // WindowListener — gibt Lebenszyklusereignisse auf der Konsole aus
     frame.addWindowListener(ShowcaseWindowListener())
     
     return frame

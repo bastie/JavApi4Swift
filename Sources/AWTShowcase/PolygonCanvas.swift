@@ -12,14 +12,14 @@ final class PolygonCanvas: java.awt.Canvas {
     let w = getWidth(), h = getHeight()
     guard w > 4, h > 4 else { return }
 
-    // Hintergrund
-    g.setColor(.darkGray)
+    // background
+    g.setColor(java.awt.Color.gray)
     g.fillRect(getX(), getY(), w, h)
 
     let ox = getX(), oy = getY()
     
     // Gefülltes Dreieck (blau)
-    g.setColor(.blue)
+    g.setColor(java.awt.Color.blue)
     let tri = java.awt.Polygon(
       xpoints: [ox + w/2,  ox + w - 4, ox + 4],
       ypoints: [oy + 4,    oy + h/2,   oy + h/2],
@@ -27,9 +27,9 @@ final class PolygonCanvas: java.awt.Canvas {
     g.fillPolygon(tri)
     
     // Umriss-Stern (gelb) — 6-Punkt-Stern über zwei Dreiecke
-    g.setColor(.yellow)
+    g.setColor(java.awt.Color.yellow)
     let cx = ox + w/2, cy = oy + h*3/4
-    let r1 = Swift.min(w, h) / 5
+    let r1 = Math.min(w, h) / 5
     let r2 = r1 / 2
     var sx = [Int](), sy = [Int]()
     for i in 0..<6 {
@@ -43,7 +43,7 @@ final class PolygonCanvas: java.awt.Canvas {
     g.drawPolygon(sx, sy, 12)
     
     // Label
-    g.setColor(.white)
+    g.setColor(java.awt.Color.white)
     g.drawString("Polygon", ox + 2, oy + h - 4)
   }
 }

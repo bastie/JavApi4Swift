@@ -29,7 +29,7 @@ final class LogoCanvas: java.awt.Canvas {
     }
     else {
       // Fallback: Placeholder if no image can load
-      g.setColor(.darkGray)
+      g.setColor(java.awt.Color.DARK_GRAY)
       g.drawRect(getX() + 2, getY() + 2, w - 4, h - 4)
       g.drawString("JavApi⁴Swift img not found", getX() + w / 2 - 12, getY() + h / 2 + 6)
     }

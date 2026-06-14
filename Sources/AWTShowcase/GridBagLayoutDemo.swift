@@ -52,7 +52,7 @@ final class GridBagDemoDialog: java.awt.Dialog {
     let lblName = try! java.awt.Label ("Name:", java.awt.Label.RIGHT)
     add (lblName, gx: 0, gy: 0)
 
-    let tfName = java.awt.TextField ("Max Mustermann", columns: 20)
+    let tfName = java.awt.TextField (java.util.Locale.getDefault().getLanguage() == "de" ? "Max Mustermann" : "Jane Doe", columns: 20)
     add (tfName, gx: 1, gy: 0, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
     // Row 1 — Stadt
@@ -66,7 +66,7 @@ final class GridBagDemoDialog: java.awt.Dialog {
     let lblNotiz = try! java.awt.Label ("Note:", java.awt.Label.RIGHT)
     add (lblNotiz, gx: 0, gy: 2, anchor: java.awt.GridBagConstraints.NORTHEAST)
 
-    let ta = java.awt.TextArea ("Hier Notizen eingeben…", 4, 20)
+    let ta = java.awt.TextArea ("Insert notes here…", 4, 20)
     add (ta, gx: 1, gy: 2, gw: 2, weightx: 1.0, weighty: 1.0, fill: java.awt.GridBagConstraints.BOTH)
 
     // Row 3 — Buttons (right-aligned via anchor)
