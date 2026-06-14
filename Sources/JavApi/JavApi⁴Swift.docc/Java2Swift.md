@@ -622,6 +622,26 @@ We do not need the `new` keyword to create an instance of type.
 
 > **AI hint:** Strip `new` from all constructor calls: `new Foo(args)` → `Foo(args)`. For anonymous class instantiations there is no direct Swift equivalent — translate to a local `struct` or closure that conforms to the relevant protocol.
 
+#### integer overflow
+
+Java integer arithmetic (`int`, `long`, `short`, `byte`) always wraps silently on overflow — it uses two's complement with no exception. Swift's standard operators (`+`, `-`, `*`) trap (crash) on overflow in debug and release builds.
+
+When implementing wrapper types like `Integer`, `Long`, `Short`, or `Byte`, always use Swift's overflow operators `&+`, `&-`, `&*` inside the operator implementations. This is also marginally faster because Swift emits no overflow-check instructions for `&+`/`&-`/`&*`.
+
+```swift
+// correct — matches Java overflow semantics and is faster
+public static func + (lhs: Integer, rhs: Integer) -> Self {
+  return .init(integerLiteral: lhs.value &+ rhs.value)
+}
+
+// wrong — crashes at runtime on overflow, unlike Java
+public static func + (lhs: Integer, rhs: Integer) -> Self {
+  return .init(integerLiteral: lhs.value + rhs.value)
+}
+```
+
+> **AI hint:** When porting Java *arithmetic expressions* in application code, do **not** replace every `+`/`-`/`*` with `&+`/`&-`/`&*` — that would require rewriting all ported Java code and is out of scope. The overflow operators are only used inside the JavApi4Swift wrapper-class implementations of `Integer`, `Long`, `Short`, and `Byte`. Ported Java application code uses the normal Swift operators on the wrapped primitive types (`Int`, `Int64`, `Int16`, `Int8`), where overflow behaviour matches Java as long as the types are the same width.
+
 #### operator >>>
 
 The operator >>> is implemented. Composite operator like >>>= need to separated.

@@ -913,6 +913,75 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NoSuchAlgorithmException() | (String)
 
+### java.beans — New package in 1.1 (partial)
+
+Only the bound-property and veto-change subset needed for JFC 1.0 / Swing is implemented.
+Reflection-based introspection (`BeanDescriptor`, `BeanInfo`, `Introspector`, `MethodDescriptor`, …) is not in scope.
+
+##### java.beans.PropertyChangeEvent (4/4/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyChangeEvent() | (Object,String,Object,Object)
+1.1     | ✔️          | ✔️       | method        | getPropertyName()     | ()->String?
+1.1     | ✔️          | ✔️       | method        | getOldValue()         | ()->Object?
+1.1     | ✔️          | ✔️       | method        | getNewValue()         | ()->Object?
+1.1     | ✔️          | ✔️       | method        | setPropagationId()    | (Object?)
+1.1     | ✔️          | ✔️       | method        | getPropagationId()    | ()->Object?
+
+##### java.beans.PropertyChangeListener (1/1/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | propertyChange()      | (PropertyChangeEvent)
+
+##### java.beans.PropertyChangeSupport (8/8/✔️)
+
+version | implemented | tested   | type          | name                              | more informations
+------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyChangeSupport()           | (Object sourceBean)
+1.1     | ✔️          | ✔️       | method        | addPropertyChangeListener()       | (PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | addPropertyChangeListener()       | (String,PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | removePropertyChangeListener()    | (PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | removePropertyChangeListener()    | (String,PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeListeners()      | ()->[PropertyChangeListener]
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeListeners()      | (String)->[PropertyChangeListener]
+1.1     | ✔️          | ✔️       | method        | hasListeners()                    | (String)->boolean
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (PropertyChangeEvent)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,Object,Object)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,int,int)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,boolean,boolean)
+
+##### java.beans.PropertyVetoException (1/1/✔️)
+
+version | implemented | tested   | type          | name                      | more informations
+------- | ----------- | -------- | ------------- | ------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyVetoException()   | (String,PropertyChangeEvent)
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeEvent()  | ()->PropertyChangeEvent
+
+##### java.beans.VetoableChangeListener (1/1/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | vetoableChange()      | (PropertyChangeEvent) throws
+
+##### java.beans.VetoableChangeSupport (8/8/✔️)
+
+version | implemented | tested   | type          | name                              | more informations
+------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | VetoableChangeSupport()           | (Object sourceBean)
+1.1     | ✔️          | ✔️       | method        | addVetoableChangeListener()       | (VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | addVetoableChangeListener()       | (String,VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | removeVetoableChangeListener()    | (VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | removeVetoableChangeListener()    | (String,VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | getVetoableChangeListeners()      | ()->[VetoableChangeListener]
+1.1     | ✔️          | ✔️       | method        | getVetoableChangeListeners()      | (String)->[VetoableChangeListener]
+1.1     | ✔️          | ✔️       | method        | hasListeners()                    | (String)->boolean
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (PropertyChangeEvent) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,Object,Object) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,int,int) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,boolean,boolean) throws
+
 ### java.awt.datatransfer — New package in 1.1 (not in scope)
 
 > **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
@@ -955,7 +1024,7 @@ The following Java 1.1 APIs are explicitly **not** ported because they have no m
 
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
-- **java.beans** — JavaBeans component model (bound properties, event listeners wiring) has no direct Swift equivalent.
+- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. Bound-property and veto support (`PropertyChangeEvent`, `PropertyChangeSupport`, `VetoableChangeSupport`, etc.) **is** implemented — see java.beans section above.
 - **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
 - **java.text** — Internationalization formatting (`DateFormat`, `SimpleDateFormat`, `NumberFormat`, `DecimalFormat`, `MessageFormat`, `Collator`, `BreakIterator`, etc.); Swift Foundation (`DateFormatter`, `NumberFormatter`, …) covers these use cases natively.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
