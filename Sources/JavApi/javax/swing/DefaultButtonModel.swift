@@ -17,31 +17,61 @@ extension javax.swing {
   open class DefaultButtonModel: javax.swing.ButtonModel {
 
     // -------------------------------------------------------------------------
-    // MARK: State
+    // MARK: State storage
     // -------------------------------------------------------------------------
 
-    public var isArmed: Bool = false {
-      didSet { if isArmed != oldValue { fireStateChanged() } }
+    private var _armed:    Bool = false
+    private var _pressed:  Bool = false
+    private var _rollover: Bool = false
+    private var _selected: Bool = false
+    private var _enabled:  Bool = true
+
+    // -------------------------------------------------------------------------
+    // MARK: State accessors — Java-style methods
+    // -------------------------------------------------------------------------
+
+    open func isArmed()    -> Bool { _armed }
+    open func setArmed(_ b: Bool) {
+      guard b != _armed else { return }
+      _armed = b; fireStateChanged()
     }
-    public var isPressed: Bool = false {
-      didSet { if isPressed != oldValue { fireStateChanged() } }
+
+    open func isPressed()  -> Bool { _pressed }
+    open func setPressed(_ b: Bool) {
+      guard b != _pressed else { return }
+      _pressed = b; fireStateChanged()
     }
-    public var isRollover: Bool = false {
-      didSet { if isRollover != oldValue { fireStateChanged() } }
+
+    open func isRollover() -> Bool { _rollover }
+    open func setRollover(_ b: Bool) {
+      guard b != _rollover else { return }
+      _rollover = b; fireStateChanged()
     }
-    public var isSelected: Bool = false {
-      didSet { if isSelected != oldValue { fireStateChanged() } }
+
+    open func isSelected() -> Bool { _selected }
+    open func setSelected(_ b: Bool) {
+      guard b != _selected else { return }
+      _selected = b; fireStateChanged()
     }
-    public var isEnabled: Bool = true {
-      didSet { if isEnabled != oldValue { fireStateChanged() } }
+
+    open func isEnabled()  -> Bool { _enabled }
+    open func setEnabled(_ b: Bool) {
+      guard b != _enabled else { return }
+      _enabled = b; fireStateChanged()
     }
 
     // -------------------------------------------------------------------------
     // MARK: Action command / mnemonic
     // -------------------------------------------------------------------------
 
-    public var actionCommand: String? = nil
-    public var mnemonic: Int = 0
+    private var _actionCommand: String? = nil
+    private var _mnemonic: Int = 0
+
+    open func getActionCommand() -> String?      { _actionCommand }
+    open func setActionCommand(_ command: String?) { _actionCommand = command }
+
+    open func getMnemonic() -> Int               { _mnemonic }
+    open func setMnemonic(_ mnemonic: Int)       { _mnemonic = mnemonic }
 
     // -------------------------------------------------------------------------
     // MARK: Init

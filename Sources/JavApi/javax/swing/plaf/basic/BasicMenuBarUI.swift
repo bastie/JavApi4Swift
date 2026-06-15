@@ -103,7 +103,7 @@ extension javax.swing.plaf.basic {
       // Menu titles
       let textY = (h - fm.getHeight()) / 2 + fm.getAscent()
       for (menu, rect) in menuRects {
-        if menu.isSelected {
+        if menu.isSelected() {
           // Highlight selected menu title
           g.setColor(java.awt.SystemColor.textHighlight)
           g.fillRect(rect.x, 0, rect.width, h - 1)

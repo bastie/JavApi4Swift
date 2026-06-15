@@ -89,37 +89,37 @@ extension javax.swing.table {
     open func fireTableStructureChanged() {
       fireTableChanged(javax.swing.event.TableModelEvent(
         self,
-        firstRow: javax.swing.event.TableModelEvent.HEADER_ROW,
-        lastRow:  javax.swing.event.TableModelEvent.HEADER_ROW,
-        column:   javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type:     javax.swing.event.TableModelEvent.UPDATE))
+        javax.swing.event.TableModelEvent.HEADER_ROW,
+        javax.swing.event.TableModelEvent.HEADER_ROW,
+        javax.swing.event.TableModelEvent.ALL_COLUMNS,
+        javax.swing.event.TableModelEvent.UPDATE))
     }
 
     open func fireTableCellUpdated(_ row: Int, _ column: Int) {
       fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: row, lastRow: row, column: column,
-        type: javax.swing.event.TableModelEvent.UPDATE))
+        self, row, row, column,
+        javax.swing.event.TableModelEvent.UPDATE))
     }
 
     open func fireTableRowsInserted(_ firstRow: Int, _ lastRow: Int) {
       fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.INSERT))
+        self, firstRow, lastRow,
+        javax.swing.event.TableModelEvent.ALL_COLUMNS,
+        javax.swing.event.TableModelEvent.INSERT))
     }
 
     open func fireTableRowsDeleted(_ firstRow: Int, _ lastRow: Int) {
       fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.DELETE))
+        self, firstRow, lastRow,
+        javax.swing.event.TableModelEvent.ALL_COLUMNS,
+        javax.swing.event.TableModelEvent.DELETE))
     }
 
     open func fireTableRowsUpdated(_ firstRow: Int, _ lastRow: Int) {
       fireTableChanged(javax.swing.event.TableModelEvent(
-        self, firstRow: firstRow, lastRow: lastRow,
-        column: javax.swing.event.TableModelEvent.ALL_COLUMNS,
-        type: javax.swing.event.TableModelEvent.UPDATE))
+        self, firstRow, lastRow,
+        javax.swing.event.TableModelEvent.ALL_COLUMNS,
+        javax.swing.event.TableModelEvent.UPDATE))
     }
 
     // -------------------------------------------------------------------------

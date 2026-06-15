@@ -55,7 +55,7 @@ extension javax.swing.tree {
 
     open func getChildCount() -> Int { _children.count }
 
-    open func getIndex(of node: any javax.swing.tree.TreeNode) -> Int {
+    open func getIndex(_ node: any javax.swing.tree.TreeNode) -> Int {
       _children.firstIndex { $0 === node } ?? -1
     }
 
@@ -67,20 +67,20 @@ extension javax.swing.tree {
     // MARK: MutableTreeNode
     // -------------------------------------------------------------------------
 
-    open func insert(_ child: any javax.swing.tree.MutableTreeNode, at index: Int) {
+    open func insert(_ child: any javax.swing.tree.MutableTreeNode, _ index: Int) {
       guard _allowsChildren else { return }
       (child as? DefaultMutableTreeNode)?._parent = self
       _children.insert(child, at: index)
     }
 
-    open func remove(at index: Int) {
+    open func remove(_ index: Int) {
       (_children[index] as? DefaultMutableTreeNode)?._parent = nil
       _children.remove(at: index)
     }
 
     open func remove(_ node: any javax.swing.tree.MutableTreeNode) {
       if let idx = _children.firstIndex(where: { $0 === node }) {
-        remove(at: idx)
+        remove(idx)
       }
     }
 
@@ -104,7 +104,7 @@ extension javax.swing.tree {
 
     /// Appends `child` as the last child of this node.
     open func add(_ child: any javax.swing.tree.MutableTreeNode) {
-      insert(child, at: _children.count)
+      insert(child, _children.count)
     }
 
     /// Returns `true` if this node is the root (no parent).

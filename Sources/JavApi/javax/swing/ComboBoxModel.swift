@@ -20,12 +20,16 @@ extension javax.swing {
   public protocol ComboBoxModel: javax.swing.ListModel {
 
     /// Returns the currently selected item, or `nil` if nothing is selected.
-    func getSelectedItem() -> Element?
+    ///
+    /// In Java, `getSelectedItem()` returns `Object` — not the generic element
+    /// type — so the selection can be set to a value not in the list.
+    func getSelectedItem() -> Any?
 
     /// Sets the currently selected item.
     ///
+    /// In Java, `setSelectedItem(Object)` accepts any object.
     /// Implementations should fire a `ListDataEvent(CONTENTS_CHANGED, -1, -1)`
     /// after changing the selection.
-    func setSelectedItem(_ item: Element?)
+    func setSelectedItem(_ item: Any?)
   }
 }

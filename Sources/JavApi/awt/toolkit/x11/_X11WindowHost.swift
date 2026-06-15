@@ -395,7 +395,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     }
     guard let lp = layeredPane else { return }
 
-    menu.isSelected = true
+    menu.setSelected(true)
     openSwingMenu   = menu
 
     let popup = menu.swingPopupMenu
@@ -412,7 +412,7 @@ public final class _X11WindowHost: @unchecked Sendable {
                                                xwin: X11WindowID,
                                                repaintAfter: Bool) {
     guard let menu = openSwingMenu else { return }
-    menu.isSelected = false
+    menu.setSelected(false)
     let popup = menu.swingPopupMenu
     popup.parent?.remove(popup)
     popup.closePopup()
@@ -853,7 +853,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           if bb.contains(clickX, clickY) {
             if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
                let hitMenu = barUI.menu(at: clickX - bb.x, y: clickY - bb.y) {
-              if hitMenu.isSelected {
+              if hitMenu.isSelected() {
                 _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: true)
               } else {
                 _closeOpenSwingMenu(awtWindow: awtWindow, xwin: xwin, repaintAfter: false)

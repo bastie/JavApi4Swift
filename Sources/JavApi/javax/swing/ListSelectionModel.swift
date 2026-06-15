@@ -39,15 +39,18 @@ extension javax.swing {
     // MARK: Selection mode
     // -------------------------------------------------------------------------
 
-    /// One of `SINGLE_SELECTION`, `SINGLE_INTERVAL_SELECTION`,
-    /// `MULTIPLE_INTERVAL_SELECTION`.
-    var selectionMode: Int { get set }
+    /// Returns the current selection mode.
+    func getSelectionMode() -> Int
+
+    /// Sets the selection mode to one of `SINGLE_SELECTION`,
+    /// `SINGLE_INTERVAL_SELECTION`, or `MULTIPLE_INTERVAL_SELECTION`.
+    func setSelectionMode(_ selectionMode: Int)
 
     // -------------------------------------------------------------------------
     // MARK: Modifying the selection
     // -------------------------------------------------------------------------
 
-    /// Replaces the current selection with the single index `index`.
+    /// Replaces the current selection with the range `[index0, index1]`.
     func setSelectionInterval(_ index0: Int, _ index1: Int)
 
     /// Adds the range `[index0, index1]` to the selection.
@@ -79,19 +82,28 @@ extension javax.swing {
     // MARK: Adjusting flag
     // -------------------------------------------------------------------------
 
-    /// When `true`, the selection is undergoing a rapid series of changes
-    /// (e.g. mouse drag).
-    var valueIsAdjusting: Bool { get set }
+    /// Returns `true` when the selection is undergoing a rapid series of
+    /// changes (e.g. mouse drag).
+    func getValueIsAdjusting() -> Bool
+
+    /// Sets the adjusting flag.
+    func setValueIsAdjusting(_ b: Bool)
 
     // -------------------------------------------------------------------------
     // MARK: Anchor / lead
     // -------------------------------------------------------------------------
 
-    /// The anchor of the most recent selection operation.
-    var anchorSelectionIndex: Int { get set }
+    /// Returns the anchor selection index.
+    func getAnchorSelectionIndex() -> Int
 
-    /// The lead (end) of the most recent selection operation.
-    var leadSelectionIndex: Int { get set }
+    /// Sets the anchor selection index.
+    func setAnchorSelectionIndex(_ index: Int)
+
+    /// Returns the lead selection index.
+    func getLeadSelectionIndex() -> Int
+
+    /// Sets the lead selection index.
+    func setLeadSelectionIndex(_ index: Int)
 
     // -------------------------------------------------------------------------
     // MARK: Listeners

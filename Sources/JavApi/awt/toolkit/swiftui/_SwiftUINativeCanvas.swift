@@ -121,7 +121,7 @@ final class _SwiftUINativeCanvas: NSView {
     }
     guard let lp = layeredPane else { return }
 
-    menu.isSelected = true
+    menu.setSelected(true)
     openMenu = menu
 
     let popup = menu.swingPopupMenu
@@ -136,7 +136,7 @@ final class _SwiftUINativeCanvas: NSView {
   /// Closes the currently open Swing menu popup, if any.
   private func _closeOpenSwingMenu(repaint: Bool) {
     guard let menu = openMenu else { return }
-    menu.isSelected = false
+    menu.setSelected(false)
     let popup = menu.swingPopupMenu
     popup.parent?.remove(popup)   // remove from layeredPane
     popup.closePopup()
@@ -182,7 +182,7 @@ final class _SwiftUINativeCanvas: NSView {
         // Point is inside the menu bar — ask BasicMenuBarUI for the hit menu
         if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
            let hitMenu = barUI.menu(at: Int(pt.x) - bb.x, y: Int(pt.y) - bb.y) {
-          if hitMenu.isSelected {
+          if hitMenu.isSelected() {
             // Click on already-open title → close
             _closeOpenSwingMenu(repaint: true)
           } else {

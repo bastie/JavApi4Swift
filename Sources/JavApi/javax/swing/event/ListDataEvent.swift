@@ -57,7 +57,7 @@ extension javax.swing.event {
     ///   - type:   One of `CONTENTS_CHANGED`, `INTERVAL_ADDED`, `INTERVAL_REMOVED`.
     ///   - index0: Lower bound of the affected index range (inclusive).
     ///   - index1: Upper bound of the affected index range (inclusive).
-    public init(_ source: AnyObject, type: Int, index0: Int, index1: Int) {
+    public init(_ source: AnyObject, _ type: Int, _ index0: Int, _ index1: Int) {
       self.type   = type
       self.index0 = min(index0, index1)
       self.index1 = max(index0, index1)

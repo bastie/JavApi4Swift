@@ -28,11 +28,11 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// The label displayed in the popup menu.
-    public var text: String
+    private var _text: String
 
     /// `true` when this item is a visual separator (drawn as a horizontal rule).
     /// Create separators with `JMenuItem.separator()`.
-    public var isSeparator: Bool = false
+    public private(set) var isSeparator: Bool = false
 
     // -------------------------------------------------------------------------
     // MARK: Model
@@ -45,8 +45,8 @@ extension javax.swing {
 
     /// Whether the mouse is hovering over this item — delegates to model.
     internal var isArmed: Bool {
-      get { _model.isArmed }
-      set { _model.isArmed = newValue }
+      get { _model.isArmed() }
+      set { _model.setArmed(newValue) }
     }
 
     // -------------------------------------------------------------------------
@@ -54,7 +54,7 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     public init(_ text: String = "") {
-      self.text = text
+      self._text = text
       super.init()
     }
 
@@ -69,8 +69,8 @@ extension javax.swing {
     // MARK: Accessors
     // -------------------------------------------------------------------------
 
-    public func getText() -> String     { text }
-    public func setText(_ t: String)    { text = t; invalidate() }
+    public func getText() -> String     { _text }
+    public func setText(_ t: String)    { _text = t; invalidate() }
 
     // -------------------------------------------------------------------------
     // MARK: ActionListener
@@ -79,17 +79,13 @@ extension javax.swing {
     private var actionListeners: [java.awt.event.ActionListener] = []
 
     /// Registers an `ActionListener` object (Java-style).
-    @discardableResult
-    public func addActionListener(_ listener: java.awt.event.ActionListener) -> javax.swing.JMenuItem {
+    public func addActionListener(_ listener: java.awt.event.ActionListener) {
       actionListeners.append(listener)
-      return self
     }
 
     /// Convenience overload: wraps a closure in an `ActionListener`.
-    @discardableResult
-    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) -> javax.swing.JMenuItem {
+    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) {
       actionListeners.append(_SwingClosureActionListener(handler))
-      return self
     }
 
     /// Removes all action listeners.
@@ -100,7 +96,7 @@ extension javax.swing {
     /// Fires an `ACTION_PERFORMED` event to all registered listeners.
     public func doClick() {
       guard !isSeparator else { return }
-      let e = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, text, 0, 0)
+      let e = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, _text, 0, 0)
       actionListeners.forEach { $0.actionPerformed(e) }
     }
   }

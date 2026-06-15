@@ -10,32 +10,48 @@ extension javax.swing {
   ///
   /// A `BoundedRangeModel` maintains four related integer properties:
   ///
-  /// | Property    | Meaning                                     |
-  /// |-------------|---------------------------------------------|
-  /// | `minimum`   | The smallest allowed value                  |
-  /// | `maximum`   | The largest allowed value                   |
-  /// | `value`     | The current value (`minimum ≤ value`)        |
+  /// | Property    | Meaning                                         |
+  /// |-------------|-------------------------------------------------|
+  /// | `minimum`   | The smallest allowed value                      |
+  /// | `maximum`   | The largest allowed value                       |
+  /// | `value`     | The current value (`minimum ≤ value`)            |
   /// | `extent`    | The size of the "thumb" (`value+extent ≤ maximum`) |
   ///
   /// The invariant `minimum ≤ value ≤ value+extent ≤ maximum` is always
-  /// maintained; setters clamp values accordingly.
+  /// maintained.
   ///
-  /// When `valueIsAdjusting` is `true`, the component is in the middle of
-  /// a gesture (e.g. dragging a slider thumb); listeners can use this flag
-  /// to defer expensive operations.
+  /// When `getValueIsAdjusting()` returns `true`, the component is in the
+  /// middle of a gesture (e.g. dragging a slider thumb).
   ///
   /// - Since: Java 1.2
   @MainActor
   public protocol BoundedRangeModel: AnyObject {
 
-    var minimum:          Int  { get set }
-    var maximum:          Int  { get set }
-    var value:            Int  { get set }
-    var extent:           Int  { get set }
-    var valueIsAdjusting: Bool { get set }
+    // -------------------------------------------------------------------------
+    // MARK: Accessors — Java-style getters/setters
+    // -------------------------------------------------------------------------
+
+    func getMinimum() -> Int
+    func setMinimum(_ newMinimum: Int)
+
+    func getMaximum() -> Int
+    func setMaximum(_ newMaximum: Int)
+
+    func getValue() -> Int
+    func setValue(_ newValue: Int)
+
+    func getExtent() -> Int
+    func setExtent(_ newExtent: Int)
+
+    func getValueIsAdjusting() -> Bool
+    func setValueIsAdjusting(_ b: Bool)
 
     /// Sets all four range properties atomically, firing a single `ChangeEvent`.
-    func setRangeProperties(value: Int, extent: Int, minimum: Int, maximum: Int, adjusting: Bool)
+    func setRangeProperties(value newValue: Int,
+                            extent newExtent: Int,
+                            minimum newMin: Int,
+                            maximum newMax: Int,
+                            adjusting b: Bool)
 
     func addChangeListener(_ l: javax.swing.event.ChangeListener)
     func removeChangeListener(_ l: javax.swing.event.ChangeListener)

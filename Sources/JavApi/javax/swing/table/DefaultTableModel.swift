@@ -116,7 +116,7 @@ extension javax.swing.table {
     }
 
     /// Inserts a new row at `index`.
-    open func insertRow(_ index: Int, rowData: [Any?]) {
+    open func insertRow(_ index: Int, _ rowData: [Any?]) {
       let row = padded(rowData)
       dataVector.insert(row, at: index)
       fireTableRowsInserted(index, index)

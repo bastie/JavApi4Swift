@@ -12,10 +12,10 @@ extension javax.swing.tree {
   public protocol MutableTreeNode: javax.swing.tree.TreeNode {
 
     /// Inserts `child` at `index`.
-    func insert(_ child: any javax.swing.tree.MutableTreeNode, at index: Int)
+    func insert(_ child: any javax.swing.tree.MutableTreeNode, _ index: Int)
 
     /// Removes the child at `index`.
-    func remove(at index: Int)
+    func remove(_ index: Int)
 
     /// Removes `node` from the children.
     func remove(_ node: any javax.swing.tree.MutableTreeNode)

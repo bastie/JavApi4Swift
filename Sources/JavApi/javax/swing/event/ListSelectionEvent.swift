@@ -37,9 +37,9 @@ extension javax.swing.event {
     ///   - lastIndex:        Upper bound of the affected index range.
     ///   - valueIsAdjusting: `true` during a rapid gesture, `false` on the final event.
     public init(_ source: AnyObject,
-                firstIndex: Int,
-                lastIndex: Int,
-                valueIsAdjusting: Bool) {
+                _ firstIndex: Int,
+                _ lastIndex: Int,
+                _ valueIsAdjusting: Bool) {
       self.firstIndex        = min(firstIndex, lastIndex)
       self.lastIndex         = max(firstIndex, lastIndex)
       self.valueIsAdjusting  = valueIsAdjusting

@@ -71,8 +71,10 @@ extension javax.swing.tree {
     // MARK: Equality
     // -------------------------------------------------------------------------
 
-    /// Returns `true` if both paths have the same components (by identity).
-    public func isDescendant(of path: javax.swing.tree.TreePath) -> Bool {
+    /// Returns `true` if this path is a descendant of `path`.
+    ///
+    /// Java: `isDescendant(TreePath aTreePath)` — kein Label.
+    public func isDescendant(_ path: javax.swing.tree.TreePath) -> Bool {
       guard path.getPathCount() <= getPathCount() else { return false }
       for i in 0..<path.getPathCount() {
         if components[i] !== path.components[i] { return false }

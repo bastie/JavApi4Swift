@@ -433,7 +433,7 @@ public final class _Win32Canvas {
       node = n.parent
     }
     guard let lp = layeredPane else { return }
-    menu.isSelected = true
+    menu.setSelected(true)
     openSwingMenu   = menu
     let popup = menu.swingPopupMenu
     let popX  = bar.bounds.x + entry.rect.x
@@ -445,7 +445,7 @@ public final class _Win32Canvas {
 
   private func _closeOpenSwingMenu(repaintAfter: Bool = true) {
     guard let menu = openSwingMenu else { return }
-    menu.isSelected = false
+    menu.setSelected(false)
     let popup = menu.swingPopupMenu
     popup.parent?.remove(popup)
     popup.closePopup()
@@ -481,7 +481,7 @@ public final class _Win32Canvas {
         if bb.contains(x, y) {
           if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
              let hitMenu = barUI.menu(at: x - bb.x, y: y - bb.y) {
-            if hitMenu.isSelected {
+            if hitMenu.isSelected() {
               _closeOpenSwingMenu()
             } else {
               _closeOpenSwingMenu(repaintAfter: false)

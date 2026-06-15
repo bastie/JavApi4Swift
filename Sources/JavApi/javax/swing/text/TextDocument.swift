@@ -11,7 +11,7 @@ extension javax.swing.text {
   ///
   /// A `Document` stores text as a character sequence with an optional set
   /// of attributes per run.  The content is accessed via `getText(offset:length:)`
-  /// and modified with `insertString(_:offset:)` and `remove(offset:length:)`.
+  /// and modified with `insertString(_:_:)` and `remove(offset:length:)`.
   ///
   /// Every mutation fires a `DocumentEvent` to registered `DocumentListener`s.
   ///
@@ -38,7 +38,7 @@ extension javax.swing.text {
     /// Returns the text in the range `[offset, offset+length)`.
     ///
     /// - Throws: If `offset` or `length` is out of range.
-    func getText(offset: Int, length: Int) throws -> String
+    func getText(_ offset: Int, _ length: Int) throws -> String
 
     // -------------------------------------------------------------------------
     // MARK: Mutation
@@ -46,13 +46,16 @@ extension javax.swing.text {
 
     /// Inserts `string` at `offset`.
     ///
+    /// In Java: `insertString(int offset, String str, AttributeSet a)`.
+    /// `AttributeSet` is not yet implemented and omitted here.
+    ///
     /// - Throws: If `offset` is out of range.
-    func insertString(_ string: String, offset: Int) throws
+    func insertString(_ offset: Int, _ string: String) throws
 
     /// Removes `length` characters starting at `offset`.
     ///
     /// - Throws: If the range is out of range.
-    func remove(offset: Int, length: Int) throws
+    func remove(_ offset: Int, _ length: Int) throws
 
     // -------------------------------------------------------------------------
     // MARK: Properties

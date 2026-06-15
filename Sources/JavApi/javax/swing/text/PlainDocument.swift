@@ -11,15 +11,15 @@ extension javax.swing.text {
   /// the default model used by `JTextField` and `JTextArea`.
   ///
   /// All mutations fire the appropriate `DocumentEvent` to registered listeners:
-  /// - `insertString(_:offset:)` → `fireInsertUpdate`
+  /// - `insertString(_:_:)` → `fireInsertUpdate`
   /// - `remove(offset:length:)` → `fireRemoveUpdate`
   ///
   /// ## Example
   ///
   /// ```swift
   /// let doc = javax.swing.text.PlainDocument()
-  /// try doc.insertString("Hello", offset: 0)
-  /// try doc.insertString(", world!", offset: 5)
+  /// try doc.insertString(0, "Hello")
+  /// try doc.insertString(5, ", world!")
   /// try doc.getText(offset: 0, length: doc.getLength()) // "Hello, world!"
   /// ```
   ///
@@ -54,7 +54,7 @@ extension javax.swing.text {
 
     override open func getLength() -> Int { content.count }
 
-    override open func getText(offset: Int, length: Int) throws -> String {
+    override open func getText(_ offset: Int, _ length: Int) throws -> String {
       guard offset >= 0, length >= 0, offset + length <= content.count else {
         throw javax.swing.text.BadLocationException(
           "getText: offset=\(offset) length=\(length) docLength=\(content.count)",
@@ -69,17 +69,17 @@ extension javax.swing.text {
     // MARK: Document — mutation
     // -------------------------------------------------------------------------
 
-    override open func insertString(_ string: String, offset: Int) throws {
+    override open func insertString(_ offset: Int, _ string: String) throws {
       guard offset >= 0, offset <= content.count else {
         throw javax.swing.text.BadLocationException(
           "insertString: offset=\(offset) docLength=\(content.count)", offset)
       }
       let idx = content.index(content.startIndex, offsetBy: offset)
       content.insert(contentsOf: string, at: idx)
-      fireInsertUpdate(offset: offset, length: string.count)
+      fireInsertUpdate(offset: offset, length: string.count)  // internal helper — labels OK
     }
 
-    override open func remove(offset: Int, length: Int) throws {
+    override open func remove(_ offset: Int, _ length: Int) throws {
       guard offset >= 0, length >= 0, offset + length <= content.count else {
         throw javax.swing.text.BadLocationException(
           "remove: offset=\(offset) length=\(length) docLength=\(content.count)",

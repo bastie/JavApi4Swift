@@ -46,6 +46,27 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Selection model (SingleSelectionModel — Java API)
+    // -------------------------------------------------------------------------
+
+    private var _selectionModel: javax.swing.SingleSelectionModel =
+      javax.swing.DefaultSingleSelectionModel()
+
+    /// Returns the model that manages the selected menu index.
+    public func getSelectionModel() -> javax.swing.SingleSelectionModel { _selectionModel }
+
+    /// Replaces the selection model.
+    public func setSelectionModel(_ model: javax.swing.SingleSelectionModel) {
+      _selectionModel = model
+    }
+
+    /// Returns the index of the currently selected (open) menu, or -1.
+    public func getSelectedIndex() -> Int { _selectionModel.getSelectedIndex() }
+
+    /// Programmatically selects the menu at `index`.
+    public func setSelectedIndex(_ index: Int) { _selectionModel.setSelectedIndex(index) }
+
+    // -------------------------------------------------------------------------
     // MARK: Menus
     // -------------------------------------------------------------------------
 

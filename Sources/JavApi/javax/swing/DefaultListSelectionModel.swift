@@ -47,20 +47,32 @@ extension javax.swing {
     // MARK: ListSelectionModel — mode
     // -------------------------------------------------------------------------
 
-    open var selectionMode: Int = DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION
+    private var _selectionMode: Int = DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION
+
+    open func getSelectionMode() -> Int { _selectionMode }
+    open func setSelectionMode(_ selectionMode: Int) { _selectionMode = selectionMode }
 
     // -------------------------------------------------------------------------
     // MARK: Anchor / lead
     // -------------------------------------------------------------------------
 
-    open var anchorSelectionIndex: Int = -1
-    open var leadSelectionIndex:   Int = -1
+    private var _anchorSelectionIndex: Int = -1
+    private var _leadSelectionIndex:   Int = -1
+
+    open func getAnchorSelectionIndex() -> Int { _anchorSelectionIndex }
+    open func setAnchorSelectionIndex(_ index: Int) { _anchorSelectionIndex = index }
+
+    open func getLeadSelectionIndex() -> Int { _leadSelectionIndex }
+    open func setLeadSelectionIndex(_ index: Int) { _leadSelectionIndex = index }
 
     // -------------------------------------------------------------------------
     // MARK: Adjusting
     // -------------------------------------------------------------------------
 
-    open var valueIsAdjusting: Bool = false
+    private var _valueIsAdjusting: Bool = false
+
+    open func getValueIsAdjusting() -> Bool { _valueIsAdjusting }
+    open func setValueIsAdjusting(_ b: Bool) { _valueIsAdjusting = b }
 
     // -------------------------------------------------------------------------
     // MARK: Mutation
@@ -69,10 +81,10 @@ extension javax.swing {
     open func setSelectionInterval(_ index0: Int, _ index1: Int) {
       let lo = min(index0, index1)
       let hi = max(index0, index1)
-      anchorSelectionIndex = index0
-      leadSelectionIndex   = index1
+      _anchorSelectionIndex = index0
+      _leadSelectionIndex   = index1
       selectedIndices.removeAll()
-      switch selectionMode {
+      switch _selectionMode {
       case DefaultListSelectionModel.SINGLE_SELECTION:
         selectedIndices.insert(hi)
       default:
@@ -84,9 +96,9 @@ extension javax.swing {
     open func addSelectionInterval(_ index0: Int, _ index1: Int) {
       let lo = min(index0, index1)
       let hi = max(index0, index1)
-      anchorSelectionIndex = index0
-      leadSelectionIndex   = index1
-      switch selectionMode {
+      _anchorSelectionIndex = index0
+      _leadSelectionIndex   = index1
+      switch _selectionMode {
       case DefaultListSelectionModel.SINGLE_SELECTION:
         selectedIndices.removeAll()
         selectedIndices.insert(hi)
@@ -151,10 +163,7 @@ extension javax.swing {
     open func fireValueChanged(_ firstIndex: Int, _ lastIndex: Int) {
       guard !listeners.isEmpty else { return }
       let e = javax.swing.event.ListSelectionEvent(
-        self,
-        firstIndex: firstIndex,
-        lastIndex: lastIndex,
-        valueIsAdjusting: valueIsAdjusting)
+        self, firstIndex, lastIndex, _valueIsAdjusting)
       for l in listeners { l.valueChanged(e) }
     }
   }

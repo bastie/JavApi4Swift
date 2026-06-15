@@ -24,7 +24,7 @@ extension javax.swing.tree {
     func getChildCount() -> Int
 
     /// Returns the index of `node` among the children, or -1 if not found.
-    func getIndex(of node: any javax.swing.tree.TreeNode) -> Int
+    func getIndex(_ node: any javax.swing.tree.TreeNode) -> Int
 
     /// Returns `true` if this node is a leaf (no children allowed or present).
     func isLeaf() -> Bool

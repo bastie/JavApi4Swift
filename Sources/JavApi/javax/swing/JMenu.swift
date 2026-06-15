@@ -30,10 +30,21 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// The text label shown in the menu bar.
-    public var text: String
+    private var _text: String
 
-    /// `true` while the popup is open (used by `BasicMenuBarUI` to highlight).
-    public internal(set) var isSelected: Bool = false
+    // -------------------------------------------------------------------------
+    // MARK: Model (ButtonModel — inherited from AbstractButton in Java)
+    // -------------------------------------------------------------------------
+
+    private var _model: javax.swing.ButtonModel = javax.swing.DefaultButtonModel()
+
+    public func getModel() -> javax.swing.ButtonModel { _model }
+    public func setModel(_ model: javax.swing.ButtonModel) { _model = model }
+
+    /// Returns `true` while the popup is open (delegates to model).
+    public func isSelected() -> Bool { _model.isSelected() }
+    /// Sets the popup-open state (delegates to model).
+    public func setSelected(_ b: Bool) { _model.setSelected(b) }
 
     /// The popup that drops down when this menu is clicked.
     public let swingPopupMenu: javax.swing.JPopupMenu = javax.swing.JPopupMenu()
@@ -43,7 +54,7 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     public init(_ text: String = "") {
-      self.text = text
+      self._text = text
       super.init()
     }
 
@@ -51,8 +62,8 @@ extension javax.swing {
     // MARK: Accessors
     // -------------------------------------------------------------------------
 
-    public func getText() -> String      { text }
-    public func setText(_ t: String)     { text = t; invalidate() }
+    public func getText() -> String      { _text }
+    public func setText(_ t: String)     { _text = t; invalidate() }
 
     // -------------------------------------------------------------------------
     // MARK: Item management

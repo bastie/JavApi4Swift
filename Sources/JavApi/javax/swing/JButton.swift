@@ -45,13 +45,13 @@ extension javax.swing {
 
     /// Convenience: pressed state via model.
     internal var isPressed:  Bool {
-      get { _model.isPressed  }
-      set { _model.isPressed  = newValue }
+      get { _model.isPressed()  }
+      set { _model.setPressed(newValue) }
     }
     /// Convenience: rollover state via model.
     internal var isRollover: Bool {
-      get { _model.isRollover }
-      set { _model.isRollover = newValue }
+      get { _model.isRollover() }
+      set { _model.setRollover(newValue) }
     }
 
     // -------------------------------------------------------------------------
@@ -79,19 +79,19 @@ extension javax.swing {
     override open func processMouseEvent(_ e: java.awt.event.MouseEvent) {
       switch e.getID() {
       case java.awt.event.MouseEvent.MOUSE_PRESSED:
-        _model.isArmed   = true
-        _model.isPressed = true
+        _model.setArmed(true)
+        _model.setPressed(true)
         repaint()
       case java.awt.event.MouseEvent.MOUSE_RELEASED:
-        _model.isPressed = false
-        _model.isArmed   = false
+        _model.setPressed(false)
+        _model.setArmed(false)
         repaint()
       case java.awt.event.MouseEvent.MOUSE_ENTERED:
-        _model.isRollover = true
+        _model.setRollover(true)
         repaint()
       case java.awt.event.MouseEvent.MOUSE_EXITED:
-        _model.isRollover = false
-        _model.isArmed    = false
+        _model.setRollover(false)
+        _model.setArmed(false)
         repaint()
       default: break
       }
@@ -105,17 +105,13 @@ extension javax.swing {
     private var actionListeners: [java.awt.event.ActionListener] = []
 
     /// Registers an `ActionListener` object (Java-style).
-    @discardableResult
-    public func addActionListener(_ listener: java.awt.event.ActionListener) -> javax.swing.JButton {
+    public func addActionListener(_ listener: java.awt.event.ActionListener) {
       actionListeners.append(listener)
-      return self
     }
 
     /// Convenience overload: wraps a closure in an `ActionListener`.
-    @discardableResult
-    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) -> javax.swing.JButton {
+    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) {
       actionListeners.append(_SwingClosureActionListener(handler))
-      return self
     }
 
     public func removeActionListeners() {

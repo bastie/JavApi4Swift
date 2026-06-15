@@ -16,8 +16,8 @@ extension javax.swing {
   ///
   /// ```swift
   /// let model = javax.swing.DefaultBoundedRangeModel(value: 50, extent: 0, minimum: 0, maximum: 100)
-  /// model.value   // 50
-  /// model.maximum // 100
+  /// model.getValue()   // 50
+  /// model.getMaximum() // 100
   /// ```
   ///
   /// - Since: Java 1.2
@@ -40,9 +40,6 @@ extension javax.swing {
     // MARK: Initializers
     // -------------------------------------------------------------------------
 
-    /// Creates a model with the given initial values.
-    ///
-    /// Values are clamped to satisfy the invariant on construction.
     public init(value: Int = 0, extent: Int = 0, minimum: Int = 0, maximum: Int = 100) {
       _minimum = minimum
       _maximum = max(minimum, maximum)
@@ -51,67 +48,65 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: BoundedRangeModel
+    // MARK: BoundedRangeModel — getters
     // -------------------------------------------------------------------------
 
-    open var minimum: Int {
-      get { _minimum }
-      set {
-        let clamped = min(newValue, _maximum - _extent)
-        guard clamped != _minimum else { return }
-        _minimum = clamped
-        _value   = max(_value, _minimum)
-        fireStateChanged()
-      }
+    open func getMinimum() -> Int { _minimum }
+    open func getMaximum() -> Int { _maximum }
+    open func getValue()   -> Int { _value }
+    open func getExtent()  -> Int { _extent }
+    open func getValueIsAdjusting() -> Bool { _valueIsAdjusting }
+
+    // -------------------------------------------------------------------------
+    // MARK: BoundedRangeModel — setters
+    // -------------------------------------------------------------------------
+
+    open func setMinimum(_ newMinimum: Int) {
+      guard newMinimum != _minimum else { return }
+      _minimum = newMinimum
+      _value   = max(_value, _minimum)
+      _extent  = min(_extent, _maximum - _value)
+      fireStateChanged()
     }
 
-    open var maximum: Int {
-      get { _maximum }
-      set {
-        let clamped = max(newValue, _minimum)
-        guard clamped != _maximum else { return }
-        _maximum = clamped
-        _extent  = min(_extent, _maximum - _value)
-        fireStateChanged()
-      }
+    open func setMaximum(_ newMaximum: Int) {
+      guard newMaximum != _maximum else { return }
+      _maximum = max(newMaximum, _minimum)
+      _extent  = min(_extent, _maximum - _value)
+      fireStateChanged()
     }
 
-    open var value: Int {
-      get { _value }
-      set {
-        let clamped = min(max(newValue, _minimum), _maximum - _extent)
-        guard clamped != _value else { return }
-        _value = clamped
-        fireStateChanged()
-      }
+    open func setValue(_ newValue: Int) {
+      let clamped = min(max(newValue, _minimum), _maximum - _extent)
+      guard clamped != _value else { return }
+      _value = clamped
+      fireStateChanged()
     }
 
-    open var extent: Int {
-      get { _extent }
-      set {
-        let clamped = min(max(newValue, 0), _maximum - _value)
-        guard clamped != _extent else { return }
-        _extent = clamped
-        fireStateChanged()
-      }
+    open func setExtent(_ newExtent: Int) {
+      let clamped = min(max(newExtent, 0), _maximum - _value)
+      guard clamped != _extent else { return }
+      _extent = clamped
+      fireStateChanged()
     }
 
-    open var valueIsAdjusting: Bool {
-      get { _valueIsAdjusting }
-      set {
-        guard newValue != _valueIsAdjusting else { return }
-        _valueIsAdjusting = newValue
-        fireStateChanged()
-      }
+    open func setValueIsAdjusting(_ b: Bool) {
+      guard b != _valueIsAdjusting else { return }
+      _valueIsAdjusting = b
+      fireStateChanged()
     }
 
     /// Sets all four range properties atomically, firing one `ChangeEvent`.
-    open func setRangeProperties(value: Int, extent: Int, minimum: Int, maximum: Int, adjusting: Bool) {
-      _minimum          = minimum
-      _maximum          = max(minimum, maximum)
-      _extent           = min(max(extent, 0), _maximum - minimum)
-      _value            = min(max(value, _minimum), _maximum - _extent)
-      _valueIsAdjusting = adjusting
+    open func setRangeProperties(value newValue: Int,
+                                 extent newExtent: Int,
+                                 minimum newMin: Int,
+                                 maximum newMax: Int,
+                                 adjusting b: Bool) {
+      _minimum          = newMin
+      _maximum          = max(newMin, newMax)
+      _extent           = min(max(newExtent, 0), _maximum - newMin)
+      _value            = min(max(newValue, _minimum), _maximum - _extent)
+      _valueIsAdjusting = b
       fireStateChanged()
     }
 

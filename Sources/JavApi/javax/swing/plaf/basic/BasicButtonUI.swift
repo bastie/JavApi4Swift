@@ -45,9 +45,9 @@ extension javax.swing.plaf.basic {
 
       // Background
       let bg: java.awt.Color
-      if btn.isPressed {
+      if btn.getModel().isPressed() {
         bg = java.awt.SystemColor.controlShadow
-      } else if btn.isRollover {
+      } else if btn.getModel().isRollover() {
         // Slightly lighter than normal control colour
         let c = java.awt.SystemColor.control
         bg = java.awt.Color(
@@ -61,7 +61,7 @@ extension javax.swing.plaf.basic {
       g.fillRect(0, 0, w, h)
 
       // Border — simple 3-D effect
-      if btn.isPressed {
+      if btn.getModel().isPressed() {
         // Inset shadow
         g.setColor(java.awt.SystemColor.controlDkShadow)
         g.drawLine(0, 0, w - 1, 0)
@@ -88,8 +88,8 @@ extension javax.swing.plaf.basic {
       let fm  = java.awt.FontMetrics.make(for: component.font)
       let tw  = fm.stringWidth(text)
       let th  = fm.getHeight()
-      let tx  = (w - tw) / 2 + (btn.isPressed ? 1 : 0)
-      let ty  = (h - th) / 2 + fm.getAscent() + (btn.isPressed ? 1 : 0)
+      let tx  = (w - tw) / 2 + (btn.getModel().isPressed() ? 1 : 0)
+      let ty  = (h - th) / 2 + fm.getAscent() + (btn.getModel().isPressed() ? 1 : 0)
       g.setColor(component.getForeground())
       g.drawString(text, tx, ty)
     }

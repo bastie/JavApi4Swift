@@ -14,7 +14,7 @@ extension javax.swing.text {
   /// Subclasses must implement:
   /// - `getLength() -> Int`
   /// - `getText(offset:length:) throws -> String`
-  /// - `insertString(_:offset:) throws`
+  /// - `insertString(_:_:) throws`
   /// - `remove(offset:length:) throws`
   ///
   /// - Since: Java 1.2
@@ -47,16 +47,16 @@ extension javax.swing.text {
       fatalError("\(type(of: self)).getLength() must be overridden")
     }
 
-    open func getText(offset: Int, length: Int) throws -> String {
-      fatalError("\(type(of: self)).getText(offset:length:) must be overridden")
+    open func getText(_ offset: Int, _ length: Int) throws -> String {
+      fatalError("\(type(of: self)).getText(_:_:) must be overridden")
     }
 
-    open func insertString(_ string: String, offset: Int) throws {
-      fatalError("\(type(of: self)).insertString(_:offset:) must be overridden")
+    open func insertString(_ offset: Int, _ string: String) throws {
+      fatalError("\(type(of: self)).insertString(_:_:) must be overridden")
     }
 
-    open func remove(offset: Int, length: Int) throws {
-      fatalError("\(type(of: self)).remove(offset:length:) must be overridden")
+    open func remove(_ offset: Int, _ length: Int) throws {
+      fatalError("\(type(of: self)).remove(_:_:) must be overridden")
     }
 
     // -------------------------------------------------------------------------

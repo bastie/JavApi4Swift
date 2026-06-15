@@ -18,11 +18,10 @@ extension javax.swing {
     func addElement(_ item: Element)
 
     /// Inserts `item` at the given `index`.
-    func insertElementAt(_ item: Element, at index: Int)
+    func insertElementAt(_ item: Element, _ index: Int)
 
     /// Removes the element at `index`.
-    @discardableResult
-    func removeElementAt(_ index: Int) -> Element
+    func removeElementAt(_ index: Int)
 
     /// Removes `item` from the model (first occurrence).
     func removeElement(_ item: Element)

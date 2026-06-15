@@ -22,7 +22,7 @@ extension javax.swing.tree {
     func getRoot() -> AnyObject?
 
     /// Returns the child of `parent` at `index`.
-    func getChild(_ parent: AnyObject, at index: Int) -> AnyObject?
+    func getChild(_ parent: AnyObject, _ index: Int) -> AnyObject?
 
     /// Returns the number of children of `parent`.
     func getChildCount(_ parent: AnyObject) -> Int
@@ -31,7 +31,7 @@ extension javax.swing.tree {
     func isLeaf(_ node: AnyObject) -> Bool
 
     /// Returns the index of `child` in `parent`, or -1 if not found.
-    func getIndexOfChild(_ parent: AnyObject, child: AnyObject) -> Int
+    func getIndexOfChild(_ parent: AnyObject, _ child: AnyObject) -> Int
 
     /// Called when the user has altered the value of the item at `path`
     /// to `newValue`.

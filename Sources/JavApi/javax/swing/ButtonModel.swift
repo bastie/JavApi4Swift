@@ -26,21 +26,33 @@ extension javax.swing {
   public protocol ButtonModel: AnyObject {
 
     // -------------------------------------------------------------------------
-    // MARK: State accessors
+    // MARK: State accessors — Java-style methods
     // -------------------------------------------------------------------------
 
-    var isArmed:    Bool { get set }
-    var isPressed:  Bool { get set }
-    var isRollover: Bool { get set }
-    var isSelected: Bool { get set }
-    var isEnabled:  Bool { get set }
+    func isArmed() -> Bool
+    func setArmed(_ b: Bool)
+
+    func isPressed() -> Bool
+    func setPressed(_ b: Bool)
+
+    func isRollover() -> Bool
+    func setRollover(_ b: Bool)
+
+    func isSelected() -> Bool
+    func setSelected(_ b: Bool)
+
+    func isEnabled() -> Bool
+    func setEnabled(_ b: Bool)
 
     // -------------------------------------------------------------------------
     // MARK: Action command
     // -------------------------------------------------------------------------
 
-    var actionCommand: String? { get set }
-    var mnemonic: Int { get set }
+    func getActionCommand() -> String?
+    func setActionCommand(_ command: String?)
+
+    func getMnemonic() -> Int
+    func setMnemonic(_ mnemonic: Int)
 
     // -------------------------------------------------------------------------
     // MARK: Listener management

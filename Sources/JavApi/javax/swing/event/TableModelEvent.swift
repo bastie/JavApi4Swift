@@ -55,11 +55,13 @@ extension javax.swing.event {
     // -------------------------------------------------------------------------
 
     /// Creates a `TableModelEvent` for a cell or row range change.
+    ///
+    /// Java: `TableModelEvent(Object source, int firstRow, int lastRow, int column, int type)`
     public init(_ source: AnyObject,
-                firstRow: Int,
-                lastRow:  Int,
-                column:   Int = TableModelEvent.ALL_COLUMNS,
-                type:     Int = TableModelEvent.UPDATE) {
+                _ firstRow: Int,
+                _ lastRow:  Int,
+                _ column:   Int = TableModelEvent.ALL_COLUMNS,
+                _ type:     Int = TableModelEvent.UPDATE) {
       self.firstRow = firstRow
       self.lastRow  = lastRow
       self.column   = column
@@ -71,7 +73,7 @@ extension javax.swing.event {
     /// entire table changed (equivalent to `init(source, HEADER_ROW, Int.max, ALL_COLUMNS, UPDATE)`).
     @MainActor
     public static func allChanged(_ source: AnyObject) -> TableModelEvent {
-      TableModelEvent(source, firstRow: -1, lastRow: Int.max, column: -1, type: 0)
+      TableModelEvent(source, -1, Int.max, -1, 0)
     }
 
     // -------------------------------------------------------------------------

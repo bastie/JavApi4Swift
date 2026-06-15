@@ -16,13 +16,16 @@ extension javax.swing {
   @MainActor
   public protocol SingleSelectionModel: AnyObject {
 
-    /// The currently selected index, or -1 if nothing is selected.
-    var selectedIndex: Int { get set }
+    /// Returns the currently selected index, or -1 if nothing is selected.
+    func getSelectedIndex() -> Int
 
-    /// Returns `true` if any index is selected (`selectedIndex != -1`).
+    /// Sets the selected index; use -1 to clear the selection.
+    func setSelectedIndex(_ index: Int)
+
+    /// Returns `true` if any index is selected (`getSelectedIndex() != -1`).
     func isSelected() -> Bool
 
-    /// Clears the selection (sets `selectedIndex` to -1).
+    /// Clears the selection (sets selected index to -1).
     func clearSelection()
 
     func addChangeListener(_ l: javax.swing.event.ChangeListener)

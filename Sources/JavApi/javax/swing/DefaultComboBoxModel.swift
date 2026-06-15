@@ -79,10 +79,10 @@ extension javax.swing {
     // MARK: ComboBoxModel — selection
     // -------------------------------------------------------------------------
 
-    open func getSelectedItem() -> E? { selectedItem }
+    open func getSelectedItem() -> Any? { selectedItem }
 
-    open func setSelectedItem(_ item: E?) {
-      selectedItem = item
+    open func setSelectedItem(_ item: Any?) {
+      selectedItem = item as? E
       // Java convention: fire CONTENTS_CHANGED with index -1..-1 for selection.
       fireContentsChanged(-1, -1)
     }
@@ -101,16 +101,14 @@ extension javax.swing {
       fireIntervalAdded(idx, idx)
     }
 
-    open func insertElementAt(_ item: E, at index: Int) {
+    open func insertElementAt(_ item: E, _ index: Int) {
       elements.insert(item, at: index)
       fireIntervalAdded(index, index)
     }
 
-    @discardableResult
-    open func removeElementAt(_ index: Int) -> E {
-      let removed = elements.remove(at: index)
+    open func removeElementAt(_ index: Int) {
+      elements.remove(at: index)
       fireIntervalRemoved(index, index)
-      return removed
     }
 
     /// Removes the first element equal (by identity) to `item`.
@@ -144,24 +142,24 @@ extension javax.swing {
     private func fireIntervalAdded(_ index0: Int, _ index1: Int) {
       guard !listeners.isEmpty else { return }
       let e = javax.swing.event.ListDataEvent(
-        self, type: javax.swing.event.ListDataEvent.INTERVAL_ADDED,
-        index0: index0, index1: index1)
+        self, javax.swing.event.ListDataEvent.INTERVAL_ADDED,
+        index0, index1)
       for l in listeners { l.intervalAdded(e) }
     }
 
     private func fireIntervalRemoved(_ index0: Int, _ index1: Int) {
       guard !listeners.isEmpty else { return }
       let e = javax.swing.event.ListDataEvent(
-        self, type: javax.swing.event.ListDataEvent.INTERVAL_REMOVED,
-        index0: index0, index1: index1)
+        self, javax.swing.event.ListDataEvent.INTERVAL_REMOVED,
+        index0, index1)
       for l in listeners { l.intervalRemoved(e) }
     }
 
     private func fireContentsChanged(_ index0: Int, _ index1: Int) {
       guard !listeners.isEmpty else { return }
       let e = javax.swing.event.ListDataEvent(
-        self, type: javax.swing.event.ListDataEvent.CONTENTS_CHANGED,
-        index0: index0, index1: index1)
+        self, javax.swing.event.ListDataEvent.CONTENTS_CHANGED,
+        index0, index1)
       for l in listeners { l.contentsChanged(e) }
     }
   }

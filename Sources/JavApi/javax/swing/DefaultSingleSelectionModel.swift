@@ -27,18 +27,17 @@ extension javax.swing {
     // MARK: SingleSelectionModel
     // -------------------------------------------------------------------------
 
-    open var selectedIndex: Int {
-      get { _selectedIndex }
-      set {
-        guard newValue != _selectedIndex else { return }
-        _selectedIndex = newValue
-        fireStateChanged()
-      }
+    open func getSelectedIndex() -> Int { _selectedIndex }
+
+    open func setSelectedIndex(_ index: Int) {
+      guard index != _selectedIndex else { return }
+      _selectedIndex = index
+      fireStateChanged()
     }
 
     open func isSelected() -> Bool { _selectedIndex != -1 }
 
-    open func clearSelection() { selectedIndex = -1 }
+    open func clearSelection() { setSelectedIndex(-1) }
 
     open func addChangeListener(_ l: javax.swing.event.ChangeListener) {
       listeners.append(l)

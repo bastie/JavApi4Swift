@@ -50,7 +50,7 @@ extension javax.swing.tree {
 
     open func getRoot() -> AnyObject? { root.map { $0 as AnyObject } }
 
-    open func getChild(_ parent: AnyObject, at index: Int) -> AnyObject? {
+    open func getChild(_ parent: AnyObject, _ index: Int) -> AnyObject? {
       guard let node = parent as? any javax.swing.tree.TreeNode else { return nil }
       guard index >= 0, index < node.getChildCount() else { return nil }
       return node.getChildAt(index) as AnyObject
@@ -66,10 +66,10 @@ extension javax.swing.tree {
       return treeNode.isLeaf()
     }
 
-    open func getIndexOfChild(_ parent: AnyObject, child: AnyObject) -> Int {
+    open func getIndexOfChild(_ parent: AnyObject, _ child: AnyObject) -> Int {
       guard let parentNode = parent as? any javax.swing.tree.TreeNode,
             let childNode  = child  as? any javax.swing.tree.TreeNode else { return -1 }
-      return parentNode.getIndex(of: childNode)
+      return parentNode.getIndex( childNode)
     }
 
     open func valueForPathChanged(_ path: javax.swing.tree.TreePath, newValue: Any?) {
@@ -113,7 +113,7 @@ extension javax.swing.tree {
         }
         return
       }
-      let idx = parent.getIndex(of: node)
+      let idx = parent.getIndex( node)
       guard idx >= 0 else { return }
       let path = pathToNode(parent)
       fireTreeNodesChanged(path, childIndices: [idx], children: [node as AnyObject])
