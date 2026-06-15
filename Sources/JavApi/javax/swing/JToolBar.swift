@@ -87,14 +87,6 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: UI delegate
-    // -------------------------------------------------------------------------
-
-    override open func updateUI() {
-      super.updateUI()
-    }
-
-    // -------------------------------------------------------------------------
     // MARK: Adding components
     // -------------------------------------------------------------------------
 
@@ -153,79 +145,17 @@ extension javax.swing {
     public override func getComponents() -> [java.awt.Component] { items }
 
     // -------------------------------------------------------------------------
-    // MARK: Layout & preferred size
+    // MARK: UI delegate
     // -------------------------------------------------------------------------
 
-    override public func getPreferredSize() -> java.awt.Dimension {
-      let pad = 4
-      var totalW = pad, totalH = 0, maxH = 0, maxW = 0
-      for item in items {
-        let ps = item.getPreferredSize()
-        if _orientation == JToolBar.HORIZONTAL {
-          totalW += ps.width + pad
-          maxH = Swift.max(maxH, ps.height)
-        } else {
-          totalH += ps.height + pad
-          maxW = Swift.max(maxW, ps.width)
-        }
-      }
-      if _orientation == JToolBar.HORIZONTAL {
-        return java.awt.Dimension(totalW, maxH + pad * 2)
-      } else {
-        return java.awt.Dimension(maxW + pad * 2, totalH)
-      }
+    override open func updateUI() {
+      ui = javax.swing.plaf.basic.BasicToolBarUI()
     }
 
-    override public func doLayout() {
-      let pad = 4
-      if _orientation == JToolBar.HORIZONTAL {
-        var x = pad
-        let y = pad
-        let h = bounds.height - pad * 2
-        for item in items {
-          let w = item.getPreferredSize().width
-          item.bounds = java.awt.Rectangle(x, y, w, Swift.max(h, 1))
-          x += w + pad
-        }
-      } else {
-        let x = pad
-        var y = pad
-        let w = bounds.width - pad * 2
-        for item in items {
-          let h = item.getPreferredSize().height
-          item.bounds = java.awt.Rectangle(x, y, Swift.max(w, 1), h)
-          y += h + pad
-        }
-      }
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Painting
-    // -------------------------------------------------------------------------
-
-    override open func paint(_ g: java.awt.Graphics) {
-      // Background
-      g.setColor(java.awt.SystemColor.control)
-      g.fillRect(0, 0, bounds.width, bounds.height)
-
-      // Bottom border line (when horizontal)
-      if _orientation == JToolBar.HORIZONTAL {
-        g.setColor(java.awt.SystemColor.controlShadow)
-        g.drawLine(0, bounds.height - 1, bounds.width - 1, bounds.height - 1)
-      }
-
-      doLayout()
-
-      // Paint children
-      for item in items {
-        guard item.isVisible() else { continue }
-        let dx = item.bounds.x
-        let dy = item.bounds.y
-        g.translate(dx, dy)
-        item.paint(g)
-        g.translate(-dx, -dy)
-      }
-    }
+    // getPreferredSize(), doLayout() and paint() are intentionally NOT
+    // overridden here — JComponent.getPreferredSize() delegates to
+    // BasicToolBarUI.getPreferredSize(of:), and paint() delegates to
+    // BasicToolBarUI.paint(_:on:), exactly as in Java Swing.
   }
 }
 
