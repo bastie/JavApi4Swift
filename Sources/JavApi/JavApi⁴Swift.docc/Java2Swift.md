@@ -484,6 +484,35 @@ extension JavaInterfaceName {
 
 > **AI hint:** For each Java interface, generate: (1) a `typealias` inside the package enum, (2) a `protocol` with an `associatedtype` bound to that typealias, (3) a separate `extension` for default methods. Never place default method bodies directly inside the `protocol` body.
 
+#### constants — access via concrete class, not via protocol
+
+Java interface constants are ported to Swift protocols (see *interfaces with constants* below). However, Swift **does not allow calling static properties directly on a protocol type** — only on conforming concrete types.
+
+**Rule:** Always access constants through a concrete class or struct, never through the protocol.
+
+```swift
+// ✅ correct — access via concrete type
+let orientation = JToolBar.HORIZONTAL
+let placement   = JTabbedPane.TOP
+let sep         = JSeparator.VERTICAL
+
+// ❌ wrong — protocols cannot be used as types for static member access
+let orientation = SwingConstants.HORIZONTAL   // compiler error or wrong constant
+```
+
+**Why this matters for AI code generation:**  
+When a linter or code assistant suggests "use `JSeparator.HORIZONTAL` instead of `SwingConstants.HORIZONTAL`" inside `JSeparator.swift` itself, that creates a **self-referential static `let`** (`public static let HORIZONTAL: Int = JSeparator.HORIZONTAL`) which is an OK. Never use the `SwingConstants` *enum* (the global constants enum) for the right-hand side of constant declarations inside the concrete class, and use the concrete class name (`JSeparator.HORIZONTAL`) everywhere else.
+
+```swift
+// ✅ correct — inside JSeparator.swift
+public static let HORIZONTAL: Int = JSeparator.HORIZONTAL   // refers to the local type
+
+// ❌ wrong — protocols cannot be used as types for static member access
+public static let HORIZONTAL: Int = SwingConstants.HORIZONTAL
+```
+
+> **AI hint:** When generating or reviewing constant declarations inside a Swing component class, never use `SwingConstants.HORIZONTAL` / `SwingConstants.VERTICAL` (the global `enum SwingConstants`) on the right-hand side — ever use the concrete class's own name. At call sites (outside the defining class), always use the concrete class: `JToolBar.HORIZONTAL`, `JSeparator.VERTICAL`, `JTabbedPane.TOP`, etc.
+
 #### interfaces with constants
 
 To implements constants in protocols take computed properties and an extensions.

@@ -54,6 +54,17 @@ version | implemented | tested   | type          | name           | more informa
 
 ## Java UI Packages
 
+> **Note — Swing / JFC already integrated:** In the Java 1.1 era, Swing was
+> not yet part of the standard JDK. It was distributed separately as the
+> **Java Foundation Classes (JFC) 1.1** add-on library (`swingall.jar` /
+> `jfc.jar`), released in March 1997 alongside the Java 1.1 release.
+> Developers had to bundle and reference this JAR explicitly.
+>
+> In JavApi4Swift, Swing (`javax.swing`) is **not** kept separate — it is
+> already integrated directly into the library alongside `java.awt`. The
+> Swing API coverage is tracked in ``Java_1.2`` (where Swing became part of
+> the standard JDK for the first time).
+
 ### java.awt — Java 1.1 additions
 
 Java 1.1 replaced the 1.0 event model with the delegation event model and added several new classes.

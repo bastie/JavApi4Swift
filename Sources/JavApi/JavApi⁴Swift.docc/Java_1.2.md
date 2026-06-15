@@ -455,6 +455,12 @@ version | implemented | tested   | type          | name                    | mor
 
 ## javax.swing
 
+> **Note — historical context:** Swing was first included in the standard JDK
+> with Java 1.2. Before that it shipped as the separate **Java Foundation
+> Classes (JFC) 1.1** add-on. In JavApi4Swift, Swing is integrated directly
+> into the library — no separate dependency or import is needed. See also
+> ``Java_1.1`` for the JFC/1.1 background note.
+
 ### javax.swing.SwingConstants (✔️/🪄)
 
 version | implemented | tested   | type          | name                    | more informations
@@ -595,6 +601,112 @@ version | implemented | tested   | type          | name                    | mor
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ✔️          | ⭕️       | class         | BasicPopupMenuUI        |
 1.2     | ✔️          | ⭕️       | method        | paint()                 | bg + items; armed item highlighted
+
+### javax.swing.Action / AbstractAction (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | Action                  | extends ActionListener; getValue/putValue, isEnabled/setEnabled, property change listeners
+1.2     | ✔️          | ⭕️       | class         | AbstractAction          | base implementation; stores properties in [String:AnyObject] dict
+1.2     | ✔️          | 🪄       | final field   | NAME                    | "Name"
+1.2     | ✔️          | 🪄       | final field   | SMALL_ICON              | "SmallIcon"
+1.2     | ✔️          | 🪄       | final field   | SHORT_DESCRIPTION       | "ShortDescription" — used as tooltip
+1.2     | ✔️          | 🪄       | final field   | LONG_DESCRIPTION        | "LongDescription"
+1.2     | ✔️          | 🪄       | final field   | MNEMONIC_KEY            | "MnemonicKey"
+1.2     | ✔️          | 🪄       | final field   | ACTION_COMMAND_KEY      | "ActionCommandKey"
+
+### javax.swing.JToolBar (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JToolBar                | extends JComponent
+1.2     | ✔️          | ⭕️       | constructor   | JToolBar()              | ()
+1.2     | ✔️          | ⭕️       | constructor   | JToolBar()              | (int orientation)
+1.2     | ✔️          | ⭕️       | method        | add()                   | (JButton)->JButton
+1.2     | ✔️          | ⭕️       | method        | add()                   | (Action)->JButton — icon-only, tooltip from SHORT_DESCRIPTION
+1.2     | ✔️          | ⭕️       | method        | addSeparator()          | ()
+1.2     | ✔️          | ⭕️       | method        | addSeparator()          | (Dimension)
+1.2     | ✔️          | ⭕️       | method        | isFloatable/setFloatable()| stub; TODO: drag/dock
+1.2     | ✔️          | ⭕️       | method        | isRollover/setRollover() |
+1.2     | ✔️          | ⭕️       | method        | getOrientation/setOrientation() |
+
+### javax.swing.JSeparator (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JSeparator              |
+1.2     | ✔️          | ⭕️       | constructor   | JSeparator()            | horizontal by default
+1.2     | ✔️          | ⭕️       | constructor   | JSeparator()            | (int orientation)
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL              | int = 0
+1.2     | ✔️          | 🪄       | final field   | VERTICAL                | int = 1
+
+### javax.swing.plaf.basic.BasicToolBarUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicToolBarUI          |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | bg + border line, lays out and paints items
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | sums item preferred sizes
+
+### javax.swing.plaf.basic.BasicSeparatorUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicSeparatorUI        |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | single center line
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | 2×0 (vertical) or 0×2 (horizontal)
+
+### javax.swing.JTabbedPane (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JTabbedPane             |
+1.2     | ✔️          | ⭕️       | constructor   | JTabbedPane()           | ()
+1.2     | ✔️          | ⭕️       | constructor   | JTabbedPane()           | (int tabPlacement)
+1.2     | ✔️          | 🪄       | final field   | TOP / BOTTOM / LEFT / RIGHT | 1/3/2/4
+1.2     | ✔️          | ⭕️       | method        | addTab()                | (String,Component)
+1.2     | ✔️          | ⭕️       | method        | addTab()                | (String,Icon?,Component)
+1.2     | ✔️          | ⭕️       | method        | addTab()                | (String,Icon?,Component,String?)
+1.2     | ✔️          | ⭕️       | method        | removeTabAt()           | (int)
+1.2     | ✔️          | ⭕️       | method        | getSelectedIndex/setSelectedIndex() |
+1.2     | ✔️          | ⭕️       | method        | getSelectedComponent()  |
+1.2     | ✔️          | ⭕️       | method        | getTabCount()           |
+1.2     | ✔️          | ⭕️       | method        | getTitleAt/setTitleAt() |
+1.2     | ✔️          | ⭕️       | method        | isEnabledAt/setEnabledAt() |
+1.2     | ✔️          | ⭕️       | method        | getToolTipTextAt()      |
+1.2     | ✔️          | ⭕️       | method        | indexAtLocation()       | delegates to BasicTabbedPaneUI
+
+### javax.swing.plaf.basic.BasicTabbedPaneUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicTabbedPaneUI       |
+1.2     | ✔️          | ⭕️       | method        | paint()                 | tab strip (TOP), content area border, selected child
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | max content size + tabHeight
+1.2     | ✔️          | ⭕️       | method        | tabIndexAt()            | hit-test for tab-strip clicks
+
+### javax.swing.JButton — Action constructor (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | constructor   | JButton()               | (Action) — adopts NAME, SMALL_ICON, registers action as listener
+1.2     | ✔️          | ⭕️       | method        | isHideActionText/setHideActionText() | hides label when true; toolbar default
+
+### javax.swing.JComponent — tooltip stub (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | method        | setToolTipText()        | (String?) — stored; rendering not yet implemented
+1.2     | ✔️          | ⭕️       | method        | getToolTipText()        | ()->String?
+
+### javax.swing.ImageIcon (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | ImageIcon               | wraps java.awt.Image
+1.2     | ✔️          | ⭕️       | constructor   | ImageIcon()             | (Image, width:Int, height:Int)
+1.2     | ✔️          | ⭕️       | method        | getImage()              | ()->Image
+1.2     | ✔️          | ⭕️       | method        | getIconWidth/Height()   | ()->int
 
 ---
 

@@ -537,9 +537,9 @@ final class _SwiftUINativeCanvas: NSView {
     // Other components — TextComponent handled in mouseDown/mouseDragged
     guard let component else { return }
     let pt = awtPoint(from: event)
-    if let hit = _SwiftUIHitTest.find(at: pt, in: component),
+    if let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: pt, in: component),
        !(hit is java.awt.TextComponent) {
-      _SwiftUIHitTest.dispatch(click: hit)
+      _SwiftUIHitTest.dispatch(click: hit, localX: lx, localY: ly)
       needsDisplay = true
     }
   }
@@ -836,8 +836,8 @@ final class _SwiftUINativeCanvas: UIView {
     guard let component, let touch = touches.first else { return }
     let p = touch.location(in: self)
     // UIKit: Y already goes down — same as AWT, no conversion needed
-    if let hit = _SwiftUIHitTest.find(at: p, in: component) {
-      _SwiftUIHitTest.dispatch(click: hit)
+    if let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: p, in: component) {
+      _SwiftUIHitTest.dispatch(click: hit, localX: lx, localY: ly)
       setNeedsDisplay()
     }
   }

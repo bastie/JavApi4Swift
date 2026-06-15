@@ -494,9 +494,12 @@ public final class _Win32Canvas {
         }
       }
       // Normal Swing content click
-      let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
-      _Win32FocusManager.shared.requestFocus(hit)
-      _AWTHitTest.dispatch(click: hit ?? awtWindow)
+      if let (hit, lx0, ly0) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
+        _Win32FocusManager.shared.requestFocus(hit)
+        _AWTHitTest.dispatch(click: hit, x: lx0, y: ly0)
+      } else {
+        _Win32FocusManager.shared.requestFocus(nil)
+      }
       invalidate()
       return
     }
@@ -687,11 +690,11 @@ public final class _Win32Canvas {
       return
     }
     // Other components — dispatch click (Choice/List/Scrollbar/ScrollPane already handled)
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
     ReleaseCapture()
-    if !(hit is java.awt.Choice), !(hit is java.awt.List),
+    if let (hit, lx1, ly1) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow),
+       !(hit is java.awt.Choice), !(hit is java.awt.List),
        !(hit is java.awt.Scrollbar), !(hit is java.awt.ScrollPane) {
-      _AWTHitTest.dispatch(click: hit ?? awtWindow)
+      _AWTHitTest.dispatch(click: hit, x: lx1, y: ly1)
     }
     invalidate()
   }

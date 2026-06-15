@@ -866,9 +866,9 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
         }
         // Normal Swing content click — hit-test and dispatch via _AWTHitTest
-        if let hit = _AWTHitTest.find(x: clickX, y: clickY, in: awtWindow) {
+        if let (hit, lx, ly) = _AWTHitTest.findWithLocal(x: clickX, y: clickY, in: awtWindow) {
           _X11FocusManager.shared.requestFocus(hit)
-          _AWTHitTest.dispatch(click: hit)
+          _AWTHitTest.dispatch(click: hit, x: lx, y: ly)
           repaint(awtWindow, xwin: xwin)
         }
         return
@@ -1077,7 +1077,9 @@ public final class _X11WindowHost: @unchecked Sendable {
             list.fireActionEvent(index: idx)
           }
         } else {
-          _AWTHitTest.dispatch(click: hit ?? awtWindow)
+          if let (hitComp, lx2, ly2) = _AWTHitTest.findWithLocal(x: contentX, y: contentY, in: awtWindow) {
+            _AWTHitTest.dispatch(click: hitComp, x: lx2, y: ly2)
+          }
         }
       }
 
