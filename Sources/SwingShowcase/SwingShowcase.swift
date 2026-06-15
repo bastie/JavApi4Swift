@@ -14,7 +14,7 @@ struct SwingShowcaseApp {
 
   @MainActor
   static func main() {
-    java.awt.EventQueue.invokeLater {
+    javax.swing.SwingUtilities.invokeLater {
       SwingShowcaseApp().buildShowcase().setVisible(true)
     }
     java.awt.Toolkit.getDefaultToolkit().runEventLoop()
