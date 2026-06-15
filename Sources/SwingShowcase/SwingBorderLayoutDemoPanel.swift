@@ -59,9 +59,7 @@ final class SwingBorderLayoutDemoDialog: javax.swing.JDialog {
 
     let closeBtn = javax.swing.JButton("Schließen")
     closeBtn.setPreferredSize(java.awt.Dimension(110, 44))
-    closeBtn.addActionListener { [weak self] _ in
-      self?.setVisible(false)
-    }
+    closeBtn.addActionListener(SwingDialogCloseListener(dialog: self))
     south.add(closeBtn, java.awt.BorderLayout.EAST)
 
     add(south, java.awt.BorderLayout.SOUTH)

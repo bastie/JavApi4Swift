@@ -50,18 +50,25 @@ struct SwingShowcaseApp {
     pasteItem.addActionListener(SwingPrintActionListener("Edit > Paste"))
     menuBar.add(editMenu)
 
-    // Demo menu
-    let demoMenu = javax.swing.JMenu("Demo")
-    let cardItem = demoMenu.add(javax.swing.JMenuItem("CardLayout Dialog…"))
-    cardItem.addActionListener(SwingCardLayoutDemoListener(owner: frame))
-    let borderItem = demoMenu.add(javax.swing.JMenuItem("BorderLayout Dialog…"))
-    borderItem.addActionListener(SwingBorderLayoutDemoListener(owner: frame))
-    menuBar.add(demoMenu)
+    // LayoutManager menu
+    let layoutMenu = javax.swing.JMenu("LayoutManager")
+    let blItem = layoutMenu.add(javax.swing.JMenuItem("BorderLayout…"))
+    blItem.addActionListener(SwingBorderLayoutDemoListener(owner: frame))
+    let flItem = layoutMenu.add(javax.swing.JMenuItem("FlowLayout…"))
+    flItem.addActionListener(SwingFlowLayoutDemoListener(owner: frame))
+    let glItem = layoutMenu.add(javax.swing.JMenuItem("GridLayout…"))
+    glItem.addActionListener(SwingGridLayoutDemoListener(owner: frame))
+    let clItem = layoutMenu.add(javax.swing.JMenuItem("CardLayout…"))
+    clItem.addActionListener(SwingCardLayoutDemoListener(owner: frame))
+    layoutMenu.addSeparator()
+    let gbItem = layoutMenu.add(javax.swing.JMenuItem("GridBagLayout…"))
+    gbItem.addActionListener(SwingGridBagLayoutDemoListener(owner: frame))
+    menuBar.add(layoutMenu)
 
     // Help menu
     let helpMenu = javax.swing.JMenu("Help")
-    let aboutItem = helpMenu.add(javax.swing.JMenuItem("About…"))
-    aboutItem.addActionListener(SwingPrintActionListener("Help > About…"))
+    let aboutItem = helpMenu.add(javax.swing.JMenuItem("About JavApi⁴Swift…"))
+    aboutItem.addActionListener(SwingAboutListener(owner: frame))
     menuBar.add(helpMenu)
 
     frame.setJMenuBar(menuBar)

@@ -43,38 +43,55 @@ extension javax.swing.plaf.basic {
       let w = component.bounds.width
       let h = component.bounds.height
 
-      // Background
+      // Background — always derived from SystemColor.control so it works in
+      // both light and dark mode.  controlShadow maps to .separatorColor on
+      // macOS which is near-black in light mode, so we darken/lighten control
+      // ourselves instead of relying on the shadow tokens.
+      let base = java.awt.SystemColor.control
       let bg: java.awt.Color
       if btn.getModel().isPressed() {
-        bg = java.awt.SystemColor.controlShadow
-      } else if btn.getModel().isRollover() {
-        // Slightly lighter than normal control colour
-        let c = java.awt.SystemColor.control
+        // Darken by 15 % (clamped to 0)
         bg = java.awt.Color(
-          min(255, c.getRed()   + 20),
-          min(255, c.getGreen() + 20),
-          min(255, c.getBlue()  + 20))
+          Swift.max(0, base.getRed()   - 38),
+          Swift.max(0, base.getGreen() - 38),
+          Swift.max(0, base.getBlue()  - 38))
+      } else if btn.getModel().isRollover() {
+        // Lighten by ~8 % (clamped to 255)
+        bg = java.awt.Color(
+          Swift.min(255, base.getRed()   + 20),
+          Swift.min(255, base.getGreen() + 20),
+          Swift.min(255, base.getBlue()  + 20))
       } else {
-        bg = java.awt.SystemColor.control
+        bg = base
       }
       g.setColor(bg)
       g.fillRect(0, 0, w, h)
 
-      // Border — simple 3-D effect
+      // Border — simple 3-D effect, derived from bg so it always contrasts.
+      // dark = bg darkened by ~20, light = bg lightened by ~40
+      let borderDark = java.awt.Color(
+        Swift.max(0, bg.getRed()   - 50),
+        Swift.max(0, bg.getGreen() - 50),
+        Swift.max(0, bg.getBlue()  - 50))
+      let borderLight = java.awt.Color(
+        Swift.min(255, bg.getRed()   + 40),
+        Swift.min(255, bg.getGreen() + 40),
+        Swift.min(255, bg.getBlue()  + 40))
+
       if btn.getModel().isPressed() {
-        // Inset shadow
-        g.setColor(java.awt.SystemColor.controlDkShadow)
+        // Inset: dark top-left, light bottom-right
+        g.setColor(borderDark)
         g.drawLine(0, 0, w - 1, 0)
         g.drawLine(0, 0, 0, h - 1)
-        g.setColor(java.awt.SystemColor.controlHighlight)
+        g.setColor(borderLight)
         g.drawLine(w - 1, 0, w - 1, h - 1)
         g.drawLine(0, h - 1, w - 1, h - 1)
       } else {
-        // Raised border
-        g.setColor(java.awt.SystemColor.controlHighlight)
+        // Raised: light top-left, dark bottom-right
+        g.setColor(borderLight)
         g.drawLine(0, 0, w - 2, 0)
         g.drawLine(0, 0, 0, h - 2)
-        g.setColor(java.awt.SystemColor.controlDkShadow)
+        g.setColor(borderDark)
         g.drawLine(w - 1, 0, w - 1, h - 1)
         g.drawLine(0, h - 1, w - 1, h - 1)
         g.setColor(java.awt.SystemColor.controlShadow)
