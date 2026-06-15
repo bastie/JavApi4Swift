@@ -19,7 +19,7 @@ extension java.awt {
     override open func paint(_ g: java.awt.Graphics) {
       // default: clear to background color
       g.setColor(background)
-      g.fillRect(bounds.x, bounds.y, bounds.width, bounds.height)
+      g.fillRect(0, 0, bounds.width, bounds.height)
     }
 
     /// Canvas does not support children — override is a no-op safety guard.

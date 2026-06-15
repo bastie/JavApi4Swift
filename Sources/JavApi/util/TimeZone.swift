@@ -26,10 +26,4 @@ extension TimeZone {
   // static getDefault ()
 }
 
-public class SimpleTimeZone : TimeZone {
-  var delegate: Foundation.TimeZone
-  
-  init () {
-    self.delegate = Foundation.TimeZone.current
-  }
-}
+// SimpleTimeZone is defined in SimpleTimeZone.swift

@@ -24,6 +24,20 @@ enum _AWTHitTest {
   /// Used by mouse-wheel handlers: the hit-test returns the deepest component
   /// (e.g. a Canvas inside a ScrollPane), but scrolling should be applied to
   /// the enclosing pane.
+  /// Walk the parent chain to compute the frame-absolute origin of `component`.
+  /// Returns the sum of all `bounds.x/y` values from root down to `component`.
+  static func absoluteOrigin(_ component: java.awt.Component) -> (x: Int, y: Int) {
+    var x = component.bounds.x
+    var y = component.bounds.y
+    var p = component.parent
+    while let parent = p {
+      x += parent.bounds.x
+      y += parent.bounds.y
+      p = parent.parent
+    }
+    return (x, y)
+  }
+
   static func nearestScrollPane(_ component: java.awt.Component?) -> java.awt.ScrollPane? {
     var node: java.awt.Component? = component
     while let n = node {
@@ -33,35 +47,66 @@ enum _AWTHitTest {
     return nil
   }
 
-  /// Recursively find the deepest visible component that contains `(x, y)`.
-  /// Coordinates are in the coordinate system of `root` (i.e. the Frame).
-  static func find(x: Int, y: Int, in root: java.awt.Component) -> java.awt.Component? {
+  /// Recursively find the deepest visible component that contains `(x, y)`,
+  /// and return the click coordinates in that component's **local** space.
+  ///
+  /// `x` and `y` are in the **parent's** coordinate system on entry — i.e. when
+  /// called from outside pass window-local coordinates; the recursion translates
+  /// into each child's local space automatically.
+  ///
+  /// Returns `(component, localX, localY)` so callers always have the correct
+  /// local coordinates without having to walk the bounds chain themselves.
+  static func findWithLocal(x: Int, y: Int, in root: java.awt.Component) -> (java.awt.Component, Int, Int)? {
     let b = root.bounds
     guard root.visible,
           x >= b.x, x < b.x + b.width,
-          y >= b.y, y < b.y + b.height
+          y >= b.y
     else { return nil }
 
-    // ScrollPane: translate hit-point into child's coordinate space
+    // Leaf components require a strict upper-bound check.
+    // Containers (except ScrollPane) allow children to overflow their declared
+    // height — FlowLayout may wrap into a second row that exceeds bounds.height
+    // if the container's preferred-size was computed before the width was known.
+    let lx = x - b.x
+    let ly = y - b.y
+
     if let sp = root as? java.awt.ScrollPane {
+      // ScrollPane: strict bounds check (clips content)
+      guard ly < b.height else { return nil }
       let vp = sp.getViewportSize()
-      let vpMaxX = b.x + vp.width
-      let vpMaxY = b.y + vp.height
-      if x < vpMaxX, y < vpMaxY, let child = sp.getChild() {
-        let childX = x + sp.scrollX
-        let childY = y + sp.scrollY
-        if let hit = find(x: childX, y: childY, in: child) { return hit }
+      if lx < vp.width, ly < vp.height, let child = sp.getChild() {
+        let childX = lx + sp.scrollX
+        let childY = ly + sp.scrollY
+        if let hit = findWithLocal(x: childX, y: childY, in: child) { return hit }
       }
-      return root  // scrollbar strip or empty viewport
+      return (root, lx, ly)
     }
 
-    // Depth-first: check children first (last added = visually on top)
     if let container = root as? java.awt.Container {
+      // For containers: try children first (they may lie below bounds.height).
       for child in container.getComponents().reversed() {
-        if let hit = find(x: x, y: y, in: child) { return hit }
+        if let hit = findWithLocal(x: lx, y: ly, in: child) { return hit }
       }
+      // Only claim the container itself if the click is within its own bounds.
+      guard ly < b.height else { return nil }
+      return (root, lx, ly)
     }
-    return root
+
+    // Leaf: strict check
+    guard ly < b.height else { return nil }
+    return (root, lx, ly)
+  }
+
+  /// Recursively find the deepest visible component that contains `(x, y)`.
+  ///
+  /// `x` and `y` are in the **parent's** coordinate system on entry — i.e. when
+  /// called from outside pass window-local coordinates; the recursion translates
+  /// into each child's local space automatically.
+  ///
+  /// For the root call the window-level component (JFrame / JDialog / Frame) has
+  /// its own bounds at (0,0,w,h), so the initial `x,y` are already "inside" it.
+  static func find(x: Int, y: Int, in root: java.awt.Component) -> java.awt.Component? {
+    findWithLocal(x: x, y: y, in: root).map { $0.0 }
   }
 
   // ---------------------------------------------------------------------------
@@ -69,8 +114,15 @@ enum _AWTHitTest {
   // ---------------------------------------------------------------------------
 
   /// React to a click on the given component.
-  static func dispatch(click component: java.awt.Component) {
+  ///
+  /// `x` and `y` are the click position in the **component's** local coordinate
+  /// system.  Pass the window-relative hit point minus the component's own
+  /// origin to get the correct local coordinates.
+  static func dispatch(click component: java.awt.Component, x: Int, y: Int) {
     switch component {
+    case let btn as javax.swing.JButton:
+      btn.doClick()
+
     case let btn as java.awt.Button:
       btn.doClick()
 
@@ -100,15 +152,19 @@ enum _AWTHitTest {
       _ = list // selection and scrollbar drag handled via mouseDown
 
     default:
-      // Fire a generic mouse-clicked event so custom Components can react
-      let b  = component.bounds
-      let cx = b.x + b.width  / 2
-      let cy = b.y + b.height / 2
-      let e  = java.awt.event.MouseEvent(
+      // Fire a generic mouse-clicked event with the real local coordinates.
+      let e = java.awt.event.MouseEvent(
         component,
         java.awt.event.MouseEvent.MOUSE_CLICKED,
-        0, 0, cx, cy, 1, false)
+        0, 0, x, y, 1, false)
       component.processMouseEvent(e)
     }
+  }
+
+  /// Convenience overload — derives local coordinates from the window-relative
+  /// hit point and the component's own bounds origin.
+  static func dispatch(click component: java.awt.Component) {
+    let b = component.bounds
+    dispatch(click: component, x: b.width / 2, y: b.height / 2)
   }
 }

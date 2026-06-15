@@ -103,7 +103,9 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
       let pad = 4
 
       // Background

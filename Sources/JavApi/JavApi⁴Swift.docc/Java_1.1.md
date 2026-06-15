@@ -54,6 +54,17 @@ version | implemented | tested   | type          | name           | more informa
 
 ## Java UI Packages
 
+> **Note — Swing / JFC already integrated:** In the Java 1.1 era, Swing was
+> not yet part of the standard JDK. It was distributed separately as the
+> **Java Foundation Classes (JFC) 1.1** add-on library (`swingall.jar` /
+> `jfc.jar`), released in March 1997 alongside the Java 1.1 release.
+> Developers had to bundle and reference this JAR explicitly.
+>
+> In JavApi4Swift, Swing (`javax.swing`) is **not** kept separate — it is
+> already integrated directly into the library alongside `java.awt`. The
+> Swing API coverage is tracked in ``Java_1.2`` (where Swing became part of
+> the standard JDK for the first time).
+
 ### java.awt — Java 1.1 additions
 
 Java 1.1 replaced the 1.0 event model with the delegation event model and added several new classes.
@@ -476,15 +487,15 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | ()
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | (PipedReader)
 
-##### java.io.PrintWriter (3/3/⭕️)
+##### java.io.PrintWriter (5/5/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | PrintWriter()        | (OutputStream)
-1.1     | ✔️          | ⭕️       | constructor   | PrintWriter()        | (OutputStream,boolean)
-1.1     | ✔️          | ⭕️       | method        | println()            | (String)
-1.1     | ⭕️          | ⭕️       | constructor   | PrintWriter()        | (Writer)
-1.1     | ⭕️          | ⭕️       | constructor   | PrintWriter()        | (Writer,boolean)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (OutputStream)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (OutputStream,boolean)
+1.1     | ✔️          | ✔️       | method        | println()            | (String)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer)
+1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer,boolean)
 
 ##### java.io.StringWriter (2/2/⭕️)
 
@@ -641,15 +652,19 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int)
 1.1     | ✔️          | ⭕️       | method        | isLeapYear()         | (int)->boolean
 
-##### java.util.Locale (0/0/⭕️)
+##### java.util.Locale (0/0/✔️)
+
+> **Note:** Locale delegates to `Foundation.Locale` internally. Constants use the same `init(String)` path and are backed by `Foundation.Locale(identifier:)`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | Locale()       | (String language) — single-arg only; (String language, String country) missing
-1.1     | ✔️          | ⭕️       | static method | getDefault()   | ()->Locale
-1.1     | ✔️          | ⭕️       | method        | getLanguage()  | ()->String
-1.1     | ✔️          | ⭕️       | method        | getCountry()   | ()->String
-1.1     | ❌          | ⭕️       | static field  | ENGLISH, GERMAN, FRENCH, US, UK, GERMANY, … | Locale constants not yet implemented
+1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language)
+1.1     | ✔️          | ✔️       | constructor   | Locale()       | (String language, String country)
+1.1     | ✔️          | ✔️       | static method | getDefault()   | ()->Locale
+1.1     | ✔️          | ✔️       | method        | getLanguage()  | ()->String
+1.1     | ✔️          | ✔️       | method        | getCountry()   | ()->String
+1.1     | ✔️          | ✔️       | static field  | ENGLISH, FRENCH, GERMAN, ITALIAN, JAPANESE, KOREAN, CHINESE | language-only constants
+1.1     | ✔️          | ✔️       | static field  | US, UK, CANADA, FRANCE, GERMANY, ITALY, JAPAN, KOREA, CHINA | country/region constants
 
 ##### java.util.TimeZone (0/0/⭕️)
 
@@ -722,31 +737,39 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.lang — New wrapper classes in 1.1
 
-##### java.lang.Byte (0/0/⭕️)
+##### java.lang.Byte (0/0/✔️)
+
+> **Note:** `byte` in this project is `UInt8` for Swift compatibility. Therefore `Byte` wraps `UInt8`.
+> `MIN_VALUE` / `MAX_VALUE` alias `UMIN_VALUE` (0) / `UMAX_VALUE` (255).
+> Signed Java constants `SMIN_VALUE` (-128) / `SMAX_VALUE` (127) and `parseSignedByte()` / `signedByteValue()` are in `Byte+Java.swift`.
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ✔️       | final field   | UMIN_VALUE / MIN_VALUE | UInt8 = 0 (unsigned project-byte minimum)
+1.1     | ✔️          | ✔️       | final field   | UMAX_VALUE / MAX_VALUE | UInt8 = 255 (unsigned project-byte maximum)
+1.1     | ✔️          | ✔️       | final field   | SMIN_VALUE          | Int8 = -128 (signed Java byte minimum, Byte+Java.swift)
+1.1     | ✔️          | ✔️       | final field   | SMAX_VALUE          | Int8 = 127 (signed Java byte maximum, Byte+Java.swift)
+1.1     | ✔️          | ✔️       | constructor   | Byte()              | (UInt8)
+1.1     | ✔️          | ✔️       | static method | parseByte()         | (String)->UInt8 (unsigned)
+1.1     | ✔️          | ✔️       | static method | parseSignedByte()   | (String)->Int8 (Byte+Java.swift)
+1.1     | ✔️          | ✔️       | static method | valueOf()           | (String)->Byte
+1.1     | ✔️          | ✔️       | method        | byteValue()         | ()->UInt8
+1.1     | ✔️          | ✔️       | method        | signedByteValue()   | ()->Int8 (Byte+Java.swift)
+1.1     | ✔️          | ✔️       | method        | equals()            | via Equatable
+1.1     | ✔️          | ✔️       | method        | toString()          | ()->String
+
+##### java.lang.Short (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | final field   | MIN_VALUE      | byte = -128
-1.1     | ⭕️          | ⭕️       | final field   | MAX_VALUE      | byte = 127
-1.1     | ⭕️          | ⭕️       | constructor   | Byte()         | (byte)
-1.1     | ⭕️          | ⭕️       | static method | parseByte()    | (String)->byte
-1.1     | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Byte
-1.1     | ⭕️          | ⭕️       | method        | byteValue()    | ()->byte
-1.1     | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.1     | ⭕️          | ⭕️       | method        | toString()     | ()->String
-
-##### java.lang.Short (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | final field   | MIN_VALUE      | short = -32768
-1.1     | ⭕️          | ⭕️       | final field   | MAX_VALUE      | short = 32767
-1.1     | ⭕️          | ⭕️       | constructor   | Short()        | (short)
-1.1     | ⭕️          | ⭕️       | static method | parseShort()   | (String)->short
-1.1     | ⭕️          | ⭕️       | static method | valueOf()      | (String)->Short
-1.1     | ⭕️          | ⭕️       | method        | shortValue()   | ()->short
-1.1     | ⭕️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.1     | ⭕️          | ⭕️       | method        | toString()     | ()->String
+1.1     | ✔️          | ✔️       | final field   | MIN_VALUE      | Int16 = -32768
+1.1     | ✔️          | ✔️       | final field   | MAX_VALUE      | Int16 = 32767
+1.1     | ✔️          | ✔️       | constructor   | Short()        | (Int16)
+1.1     | ✔️          | ✔️       | static method | parseShort()   | (String)->Int16
+1.1     | ✔️          | ✔️       | static method | valueOf()      | (String)->Short
+1.1     | ✔️          | ✔️       | method        | shortValue()   | ()->Int16
+1.1     | ✔️          | ✔️       | method        | equals()       | via Equatable
+1.1     | ✔️          | ✔️       | method        | toString()     | ()->String
 
 ##### java.lang.Void (0/0/✔️)
 
@@ -812,13 +835,16 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ⭕️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
 
-##### java.util.SimpleTimeZone (0/0/⭕️)
+##### java.util.SimpleTimeZone (0/0/✔️)
+
+> **Note:** `@available(*, deprecated)` — deprecated in Java 26 for removal. Use `java.time.ZoneId` / `ZonedDateTime` instead.
+> DST rule parameters in the long constructor are accepted for API compatibility; actual DST logic is delegated to `Foundation.TimeZone`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | SimpleTimeZone() | (int rawOffset, String ID)
-1.1     | ⭕️          | ⭕️       | constructor   | SimpleTimeZone() | (int,String,int,int,int,int,int,int,int,int) — with DST rules
-1.1     | ⭕️          | ⭕️       | method        | inDaylightTime() | (Date)->boolean
+1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int rawOffset, String ID)
+1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int,String,int,int,int,int,int,int,int,int) — with DST rules
+1.1     | ✔️          | ✔️       | method        | inDaylightTime() | (Date)->boolean
 
 ### java.math — New package in 1.1
 
@@ -898,6 +924,75 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NoSuchAlgorithmException() | (String)
 
+### java.beans — New package in 1.1 (partial)
+
+Only the bound-property and veto-change subset needed for JFC 1.0 / Swing is implemented.
+Reflection-based introspection (`BeanDescriptor`, `BeanInfo`, `Introspector`, `MethodDescriptor`, …) is not in scope.
+
+##### java.beans.PropertyChangeEvent (4/4/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyChangeEvent() | (Object,String,Object,Object)
+1.1     | ✔️          | ✔️       | method        | getPropertyName()     | ()->String?
+1.1     | ✔️          | ✔️       | method        | getOldValue()         | ()->Object?
+1.1     | ✔️          | ✔️       | method        | getNewValue()         | ()->Object?
+1.1     | ✔️          | ✔️       | method        | setPropagationId()    | (Object?)
+1.1     | ✔️          | ✔️       | method        | getPropagationId()    | ()->Object?
+
+##### java.beans.PropertyChangeListener (1/1/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | propertyChange()      | (PropertyChangeEvent)
+
+##### java.beans.PropertyChangeSupport (8/8/✔️)
+
+version | implemented | tested   | type          | name                              | more informations
+------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyChangeSupport()           | (Object sourceBean)
+1.1     | ✔️          | ✔️       | method        | addPropertyChangeListener()       | (PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | addPropertyChangeListener()       | (String,PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | removePropertyChangeListener()    | (PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | removePropertyChangeListener()    | (String,PropertyChangeListener)
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeListeners()      | ()->[PropertyChangeListener]
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeListeners()      | (String)->[PropertyChangeListener]
+1.1     | ✔️          | ✔️       | method        | hasListeners()                    | (String)->boolean
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (PropertyChangeEvent)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,Object,Object)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,int,int)
+1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,boolean,boolean)
+
+##### java.beans.PropertyVetoException (1/1/✔️)
+
+version | implemented | tested   | type          | name                      | more informations
+------- | ----------- | -------- | ------------- | ------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyVetoException()   | (String,PropertyChangeEvent)
+1.1     | ✔️          | ✔️       | method        | getPropertyChangeEvent()  | ()->PropertyChangeEvent
+
+##### java.beans.VetoableChangeListener (1/1/✔️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | vetoableChange()      | (PropertyChangeEvent) throws
+
+##### java.beans.VetoableChangeSupport (8/8/✔️)
+
+version | implemented | tested   | type          | name                              | more informations
+------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | VetoableChangeSupport()           | (Object sourceBean)
+1.1     | ✔️          | ✔️       | method        | addVetoableChangeListener()       | (VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | addVetoableChangeListener()       | (String,VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | removeVetoableChangeListener()    | (VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | removeVetoableChangeListener()    | (String,VetoableChangeListener)
+1.1     | ✔️          | ✔️       | method        | getVetoableChangeListeners()      | ()->[VetoableChangeListener]
+1.1     | ✔️          | ✔️       | method        | getVetoableChangeListeners()      | (String)->[VetoableChangeListener]
+1.1     | ✔️          | ✔️       | method        | hasListeners()                    | (String)->boolean
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (PropertyChangeEvent) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,Object,Object) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,int,int) throws
+1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,boolean,boolean) throws
+
 ### java.awt.datatransfer — New package in 1.1 (not in scope)
 
 > **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
@@ -940,7 +1035,7 @@ The following Java 1.1 APIs are explicitly **not** ported because they have no m
 
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
-- **java.beans** — JavaBeans component model (bound properties, event listeners wiring) has no direct Swift equivalent.
+- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. Bound-property and veto support (`PropertyChangeEvent`, `PropertyChangeSupport`, `VetoableChangeSupport`, etc.) **is** implemented — see java.beans section above.
 - **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
 - **java.text** — Internationalization formatting (`DateFormat`, `SimpleDateFormat`, `NumberFormat`, `DecimalFormat`, `MessageFormat`, `Collator`, `BreakIterator`, etc.); Swift Foundation (`DateFormatter`, `NumberFormatter`, …) covers these use cases natively.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.

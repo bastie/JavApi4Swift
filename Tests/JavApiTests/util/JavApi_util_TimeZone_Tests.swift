@@ -9,6 +9,7 @@ import Testing
 
 struct JavApi_util_TimeZone_Tests {
 
+  @available(*, deprecated)
   @Test("SimpleTimeZone.getAvailableIDs returns a non-empty list")
   func testGetAvailableIDsIsNotEmpty() {
     #expect(SimpleTimeZone.getAvailableIDs().count > 0)

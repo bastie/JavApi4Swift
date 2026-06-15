@@ -79,11 +79,11 @@ extension java.awt {
     }
 
     public func layoutContainer(_ parent: java.awt.Container) {
-      let b = parent.bounds
-      var top    = b.y
-      var bottom = b.y + b.height
-      var left   = b.x
-      var right  = b.x + b.width
+      // Child bounds are in the parent's LOCAL coordinate space (origin = 0,0).
+      var top    = 0
+      var bottom = parent.bounds.height
+      var left   = 0
+      var right  = parent.bounds.width
 
       if let c = north {
         let ps = c.getPreferredSize()

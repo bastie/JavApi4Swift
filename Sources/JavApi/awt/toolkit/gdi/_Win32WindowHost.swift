@@ -59,8 +59,11 @@ public final class _Win32WindowHost {
     registry[id] = canvas
     canvas.show()
     // MenuBar may have been set before the window existed — attach now.
-    // attachMenuBar already updates awtWindow.bounds and calls validate().
-    if let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
+    // JFrame/JDialog are Swing windows — they draw their own JMenuBar via JRootPane/JLayeredPane
+    // and must NOT get a native Win32 menu bar (that would double the menu and
+    // incorrectly shrink the client area that JFrame/JDialog.doLayout() manages itself).
+    if !(awtWindow is javax.swing.JFrame) && !(awtWindow is javax.swing.JDialog),
+       let frame = awtWindow as? java.awt.Frame, let mb = frame.getMenuBar() {
       canvas.attachMenuBar(mb)
     }
   }
@@ -393,6 +396,8 @@ public final class _Win32Canvas {
   // MARK: Mouse input
   // ---------------------------------------------------------------------------
 
+  // Currently open Swing JMenu — tracked so outside clicks close the popup.
+  private weak var openSwingMenu: javax.swing.JMenu?
   // Currently open Choice popup — tracked so outside clicks close it.
   private weak var openChoice: java.awt.Choice?
   // Drag state
@@ -403,7 +408,102 @@ public final class _Win32Canvas {
   // Button whose press started this mouse-down cycle
   private weak var pressedButton:           java.awt.Button?
 
+  // ---------------------------------------------------------------------------
+  // MARK: Swing menu helpers
+  // ---------------------------------------------------------------------------
+
+  private func _swingMenuBar(in root: java.awt.Component) -> javax.swing.JMenuBar? {
+    if let bar = root as? javax.swing.JMenuBar { return bar }
+    if let c = root as? java.awt.Container {
+      for child in c.getComponents() {
+        if let found = _swingMenuBar(in: child) { return found }
+      }
+    }
+    return nil
+  }
+
+  private func _openSwingMenu(_ menu: javax.swing.JMenu, bar: javax.swing.JMenuBar) {
+    guard let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+          let entry = barUI.menuRects.first(where: { $0.menu === menu })
+    else { return }
+    var node: java.awt.Component? = bar
+    var layeredPane: javax.swing.JLayeredPane? = nil
+    while let n = node {
+      if let lp = n as? javax.swing.JLayeredPane { layeredPane = lp; break }
+      node = n.parent
+    }
+    guard let lp = layeredPane else { return }
+    menu.setSelected(true)
+    openSwingMenu   = menu
+    let popup = menu.swingPopupMenu
+    let popX  = bar.bounds.x + entry.rect.x
+    let popY  = bar.bounds.y + javax.swing.JMenuBar.defaultHeight
+    lp.add(popup, layer: javax.swing.JLayeredPane.POPUP_LAYER)
+    popup.show(x: popX, y: popY)
+    invalidate()
+  }
+
+  private func _closeOpenSwingMenu(repaintAfter: Bool = true) {
+    guard let menu = openSwingMenu else { return }
+    menu.setSelected(false)
+    let popup = menu.swingPopupMenu
+    popup.parent?.remove(popup)
+    popup.closePopup()
+    openSwingMenu = nil
+    if repaintAfter { invalidate() }
+  }
+
+  // ---------------------------------------------------------------------------
+
   fileprivate func onMouseDown(x: Int, y: Int) {
+    // ── Swing JMenu popup handling (JFrame/JDialog; must come before Choice) ─
+    if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
+      if let menu = openSwingMenu {
+        let popup = menu.swingPopupMenu
+        let pb    = popup.bounds
+        if pb.contains(x, y) {
+          let localX = x - pb.x
+          let localY = y - pb.y
+          if let item = popup.itemAt(x: localX, y: localY) {
+            _closeOpenSwingMenu(repaintAfter: false)
+            item.doClick()
+          } else {
+            _closeOpenSwingMenu(repaintAfter: false)
+          }
+          invalidate()
+          return
+        } else {
+          _closeOpenSwingMenu(repaintAfter: false)
+        }
+      }
+      if let bar = _swingMenuBar(in: awtWindow) {
+        let bb = bar.bounds
+        if bb.contains(x, y) {
+          if let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+             let hitMenu = barUI.menu(at: x - bb.x, y: y - bb.y) {
+            if hitMenu.isSelected() {
+              _closeOpenSwingMenu()
+            } else {
+              _closeOpenSwingMenu(repaintAfter: false)
+              _openSwingMenu(hitMenu, bar: bar)
+            }
+          } else {
+            _closeOpenSwingMenu()
+          }
+          return
+        }
+      }
+      // Normal Swing content click
+      if let (hit, lx0, ly0) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
+        _Win32FocusManager.shared.requestFocus(hit)
+        _AWTHitTest.dispatch(click: hit, x: lx0, y: ly0)
+      } else {
+        _Win32FocusManager.shared.requestFocus(nil)
+      }
+      invalidate()
+      return
+    }
+
     // ── Choice popup handling (must come before normal hit-test) ────────────
     if let choice = openChoice {
       let pr = choice.popupRect()
@@ -590,11 +690,11 @@ public final class _Win32Canvas {
       return
     }
     // Other components — dispatch click (Choice/List/Scrollbar/ScrollPane already handled)
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
     ReleaseCapture()
-    if !(hit is java.awt.Choice), !(hit is java.awt.List),
+    if let (hit, lx1, ly1) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow),
+       !(hit is java.awt.Choice), !(hit is java.awt.List),
        !(hit is java.awt.Scrollbar), !(hit is java.awt.ScrollPane) {
-      _AWTHitTest.dispatch(click: hit ?? awtWindow)
+      _AWTHitTest.dispatch(click: hit, x: lx1, y: ly1)
     }
     invalidate()
   }
@@ -708,6 +808,53 @@ public final class _Win32Canvas {
   }
 
   // ---------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------
+  // MARK: Mouse move (no button held — Swing hover only)
+  // ---------------------------------------------------------------------------
+
+  fileprivate func onMouseMove(x: Int, y: Int) {
+    guard awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog else { return }
+
+    // Switch open menu when hovering over a different menu title
+    if openSwingMenu != nil,
+       let bar = _swingMenuBar(in: awtWindow) {
+      let bb = bar.bounds
+      if bb.contains(x, y),
+         let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+         let hitMenu = barUI.menu(at: x - bb.x, y: y - bb.y),
+         hitMenu !== openSwingMenu {
+        _closeOpenSwingMenu(repaintAfter: false)
+        _openSwingMenu(hitMenu, bar: bar)
+        return
+      }
+    }
+
+    // Armed highlight inside open Swing popup
+    if let menu = openSwingMenu {
+      let popup = menu.swingPopupMenu
+      let pb    = popup.bounds
+      if pb.contains(x, y),
+         let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+        if popupUI.updateArmed(at: x - pb.x, y: y - pb.y) { invalidate() }
+      } else {
+        if let popupUI = popup.ui as? javax.swing.plaf.basic.BasicPopupMenuUI {
+          if popupUI.updateArmed(at: -1, y: -1) { invalidate() }
+        }
+        // Cursor left popup — check if it moved onto another menu title
+        if let bar = _swingMenuBar(in: awtWindow) {
+          let bb = bar.bounds
+          if bb.contains(x, y),
+             let barUI = bar.ui as? javax.swing.plaf.basic.BasicMenuBarUI,
+             let hitMenu = barUI.menu(at: x - bb.x, y: y - bb.y),
+             hitMenu !== openSwingMenu {
+            _closeOpenSwingMenu(repaintAfter: false)
+            _openSwingMenu(hitMenu, bar: bar)
+          }
+        }
+      }
+    }
+  }
+
   // MARK: Cursor
   // ---------------------------------------------------------------------------
 
@@ -1073,9 +1220,11 @@ private func _win32WndProc(
     let mx = _GET_X_LPARAM(lParam), my = _GET_Y_LPARAM(lParam)
     let idcMove: UInt = MainActor.assumeIsolated { canvas.cursorIDC(x: mx, y: my) }
     SetCursor(LoadCursorW(nil, UnsafePointer<WCHAR>(bitPattern: idcMove)))
-    // Only process drag events if left mouse button is actually pressed (wParam & MK_LBUTTON)
     if (wParam & WPARAM(MK_LBUTTON)) != 0 {
       MainActor.assumeIsolated { canvas.onMouseDrag(x: mx, y: my) }
+    } else {
+      // Always process moves for Swing hover (armed highlight, menu switching)
+      MainActor.assumeIsolated { canvas.onMouseMove(x: mx, y: my) }
     }
     return DefWindowProcW(hwnd, msg, wParam, lParam)
 

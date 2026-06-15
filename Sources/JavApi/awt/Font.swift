@@ -9,6 +9,8 @@ extension java.awt {
   ///
   /// Logical font names ("Dialog", "SansSerif", "Serif", "Monospaced",
   /// "DialogInput") are mapped to platform fonts at render time.
+  ///
+  /// - Since: Java 1.0
   public final class Font: Sendable {
 
     // -------------------------------------------------------------------------
@@ -105,6 +107,56 @@ extension java.awt {
         return name
       }
 #endif
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: LineMetrics / FontRenderContext (Java 1.2)
+    // -------------------------------------------------------------------------
+
+    // -------------------------------------------------------------------------
+    // MARK: GlyphVector (Java 1.2)
+    // -------------------------------------------------------------------------
+
+    /// Creates a `GlyphVector` by mapping each character to its glyph code.
+    ///
+    /// In this stub the glyph code equals the Unicode scalar value of each
+    /// character. Full shaping (ligatures, mark positioning) is not performed.
+    ///
+    /// - Since: Java 1.2
+    public func createGlyphVector(_ frc: java.awt.font.FontRenderContext,
+                                  _ str: String) -> java.awt.font.GlyphVector {
+      let codes = str.unicodeScalars.map { Int($0.value) }
+      return java.awt.font.GlyphVector(font: self, frc: frc, glyphCodes: codes)
+    }
+
+    /// Creates a `GlyphVector` from an explicit array of glyph codes.
+    ///
+    /// - Since: Java 1.2
+    public func createGlyphVector(_ frc: java.awt.font.FontRenderContext,
+                                  _ glyphCodes: [Int]) -> java.awt.font.GlyphVector {
+      java.awt.font.GlyphVector(font: self, frc: frc, glyphCodes: glyphCodes)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: LineMetrics / FontRenderContext (Java 1.2)
+    // -------------------------------------------------------------------------
+
+    /// Returns `LineMetrics` for the given string in the given render context.
+    ///
+    /// - Since: Java 1.2
+    public func getLineMetrics(_ str: String,
+                               _ frc: java.awt.font.FontRenderContext) -> java.awt.font.LineMetrics {
+      java.awt.font.DefaultLineMetrics.make(for: self, numChars: str.count)
+    }
+
+    /// Returns `LineMetrics` for a character sub-range.
+    ///
+    /// - Since: Java 1.2
+    public func getLineMetrics(_ str: String,
+                               _ beginIndex: Int, _ limit: Int,
+                               _ frc: java.awt.font.FontRenderContext) -> java.awt.font.LineMetrics {
+      let count = Swift.max(0, limit - beginIndex)
+      return java.awt.font.DefaultLineMetrics.make(for: self, numChars: count)
     }
   }
 }

@@ -111,7 +111,9 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
 
       // Background
       g.setColor(background)
@@ -119,8 +121,6 @@ extension java.awt {
 
       guard !_text.isEmpty, w > 0, h > 0 else { return }
 
-      // Use the Graphics object's FontMetrics so the measurement matches the
-      // actual renderer (e.g. Xft on X11 vs. the headless approximation).
       let fm  = g.getFontMetrics(font)
       let tw  = fm.stringWidth(_text)
       let ty  = y + (h - fm.getHeight()) / 2 + fm.getAscent()
@@ -136,8 +136,6 @@ extension java.awt {
         tx = x + pad
       }
 
-      // Clip to label bounds so text never bleeds into neighbouring components.
-      // save/clipRect/restore brackets the clip so it doesn't affect later paint calls.
       g.save()
       g.clipRect(x, y, w, h)
       g.setColor(foreground)

@@ -64,8 +64,8 @@ extension java.awt {
       let e = java.awt.event.ItemEvent(
         self,
         java.awt.event.ItemEvent.ITEM_STATE_CHANGED,
-        item: items[index] as AnyObject,
-        stateChange: stateChange)
+        items[index] as AnyObject,
+        stateChange)
       itemListeners.forEach { $0.itemStateChanged(e) }
     }
 
@@ -151,6 +151,19 @@ extension java.awt {
     public func setMultipleMode(_ b: Bool)    { multipleMode = b }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let fm   = getFontMetrics(font)
+      let maxW = items.map { fm.stringWidth($0) }.max() ?? 60
+      let w    = maxW + scrollbarWidth + 8   // text + scrollbar + padding
+      let h    = rows * itemHeight          // rows as passed to init
+      return java.awt.Dimension(w, h)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Scroll helpers
     // -------------------------------------------------------------------------
 
@@ -180,12 +193,11 @@ extension java.awt {
                                 bounds.y, scrollbarWidth, bounds.height)
     }
 
-    /// The item index at AWT y coordinate `y` (frame space), or `nil`.
-    /// Returns `nil` when `x` falls inside the scrollbar column.
-    func itemIndex(atY y: Int) -> Int? {
-      let relY = y - bounds.y
-      guard relY >= 0, relY < bounds.height else { return nil }
-      let idx = scrollOffset + relY / itemHeight
+    /// The item index at LOCAL y coordinate `localY` (0 = top of list), or `nil`.
+    func itemIndex(atLocalY localY: Int) -> Int? {
+      let vRows = visibleRows()
+      guard localY >= 0, localY < vRows * itemHeight else { return nil }
+      let idx = scrollOffset + localY / itemHeight
       return idx < items.count ? idx : nil
     }
 
@@ -204,6 +216,10 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
+      // Container.paint() translates g to (bounds.x, bounds.y); undo it so
+      // internal coordinate math (which uses absolute bounds.x/y) stays correct.
+      g.translate(-bounds.x, -bounds.y)
+      defer { g.translate(bounds.x, bounds.y) }
       let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
       let fm    = getFontMetrics(font)
       let listW = needsScrollbar() ? w - scrollbarWidth : w

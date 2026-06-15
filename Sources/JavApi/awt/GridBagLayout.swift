@@ -137,8 +137,9 @@ extension java.awt {
       for i in 1 ..< info.cols { colX[i] = colX[i-1] + info.colWidths[i-1] }
       for i in 1 ..< info.rows { rowY[i] = rowY[i-1] + info.rowHeights[i-1] }
 
-      let originX = parent.bounds.x
-      let originY = parent.bounds.y
+      // Child bounds are in the parent's LOCAL coordinate space (origin = 0,0).
+      let originX = 0
+      let originY = 0
 
       let positions = resolvePositions(for: parent)
 

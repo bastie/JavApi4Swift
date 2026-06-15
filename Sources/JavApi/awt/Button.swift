@@ -62,11 +62,25 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let fm = getFontMetrics(font)
+      let w  = fm.stringWidth(label) + 20   // 10 px padding each side
+      let h  = fm.getHeight() + 10          // 5 px padding top/bottom
+      return java.awt.Dimension(w, h)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
 
       // Fill
       g.setColor(background)
@@ -82,12 +96,9 @@ extension java.awt {
       g.drawLine(x + w - 1, y, x + w - 1, y + h - 1)   // right
       g.drawLine(x, y + h - 1, x + w - 1, y + h - 1)   // bottom
 
-      // Fill: shift background brightness when pressed.
-      // Dark backgrounds are lightened, light backgrounds are darkened — ensures
-      // visible contrast in both Light Mode and Dark Mode.
       if isPressed {
         let r = background.getRed(), gv = background.getGreen(), b = background.getBlue()
-        let luminance = (r * 299 + gv * 587 + b * 114) / 1000   // ITU-R BT.601
+        let luminance = (r * 299 + gv * 587 + b * 114) / 1000
         let delta = luminance < 128 ? 50 : -40
         let pr = min(255, max(0, r  + delta))
         let pg = min(255, max(0, gv + delta))
@@ -96,7 +107,6 @@ extension java.awt {
         g.fillRect(x + 1, y + 1, w - 2, h - 2)
       }
 
-      // Label — offset by 1px right/down when pressed (classic AWT behaviour)
       guard !label.isEmpty else { return }
       let fm     = getFontMetrics(font)
       let offset = isPressed ? 1 : 0

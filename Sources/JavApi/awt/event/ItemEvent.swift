@@ -24,7 +24,7 @@ extension java.awt.event {
       super.init(source, id)
     }
 
-    public init(_ source: AnyObject, _ id: Int, item: AnyObject?, stateChange: Int) {
+    public init(_ source: AnyObject, _ id: Int, _ item: AnyObject?, _ stateChange: Int) {
       self.item        = item
       self.stateChange = stateChange
       super.init(source, id)

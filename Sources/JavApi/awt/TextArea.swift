@@ -305,6 +305,12 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
+      // Container.paint() has translated g to (bounds.x, bounds.y).
+      // This component's internal coordinate math uses absolute bounds.x/y,
+      // so undo the translation to restore the absolute coordinate space.
+      let ox = bounds.x, oy = bounds.y
+      g.translate(-ox, -oy)
+
       let x = bounds.x, y = bounds.y
       let w = bounds.width, h = bounds.height
       let hasVScrollbar =
@@ -423,6 +429,8 @@ extension java.awt {
 
       // Restore graphics state (removes clipping region)
       g.restore()
+      // Undo the coordinate compensation from the start of paint()
+      g.translate(ox, oy)
     }
   }
 }

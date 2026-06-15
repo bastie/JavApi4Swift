@@ -9,27 +9,29 @@ import JavApi
 @MainActor
 final class PolygonCanvas: java.awt.Canvas {
   override func paint(_ g: java.awt.Graphics) {
+    // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+    // translated the graphics context to this component's origin.
     let w = getWidth(), h = getHeight()
     guard w > 4, h > 4 else { return }
 
-    // Hintergrund
-    g.setColor(.darkGray)
-    g.fillRect(getX(), getY(), w, h)
+    // background
+    g.setColor(java.awt.Color.gray)
+    g.fillRect(0, 0, w, h)
 
-    let ox = getX(), oy = getY()
-    
+    let ox = 0, oy = 0
+
     // Gefülltes Dreieck (blau)
-    g.setColor(.blue)
+    g.setColor(java.awt.Color.blue)
     let tri = java.awt.Polygon(
       xpoints: [ox + w/2,  ox + w - 4, ox + 4],
       ypoints: [oy + 4,    oy + h/2,   oy + h/2],
       npoints: 3)
     g.fillPolygon(tri)
-    
+
     // Umriss-Stern (gelb) — 6-Punkt-Stern über zwei Dreiecke
-    g.setColor(.yellow)
+    g.setColor(java.awt.Color.yellow)
     let cx = ox + w/2, cy = oy + h*3/4
-    let r1 = Swift.min(w, h) / 5
+    let r1 = Math.min(w, h) / 5
     let r2 = r1 / 2
     var sx = [Int](), sy = [Int]()
     for i in 0..<6 {
@@ -41,9 +43,9 @@ final class PolygonCanvas: java.awt.Canvas {
       sy.append(cy + Int(Double(r2) * Math.sin(angle2)))
     }
     g.drawPolygon(sx, sy, 12)
-    
+
     // Label
-    g.setColor(.white)
+    g.setColor(java.awt.Color.white)
     g.drawString("Polygon", ox + 2, oy + h - 4)
   }
 }

@@ -22,18 +22,19 @@ final class GridLayoutDemoDialog: java.awt.Dialog {
   init(owner: java.awt.Frame) {
     super.init(owner, "LayoutManager – GridLayout", true)
     
-    let W = 420, H = 220
-    setBounds(0, 0, W, H)
-    setPreferredSize(java.awt.Dimension(W, H))
+    let width = 420
+    let height = 220
+    setBounds(0, 0, width, height)
+    setPreferredSize(java.awt.Dimension(width, height))
     setLayout(java.awt.BorderLayout())
 
     // Titel-Label
     let title = try! java.awt.Label( "GridLayout(2, 3, 2, 2) — 2 Zeilen × 3 Spalten, Abstand 2px", java.awt.Label.CENTER)
-    title.setPreferredSize(java.awt.Dimension(W, 28))
+    title.setPreferredSize(java.awt.Dimension(width, 28))
     add(title, java.awt.BorderLayout.NORTH)
 
     // Farb-Grid
-    let grid = makeGridPanel(width: W, height: 140)
+    let grid = makeGridPanel(width: width, height: 140)
     add(grid, java.awt.BorderLayout.CENTER)
 
     // Schließen-Button
@@ -41,7 +42,7 @@ final class GridLayoutDemoDialog: java.awt.Dialog {
     closeBtn.setPreferredSize(java.awt.Dimension(100, 28))
     closeBtn.addActionListener(DialogCloseListener(dialog: self))
     let south = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 6))
-    south.setPreferredSize(java.awt.Dimension(W, 44))
+    south.setPreferredSize(java.awt.Dimension(width, 44))
     south.add(closeBtn)
     add(south, java.awt.BorderLayout.SOUTH)
   }

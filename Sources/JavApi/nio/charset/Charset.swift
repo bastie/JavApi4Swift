@@ -7,7 +7,7 @@ import Foundation
 
 extension java.nio.charset {
   
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.4)
+  /// - Since: Java 1.4
   open class Charset  {
     
     private var delegate : String.Encoding
@@ -17,12 +17,15 @@ extension java.nio.charset {
     }
     
     public func name () -> String {
-      if #available(macOS 26.4, *) {
+#if !os(visionOS)
+      if #available(macOS 26.4, iOS 26.4, tvOS 26.4, watchOS 26.4, *) {
         return self.delegate.ianaName ?? "unknown"
       } else {
-        // Fallback on earlier versions
         return "unknown"
       }
+#else
+      return "unknown"
+#endif
     }
     
     public static func defaultCharset () -> String.Encoding {
@@ -35,7 +38,7 @@ extension java.nio.charset {
     
     /// Final function to encode a String into a ByteBuffer
     ///
-    /// - Since: JavaApi &gt; 0.16.0 (Java 1.4)
+    /// - Since: Java 1.4
     public func encode (_ what : String) -> java.nio.ByteBuffer {
       let result : java.nio.ByteBuffer = java.nio.ByteBuffer()
       result.content = [UInt8] (what.data(using: self.delegate, allowLossyConversion: true)!)

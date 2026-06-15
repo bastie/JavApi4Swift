@@ -83,8 +83,20 @@ extension java.awt {
         : java.awt.event.ItemEvent.DESELECTED
       let e = java.awt.event.ItemEvent(
         self, java.awt.event.ItemEvent.ITEM_STATE_CHANGED,
-        item: label as AnyObject, stateChange: change)
+        label as AnyObject, change)
       itemListeners.forEach { $0.itemStateChanged(e) }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let fm = getFontMetrics(font)
+      let w  = boxSize + 4 + fm.stringWidth(label) + 4   // box + gap + text + padding
+      let h  = Swift.max(boxSize, fm.getHeight()) + 4
+      return java.awt.Dimension(w, h)
     }
 
     // -------------------------------------------------------------------------
@@ -92,7 +104,9 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, h = bounds.height
       let boxY = y + (h - boxSize) / 2  // vertically centred
 
       if checkboxGroup != nil {
