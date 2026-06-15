@@ -48,7 +48,11 @@ extension javax.swing {
     // MARK: Floatable / Rollover
     // -------------------------------------------------------------------------
 
-    /// Whether the toolbar can be dragged out of its container (stub — always false).
+    /// Whether the toolbar can be dragged out of its container.
+    ///
+    /// - TODO: Implement `BasicToolBarUI` with `MouseMotionListener` drag-tracking,
+    ///   undecorared `JDialog` as floating window, and BorderLayout docking zones.
+    ///   Until then floatable is stored but has no visual effect.
     private var _floatable: Bool = true
     public func isFloatable() -> Bool { _floatable }
     public func setFloatable(_ b: Bool) { _floatable = b }
@@ -112,14 +116,15 @@ extension javax.swing {
       return comp
     }
 
-    /// Appends a separator of default size.
+    /// Appends a vertical `JSeparator` of default size (8 px wide).
     public func addSeparator() {
       addSeparator(java.awt.Dimension(8, 8))
     }
 
-    /// Appends a separator of the given size.
+    /// Appends a vertical `JSeparator` whose preferred size matches `size`.
     public func addSeparator(_ size: java.awt.Dimension) {
-      let sep = _ToolBarSeparator(size)
+      let sep = javax.swing.JSeparator(javax.swing.JSeparator.VERTICAL)
+      sep.setPreferredSize(size)
       items.append(sep)
       sep.parent = self
       invalidate()
@@ -224,27 +229,3 @@ extension javax.swing {
   }
 }
 
-// ---------------------------------------------------------------------------
-// MARK: - Internal separator component
-// ---------------------------------------------------------------------------
-
-/// A thin vertical (or horizontal) line used as toolbar separator.
-@MainActor
-final class _ToolBarSeparator: java.awt.Component {
-
-  private let preferredDim: java.awt.Dimension
-
-  init(_ size: java.awt.Dimension) {
-    self.preferredDim = size
-    super.init()
-  }
-
-  override func getPreferredSize() -> java.awt.Dimension { preferredDim }
-
-  override func paint(_ g: java.awt.Graphics) {
-    // Draw a vertical line in the centre of our bounds
-    let cx = bounds.width / 2
-    g.setColor(java.awt.SystemColor.controlShadow)
-    g.drawLine(cx, 2, cx, bounds.height - 2)
-  }
-}
