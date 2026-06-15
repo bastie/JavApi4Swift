@@ -81,33 +81,27 @@ struct SwingShowcaseApp {
     // ── JToolBar ─────────────────────────────────────────────────────────────
     let toolbar = javax.swing.JToolBar()
 
-    func makeBtn(_ action: javax.swing.Action) -> javax.swing.JButton {
-      let btn = javax.swing.JButton(action)
-      btn.setPreferredSize(java.awt.Dimension(28, 28))
-      return btn
-    }
-
     // File group
-    toolbar.add(makeBtn(openAction))
-    toolbar.add(makeBtn(saveAction))
+    toolbar.add(openAction)
+    toolbar.add(saveAction)
     toolbar.addSeparator()
 
     // Edit group
-    toolbar.add(makeBtn(cutAction))
-    toolbar.add(makeBtn(copyAction))
-    toolbar.add(makeBtn(pasteAction))
+    toolbar.add(cutAction)
+    toolbar.add(copyAction)
+    toolbar.add(pasteAction)
     toolbar.addSeparator()
 
     // LayoutManager group
-    toolbar.add(makeBtn(borderAction))
-    toolbar.add(makeBtn(flowAction))
-    toolbar.add(makeBtn(gridAction))
-    toolbar.add(makeBtn(cardAction))
-    toolbar.add(makeBtn(gridBagAction))
+    toolbar.add(borderAction)
+    toolbar.add(flowAction)
+    toolbar.add(gridAction)
+    toolbar.add(cardAction)
+    toolbar.add(gridBagAction)
     toolbar.addSeparator()
 
     // Help group
-    toolbar.add(makeBtn(aboutAction))
+    toolbar.add(aboutAction)
 
     frame.add(toolbar, java.awt.BorderLayout.NORTH)
 

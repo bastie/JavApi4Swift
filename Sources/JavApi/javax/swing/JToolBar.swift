@@ -99,6 +99,20 @@ extension javax.swing {
       return button
     }
 
+    /// Creates a `JButton` from `action` and appends it to the toolbar.
+    ///
+    /// The button shows **only the icon** (text is hidden) — matching Java Swing's
+    /// default toolbar behaviour.  The `SHORT_DESCRIPTION` is available as tooltip.
+    @discardableResult
+    public func add(_ action: javax.swing.Action) -> javax.swing.JButton {
+      let btn = javax.swing.JButton(action)
+      btn.setHideActionText(true)
+      if let tip = action.getValue(javax.swing.AbstractAction.SHORT_DESCRIPTION) as? String {
+        btn.setToolTipText(tip)
+      }
+      return add(btn)
+    }
+
     /// Appends any component to the toolbar.
     @discardableResult
     public func add(_ comp: java.awt.Component) -> java.awt.Component {

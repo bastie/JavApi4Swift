@@ -68,6 +68,25 @@ extension javax.swing {
     // MARK: Opacity
     // -------------------------------------------------------------------------
 
+    // -------------------------------------------------------------------------
+    // MARK: Tooltip
+    // -------------------------------------------------------------------------
+
+    private var _toolTipText: String? = nil
+
+    /// Sets the tooltip text shown when the mouse hovers over this component.
+    ///
+    /// - Note: Rendering support depends on the platform canvas.  The text is
+    ///   stored here so it is available when the canvas layer adds hover support.
+    public func setToolTipText(_ text: String?) { _toolTipText = text }
+
+    /// Returns the tooltip text, or `nil` if none is set.
+    public func getToolTipText() -> String? { _toolTipText }
+
+    // -------------------------------------------------------------------------
+    // MARK: Opaque
+    // -------------------------------------------------------------------------
+
     private var _opaque: Bool = false
 
     /// Whether this component fills its entire bounds before painting.

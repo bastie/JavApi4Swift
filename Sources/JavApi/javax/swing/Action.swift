@@ -41,17 +41,6 @@ extension javax.swing {
   public protocol Action: java.awt.event.ActionListener {
 
     // -------------------------------------------------------------------------
-    // MARK: Standard property keys
-    // -------------------------------------------------------------------------
-
-    static var NAME:               String { get }
-    static var SMALL_ICON:         String { get }
-    static var SHORT_DESCRIPTION:  String { get }
-    static var LONG_DESCRIPTION:   String { get }
-    static var MNEMONIC_KEY:       String { get }
-    static var ACTION_COMMAND_KEY: String { get }
-
-    // -------------------------------------------------------------------------
     // MARK: Required methods
     // -------------------------------------------------------------------------
 

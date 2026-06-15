@@ -31,7 +31,14 @@ extension javax.swing {
     private var text: String
     private var _icon: javax.swing.Icon? = nil
 
-    public func getText() -> String  { text }
+    /// When `true`, `getText()` returns `""` even if a text is stored.
+    /// Set automatically when a button is created from an `Action` inside a
+    /// `JToolBar` — matching Java Swing's default toolbar behaviour (icon only).
+    private var _hideActionText: Bool = false
+    public func isHideActionText() -> Bool { _hideActionText }
+    public func setHideActionText(_ hide: Bool) { _hideActionText = hide; invalidate() }
+
+    public func getText() -> String  { _hideActionText ? "" : text }
     public func setText(_ t: String) { text = t; invalidate() }
 
     public func getIcon() -> javax.swing.Icon? { _icon }
