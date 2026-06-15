@@ -24,6 +24,20 @@ enum _AWTHitTest {
   /// Used by mouse-wheel handlers: the hit-test returns the deepest component
   /// (e.g. a Canvas inside a ScrollPane), but scrolling should be applied to
   /// the enclosing pane.
+  /// Walk the parent chain to compute the frame-absolute origin of `component`.
+  /// Returns the sum of all `bounds.x/y` values from root down to `component`.
+  static func absoluteOrigin(_ component: java.awt.Component) -> (x: Int, y: Int) {
+    var x = component.bounds.x
+    var y = component.bounds.y
+    var p = component.parent
+    while let parent = p {
+      x += parent.bounds.x
+      y += parent.bounds.y
+      p = parent.parent
+    }
+    return (x, y)
+  }
+
   static func nearestScrollPane(_ component: java.awt.Component?) -> java.awt.ScrollPane? {
     var node: java.awt.Component? = component
     while let n = node {
@@ -46,13 +60,19 @@ enum _AWTHitTest {
     let b = root.bounds
     guard root.visible,
           x >= b.x, x < b.x + b.width,
-          y >= b.y, y < b.y + b.height
+          y >= b.y
     else { return nil }
 
+    // Leaf components require a strict upper-bound check.
+    // Containers (except ScrollPane) allow children to overflow their declared
+    // height — FlowLayout may wrap into a second row that exceeds bounds.height
+    // if the container's preferred-size was computed before the width was known.
     let lx = x - b.x
     let ly = y - b.y
 
     if let sp = root as? java.awt.ScrollPane {
+      // ScrollPane: strict bounds check (clips content)
+      guard ly < b.height else { return nil }
       let vp = sp.getViewportSize()
       if lx < vp.width, ly < vp.height, let child = sp.getChild() {
         let childX = lx + sp.scrollX
@@ -63,10 +83,17 @@ enum _AWTHitTest {
     }
 
     if let container = root as? java.awt.Container {
+      // For containers: try children first (they may lie below bounds.height).
       for child in container.getComponents().reversed() {
         if let hit = findWithLocal(x: lx, y: ly, in: child) { return hit }
       }
+      // Only claim the container itself if the click is within its own bounds.
+      guard ly < b.height else { return nil }
+      return (root, lx, ly)
     }
+
+    // Leaf: strict check
+    guard ly < b.height else { return nil }
     return (root, lx, ly)
   }
 

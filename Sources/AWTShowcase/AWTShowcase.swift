@@ -13,7 +13,7 @@ struct AWTShowcaseApp {
   @MainActor
   static func main() {
     java.awt.EventQueue.invokeLater {
-      AWTShowcaseApp().buildShowcase(width: 520, height: 450).setVisible(true)
+      AWTShowcaseApp().buildShowcase(width: 800, height: 500).setVisible(true)
     }
     java.awt.Toolkit.getDefaultToolkit().runEventLoop()
   }
@@ -23,30 +23,27 @@ struct AWTShowcaseApp {
     
     let frame = java.awt.Frame("JavApi⁴Swift – AWT Showcase")
     frame.setSize(width, height)
-    frame.setMinimumSize(java.awt.Dimension(480, 380))
+    frame.setMinimumSize(java.awt.Dimension(700, 420))
     frame.setLayout(java.awt.BorderLayout())
     
-    // all height central defined
+    // NORTH height for canvas sizing (controls height is determined by LayoutManager)
     let northH    = 40
-    let controlsH = 120  // upper SOUTH-Block: FlowLayout width Widgets (2 lines)
-    let demosH    = 60   // down SOUTH-Block: GridLayout + CardLayout Demo
-    let southH    = controlsH + demosH
-    let centerH   = height - northH - southH
+    // Estimate canvas height: use a reasonable default; the LayoutManager
+    // computes the real southPanel height from its children's preferred sizes.
+    let centerH   = height - northH - 80  // 80 = rough one-row controls estimate
     
     // ── NORTH: title label ───────────────────────────────────────────────────
     let title = try! java.awt.Label("Panel · Canvas · Button · Checkbox · TextField · Label · TextArea · Scrollbar · ScrollPane · Choice · List", java.awt.Label.CENTER)
-    title.setPreferredSize(java.awt.Dimension(width, northH))
     title.setMinimumSize(java.awt.Dimension(200, 30))
     frame.add(title, java.awt.BorderLayout.NORTH)
-    
+
     // ── CENTER: split view — ScrollPane+Canvas (left) + TextArea (right) ───────
     let centerPanel = java.awt.Panel(java.awt.BorderLayout())
-    // CENTER on BorderLayout fill space
-    
-    // ColorGridCanvas (double height) — setBounds set the virtual content of  ScrollPane
+
+    // ColorGridCanvas (double height) — setBounds sets the virtual content of ScrollPane
     let bigCanvas = ColorGridCanvas()
     bigCanvas.setBounds(0, 0, width / 2, centerH * 2)
-    
+
     // PopupMenu on Canvas
     let canvasPopup = java.awt.PopupMenu("Canvas")
     let copyItem = java.awt.MenuItem("Copy")
@@ -60,94 +57,82 @@ struct AWTShowcaseApp {
     quitFromPopup.addActionListener(ShowcaseActionListener())
     canvasPopup.add(quitFromPopup)
     bigCanvas.popupMenu = canvasPopup
-    
-    // ScrollPane on WEST in centerPanel: width fix, height set by BorderLayout
+
+    // ScrollPane on WEST in centerPanel — preferredSize from child + scrollbars
     let scrollPane = java.awt.ScrollPane()
-    scrollPane.setPreferredSize(java.awt.Dimension(width / 2, centerH))
     scrollPane.setMinimumSize(java.awt.Dimension(80, 60))
     scrollPane.add(bigCanvas)
     centerPanel.add(scrollPane, java.awt.BorderLayout.WEST)
-    
-    // TextArea fill CENTER — no preferredSize needed
+
+    // TextArea fills CENTER — BorderLayout gives it all remaining space
     let textArea = java.awt.TextArea("Edit me here…\nLine 2\nLine 3", 5, 20)
     centerPanel.add(textArea, java.awt.BorderLayout.CENTER)
-    
-    // PolygonCanvas right side on centerPanel
+
+    // PolygonCanvas on EAST — preferredSize from PolygonCanvas.getPreferredSize()
     let polyCanvas = PolygonCanvas()
-    polyCanvas.setPreferredSize(java.awt.Dimension(80, centerH))
     polyCanvas.setMinimumSize(java.awt.Dimension(60, 60))
     centerPanel.add(polyCanvas, java.awt.BorderLayout.EAST)
-    
+
     frame.add(centerPanel, java.awt.BorderLayout.CENTER)
-    
-    // ── EAST: standalone vertical Scrollbar — width with preferredSize ───
+
+    // ── EAST: standalone vertical Scrollbar — preferredSize from Scrollbar
     let scrollbar = java.awt.Scrollbar(java.awt.Scrollbar.VERTICAL, 0, 20, 0, 100)
-    scrollbar.setPreferredSize(java.awt.Dimension(18, centerH))
     scrollbar.setMinimumSize(java.awt.Dimension(12, 40))
     frame.add(scrollbar, java.awt.BorderLayout.EAST)
-    
-    // ── SOUTH: controls panel — heigh with preferredSize ───────────────────
+
+    // ── SOUTH: controls panel ────────────────────────────────────────────────
     let controls = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 8, 4))
-    controls.setPreferredSize(java.awt.Dimension(width, controlsH))
     controls.setMinimumSize(java.awt.Dimension(200, 60))
-    
-    // Button
+
+    // Button — preferredSize from Button.getPreferredSize()
     let btn = java.awt.Button("Click me")
-    btn.setPreferredSize(java.awt.Dimension(80, 28))
     btn.setMinimumSize(java.awt.Dimension(50, 22))
     btn.addActionListener(ShowcaseActionListener())
     controls.add(btn)
-    
-    // TextField
+
+    // TextField — preferredSize from TextField.getPreferredSize()
     let field = java.awt.TextField("Type here…", columns: 12)
-    field.setPreferredSize(java.awt.Dimension(140, 28))
     field.setMinimumSize(java.awt.Dimension(60, 22))
     controls.add(field)
-    
-    // Checkboxes
+
+    // Checkboxes — preferredSize from Checkbox.getPreferredSize()
     let chkListener = ShowcaseItemListener(label: "Checkbox")
-    
+
     let chk1 = java.awt.Checkbox("Bold")
-    chk1.setPreferredSize(java.awt.Dimension(60, 24))
     chk1.addItemListener(chkListener)
     controls.add(chk1)
-    
+
     let chk2 = java.awt.Checkbox("Italic", state: true)
-    chk2.setPreferredSize(java.awt.Dimension(60, 24))
     chk2.addItemListener(chkListener)
     controls.add(chk2)
-    
-    // Radio buttons (CheckboxGroup)
+
+    // Radio buttons (CheckboxGroup) — preferredSize from Checkbox.getPreferredSize()
     let group = java.awt.CheckboxGroup()
     let rbListener = ShowcaseItemListener(label: "RadioButton")
-    
+
     let rb1 = java.awt.Checkbox("Small",  state: true,  group: group)
-    rb1.setPreferredSize(java.awt.Dimension(65, 24))
     rb1.addItemListener(rbListener)
     controls.add(rb1)
-    
+
     let rb2 = java.awt.Checkbox("Medium", state: false, group: group)
-    rb2.setPreferredSize(java.awt.Dimension(75, 24))
     rb2.addItemListener(rbListener)
     controls.add(rb2)
-    
+
     let rb3 = java.awt.Checkbox("Large",  state: false, group: group)
-    rb3.setPreferredSize(java.awt.Dimension(65, 24))
     rb3.addItemListener(rbListener)
     controls.add(rb3)
-    
-    // Choice (drop-down)
+
+    // Choice — preferredSize from Choice.getPreferredSize()
     let choice = java.awt.Choice()
     choice.add("Apple")
     choice.add("Banana")
     choice.add("Cherry")
     choice.add("Durian")
-    choice.setPreferredSize(java.awt.Dimension(100, 24))
     choice.setMinimumSize(java.awt.Dimension(60, 22))
     choice.addItemListener(ShowcaseItemListener(label: "Choice"))
     controls.add(choice)
-    
-    // List (scrollable, single-select, 3 viewable line — compact for SOUTH)
+
+    // List — preferredSize from List.getPreferredSize() based on rows=3
     let list = java.awt.List(3, false)
     list.add("Red")
     list.add("Green")
@@ -155,37 +140,25 @@ struct AWTShowcaseApp {
     list.add("Yellow")
     list.add("Cyan")
     list.add("Magenta")
-    list.setPreferredSize(java.awt.Dimension(90, 62))
     list.setMinimumSize(java.awt.Dimension(60, 40))
     list.addItemListener(ShowcaseItemListener(label: "List"))
     list.addActionListener(ShowcaseActionListener())
     controls.add(list)
-    
-    // FileDialog — open
+
+    // FileDialog buttons — preferredSize from Button.getPreferredSize()
     let openBtn = java.awt.Button("Open…")
-    openBtn.setPreferredSize(java.awt.Dimension(70, 28))
     openBtn.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.LOAD))
     controls.add(openBtn)
-    
-    // FileDialog — save
+
     let saveBtn = java.awt.Button("Save…")
-    saveBtn.setPreferredSize(java.awt.Dimension(70, 28))
     saveBtn.addActionListener(FileDialogListener(frame: frame, mode: java.awt.FileDialog.SAVE))
     controls.add(saveBtn)
-    
-    // ── GridLayout + CardLayout Demo southpanel ───────────────────────────────────
-    let southPanel = java.awt.Panel(java.awt.BorderLayout())
-    southPanel.setPreferredSize(java.awt.Dimension(width, southH))
-    southPanel.setMinimumSize(java.awt.Dimension(200, 100))
-    southPanel.add(controls, java.awt.BorderLayout.NORTH)
-    
-    let demosPanel = java.awt.Panel(java.awt.FlowLayout(java.awt.FlowLayout.LEFT, 6, 4))
-    demosPanel.setPreferredSize(java.awt.Dimension(width, demosH))
-    
-    
-    southPanel.add(demosPanel, java.awt.BorderLayout.CENTER)
-    
-    frame.add(southPanel, java.awt.BorderLayout.SOUTH)
+
+    // ── SOUTH: southPanel contains only controls ─────────────────────────────
+    // BorderLayout.SOUTH sizes itself to the preferred height of southPanel,
+    // which in turn derives its preferred height from the controls FlowLayout.
+    // This means no empty space regardless of window width.
+    frame.add(controls, java.awt.BorderLayout.SOUTH)
     
     // ── MenuBar ───────────────────────────────────────────────────────────────
     let menuBar = java.awt.MenuBar()

@@ -13,12 +13,15 @@ extension javax.swing.plaf.basic {
   ///
   /// ## Registered UIs
   ///
-  /// | Key          | UI class          |
-  /// |--------------|-------------------|
-  /// | `"ButtonUI"` | `BasicButtonUI`   |
-  /// | `"LabelUI"`  | `BasicLabelUI`    |
-  /// | `"MenuBarUI"`| `BasicMenuBarUI`  |
-  /// | `"PopupMenuUI"` | `BasicPopupMenuUI` |
+  /// | Key               | UI class               |
+  /// |-------------------|------------------------|
+  /// | `"ButtonUI"`      | `BasicButtonUI`        |
+  /// | `"CheckBoxUI"`    | `BasicCheckBoxUI`      |
+  /// | `"LabelUI"`       | `BasicLabelUI`         |
+  /// | `"MenuBarUI"`     | `BasicMenuBarUI`       |
+  /// | `"PopupMenuUI"`   | `BasicPopupMenuUI`     |
+  /// | `"RadioButtonUI"` | `BasicRadioButtonUI`   |
+  /// | `"ToggleButtonUI"`| `BasicToggleButtonUI`  |
   ///
   /// - Since: Java 1.2
   @MainActor
@@ -34,10 +37,13 @@ extension javax.swing.plaf.basic {
 
     override open func getDefaults() -> javax.swing.UIDefaults {
       let d = javax.swing.UIDefaults()
-      d["ButtonUI"]   = { javax.swing.plaf.basic.BasicButtonUI()   }
-      d["LabelUI"]    = { javax.swing.plaf.basic.BasicLabelUI()    }
-      d["MenuBarUI"]  = { javax.swing.plaf.basic.BasicMenuBarUI()  }
-      d["PopupMenuUI"] = { javax.swing.plaf.basic.BasicPopupMenuUI() }
+      d["ButtonUI"]       = { javax.swing.plaf.basic.BasicButtonUI()       }
+      d["CheckBoxUI"]     = { javax.swing.plaf.basic.BasicCheckBoxUI()     }
+      d["LabelUI"]        = { javax.swing.plaf.basic.BasicLabelUI()        }
+      d["MenuBarUI"]      = { javax.swing.plaf.basic.BasicMenuBarUI()      }
+      d["PopupMenuUI"]    = { javax.swing.plaf.basic.BasicPopupMenuUI()    }
+      d["RadioButtonUI"]  = { javax.swing.plaf.basic.BasicRadioButtonUI()  }
+      d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
       return d
     }
   }

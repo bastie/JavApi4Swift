@@ -81,18 +81,15 @@ struct SwingShowcaseApp {
     // ── JToolBar ─────────────────────────────────────────────────────────────
     let toolbar = javax.swing.JToolBar()
 
-    // File group
     toolbar.add(openAction)
     toolbar.add(saveAction)
     toolbar.addSeparator()
 
-    // Edit group
     toolbar.add(cutAction)
     toolbar.add(copyAction)
     toolbar.add(pasteAction)
     toolbar.addSeparator()
 
-    // LayoutManager group
     toolbar.add(borderAction)
     toolbar.add(flowAction)
     toolbar.add(gridAction)
@@ -100,7 +97,6 @@ struct SwingShowcaseApp {
     toolbar.add(gridBagAction)
     toolbar.addSeparator()
 
-    // Help group
     toolbar.add(aboutAction)
 
     frame.add(toolbar, java.awt.BorderLayout.NORTH)
@@ -108,30 +104,8 @@ struct SwingShowcaseApp {
     // ── JTabbedPane ──────────────────────────────────────────────────────────
     let tabs = javax.swing.JTabbedPane()
 
-    // Tab 1: LayoutManager demos (the existing showcase content)
-    let layoutPanel = javax.swing.JPanel(java.awt.GridLayout(3, 2))
-    let blBtn  = javax.swing.JButton("BorderLayout…")
-    blBtn.addActionListener(borderAction)
-    let flBtn  = javax.swing.JButton("FlowLayout…")
-    flBtn.addActionListener(flowAction)
-    let glBtn  = javax.swing.JButton("GridLayout…")
-    glBtn.addActionListener(gridAction)
-    let clBtn  = javax.swing.JButton("CardLayout…")
-    clBtn.addActionListener(cardAction)
-    let gbBtn  = javax.swing.JButton("GridBagLayout…")
-    gbBtn.addActionListener(gridBagAction)
-    layoutPanel.add(blBtn)
-    layoutPanel.add(flBtn)
-    layoutPanel.add(glBtn)
-    layoutPanel.add(clBtn)
-    layoutPanel.add(gbBtn)
-    tabs.addTab("LayoutManager", layoutPanel)
-
-    // Tab 2: Swing components (placeholder — to be filled in)
-    let swingPanel = javax.swing.JPanel(java.awt.FlowLayout())
-    let placeholderLabel = javax.swing.JLabel("Swing Components — coming soon")
-    swingPanel.add(placeholderLabel)
-    tabs.addTab("Swing", swingPanel)
+    tabs.addTab("Swing", SwingComponentsTab.build())
+    tabs.addTab("Swing (AWT analogue)", SwingComponentsWithAnalogueInAWTTab.build())
 
     frame.add(tabs, java.awt.BorderLayout.CENTER)
 

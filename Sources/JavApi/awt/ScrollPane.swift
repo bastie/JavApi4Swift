@@ -156,24 +156,21 @@ extension java.awt {
     // MARK: Scrollbar geometry  (used by _SwiftUIWindowHost for hit-testing)
     // -------------------------------------------------------------------------
 
-    /// Full rect of the vertical scrollbar strip (nil if not shown).
+    /// Full rect of the vertical scrollbar strip — LOCAL coordinates (0,0-based).
     public func vScrollbarRect() -> java.awt.Rectangle? {
       guard needsVScrollbar else { return nil }
       let trackH = bounds.height - (needsHScrollbar ? scrollbarSize : 0)
-      return java.awt.Rectangle(bounds.x + bounds.width - scrollbarSize,
-                                bounds.y, scrollbarSize, trackH)
+      return java.awt.Rectangle(bounds.width - scrollbarSize, 0, scrollbarSize, trackH)
     }
 
-    /// Full rect of the horizontal scrollbar strip (nil if not shown).
+    /// Full rect of the horizontal scrollbar strip — LOCAL coordinates.
     public func hScrollbarRect() -> java.awt.Rectangle? {
       guard needsHScrollbar else { return nil }
       let trackW = bounds.width - (needsVScrollbar ? scrollbarSize : 0)
-      return java.awt.Rectangle(bounds.x,
-                                bounds.y + bounds.height - scrollbarSize,
-                                trackW, scrollbarSize)
+      return java.awt.Rectangle(0, bounds.height - scrollbarSize, trackW, scrollbarSize)
     }
 
-    // Arrow-button rects for the vertical scrollbar
+    // Arrow-button rects — LOCAL coordinates
     public func vDecrementButtonRect() -> java.awt.Rectangle? {
       guard let r = vScrollbarRect() else { return nil }
       return java.awt.Rectangle(r.x, r.y, r.width, scrollbarSize)
@@ -183,7 +180,6 @@ extension java.awt {
       return java.awt.Rectangle(r.x, r.y + r.height - scrollbarSize, r.width, scrollbarSize)
     }
 
-    // Arrow-button rects for the horizontal scrollbar
     public func hDecrementButtonRect() -> java.awt.Rectangle? {
       guard let r = hScrollbarRect() else { return nil }
       return java.awt.Rectangle(r.x, r.y, scrollbarSize, r.height)
@@ -193,7 +189,7 @@ extension java.awt {
       return java.awt.Rectangle(r.x + r.width - scrollbarSize, r.y, scrollbarSize, r.height)
     }
 
-    /// Thumb rect of the vertical scrollbar (nil if not scrollable).
+    /// Thumb rect of the vertical scrollbar — LOCAL coordinates.
     public func vThumbRect() -> java.awt.Rectangle? {
       guard let track = vScrollbarRect() else { return nil }
       let (_, maxY) = maxScroll()
@@ -205,7 +201,7 @@ extension java.awt {
       return java.awt.Rectangle(track.x, thumbY, track.width, thumbH)
     }
 
-    /// Thumb rect of the horizontal scrollbar (nil if not scrollable).
+    /// Thumb rect of the horizontal scrollbar — LOCAL coordinates.
     public func hThumbRect() -> java.awt.Rectangle? {
       guard let track = hScrollbarRect() else { return nil }
       let (maxX, _) = maxScroll()
@@ -218,11 +214,27 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      // Preferred size = child's preferred size + scrollbars
+      if let child = children.first {
+        let ps = child.getPreferredSize()
+        return java.awt.Dimension(ps.width + scrollbarSize, ps.height + scrollbarSize)
+      }
+      return java.awt.Dimension(100, 100)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Container.paint() translates g to (bounds.x, bounds.y); undo it so
+      // All rects (vScrollbarRect etc.) are now LOCAL (0,0-based). Paint directly.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
       let vp = getViewportSize()
 
       // Background
@@ -230,14 +242,12 @@ extension java.awt {
       g.fillRect(x, y, w, h)
 
       // ── Child — clipped to viewport, translated by scroll offset ───────────
-      // All component bounds in this system are absolute window coordinates.
-      // The child's bounds start at (0,0) — its content coordinate space.
-      // We translate so that child coordinate (0,0) lands at (x - scrollX, y - scrollY)
-      // in absolute window space, i.e. inside the ScrollPane viewport, shifted by scroll.
+      // The child's bounds are (0,0,childW,childH) in child-local space.
+      // Translate so child origin lands at (-scrollX, -scrollY) within our local space.
       if let child = children.first {
         g.save()
         g.clipRect(x, y, vp.width, vp.height)
-        g.translate(x - _scrollX, y - _scrollY)
+        g.translate(-_scrollX, -_scrollY)
         child.paint(g)
         g.restore()
       }
@@ -246,9 +256,7 @@ extension java.awt {
       if let vTrack = vScrollbarRect() {
         g.setColor(java.awt.SystemColor.scrollbar)
         g.fillRect(vTrack.x, vTrack.y, vTrack.width, vTrack.height)
-        if let thumb = vThumbRect() {
-          drawThumb(g, thumb)
-        }
+        if let thumb = vThumbRect() { drawThumb(g, thumb) }
         if let r = vDecrementButtonRect() { drawScrollArrow(g, rect: r, up: true) }
         if let r = vIncrementButtonRect() { drawScrollArrow(g, rect: r, up: false) }
       }
@@ -257,18 +265,15 @@ extension java.awt {
       if let hTrack = hScrollbarRect() {
         g.setColor(java.awt.SystemColor.scrollbar)
         g.fillRect(hTrack.x, hTrack.y, hTrack.width, hTrack.height)
-        if let thumb = hThumbRect() {
-          drawThumb(g, thumb)
-        }
+        if let thumb = hThumbRect() { drawThumb(g, thumb) }
         if let r = hDecrementButtonRect() { drawScrollArrow(g, rect: r, up: true,  vertical: false) }
         if let r = hIncrementButtonRect() { drawScrollArrow(g, rect: r, up: false, vertical: false) }
       }
 
-      // ── Corner fill (intersection of both scrollbars) ──────────────────────
+      // ── Corner fill ────────────────────────────────────────────────────────
       if needsVScrollbar && needsHScrollbar {
         g.setColor(java.awt.SystemColor.control)
-        g.fillRect(x + w - scrollbarSize, y + h - scrollbarSize,
-                   scrollbarSize, scrollbarSize)
+        g.fillRect(w - scrollbarSize, h - scrollbarSize, scrollbarSize, scrollbarSize)
       }
 
       // ── Border ─────────────────────────────────────────────────────────────

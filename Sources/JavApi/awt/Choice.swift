@@ -137,14 +137,29 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let fm    = getFontMetrics(font)
+      let maxW  = items.map { fm.stringWidth($0) }.max() ?? 0
+      let w     = maxW + arrowWidth + 8   // text + arrow button + padding
+      let h     = itemHeight + 4
+      return java.awt.Dimension(w, h)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
       let fm = getFontMetrics(font)
 
-      // Background — window-Farbe passt sich an Light/Dark Mode an
+      // Background
       g.setColor(java.awt.SystemColor.window)
       g.fillRect(x, y, w, h)
 
@@ -155,19 +170,15 @@ extension java.awt {
         g.drawString(sel, x + 4, ty)
       }
 
-      // Arrow button strip — separatorColor ist in Light+Dark sichtbar
+      // Arrow button strip
       let arrowX = x + w - arrowWidth
       g.setColor(java.awt.SystemColor.windowBorder)
       g.drawLine(arrowX, y + 1, arrowX, y + h - 2)
-      // Downward triangle (4 rows)
       let midX = arrowX + arrowWidth / 2
       let midY = y + h / 2 - 1
-      // Draw a downward-pointing triangle (▼).
-      // In the CGContext the Y-axis grows downward (isFlipped=true in the NSView),
-      // so "wider at top, narrower at bottom" produces a ▼ pointing down.
       g.setColor(java.awt.SystemColor.windowText)
       for i in 0..<4 {
-        let row = 3 - i           // row 0 = widest (top), row 3 = single pixel (bottom = tip)
+        let row = 3 - i
         g.drawLine(midX - row, midY + i, midX + row, midY + i)
       }
 
@@ -181,34 +192,35 @@ extension java.awt {
       // ── Popup overlay ──────────────────────────────────────────────────────
       guard isOpen, !items.isEmpty else { return }
 
-      let pr  = popupRect()
+      // Popup is drawn in local coordinates: directly below the component (y = h).
       let visRows = min(items.count, maxVisiblePopupRows)
+      let px = 0, py = h, pw = w, ph = visRows * itemHeight
 
       // Popup background
       g.setColor(java.awt.SystemColor.window)
-      g.fillRect(pr.x, pr.y, pr.width, pr.height)
+      g.fillRect(px, py, pw, ph)
 
       // Items
       for i in 0..<visRows {
-        let iy = pr.y + i * itemHeight
+        let iy = py + i * itemHeight
         if i == selectedIndex {
           g.setColor(java.awt.SystemColor.textHighlight)
-          g.fillRect(pr.x + 1, iy, pr.width - 2, itemHeight)
+          g.fillRect(px + 1, iy, pw - 2, itemHeight)
           g.setColor(java.awt.SystemColor.textHighlightText)
         }
         else {
           g.setColor(java.awt.SystemColor.controlText)
         }
         let ty = iy + (itemHeight - fm.getHeight()) / 2 + fm.getAscent()
-        g.drawString(items[i], pr.x + 4, ty)
+        g.drawString(items[i], px + 4, ty)
       }
 
       // Popup border
       g.setColor(java.awt.SystemColor.windowBorder)
-      g.drawLine(pr.x, pr.y, pr.x + pr.width - 1, pr.y)
-      g.drawLine(pr.x, pr.y, pr.x, pr.y + pr.height - 1)
-      g.drawLine(pr.x + pr.width-1, pr.y, pr.x + pr.width - 1, pr.y + pr.height - 1)
-      g.drawLine(pr.x, pr.y + pr.height-1, pr.x + pr.width - 1, pr.y + pr.height - 1)
+      g.drawLine(px, py, px + pw - 1, py)
+      g.drawLine(px, py, px, py + ph - 1)
+      g.drawLine(px + pw - 1, py, px + pw - 1, py + ph - 1)
+      g.drawLine(px, py + ph - 1, px + pw - 1, py + ph - 1)
     }
     override open func dispose() {
       itemListeners.removeAll()

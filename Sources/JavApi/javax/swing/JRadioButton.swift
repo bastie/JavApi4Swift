@@ -48,5 +48,19 @@ extension javax.swing {
       super.init(text, icon, selected)
       updateUI()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Radio behaviour — never deselect on click
+    // -------------------------------------------------------------------------
+
+    /// Radio buttons may only be selected, never deselected by clicking.
+    /// Deselection happens implicitly when another button in the same
+    /// `ButtonGroup` is selected.
+    override open func buttonClicked() {
+      guard !isSelected() else { return }
+      setSelected(true)
+      fireActionPerformed()
+      fireItemStateChanged(java.awt.event.ItemEvent.SELECTED)
+    }
   }
 }

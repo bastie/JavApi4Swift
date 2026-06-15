@@ -9,15 +9,17 @@ import JavApi
 @MainActor
 final class PolygonCanvas: java.awt.Canvas {
   override func paint(_ g: java.awt.Graphics) {
+    // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+    // translated the graphics context to this component's origin.
     let w = getWidth(), h = getHeight()
     guard w > 4, h > 4 else { return }
 
     // background
     g.setColor(java.awt.Color.gray)
-    g.fillRect(getX(), getY(), w, h)
+    g.fillRect(0, 0, w, h)
 
-    let ox = getX(), oy = getY()
-    
+    let ox = 0, oy = 0
+
     // Gefülltes Dreieck (blau)
     g.setColor(java.awt.Color.blue)
     let tri = java.awt.Polygon(
@@ -25,7 +27,7 @@ final class PolygonCanvas: java.awt.Canvas {
       ypoints: [oy + 4,    oy + h/2,   oy + h/2],
       npoints: 3)
     g.fillPolygon(tri)
-    
+
     // Umriss-Stern (gelb) — 6-Punkt-Stern über zwei Dreiecke
     g.setColor(java.awt.Color.yellow)
     let cx = ox + w/2, cy = oy + h*3/4
@@ -41,7 +43,7 @@ final class PolygonCanvas: java.awt.Canvas {
       sy.append(cy + Int(Double(r2) * Math.sin(angle2)))
     }
     g.drawPolygon(sx, sy, 12)
-    
+
     // Label
     g.setColor(java.awt.Color.white)
     g.drawString("Polygon", ox + 2, oy + h - 4)

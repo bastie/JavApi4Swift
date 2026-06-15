@@ -41,21 +41,40 @@ extension java.awt {
     public func removeLayoutComponent(_ comp: java.awt.Component) {}
 
     public func preferredLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {
-      // Height = tallest child + 2*vgap; width = sum of children + gaps
       let comps = parent.getComponents()
       if comps.isEmpty {
-        return java.awt.Dimension(parent.bounds.width, 2 * vgap)
+        return java.awt.Dimension(max(0, parent.bounds.width), 2 * vgap)
       }
-      var maxH = 0
-      var totalW = hgap
-      for c in comps {
+      // Collect per-component preferred sizes once.
+      let sizes: [(w: Int, h: Int)] = comps.map { c in
         let ps = c.getPreferredSize()
-        maxH   = max(maxH, ps.height)
-        totalW += ps.width + hgap
+        return (ps.width  > 0 ? ps.width  : max(1, c.bounds.width),
+                ps.height > 0 ? ps.height : max(1, c.bounds.height))
       }
-      let h = maxH + 2 * vgap
-      let w = parent.bounds.width > 0 ? parent.bounds.width : totalW
-      return java.awt.Dimension(w, h)
+      let containerW = parent.bounds.width
+      if containerW > 0 {
+        // Width is known — simulate row-wrapping exactly like layoutContainer does.
+        var totalH  = vgap
+        var rowW    = 0
+        var rowH    = 0
+        for sz in sizes {
+          let addedW = rowW == 0 ? sz.w : rowW + hgap + sz.w
+          if rowW > 0 && hgap + addedW + hgap > containerW {
+            totalH += rowH + vgap
+            rowW = sz.w
+            rowH = sz.h
+          } else {
+            rowW = addedW
+            rowH = max(rowH, sz.h)
+          }
+        }
+        totalH += rowH + vgap   // flush last row
+        return java.awt.Dimension(containerW, totalH)
+      }
+      // Width unknown — single-row estimate (will be recalculated once width is set).
+      let maxH  = sizes.reduce(0) { max($0, $1.h) }
+      let totW  = sizes.reduce(hgap) { $0 + $1.w + hgap }
+      return java.awt.Dimension(totW, maxH + 2 * vgap)
     }
 
     public func minimumLayoutSize(_ parent: java.awt.Container) -> java.awt.Dimension {
@@ -133,8 +152,10 @@ extension java.awt {
         let h  = ps.height > 0 ? ps.height : max(1, comp.bounds.height)
 
         // Would adding this component exceed the container width?
+        // If containerW is 0 (not yet laid out), skip overflow check and keep
+        // all components in one row — they will be re-laid out once bounds are known.
         let addedW = rowEntries.isEmpty ? w : rowW + hgap + w
-        if !rowEntries.isEmpty && containerX + hgap + addedW + hgap > containerX + containerW {
+        if containerW > 0 && !rowEntries.isEmpty && containerX + hgap + addedW + hgap > containerX + containerW {
           flushRow(rowEntries, rowHeight: rowHeight)
           rowEntries  = []
           rowW        = 0

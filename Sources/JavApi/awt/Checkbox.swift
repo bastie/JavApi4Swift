@@ -88,11 +88,25 @@ extension java.awt {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let fm = getFontMetrics(font)
+      let w  = boxSize + 4 + fm.stringWidth(label) + 4   // box + gap + text + padding
+      let h  = Swift.max(boxSize, fm.getHeight()) + 4
+      return java.awt.Dimension(w, h)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      let x = 0, y = 0, h = bounds.height
       let boxY = y + (h - boxSize) / 2  // vertically centred
 
       if checkboxGroup != nil {

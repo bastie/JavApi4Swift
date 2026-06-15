@@ -32,7 +32,12 @@ extension java.awt {
     /// Recursively lay out this container and all Container children.
     /// Mirrors `java.awt.Container.validate()`.
     public func validate() {
+      // Pass 1: lay out children. At this point FlowLayout.preferredLayoutSize()
+      // already uses the container's current width to compute the correct
+      // multi-row height, so a single doLayout() is sufficient.
       doLayout()
+
+      // Recurse into child containers.
       for child in children {
         (child as? Container)?.validate()
       }
@@ -102,6 +107,9 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
+      // Each child's bounds are in the parent's LOCAL coordinate space.
+      // Translate the graphics context to the child's origin so the child
+      // can paint at (0, 0) — matching Java AWT / Swing behaviour.
       for child in children where child.visible {
         let dx = child.bounds.x
         let dy = child.bounds.y

@@ -150,38 +150,37 @@ extension java.awt {
     /// Size of the arrow buttons at each end of the scrollbar.
     public var buttonSize: Int { orientation == Scrollbar.VERTICAL ? bounds.width : bounds.height }
 
-    /// Rectangle of the decrement (▲/◀) button.
+    /// Rectangle of the decrement (▲/◀) button — in LOCAL coordinates (0,0-based).
     public func decrementButtonRect() -> java.awt.Rectangle {
       let bs = buttonSize
       return orientation == Scrollbar.VERTICAL
-        ? java.awt.Rectangle(bounds.x, bounds.y, bounds.width, bs)
-        : java.awt.Rectangle(bounds.x, bounds.y, bs, bounds.height)
+        ? java.awt.Rectangle(0, 0, bounds.width, bs)
+        : java.awt.Rectangle(0, 0, bs, bounds.height)
     }
 
-    /// Rectangle of the increment (▼/▶) button.
+    /// Rectangle of the increment (▼/▶) button — in LOCAL coordinates.
     public func incrementButtonRect() -> java.awt.Rectangle {
       let bs = buttonSize
       return orientation == Scrollbar.VERTICAL
-        ? java.awt.Rectangle(bounds.x, bounds.y + bounds.height - bs, bounds.width, bs)
-        : java.awt.Rectangle(bounds.x + bounds.width - bs, bounds.y, bs, bounds.height)
+        ? java.awt.Rectangle(0, bounds.height - bs, bounds.width, bs)
+        : java.awt.Rectangle(bounds.width - bs, 0, bs, bounds.height)
     }
 
-    /// Returns the rectangle of the scroll thumb within the track area.
+    /// Returns the rectangle of the scroll thumb — in LOCAL coordinates.
     public func thumbRect() -> java.awt.Rectangle {
-      let x = bounds.x, y = bounds.y
       let w = bounds.width, h = bounds.height
       let bs = buttonSize
       let range = max(1, maximum - minimum)
       if orientation == Scrollbar.VERTICAL {
         let trackH = h - 2 * bs
         let thumbH = max(12, trackH * visibleAmount / range)
-        let thumbY = y + bs + (trackH - thumbH) * (_value - minimum) / max(1, range - visibleAmount)
-        return java.awt.Rectangle(x, thumbY, w, thumbH)
+        let thumbY = bs + (trackH - thumbH) * (_value - minimum) / max(1, range - visibleAmount)
+        return java.awt.Rectangle(0, thumbY, w, thumbH)
       } else {
         let trackW = w - 2 * bs
         let thumbW = max(12, trackW * visibleAmount / range)
-        let thumbX = x + bs + (trackW - thumbW) * (_value - minimum) / max(1, range - visibleAmount)
-        return java.awt.Rectangle(thumbX, y, thumbW, h)
+        let thumbX = bs + (trackW - thumbW) * (_value - minimum) / max(1, range - visibleAmount)
+        return java.awt.Rectangle(thumbX, 0, thumbW, h)
       }
     }
 
@@ -197,11 +196,26 @@ extension java.awt {
     var dragStartValue:  Int  = 0
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      // Java default: 16px wide for VERTICAL, 16px tall for HORIZONTAL
+      return orientation == Scrollbar.VERTICAL
+        ? java.awt.Dimension(16, 100)
+        : java.awt.Dimension(100, 16)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Paint in LOCAL coordinates (0,0) — Container.paint() has already
+      // translated the graphics context to this component's origin.
+      // thumbRect() / button rects are now also LOCAL → use directly.
+      let x = 0, y = 0, w = bounds.width, h = bounds.height
 
       // Track background
       g.setColor(java.awt.SystemColor.scrollbar)
@@ -220,10 +234,8 @@ extension java.awt {
       g.drawLine(tr.x,              tr.y + tr.height-1,  tr.x + tr.width - 1, tr.y + tr.height - 1)
 
       // Arrow buttons
-      let db = decrementButtonRect()
-      let ib = incrementButtonRect()
-      drawArrowButton(g, rect: db, decrement: true)
-      drawArrowButton(g, rect: ib, decrement: false)
+      drawArrowButton(g, rect: decrementButtonRect(), decrement: true)
+      drawArrowButton(g, rect: incrementButtonRect(), decrement: false)
 
       // Outer border
       g.setColor(java.awt.SystemColor.controlDkShadow)

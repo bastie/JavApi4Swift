@@ -20,6 +20,10 @@ extension javax.swing.plaf.basic {
     private let tabPadY    = 4
     private let borderW    = 1
 
+    // Track last laid-out size and selected tab to avoid re-validating on every repaint.
+    private var _lastValidatedSize: java.awt.Dimension = java.awt.Dimension(0, 0)
+    private var _lastValidatedSelIdx: Int = -1
+
     // -------------------------------------------------------------------------
     // MARK: Preferred size
     // -------------------------------------------------------------------------
@@ -137,15 +141,27 @@ extension javax.swing.plaf.basic {
       if selIdx >= 0 && selIdx < tabs.count {
         let sel = tabs[selIdx].component
         guard sel.isVisible() else { return }
-        // Let the child's own layout manager position its children.
-        if let container = sel as? java.awt.Container {
-          container.doLayout()
+        // Recursively lay out the selected tab panel and all its children
+        // when the tabbedpane size changes (resize or first paint).
+        // Skip on plain repaints (e.g. button clicks) to avoid shifting
+        // components whose bounds are already correct.
+        let currentSize = java.awt.Dimension(b.width, b.height)
+        let needsLayout = currentSize.width  != _lastValidatedSize.width
+                       || currentSize.height != _lastValidatedSize.height
+                       || selIdx             != _lastValidatedSelIdx
+        if needsLayout {
+          if let container = sel as? java.awt.Container {
+            container.validate()
+          }
+          _lastValidatedSize     = currentSize
+          _lastValidatedSelIdx   = selIdx
         }
-        let dx = sel.bounds.x
-        let dy = sel.bounds.y
-        g.translate(dx, dy)
+        // Translate to the selected tab's local origin before painting,
+        // matching how Container.paint() handles children via bounds offsets.
+        let sb = sel.bounds
+        g.translate(sb.x, sb.y)
         sel.paint(g)
-        g.translate(-dx, -dy)
+        g.translate(-sb.x, -sb.y)
       }
     }
   }

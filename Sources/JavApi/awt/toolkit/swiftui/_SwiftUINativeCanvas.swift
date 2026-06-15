@@ -78,6 +78,9 @@ final class _SwiftUINativeCanvas: NSView {
   
   private var pressedButton: java.awt.Button?
   private var pressedJButton: javax.swing.JButton?
+  // Generic pressed component for components handled only in mouseUp
+  // (JToggleButton, JCheckBox, JRadioButton, JTabbedPane, etc.)
+  private weak var pressedComponent: java.awt.Component?
   
   // Scrollbar being dragged (for thumb drag)
   private var draggingScrollbar: java.awt.Scrollbar?
@@ -91,6 +94,9 @@ final class _SwiftUINativeCanvas: NSView {
   private weak var openChoice: java.awt.Choice?
   // Currently open Swing JMenu (tracked so outside clicks close the popup)
   private weak var openMenu: javax.swing.JMenu?
+  // True when mouseDown handled a menu-bar or popup click — mouseUp must not
+  // dispatch a second event for whatever lies under the menu.
+  private var _menuDownConsumed: Bool = false
   
   // ── Swing menu helpers ──────────────────────────────────────────────────────
 
@@ -166,6 +172,7 @@ final class _SwiftUINativeCanvas: NSView {
           _closeOpenSwingMenu(repaint: false)
         }
         needsDisplay = true
+        _menuDownConsumed = true
         return
       } else {
         // Click outside open popup
@@ -195,16 +202,26 @@ final class _SwiftUINativeCanvas: NSView {
           // Click in bar gutter → close any open menu
           _closeOpenSwingMenu(repaint: true)
         }
+        _menuDownConsumed = true
         return
       }
     }
 
     // ── Choice popup handling (must come before normal hit-test) ────────────
     if let choice = openChoice {
-      let pr = choice.popupRect()
-      if pr.contains(Int(pt.x), Int(pt.y)) {
+      // popupRect() uses parent-relative coords; convert to frame-absolute.
+      let origin = _AWTHitTest.absoluteOrigin(choice)
+      let absPopupY = origin.y + choice.bounds.height
+      let absPopupX = origin.x
+      let visRows = min(choice.getItemCount(), choice.maxVisiblePopupRows)
+      let pw = choice.bounds.width
+      let ph = visRows * choice.itemHeight
+      let ptX = Int(pt.x), ptY = Int(pt.y)
+      if ptX >= absPopupX && ptX < absPopupX + pw &&
+         ptY >= absPopupY && ptY < absPopupY + ph {
         // Click inside popup → select item and close
-        if let idx = choice.popupItemIndex(atY: Int(pt.y)) {
+        let idx = (ptY - absPopupY) / choice.itemHeight
+        if idx >= 0 && idx < choice.getItemCount() {
           choice.select(idx)
           choice.fireItemEvent(index: idx)
         }
@@ -225,16 +242,18 @@ final class _SwiftUINativeCanvas: NSView {
       }
     }
     
-    let hit = _SwiftUIHitTest.find(at: pt, in: component)
-    
+    // Use findWithLocal so we get both the hit component AND local coordinates.
+    // All sub-rect checks (thumb, track, arrow buttons) use these local coords.
+    guard let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: pt, in: component) else { return }
+
     // Transfer keyboard focus
     _SwiftUIFocusManager.shared.requestFocus(hit)
-    
+
     if let btn = hit as? javax.swing.JButton {
       pressedJButton = btn
       btn.processMouseEvent(java.awt.event.MouseEvent(
         btn, java.awt.event.MouseEvent.MOUSE_PRESSED, 0, 0,
-        Int(pt.x), Int(pt.y), 1, false))
+        lx, ly, 1, false))
       needsDisplay = true
 
     } else if let btn = hit as? java.awt.Button {
@@ -244,25 +263,26 @@ final class _SwiftUINativeCanvas: NSView {
       needsDisplay  = true
 
     } else if let tf = hit as? java.awt.TextField {
-      let clickIdx = tf._charIndex(at: Int(pt.x))
+      // _charIndex uses absolute coords — reconstruct from component origin + local
+      let clickIdx = tf._charIndex(at: tf.bounds.x + lx)
       if event.modifierFlags.contains(.shift) {
         tf.extendSelection(to: clickIdx)
       } else {
         tf.setCaretPosition(clickIdx)
       }
       needsDisplay = true
-      
+
     } else if let ta = hit as? java.awt.TextArea {
-      // Check if click hit the internal vertical scrollbar thumb
+      // verticalScrollbarThumbRect / _charIndex use absolute coords
+      let absX = ta.bounds.x + lx, absY = ta.bounds.y + ly
       if let thumb = ta.verticalScrollbarThumbRect(),
-         thumb.contains(Int(pt.x), Int(pt.y)) {
+         thumb.contains(absX, absY) {
         draggingTextAreaScroll = ta
         ta.isScrollbarDragging = true
-        ta.scrollDragStartY    = Int(pt.y)
+        ta.scrollDragStartY    = absY
         ta.scrollDragStartOff  = ta.scrollOffsetY
       } else {
-        // Position caret in text area
-        let idx = ta._charIndex(atX: Int(pt.x), atY: Int(pt.y))
+        let idx = ta._charIndex(atX: absX, atY: absY)
         if event.modifierFlags.contains(.shift) {
           ta.extendSelection(to: idx)
         } else {
@@ -270,121 +290,109 @@ final class _SwiftUINativeCanvas: NSView {
         }
       }
       needsDisplay = true
-      
+
     } else if let sb = hit as? java.awt.Scrollbar {
+      // All Scrollbar rects are now LOCAL — use lx/ly directly.
       let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
-      let coord  = isVert ? Int(pt.y) : Int(pt.x)
-      let ptI    = (x: Int(pt.x), y: Int(pt.y))
-      if sb.decrementButtonRect().contains(ptI.x, ptI.y) {
-        // Decrement arrow — step by unitIncrement
+      let coord  = isVert ? ly : lx
+      if sb.decrementButtonRect().contains(lx, ly) {
         sb.value = sb.value - sb.unitIncrement
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_DECREMENT, isAdjusting: false)
-      } else if sb.incrementButtonRect().contains(ptI.x, ptI.y) {
-        // Increment arrow — step by unitIncrement
+      } else if sb.incrementButtonRect().contains(lx, ly) {
         sb.value = sb.value + sb.unitIncrement
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.UNIT_INCREMENT, isAdjusting: false)
-      } else if sb.thumbRect().contains(ptI.x, ptI.y) {
-        // Thumb drag
+      } else if sb.thumbRect().contains(lx, ly) {
         draggingScrollbar = sb
         sb.isDragging     = true
-        sb.dragStartCoord = coord
+        sb.dragStartCoord = isVert ? Int(pt.y) : Int(pt.x)  // absolute for drag delta
         sb.dragStartValue = sb.value
       } else {
-        // Track click — jump to position, then allow drag
         let range  = sb.maximum - sb.minimum
         let track  = isVert ? sb.bounds.height : sb.bounds.width
-        let origin = isVert ? sb.bounds.y      : sb.bounds.x
-        let newVal = sb.minimum + (coord - origin) * range / max(1, track) - sb.visibleAmount / 2
+        let newVal = sb.minimum + coord * range / max(1, track) - sb.visibleAmount / 2
         sb.value   = newVal
         sb.fireAdjustment(type: java.awt.event.AdjustmentEvent.TRACK, isAdjusting: false)
         draggingScrollbar = sb
         sb.isDragging     = true
-        sb.dragStartCoord = coord
+        sb.dragStartCoord = isVert ? Int(pt.y) : Int(pt.x)
         sb.dragStartValue = sb.value
       }
       needsDisplay = true
-      
+
     } else if let sp = hit as? java.awt.ScrollPane {
-      let ptI = (x: Int(pt.x), y: Int(pt.y))
+      // All ScrollPane rects are now LOCAL — use lx/ly directly.
       let (maxX, maxY) = sp.maxScroll()
-      if let btn = sp.vDecrementButtonRect(), btn.contains(ptI.x, ptI.y) {
-        // V-Pfeil aufwärts — unitIncrement
+      if let btn = sp.vDecrementButtonRect(), btn.contains(lx, ly) {
         sp.setScrollPosition(sp.scrollX, max(0, sp.scrollY - sp.scrollbarSize))
-      } else if let btn = sp.vIncrementButtonRect(), btn.contains(ptI.x, ptI.y) {
-        // V-Pfeil abwärts — unitIncrement
+      } else if let btn = sp.vIncrementButtonRect(), btn.contains(lx, ly) {
         sp.setScrollPosition(sp.scrollX, min(maxY, sp.scrollY + sp.scrollbarSize))
-      } else if let btn = sp.hDecrementButtonRect(), btn.contains(ptI.x, ptI.y) {
-        // H-Pfeil links — unitIncrement
+      } else if let btn = sp.hDecrementButtonRect(), btn.contains(lx, ly) {
         sp.setScrollPosition(max(0, sp.scrollX - sp.scrollbarSize), sp.scrollY)
-      } else if let btn = sp.hIncrementButtonRect(), btn.contains(ptI.x, ptI.y) {
-        // H-Pfeil rechts — unitIncrement
+      } else if let btn = sp.hIncrementButtonRect(), btn.contains(lx, ly) {
         sp.setScrollPosition(min(maxX, sp.scrollX + sp.scrollbarSize), sp.scrollY)
-      } else if let thumb = sp.vThumbRect(), thumb.contains(ptI.x, ptI.y) {
-        // Klick auf V-Thumb — Drag starten
-        draggingScrollPane      = sp
-        sp.isDraggingV          = true
-        sp.dragStartY           = ptI.y
-        sp.dragStartScrollY     = sp.scrollY
-      } else if let track = sp.vScrollbarRect(), track.contains(ptI.x, ptI.y) {
-        // Klick in V-Track — Sprung zur Position
-        let relY      = ptI.y - track.y
-        sp.scrollY    = max(0, min(maxY, relY * maxY / max(1, track.height)))
-        draggingScrollPane      = sp
-        sp.isDraggingV          = true
-        sp.dragStartY           = ptI.y
-        sp.dragStartScrollY     = sp.scrollY
-      } else if let thumb = sp.hThumbRect(), thumb.contains(ptI.x, ptI.y) {
-        // Klick auf H-Thumb — Drag starten
-        draggingScrollPane      = sp
-        sp.isDraggingH          = true
-        sp.dragStartX           = ptI.x
-        sp.dragStartScrollX     = sp.scrollX
-      } else if let track = sp.hScrollbarRect(), track.contains(ptI.x, ptI.y) {
-        // Klick in H-Track — Sprung zur Position
-        let relX      = ptI.x - track.x
-        sp.scrollX    = max(0, min(maxX, relX * maxX / max(1, track.width)))
-        draggingScrollPane      = sp
-        sp.isDraggingH          = true
-        sp.dragStartX           = ptI.x
-        sp.dragStartScrollX     = sp.scrollX
+      } else if let thumb = sp.vThumbRect(), thumb.contains(lx, ly) {
+        draggingScrollPane  = sp
+        sp.isDraggingV      = true
+        sp.dragStartY       = Int(pt.y)   // absolute for drag delta
+        sp.dragStartScrollY = sp.scrollY
+      } else if let track = sp.vScrollbarRect(), track.contains(lx, ly) {
+        let relY   = ly - track.y
+        sp.scrollY = max(0, min(maxY, relY * maxY / max(1, track.height)))
+        draggingScrollPane  = sp
+        sp.isDraggingV      = true
+        sp.dragStartY       = Int(pt.y)
+        sp.dragStartScrollY = sp.scrollY
+      } else if let thumb = sp.hThumbRect(), thumb.contains(lx, ly) {
+        draggingScrollPane  = sp
+        sp.isDraggingH      = true
+        sp.dragStartX       = Int(pt.x)
+        sp.dragStartScrollX = sp.scrollX
+      } else if let track = sp.hScrollbarRect(), track.contains(lx, ly) {
+        let relX   = lx - track.x
+        sp.scrollX = max(0, min(maxX, relX * maxX / max(1, track.width)))
+        draggingScrollPane  = sp
+        sp.isDraggingH      = true
+        sp.dragStartX       = Int(pt.x)
+        sp.dragStartScrollX = sp.scrollX
       }
       needsDisplay = true
-      
+
     } else if let ch = hit as? java.awt.Choice {
-      // Toggle popup
       ch.isOpen   = !ch.isOpen
       openChoice  = ch.isOpen ? ch : nil
       needsDisplay = true
-      
+
     } else if let list = hit as? java.awt.List {
-      let ptI = (x: Int(pt.x), y: Int(pt.y))
-      if let thumb = list.scrollbarThumbRect(), thumb.contains(ptI.x, ptI.y) {
-        // Thumb drag
+      // scrollbarThumbRect/TrackRect return parent-relative coords; reconstruct.
+      let absX = list.bounds.x + lx, absY = list.bounds.y + ly
+      if let thumb = list.scrollbarThumbRect(), thumb.contains(absX, absY) {
         draggingList             = list
         list.isScrollbarDragging = true
-        list.scrollDragStartY   = ptI.y
-        list.scrollDragStartOff = list.scrollOffset
-      } else if let track = list.scrollbarTrackRect(), track.contains(ptI.x, ptI.y) {
-        // Track click — jump to position, then allow drag
+        list.scrollDragStartY    = Int(pt.y)   // frame-absolute for drag delta
+        list.scrollDragStartOff  = list.scrollOffset
+      } else if let track = list.scrollbarTrackRect(), track.contains(absX, absY) {
         let maxOff = list.maxScrollOffset()
-        let relY   = ptI.y - track.y
-        list.scrollOffset       = max(0, min(maxOff, relY * maxOff / max(1, track.height)))
+        let relY   = absY - track.y
+        list.scrollOffset        = max(0, min(maxOff, relY * maxOff / max(1, track.height)))
         draggingList             = list
         list.isScrollbarDragging = true
-        list.scrollDragStartY   = ptI.y
-        list.scrollDragStartOff = list.scrollOffset
+        list.scrollDragStartY    = Int(pt.y)   // frame-absolute for drag delta
+        list.scrollDragStartOff  = list.scrollOffset
       } else {
-        // Item selection
-        if let idx = list.itemIndex(atY: ptI.y) {
+        // Use local coordinate directly — itemIndex(atLocalY:) needs no translation
+        if let idx = list.itemIndex(atLocalY: ly) {
           list.select(idx)
-          list.fireItemEvent(index: idx,
-                             stateChange: java.awt.event.ItemEvent.SELECTED)
-          if event.clickCount >= 2 {
-            list.fireActionEvent(index: idx)
-          }
+          list.fireItemEvent(index: idx, stateChange: java.awt.event.ItemEvent.SELECTED)
+          if event.clickCount >= 2 { list.fireActionEvent(index: idx) }
         }
       }
       needsDisplay = true
+
+    } else {
+      // All other components (JToggleButton, JCheckBox, JRadioButton,
+      // JTabbedPane, panels, etc.) are dispatched on mouseUp — record which
+      // component was pressed so mouseUp can confirm the hit still matches.
+      pressedComponent = hit
     }
   }
   
@@ -472,6 +480,12 @@ final class _SwiftUINativeCanvas: NSView {
   }
   
   override func mouseUp(with event: NSEvent) {
+    // If mouseDown was fully handled by menu-bar or popup logic, do nothing here.
+    if _menuDownConsumed {
+      _menuDownConsumed = false
+      return
+    }
+
     // End ScrollPane drag
     if let sp = draggingScrollPane {
       sp.isDraggingV    = false
@@ -534,13 +548,19 @@ final class _SwiftUINativeCanvas: NSView {
       return
     }
     
-    // Other components — TextComponent handled in mouseDown/mouseDragged
-    guard let component else { return }
-    let pt = awtPoint(from: event)
-    if let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: pt, in: component),
-       !(hit is java.awt.TextComponent) {
-      _SwiftUIHitTest.dispatch(click: hit, localX: lx, localY: ly)
-      needsDisplay = true
+    // Generic component release — dispatch only if mouseDown recorded a press
+    // on this component and the pointer is still over it on release.
+    // This prevents spurious clicks on whatever happens to be under the cursor
+    // after a menu, scrollbar, Choice, or List interaction.
+    if let pressed = pressedComponent {
+      pressedComponent = nil
+      guard let component else { return }
+      let upPt = awtPoint(from: event)
+      if let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: upPt, in: component),
+         hit === pressed {
+        _SwiftUIHitTest.dispatch(click: hit, localX: lx, localY: ly)
+        needsDisplay = true
+      }
     }
   }
   
