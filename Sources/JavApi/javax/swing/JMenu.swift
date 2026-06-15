@@ -76,6 +76,18 @@ extension javax.swing {
       return item
     }
 
+    /// Creates a `JMenuItem` from `action` and appends it to the popup.
+    ///
+    /// The item adopts the action's `NAME` as label and `SMALL_ICON` as icon.
+    /// The action itself is registered as the item's `ActionListener`, so menu
+    /// and toolbar share the same command object.
+    @discardableResult
+    public func add(_ action: javax.swing.Action) -> javax.swing.JMenuItem {
+      let item = javax.swing.JMenuItem(action)
+      swingPopupMenu.add(item)
+      return item
+    }
+
     /// Appends a separator to the popup.
     public func addSeparator() {
       swingPopupMenu.addSeparator()
