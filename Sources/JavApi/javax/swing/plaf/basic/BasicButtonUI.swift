@@ -99,16 +99,40 @@ extension javax.swing.plaf.basic {
         g.drawLine(1, h - 2, w - 2, h - 2)
       }
 
-      // Label
+      // Icon + Label
+      let pressOffset = btn.getModel().isPressed() ? 1 : 0
+      let icon = btn.getIcon()
       let text = btn.getText()
-      guard !text.isEmpty else { return }
-      let fm  = java.awt.FontMetrics.make(for: component.font)
-      let tw  = fm.stringWidth(text)
-      let th  = fm.getHeight()
-      let tx  = (w - tw) / 2 + (btn.getModel().isPressed() ? 1 : 0)
-      let ty  = (h - th) / 2 + fm.getAscent() + (btn.getModel().isPressed() ? 1 : 0)
-      g.setColor(component.getForeground())
-      g.drawString(text, tx, ty)
+      let pad  = 4
+
+      if let icon, text.isEmpty {
+        // Icon only — centred
+        let ix = (w - icon.getIconWidth())  / 2 + pressOffset
+        let iy = (h - icon.getIconHeight()) / 2 + pressOffset
+        icon.paintIcon(btn, g, ix, iy)
+      } else if let icon {
+        // Icon left, text right
+        let iw = icon.getIconWidth()
+        let ih = icon.getIconHeight()
+        let fm = java.awt.FontMetrics.make(for: component.font)
+        let tw = fm.stringWidth(text)
+        let totalW = iw + pad + tw
+        let ix = (w - totalW) / 2 + pressOffset
+        let iy = (h - ih) / 2 + pressOffset
+        icon.paintIcon(btn, g, ix, iy)
+        let tx = ix + iw + pad
+        let ty = (h - fm.getHeight()) / 2 + fm.getAscent() + pressOffset
+        g.setColor(component.getForeground())
+        g.drawString(text, tx, ty)
+      } else if !text.isEmpty {
+        // Text only
+        let fm = java.awt.FontMetrics.make(for: component.font)
+        let tw = fm.stringWidth(text)
+        let tx = (w - tw) / 2 + pressOffset
+        let ty = (h - fm.getHeight()) / 2 + fm.getAscent() + pressOffset
+        g.setColor(component.getForeground())
+        g.drawString(text, tx, ty)
+      }
     }
   }
 }

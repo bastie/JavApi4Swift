@@ -73,6 +73,49 @@ struct SwingShowcaseApp {
 
     frame.setJMenuBar(menuBar)
 
+    // ── JToolBar ─────────────────────────────────────────────────────────────
+    let toolbar = javax.swing.JToolBar()
+
+    // File group: Open, Save  |  Quit
+    let toolkit = java.awt.Toolkit.getDefaultToolkit()
+
+    func makeBtn(_ label: String, _ imageName: String,
+                 _ listener: java.awt.event.ActionListener) -> javax.swing.JButton {
+      let btn: javax.swing.JButton
+      if let img = toolkit.loadImage(named: imageName) {
+        let icon = javax.swing.ImageIcon(img, width: 16, height: 16)
+        btn = javax.swing.JButton(icon: icon)
+      } else {
+        btn = javax.swing.JButton(label)
+      }
+      btn.setPreferredSize(java.awt.Dimension(28, 28))
+      btn.addActionListener(listener)
+      return btn
+    }
+
+    toolbar.add(makeBtn("Open",  "toolbar-open",  SwingPrintActionListener("File > Open…")))
+    toolbar.add(makeBtn("Save",  "toolbar-save",  SwingPrintActionListener("File > Save…")))
+    toolbar.addSeparator()
+
+    // Edit group: Cut, Copy, Paste
+    toolbar.add(makeBtn("Cut",   "toolbar-cut",   SwingPrintActionListener("Edit > Cut")))
+    toolbar.add(makeBtn("Copy",  "toolbar-copy",  SwingPrintActionListener("Edit > Copy")))
+    toolbar.add(makeBtn("Paste", "toolbar-paste", SwingPrintActionListener("Edit > Paste")))
+    toolbar.addSeparator()
+
+    // LayoutManager group
+    toolbar.add(makeBtn("BL",  "toolbar-border",   SwingBorderLayoutDemoListener(owner: frame)))
+    toolbar.add(makeBtn("FL",  "toolbar-flow",     SwingFlowLayoutDemoListener(owner: frame)))
+    toolbar.add(makeBtn("GL",  "toolbar-grid",     SwingGridLayoutDemoListener(owner: frame)))
+    toolbar.add(makeBtn("CL",  "toolbar-card",     SwingCardLayoutDemoListener(owner: frame)))
+    toolbar.add(makeBtn("GBL", "toolbar-gridbag",  SwingGridBagLayoutDemoListener(owner: frame)))
+    toolbar.addSeparator()
+
+    // Help group
+    toolbar.add(makeBtn("About", "JavApi4Swift256", SwingAboutListener(owner: frame)))
+
+    frame.add(toolbar, java.awt.BorderLayout.NORTH)
+
     return frame
   }
 }

@@ -29,9 +29,13 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     private var text: String
+    private var _icon: javax.swing.Icon? = nil
 
     public func getText() -> String  { text }
     public func setText(_ t: String) { text = t; invalidate() }
+
+    public func getIcon() -> javax.swing.Icon? { _icon }
+    public func setIcon(_ icon: javax.swing.Icon?) { _icon = icon; invalidate() }
 
     // -------------------------------------------------------------------------
     // MARK: Model
@@ -61,6 +65,35 @@ extension javax.swing {
     public init(_ text: String = "") {
       self.text = text
       super.init()
+      updateUI()
+    }
+
+    /// Creates a button with an icon and no text.
+    public init(icon: javax.swing.Icon) {
+      self.text  = ""
+      self._icon = icon
+      super.init()
+      updateUI()
+    }
+
+    /// Creates a button with both text and an icon.
+    public init(_ text: String, icon: javax.swing.Icon) {
+      self.text  = text
+      self._icon = icon
+      super.init()
+      updateUI()
+    }
+
+    /// Creates a button that delegates to an `Action`.
+    ///
+    /// The button adopts the action's `NAME` as label, `SMALL_ICON` as icon,
+    /// `SHORT_DESCRIPTION` as tooltip, and enabled state.  The action itself
+    /// is registered as `ActionListener`.
+    public init(_ action: javax.swing.Action) {
+      self.text  = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
+      self._icon = action.getValue(javax.swing.AbstractAction.SMALL_ICON) as? javax.swing.Icon
+      super.init()
+      actionListeners.append(action)
       updateUI()
     }
 

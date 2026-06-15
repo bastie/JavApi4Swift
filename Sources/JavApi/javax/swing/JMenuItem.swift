@@ -58,6 +58,15 @@ extension javax.swing {
       super.init()
     }
 
+    /// Creates a menu item that delegates to an `Action`.
+    ///
+    /// Adopts `Action.NAME` as label and registers the action as listener.
+    public init(_ action: javax.swing.Action) {
+      self._text = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
+      super.init()
+      actionListeners.append(action)
+    }
+
     /// Factory for a visual separator line.
     public static func separator() -> JMenuItem {
       let s = JMenuItem("")

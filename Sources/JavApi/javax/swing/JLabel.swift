@@ -36,6 +36,7 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     private var text: String
+    private var _icon: javax.swing.Icon? = nil
     private var horizontalAlignment: Int = JLabel.LEFT
     private var verticalAlignment:   Int = JLabel.CENTER
 
@@ -45,6 +46,24 @@ extension javax.swing {
 
     public init(_ text: String = "") {
       self.text = text
+      super.init()
+      setOpaque(false)
+      updateUI()
+    }
+
+    /// Creates a label with an icon and no text.
+    public init(icon: javax.swing.Icon) {
+      self.text  = ""
+      self._icon = icon
+      super.init()
+      setOpaque(false)
+      updateUI()
+    }
+
+    /// Creates a label with both text and an icon.
+    public init(_ text: String, icon: javax.swing.Icon) {
+      self.text  = text
+      self._icon = icon
       super.init()
       setOpaque(false)
       updateUI()
@@ -67,6 +86,9 @@ extension javax.swing {
       text = newText
       invalidate()
     }
+
+    public func getIcon() -> javax.swing.Icon? { _icon }
+    public func setIcon(_ icon: javax.swing.Icon?) { _icon = icon; invalidate() }
 
     public func getHorizontalAlignment() -> Int { horizontalAlignment }
     public func setHorizontalAlignment(_ alignment: Int) {
