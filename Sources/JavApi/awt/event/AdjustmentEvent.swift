@@ -45,6 +45,9 @@ extension java.awt.event {
     // MARK: Init
     // -------------------------------------------------------------------------
 
+    public func getValue() -> Int          { value }
+    public func getAdjustmentType() -> Int { adjustmentType }
+
     public init(_ source: AnyObject,
                 _ id: Int,
                 _ adjustmentType: Int,

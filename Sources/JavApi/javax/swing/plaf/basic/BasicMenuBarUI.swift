@@ -67,7 +67,7 @@ extension javax.swing.plaf.basic {
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
-    override open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let bar = component as? javax.swing.JMenuBar else { return nil }
       let fm   = java.awt.FontMetrics.make(for: font)
       let totalWidth = bar.getMenus().reduce(0) { acc, menu in

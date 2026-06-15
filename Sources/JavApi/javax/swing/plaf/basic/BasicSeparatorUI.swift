@@ -14,7 +14,7 @@ extension javax.swing.plaf.basic {
   @MainActor
   open class BasicSeparatorUI: javax.swing.plaf.ComponentUI {
 
-    override open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let sep = component as? javax.swing.JSeparator else { return nil }
       if sep.getOrientation() == javax.swing.JSeparator.VERTICAL {
         return java.awt.Dimension(2, 0)

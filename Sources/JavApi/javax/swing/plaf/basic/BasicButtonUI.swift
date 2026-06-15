@@ -25,7 +25,7 @@ extension javax.swing.plaf.basic {
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
-    override open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let btn = component as? javax.swing.JButton else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
       let w  = fm.stringWidth(btn.getText()) + 20  // 10px padding each side

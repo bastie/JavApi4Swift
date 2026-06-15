@@ -708,11 +708,96 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | getImage()              | ()->Image
 1.2     | ✔️          | ⭕️       | method        | getIconWidth/Height()   | ()->int
 
+### javax.swing.JScrollBar (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL              | = SwingConstants.HORIZONTAL
+1.2     | ✔️          | 🪄       | final field   | VERTICAL                | = SwingConstants.VERTICAL
+1.2     | ✔️          | ⭕️       | constructor   | JScrollBar()            |
+1.2     | ✔️          | ⭕️       | constructor   | JScrollBar(int)         | orientation
+1.2     | ✔️          | ⭕️       | constructor   | JScrollBar(int,int,int,int,int) | orientation,value,extent,min,max
+1.2     | ✔️          | ⭕️       | method        | getModel()              | ()->BoundedRangeModel
+1.2     | ✔️          | ⭕️       | method        | setModel()              | (BoundedRangeModel)
+1.2     | ✔️          | ⭕️       | method        | getValue()              | ()->int
+1.2     | ✔️          | ⭕️       | method        | setValue()              | (int)
+1.2     | ✔️          | ⭕️       | method        | getMinimum()            | ()->int
+1.2     | ✔️          | ⭕️       | method        | setMinimum()            | (int)
+1.2     | ✔️          | ⭕️       | method        | getMaximum()            | ()->int
+1.2     | ✔️          | ⭕️       | method        | setMaximum()            | (int)
+1.2     | ✔️          | ⭕️       | method        | getVisibleAmount()      | ()->int
+1.2     | ✔️          | ⭕️       | method        | setVisibleAmount()      | (int)
+1.2     | ✔️          | ⭕️       | method        | getOrientation()        | ()->int
+1.2     | ✔️          | ⭕️       | method        | setOrientation()        | (int)
+1.2     | ✔️          | ⭕️       | method        | getUnitIncrement()      | ()->int
+1.2     | ✔️          | ⭕️       | method        | setUnitIncrement()      | (int)
+1.2     | ✔️          | ⭕️       | method        | getBlockIncrement()     | ()->int
+1.2     | ✔️          | ⭕️       | method        | setBlockIncrement()     | (int)
+1.2     | ✔️          | ⭕️       | method        | getValueIsAdjusting()   | ()->boolean
+1.2     | ✔️          | ⭕️       | method        | setValueIsAdjusting()   | (boolean)
+1.2     | ✔️          | ⭕️       | method        | addAdjustmentListener() | (AdjustmentListener)
+1.2     | ✔️          | ⭕️       | method        | removeAdjustmentListener() | (AdjustmentListener)
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | 16×100 (V) or 100×16 (H)
+
+### javax.swing.JViewport (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | constructor   | JViewport()             |
+1.2     | ✔️          | ⭕️       | method        | getView()               | ()->Component
+1.2     | ✔️          | ⭕️       | method        | setView()               | (Component)
+1.2     | ✔️          | ⭕️       | method        | getViewPosition()       | ()->Point
+1.2     | ✔️          | ⭕️       | method        | setViewPosition()       | (Point)
+1.2     | ✔️          | ⭕️       | method        | getViewSize()           | ()->Dimension
+1.2     | ✔️          | ⭕️       | method        | getViewRect()           | ()->Rectangle
+1.2     | ✔️          | ⭕️       | method        | scrollRectToVisible()   | (Rectangle)
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | delegates to view
+
+### javax.swing.JScrollPane (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | final field   | VERTICAL_SCROLLBAR_AS_NEEDED  | 20
+1.2     | ✔️          | 🪄       | final field   | VERTICAL_SCROLLBAR_NEVER      | 21
+1.2     | ✔️          | 🪄       | final field   | VERTICAL_SCROLLBAR_ALWAYS     | 22
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL_SCROLLBAR_AS_NEEDED | 30
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL_SCROLLBAR_NEVER    | 31
+1.2     | ✔️          | 🪄       | final field   | HORIZONTAL_SCROLLBAR_ALWAYS   | 32
+1.2     | ✔️          | ⭕️       | constructor   | JScrollPane()           |
+1.2     | ✔️          | ⭕️       | constructor   | JScrollPane(Component)  |
+1.2     | ✔️          | ⭕️       | constructor   | JScrollPane(Component,int,int) |
+1.2     | ✔️          | ⭕️       | method        | getViewport()           | ()->JViewport
+1.2     | ✔️          | ⭕️       | method        | getVerticalScrollBar()  | ()->JScrollBar
+1.2     | ✔️          | ⭕️       | method        | getHorizontalScrollBar() | ()->JScrollBar
+1.2     | ✔️          | ⭕️       | method        | setViewportView()       | (Component)
+1.2     | ✔️          | ⭕️       | method        | getView()               | ()->Component
+1.2     | ✔️          | ⭕️       | method        | getVerticalScrollBarPolicy()   | ()->int
+1.2     | ✔️          | ⭕️       | method        | setVerticalScrollBarPolicy()   | (int)
+1.2     | ✔️          | ⭕️       | method        | getHorizontalScrollBarPolicy() | ()->int
+1.2     | ✔️          | ⭕️       | method        | setHorizontalScrollBarPolicy() | (int)
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | view + scrollbar thickness
+
+### javax.swing.plaf.basic.BasicScrollBarUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | paint()                 | (Graphics,JComponent)
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | (JComponent)->Dimension
+
+### javax.swing.plaf.basic.BasicScrollPaneUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | paint()                 | (Graphics,JComponent) — no-op, JScrollPane.paint handles all
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | (JComponent)->Dimension
+
 ---
 
 ## Not in scope for Java 1.2
 
-- **javax.swing** advanced — `JTextField`, `JTextArea`, `JScrollPane`, `JList`, `JComboBox`, `JTable`, `JTree`, `JOptionPane`
+- **javax.swing** advanced — `JTextField`, `JTextArea`, `JList`, `JComboBox`, `JTable`, `JTree`, `JOptionPane`
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority

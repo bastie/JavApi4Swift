@@ -26,7 +26,7 @@ extension javax.swing.plaf.basic {
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
-    override open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let label = component as? javax.swing.JLabel else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
       let w  = fm.stringWidth(label.getText()) + 4   // 2px padding each side

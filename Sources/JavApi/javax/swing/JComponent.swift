@@ -46,6 +46,9 @@ extension javax.swing {
 
     public var ui: javax.swing.plaf.ComponentUI? = nil
 
+    /// Returns the current UI delegate.
+    public func getUI() -> javax.swing.plaf.ComponentUI? { ui }
+
     /// Installs a new UI delegate, uninstalling the previous one first.
     public func setUI(_ newUI: javax.swing.plaf.ComponentUI) {
       ui?.uninstallUI(self)
@@ -148,17 +151,17 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize() -> java.awt.Dimension {
-      if let d = ui?.getPreferredSize(of: self) { return d }
+      if let d = ui?.getPreferredSize(_ : self) { return d }
       return super.getPreferredSize()
     }
 
     override open func getMinimumSize() -> java.awt.Dimension {
-      if let d = ui?.getMinimumSize(of: self) { return d }
+      if let d = ui?.getMinimumSize(_ : self) { return d }
       return super.getMinimumSize()
     }
 
     override open func getMaximumSize() -> java.awt.Dimension {
-      if let d = ui?.getMaximumSize(of: self) { return d }
+      if let d = ui?.getMaximumSize(_ : self) { return d }
       return super.getMaximumSize()
     }
   }

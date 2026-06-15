@@ -84,17 +84,17 @@ extension javax.swing.plaf {
 
     /// Returns the preferred size for `component`, or `nil` to let the
     /// component use its own default.
-    open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       return nil
     }
 
     /// Returns the minimum size for `component`, or `nil` to use the default.
-    open func getMinimumSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    open func getMinimumSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       return nil
     }
 
     /// Returns the maximum size for `component`, or `nil` to use the default.
-    open func getMaximumSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    open func getMaximumSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       return nil
     }
 

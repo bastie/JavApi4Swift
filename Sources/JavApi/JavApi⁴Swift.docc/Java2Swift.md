@@ -511,7 +511,24 @@ public static let HORIZONTAL: Int = JSeparator.HORIZONTAL   // refers to the loc
 public static let HORIZONTAL: Int = SwingConstants.HORIZONTAL
 ```
 
-> **AI hint:** When generating or reviewing constant declarations inside a Swing component class, never use `SwingConstants.HORIZONTAL` / `SwingConstants.VERTICAL` (the global `enum SwingConstants`) on the right-hand side — ever use the concrete class's own name. At call sites (outside the defining class), always use the concrete class: `JToolBar.HORIZONTAL`, `JSeparator.VERTICAL`, `JTabbedPane.TOP`, etc.
+> **AI hint:** When generating or reviewing constant declarations inside a Swing component class, never use `SwingConstants.HORIZONTAL` / `SwingConstants.VERTICAL` (the global `enum SwingConstants`) on the right-hand side — always use the concrete class's own name. At call sites (outside the defining class), always use the concrete class: `JToolBar.HORIZONTAL`, `JSeparator.VERTICAL`, `JTabbedPane.TOP`, etc.
+
+**Special case — classes inside `javax.swing` that expose `SwingConstants` values:** Inside the `javax.swing` namespace, the name `SwingConstants` resolves to the *protocol* `javax.swing.SwingConstants`, not to the global `enum SwingConstants`. A plain `public static let HORIZONTAL: Int = SwingConstants.HORIZONTAL` therefore causes a compiler error.
+
+The correct solution is to **declare conformance to `javax.swing.SwingConstants`** on the class. The protocol's extension then supplies the values, and `ClassName.HORIZONTAL` resolves to those extension-provided values — no self-reference, no literal:
+
+```swift
+// ✅ correct — conformance lets the protocol extension supply the values
+open class JScrollBar: javax.swing.JComponent, javax.swing.SwingConstants {
+
+  public static let HORIZONTAL: Int = JScrollBar.HORIZONTAL  // resolved via protocol extension
+  public static let VERTICAL:   Int = JScrollBar.VERTICAL    // resolved via protocol extension
+}
+```
+
+This mirrors the Java idiom where a class *implements* `SwingConstants` to inherit its constants.
+
+> **AI hint:** Whenever a Swing component inside `javax.swing` needs to re-export `SwingConstants` values as its own constants, add `, javax.swing.SwingConstants` to the class declaration and use `ClassName.CONSTANT` on the right-hand side. Do **not** use integer literals and do **not** use the bare name `SwingConstants.CONSTANT` (that would refer to the protocol, not the enum).
 
 #### interfaces with constants
 

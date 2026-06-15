@@ -22,7 +22,7 @@ extension javax.swing.plaf.basic {
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
-    override open func getPreferredSize(of component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let toolbar = component as? javax.swing.JToolBar else { return nil }
       let items = toolbar.getItems()
       let isHorizontal = toolbar.getOrientation() == javax.swing.JToolBar.HORIZONTAL
