@@ -46,8 +46,8 @@ extension java.awt {
       let e = java.awt.event.ItemEvent(
         self as AnyObject,
         java.awt.event.ItemEvent.ITEM_STATE_CHANGED,
-        item: label as AnyObject,
-        stateChange: change)
+        label as AnyObject,
+        change)
       itemListeners.forEach { $0.itemStateChanged(e) }
     }
 

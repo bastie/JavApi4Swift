@@ -514,7 +514,7 @@ version | implemented | tested   | type          | name                    | mor
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ✔️          | ⭕️       | class         | JButton                 |
+1.2     | ✔️          | ⭕️       | class         | JButton                 | extends AbstractButton (refactored)
 1.2     | ✔️          | ⭕️       | constructor   | JButton()               | (String)
 1.2     | ✔️          | ⭕️       | method        | getText() / setText()   |
 1.2     | ✔️          | ⭕️       | method        | addActionListener()     | closure-based
@@ -614,6 +614,99 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | 🪄       | final field   | LONG_DESCRIPTION        | "LongDescription"
 1.2     | ✔️          | 🪄       | final field   | MNEMONIC_KEY            | "MnemonicKey"
 1.2     | ✔️          | 🪄       | final field   | ACTION_COMMAND_KEY      | "ActionCommandKey"
+
+### javax.swing.AbstractButton (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | AbstractButton          | extends JComponent; base for JButton, JToggleButton, JMenuItem
+1.2     | ✔️          | ⭕️       | method        | getText()               | ()->String
+1.2     | ✔️          | ⭕️       | method        | setText()               | (String)
+1.2     | ✔️          | ⭕️       | method        | getIcon()               | ()->Icon
+1.2     | ✔️          | ⭕️       | method        | setIcon()               | (Icon)
+1.2     | ✔️          | ⭕️       | method        | isSelected()            | ()->boolean
+1.2     | ✔️          | ⭕️       | method        | setSelected()           | (boolean)
+1.2     | ✔️          | ⭕️       | method        | isEnabled()             | ()->boolean
+1.2     | ✔️          | ⭕️       | method        | getModel()              | ()->ButtonModel
+1.2     | ✔️          | ⭕️       | method        | setModel()              | (ButtonModel)
+1.2     | ✔️          | ⭕️       | method        | addActionListener()     | (ActionListener)
+1.2     | ✔️          | ⭕️       | method        | removeActionListener()  | (ActionListener)
+1.2     | ✔️          | ⭕️       | method        | addItemListener()       | (ItemListener)
+1.2     | ✔️          | ⭕️       | method        | removeItemListener()    | (ItemListener)
+1.2     | ✔️          | ⭕️       | method        | addChangeListener()     | (ChangeListener)
+1.2     | ✔️          | ⭕️       | method        | removeChangeListener()  | (ChangeListener)
+1.2     | ✔️          | ⭕️       | method        | doClick()               | ()
+
+### javax.swing.JToggleButton (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JToggleButton           | extends AbstractButton
+1.2     | ✔️          | ⭕️       | constructor   | JToggleButton()         |
+1.2     | ✔️          | ⭕️       | constructor   | JToggleButton(String)   | (text)
+1.2     | ✔️          | ⭕️       | constructor   | JToggleButton(String,boolean) | (text, selected)
+1.2     | ✔️          | ⭕️       | constructor   | JToggleButton(Icon)     |
+1.2     | ✔️          | ⭕️       | constructor   | JToggleButton(String,Icon,boolean) |
+
+### javax.swing.JCheckBox (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JCheckBox               | extends JToggleButton
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBox()             |
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBox(String)       |
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBox(String,boolean) |
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBox(Icon)         |
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBox(String,Icon,boolean) |
+
+### javax.swing.JRadioButton (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JRadioButton            | extends JToggleButton
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButton()          |
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButton(String)    |
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButton(String,boolean) |
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButton(Icon)      |
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButton(String,Icon,boolean) |
+
+### javax.swing.ButtonGroup (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | ButtonGroup             |
+1.2     | ✔️          | ⭕️       | constructor   | ButtonGroup()           |
+1.2     | ✔️          | ⭕️       | method        | add()                   | (AbstractButton)
+1.2     | ✔️          | ⭕️       | method        | remove()                | (AbstractButton)
+1.2     | ✔️          | ⭕️       | method        | getElements()           | ()->[AbstractButton]
+1.2     | ✔️          | ⭕️       | method        | getSelection()          | ()->ButtonModel?
+1.2     | ✔️          | ⭕️       | method        | isSelected()            | (ButtonModel)->boolean
+1.2     | ✔️          | ⭕️       | method        | setSelected()           | (ButtonModel,boolean)
+1.2     | ✔️          | ⭕️       | method        | getButtonCount()        | ()->int
+1.2     | ✔️          | ⭕️       | method        | clearSelection()        | ()
+
+### javax.swing.plaf.basic.BasicToggleButtonUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | paint()                 | selected state shown as inner border
+
+### javax.swing.plaf.basic.BasicCheckBoxUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | paint()                 | box + checkmark
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | box + gap + text width
+
+### javax.swing.plaf.basic.BasicRadioButtonUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | paint()                 | circle + selection dot
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | circle + gap + text width
 
 ### javax.swing.JToolBar (✔️/⭕️)
 

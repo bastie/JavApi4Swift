@@ -83,7 +83,7 @@ extension java.awt {
         : java.awt.event.ItemEvent.DESELECTED
       let e = java.awt.event.ItemEvent(
         self, java.awt.event.ItemEvent.ITEM_STATE_CHANGED,
-        item: label as AnyObject, stateChange: change)
+        label as AnyObject, change)
       itemListeners.forEach { $0.itemStateChanged(e) }
     }
 

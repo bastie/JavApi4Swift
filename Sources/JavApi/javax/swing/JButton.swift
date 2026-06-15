@@ -3,17 +3,13 @@
  * SPDX-License-Identifier: MIT
  */
 
-
 extension javax.swing {
 
-  /// A push button with a text label.
+  /// A push button — mirrors `javax.swing.JButton`.
   ///
-  /// `JButton` is the standard Swing push button.  Clicking it fires all
-  /// registered `ActionListener`s.  The visual appearance is delegated
-  /// to `BasicButtonUI`.  State (pressed, rollover, armed, enabled) is
-  /// managed by a `ButtonModel` (`DefaultButtonModel` by default).
-  ///
-  /// ## Usage
+  /// Clicking fires all registered `ActionListener`s.  The visual appearance
+  /// is delegated to `BasicButtonUI`.  State (pressed, rollover, armed,
+  /// enabled) is managed by a `ButtonModel` (`DefaultButtonModel` by default).
   ///
   /// ```swift
   /// let btn = javax.swing.JButton("OK")
@@ -21,86 +17,44 @@ extension javax.swing {
   /// panel.add(btn)
   /// ```
   ///
+  /// - Since: Java 1.0 (AWT Button); Swing variant since Java 1.2
   @MainActor
-  open class JButton: javax.swing.JComponent {
+  open class JButton: javax.swing.AbstractButton {
 
     // -------------------------------------------------------------------------
-    // MARK: Text
+    // MARK: Initialisers
     // -------------------------------------------------------------------------
 
-    private var text: String
-    private var _icon: javax.swing.Icon? = nil
-
-    /// When `true`, `getText()` returns `""` even if a text is stored.
-    /// Set automatically when a button is created from an `Action` inside a
-    /// `JToolBar` — matching Java Swing's default toolbar behaviour (icon only).
-    private var _hideActionText: Bool = false
-    public func isHideActionText() -> Bool { _hideActionText }
-    public func setHideActionText(_ hide: Bool) { _hideActionText = hide; invalidate() }
-
-    public func getText() -> String  { _hideActionText ? "" : text }
-    public func setText(_ t: String) { text = t; invalidate() }
-
-    public func getIcon() -> javax.swing.Icon? { _icon }
-    public func setIcon(_ icon: javax.swing.Icon?) { _icon = icon; invalidate() }
-
-    // -------------------------------------------------------------------------
-    // MARK: Model
-    // -------------------------------------------------------------------------
-
-    private var _model: javax.swing.ButtonModel = javax.swing.DefaultButtonModel()
-
-    public func getModel() -> javax.swing.ButtonModel { _model }
-
-    public func setModel(_ model: javax.swing.ButtonModel) { _model = model }
-
-    /// Convenience: pressed state via model.
-    internal var isPressed:  Bool {
-      get { _model.isPressed()  }
-      set { _model.setPressed(newValue) }
-    }
-    /// Convenience: rollover state via model.
-    internal var isRollover: Bool {
-      get { _model.isRollover() }
-      set { _model.setRollover(newValue) }
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Init
-    // -------------------------------------------------------------------------
-
-    public init(_ text: String = "") {
-      self.text = text
+    public override init() {
       super.init()
       updateUI()
     }
 
-    /// Creates a button with an icon and no text.
+    public init(_ text: String) {
+      super.init(text)
+      updateUI()
+    }
+
     public init(icon: javax.swing.Icon) {
-      self.text  = ""
-      self._icon = icon
-      super.init()
+      super.init("", icon)
       updateUI()
     }
 
-    /// Creates a button with both text and an icon.
     public init(_ text: String, icon: javax.swing.Icon) {
-      self.text  = text
-      self._icon = icon
-      super.init()
+      super.init(text, icon)
       updateUI()
     }
 
-    /// Creates a button that delegates to an `Action`.
+    /// Creates a button bound to an `Action`.
     ///
     /// The button adopts the action's `NAME` as label, `SMALL_ICON` as icon,
     /// `SHORT_DESCRIPTION` as tooltip, and enabled state.  The action itself
     /// is registered as `ActionListener`.
     public init(_ action: javax.swing.Action) {
-      self.text  = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
-      self._icon = action.getValue(javax.swing.AbstractAction.SMALL_ICON) as? javax.swing.Icon
-      super.init()
-      actionListeners.append(action)
+      let label = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
+      let icon  = action.getValue(javax.swing.AbstractAction.SMALL_ICON) as? javax.swing.Icon
+      super.init(label, icon)
+      addActionListener(action)
       updateUI()
     }
 
@@ -110,58 +64,6 @@ extension javax.swing {
 
     override open func updateUI() {
       super.updateUI()
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Mouse state tracking
-    // -------------------------------------------------------------------------
-
-    override open func processMouseEvent(_ e: java.awt.event.MouseEvent) {
-      switch e.getID() {
-      case java.awt.event.MouseEvent.MOUSE_PRESSED:
-        _model.setArmed(true)
-        _model.setPressed(true)
-        repaint()
-      case java.awt.event.MouseEvent.MOUSE_RELEASED:
-        _model.setPressed(false)
-        _model.setArmed(false)
-        repaint()
-      case java.awt.event.MouseEvent.MOUSE_ENTERED:
-        _model.setRollover(true)
-        repaint()
-      case java.awt.event.MouseEvent.MOUSE_EXITED:
-        _model.setRollover(false)
-        _model.setArmed(false)
-        repaint()
-      default: break
-      }
-      super.processMouseEvent(e)
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: ActionListener
-    // -------------------------------------------------------------------------
-
-    private var actionListeners: [java.awt.event.ActionListener] = []
-
-    /// Registers an `ActionListener` object (Java-style).
-    public func addActionListener(_ listener: java.awt.event.ActionListener) {
-      actionListeners.append(listener)
-    }
-
-    /// Convenience overload: wraps a closure in an `ActionListener`.
-    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) {
-      actionListeners.append(_SwingClosureActionListener(handler))
-    }
-
-    public func removeActionListeners() {
-      actionListeners.removeAll()
-    }
-
-    /// Programmatically fires an `ACTION_PERFORMED` event.
-    public func doClick() {
-      let event = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, text)
-      for listener in actionListeners { listener.actionPerformed(event) }
     }
   }
 }

@@ -26,7 +26,7 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
-      guard let btn = component as? javax.swing.JButton else { return nil }
+      guard let btn = component as? javax.swing.AbstractButton else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
       let w  = fm.stringWidth(btn.getText()) + 20  // 10px padding each side
       let h  = fm.getHeight() + 10                 // 5px padding top/bottom
@@ -38,7 +38,7 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
-      guard let btn = component as? javax.swing.JButton else { return }
+      guard let btn = component as? javax.swing.AbstractButton else { return }
 
       let w = component.bounds.width
       let h = component.bounds.height

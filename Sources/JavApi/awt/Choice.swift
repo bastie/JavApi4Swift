@@ -54,8 +54,8 @@ extension java.awt {
       let e = java.awt.event.ItemEvent(
         self,
         java.awt.event.ItemEvent.ITEM_STATE_CHANGED,
-        item: items[index] as AnyObject,
-        stateChange: java.awt.event.ItemEvent.SELECTED)
+        items[index] as AnyObject,
+        java.awt.event.ItemEvent.SELECTED)
       itemListeners.forEach { $0.itemStateChanged(e) }
     }
 
