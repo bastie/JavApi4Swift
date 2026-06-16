@@ -24,6 +24,10 @@ public final class _SwiftUIFocusManager {
 
   private(set) weak var focusOwner: java.awt.Component?
 
+  /// The root component of the current window — set by the canvas so that
+  /// Tab-order traversal can walk the full component tree.
+  weak var rootComponent: java.awt.Component?
+
   // ---------------------------------------------------------------------------
   // MARK: Focus transfer
   // ---------------------------------------------------------------------------
@@ -31,6 +35,16 @@ public final class _SwiftUIFocusManager {
   func requestFocus(_ component: java.awt.Component?) {
     guard focusOwner !== component else { return }
     if let old = focusOwner {
+      // Commit pending edits when a JFormattedTextField loses focus.
+      // On parse failure the field reverts to the last valid value.
+      if let ftf = old as? javax.swing.JFormattedTextField {
+        if let _ = try? ftf.commitEdit() {
+          // committed successfully — leave text as-is
+        } else {
+          // invalid input — restore last known value
+          ftf.setValue(ftf.getValue())
+        }
+      }
       let e = java.awt.event.FocusEvent(old, java.awt.event.FocusEvent.FOCUS_LOST)
       old.processFocusEvent(e)
     }
@@ -207,6 +221,68 @@ public final class _SwiftUIFocusManager {
   func cutSelection()   {}
   func pasteText()      {}
   #endif
+
+  // ---------------------------------------------------------------------------
+  // MARK: Tab / focus traversal
+  // ---------------------------------------------------------------------------
+
+  /// Move focus to the next (or previous) focusable component in the tree.
+  ///
+  /// Focusable means: visible, enabled, and either a `_AnyTextInput` or a
+  /// Swing button/checkbox/combo/spinner.
+  func transferFocus(forward: Bool) {
+    guard let root = rootComponent else { return }
+    let all = focusableComponents(in: root)
+    guard !all.isEmpty else { return }
+
+    if let current = focusOwner, let idx = all.firstIndex(where: { $0 === current }) {
+      let next = forward
+        ? all[(idx + 1) % all.count]
+        : all[(idx - 1 + all.count) % all.count]
+      requestFocus(next)
+    } else {
+      // Nothing focused yet — focus first (or last)
+      requestFocus(forward ? all.first : all.last)
+    }
+  }
+
+  /// Recursively collects all focusable leaf components in paint/layout order.
+  private func focusableComponents(in component: java.awt.Component) -> [java.awt.Component] {
+    guard component.isVisible() && component.isEnabled() else { return [] }
+
+    // Leaf: focusable if it accepts text input or is an interactive widget
+    if !(component is java.awt.Container) {
+      return isFocusable(component) ? [component] : []
+    }
+
+    // Container: check self (e.g. JComboBox counts as leaf for focus),
+    // then recurse into children
+    var result: [java.awt.Component] = []
+    if isFocusable(component) {
+      result.append(component)
+    } else if let container = component as? java.awt.Container {
+      for child in container.getComponents() {
+        result += focusableComponents(in: child)
+      }
+    }
+    return result
+  }
+
+  private func isFocusable(_ c: java.awt.Component) -> Bool {
+    guard c.isVisible() && c.isEnabled() else { return false }
+    if c is _AnyTextInput { return true }
+    if c is javax.swing.JButton      { return true }
+    if c is javax.swing.JToggleButton { return true }
+    if c is javax.swing.JCheckBox    { return true }
+    if c is javax.swing.JRadioButton { return true }
+    if c is javax.swing.JSpinner     { return true }
+    // Generic types: check via UIClassID string
+    if let jc = c as? javax.swing.JComponent {
+      let id = jc.getUIClassID()
+      if id == "ComboBoxUI" || id == "ListUI" { return true }
+    }
+    return false
+  }
 
   // ---------------------------------------------------------------------------
   // MARK: Legacy / convenience

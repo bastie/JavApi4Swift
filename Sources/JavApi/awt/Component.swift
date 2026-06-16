@@ -102,8 +102,15 @@ extension java.awt {
     open func setVisible(_ v: Bool) {
       visible = v
     }
-    open func isVisible() -> Bool   {
+    open func isVisible() -> Bool {
       return visible
+    }
+
+    open func setEnabled(_ e: Bool) {
+      enabled = e
+    }
+    open func isEnabled() -> Bool {
+      return enabled
     }
 
     // -------------------------------------------------------------------------

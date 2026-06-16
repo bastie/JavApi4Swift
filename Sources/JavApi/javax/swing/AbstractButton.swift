@@ -57,7 +57,7 @@ extension javax.swing {
     // Convenience passthroughs used by subclasses and UI delegates
     public func isSelected() -> Bool    { _model.isSelected() }
     public func setSelected(_ b: Bool)  { _model.setSelected(b) }
-    public func isEnabled() -> Bool     { _model.isEnabled() }
+    public override func isEnabled() -> Bool     { _model.isEnabled() }
 
     // -------------------------------------------------------------------------
     // MARK: Model → ChangeListener bridge (fires ItemEvent + repaint)

@@ -17,7 +17,10 @@ import SwiftUI
 final class _SwiftUINativeCanvas: NSView {
   
   var component: java.awt.Component? {
-    didSet { subscribeNotifications() }
+    didSet {
+      subscribeNotifications()
+      _SwiftUIFocusManager.shared.rootComponent = component
+    }
   }
 
   private var cursorObserver: NSObjectProtocol?
@@ -994,7 +997,12 @@ final class _SwiftUINativeCanvas: NSView {
     case 125:
       fm.moveCaretDown(extending: hasShift)
       needsDisplay = true
-      
+
+      // Tab / Shift+Tab — focus traversal
+    case 48:
+      fm.transferFocus(forward: !hasShift)
+      needsDisplay = true
+
     default:
       if hasCmd {
         switch event.keyCode {
@@ -1027,6 +1035,16 @@ final class _SwiftUINativeCanvas: NSView {
         super.keyDown(with: event)
       }
     }
+  }
+
+  // macOS intercepts Tab before keyDown to do NSView focus traversal.
+  // Override performKeyEquivalent to catch Tab/Shift+Tab ourselves first.
+  override func performKeyEquivalent(with event: NSEvent) -> Bool {
+    guard event.keyCode == 48 else { return super.performKeyEquivalent(with: event) }
+    let hasShift = event.modifierFlags.contains(.shift)
+    _SwiftUIFocusManager.shared.transferFocus(forward: !hasShift)
+    needsDisplay = true
+    return true  // consumed — don't pass to NSWindow's key-view loop
   }
 
   // Recursively find a JComboBox with an open popup in the component tree.

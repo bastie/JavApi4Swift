@@ -50,6 +50,7 @@ extension javax.swing.plaf.basic {
       d["ScrollBarUI"]    = { javax.swing.plaf.basic.BasicScrollBarUI()    }
       d["ScrollPaneUI"]   = { javax.swing.plaf.basic.BasicScrollPaneUI()   }
       d["SpinnerUI"]      = { javax.swing.plaf.basic.BasicSpinnerUI()      }
+      d["FormattedTextFieldUI"] = { javax.swing.plaf.basic.BasicTextFieldUI()    }
       d["PasswordFieldUI"] = { javax.swing.plaf.basic.BasicPasswordFieldUI() }
       d["TextAreaUI"]     = { javax.swing.plaf.basic.BasicTextAreaUI()     }
       d["TextFieldUI"]    = { javax.swing.plaf.basic.BasicTextFieldUI()    }
