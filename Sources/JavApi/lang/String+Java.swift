@@ -57,6 +57,30 @@ extension String {
   public func endsWith (_ suffix : String) -> Bool {
     return self.hasSuffix(suffix)
   }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Java-compatible static format method
+  // ---------------------------------------------------------------------------
+
+  /// Formats a string using a Java-style format string.
+  ///
+  /// Equivalent to Java's `String.format(String, Object...)`.
+  /// The format string is first translated by `Java2SwiftFormatter` to map
+  /// Java specifiers (`%s`, `%n`, `%b`, `%,d`, `%tY`, `%1$s` …) to their
+  /// Swift equivalents, then handed to `String(format:)`.
+  ///
+  /// - Parameters:
+  ///   - format: A Java-style format string.
+  ///   - args:   Arguments referenced by the format string.
+  /// - Returns: The formatted string.
+  public static func format(_ format: String, _ args: Any?...) -> String {
+    Java2SwiftFormatter.format(format, args: args)
+  }
+
+  /// Varargs-array overload — matches Java's `String.format(String, Object[])`.
+  public static func format(_ format: String, args: [Any?]) -> String {
+    Java2SwiftFormatter.format(format, args: args)
+  }
   
   /// Check equals of String to other String
   ///

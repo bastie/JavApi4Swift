@@ -997,9 +997,77 @@ version | implemented | tested   | type          | name                         
 
 > **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
 
-### java.text — New package in 1.1 (not in scope)
+### java.text — New package in 1.1 (partially implemented)
 
-> **Note:** Text internationalization (date/number formatting, collation, message formatting) overlaps with Swift's `Foundation` (DateFormatter, NumberFormatter, etc.) and is **not ported** as Java API. Users should use Swift Foundation directly.
+Core formatting classes are now ported and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`.
+
+##### java.text.Format (abstract base)
+
+version | implemented | tested   | type          | name                                      | more informations
+------- | ----------- | -------- | ------------- | ----------------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | format(Object, StringBuffer, FieldPosition) | abstract
+1.1     | ✔️          | ⭕️       | method        | parseObject(String, ParsePosition)        | abstract
+1.1     | ✔️          | ⭕️       | method        | format(Object)                            | convenience
+
+##### java.text.FieldPosition
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | FieldPosition(int)  |
+1.1     | ✔️          | ⭕️       | method        | getField()          |
+1.1     | ✔️          | ⭕️       | method        | getBeginIndex()     |
+1.1     | ✔️          | ⭕️       | method        | getEndIndex()       |
+
+##### java.text.ParsePosition
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | ParsePosition(int)  |
+1.1     | ✔️          | ⭕️       | method        | getIndex()          |
+1.1     | ✔️          | ⭕️       | method        | setIndex(int)       |
+1.1     | ✔️          | ⭕️       | method        | getErrorIndex()     |
+1.1     | ✔️          | ⭕️       | method        | setErrorIndex(int)  |
+
+##### java.text.ParseException
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | ParseException(String, int)      |
+1.1     | ✔️          | ⭕️       | method        | getErrorOffset()                 |
+
+##### java.text.NumberFormat (abstract)
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | format(double/long)              |
+1.1     | ✔️          | ⭕️       | method        | parse(String)                    |
+1.1     | ✔️          | ⭕️       | static        | getInstance()                    |
+1.1     | ✔️          | ⭕️       | static        | getIntegerInstance()             |
+1.1     | ✔️          | ⭕️       | static        | getCurrencyInstance()            |
+1.1     | ✔️          | ⭕️       | static        | getPercentInstance()             |
+
+##### java.text.DateFormat (abstract)
+
+version | implemented | tested   | type          | name                                       | more informations
+------- | ----------- | -------- | ------------- | ------------------------------------------ | -----------------
+1.1     | ✔️          | ⭕️       | constant      | FULL / LONG / MEDIUM / SHORT / DEFAULT     |
+1.1     | ✔️          | ⭕️       | method        | format(Date)                               |
+1.1     | ✔️          | ⭕️       | method        | parse(String)                              |
+1.1     | ✔️          | ⭕️       | static        | getDateInstance(int)                       |
+1.1     | ✔️          | ⭕️       | static        | getTimeInstance(int)                       |
+1.1     | ✔️          | ⭕️       | static        | getDateTimeInstance(int, int)              |
+
+##### java.text.SimpleDateFormat
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | SimpleDateFormat(String)         |
+1.1     | ✔️          | ⭕️       | constructor   | SimpleDateFormat(String, Locale) |
+1.1     | ✔️          | ⭕️       | method        | toPattern()                      |
+1.1     | ✔️          | ⭕️       | method        | applyPattern(String)             |
+1.1     | ✔️          | ⭕️       | method        | format(Date) / parse(String)     | inherited from DateFormat
+
+> **Not yet ported:** `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator`, `CollationKey`.
 
 ### java.util.zip — New in 1.1
 
@@ -1037,7 +1105,7 @@ The following Java 1.1 APIs are explicitly **not** ported because they have no m
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. Bound-property and veto support (`PropertyChangeEvent`, `PropertyChangeSupport`, `VetoableChangeSupport`, etc.) **is** implemented — see java.beans section above.
 - **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
-- **java.text** — Internationalization formatting (`DateFormat`, `SimpleDateFormat`, `NumberFormat`, `DecimalFormat`, `MessageFormat`, `Collator`, `BreakIterator`, etc.); Swift Foundation (`DateFormatter`, `NumberFormatter`, …) covers these use cases natively.
+- **java.text** (partially) — `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator` are not ported. Core classes (`Format`, `NumberFormat`, `DateFormat`, `SimpleDateFormat`, `ParseException`, `ParsePosition`, `FieldPosition`) are implemented — see java.text section above.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.
 - **java.applet** additions — Applet model is obsolete.

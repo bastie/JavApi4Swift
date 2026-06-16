@@ -38,3 +38,41 @@ version | implemented | tested   | type          | name             | more infor
 version | implemented | tested   | type          | name             | more informations
 ------- | ----------- | -------- | ------------- | ---------------- | -----------------
 1.5     | ✔️          | ⭕️       | method        | clearProperty()  | (String)->String?
+
+### java.util.Formatter — new in 1.5
+
+##### java.util.Formatter
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.5     | ✔️          | ✔️       | constructor   | Formatter()                 |
+1.5     | ✔️          | ✔️       | method        | format(String, Object...)   | returns self
+1.5     | ✔️          | ✔️       | method        | toString()                  |
+1.5     | ✔️          | ⭕️       | method        | out()                       | returns StringBuilder
+
+### java.lang.String — Java 1.5 additions
+
+##### java.lang.String (format)
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.5     | ✔️          | ✔️       | static        | format(String, Object...)   | via Java2SwiftFormatter
+
+### java.io.PrintStream — Java 1.5 additions
+
+##### java.io.PrintStream (printf/format)
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.5     | ✔️          | ⭕️       | method        | printf(String, Object...)   | returns self
+1.5     | ✔️          | ⭕️       | method        | format(String, Object...)   | returns self
+
+### java.util.Locale — Java 1.5 additions
+
+##### java.util.Locale (setDefault)
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.5     | ✔️          | ✔️       | static        | setDefault(Locale)          |
+
+> **Format specifiers supported by Java2SwiftFormatter:** `%s/%S`, `%d`, `%f`, `%e/%E`, `%g/%G`, `%o`, `%x/%X`, `%b/%B`, `%c`, `%n`, `%%`, `%,d`/`%,f` (grouping), `%tY`/`%tm`/… (date/time), `%1$s` (argument index). Decimal and grouping separators are locale-sensitive via `Locale.setDefault()`.

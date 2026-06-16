@@ -113,3 +113,78 @@ version | implemented | tested   | type          | name                | more in
 1.4     | ✔️          | ⭕️       | method        | removeHandler()     | (Handler)
 1.4     | ✔️          | ⭕️       | method        | getHandlers()       | ()->[Handler]
 1.4     | ✔️          | ⭕️       | method        | log()               | (LogRecord)
+
+
+### javax.swing.text — Swing Formatter classes (new in 1.4)
+
+##### javax.swing.JFormattedTextField
+
+version | implemented | tested   | type          | name                                       | more informations
+------- | ----------- | -------- | ------------- | ------------------------------------------ | -----------------
+1.4     | ✔️          | ⭕️       | constructor   | JFormattedTextField()                      |
+1.4     | ✔️          | ⭕️       | constructor   | JFormattedTextField(Format, Any)           |
+1.4     | ✔️          | ⭕️       | constructor   | JFormattedTextField(Any)                   |
+1.4     | ✔️          | ⭕️       | constructor   | JFormattedTextField(AbstractFormatter)     |
+1.4     | ✔️          | ⭕️       | method        | getValue()                                 |
+1.4     | ✔️          | ⭕️       | method        | setValue(Object)                           |
+1.4     | ✔️          | ⭕️       | method        | commitEdit()                               | throws ParseException
+1.4     | ✔️          | ⭕️       | method        | setFormatterFactory(AbstractFormatterFactory) |
+1.4     | ✔️          | ⭕️       | method        | getFormatter()                             |
+
+##### javax.swing.JFormattedTextField.AbstractFormatter
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.4     | ✔️          | ⭕️       | method        | stringToValue(String)       | abstract, throws ParseException
+1.4     | ✔️          | ⭕️       | method        | valueToString(Object)       | abstract, throws ParseException
+
+##### javax.swing.JFormattedTextField.AbstractFormatterFactory
+
+version | implemented | tested   | type          | name                                         | more informations
+------- | ----------- | -------- | ------------- | -------------------------------------------- | -----------------
+1.4     | ✔️          | ⭕️       | method        | getFormatter(JFormattedTextField)            | abstract
+
+##### javax.swing.text.DefaultFormatter
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.4     | ✔️          | ⭕️       | method        | setAllowsInvalid(boolean)   |
+1.4     | ✔️          | ⭕️       | method        | setCommitsOnValidEdit(boolean) |
+1.4     | ✔️          | ⭕️       | method        | setOverwriteMode(boolean)   |
+1.4     | ✔️          | ⭕️       | method        | stringToValue(String)       |
+1.4     | ✔️          | ⭕️       | method        | valueToString(Object)       |
+
+##### javax.swing.text.InternationalFormatter
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.4     | ✔️          | ⭕️       | constructor   | InternationalFormatter(Format) |
+1.4     | ✔️          | ⭕️       | method        | setMinimum(Comparable)      |
+1.4     | ✔️          | ⭕️       | method        | setMaximum(Comparable)      |
+1.4     | ✔️          | ⭕️       | method        | stringToValue(String)       |
+1.4     | ✔️          | ⭕️       | method        | valueToString(Object)       |
+
+##### javax.swing.text.NumberFormatter
+
+version | implemented | tested   | type          | name                           | more informations
+------- | ----------- | -------- | ------------- | ------------------------------ | -----------------
+1.4     | ✔️          | ⭕️       | constructor   | NumberFormatter(NumberFormat)  |
+
+##### javax.swing.text.DateFormatter
+
+version | implemented | tested   | type          | name                           | more informations
+------- | ----------- | -------- | ------------- | ------------------------------ | -----------------
+1.4     | ✔️          | ⭕️       | constructor   | DateFormatter(DateFormat)      |
+
+##### javax.swing.text.MaskFormatter
+
+version | implemented | tested   | type          | name                              | more informations
+------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
+1.4     | ✔️          | ⭕️       | constructor   | MaskFormatter(String)             | throws ParseException
+1.4     | ✔️          | ⭕️       | method        | setPlaceholderCharacter(char)     |
+1.4     | ✔️          | ⭕️       | method        | setPlaceholder(String)            |
+1.4     | ✔️          | ⭕️       | method        | setValueContainsLiteralCharacters(boolean) |
+1.4     | ✔️          | ⭕️       | method        | stringToValue(String)             |
+1.4     | ✔️          | ⭕️       | method        | valueToString(Object)             |
+
+> **Mask characters:** `#` digit, `A` letter/digit, `?` letter, `*` any, `U` upper, `L` lower, `H` hex digit, `'` quote literal.

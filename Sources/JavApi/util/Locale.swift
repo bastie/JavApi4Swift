@@ -31,8 +31,21 @@ extension java.util {
 
     public var delegate : Foundation.Locale!
     
+    // MARK: - Default locale (global, thread-unsafe — matches Java behaviour)
+
+    nonisolated(unsafe) private static var _default: Locale? = nil
+
     public static func getDefault() -> Locale {
-      return Locale()
+      return _default ?? Locale()
+    }
+
+    /// Sets the default locale for this JVM instance.
+    ///
+    /// Equivalent to Java's `Locale.setDefault(Locale)`.
+    /// Affects all locale-sensitive operations that use `Locale.getDefault()`,
+    /// including `Java2SwiftFormatter` grouping/decimal output.
+    public static func setDefault(_ locale: Locale) {
+      _default = locale
     }
     
     public init() {
