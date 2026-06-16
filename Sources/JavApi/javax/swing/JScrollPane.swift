@@ -75,6 +75,10 @@ extension javax.swing {
     /// Width / height of the scrollbar strip.
     public let scrollbarThickness: Int = 16
 
+    /// Exposed for `BasicScrollPaneUI` — do not call from application code.
+    var showVBarPublic: Bool { showVBar }
+    var showHBarPublic: Bool { showHBar }
+
     private var showVBar: Bool {
       switch _vPolicy {
       case JScrollPane.VERTICAL_SCROLLBAR_ALWAYS: return true
@@ -104,23 +108,37 @@ extension javax.swing {
       _vPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
       _hPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
       super.init()
+      _registerChildren()
       _connectScrollBars()
+      updateUI()
     }
 
     public init(_ view: java.awt.Component) {
       _vPolicy = JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED
       _hPolicy = JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED
       super.init()
+      _registerChildren()
       _connectScrollBars()
       viewport.setView(view)
+      updateUI()
     }
 
     public init(_ view: java.awt.Component, _ vsbPolicy: Int, _ hsbPolicy: Int) {
       _vPolicy = vsbPolicy
       _hPolicy = hsbPolicy
       super.init()
+      _registerChildren()
       _connectScrollBars()
       viewport.setView(view)
+      updateUI()
+    }
+
+    /// Register viewport and scrollbars as AWT children so the HitTest
+    /// can traverse the full component tree.
+    private func _registerChildren() {
+      add(viewport)
+      add(vScrollBar)
+      add(hScrollBar)
     }
 
     // -------------------------------------------------------------------------
@@ -211,49 +229,12 @@ extension javax.swing {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
+    override open func getUIClassID() -> String { "ScrollPaneUI" }
+
     override open func paint(_ g: java.awt.Graphics) {
-      doLayout()
-
-      let w = bounds.width, h = bounds.height
-      let t = scrollbarThickness
-      let vb = showVBar, hb = showHBar
-      let vpW = w - (vb ? t : 0)
-      let vpH = h - (hb ? t : 0)
-
-      // Viewport — translate graphics to viewport's child position (0,0)
-      g.save()
-      g.clipRect(0, 0, vpW, vpH)
-      viewport.paint(g)
-      g.restore()
-
-      // Vertical scrollbar
-      if vb {
-        g.save()
-        g.translate(vpW, 0)
-        vScrollBar.paint(g)
-        g.restore()
+      if let ui = getUI() {
+        ui.paint(g, on: self)
       }
-
-      // Horizontal scrollbar
-      if hb {
-        g.save()
-        g.translate(0, vpH)
-        hScrollBar.paint(g)
-        g.restore()
-      }
-
-      // Corner fill when both bars visible
-      if vb && hb {
-        g.setColor(java.awt.SystemColor.control)
-        g.fillRect(vpW, vpH, t, t)
-      }
-
-      // Border (local coordinates)
-      g.setColor(java.awt.SystemColor.windowBorder)
-      g.drawLine(0,   0,   w-1, 0)
-      g.drawLine(0,   0,   0,   h-1)
-      g.drawLine(w-1, 0,   w-1, h-1)
-      g.drawLine(0,   h-1, w-1, h-1)
     }
 
     // -------------------------------------------------------------------------

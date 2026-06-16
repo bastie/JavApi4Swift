@@ -341,6 +341,52 @@ final class _SwiftUINativeCanvas: NSView {
       self.setNeedsDisplay(bounds)
       needsDisplay  = true
 
+    } else if let jtf = hit as? javax.swing.JTextField {
+      // Swing JTextField: simple left-to-right char index via font metrics
+      let fm      = java.awt.FontMetrics.make(for: jtf.font)
+      let text    = jtf.getText()
+      let chars   = Array(text)
+      let relX    = lx - 4   // 4px left padding (matches BasicTextFieldUI)
+      var prev    = 0
+      var clickIdx = chars.count
+      for i in 0..<chars.count {
+        let next = fm.stringWidth(String(chars.prefix(i + 1)))
+        if relX <= (prev + next) / 2 { clickIdx = i; break }
+        prev = next
+      }
+      if event.modifierFlags.contains(.shift) {
+        jtf.moveCaretPosition(clickIdx)
+      } else {
+        jtf.setCaretPosition(clickIdx)
+      }
+      needsDisplay = true
+
+    } else if let jta = hit as? javax.swing.JTextArea {
+      // Swing JTextArea: find line by y, then char by x
+      let fm     = java.awt.FontMetrics.make(for: jta.font)
+      let lineH  = fm.getHeight()
+      let relY   = ly - 3   // 3px top padding (matches BasicTextAreaUI)
+      let relX   = lx - 4
+      let lines  = jta.getText().components(separatedBy: "\n")
+      let lineIdx = max(0, min(lines.count - 1, relY / max(1, lineH)))
+      var offset  = 0
+      for i in 0..<lineIdx { offset += lines[i].count + 1 }
+      let lineChars = Array(lines[lineIdx])
+      var prev = 0
+      var col  = lineChars.count
+      for i in 0..<lineChars.count {
+        let next = fm.stringWidth(String(lineChars.prefix(i + 1)))
+        if relX <= (prev + next) / 2 { col = i; break }
+        prev = next
+      }
+      let clickIdx = offset + col
+      if event.modifierFlags.contains(.shift) {
+        jta.moveCaretPosition(clickIdx)
+      } else {
+        jta.setCaretPosition(clickIdx)
+      }
+      needsDisplay = true
+
     } else if let tf = hit as? java.awt.TextField {
       // _charIndex uses absolute coords — reconstruct from component origin + local
       let clickIdx = tf._charIndex(at: tf.bounds.x + lx)
@@ -530,6 +576,46 @@ final class _SwiftUINativeCanvas: NSView {
       return
     }
     
+    // Swing JTextField selection drag
+    if let jtf = _SwiftUIFocusManager.shared.focusOwner as? javax.swing.JTextField {
+      let fm    = java.awt.FontMetrics.make(for: jtf.font)
+      let chars = Array(jtf.getText())
+      let relX  = Int(pt.x) - jtf.bounds.x - 4
+      var prev  = 0
+      var idx   = chars.count
+      for i in 0..<chars.count {
+        let next = fm.stringWidth(String(chars.prefix(i + 1)))
+        if relX <= (prev + next) / 2 { idx = i; break }
+        prev = next
+      }
+      jtf.moveCaretPosition(idx)
+      needsDisplay = true
+      return
+    }
+
+    // Swing JTextArea selection drag
+    if let jta = _SwiftUIFocusManager.shared.focusOwner as? javax.swing.JTextArea {
+      let fm     = java.awt.FontMetrics.make(for: jta.font)
+      let lineH  = fm.getHeight()
+      let relY   = Int(pt.y) - jta.bounds.y - 3
+      let relX   = Int(pt.x) - jta.bounds.x - 4
+      let lines  = jta.getText().components(separatedBy: "\n")
+      let lineIdx = max(0, min(lines.count - 1, relY / max(1, lineH)))
+      var offset  = 0
+      for i in 0..<lineIdx { offset += lines[i].count + 1 }
+      let lineChars = Array(lines[lineIdx])
+      var prev = 0
+      var col  = lineChars.count
+      for i in 0..<lineChars.count {
+        let next = fm.stringWidth(String(lineChars.prefix(i + 1)))
+        if relX <= (prev + next) / 2 { col = i; break }
+        prev = next
+      }
+      jta.moveCaretPosition(offset + col)
+      needsDisplay = true
+      return
+    }
+
     // TextField selection drag
     if let tf = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextField {
       let idx = tf._charIndex(at: Int(pt.x))
@@ -537,7 +623,7 @@ final class _SwiftUINativeCanvas: NSView {
       needsDisplay = true
       return
     }
-    
+
     // TextArea selection drag
     if let ta = _SwiftUIFocusManager.shared.focusOwner as? java.awt.TextArea {
       let idx = ta._charIndex(atX: Int(pt.x), atY: Int(pt.y))
@@ -693,7 +779,7 @@ final class _SwiftUINativeCanvas: NSView {
     let effectiveCur: NSCursor?
     if let cur = comp.cursor {
       effectiveCur = nsCursor(for: cur)
-    } else if comp is java.awt.TextComponent {
+    } else if comp is java.awt.TextComponent || comp is javax.swing.text.JTextComponent {
       effectiveCur = .iBeam
     } else {
       effectiveCur = nil
@@ -819,7 +905,8 @@ final class _SwiftUINativeCanvas: NSView {
   /// implicit cursors for text components, then arrow.
   private func effectiveCursor(for comp: java.awt.Component?) -> NSCursor {
     // Implicit cursor for text-editing components
-    if comp is java.awt.TextField || comp is java.awt.TextArea {
+    if comp is java.awt.TextField || comp is java.awt.TextArea
+        || comp is javax.swing.text.JTextComponent {
       return .iBeam
     }
     // Walk up parent chain for explicit cursor

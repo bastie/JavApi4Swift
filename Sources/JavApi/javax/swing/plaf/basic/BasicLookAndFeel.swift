@@ -21,6 +21,8 @@ extension javax.swing.plaf.basic {
   /// | `"MenuBarUI"`     | `BasicMenuBarUI`       |
   /// | `"PopupMenuUI"`   | `BasicPopupMenuUI`     |
   /// | `"RadioButtonUI"` | `BasicRadioButtonUI`   |
+  /// | `"TextAreaUI"`    | `BasicTextAreaUI`      |
+  /// | `"TextFieldUI"`   | `BasicTextFieldUI`     |
   /// | `"ToggleButtonUI"`| `BasicToggleButtonUI`  |
   ///
   /// - Since: Java 1.2
@@ -45,7 +47,12 @@ extension javax.swing.plaf.basic {
       d["MenuBarUI"]      = { javax.swing.plaf.basic.BasicMenuBarUI()      }
       d["PopupMenuUI"]    = { javax.swing.plaf.basic.BasicPopupMenuUI()    }
       d["RadioButtonUI"]  = { javax.swing.plaf.basic.BasicRadioButtonUI()  }
+      d["ScrollBarUI"]    = { javax.swing.plaf.basic.BasicScrollBarUI()    }
+      d["ScrollPaneUI"]   = { javax.swing.plaf.basic.BasicScrollPaneUI()   }
       d["SpinnerUI"]      = { javax.swing.plaf.basic.BasicSpinnerUI()      }
+      d["PasswordFieldUI"] = { javax.swing.plaf.basic.BasicPasswordFieldUI() }
+      d["TextAreaUI"]     = { javax.swing.plaf.basic.BasicTextAreaUI()     }
+      d["TextFieldUI"]    = { javax.swing.plaf.basic.BasicTextFieldUI()    }
       d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
       return d
     }

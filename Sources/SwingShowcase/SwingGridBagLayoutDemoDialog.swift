@@ -7,16 +7,15 @@ import JavApi
 
 /// Swing-Pendant zu `GridBagDemoDialog` im AWTShowcase.
 ///
-/// Demonstriert GridBagLayout mit einem formähnlichen Aufbau.
-/// Da JTextField/JTextArea noch nicht im Swing-Paket vorhanden sind,
-/// werden JLabel-Platzhalter mit Rahmen-Optik verwendet.
+/// Demonstriert GridBagLayout mit einem formähnlichen Aufbau
+/// unter Verwendung echter Swing-Texteingabekomponenten.
 ///
 /// Layout (3 Spalten):
 /// ```
 /// [col 0]       [col 1+2: span 2, weightx=1]
-/// "Name:"       [ Platzhalter — Max Mustermann      ]
-/// "Stadt:"      [ Platzhalter — Berlin              ]
-/// "Notiz:"      [ Platzhalter — mehrzeilig          ]
+/// "Name:"       [ JTextField — Max Mustermann      ]
+/// "Stadt:"      [ JTextField — Berlin              ]
+/// "Notiz:"      [ JTextArea  — mehrzeilig (scroll) ]
 ///               [Abbrechen]  [OK]
 /// ```
 @MainActor
@@ -24,7 +23,7 @@ final class SwingGridBagLayoutDemoDialog: javax.swing.JDialog {
 
   init(_ owner: javax.swing.JFrame) {
     super.init(owner, "LayoutManager – GridBagLayout", false)
-    setSize(400, 300)
+    setSize(420, 380)
 
     let gbl = java.awt.GridBagLayout()
     getContentPane().setLayout(gbl)
@@ -49,46 +48,52 @@ final class SwingGridBagLayoutDemoDialog: javax.swing.JDialog {
       getContentPane().add(comp)
     }
 
-    // Helper: field placeholder (styled JLabel)
-    func makeField(_ text: String) -> javax.swing.JLabel {
-      let lbl = javax.swing.JLabel(text)
-      lbl.setOpaque(true)
-      lbl.setBackground(java.awt.Color.white)
-      lbl.setPreferredSize(java.awt.Dimension(200, 24))
-      return lbl
-    }
-
     // Row 0 — Name
     let lblName = javax.swing.JLabel("Name:")
     add(lblName, gx: 0, gy: 0)
-    let tfName = makeField(java.util.Locale.getDefault().getLanguage() == "de" ? "Max Mustermann" : "Jane Doe")
+    let tfName = javax.swing.JTextField(
+      java.util.Locale.getDefault().getLanguage() == "de" ? "Max Mustermann" : "Jane Doe", 20)
     add(tfName, gx: 1, gy: 0, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
     // Row 1 — Stadt
     let lblStadt = javax.swing.JLabel("Stadt:")
     add(lblStadt, gx: 0, gy: 1)
-    let tfStadt = makeField("Berlin")
+    let tfStadt = javax.swing.JTextField("Berlin", 20)
     add(tfStadt, gx: 1, gy: 1, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
-    // Row 2 — Notiz (expandable)
-    let lblNotiz = javax.swing.JLabel("Notiz:")
-    add(lblNotiz, gx: 0, gy: 2, anchor: java.awt.GridBagConstraints.NORTHWEST)
-    let taNotiz = makeField("Anmerkungen hier…")
-    taNotiz.setVerticalAlignment(javax.swing.JLabel.TOP)
-    taNotiz.setPreferredSize(java.awt.Dimension(200, 80))
-    add(taNotiz, gx: 1, gy: 2, gw: 2, weightx: 1.0, weighty: 1.0, fill: java.awt.GridBagConstraints.BOTH)
+    // Row 2 — Passwort
+    let lblPw = javax.swing.JLabel("Passwort:")
+    add(lblPw, gx: 0, gy: 2)
+    let pfPw = javax.swing.JPasswordField(20)
+    add(pfPw, gx: 1, gy: 2, gw: 2, weightx: 1.0, fill: java.awt.GridBagConstraints.HORIZONTAL)
 
-    // Row 3 — Buttons
+    // Row 3 — Notiz (expandable, wrapped in JScrollPane)
+    let lblNotiz = javax.swing.JLabel("Notiz:")
+    add(lblNotiz, gx: 0, gy: 3, anchor: java.awt.GridBagConstraints.NORTHWEST)
+    let taNotiz = javax.swing.JTextArea(
+      java.util.Locale.getDefault().getLanguage() == "de" ? "Anmerkungen hier…" : "Insert notes here…",
+      4, 20)
+    taNotiz.setLineWrap(true)
+    taNotiz.setWrapStyleWord(true)
+    let scrollNotiz = javax.swing.JScrollPane(taNotiz)
+    add(scrollNotiz, gx: 1, gy: 3, gw: 2, weightx: 1.0, weighty: 1.0,
+        fill: java.awt.GridBagConstraints.BOTH)
+
+    // Row 4 — Buttons
     let btnCancel = javax.swing.JButton("Abbrechen")
     btnCancel.setPreferredSize(java.awt.Dimension(100, 28))
     btnCancel.addActionListener(SwingDialogCloseListener(dialog: self))
-    add(btnCancel, gx: 1, gy: 3, anchor: java.awt.GridBagConstraints.EAST,
+    add(btnCancel, gx: 1, gy: 4, anchor: java.awt.GridBagConstraints.EAST,
         insets: java.awt.Insets(4, 4, 8, 2))
 
     let btnOK = javax.swing.JButton("OK")
     btnOK.setPreferredSize(java.awt.Dimension(70, 28))
-    btnOK.addActionListener(SwingGridBagOKListener(dialog: self))
-    add(btnOK, gx: 2, gy: 3, anchor: java.awt.GridBagConstraints.EAST,
+    btnOK.addActionListener(SwingGridBagOKListener(dialog: self,
+                                                    nameField: tfName,
+                                                    stadtField: tfStadt,
+                                                    passwordField: pfPw,
+                                                    notizArea: taNotiz))
+    add(btnOK, gx: 2, gy: 4, anchor: java.awt.GridBagConstraints.EAST,
         insets: java.awt.Insets(4, 2, 8, 8))
   }
 }
@@ -99,11 +104,30 @@ final class SwingGridBagLayoutDemoDialog: javax.swing.JDialog {
 
 @MainActor
 final class SwingGridBagOKListener: java.awt.event.ActionListener {
-  private weak var dialog: javax.swing.JDialog?
-  init(dialog: javax.swing.JDialog) { self.dialog = dialog }
+  private weak var dialog:         javax.swing.JDialog?
+  private weak var nameField:      javax.swing.JTextField?
+  private weak var stadtField:     javax.swing.JTextField?
+  private weak var passwordField:  javax.swing.JPasswordField?
+  private weak var notizArea:      javax.swing.JTextArea?
+
+  init(dialog:         javax.swing.JDialog,
+       nameField:      javax.swing.JTextField,
+       stadtField:     javax.swing.JTextField,
+       passwordField:  javax.swing.JPasswordField,
+       notizArea:      javax.swing.JTextArea) {
+    self.dialog        = dialog
+    self.nameField     = nameField
+    self.stadtField    = stadtField
+    self.passwordField = passwordField
+    self.notizArea     = notizArea
+  }
 
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    print("GridBagLayout-Demo OK button pressed")
+    let name  = nameField?.getText()                        ?? ""
+    let stadt = stadtField?.getText()                       ?? ""
+    let pw    = String(passwordField?.getPassword() ?? [])
+    let notiz = notizArea?.getText()                        ?? ""
+    print("GridBagLayout-Demo OK: name=\(name) stadt=\(stadt) pw=\(pw) notiz=\(notiz)")
     dialog?.setVisible(false)
   }
 }

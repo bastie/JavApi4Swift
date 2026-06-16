@@ -11,8 +11,11 @@ import AppKit
 import UIKit
 #endif
 
-/// Tracks which AWT component currently has keyboard focus and routes
-/// keyboard / clipboard operations to the active TextComponent.
+/// Tracks which component currently has keyboard focus and routes
+/// keyboard / clipboard operations to the active text-input component.
+///
+/// Both AWT (`java.awt.TextComponent`) and Swing (`javax.swing.text.JTextComponent`)
+/// are handled uniformly via the `_AnyTextInput` bridge protocol.
 @MainActor
 public final class _SwiftUIFocusManager {
 
@@ -44,68 +47,65 @@ public final class _SwiftUIFocusManager {
 
   /// Insert `ch` at the caret, replacing any selection.
   func typeCharacter(_ ch: Character) {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
     var chars = Array(tc.getText())
-    if tc.hasSelection {
-      let lo = tc.selectionStart, hi = tc.selectionEnd
+    if tc._ti_hasSelection {
+      let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
       chars.removeSubrange(lo..<hi)
       chars.insert(ch, at: lo)
       tc.setText(String(chars))
       tc.setCaretPosition(lo + 1)
     } else {
-      let pos = min(tc.caretPosition, chars.count)
+      let pos = min(tc._ti_caretPosition, chars.count)
       chars.insert(ch, at: pos)
       tc.setText(String(chars))
       tc.setCaretPosition(pos + 1)
     }
-    (tc as? java.awt.TextArea)?.ensureCaretVisible()
+    tc._ti_ensureCaretVisible()
   }
 
   /// Delete the selection or the character before the caret (Backspace).
   func handleBackspace() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
     var chars = Array(tc.getText())
-    if tc.hasSelection {
-      let lo = tc.selectionStart, hi = tc.selectionEnd
+    if tc._ti_hasSelection {
+      let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
       chars.removeSubrange(lo..<hi)
       tc.setText(String(chars))
       tc.setCaretPosition(lo)
     } else {
-      let pos = tc.caretPosition
+      let pos = tc._ti_caretPosition
       guard pos > 0 else { return }
       chars.remove(at: pos - 1)
       tc.setText(String(chars))
       tc.setCaretPosition(pos - 1)
     }
-    (tc as? java.awt.TextArea)?.ensureCaretVisible()
+    tc._ti_ensureCaretVisible()
   }
 
   /// Delete the selection or the character after the caret (Forward Delete).
   func handleDelete() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
     var chars = Array(tc.getText())
-    if tc.hasSelection {
-      let lo = tc.selectionStart, hi = tc.selectionEnd
+    if tc._ti_hasSelection {
+      let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
       chars.removeSubrange(lo..<hi)
       tc.setText(String(chars))
       tc.setCaretPosition(lo)
     } else {
-      let pos = tc.caretPosition
+      let pos = tc._ti_caretPosition
       guard pos < chars.count else { return }
       chars.remove(at: pos)
       tc.setText(String(chars))
       tc.setCaretPosition(pos)
     }
-    (tc as? java.awt.TextArea)?.ensureCaretVisible()
+    tc._ti_ensureCaretVisible()
   }
 
-  /// Return / Enter: fire ActionEvent in TextField, insert newline in TextArea.
+  /// Return / Enter: fire ActionEvent in TextField / JTextField,
+  /// insert newline in TextArea / JTextArea.
   func handleEnter() {
-    if let tf = focusOwner as? java.awt.TextField {
-      tf.doAction()
-    } else if let ta = focusOwner as? java.awt.TextArea, ta.editable {
-      typeCharacter("\n")
-    }
+    (focusOwner as? _AnyTextInput)?._ti_handleEnter()
   }
 
   // ---------------------------------------------------------------------------
@@ -113,56 +113,39 @@ public final class _SwiftUIFocusManager {
   // ---------------------------------------------------------------------------
 
   func selectAll() {
-    (focusOwner as? java.awt.TextComponent)?.selectAll()
+    (focusOwner as? _AnyTextInput)?.selectAll()
   }
 
   /// Move the caret by `delta` characters, optionally extending the selection.
   func moveCaret(by delta: Int, extending: Bool) {
-    guard let tc = focusOwner as? java.awt.TextComponent else { return }
-    if !extending && tc.hasSelection {
-      let edge = delta < 0 ? tc.selectionStart : tc.selectionEnd
+    guard let tc = focusOwner as? _AnyTextInput else { return }
+    if !extending && tc._ti_hasSelection {
+      let edge = delta < 0 ? tc._ti_selectionStart : tc._ti_selectionEnd
       tc.setCaretPosition(edge)
       return
     }
-    let newPos = max(0, min(tc.caretPosition + delta, tc.getText().count))
+    let newPos = max(0, min(tc._ti_caretPosition + delta, tc.getText().count))
     if extending {
       tc.extendSelection(to: newPos)
     } else {
       tc.setCaretPosition(newPos)
     }
-    (tc as? java.awt.TextArea)?.ensureCaretVisible()
+    tc._ti_ensureCaretVisible()
   }
 
-  /// Move caret up one line (TextArea) or to start of text (TextField).
+  /// Move caret up one line, or to start of text for single-line inputs.
   func moveCaretUp(extending: Bool) {
-    if let ta = focusOwner as? java.awt.TextArea {
-      ta._moveCaretToAdjacentLine(up: true, extending: extending)
-    } else if let tc = focusOwner as? java.awt.TextComponent {
-      // TextField: Up → go to beginning
-      if extending { tc.extendSelection(to: 0) } else { tc.setCaretPosition(0) }
-    }
+    (focusOwner as? _AnyTextInput)?._ti_moveCaretToAdjacentLine(up: true, extending: extending)
   }
 
-  /// Move caret down one line (TextArea) or to end of text (TextField).
+  /// Move caret down one line, or to end of text for single-line inputs.
   func moveCaretDown(extending: Bool) {
-    if let ta = focusOwner as? java.awt.TextArea {
-      ta._moveCaretToAdjacentLine(up: false, extending: extending)
-    } else if let tc = focusOwner as? java.awt.TextComponent {
-      // TextField: Down → go to end
-      let end = tc.getText().count
-      if extending { tc.extendSelection(to: end) } else { tc.setCaretPosition(end) }
-    }
+    (focusOwner as? _AnyTextInput)?._ti_moveCaretToAdjacentLine(up: false, extending: extending)
   }
 
-  /// Jump to beginning (`end = false`) or end (`end = true`) of the current
-  /// line (TextArea) or whole text (TextField).
+  /// Jump to start or end of current line (multiline) or whole text (single-line).
   func moveCaretToEnd(end: Bool, extending: Bool) {
-    if let ta = focusOwner as? java.awt.TextArea {
-      ta._moveCaretToLineEdge(end: end, extending: extending)
-    } else if let tc = focusOwner as? java.awt.TextComponent {
-      let newPos = end ? tc.getText().count : 0
-      if extending { tc.extendSelection(to: newPos) } else { tc.setCaretPosition(newPos) }
-    }
+    (focusOwner as? _AnyTextInput)?._ti_moveCaretToLineEdge(end: end, extending: extending)
   }
 
   // ---------------------------------------------------------------------------
@@ -172,28 +155,27 @@ public final class _SwiftUIFocusManager {
   #if canImport(AppKit)
 
   func copySelection() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.hasSelection else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc._ti_hasSelection else { return }
     let chars    = Array(tc.getText())
-    let selected = String(chars[tc.selectionStart..<tc.selectionEnd])
+    let selected = String(chars[tc._ti_selectionStart..<tc._ti_selectionEnd])
     NSPasteboard.general.clearContents()
     NSPasteboard.general.setString(selected, forType: .string)
   }
 
   func cutSelection() {
-    guard let tc = focusOwner as? java.awt.TextComponent,
-          tc.editable, tc.hasSelection else { return }
+    guard let tc = focusOwner as? _AnyTextInput,
+          tc.isEditable(), tc._ti_hasSelection else { return }
     copySelection()
     handleBackspace()
   }
 
   func pasteText() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
     guard let text = NSPasteboard.general.string(forType: .string) else { return }
     for ch in text { typeCharacter(ch) }
   }
 
   #elseif canImport(UIKit) && os(watchOS)
-  // watchOS: UIPasteboard.general.string is unavailable — clipboard ops are no-ops
   func copySelection()  {}
   func cutSelection()   {}
   func pasteText()      {}
@@ -201,21 +183,21 @@ public final class _SwiftUIFocusManager {
   #elseif canImport(UIKit) && !os(tvOS)
 
   func copySelection() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.hasSelection else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc._ti_hasSelection else { return }
     let chars    = Array(tc.getText())
-    let selected = String(chars[tc.selectionStart..<tc.selectionEnd])
+    let selected = String(chars[tc._ti_selectionStart..<tc._ti_selectionEnd])
     UIPasteboard.general.string = selected
   }
 
   func cutSelection() {
-    guard let tc = focusOwner as? java.awt.TextComponent,
-          tc.editable, tc.hasSelection else { return }
+    guard let tc = focusOwner as? _AnyTextInput,
+          tc.isEditable(), tc._ti_hasSelection else { return }
     copySelection()
     handleBackspace()
   }
 
   func pasteText() {
-    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
     guard let text = UIPasteboard.general.string else { return }
     for ch in text { typeCharacter(ch) }
   }
