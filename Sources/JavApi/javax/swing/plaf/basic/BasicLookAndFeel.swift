@@ -57,6 +57,7 @@ extension javax.swing.plaf.basic {
       d["TextFieldUI"]    = { javax.swing.plaf.basic.BasicTextFieldUI()    }
       d["SplitPaneUI"]    = { javax.swing.plaf.basic.BasicSplitPaneUI()    }
       d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
+      d["TreeUI"]         = { javax.swing.plaf.basic.BasicTreeUI()         }
       return d
     }
   }

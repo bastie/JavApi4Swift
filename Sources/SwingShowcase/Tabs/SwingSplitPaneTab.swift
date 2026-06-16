@@ -7,20 +7,27 @@ import JavApi
 
 /// Demonstrates `JSplitPane` with a master/detail layout.
 ///
-/// The left pane is a placeholder for the future `JTree` master view;
-/// the right pane is a placeholder for the future `JTable` detail view.
-/// Replace the placeholder panels once `JTree` and `JTable` are implemented.
+/// Left: JTree with a sample project structure.
+/// Right: Placeholder for the future JTable detail view.
 @MainActor
 class SwingSplitPaneTab {
 
   static func build() -> java.awt.Component {
-    // ── Master (left) — placeholder for JTree, wrapped in JScrollPane ────────
-    let masterPanel = javax.swing.JPanel(java.awt.BorderLayout())
-    let masterLabel = javax.swing.JLabel("Master (JTree – coming soon)")
-    masterLabel.setHorizontalAlignment(javax.swing.JLabel.CENTER)
-    masterPanel.add(masterLabel, java.awt.BorderLayout.CENTER)
-    masterPanel.setBackground(java.awt.Color(230, 240, 255))
-    let masterScroll = javax.swing.JScrollPane(masterPanel)
+    // ── Master (left) — JTree wrapped in JScrollPane ─────────────────────────
+    let root = javax.swing.tree.DefaultMutableTreeNode("Projekt")
+    let srcNode  = javax.swing.tree.DefaultMutableTreeNode("Sources")
+    let resNode  = javax.swing.tree.DefaultMutableTreeNode("Resources")
+    let testNode = javax.swing.tree.DefaultMutableTreeNode("Tests")
+    root.add(srcNode)
+    root.add(resNode)
+    root.add(testNode)
+    srcNode.add(javax.swing.tree.DefaultMutableTreeNode("Main.swift"))
+    srcNode.add(javax.swing.tree.DefaultMutableTreeNode("AppDelegate.swift"))
+    resNode.add(javax.swing.tree.DefaultMutableTreeNode("Assets.xcassets"))
+    resNode.add(javax.swing.tree.DefaultMutableTreeNode("Info.plist"))
+    testNode.add(javax.swing.tree.DefaultMutableTreeNode("AppTests.swift"))
+    let tree = javax.swing.JTree(root)
+    let masterScroll = javax.swing.JScrollPane(tree)
 
     // ── Detail (right) — placeholder for JTable, wrapped in JScrollPane ──────
     let detailPanel = javax.swing.JPanel(java.awt.BorderLayout())
