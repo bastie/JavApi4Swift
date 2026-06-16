@@ -25,6 +25,8 @@ extension javax.swing {
   @MainActor
   open class JRadioButton: javax.swing.JToggleButton {
 
+    override open func getUIClassID() -> String { "RadioButtonUI" }
+
     // -------------------------------------------------------------------------
     // MARK: Initialisers
     // -------------------------------------------------------------------------

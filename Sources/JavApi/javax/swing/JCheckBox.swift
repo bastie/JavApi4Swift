@@ -21,6 +21,8 @@ extension javax.swing {
   @MainActor
   open class JCheckBox: javax.swing.JToggleButton {
 
+    override open func getUIClassID() -> String { "CheckBoxUI" }
+
     // -------------------------------------------------------------------------
     // MARK: Initialisers
     // -------------------------------------------------------------------------

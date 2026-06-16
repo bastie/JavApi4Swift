@@ -80,7 +80,7 @@ extension javax.swing {
       case JScrollPane.VERTICAL_SCROLLBAR_ALWAYS: return true
       case JScrollPane.VERTICAL_SCROLLBAR_NEVER:  return false
       default:
-        guard let v = viewport.getView() else { return false }
+        guard let v = viewport.getView(), bounds.height > 0 else { return false }
         return v.getPreferredSize().height > bounds.height
       }
     }
@@ -90,7 +90,7 @@ extension javax.swing {
       case JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS: return true
       case JScrollPane.HORIZONTAL_SCROLLBAR_NEVER:  return false
       default:
-        guard let v = viewport.getView() else { return false }
+        guard let v = viewport.getView(), bounds.width > 0 else { return false }
         let availW = bounds.width - (showVBar ? scrollbarThickness : 0)
         return v.getPreferredSize().width > availW
       }
@@ -167,7 +167,7 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func doLayout() {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      let w = bounds.width, h = bounds.height
       let t = scrollbarThickness
 
       let vb = showVBar
@@ -176,11 +176,12 @@ extension javax.swing {
       let vpW = w - (vb ? t : 0)
       let vpH = h - (hb ? t : 0)
 
-      // Viewport
-      viewport.bounds = java.awt.Rectangle(x, y, max(0, vpW), max(0, vpH))
+      // Viewport — child coordinates start at (0, 0) relative to this component
+      viewport.bounds = java.awt.Rectangle(0, 0, max(0, vpW), max(0, vpH))
+      viewport.doLayout()   // size and position the view inside the viewport
 
       // Vertical scrollbar
-      vScrollBar.bounds = java.awt.Rectangle(x + vpW, y, t, max(0, vpH))
+      vScrollBar.bounds = java.awt.Rectangle(vpW, 0, t, max(0, vpH))
       vScrollBar.visible = vb
       if vb, let view = viewport.getView() {
         let viewH  = view.getPreferredSize().height
@@ -193,7 +194,7 @@ extension javax.swing {
       }
 
       // Horizontal scrollbar
-      hScrollBar.bounds = java.awt.Rectangle(x, y + vpH, max(0, vpW), t)
+      hScrollBar.bounds = java.awt.Rectangle(0, vpH, max(0, vpW), t)
       hScrollBar.visible = hb
       if hb, let view = viewport.getView() {
         let viewW  = view.getPreferredSize().width
@@ -213,28 +214,46 @@ extension javax.swing {
     override open func paint(_ g: java.awt.Graphics) {
       doLayout()
 
-      // Viewport
+      let w = bounds.width, h = bounds.height
+      let t = scrollbarThickness
+      let vb = showVBar, hb = showHBar
+      let vpW = w - (vb ? t : 0)
+      let vpH = h - (hb ? t : 0)
+
+      // Viewport — translate graphics to viewport's child position (0,0)
+      g.save()
+      g.clipRect(0, 0, vpW, vpH)
       viewport.paint(g)
+      g.restore()
 
-      // Scroll bars (only when visible)
-      if showVBar { vScrollBar.paint(g) }
-      if showHBar { hScrollBar.paint(g) }
-
-      // Corner fill
-      if showVBar && showHBar {
-        let cx = bounds.x + bounds.width  - scrollbarThickness
-        let cy = bounds.y + bounds.height - scrollbarThickness
-        g.setColor(java.awt.SystemColor.control)
-        g.fillRect(cx, cy, scrollbarThickness, scrollbarThickness)
+      // Vertical scrollbar
+      if vb {
+        g.save()
+        g.translate(vpW, 0)
+        vScrollBar.paint(g)
+        g.restore()
       }
 
-      // Border
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // Horizontal scrollbar
+      if hb {
+        g.save()
+        g.translate(0, vpH)
+        hScrollBar.paint(g)
+        g.restore()
+      }
+
+      // Corner fill when both bars visible
+      if vb && hb {
+        g.setColor(java.awt.SystemColor.control)
+        g.fillRect(vpW, vpH, t, t)
+      }
+
+      // Border (local coordinates)
       g.setColor(java.awt.SystemColor.windowBorder)
-      g.drawLine(x,     y,     x+w-1, y)
-      g.drawLine(x,     y,     x,     y+h-1)
-      g.drawLine(x+w-1, y,     x+w-1, y+h-1)
-      g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+      g.drawLine(0,   0,   w-1, 0)
+      g.drawLine(0,   0,   0,   h-1)
+      g.drawLine(w-1, 0,   w-1, h-1)
+      g.drawLine(0,   h-1, w-1, h-1)
     }
 
     // -------------------------------------------------------------------------
@@ -255,7 +274,14 @@ extension javax.swing {
     override open func getPreferredSize() -> java.awt.Dimension {
       let vs = viewport.getPreferredSize()
       let t  = scrollbarThickness
-      return java.awt.Dimension(vs.width + t, vs.height + t)
+      // Only reserve space for scrollbars that will actually appear.
+      // showVBar / showHBar depend on bounds, which may not be set yet during
+      // preferred-size negotiation — use the policy constants as a conservative
+      // estimate: ALWAYS → add thickness; NEVER → skip; AS_NEEDED → skip
+      // (assume content fits until proven otherwise).
+      let addV = (_vPolicy == JScrollPane.VERTICAL_SCROLLBAR_ALWAYS)   ? t : 0
+      let addH = (_hPolicy == JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS) ? t : 0
+      return java.awt.Dimension(vs.width + addV, vs.height + addH)
     }
 
     override open func dispose() {

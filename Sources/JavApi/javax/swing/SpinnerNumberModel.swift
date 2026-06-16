@@ -46,7 +46,7 @@ extension javax.swing {
     ///   - minimum:  Lower bound, or `nil` for unbounded.
     ///   - maximum:  Upper bound, or `nil` for unbounded.
     ///   - stepSize: Amount added/subtracted per step (must be > 0).
-    public init(value: Double = 0, minimum: Double? = nil, maximum: Double? = nil, stepSize: Double = 1) {
+    public init(_ value: Double = 0, _ minimum: Double? = nil, _ maximum: Double? = nil, _ stepSize: Double = 1) {
       _value    = value
       _minimum  = minimum
       _maximum  = maximum
@@ -54,11 +54,11 @@ extension javax.swing {
     }
 
     /// Creates an integer-style model (all values are whole numbers).
-    public convenience init(value: Int, minimum: Int, maximum: Int, stepSize: Int = 1) {
-      self.init(value: Double(value),
-                minimum: Double(minimum),
-                maximum: Double(maximum),
-                stepSize: Double(stepSize))
+    public init(_ value: Int, _ minimum: Int, _ maximum: Int, _ stepSize: Int = 1) {
+      _value    = Double(value)
+      _minimum  = Double(minimum)
+      _maximum  = Double(maximum)
+      _stepSize = Double(stepSize)
     }
 
     // -------------------------------------------------------------------------

@@ -57,6 +57,10 @@ extension javax.swing {
       invalidate()
     }
 
+    /// Returns the UIDefaults key used to look up the UI delegate class.
+    /// Subclasses override this to return e.g. `"ButtonUI"`, `"ListUI"`, etc.
+    open func getUIClassID() -> String { "ComponentUI" }
+
     /// Fetches and installs the UI delegate for this component from `UIManager`.
     ///
     /// Subclasses may override this; the base implementation asks `UIManager`

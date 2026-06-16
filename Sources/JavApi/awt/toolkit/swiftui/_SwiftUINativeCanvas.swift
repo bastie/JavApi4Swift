@@ -66,7 +66,57 @@ final class _SwiftUINativeCanvas: NSView {
     // No manual flip needed.
     let g = java.awt.Graphics2D(cgContext)
     component.paint(g)
+    // ── JComboBox popup overlay ──────────────────────────────────────────────
+    // Drawn after the full component tree so it is never clipped by parent containers.
+    if let found = _findOpenComboBox(in: component),
+       let combo = found as? _AnyJComboBox {
+      _paintComboBoxPopup(g, combo: combo, component: found)
+    }
     cgContext.restoreGState()
+  }
+
+  /// Renders the open JComboBox popup at absolute canvas coordinates.
+  private func _paintComboBoxPopup(_ g: java.awt.Graphics,
+                                   combo: _AnyJComboBox,
+                                   component comboComp: javax.swing.JComponent) {
+    let origin = _AWTHitTest.absoluteOrigin(comboComp)
+    let cw     = comboComp.bounds.width
+    let ch     = comboComp.bounds.height
+    let rowH   = combo._popupItemHeight()
+    let count  = combo._itemCount()
+    let selIdx  = combo._selectedIndex()
+    let hoverIdx = combo._rolloverIndex()
+    let px     = origin.x
+    let py     = origin.y + ch   // directly below the combo box
+    let pw     = cw
+    let ph     = count * rowH
+    let fm     = java.awt.FontMetrics.make(for: comboComp.font)
+
+    g.save()
+    // No clip — popup must overdraw any siblings
+    g.setColor(java.awt.SystemColor.window)
+    g.fillRect(px, py, pw, ph)
+
+    for i in 0..<count {
+      let iy = py + i * rowH
+      if i == hoverIdx || (hoverIdx < 0 && i == selIdx) {
+        g.setColor(java.awt.SystemColor.textHighlight)
+        g.fillRect(px + 1, iy, pw - 2, rowH)
+        g.setColor(java.awt.SystemColor.textHighlightText)
+      } else {
+        g.setColor(java.awt.SystemColor.windowText)
+      }
+      let label = combo._labelAt(i)
+      let ty = iy + (rowH - fm.getHeight()) / 2 + fm.getAscent()
+      g.drawString(label, px + 4, ty)
+    }
+
+    g.setColor(java.awt.SystemColor.controlShadow)
+    g.drawLine(px,      py,      px+pw-1, py)
+    g.drawLine(px,      py,      px,      py+ph-1)
+    g.drawLine(px+pw-1, py,      px+pw-1, py+ph-1)
+    g.drawLine(px,      py+ph-1, px+pw-1, py+ph-1)
+    g.restore()
   }
   
   // isFlipped=true → convert() already returns Y=0-at-top, matching AWT.
@@ -92,6 +142,8 @@ final class _SwiftUINativeCanvas: NSView {
   private var draggingList: java.awt.List?
   // Currently open Choice popup (tracked so outside clicks close it)
   private weak var openChoice: java.awt.Choice?
+  // Currently open JComboBox popup (tracked so outside clicks close it)
+  private weak var openComboBox: javax.swing.JComponent?
   // Currently open Swing JMenu (tracked so outside clicks close the popup)
   private weak var openMenu: javax.swing.JMenu?
   // True when mouseDown handled a menu-bar or popup click — mouseUp must not
@@ -242,6 +294,33 @@ final class _SwiftUINativeCanvas: NSView {
       }
     }
     
+    // ── JComboBox popup handling ─────────────────────────────────────────────
+    // Find any open JComboBox popup in the component tree.
+    if openComboBox == nil {
+      openComboBox = _findOpenComboBox(in: component)
+    }
+    if let combo = openComboBox as? _CanvasComboBox {
+      let c       = combo as! java.awt.Component
+      let origin  = _AWTHitTest.absoluteOrigin(c)
+      let ch      = c.bounds.height
+      let rowH    = combo._popupItemHeight()
+      let count   = combo._itemCount()
+      let popupY  = origin.y + ch
+      let popupX  = origin.x
+      let pw      = c.bounds.width
+      let ph      = count * rowH
+      let ptX     = Int(pt.x), ptY = Int(pt.y)
+      if ptX >= popupX && ptX < popupX + pw &&
+         ptY >= popupY && ptY < popupY + ph {
+        let idx = (ptY - popupY) / max(1, rowH)
+        if idx >= 0 && idx < count { combo._selectIndex(idx) }
+      }
+      combo._closePopup()
+      openComboBox = nil
+      needsDisplay = true
+      return
+    }
+
     // Use findWithLocal so we get both the hit component AND local coordinates.
     // All sub-rect checks (thumb, track, arrow buttons) use these local coords.
     guard let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: pt, in: component) else { return }
@@ -704,6 +783,35 @@ final class _SwiftUINativeCanvas: NSView {
 
     let hit = _SwiftUIHitTest.find(at: pt, in: component)
     effectiveCursor(for: hit).set()
+
+    // Dispatch mouseMoved to MouseMotionListeners of the hit component
+    if let hit {
+      let origin = _AWTHitTest.absoluteOrigin(hit)
+      let lx = Int(pt.x) - origin.x
+      let ly = Int(pt.y) - origin.y
+      let e = java.awt.event.MouseEvent(
+        hit, java.awt.event.MouseEvent.MOUSE_MOVED, 0, 0, lx, ly, 0, false)
+      for l in hit.getMouseMotionListeners() { l.mouseMoved(e) }
+    }
+
+    // Hover highlight inside an open JComboBox popup (canvas overlay)
+    if let found = _findOpenComboBox(in: component),
+       let combo = found as? _AnyJComboBox {
+      let origin = _AWTHitTest.absoluteOrigin(found)
+      let ch   = found.bounds.height
+      let rowH = combo._popupItemHeight()
+      let ptX  = Int(pt.x), ptY = Int(pt.y)
+      let popX = origin.x, popY = origin.y + ch
+      let pw   = found.bounds.width
+      let ph   = combo._itemCount() * rowH
+      if ptX >= popX && ptX < popX + pw && ptY >= popY && ptY < popY + ph {
+        let idx = (ptY - popY) / max(1, rowH)
+        combo._setRolloverIndex(idx)
+      } else {
+        combo._setRolloverIndex(-1)
+      }
+      needsDisplay = true
+    }
   }
 
   /// Returns the effective NSCursor for a hit component:
@@ -833,6 +941,42 @@ final class _SwiftUINativeCanvas: NSView {
       }
     }
   }
+
+  // Recursively find a JComboBox with an open popup in the component tree.
+  private func _findOpenComboBox(in comp: java.awt.Component) -> javax.swing.JComponent? {
+    if let combo = comp as? _CanvasComboBoxVisible, combo._isPopupVisible() {
+      return comp as? javax.swing.JComponent
+    }
+    if let container = comp as? java.awt.Container {
+      for child in container.getComponents() {
+        if let found = _findOpenComboBox(in: child) { return found }
+      }
+    }
+    return nil
+  }
+}
+
+// ── JComboBox popup protocols (Canvas ↔ BasicComboBoxUI bridge) ─────────────
+/// Allows _SwiftUINativeCanvas to interact with open JComboBox popups without
+/// depending on the generic type parameter of JComboBox<E>.
+@MainActor
+protocol _CanvasComboBox: AnyObject {
+  func _popupItemHeight() -> Int
+  func _itemCount()       -> Int
+  func _selectIndex(_ i: Int)
+  func _closePopup()
+}
+
+@MainActor
+protocol _CanvasComboBoxVisible: AnyObject {
+  func _isPopupVisible() -> Bool
+}
+
+// _CanvasComboBox requirements are already satisfied by the _AnyJComboBox
+// extension in BasicComboBoxUI.swift (_popupItemHeight, _itemCount,
+// _selectIndex, _closePopup).  _isPopupVisible maps to isPopupVisible().
+extension javax.swing.JComboBox: _CanvasComboBox, _CanvasComboBoxVisible {
+  func _isPopupVisible() -> Bool { isPopupVisible() }
 }
 
 #elseif os(iOS) || os(tvOS)

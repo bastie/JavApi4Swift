@@ -39,10 +39,13 @@ extension javax.swing.plaf.basic {
       let d = javax.swing.UIDefaults()
       d["ButtonUI"]       = { javax.swing.plaf.basic.BasicButtonUI()       }
       d["CheckBoxUI"]     = { javax.swing.plaf.basic.BasicCheckBoxUI()     }
+      d["ComboBoxUI"]     = { javax.swing.plaf.basic.BasicComboBoxUI()     }
       d["LabelUI"]        = { javax.swing.plaf.basic.BasicLabelUI()        }
+      d["ListUI"]         = { javax.swing.plaf.basic.BasicListUI()         }
       d["MenuBarUI"]      = { javax.swing.plaf.basic.BasicMenuBarUI()      }
       d["PopupMenuUI"]    = { javax.swing.plaf.basic.BasicPopupMenuUI()    }
       d["RadioButtonUI"]  = { javax.swing.plaf.basic.BasicRadioButtonUI()  }
+      d["SpinnerUI"]      = { javax.swing.plaf.basic.BasicSpinnerUI()      }
       d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
       return d
     }
