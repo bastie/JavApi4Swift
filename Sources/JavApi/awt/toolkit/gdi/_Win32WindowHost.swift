@@ -405,6 +405,9 @@ public final class _Win32Canvas {
   private weak var draggingScrollbar:       java.awt.Scrollbar?
   private weak var draggingScrollPane:      java.awt.ScrollPane?
   private weak var draggingTextAreaScroll:  java.awt.TextArea?
+  private weak var draggingSplitPane:       javax.swing.JSplitPane?
+  private var splitPaneDragStartCoord: Int  = 0
+  private var splitPaneDragStartPos:   Int  = 0
   // Button whose press started this mouse-down cycle
   private weak var pressedButton:           java.awt.Button?
 
@@ -453,6 +456,24 @@ public final class _Win32Canvas {
     if repaintAfter { invalidate() }
   }
 
+  /// Walk up from `hit` and return the nearest `JSplitPane` whose divider
+  /// contains `(globalX, globalY)`, or nil.
+  private func _nearestJSplitPane(_ hit: java.awt.Component, globalX: Int, globalY: Int) -> javax.swing.JSplitPane? {
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let sp = n as? javax.swing.JSplitPane {
+        var ox = 0, oy = 0
+        var walk: java.awt.Component? = sp
+        while let w = walk { ox += w.bounds.x; oy += w.bounds.y; walk = w.parent }
+        let localCoord = sp.isHorizontal ? (globalX - ox) : (globalY - oy)
+        let pos = sp.effectiveDividerLocation()
+        if localCoord >= pos && localCoord < pos + sp.getDividerSize() { return sp }
+      }
+      node = n.parent
+    }
+    return nil
+  }
+
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseDown(x: Int, y: Int) {
@@ -496,6 +517,15 @@ public final class _Win32Canvas {
       // Normal Swing content click
       if let (hit, lx0, ly0) = _SwingHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
         _Win32FocusManager.shared.requestFocus(hit)
+        // ── JSplitPane divider drag ──────────────────────────────────────
+        if let sp = _nearestJSplitPane(hit, globalX: x, globalY: y) {
+          draggingSplitPane       = sp
+          splitPaneDragStartCoord = sp.isHorizontal ? x : y
+          splitPaneDragStartPos   = sp.effectiveDividerLocation()
+          if let hwnd { SetCapture(hwnd) }
+          invalidate()
+          return
+        }
         _SwingHitTest.dispatch(click: hit, x: lx0, y: ly0)
       } else {
         _Win32FocusManager.shared.requestFocus(nil)
@@ -653,6 +683,12 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseUp(x: Int, y: Int) {
+    // End JSplitPane divider drag
+    if let sp = draggingSplitPane {
+      draggingSplitPane = nil
+      _ = sp
+      ReleaseCapture(); invalidate(); return
+    }
     // End ScrollPane drag
     if let sp = draggingScrollPane {
       sp.isDraggingV     = false
@@ -710,6 +746,19 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseDrag(x: Int, y: Int) {
+    // JSplitPane divider drag
+    if let sp = draggingSplitPane {
+      let coord = sp.isHorizontal ? x : y
+      let delta = coord - splitPaneDragStartCoord
+      let newPos = max(0, splitPaneDragStartPos + delta)
+      let (spOx, spOy) = _SwingHitTest.absoluteOrigin(sp)
+      let total = sp.isHorizontal ? sp.bounds.width : sp.bounds.height
+      let clamped = min(newPos, max(0, total - sp.getDividerSize()))
+      sp.setDividerLocation(clamped)
+      _ = (spOx, spOy) // suppress unused warning
+      invalidate()
+      return
+    }
     // ScrollPane thumb drag
     if let sp = draggingScrollPane {
       if sp.isDraggingV, let track = sp.vScrollbarRect() {

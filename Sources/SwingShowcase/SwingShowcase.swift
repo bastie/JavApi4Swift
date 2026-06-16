@@ -107,6 +107,7 @@ struct SwingShowcaseApp {
     tabs.addTab("Swing", SwingComponentsTab.build())
     tabs.addTab("Swing (AWT analogue)", SwingComponentsWithAnalogueInAWTTab.build())
     tabs.addTab("Format", SwingFormatTab.build())
+    tabs.addTab("SplitPane / Master-Detail", SwingSplitPaneTab.build())
 
     frame.add(tabs, java.awt.BorderLayout.CENTER)
 

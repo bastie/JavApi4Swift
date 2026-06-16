@@ -17,7 +17,12 @@ extension java.awt {
     }
     public func getLayout() -> LayoutManager?    { layoutManager       }
 
-    public func doLayout() { layoutManager?.layoutContainer(self) }
+    public func doLayout() {
+      layoutManager?.layoutContainer(self)
+      for child in children {
+        (child as? Container)?.doLayout()
+      }
+    }
 
     /// Returns the preferred size as reported by the layout manager, or falls
     /// back to `Component.getPreferredSize()` if no layout manager is set.

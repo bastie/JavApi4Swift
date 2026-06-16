@@ -23,6 +23,7 @@ extension javax.swing.plaf.basic {
   /// | `"RadioButtonUI"` | `BasicRadioButtonUI`   |
   /// | `"TextAreaUI"`    | `BasicTextAreaUI`      |
   /// | `"TextFieldUI"`   | `BasicTextFieldUI`     |
+  /// | `"SplitPaneUI"`   | `BasicSplitPaneUI`     |
   /// | `"ToggleButtonUI"`| `BasicToggleButtonUI`  |
   ///
   /// - Since: Java 1.2
@@ -54,6 +55,7 @@ extension javax.swing.plaf.basic {
       d["PasswordFieldUI"] = { javax.swing.plaf.basic.BasicPasswordFieldUI() }
       d["TextAreaUI"]     = { javax.swing.plaf.basic.BasicTextAreaUI()     }
       d["TextFieldUI"]    = { javax.swing.plaf.basic.BasicTextFieldUI()    }
+      d["SplitPaneUI"]    = { javax.swing.plaf.basic.BasicSplitPaneUI()    }
       d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
       return d
     }

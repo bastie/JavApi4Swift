@@ -239,6 +239,10 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private weak var draggingScrollbar:  java.awt.Scrollbar?
   // ScrollPane whose thumb is being dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingScrollPane: java.awt.ScrollPane?
+  // JSplitPane whose divider is being dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingSplitPane: javax.swing.JSplitPane?
+  @MainActor private var splitPaneDragStartCoord: Int = 0
+  @MainActor private var splitPaneDragStartPos:   Int = 0
   // TextComponent being selection-dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingTextComponent: java.awt.TextComponent?
   // List whose scrollbar thumb is being dragged (cleared on ButtonRelease)
@@ -418,6 +422,27 @@ public final class _X11WindowHost: @unchecked Sendable {
     popup.closePopup()
     openSwingMenu = nil
     if repaintAfter { repaint(awtWindow, xwin: xwin) }
+  }
+
+  /// Walk up the component tree from `contentX/Y` and return the nearest
+  /// enclosing `JSplitPane` whose divider contains that point, or nil.
+  @MainActor private func _nearestJSplitPane(contentX: Int, contentY: Int,
+                                              in root: java.awt.Component) -> javax.swing.JSplitPane? {
+    guard let (hit, _, _) = _SwingHitTest.findWithLocal(x: contentX, y: contentY, in: root) else { return nil }
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let sp = n as? javax.swing.JSplitPane {
+        // Compute the split pane's origin in root coordinates
+        var ox = 0, oy = 0
+        var walk: java.awt.Component? = sp
+        while let w = walk { ox += w.bounds.x; oy += w.bounds.y; walk = w.parent }
+        let localCoord = sp.isHorizontal ? (contentX - ox) : (contentY - oy)
+        let pos = sp.effectiveDividerLocation()
+        if localCoord >= pos && localCoord < pos + sp.getDividerSize() { return sp }
+      }
+      node = n.parent
+    }
+    return nil
   }
 
   // MARK: Window lifecycle
@@ -1065,6 +1090,13 @@ public final class _X11WindowHost: @unchecked Sendable {
           ta.scrollDragStartY     = contentY
           ta.scrollDragStartOff   = ta.scrollOffsetY
 
+        } else if let sp = _nearestJSplitPane(contentX: contentX, contentY: contentY, in: awtWindow) {
+          // _nearestJSplitPane already verified the divider hit
+          draggingSplitPane       = sp
+          splitPaneDragStartCoord = sp.isHorizontal ? contentX : contentY
+          splitPaneDragStartPos   = sp.effectiveDividerLocation()
+          repaint(awtWindow, xwin: xwin)
+
         } else if let btn = hit as? java.awt.Button {
           // Set pressed state for visual feedback; dispatch on ButtonRelease (AWT convention)
           btn.isPressed = true
@@ -1093,6 +1125,7 @@ public final class _X11WindowHost: @unchecked Sendable {
       draggingList           = nil
       draggingTextAreaScroll = nil
       draggingTextComponent  = nil
+      draggingSplitPane      = nil
       // Fire button action on release (correct AWT behaviour) and clear pressed state
       if let btn = pressedButton, let win = pressedButtonWindow {
         btn.isPressed       = false
@@ -1111,6 +1144,15 @@ public final class _X11WindowHost: @unchecked Sendable {
       let contentMY = menuBarRegistry[xwin] != nil ? my - _X11MenuBar.menuBarHeight : my
       var needsRepaint = false
 
+      // JSplitPane divider drag
+      if let sp = draggingSplitPane {
+        let coord = sp.isHorizontal ? mx : contentMY
+        let delta = coord - splitPaneDragStartCoord
+        let newPos = max(0, splitPaneDragStartPos + delta)
+        let total  = sp.isHorizontal ? sp.bounds.width : sp.bounds.height
+        sp.setDividerLocation(min(newPos, max(0, total - sp.getDividerSize())))
+        needsRepaint = true
+      }
       // Scrollbar thumb drag
       if let sb = draggingScrollbar {
         let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL

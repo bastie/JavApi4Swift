@@ -111,6 +111,9 @@ extension javax.swing {
       let vw = max(bounds.width,  ps.width)
       let vh = max(bounds.height, ps.height)
       view.bounds = java.awt.Rectangle(0, 0, vw, vh)
+      // Propagate layout into the view so nested containers (e.g. a JPanel
+      // with BorderLayout containing a JLabel) compute child bounds correctly.
+      (view as? java.awt.Container)?.doLayout()
     }
 
     override open func paint(_ g: java.awt.Graphics) {

@@ -73,6 +73,7 @@ extension javax.swing.plaf.basic {
           borderW, contentY,
           Swift.max(b.width - borderW * 2, 0),
           contentH)
+        (tab.component as? java.awt.Container)?.doLayout()
       }
     }
 

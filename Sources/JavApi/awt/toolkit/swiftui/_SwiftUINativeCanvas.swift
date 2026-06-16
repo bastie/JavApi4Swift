@@ -143,6 +143,10 @@ final class _SwiftUINativeCanvas: NSView {
   private var draggingScrollPane: java.awt.ScrollPane?
   // List whose scrollbar is being dragged
   private var draggingList: java.awt.List?
+  // JSplitPane whose divider is being dragged
+  private weak var draggingSplitPane: javax.swing.JSplitPane?
+  private var splitPaneDragStartCoord: Int = 0
+  private var splitPaneDragStartPos:   Int = 0
   // Currently open Choice popup (tracked so outside clicks close it)
   private weak var openChoice: java.awt.Choice?
   // Currently open JComboBox popup (tracked so outside clicks close it)
@@ -516,6 +520,11 @@ final class _SwiftUINativeCanvas: NSView {
       }
       needsDisplay = true
 
+    } else if let sp = _nearestJSplitPane(from: hit, globalPt: pt) {
+      // _nearestJSplitPane already verified the divider hit
+      draggingSplitPane       = sp
+      splitPaneDragStartCoord = sp.isHorizontal ? Int(pt.x) : Int(pt.y)
+      splitPaneDragStartPos   = sp.effectiveDividerLocation()
     } else {
       // All other components (JToggleButton, JCheckBox, JRadioButton,
       // JTabbedPane, panels, etc.) are dispatched on mouseUp — record which
@@ -523,10 +532,21 @@ final class _SwiftUINativeCanvas: NSView {
       pressedComponent = hit
     }
   }
-  
+
   override func mouseDragged(with event: NSEvent) {
     let pt = awtPoint(from: event)
-    
+
+    // JSplitPane divider drag
+    if let sp = draggingSplitPane {
+      let coord = sp.isHorizontal ? Int(pt.x) : Int(pt.y)
+      let delta = coord - splitPaneDragStartCoord
+      let newPos = max(0, splitPaneDragStartPos + delta)
+      let total  = sp.isHorizontal ? sp.bounds.width : sp.bounds.height
+      sp.setDividerLocation(min(newPos, max(0, total - sp.getDividerSize())))
+      needsDisplay = true
+      return
+    }
+
     // ScrollPane scrollbar drag
     if let sp = draggingScrollPane {
       if sp.isDraggingV, let track = sp.vScrollbarRect() {
@@ -651,6 +671,13 @@ final class _SwiftUINativeCanvas: NSView {
     // If mouseDown was fully handled by menu-bar or popup logic, do nothing here.
     if _menuDownConsumed {
       _menuDownConsumed = false
+      return
+    }
+
+    // End JSplitPane divider drag
+    if draggingSplitPane != nil {
+      draggingSplitPane = nil
+      needsDisplay = true
       return
     }
 
@@ -1048,6 +1075,24 @@ final class _SwiftUINativeCanvas: NSView {
   }
 
   // Recursively find a JComboBox with an open popup in the component tree.
+  /// Walk up from `hit` and return the nearest enclosing `JSplitPane`
+  /// whose divider contains `(globalX, globalY)`, or nil.
+  private func _nearestJSplitPane(from hit: java.awt.Component, globalPt: CGPoint) -> javax.swing.JSplitPane? {
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let sp = n as? javax.swing.JSplitPane {
+        var ox = 0, oy = 0
+        var walk: java.awt.Component? = sp
+        while let w = walk { ox += w.bounds.x; oy += w.bounds.y; walk = w.parent }
+        let localCoord = sp.isHorizontal ? (Int(globalPt.x) - ox) : (Int(globalPt.y) - oy)
+        let pos = sp.effectiveDividerLocation()
+        if localCoord >= pos && localCoord < pos + sp.getDividerSize() { return sp }
+      }
+      node = n.parent
+    }
+    return nil
+  }
+
   private func _findOpenComboBox(in comp: java.awt.Component) -> javax.swing.JComponent? {
     if let combo = comp as? _CanvasComboBoxVisible, combo._isPopupVisible() {
       return comp as? javax.swing.JComponent
