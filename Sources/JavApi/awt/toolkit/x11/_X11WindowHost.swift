@@ -758,7 +758,7 @@ public final class _X11WindowHost: @unchecked Sendable {
         let contentX = clickX
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight : clickY
-        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow),
+        if let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow),
            let popup = hit.popupMenu {
           // Popup top-left corner = cursor position in window coordinates
           _X11PopupWindow.show(menu: popup,
@@ -791,10 +791,10 @@ public final class _X11WindowHost: @unchecked Sendable {
         let contentX = clickX
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight : clickY
-        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow) {
+        if let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow) {
           // Walk up the parent chain to find the nearest ScrollPane —
           // the hit may land on a child component (e.g. Canvas) inside the pane.
-          if let sp = _AWTHitTest.nearestScrollPane(hit) {
+          if let sp = _SwingHitTest.nearestScrollPane(hit) {
             let (maxX, maxY) = sp.maxScroll()
             // Use ~10% of viewport size as scroll step, minimum 20px
             let vp   = sp.getViewportSize()
@@ -866,9 +866,9 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
         }
         // Normal Swing content click — hit-test and dispatch via _AWTHitTest
-        if let (hit, lx, ly) = _AWTHitTest.findWithLocal(x: clickX, y: clickY, in: awtWindow) {
+        if let (hit, lx, ly) = _SwingHitTest.findWithLocal(x: clickX, y: clickY, in: awtWindow) {
           _X11FocusManager.shared.requestFocus(hit)
-          _AWTHitTest.dispatch(click: hit, x: lx, y: ly)
+          _SwingHitTest.dispatch(click: hit, x: lx, y: ly)
           repaint(awtWindow, xwin: xwin)
         }
         return
@@ -944,7 +944,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
         }
 
-        let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow)
+        let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow)
         let prevFocus = _X11FocusManager.shared.focusOwner
         _X11FocusManager.shared.requestFocus(hit)
         // Set caret position on click for TextField/TextArea BEFORE repaint
@@ -1077,8 +1077,8 @@ public final class _X11WindowHost: @unchecked Sendable {
             list.fireActionEvent(index: idx)
           }
         } else {
-          if let (hitComp, lx2, ly2) = _AWTHitTest.findWithLocal(x: contentX, y: contentY, in: awtWindow) {
-            _AWTHitTest.dispatch(click: hitComp, x: lx2, y: ly2)
+          if let (hitComp, lx2, ly2) = _SwingHitTest.findWithLocal(x: contentX, y: contentY, in: awtWindow) {
+            _SwingHitTest.dispatch(click: hitComp, x: lx2, y: ly2)
           }
         }
       }
@@ -1252,7 +1252,7 @@ public final class _X11WindowHost: @unchecked Sendable {
         needsRepaint = true
       }
       // Update cursor based on component under pointer
-      let hitForCursor = _AWTHitTest.find(x: mx, y: contentMY, in: awtWindow)
+      let hitForCursor = _SwingHitTest.find(x: mx, y: contentMY, in: awtWindow)
       updateCursor(for: hitForCursor, xwin: xwin)
 
       if needsRepaint { repaint(awtWindow, xwin: xwin) }

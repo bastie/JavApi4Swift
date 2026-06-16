@@ -4,17 +4,17 @@ Lessons learned and non-obvious design decisions for future contributors.
 
 ---
 
-## Swing Hit-Test Coordinate Translation — `_AWTHitTest.find()` (2026-06)
+## Swing Hit-Test Coordinate Translation — `_SwingHitTest.find()` (2026-06)
 
 ### Problem
-`_AWTHitTest.find(x:y:in:)` checked whether a point fell within a child component's `bounds`,
+`_SwingHitTest.find(x:y:in:)` (formerly `_AWTHitTest.find`) checked whether a point fell within a child component's `bounds`,
 but then passed the **original** (parent-relative) `x, y` unchanged when recursing into that child.
 Because a child's own children store their bounds relative to the child's origin (not the root),
 every nested hit-test was wrong: clicking a `JButton` inside a `JPanel` inside a `JFrame`
 never returned the button.
 
 This bug affected **all backends** (SwiftUI, X11, GDI) because the code lives in
-platform-independent `_AWTHitTest.swift`.
+platform-independent `_SwingHitTest.swift` / `_AWTHitTest.swift`.
 
 ### Solution
 Translate into the child's local space before recursing:

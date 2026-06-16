@@ -494,9 +494,9 @@ public final class _Win32Canvas {
         }
       }
       // Normal Swing content click
-      if let (hit, lx0, ly0) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
+      if let (hit, lx0, ly0) = _SwingHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
         _Win32FocusManager.shared.requestFocus(hit)
-        _AWTHitTest.dispatch(click: hit, x: lx0, y: ly0)
+        _SwingHitTest.dispatch(click: hit, x: lx0, y: ly0)
       } else {
         _Win32FocusManager.shared.requestFocus(nil)
       }
@@ -522,13 +522,13 @@ public final class _Win32Canvas {
         choice.isOpen = false
         openChoice    = nil
         invalidate()
-        let closeHit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+        let closeHit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
         if closeHit === choice { return }
         // Fall through so the actual click target is dispatched normally.
       }
     }
 
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     _Win32FocusManager.shared.requestFocus(hit)
     if let hwnd { SetCapture(hwnd) }
     // Track pressed button for drag-outside detection in onMouseUp
@@ -684,23 +684,23 @@ public final class _Win32Canvas {
       btn.isPressed = false
       pressedButton = nil
       ReleaseCapture()
-      let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+      let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
       if hit === btn { btn.doClick() }
       invalidate()
       return
     }
     // Other components — dispatch click (Choice/List/Scrollbar/ScrollPane already handled)
     ReleaseCapture()
-    if let (hit, lx1, ly1) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow),
+    if let (hit, lx1, ly1) = _SwingHitTest.findWithLocal(x: x, y: y, in: awtWindow),
        !(hit is java.awt.Choice), !(hit is java.awt.List),
        !(hit is java.awt.Scrollbar), !(hit is java.awt.ScrollPane) {
-      _AWTHitTest.dispatch(click: hit, x: lx1, y: ly1)
+      _SwingHitTest.dispatch(click: hit, x: lx1, y: ly1)
     }
     invalidate()
   }
 
   fileprivate func onDoubleClick(x: Int, y: Int) {
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     if let list = hit as? java.awt.List {
       if let idx = list.itemIndex(atY: y) {
         list.fireActionEvent(index: idx)
@@ -781,11 +781,11 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseWheel(x: Int, y: Int, deltaY: Int, deltaX: Int = 0) {
-    guard let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow) else { return }
+    guard let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow) else { return }
     let linesY = deltaY / 40
     let linesX = deltaX / 40
 
-    if let sp = _AWTHitTest.nearestScrollPane(hit) {
+    if let sp = _SwingHitTest.nearestScrollPane(hit) {
       sp.setScrollPosition(sp.scrollX - linesX, sp.scrollY - linesY)
     } else if let ta = hit as? java.awt.TextArea {
       let lineH    = max(1, ta.getFontMetrics(ta.font).getHeight())
@@ -861,7 +861,7 @@ public final class _Win32Canvas {
   /// Returns the Win32 IDC resource ID for the AWT component under (x,y).
   /// Returns a plain UInt so it can cross the MainActor boundary without Sendable issues.
   fileprivate func cursorIDC(x: Int, y: Int) -> UInt {
-    let comp = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let comp = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     // Walk up the parent chain for an explicit cursor, then infer from type.
     let awtType: Int
     var found: Int? = nil
@@ -896,7 +896,7 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onRightMouseDown(x: Int, y: Int) {
-    guard let hit   = _AWTHitTest.find(x: x, y: y, in: awtWindow),
+    guard let hit   = _SwingHitTest.find(x: x, y: y, in: awtWindow),
           let popup = hit.popupMenu else { return }
     showPopupMenu(popup, x: x, y: y)
   }

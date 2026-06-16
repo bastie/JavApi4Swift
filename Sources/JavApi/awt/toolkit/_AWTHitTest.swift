@@ -3,14 +3,21 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Platform-independent hit-testing and click-dispatch for the AWT component
-// tree.  Uses only java.awt types (no CoreGraphics / SwiftUI) so it compiles
-// on every platform — including Windows.
+// Platform-independent hit-testing and click-dispatch for the **AWT** component
+// tree (`java.awt.*` only).  Uses no CoreGraphics / SwiftUI and compiles on
+// every platform — including Windows.
 //
-// _SwiftUIHitTest in the swiftui/ backend wraps these helpers with CGPoint
+// For mixed AWT+Swing component trees use `_SwingHitTest` as the entry point —
+// it handles Swing-specific containers (JScrollPane, …) and delegates to
+// `_AWTHitTest` for everything else.
+//
+// `_SwiftUIHitTest` in the swiftui/ backend wraps `_SwingHitTest` with CGPoint
 // convenience overloads for callers that already hold a CGPoint.
 
-/// Hit-testing and click-dispatch for the AWT component tree.
+/// Hit-testing and click-dispatch for the pure-AWT component tree.
+///
+/// Do **not** call this directly from toolkit backends — use `_SwingHitTest`
+/// instead so that Swing containers are handled correctly.
 @MainActor
 enum _AWTHitTest {
 
@@ -82,32 +89,6 @@ enum _AWTHitTest {
       return (root, lx, ly)
     }
 
-    if let jsp = root as? javax.swing.JScrollPane {
-      // JScrollPane: clip to bounds, then route into viewport (accounting for
-      // the viewport's scroll offset) or scrollbars.
-      guard ly < b.height else { return nil }
-      let vp     = jsp.getViewport()
-      let vpB    = vp.bounds   // relative to JScrollPane = (0,0,vpW,vpH)
-      if lx >= vpB.x, lx < vpB.x + vpB.width,
-         ly >= vpB.y, ly < vpB.y + vpB.height {
-        // Inside viewport area — translate into view's coordinate space
-        let viewPos = vp.getViewPosition()
-        let viewX   = lx - vpB.x + viewPos.x
-        let viewY   = ly - vpB.y + viewPos.y
-        if let view = vp.getView(),
-           let hit  = findWithLocal(x: viewX, y: viewY, in: view) {
-          return hit
-        }
-        return (vp, lx - vpB.x, ly - vpB.y)
-      }
-      // Outside viewport: try scrollbars via normal children iteration
-      for child in jsp.getComponents().reversed() {
-        if child === vp { continue }   // already handled above
-        if let hit = findWithLocal(x: lx, y: ly, in: child) { return hit }
-      }
-      return (root, lx, ly)
-    }
-
     if let container = root as? java.awt.Container {
       // For containers: try children first (they may lie below bounds.height).
       for child in container.getComponents().reversed() {
@@ -144,11 +125,12 @@ enum _AWTHitTest {
   /// `x` and `y` are the click position in the **component's** local coordinate
   /// system.  Pass the window-relative hit point minus the component's own
   /// origin to get the correct local coordinates.
+  /// Dispatch a click for **AWT** components only.
+  ///
+  /// Swing components are not handled here — use `_SwingHitTest.dispatch(click:x:y:)`
+  /// which handles Swing types first and falls through to this method.
   static func dispatch(click component: java.awt.Component, x: Int, y: Int) {
     switch component {
-    case let btn as javax.swing.JButton:
-      btn.doClick()
-
     case let btn as java.awt.Button:
       btn.doClick()
 

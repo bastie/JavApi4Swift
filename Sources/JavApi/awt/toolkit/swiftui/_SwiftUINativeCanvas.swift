@@ -79,7 +79,7 @@ final class _SwiftUINativeCanvas: NSView {
   private func _paintComboBoxPopup(_ g: java.awt.Graphics,
                                    combo: _AnyJComboBox,
                                    component comboComp: javax.swing.JComponent) {
-    let origin = _AWTHitTest.absoluteOrigin(comboComp)
+    let origin = _SwingHitTest.absoluteOrigin(comboComp)
     let cw     = comboComp.bounds.width
     let ch     = comboComp.bounds.height
     let rowH   = combo._popupItemHeight()
@@ -262,7 +262,7 @@ final class _SwiftUINativeCanvas: NSView {
     // ── Choice popup handling (must come before normal hit-test) ────────────
     if let choice = openChoice {
       // popupRect() uses parent-relative coords; convert to frame-absolute.
-      let origin = _AWTHitTest.absoluteOrigin(choice)
+      let origin = _SwingHitTest.absoluteOrigin(choice)
       let absPopupY = origin.y + choice.bounds.height
       let absPopupX = origin.x
       let visRows = min(choice.getItemCount(), choice.maxVisiblePopupRows)
@@ -301,7 +301,7 @@ final class _SwiftUINativeCanvas: NSView {
     }
     if let combo = openComboBox as? _CanvasComboBox {
       let c       = combo as! java.awt.Component
-      let origin  = _AWTHitTest.absoluteOrigin(c)
+      let origin  = _SwingHitTest.absoluteOrigin(c)
       let ch      = c.bounds.height
       let rowH    = combo._popupItemHeight()
       let count   = combo._itemCount()
@@ -734,7 +734,7 @@ final class _SwiftUINativeCanvas: NSView {
     let pt  = awtPoint(from: event)
     guard let hit = _SwiftUIHitTest.find(at: pt, in: component) else { return }
     
-    if let sp = _AWTHitTest.nearestScrollPane(hit) {
+    if let sp = _SwingHitTest.nearestScrollPane(hit) {
       let dy = Int(event.scrollingDeltaY * -3)
       let dx = Int(event.scrollingDeltaX * -3)
       sp.setScrollPosition(sp.scrollX + dx, sp.scrollY + dy)
@@ -872,7 +872,7 @@ final class _SwiftUINativeCanvas: NSView {
 
     // Dispatch mouseMoved to MouseMotionListeners of the hit component
     if let hit {
-      let origin = _AWTHitTest.absoluteOrigin(hit)
+      let origin = _SwingHitTest.absoluteOrigin(hit)
       let lx = Int(pt.x) - origin.x
       let ly = Int(pt.y) - origin.y
       let e = java.awt.event.MouseEvent(
@@ -883,7 +883,7 @@ final class _SwiftUINativeCanvas: NSView {
     // Hover highlight inside an open JComboBox popup (canvas overlay)
     if let found = _findOpenComboBox(in: component),
        let combo = found as? _AnyJComboBox {
-      let origin = _AWTHitTest.absoluteOrigin(found)
+      let origin = _SwingHitTest.absoluteOrigin(found)
       let ch   = found.bounds.height
       let rowH = combo._popupItemHeight()
       let ptX  = Int(pt.x), ptY = Int(pt.y)
