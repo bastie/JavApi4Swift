@@ -23,11 +23,23 @@ extension java.awt {
     public func getBackgroundColor () -> java.awt.Color {
       return self.background
     }
-    
+
+    /// Java-compatible alias for `getBackgroundColor()`.
+    public func getBackground() -> java.awt.Color { background }
+
+    /// Sets the background color.
+    public func setBackground(_ color: java.awt.Color) { background = color }
+
     /// - Since: Java 1.0
     public func getForegroundColor () -> java.awt.Color {
       return self.foreground
     }
+
+    /// Java-compatible alias for `getForegroundColor()`.
+    public func getForeground() -> java.awt.Color { foreground }
+
+    /// Java-compatible alias for `setForegroundColor(_:)`.
+    public func setForeground(_ color: java.awt.Color) { setForegroundColor(color) }
     
     /// - Since: Java 1.0
     public func setForegroundColor (_ color : java.awt.Color?) {

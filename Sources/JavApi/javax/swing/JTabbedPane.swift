@@ -41,6 +41,12 @@ extension javax.swing {
     public static let LEFT:   Int = JTabbedPane.LEFT    // 2
     public static let RIGHT:  Int = JTabbedPane.RIGHT   // 4
 
+    // ── Tab layout policy constants ────────────────────────────────────────────
+    /// Wrap tabs onto additional rows when they don't fit (default).
+    public static let WRAP_TAB_LAYOUT:   Int = 0
+    /// Show scroll buttons when tabs don't fit in a single row.
+    public static let SCROLL_TAB_LAYOUT: Int = 1
+
     // -------------------------------------------------------------------------
     // MARK: Tab model
     // -------------------------------------------------------------------------
@@ -57,6 +63,10 @@ extension javax.swing {
     private var tabs: [Tab] = []
     private var _selectedIndex: Int = -1
     private var _tabPlacement: Int = JTabbedPane.TOP
+    private var _tabLayoutPolicy: Int = JTabbedPane.WRAP_TAB_LAYOUT
+
+    // Scroll offset in pixels — managed by BasicTabbedPaneUI when SCROLL_TAB_LAYOUT
+    internal var _tabScrollOffset: Int = 0
 
     // -------------------------------------------------------------------------
     // MARK: Init
@@ -90,6 +100,13 @@ extension javax.swing {
     public func getTabPlacement() -> Int { _tabPlacement }
     public func setTabPlacement(_ placement: Int) {
       _tabPlacement = placement
+      invalidate()
+    }
+
+    public func getTabLayoutPolicy() -> Int { _tabLayoutPolicy }
+    public func setTabLayoutPolicy(_ policy: Int) {
+      _tabLayoutPolicy = policy
+      _tabScrollOffset = 0
       invalidate()
     }
 
@@ -212,13 +229,18 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func processMouseEvent(_ e: java.awt.event.MouseEvent) {
-      // _AWTHitTest.dispatch sends MOUSE_CLICKED for unknown components.
       if e.getID() == java.awt.event.MouseEvent.MOUSE_CLICKED {
-        let idx = indexAtLocation(e.getX(), e.getY())
-        if idx >= 0 && isEnabledAt(idx) {
-          setSelectedIndex(idx)
-          repaint()
+        let ui = self.ui as? javax.swing.plaf.basic.BasicTabbedPaneUI
+        // Let the UI handle the click first (may adjust scroll offset or select tab)
+        if let ui {
+          ui.handleClick(e.getX(), e.getY(), in: self)
+        } else {
+          let idx = indexAtLocation(e.getX(), e.getY())
+          if idx >= 0 && isEnabledAt(idx) {
+            setSelectedIndex(idx)
+          }
         }
+        repaint()
       }
       super.processMouseEvent(e)
     }

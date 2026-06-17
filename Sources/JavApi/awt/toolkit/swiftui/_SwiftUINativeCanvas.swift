@@ -841,8 +841,22 @@ final class _SwiftUINativeCanvas: NSView {
     guard let component else { return }
     let pt  = awtPoint(from: event)
     guard let hit = _SwiftUIHitTest.find(at: pt, in: component) else { return }
-    
-    if let sp = _SwingHitTest.nearestScrollPane(hit) {
+
+    if let jsp = _SwingHitTest.nearestJScrollPane(hit) {
+      // javax.swing.JScrollPane — scroll the viewport's view position
+      let dy = Int(event.scrollingDeltaY * -3)
+      let dx = Int(event.scrollingDeltaX * -3)
+      let vp  = jsp.getViewport()
+      let pos = vp.getViewPosition()
+      let view = vp.getView()
+      let viewSize = view?.getPreferredSize() ?? java.awt.Dimension(0, 0)
+      let maxY = Swift.max(0, viewSize.height - vp.bounds.height)
+      let maxX = Swift.max(0, viewSize.width  - vp.bounds.width)
+      let newY = Swift.max(0, Swift.min(maxY, pos.y + dy))
+      let newX = Swift.max(0, Swift.min(maxX, pos.x + dx))
+      vp.setViewPosition(java.awt.Point(newX, newY))
+      needsDisplay = true
+    } else if let sp = _SwingHitTest.nearestScrollPane(hit) {
       let dy = Int(event.scrollingDeltaY * -3)
       let dx = Int(event.scrollingDeltaX * -3)
       sp.setScrollPosition(sp.scrollX + dx, sp.scrollY + dy)

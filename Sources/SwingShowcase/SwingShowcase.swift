@@ -103,12 +103,14 @@ struct SwingShowcaseApp {
 
     // ── JTabbedPane ──────────────────────────────────────────────────────────
     let tabs = javax.swing.JTabbedPane()
+    tabs.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT)
 
     tabs.addTab("Swing", SwingComponentsTab.build())
     tabs.addTab("Swing (AWT analogue)", SwingComponentsWithAnalogueInAWTTab.build())
     tabs.addTab("Format", SwingFormatTab.build())
     tabs.addTab("SplitPane / Master-Detail", SwingSplitPaneTab.build())
     tabs.addTab("Range / Progress", SwingRangeComponentsTab.build())
+    tabs.addTab("Borders", SwingBorderTab.build())
 
     frame.add(tabs, java.awt.BorderLayout.CENTER)
 

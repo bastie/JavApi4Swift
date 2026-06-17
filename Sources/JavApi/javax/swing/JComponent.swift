@@ -72,6 +72,30 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Border
+    // -------------------------------------------------------------------------
+
+    private var _border: (any javax.swing.border.Border)? = nil
+
+    /// Sets the border of this component.
+    ///
+    /// The border is painted around the component's bounds.  Its insets are
+    /// taken into account by `getInsets()` so that layout managers leave room
+    /// for it.
+    public func setBorder(_ border: (any javax.swing.border.Border)?) {
+      _border = border
+      invalidate()
+    }
+
+    /// Returns the current border, or `nil` if none is set.
+    public func getBorder() -> (any javax.swing.border.Border)? { _border }
+
+    /// Returns the insets of the border, or zero insets if no border is set.
+    public func getInsets() -> java.awt.Insets {
+      _border?.getBorderInsets(self) ?? java.awt.Insets(0, 0, 0, 0)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Opacity
     // -------------------------------------------------------------------------
 
@@ -105,16 +129,6 @@ extension javax.swing {
     public func setOpaque(_ opaque: Bool) { _opaque = opaque }
 
     // -------------------------------------------------------------------------
-    // MARK: Background / Foreground  (delegates to AWT Component)
-    // -------------------------------------------------------------------------
-
-    public func getBackground() -> java.awt.Color { background }
-    public func setBackground(_ color: java.awt.Color) { background = color }
-
-    public func getForeground() -> java.awt.Color { foreground }
-    public func setForeground(_ color: java.awt.Color) { foreground = color }
-
-    // -------------------------------------------------------------------------
     // MARK: Paint hook
     // -------------------------------------------------------------------------
 
@@ -125,7 +139,7 @@ extension javax.swing {
     open func paintComponent(_ g: java.awt.Graphics) {}
 
     /// Paints this component: background via the L&F delegate, then the
-    /// subclass hook, then all children.
+    /// border, then the subclass hook, then all children.
     override open func paint(_ g: java.awt.Graphics) {
       if let ui {
         ui.update(g, self)
@@ -134,6 +148,8 @@ extension javax.swing {
         g.setColor(background)
         g.fillRect(0, 0, bounds.width, bounds.height)
       }
+      // Paint border on top of background, before content
+      _border?.paintBorder(self, g, 0, 0, bounds.width, bounds.height)
       paintComponent(g)
       paintChildren(g)
     }

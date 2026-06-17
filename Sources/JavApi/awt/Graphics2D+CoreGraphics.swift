@@ -66,7 +66,7 @@ extension java.awt {
       if let c = paint as? java.awt.Color { setColor(c) }
     }
     
-    public func getColor() -> java.awt.Color {
+    public override func getColor() -> java.awt.Color {
       (_paint as? java.awt.Color) ?? java.awt.Color.black
     }
     
@@ -257,9 +257,7 @@ extension java.awt {
       cgContext.restoreGState()
     }
     
-    public func drawRoundRect(_ x: Int, _ y: Int,
-                              _ width: Int, _ height: Int,
-                              _ arcWidth: Int, _ arcHeight: Int) {
+    public override func drawRoundRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int, _ arcWidth: Int, _ arcHeight: Int) {
       let path = CGMutablePath()
       path.addRoundedRect(in: CGRect(x: x, y: y, width: width, height: height),
                           cornerWidth:  CGFloat(arcWidth)  / 2,
@@ -267,7 +265,7 @@ extension java.awt {
       cgContext.addPath(path); cgContext.strokePath()
     }
     
-    public func fillRoundRect(_ x: Int, _ y: Int,
+    public override func fillRoundRect(_ x: Int, _ y: Int,
                               _ width: Int, _ height: Int,
                               _ arcWidth: Int, _ arcHeight: Int) {
       let path = CGMutablePath()
