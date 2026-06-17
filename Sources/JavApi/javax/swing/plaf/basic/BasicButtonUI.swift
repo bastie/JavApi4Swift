@@ -37,7 +37,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let btn = component as? javax.swing.AbstractButton else { return }
 
       let w = component.bounds.width

@@ -113,14 +113,16 @@ extension java.awt {
 
     override open func paint(_ g: java.awt.Graphics) {
       // Each child's bounds are in the parent's LOCAL coordinate space.
-      // Translate the graphics context to the child's origin so the child
-      // can paint at (0, 0) — matching Java AWT / Swing behaviour.
+      // Save/restore the graphics state so a child that modifies the context
+      // (clip, transform) does not affect siblings.
       for child in children where child.visible {
         let dx = child.bounds.x
         let dy = child.bounds.y
+        g.save()
+        g.clipRect(dx, dy, child.bounds.width, child.bounds.height)
         g.translate(dx, dy)
         child.paint(g)
-        g.translate(-dx, -dy)
+        g.restore()
       }
     }
 

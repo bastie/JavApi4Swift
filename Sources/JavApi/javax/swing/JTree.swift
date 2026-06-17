@@ -131,14 +131,7 @@ extension javax.swing {
       }
     }
 
-    // -------------------------------------------------------------------------
-    // MARK: Preferred size (delegates to UI)
-    // -------------------------------------------------------------------------
 
-    open override func getPreferredSize() -> java.awt.Dimension {
-      if let size = ui?.getPreferredSize(self) { return size }
-      return super.getPreferredSize()
-    }
 
     // -------------------------------------------------------------------------
     // MARK: Hit-test: node at point (used by mouse handler in UI delegate)

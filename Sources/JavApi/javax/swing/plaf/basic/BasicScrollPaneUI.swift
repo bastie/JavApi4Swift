@@ -27,7 +27,7 @@ extension javax.swing.plaf.basic {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let sp = component as? javax.swing.JScrollPane else { return }
       sp.doLayout()
 
@@ -36,28 +36,46 @@ extension javax.swing.plaf.basic {
       let t  = sp.scrollbarThickness
       let vb = sp.showVBarPublic
       let hb = sp.showHBarPublic
-      let vpW = w - (vb ? t : 0)
-      let vpH = h - (hb ? t : 0)
       let vp  = sp.getViewport()
+
+      // Use the bounds already set by doLayout() — they correctly account for
+      // the column-header height, scrollbar visibility, etc.
+      let vpBounds = vp.bounds
+
+      // Column-header viewport (e.g. JTableHeader) — painted first so it appears
+      // above the data viewport.
+      if let ch = sp.getColumnHeader(), ch.getView() != nil {
+        let chb = ch.bounds
+        g.save()
+        g.clipRect(chb.x, chb.y, chb.width, chb.height)
+        g.translate(chb.x, chb.y)
+        ch.paint(g)
+        g.restore()
+      }
 
       // Viewport
       g.save()
-      g.clipRect(0, 0, vpW, vpH)
+      g.clipRect(vpBounds.x, vpBounds.y, vpBounds.width, vpBounds.height)
+      g.translate(vpBounds.x, vpBounds.y)
       vp.paint(g)
       g.restore()
 
       // Vertical scrollbar
       if vb {
+        let vsbBounds = sp.getVerticalScrollBar().bounds
         g.save()
-        g.translate(vpW, 0)
+        g.clipRect(vsbBounds.x, vsbBounds.y, vsbBounds.width, vsbBounds.height)
+        g.translate(vsbBounds.x, vsbBounds.y)
         sp.getVerticalScrollBar().paint(g)
         g.restore()
       }
 
       // Horizontal scrollbar
       if hb {
+        let hsbBounds = sp.getHorizontalScrollBar().bounds
         g.save()
-        g.translate(0, vpH)
+        g.clipRect(hsbBounds.x, hsbBounds.y, hsbBounds.width, hsbBounds.height)
+        g.translate(hsbBounds.x, hsbBounds.y)
         sp.getHorizontalScrollBar().paint(g)
         g.restore()
       }
@@ -65,7 +83,7 @@ extension javax.swing.plaf.basic {
       // Corner fill when both bars visible
       if vb && hb {
         g.setColor(java.awt.SystemColor.control)
-        g.fillRect(vpW, vpH, t, t)
+        g.fillRect(vpBounds.x + vpBounds.width, vpBounds.y + vpBounds.height, t, t)
       }
 
       // Border — blue focus ring if a descendant is focused

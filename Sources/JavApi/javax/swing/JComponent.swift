@@ -128,7 +128,7 @@ extension javax.swing {
     /// subclass hook, then all children.
     override open func paint(_ g: java.awt.Graphics) {
       if let ui {
-        ui.update(g, on: self)
+        ui.update(g, self)
       } else if isOpaque() {
         // No UI delegate but opaque — fill background directly.
         g.setColor(background)
@@ -144,9 +144,11 @@ extension javax.swing {
       for child in children where child.visible {
         let dx = child.bounds.x
         let dy = child.bounds.y
+        g.save()
+        g.clipRect(dx, dy, child.bounds.width, child.bounds.height)
         g.translate(dx, dy)
         child.paint(g)
-        g.translate(-dx, -dy)
+        g.restore()
       }
     }
 

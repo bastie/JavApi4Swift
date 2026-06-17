@@ -212,15 +212,15 @@ extension javax.swing {
         let rightX = min(w, pos + d)
         let rightW = max(0, w - rightX)
 
-        _leftComponent?.bounds  = java.awt.Rectangle(0, 0, leftW, h)
-        _rightComponent?.bounds = java.awt.Rectangle(rightX, 0, rightW, h)
+        _leftComponent?.setBounds(0, 0, leftW, h)
+        _rightComponent?.setBounds(rightX, 0, rightW, h)
       } else {
         let topH    = max(0, pos)
         let bottomY = min(h, pos + d)
         let bottomH = max(0, h - bottomY)
 
-        _leftComponent?.bounds  = java.awt.Rectangle(0, 0, w, topH)
-        _rightComponent?.bounds = java.awt.Rectangle(0, bottomY, w, bottomH)
+        _leftComponent?.setBounds(0, 0, w, topH)
+        _rightComponent?.setBounds(0, bottomY, w, bottomH)
       }
 
       (_leftComponent  as? java.awt.Container)?.doLayout()
@@ -233,7 +233,7 @@ extension javax.swing {
 
     override open func paint(_ g: java.awt.Graphics) {
       if let ui = getUI() {
-        ui.paint(g, on: self)
+        ui.paint(g, self)
       }
     }
 

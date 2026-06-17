@@ -80,7 +80,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let popup = component as? javax.swing.JPopupMenu else { return }
       let w = popup.bounds.width
       let h = popup.bounds.height

@@ -23,7 +23,7 @@ extension javax.swing.plaf.basic {
       }
     }
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let sep = component as? javax.swing.JSeparator else { return }
       let w = component.bounds.width
       let h = component.bounds.height

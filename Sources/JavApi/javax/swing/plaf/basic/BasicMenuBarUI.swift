@@ -80,7 +80,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let bar = component as? javax.swing.JMenuBar else { return }
 
       // bar.bounds is now set correctly by JRootPane.doLayout() before paint is called.

@@ -84,7 +84,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let toolbar = component as? javax.swing.JToolBar else { return }
       let b = toolbar.getBounds()
       let w = b.width

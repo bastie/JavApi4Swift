@@ -47,13 +47,30 @@ extension javax.swing {
     // MARK: Sub-components
     // -------------------------------------------------------------------------
 
-    private let viewport:  javax.swing.JViewport   = javax.swing.JViewport()
-    private let vScrollBar: javax.swing.JScrollBar = javax.swing.JScrollBar(JScrollBar.VERTICAL)
-    private let hScrollBar: javax.swing.JScrollBar = javax.swing.JScrollBar(JScrollBar.HORIZONTAL)
+    private let viewport:    javax.swing.JViewport   = javax.swing.JViewport()
+    private let vScrollBar: javax.swing.JScrollBar  = javax.swing.JScrollBar(JScrollBar.VERTICAL)
+    private let hScrollBar: javax.swing.JScrollBar  = javax.swing.JScrollBar(JScrollBar.HORIZONTAL)
+
+    /// Optional column-header viewport (used by JTable).
+    private var _columnHeader: javax.swing.JViewport? = nil
 
     public func getViewport()   -> javax.swing.JViewport   { viewport }
     public func getVerticalScrollBar()   -> javax.swing.JScrollBar { vScrollBar }
     public func getHorizontalScrollBar() -> javax.swing.JScrollBar { hScrollBar }
+    public func getColumnHeader() -> javax.swing.JViewport? { _columnHeader }
+
+    /// Sets the column-header view (e.g. `JTableHeader`).
+    /// Creates a dedicated `JViewport` for it and registers it as an AWT child.
+    public func setColumnHeaderView(_ view: java.awt.Component?) {
+      if _columnHeader == nil {
+        let vp = javax.swing.JViewport()
+        _columnHeader = vp
+        add(vp)
+      }
+      _columnHeader?.setView(view)
+      doLayout()
+      repaint()
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Policies
@@ -75,27 +92,45 @@ extension javax.swing {
     /// Width / height of the scrollbar strip.
     public let scrollbarThickness: Int = 16
 
-    /// Exposed for `BasicScrollPaneUI` — do not call from application code.
-    var showVBarPublic: Bool { showVBar }
-    var showHBarPublic: Bool { showHBar }
+    /// Cached results from the last `doLayout()` call.
+    /// `BasicScrollPaneUI.paint()` reads these so it uses the same values
+    /// that determined the bounds — avoiding round-trip inconsistencies.
+    private(set) var _cachedShowVBar: Bool = false
+    private(set) var _cachedShowHBar: Bool = false
 
-    private var showVBar: Bool {
+    /// Exposed for `BasicScrollPaneUI`.
+    var showVBarPublic: Bool { _cachedShowVBar }
+    var showHBarPublic: Bool { _cachedShowHBar }
+
+    /// Height consumed by the column-header viewport (0 if none).
+    private var _colHeaderHeight: Int {
+      guard let ch = _columnHeader, ch.getView() != nil else { return 0 }
+      return ch.getView()?.getPreferredSize().height ?? 22
+    }
+
+    private func _computeShowVBar() -> Bool {
       switch _vPolicy {
       case JScrollPane.VERTICAL_SCROLLBAR_ALWAYS: return true
       case JScrollPane.VERTICAL_SCROLLBAR_NEVER:  return false
       default:
-        guard let v = viewport.getView(), bounds.height > 0 else { return false }
-        return v.getPreferredSize().height > bounds.height
+        guard let v = viewport.getView() else { return false }
+        // If bounds not yet set, use own preferred size as available height.
+        let availH = bounds.height > 0
+          ? bounds.height - _colHeaderHeight
+          : (getPreferredSize().height - _colHeaderHeight)
+        return v.getPreferredSize().height > availH
       }
     }
 
-    private var showHBar: Bool {
+    private func _computeShowHBar(vb: Bool) -> Bool {
       switch _hPolicy {
       case JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS: return true
       case JScrollPane.HORIZONTAL_SCROLLBAR_NEVER:  return false
       default:
-        guard let v = viewport.getView(), bounds.width > 0 else { return false }
-        let availW = bounds.width - (showVBar ? scrollbarThickness : 0)
+        guard let v = viewport.getView() else { return false }
+        // If bounds not yet set, use own preferred size as available width.
+        let availW = (bounds.width > 0 ? bounds.width : getPreferredSize().width)
+          - (vb ? scrollbarThickness : 0)
         return v.getPreferredSize().width > availW
       }
     }
@@ -184,22 +219,45 @@ extension javax.swing {
     // MARK: Layout
     // -------------------------------------------------------------------------
 
+    /// Re-layout whenever our bounds change (e.g. window resize, divider drag).
+    override open func setBounds(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
+      super.setBounds(x, y, width, height)
+      doLayout()
+    }
+
+    override open func setBounds(_ r: java.awt.Rectangle) {
+      super.setBounds(r)
+      doLayout()
+    }
+
     override open func doLayout() {
       let w = bounds.width, h = bounds.height
       let t = scrollbarThickness
 
-      let vb = showVBar
-      let hb = showHBar
+      let vb = _computeShowVBar()
+      let hb = _computeShowHBar(vb: vb)
+      _cachedShowVBar = vb
+      _cachedShowHBar = hb
+
+      // ── Column header (e.g. JTableHeader) ────────────────────────────────
+      // Placed above the main viewport; scrolls horizontally with it.
+      var colHeaderH = 0
+      if let ch = _columnHeader, ch.getView() != nil {
+        colHeaderH = ch.getView()?.getPreferredSize().height ?? 22
+        let chW = w - (vb ? t : 0)
+        ch.bounds = java.awt.Rectangle(0, 0, max(0, chW), colHeaderH)
+        ch.doLayout()
+      }
 
       let vpW = w - (vb ? t : 0)
-      let vpH = h - (hb ? t : 0)
+      let vpH = h - colHeaderH - (hb ? t : 0)
 
-      // Viewport — child coordinates start at (0, 0) relative to this component
-      viewport.bounds = java.awt.Rectangle(0, 0, max(0, vpW), max(0, vpH))
-      viewport.doLayout()   // size and position the view inside the viewport
+      // ── Main viewport ─────────────────────────────────────────────────────
+      viewport.bounds = java.awt.Rectangle(0, colHeaderH, max(0, vpW), max(0, vpH))
+      viewport.doLayout()
 
-      // Vertical scrollbar
-      vScrollBar.bounds = java.awt.Rectangle(vpW, 0, t, max(0, vpH))
+      // ── Vertical scrollbar ────────────────────────────────────────────────
+      vScrollBar.bounds = java.awt.Rectangle(vpW, colHeaderH, t, max(0, vpH))
       vScrollBar.visible = vb
       if vb, let view = viewport.getView() {
         let viewH  = view.getPreferredSize().height
@@ -211,8 +269,8 @@ extension javax.swing {
         vScrollBar.setValue(viewport.getViewPosition().y)
       }
 
-      // Horizontal scrollbar
-      hScrollBar.bounds = java.awt.Rectangle(0, vpH, max(0, vpW), t)
+      // ── Horizontal scrollbar ──────────────────────────────────────────────
+      hScrollBar.bounds = java.awt.Rectangle(0, colHeaderH + vpH, max(0, vpW), t)
       hScrollBar.visible = hb
       if hb, let view = viewport.getView() {
         let viewW  = view.getPreferredSize().width
@@ -232,8 +290,10 @@ extension javax.swing {
     override open func getUIClassID() -> String { "ScrollPaneUI" }
 
     override open func paint(_ g: java.awt.Graphics) {
+      // All painting (viewport, column header, scrollbars) is handled by
+      // BasicScrollPaneUI.paint(), which uses the bounds set by doLayout().
       if let ui = getUI() {
-        ui.paint(g, on: self)
+        ui.paint(g, self)
       }
     }
 
@@ -243,8 +303,9 @@ extension javax.swing {
 
     override open func getComponents() -> [java.awt.Component] {
       var result: [java.awt.Component] = [viewport]
-      if showVBar { result.append(vScrollBar) }
-      if showHBar { result.append(hScrollBar) }
+      if let ch = _columnHeader, ch.getView() != nil { result.append(ch) }
+      if _cachedShowVBar { result.append(vScrollBar) }
+      if _cachedShowHBar { result.append(hScrollBar) }
       return result
     }
 

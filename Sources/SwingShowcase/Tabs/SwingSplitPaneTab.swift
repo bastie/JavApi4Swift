@@ -7,8 +7,8 @@ import JavApi
 
 /// Demonstrates `JSplitPane` with a master/detail layout.
 ///
-/// Left: JTree with a sample project structure.
-/// Right: Placeholder for the future JTable detail view.
+/// Left: JTree with a sample project structure (master).
+/// Right: JTable showing file details (detail).
 @MainActor
 class SwingSplitPaneTab {
 
@@ -27,15 +27,32 @@ class SwingSplitPaneTab {
     resNode.add(javax.swing.tree.DefaultMutableTreeNode("Info.plist"))
     testNode.add(javax.swing.tree.DefaultMutableTreeNode("AppTests.swift"))
     let tree = javax.swing.JTree(root)
-    let masterScroll = javax.swing.JScrollPane(tree)
+    let masterScroll = javax.swing.JScrollPane(
+      tree,
+      javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+      javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
 
-    // ── Detail (right) — placeholder for JTable, wrapped in JScrollPane ──────
-    let detailPanel = javax.swing.JPanel(java.awt.BorderLayout())
-    let detailLabel = javax.swing.JLabel("Detail (JTable – coming soon)")
-    detailLabel.setHorizontalAlignment(javax.swing.JLabel.CENTER)
-    detailPanel.add(detailLabel, java.awt.BorderLayout.CENTER)
-    detailPanel.setBackground(java.awt.Color(255, 245, 225))
-    let detailScroll = javax.swing.JScrollPane(detailPanel)
+    // ── Detail (right) — JTable wrapped in JScrollPane ───────────────────────
+    let tableModel = javax.swing.table.DefaultTableModel(
+      [
+        ["Main.swift",          "Swift", "2.1 KB", "2026-06-01"],
+        ["AppDelegate.swift",   "Swift", "1.4 KB", "2026-05-28"],
+        ["Assets.xcassets",     "Asset", "512 B",  "2026-04-10"],
+        ["Info.plist",          "XML",   "800 B",  "2026-04-10"],
+        ["AppTests.swift",      "Swift", "3.0 KB", "2026-06-14"],
+      ],
+      columnNames: ["Name", "Type", "Size", "Modified"])
+    let table = javax.swing.JTable(tableModel)
+    table.setAutoResizeMode(javax.swing.JTable.AUTO_RESIZE_OFF)
+    table.setColumnWidth(0, 150)
+    table.setColumnWidth(1, 60)
+    table.setColumnWidth(2, 70)
+    table.setColumnWidth(3, 100)
+    let detailScroll = javax.swing.JScrollPane(
+      table,
+      javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+      javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED)
+    detailScroll.setColumnHeaderView(table.getTableHeader())
 
     // ── JSplitPane (horizontal: left | right) ─────────────────────────────
     let splitPane = javax.swing.JSplitPane(

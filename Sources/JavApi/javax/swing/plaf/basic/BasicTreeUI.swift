@@ -56,12 +56,13 @@ extension javax.swing.plaf.basic {
       _measureSubtree(model: model, node: root, tree: tree,
                       depth: 0, showRoot: tree.isRootVisible(),
                       rowH: rowH, totalRows: &totalRows, maxW: &maxW)
-      return java.awt.Dimension(max(100, maxW + 8), max(100, totalRows * rowH))
+      // Return actual content size — JScrollPane decides whether to scroll.
+      return java.awt.Dimension(max(1, maxW + 8), max(1, totalRows * rowH))
     }
 
     // ── Paint ─────────────────────────────────────────────────────────────────
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let tree  = component as? javax.swing.JTree,
             let model = tree.getModel(),
             let root  = model.getRoot() else { return }

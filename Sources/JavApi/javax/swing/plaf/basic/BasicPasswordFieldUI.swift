@@ -14,10 +14,10 @@ extension javax.swing.plaf.basic {
   @MainActor
   open class BasicPasswordFieldUI: javax.swing.plaf.basic.BasicTextFieldUI {
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let field = component as? javax.swing.JPasswordField else {
         // Fallback: render as plain text field
-        super.paint(g, on: component)
+        super.paint(g, component)
         return
       }
 

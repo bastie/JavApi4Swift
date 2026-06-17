@@ -55,7 +55,7 @@ final class _SwiftUINativeCanvas: NSView {
     if let container = component as? java.awt.Container {
       let newW = Int(newSize.width)
       let newH = Int(newSize.height)
-      container.bounds = java.awt.Rectangle(0, 0, newW, newH)
+      container.setBounds(0, 0, newW, newH)
       container.validate()
     }
     needsDisplay = true
@@ -143,6 +143,10 @@ final class _SwiftUINativeCanvas: NSView {
   private var draggingScrollPane: java.awt.ScrollPane?
   // List whose scrollbar is being dragged
   private var draggingList: java.awt.List?
+  // javax.swing.JScrollBar being dragged
+  private weak var draggingJScrollBar: javax.swing.JScrollBar?
+  private var jScrollBarDragStartCoord: Int = 0
+  private var jScrollBarDragStartValue: Int = 0
   // JSplitPane whose divider is being dragged
   private weak var draggingSplitPane: javax.swing.JSplitPane?
   private var splitPaneDragStartCoord: Int = 0
@@ -423,6 +427,33 @@ final class _SwiftUINativeCanvas: NSView {
       }
       needsDisplay = true
 
+    } else if let jsb = hit as? javax.swing.JScrollBar {
+      // javax.swing.JScrollBar — geometry helpers return local coords (0,0 origin).
+      // Use absolute pt for drag-delta tracking (consistent with mouseDragged).
+      let isVert  = jsb.getOrientation() == javax.swing.JScrollBar.VERTICAL
+      let absCoord = isVert ? Int(pt.y) : Int(pt.x)
+      if jsb.decrementButtonRect().contains(lx, ly) {
+        jsb.setValue(jsb.getValue() - jsb.getUnitIncrement())
+      } else if jsb.incrementButtonRect().contains(lx, ly) {
+        jsb.setValue(jsb.getValue() + jsb.getUnitIncrement())
+      } else if jsb.thumbRect().contains(lx, ly) {
+        draggingJScrollBar        = jsb
+        jScrollBarDragStartCoord  = absCoord
+        jScrollBarDragStartValue  = jsb.getValue()
+      } else {
+        // Click on track — jump to position
+        let range  = jsb.getMaximum() - jsb.getMinimum()
+        let bs     = jsb.buttonSize
+        let track  = max(1, (isVert ? jsb.bounds.height : jsb.bounds.width) - 2 * bs)
+        let localCoord = isVert ? ly : lx
+        let newVal = jsb.getMinimum() + max(0, localCoord - bs) * range / track - jsb.getVisibleAmount() / 2
+        jsb.setValue(newVal)
+        draggingJScrollBar        = jsb
+        jScrollBarDragStartCoord  = absCoord
+        jScrollBarDragStartValue  = jsb.getValue()
+      }
+      needsDisplay = true
+
     } else if let sb = hit as? java.awt.Scrollbar {
       // All Scrollbar rects are now LOCAL — use lx/ly directly.
       let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
@@ -582,6 +613,20 @@ final class _SwiftUINativeCanvas: NSView {
       return
     }
     
+    // javax.swing.JScrollBar drag
+    if let jsb = draggingJScrollBar {
+      let isVert   = jsb.getOrientation() == javax.swing.JScrollBar.VERTICAL
+      let absCoord = isVert ? Int(pt.y) : Int(pt.x)
+      let range    = max(1, jsb.getMaximum() - jsb.getMinimum() - jsb.getVisibleAmount())
+      let bs       = jsb.buttonSize
+      let track    = max(1, (isVert ? jsb.bounds.height : jsb.bounds.width) - 2 * bs)
+      let delta    = absCoord - jScrollBarDragStartCoord
+      let newVal   = jScrollBarDragStartValue + delta * range / track
+      jsb.setValue(newVal)
+      needsDisplay = true
+      return
+    }
+
     // Standalone Scrollbar thumb drag
     if let sb = draggingScrollbar {
       let range  = sb.maximum - sb.minimum
@@ -694,6 +739,11 @@ final class _SwiftUINativeCanvas: NSView {
     if let ta = draggingTextAreaScroll {
       ta.isScrollbarDragging = false
       draggingTextAreaScroll = nil
+      needsDisplay = true
+      return
+    }
+    if draggingJScrollBar != nil {
+      draggingJScrollBar = nil
       needsDisplay = true
       return
     }

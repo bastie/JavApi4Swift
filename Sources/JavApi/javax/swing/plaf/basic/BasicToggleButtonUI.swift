@@ -20,13 +20,13 @@ extension javax.swing.plaf.basic {
     }
 
     /// Toggle buttons render as permanently "pressed" when selected.
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       // Let BasicButtonUI handle the full paint; its model.isPressed() check
       // already reads the correct state because JToggleButton.buttonClicked()
       // sets selected (not pressed) — but visually we want selected ≡ pressed.
       // We temporarily shadow the model state by adjusting the component's
       // background before delegating.
-      super.paint(g, on: component)
+      super.paint(g, component)
 
       // Draw a small "selected" indicator — a darker inner border — when selected.
       guard let btn = component as? javax.swing.AbstractButton,

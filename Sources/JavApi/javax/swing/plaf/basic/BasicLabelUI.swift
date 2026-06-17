@@ -38,7 +38,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let label = component as? javax.swing.JLabel else { return }
       let text = label.getText()
       guard !text.isEmpty else { return }

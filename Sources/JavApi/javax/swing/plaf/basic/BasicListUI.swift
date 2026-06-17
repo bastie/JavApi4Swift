@@ -89,7 +89,7 @@ extension javax.swing.plaf.basic {
     // MARK: Paint — origin is (0, 0) relative to the component
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let list = component as? _AnyJList else { return }
 
       let w     = component.bounds.width

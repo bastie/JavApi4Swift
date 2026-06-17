@@ -81,7 +81,7 @@ extension javax.swing.plaf.basic {
     // MARK: Painting
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let tp = component as? javax.swing.JTabbedPane else { return }
       let b        = tp.getBounds()
       let w        = b.width
@@ -158,11 +158,13 @@ extension javax.swing.plaf.basic {
           _lastValidatedSelIdx   = selIdx
         }
         // Translate to the selected tab's local origin before painting,
-        // matching how Container.paint() handles children via bounds offsets.
+        // using save/clipRect/restore so the graphics state is fully isolated.
         let sb = sel.bounds
+        g.save()
+        g.clipRect(sb.x, sb.y, sb.width, sb.height)
         g.translate(sb.x, sb.y)
         sel.paint(g)
-        g.translate(-sb.x, -sb.y)
+        g.restore()
       }
     }
   }

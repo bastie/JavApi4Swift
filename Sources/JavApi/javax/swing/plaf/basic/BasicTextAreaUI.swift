@@ -41,7 +41,7 @@ extension javax.swing.plaf.basic {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let area = component as? javax.swing.text.JTextComponent else { return }
 
       let w  = component.bounds.width
