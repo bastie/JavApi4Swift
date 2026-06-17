@@ -129,7 +129,7 @@ extension java.awt {
     }
 
     /// The index of the item at popup-local AWT y coordinate `y`, or `nil`.
-    public func popupItemIndex(atY y: Int) -> Int? {
+    public func popupItemIndex(_ y: Int) -> Int? {
       let pr = popupRect()
       guard y >= pr.y, y < pr.y + pr.height else { return nil }
       let idx = (y - pr.y) / itemHeight

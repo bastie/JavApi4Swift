@@ -949,7 +949,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           let pr = choice.popupRect()
           if pr.contains(contentX, contentY) {
             // Click inside popup → select item and close
-            if let idx = choice.popupItemIndex(atY: contentY) {
+            if let idx = choice.popupItemIndex(contentY) {
               choice.select(idx)
               choice.fireItemEvent(index: idx)
             }
@@ -1073,7 +1073,7 @@ public final class _X11WindowHost: @unchecked Sendable {
             list.scrollDragStartY    = contentY
             list.scrollDragStartOff  = list.scrollOffset
           } else {
-            if let idx = list.itemIndex(atY: contentY) {
+            if let idx = list.itemIndex(contentY) {
               list.select(idx)
               list.fireItemEvent(index: idx,
                                  stateChange: java.awt.event.ItemEvent.SELECTED)
@@ -1105,7 +1105,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           repaint(awtWindow, xwin: xwin)
         } else if isDoubleClick, let list = hit as? java.awt.List {
           // Double-click on List fires actionPerformed (same as GDI onDoubleClick)
-          if let idx = list.itemIndex(atY: contentY) {
+          if let idx = list.itemIndex(contentY) {
             list.fireActionEvent(index: idx)
           }
         } else {

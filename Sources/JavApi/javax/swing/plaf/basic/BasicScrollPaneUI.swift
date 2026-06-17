@@ -86,16 +86,9 @@ extension javax.swing.plaf.basic {
         g.fillRect(vpBounds.x + vpBounds.width, vpBounds.y + vpBounds.height, t, t)
       }
 
-      // Border — blue focus ring if a descendant is focused
-      let viewIsFocused: Bool = {
-        guard let focused = _SwiftUIFocusManager.shared.focusOwner else { return false }
-        var node: java.awt.Component? = focused
-        while let n = node {
-          if n === sp { return true }
-          node = n.parent
-        }
-        return false
-      }()
+      // Border — blue focus ring if the viewport or scrollbars are focused
+      // FIXME: implement KeyboardFocusManager 
+      let viewIsFocused = sp.isFocusOwner || vp.isFocusOwner || sp.getVerticalScrollBar().isFocusOwner || sp.getHorizontalScrollBar().isFocusOwner
       g.setColor(viewIsFocused ? java.awt.Color(59, 130, 246) : java.awt.SystemColor.windowBorder)
       g.drawLine(0,   0,   w-1, 0)
       g.drawLine(0,   0,   0,   h-1)

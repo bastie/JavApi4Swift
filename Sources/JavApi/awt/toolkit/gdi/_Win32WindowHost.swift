@@ -539,7 +539,7 @@ public final class _Win32Canvas {
       let pr = choice.popupRect()
       if pr.contains(x, y) {
         // Click inside popup → select item and close
-        if let idx = choice.popupItemIndex(atY: y) {
+        if let idx = choice.popupItemIndex(y) {
           choice.select(idx)
           choice.fireItemEvent(index: idx)
         }
@@ -672,7 +672,7 @@ public final class _Win32Canvas {
         list.scrollDragStartY    = y
         list.scrollDragStartOff  = list.scrollOffset
       } else {
-        if let idx = list.itemIndex(atY: y) {
+        if let idx = list.itemIndex(y) {
           list.select(idx)
           list.fireItemEvent(index: idx,
                              stateChange: java.awt.event.ItemEvent.SELECTED)
@@ -738,7 +738,7 @@ public final class _Win32Canvas {
   fileprivate func onDoubleClick(x: Int, y: Int) {
     let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     if let list = hit as? java.awt.List {
-      if let idx = list.itemIndex(atY: y) {
+      if let idx = list.itemIndex(y) {
         list.fireActionEvent(index: idx)
       }
     }

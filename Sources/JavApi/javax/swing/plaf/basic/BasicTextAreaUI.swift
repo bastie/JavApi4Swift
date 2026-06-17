@@ -53,7 +53,7 @@ extension javax.swing.plaf.basic {
       g.setColor(bg)
       g.fillRect(1, 1, w - 2, h - 2)
 
-      let isFocused = _SwiftUIFocusManager.shared.focusOwner === area
+      let isFocused = area.isFocusOwner
 
       // Border — blue focus ring when focused, sunken otherwise
       if isFocused {
