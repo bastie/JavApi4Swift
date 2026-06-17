@@ -108,6 +108,31 @@ extension javax.swing {
       return max(1, available * getColumnWidth(col) / totalPref)
     }
 
+    /// Sum of all column preferred widths (the table's natural width).
+    /// Used by `getPreferredSize()` and by `JScrollPane` to decide whether a
+    /// horizontal scrollbar is required.
+    open func getTotalColumnWidth() -> Int {
+      guard let m = _model, m.getColumnCount() > 0 else { return 0 }
+      return (0 ..< m.getColumnCount()).reduce(0) { $0 + getColumnWidth($1) }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    /// Returns the table's natural size from the column widths and row count.
+    ///
+    /// `JTable` reports its own preferred size directly — independent of whether
+    /// a UI delegate has been installed — so that an enclosing `JScrollPane`
+    /// can reliably decide whether a horizontal scrollbar is needed even when
+    /// `AUTO_RESIZE_OFF` keeps the columns wider than the viewport.
+    open override func getPreferredSize() -> java.awt.Dimension {
+      guard let m = _model else { return super.getPreferredSize() }
+      let totalW = getTotalColumnWidth()
+      let totalH = m.getRowCount() * _rowHeight
+      return java.awt.Dimension(max(1, totalW), max(1, totalH))
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Table header
     // -------------------------------------------------------------------------

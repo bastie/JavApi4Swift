@@ -18,6 +18,26 @@
 enum _SwingHitTest {
 
   // ---------------------------------------------------------------------------
+  // MARK: Hook installation
+  // ---------------------------------------------------------------------------
+
+  /// Installs the Swing-aware recursion hook into `_AWTHitTest` so that the
+  /// pure-AWT container recursion re-enters `_SwingHitTest` for nested children.
+  /// Idempotent: running it more than once simply re-assigns the same closure.
+  ///
+  /// Called automatically by every public entry point via `ensureHookInstalled()`.
+  static func installHook() {
+    _AWTHitTest.swingRecurse = { x, y, root in
+      _SwingHitTest.findWithLocal(x: x, y: y, in: root)
+    }
+  }
+
+  /// Lazily installs the hook on first use.
+  private static func ensureHookInstalled() {
+    if _AWTHitTest.swingRecurse == nil { installHook() }
+  }
+
+  // ---------------------------------------------------------------------------
   // MARK: Hit test
   // ---------------------------------------------------------------------------
 
@@ -28,6 +48,7 @@ enum _SwingHitTest {
   /// with scroll offset) are handled here.  All other components are forwarded
   /// to `_AWTHitTest.findWithLocal`.
   static func findWithLocal(x: Int, y: Int, in root: java.awt.Component) -> (java.awt.Component, Int, Int)? {
+    ensureHookInstalled()
     let b = root.bounds
     guard root.visible,
           x >= b.x, x < b.x + b.width,

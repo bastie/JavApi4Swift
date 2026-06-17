@@ -28,10 +28,15 @@ extension javax.swing {
     // MARK: Orientation constants
     // -------------------------------------------------------------------------
 
-    /// Horizontal scroll bar (= `SwingConstants.HORIZONTAL` = 0).
-    public static let HORIZONTAL: Int = JScrollBar.HORIZONTAL
-    /// Vertical scroll bar (= `SwingConstants.VERTICAL` = 1).
-    public static let VERTICAL:   Int = JScrollBar.VERTICAL
+    // The orientation constants are inherited from the `javax.swing.SwingConstants`
+    // protocol extension (`HORIZONTAL == 0`, `VERTICAL == 1`).
+    //
+    // They must NOT be re-declared here as stored `static let`: a stored property
+    // shadows the protocol's computed property, and an initialiser like
+    // `static let HORIZONTAL = JScrollBar.HORIZONTAL` then references *itself*,
+    // resolving to 0 for BOTH constants. That made every scroll bar report the
+    // same orientation, so the horizontal bar was painted with vertical geometry.
+    // See Java2Swift.md, "constants — access via concrete class".
 
     // -------------------------------------------------------------------------
     // MARK: Model + orientation

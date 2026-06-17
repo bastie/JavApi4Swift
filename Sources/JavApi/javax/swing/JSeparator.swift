@@ -36,8 +36,11 @@ extension javax.swing {
     // MARK: Orientation constants (access via JSeparator.HORIZONTAL etc.)
     // -------------------------------------------------------------------------
 
-    public static let HORIZONTAL: Int = JSeparator.HORIZONTAL  // 0
-    public static let VERTICAL:   Int = JSeparator.VERTICAL    // 1
+    // Inherited from the `javax.swing.SwingConstants` protocol extension
+    // (`HORIZONTAL == 0`, `VERTICAL == 1`).  Must NOT be re-declared as stored
+    // `static let`: that shadows the protocol value and `= JSeparator.HORIZONTAL`
+    // references itself, resolving to 0 for BOTH constants.
+    // See Java2Swift.md, "constants — access via concrete class".
 
     // -------------------------------------------------------------------------
     // MARK: State
