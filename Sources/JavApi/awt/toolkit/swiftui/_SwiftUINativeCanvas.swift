@@ -543,7 +543,7 @@ final class _SwiftUINativeCanvas: NSView {
         list.scrollDragStartOff  = list.scrollOffset
       } else {
         // Use local coordinate directly — itemIndex(atLocalY:) needs no translation
-        if let idx = list.itemIndex(atLocalY: ly) {
+        if let idx = list.itemIndex(ly) {
           list.select(idx)
           list.fireItemEvent(index: idx, stateChange: java.awt.event.ItemEvent.SELECTED)
           if event.clickCount >= 2 { list.fireActionEvent(index: idx) }
@@ -561,6 +561,14 @@ final class _SwiftUINativeCanvas: NSView {
       // JTabbedPane, panels, etc.) are dispatched on mouseUp — record which
       // component was pressed so mouseUp can confirm the hit still matches.
       pressedComponent = hit
+
+      // Forward MOUSE_PRESSED to registered MouseListeners immediately so that
+      // components like JSlider (whose BasicSliderUI installs a MouseListener
+      // for drag-start) receive the event without waiting for mouseUp.
+      if !hit.getMouseListeners().isEmpty {
+        hit.processMouseEvent(java.awt.event.MouseEvent(
+          hit, java.awt.event.MouseEvent.MOUSE_PRESSED, 0, 0, lx, ly, 1, false))
+      }
     }
   }
 
@@ -709,9 +717,24 @@ final class _SwiftUINativeCanvas: NSView {
       let newOff  = list.scrollDragStartOff + dy * maxOff / max(1, trackH)
       list.scrollOffset = max(0, min(maxOff, newOff))
       needsDisplay = true
+      return
+    }
+
+    // Generic fallback: dispatch mouseDragged to MouseMotionListeners of the
+    // component under the cursor (e.g. JSlider with BasicSliderUI._DragHandler).
+    if let root = component,
+       let hit = _SwiftUIHitTest.find(at: pt, in: root),
+       !hit.getMouseMotionListeners().isEmpty {
+      let origin = _SwingHitTest.absoluteOrigin(hit)
+      let lx = Int(pt.x) - origin.x
+      let ly = Int(pt.y) - origin.y
+      let e = java.awt.event.MouseEvent(
+        hit, java.awt.event.MouseEvent.MOUSE_DRAGGED, 0, 0, lx, ly, 0, false)
+      for l in hit.getMouseMotionListeners() { l.mouseDragged(e) }
+      needsDisplay = true
     }
   }
-  
+
   override func mouseUp(with event: NSEvent) {
     // If mouseDown was fully handled by menu-bar or popup logic, do nothing here.
     if _menuDownConsumed {
@@ -803,6 +826,11 @@ final class _SwiftUINativeCanvas: NSView {
       let upPt = awtPoint(from: event)
       if let (hit, lx, ly) = _SwiftUIHitTest.findWithLocal(at: upPt, in: component),
          hit === pressed {
+        // Forward MOUSE_RELEASED to registered MouseListeners (e.g. JSlider drag-end).
+        if !hit.getMouseListeners().isEmpty {
+          hit.processMouseEvent(java.awt.event.MouseEvent(
+            hit, java.awt.event.MouseEvent.MOUSE_RELEASED, 0, 0, lx, ly, 1, false))
+        }
         _SwiftUIHitTest.dispatch(click: hit, localX: lx, localY: ly)
         needsDisplay = true
       }

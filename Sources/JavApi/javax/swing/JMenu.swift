@@ -50,6 +50,38 @@ extension javax.swing {
     public let swingPopupMenu: javax.swing.JPopupMenu = javax.swing.JPopupMenu()
 
     // -------------------------------------------------------------------------
+    // MARK: MenuListeners
+    // -------------------------------------------------------------------------
+
+    private var menuListeners: [javax.swing.event.MenuListener] = []
+
+    public func addMenuListener(_ l: javax.swing.event.MenuListener) {
+      menuListeners.append(l)
+    }
+
+    public func removeMenuListener(_ l: javax.swing.event.MenuListener) {
+      menuListeners.removeAll { $0 === l }
+    }
+
+    /// Notifies all registered `MenuListener`s that the menu was selected (opened).
+    public func fireMenuSelected() {
+      let e = javax.swing.event.MenuEvent(self)
+      for l in menuListeners { l.menuSelected(e) }
+    }
+
+    /// Notifies all registered `MenuListener`s that the menu was deselected (closed).
+    public func fireMenuDeselected() {
+      let e = javax.swing.event.MenuEvent(self)
+      for l in menuListeners { l.menuDeselected(e) }
+    }
+
+    /// Notifies all registered `MenuListener`s that the menu was cancelled.
+    public func fireMenuCanceled() {
+      let e = javax.swing.event.MenuEvent(self)
+      for l in menuListeners { l.menuCanceled(e) }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Init
     // -------------------------------------------------------------------------
 

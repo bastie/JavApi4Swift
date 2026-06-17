@@ -38,6 +38,38 @@ extension javax.swing {
     private var items: [javax.swing.JMenuItem] = []
 
     // -------------------------------------------------------------------------
+    // MARK: PopupMenuListeners
+    // -------------------------------------------------------------------------
+
+    private var popupMenuListeners: [javax.swing.event.PopupMenuListener] = []
+
+    public func addPopupMenuListener(_ l: javax.swing.event.PopupMenuListener) {
+      popupMenuListeners.append(l)
+    }
+
+    public func removePopupMenuListener(_ l: javax.swing.event.PopupMenuListener) {
+      popupMenuListeners.removeAll { $0 === l }
+    }
+
+    /// Fires `popupMenuWillBecomeVisible` on all registered listeners.
+    public func firePopupMenuWillBecomeVisible() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuWillBecomeVisible(e) }
+    }
+
+    /// Fires `popupMenuWillBecomeInvisible` on all registered listeners.
+    public func firePopupMenuWillBecomeInvisible() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuWillBecomeInvisible(e) }
+    }
+
+    /// Fires `popupMenuCanceled` on all registered listeners.
+    public func firePopupMenuCanceled() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuCanceled(e) }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Init
     // -------------------------------------------------------------------------
 
@@ -98,6 +130,7 @@ extension javax.swing {
     /// The caller is responsible for adding the popup to the layered pane
     /// before calling `show`.
     public func show(x: Int, y: Int) {
+      firePopupMenuWillBecomeVisible()
       // Measure preferred height via UI delegate, fall back to item count
       let prefSize = getPreferredSize()
       bounds = java.awt.Rectangle(x, y, prefSize.width, prefSize.height)
@@ -106,6 +139,7 @@ extension javax.swing {
 
     /// Hides the popup and clears the armed state on all items.
     public func closePopup() {
+      firePopupMenuWillBecomeInvisible()
       for item in items { item.isArmed = false }
       setVisible(false)
     }

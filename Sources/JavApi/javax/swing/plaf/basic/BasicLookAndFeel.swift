@@ -60,6 +60,8 @@ extension javax.swing.plaf.basic {
       d["TreeUI"]         = { javax.swing.plaf.basic.BasicTreeUI()         }
       d["TableUI"]        = { javax.swing.plaf.basic.BasicTableUI()        }
       d["TableHeaderUI"]  = { javax.swing.plaf.basic.BasicTableHeaderUI()  }
+      d["ProgressBarUI"]  = { javax.swing.plaf.basic.BasicProgressBarUI()  }
+      d["SliderUI"]       = { javax.swing.plaf.basic.BasicSliderUI()       }
       return d
     }
   }
