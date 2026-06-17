@@ -7,8 +7,7 @@
 //
 // In JavApi⁴Swift components render themselves — there is no separate native
 // peer object.  Each component IS its own peer.
-
-extension java.awt.Component: java.awt.peer.ComponentPeer {
+extension java.awt.Component: java.awt.peer._deprecatedComponentPeer {
 
   /// Shows the component (Java 1.0 peer API — delegates to setVisible).
   public func show()    { setVisible(true)  }
@@ -81,18 +80,21 @@ extension java.awt.Component: java.awt.peer.ComponentPeer {
 
 // MARK: - Button → ButtonPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Button: java.awt.peer.ButtonPeer {
   // setLabel(_ label: String) already exists on Button
 }
 
 // MARK: - Checkbox → CheckboxPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Checkbox: java.awt.peer.CheckboxPeer {
   // setState, setCheckboxGroup, setLabel already exist on Checkbox
 }
 
 // MARK: - List → ListPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.List: java.awt.peer.ListPeer {
   public func addItem(_ item: String, _ index: Int) { add(item, index) }
   public func delItems(_ start: Int, _ end: Int) {
@@ -106,6 +108,7 @@ extension java.awt.List: java.awt.peer.ListPeer {
 
 // MARK: - Choice → ChoicePeer
 // Choice already has select(_ index: Int) and insert(_ item:, _ index:) — no extra methods needed.
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Choice: java.awt.peer.ChoicePeer {
   public func addItem(_ item: String, _ index: Int) { insert(item, index) }
   // select(_ index: Int) already exists on Choice
@@ -113,6 +116,7 @@ extension java.awt.Choice: java.awt.peer.ChoicePeer {
 
 // MARK: - Scrollbar → ScrollbarPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Scrollbar: java.awt.peer.ScrollbarPeer {
   public func setValues(_ value: Int, _ visible: Int, _ minimum: Int, _ maximum: Int) {
     setValue(value)
@@ -126,6 +130,7 @@ extension java.awt.Scrollbar: java.awt.peer.ScrollbarPeer {
 
 // MARK: - TextComponent → TextComponentPeer (selection methods)
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.TextComponent {
   public func getSelectionStart() -> Int { selectionStart }
   public func getSelectionEnd()   -> Int { selectionEnd   }
@@ -137,6 +142,7 @@ extension java.awt.TextComponent {
 
 // MARK: - TextField → TextFieldPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.TextField: java.awt.peer.TextFieldPeer {
   public func setEchoCharacter(_ c: Character) { setEchoChar(c) }
   public func preferredSize(_ cols: Int) -> java.awt.Dimension { getPreferredSize() }
@@ -146,6 +152,7 @@ extension java.awt.TextField: java.awt.peer.TextFieldPeer {
 
 // MARK: - MenuItem → MenuItemPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.MenuItem: java.awt.peer.MenuItemPeer {
   // setLabel, enable, disable already exist on MenuItem
   public func dispose() {}
@@ -153,6 +160,7 @@ extension java.awt.MenuItem: java.awt.peer.MenuItemPeer {
 
 // MARK: - Menu → MenuPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Menu: java.awt.peer.MenuPeer {
   public func addItem(_ item: java.awt.MenuItem) { add(item) }
   public func delItem(_ index: Int) { remove(index) }
@@ -160,6 +168,7 @@ extension java.awt.Menu: java.awt.peer.MenuPeer {
 
 // MARK: - MenuBar → MenuBarPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.MenuBar: java.awt.peer.MenuBarPeer {
   public func addMenu(_ m: java.awt.Menu)     { _ = add(m) }
   public func delMenu(_ index: Int)           { remove(index) }
@@ -169,12 +178,14 @@ extension java.awt.MenuBar: java.awt.peer.MenuBarPeer {
 
 // MARK: - CheckboxMenuItem → CheckboxMenuItemPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.CheckboxMenuItem: java.awt.peer.CheckboxMenuItemPeer {
   // setState already exists on CheckboxMenuItem
 }
 
 // MARK: - TextArea → TextAreaPeer
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.TextArea: java.awt.peer.TextAreaPeer {
   public func insertText(_ text: String, _ pos: Int) { insert(text, pos) }
   public func replaceText(_ text: String, _ start: Int, _ end: Int) {

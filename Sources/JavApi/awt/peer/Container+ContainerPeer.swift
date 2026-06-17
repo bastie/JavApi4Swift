@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated, message: "This API is not meant to be called by clients.")
 extension java.awt.Container : java.awt.peer.ContainerPeer {
   /// If in JavApi⁴Swift components render themselves — there is no separate native
   /// peer object.  Each component IS its own peer.

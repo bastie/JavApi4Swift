@@ -5,16 +5,8 @@
 
 extension java.awt.peer {
 
-  /// Native peer interface for `java.awt.Component`.
-  ///
-  /// If in JavApi⁴Swift the AWT components render themselves directly; there is no
-  /// separate native widget.  The peer protocol is implemented by the AWT
-  /// component classes themselves so that code expecting a peer object receives
-  /// the component as its own peer.
-  ///
-  /// - Since: JavaApi > 0.19.1 (Java 1.0)
   @MainActor
-  public protocol ComponentPeer: AnyObject {
+  public protocol _deprecatedComponentPeer : AnyObject {
 
     /// Makes the component visible.
     func show()
@@ -78,4 +70,18 @@ extension java.awt.peer {
     func checkImage(_ image: java.awt.Image, _ width: Int, _ height: Int,
                     _ observer: any java.awt.ImageObserver) -> Int
   }
+
+  /// Native peer interface for `java.awt.Component`.
+  ///
+  /// If in JavApi⁴Swift the AWT components render themselves directly; there is no
+  /// separate native widget.  The peer protocol is implemented by the AWT
+  /// component classes themselves so that code expecting a peer object receives
+  /// the component as its own peer.
+  ///
+  /// - Since: Java 1.0
+  @available(*, deprecated, message: "This API is not meant to be called by clients.")
+  @MainActor
+  public protocol ComponentPeer: _deprecatedComponentPeer {
+  }
+  
 }
