@@ -9,6 +9,33 @@ extension java.awt {
   @MainActor
   open class Component: MenuContainer {
 
+    /// Store locale for this component
+    /// - Since: Java 1.1
+    internal var _componentLocale: java.util.Locale?
+    
+    /// - Returns: Locale of component or if not set on this component, locale of parent component (recursive) or if not set on any parent, java.util.Locale.getDefault()
+    /// - Since: Java 1.1
+    open func getLocale() -> java.util.Locale {
+      if let _componentLocale {
+        return _componentLocale
+      }
+      else {
+        let locale = getParent()?.getLocale()
+        if let locale {
+          return locale
+        }
+        else {
+          return java.util.Locale.getDefault()
+        }
+      }
+    }
+    /// Set component specific locale
+    /// - Parameter locale: new locale for component
+    /// - Since: Java 1.1
+    open func setLocale(_ locale: java.util.Locale?) {
+      self._componentLocale = locale
+    }
+    
     // -------------------------------------------------------------------------
     // MARK: Visual properties
     // -------------------------------------------------------------------------

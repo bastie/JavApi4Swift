@@ -20,6 +20,15 @@ extension java.awt {
   /// - `toFront()` / `toBack()` — Fensterstapel (Stub, plattformabhängig)
   @MainActor
   open class Window: Container {
+    
+    /// - Returns: Returns a Window specific locale if set or the system defautl Locale
+    /// - Since: Java 1.1
+    open override func getLocale() -> java.util.Locale {
+      if let myLocale = _componentLocale {
+        return myLocale
+      }
+      return java.util.Locale.getDefault()
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Sichtbarkeit

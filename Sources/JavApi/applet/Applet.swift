@@ -69,5 +69,15 @@ extension java.applet {
 
     /// - Returns: information about the parameters the applet understands.
     open func getParameterInfo() -> [[String]]? { return nil }
+    
+    /// - Returns: Applet specific locale if set or the system default locale
+    open override func getLocale() -> java.util.Locale {
+      if let locale = _componentLocale {
+        return locale
+      }
+      else {
+        return java.util.Locale.getDefault()
+      }
+    }
   }
 }
