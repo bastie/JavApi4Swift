@@ -120,4 +120,31 @@ struct JavApi_util_Locale_Tests {
     #expect(jp.getLanguage() == "ja")
     #expect(jp.getCountry() == "JP")
   }
+  
+  @MainActor @Test("Locale on AWTComponents")
+  func testLocalizedAWTComponents() {
+    let label = java.awt.Label("Hello")
+    #expect(label.getLocale() == java.util.Locale.getDefault())
+    
+    let enPanel = java.awt.Panel()
+    enPanel.setLocale(java.util.Locale.ENGLISH)
+    
+    let deLabel = java.awt.Label("Hallo")
+    enPanel.add(deLabel)
+    #expect(deLabel.getLocale() == java.util.Locale.ENGLISH)
+
+    deLabel.setLocale(java.util.Locale.GERMAN)
+    #expect(deLabel.getLocale() == java.util.Locale.GERMAN)
+
+    let window = java.awt.Frame()
+    #expect(window.getLocale() == java.util.Locale.getDefault())
+    window.setLocale(java.util.Locale.FRANCE)
+    #expect(window.getLocale() == java.util.Locale.FRANCE)
+    
+    
+    let applet = java.applet.Applet()
+    #expect(applet.getLocale() == java.util.Locale.getDefault())
+    applet.setLocale(java.util.Locale.CHINESE)
+    #expect(applet.getLocale() == java.util.Locale.CHINESE)
+  }
 }
