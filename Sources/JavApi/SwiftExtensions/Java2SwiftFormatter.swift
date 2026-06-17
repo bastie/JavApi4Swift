@@ -50,6 +50,7 @@ struct Java2SwiftFormatter {
     var swiftArgs  : [CVarArg] = []
     var argIdx     = 0
     var i          = resolvedFmt.startIndex
+    var hasGrouping = false
 
     while i < resolvedFmt.endIndex {
       let ch = resolvedFmt[i]
@@ -83,7 +84,6 @@ struct Java2SwiftFormatter {
       var flags     = ""
       var width     = ""
       var precision = ""
-      var hasGrouping = false
 
       // Flags: -, +, 0, ' ', #, ,
       while i < resolvedFmt.endIndex && "-+ #0,(".contains(resolvedFmt[i]) {
@@ -244,8 +244,20 @@ struct Java2SwiftFormatter {
         argIdx -= 1   // didn't consume an arg
       }
     }
-
-    return String(format: swiftFmt, arguments: swiftArgs)
+    if hasGrouping {
+      return String(
+        format: swiftFmt,
+        locale: java.util.Locale.getDefault().delegate,
+        arguments: swiftArgs
+      )
+    }
+    else {
+      return String(
+        format: swiftFmt,
+        arguments: swiftArgs
+      )
+    }
+    //return String(format: swiftFmt, locale: java.util.Locale.getDefault().delegate,  arguments: swiftArgs)
   }
 
   // ---------------------------------------------------------------------------

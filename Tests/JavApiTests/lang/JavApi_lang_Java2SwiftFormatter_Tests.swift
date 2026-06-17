@@ -13,6 +13,8 @@ import Testing
 // are marked with a comment so they can be skipped on CI if needed.
 // ---------------------------------------------------------------------------
 
+/// - Note: Java are not thread safe with java.util.Locale.setDefault, so wie need to serialized this Suite
+@Suite("Java2SwiftFormatter", .serialized)
 struct JavApi_lang_Java2SwiftFormatter_Tests {
 
   // ── %s / %S ────────────────────────────────────────────────────────────────
@@ -91,6 +93,10 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
 
   @Test("%d formats integer")
   func testInteger() {
+    let saved = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(saved) }
+
     #expect(String.format("%d", 42) == "42")
   }
 
@@ -101,7 +107,14 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
 
   @Test("%d with zero-flag pads with zeros")
   func testIntegerZeroPad() {
-    #expect(String.format("%05d", 42) == "00042")
+    let saved = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(saved) }
+    
+    let java = String.format("%05d", 42)
+    let expected = "00042"
+
+    #expect(java == expected)
   }
 
   @Test("%d negative value")
@@ -145,14 +158,23 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
-    #expect(String.format("%.2f", 3.14159) == "3.14")
+    let shortPi = String.format("%.2f", 3.14159)
+    let expected = "3.14"
+    
+    #expect(shortPi == expected)
   }
 
   // ── %e ─────────────────────────────────────────────────────────────────────
 
   @Test("%e scientific notation")
   func testScientific() {
-    #expect(String.format("%e", 123456.789) == String(format: "%e", 123456.789))
+    let saved = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(saved) }
+    let java  = String.format("%e", 123456.789).toLowerCase()
+    let swift = String(format: "%e", 123456.789).toLowerCase()
+    
+    #expect(java == swift)
   }
 
   // ── %o / %x / %X ───────────────────────────────────────────────────────────
