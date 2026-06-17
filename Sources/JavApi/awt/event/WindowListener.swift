@@ -4,6 +4,7 @@
  */
 
 extension java.awt.event {
+  /// - Since: Java 1.1
   @MainActor
   public protocol WindowListener: java.util.EventListener {
     func windowOpened     (_ e: java.awt.event.WindowEvent)

@@ -4,6 +4,7 @@
  */
 
 extension java.awt.event {
+  /// - Since: Java 1.1
   @MainActor
   public protocol KeyListener: java.util.EventListener {
     func keyTyped   (_ e: java.awt.event.KeyEvent)
