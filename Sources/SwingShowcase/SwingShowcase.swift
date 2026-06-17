@@ -41,6 +41,11 @@ struct SwingShowcaseApp {
     let cardAction       = SwingCardLayoutAction(owner: frame)
     let gridBagAction    = SwingGridBagLayoutAction(owner: frame)
 
+    let boxAction        = SwingBoxLayoutAction(owner: frame)
+    let overlayAction    = SwingOverlayLayoutAction(owner: frame)
+    let springAction     = SwingSpringLayoutAction(owner: frame)
+    let groupAction      = SwingGroupLayoutAction(owner: frame)
+
     let aboutAction      = SwingAboutAction(owner: frame)
 
     // ── JMenuBar ─────────────────────────────────────────────────────────────
@@ -69,6 +74,11 @@ struct SwingShowcaseApp {
     layoutMenu.add(cardAction)
     layoutMenu.addSeparator()
     layoutMenu.add(gridBagAction)
+    layoutMenu.addSeparator()
+    layoutMenu.add(boxAction)
+    layoutMenu.add(overlayAction)
+    layoutMenu.add(springAction)
+    layoutMenu.add(groupAction)
     menuBar.add(layoutMenu)
 
     // Help menu
@@ -95,6 +105,10 @@ struct SwingShowcaseApp {
     toolbar.add(gridAction)
     toolbar.add(cardAction)
     toolbar.add(gridBagAction)
+    toolbar.add(boxAction)
+    toolbar.add(overlayAction)
+    toolbar.add(springAction)
+    toolbar.add(groupAction)
     toolbar.addSeparator()
 
     toolbar.add(aboutAction)
