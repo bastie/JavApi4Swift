@@ -71,7 +71,7 @@ extension java.awt {
     /// - Parameter rgba: Packed value `0xAARRGGBB`.
     /// - Parameter hasAlpha: When `true` the high byte is used as alpha;
     ///   otherwise alpha is 255.
-    public convenience init(rgba: Int, hasAlpha: Bool) {
+    public convenience init(_ rgba: Int, _ hasAlpha: Bool) {
       if hasAlpha {
         self.init((rgba >> 16) & 0xFF,
                   (rgba >>  8) & 0xFF,
