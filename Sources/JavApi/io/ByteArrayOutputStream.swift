@@ -23,7 +23,7 @@ extension java.io {
   /// print(out.toString())   // Hi
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.0)
+  /// - Since: Java 1.0
   open class ByteArrayOutputStream : java.io.OutputStream {
 
     // MARK: - Buffer
@@ -37,7 +37,7 @@ extension java.io {
     // MARK: - Initialisers
 
     /// Creates a new stream with a default initial capacity of 32 bytes.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override init() {
       buf = [UInt8](repeating: 0, count: 32)
       super.init()
@@ -46,7 +46,7 @@ extension java.io {
     /// Creates a new stream with the given initial capacity.
     ///
     /// - Parameter size: Initial buffer capacity in bytes.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public init(_ size: Int) {
       buf = [UInt8](repeating: 0, count: max(size, 1))
       super.init()
@@ -66,7 +66,7 @@ extension java.io {
     /// Writes a single byte (the lowest 8 bits of `b`) to the buffer.
     ///
     /// - Parameter b: The byte value to write; only the lowest 8 bits are used.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override func write(_ b: Int) throws {
       ensureCapacity(count + 1)
       buf[count] = UInt8(b & 0xFF)
@@ -80,7 +80,7 @@ extension java.io {
     ///   - pos: Start offset in `buffer`.
     ///   - length: Number of bytes to write.
     /// - Throws: `java.lang.IndexOutOfBoundsException` for invalid ranges.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override func write(_ buffer: [UInt8], _ pos: Int, _ length: Int) throws {
       guard pos >= 0, length >= 0, pos + length <= buffer.count else {
         throw IndexOutOfBoundsException()
@@ -95,24 +95,22 @@ extension java.io {
     /// Writes all bytes from `value` into this stream.
     ///
     /// - Parameter value: The byte array to write.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override func write(_ value: [UInt8]) throws {
       try write(value, 0, value.count)
     }
-
-    // MARK: - Java 1.0 API
 
     /// Writes the complete contents of this stream to `out`.
     ///
     /// - Parameter out: The target `OutputStream`.
     /// - Throws: Any `IOException` thrown by `out`.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func writeTo(_ out: java.io.OutputStream) throws {
       try out.write(buf, 0, count)
     }
 
     /// Resets the stream so it can be reused. The buffer is retained.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func reset() {
       count = 0
     }
@@ -120,19 +118,19 @@ extension java.io {
     /// Returns the current contents of the buffer as a `[UInt8]` array.
     ///
     /// - Returns: A copy of the valid bytes written so far.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func toByteArray() -> [UInt8] {
       return Array(buf[0..<count])
     }
 
     /// Returns the number of bytes written so far.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func size() -> Int {
       return count
     }
 
     /// Returns the buffer contents decoded as a UTF-8 string.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func toString() -> String {
       return String(bytes: buf[0..<count], encoding: .utf8) ?? ""
     }
@@ -145,7 +143,7 @@ extension java.io {
     ///
     /// - Parameter charsetName: IANA charset name.
     /// - Returns: Decoded string, or an empty string if decoding fails.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.1
     public func toString(_ charsetName: String) -> String {
       let enc = ByteArrayOutputStream.encoding(for: charsetName)
       return String(bytes: buf[0..<count], encoding: enc) ?? ""
@@ -180,6 +178,21 @@ extension java.io {
     /// `close()` has no effect on a `ByteArrayOutputStream`.
     public override func close() throws {
       // no-op — buffer remains accessible after close, as in Java
+    }
+    
+    /// - Since: Java 1.0
+    @available(*, deprecated, renamed: "toString(_:)", message: "use toString (encoding) instead")
+    func toString(_ hibyte: Int) -> String {
+      // Maskiere das hibyte auf 8 Bit und verschiebe es in die oberen 8 Bit
+      let hiShifted = UInt16(hibyte & 0xFF) << 8
+      
+      // Jedes Byte aus den Daten mit den oberen 8 Bit verknüpfen
+      let utf16CodeUnits = buf.map { byte -> UTF16.CodeUnit in
+        return hiShifted | UInt16(byte)
+      }
+      
+      // String direkt aus den UTF-16 Code Units erstellen
+      return String(decoding: utf16CodeUnits, as: UTF16.self)
     }
   }
 }
