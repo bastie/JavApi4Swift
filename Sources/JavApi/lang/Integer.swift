@@ -176,7 +176,7 @@ public final class Integer: Number, @unchecked Sendable {
   /// Decode a string also with given prefix for hexadecimal (`0x` or `#`) or octal (`0`) numeric values
   /// - Since: Java 1.1
   public static func decode (_ string : String) throws (NumberFormatException) -> Int {
-    var trimmed = string.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    var trimmed = string.trimmingCharacters(in: .whitespaces).lowercased()
     if trimmed.hasPrefix("0x") {
       trimmed = trimmed.substring(2)
       return try Integer.valueOf(trimmed, 16)

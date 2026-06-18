@@ -62,7 +62,7 @@ extension java.awt {
     }
 
     /// Creates a color from a packed `0xRRGGBB` integer (alpha = 255).
-    public convenience init(rgb: Int) {
+    public convenience init(_ rgb: Int) {
       self.init((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF)
     }
 
@@ -78,22 +78,17 @@ extension java.awt {
                    rgba        & 0xFF,
                   (rgba >> 24) & 0xFF)
       } else {
-        self.init(rgb: rgba)
+        self.init(rgba)
       }
     }
 
-    /// Parses a hex color string (`"#RRGGBB"`, `"0xRRGGBB"`, or decimal).
-    /// - Throws: `IllegalArgumentException` if the string cannot be parsed.
+    /// Parses a hex (`"#RRGGBB"`, `"0xRRGGBB"`), octal, or decimal color string.
+    /// - Throws: `NumberFormatException` if the string cannot be parsed.
+    /// - Parameter nm: String
     /// - Returns Color instance
-    public static func decode(_ nm: String) throws -> Color {
-      let trimmed = nm.trimmingCharacters(in: .whitespaces)
-      var hex = trimmed
-      if hex.hasPrefix("#")  { hex = String(hex.dropFirst()) }
-      else if hex.lowercased().hasPrefix("0x") { hex = String(hex.dropFirst(2)) }
-      guard let value = Int(hex, radix: 16) else {
-        throw IllegalArgumentException("Color.decode: cannot parse '\(nm)'")
-      }
-      return Color(rgb: value)
+    public static func decode(_ nm: String) throws (NumberFormatException) -> Color {
+      let value = try Integer.decode(nm)
+      return Color(value)
     }
 
     // -------------------------------------------------------------------------
@@ -209,7 +204,7 @@ extension java.awt {
     /// Creates a `Color` from HSB values (0.0–1.0 each).
     public static func getHSBColor(_ h: Float, _ s: Float,
                                     _ b: Float) -> Color {
-      Color(rgb: HSBtoRGB(h, s, b) & 0x00_FF_FF_FF)
+      Color(HSBtoRGB(h, s, b) & 0x00_FF_FF_FF)
     }
   }
 }
