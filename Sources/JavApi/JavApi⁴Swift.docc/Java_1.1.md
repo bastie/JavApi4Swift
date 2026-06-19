@@ -677,93 +677,63 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.lang.reflect — New package in 1.1
 
-> **🔴 KRITISCH - KOMPLETT FEHLEND**
-> 
-> **Status:** NICHT IMPLEMENTIERT (0/8 Klassen) — Das komplette Paket fehlt!
-> 
-> Das ist eine fundamentale Lücke für JavApi4Swift. Reflection ist essentiell für:
-> - Dynamisches Methoden-Aufrufen
-> - Dynamisches Feld-Zugriff
-> - Dynamisches Instanzen-Erstellen
-> - Beans-Introspection
-> 
-> Ohne diese API ist keine echte dynamische Programmierung möglich.
+> **Note:** Java reflection cannot be fully mapped to Swift's type system. Field introspection is backed by Swift Mirror. Method/Constructor reflection is not portable.
 
-##### java.lang.reflect.Field (0/0/⭕️)
+##### java.lang.reflect.AnnotatedElement (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | get()          | (Object)->Object
-1.1     | ⭕️          | ⭕️       | method        | set()          | (Object,Object)
-1.1     | ⭕️          | ⭕️       | method        | getName()      | ()->String
-1.1     | ⭕️          | ⭕️       | method        | getType()      | ()->Class
+1.1     | ✔️          | 🪄       | method        | getAnnotation()          | (Type)->Any?
+1.1     | ✔️          | 🪄       | method        | getAnnotations()         | ()->[Any]
+1.1     | ✔️          | 🪄       | method        | getDeclaredAnnotations() | ()->[Any]
+1.1     | ✔️          | 🪄       | method        | isAnnotationPresent()    | (Type)->Bool
 
-##### java.lang.reflect.Method (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | invoke()       | (Object,Object[])->Object
-1.1     | ⭕️          | ⭕️       | method        | getName()      | ()->String
-1.1     | ⭕️          | ⭕️       | method        | getReturnType()| ()->Class
-1.1     | ⭕️          | ⭕️       | method        | getParameterTypes() | ()->Class[]
-
-##### java.lang.reflect.Constructor (0/0/⭕️)
+##### java.lang.reflect.Member (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | newInstance()  | (Object[])->Object
-1.1     | ⭕️          | ⭕️       | method        | getName()      | ()->String
-1.1     | ⭕️          | ⭕️       | method        | getParameterTypes() | ()->Class[]
+1.1     | ✔️          | 🪄       | protocol      | Member         | getDeclaringClass(), getName(), getModifiers(), isSynthetic()
 
-##### java.lang.reflect.Modifier (0/0/⭕️)
+##### java.lang.reflect.AccessibleObject (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | static method | isPublic()     | (int)->boolean
-1.1     | ⭕️          | ⭕️       | static method | isStatic()     | (int)->boolean
-1.1     | ⭕️          | ⭕️       | static method | isFinal()      | (int)->boolean
-1.1     | ⭕️          | ⭕️       | static field  | PUBLIC, STATIC, FINAL, … | int constants
+1.1     | ✔️          | ⭕️       | method        | setAccessible()          | (boolean)
+1.1     | ✔️          | ⭕️       | method        | isAccessible()           | ()->boolean
+1.1     | ✔️          | ⭕️       | static method | setAccessible()          | ([AccessibleObject],boolean)
+1.1     | ✔️          | ⭕️       | method        | toString()               | ()->String
 
-##### java.lang.reflect.Array (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | static method | newInstance()  | (Class,int)->Object
-1.1     | ⭕️          | ⭕️       | static method | getLength()    | (Object)->int
-1.1     | ⭕️          | ⭕️       | static method | get()          | (Object,int)->Object
-1.1     | ⭕️          | ⭕️       | static method | set()          | (Object,int,Object)
-
-##### java.lang.reflect.AccessibleObject (0/0/⭕️)
+##### java.lang.reflect.Modifier (7/7/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | setAccessible()| (boolean)
-1.1     | ⭕️          | ⭕️       | method        | isAccessible() | ()->boolean
+1.1     | ✔️          | ⭕️       | static field  | PUBLIC, PRIVATE, PROTECTED | int constants
+1.1     | ✔️          | ⭕️       | static field  | STATIC, FINAL, SYNCHRONIZED | int constants
+1.1     | ✔️          | ⭕️       | static field  | VOLATILE, TRANSIENT, NATIVE | int constants
 
-##### java.lang.reflect.Member (0/0/⭕️)
+##### java.lang.reflect.Field (6/6/⭕️)
 
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | interface     | Member         | getDeclaringClass(), getName(), getModifiers()
-
-##### java.lang.reflect.InvocationTargetException (0/0/⭕️)
+> **Note:** Backed by Swift Mirror. `get()` / `set()` use Mirror-based introspection; write access is limited.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | InvocationTargetException() | (Throwable)
-1.1     | ⭕️          | ⭕️       | method        | getTargetException() | ()->Throwable
+1.1     | ✔️          | ⭕️       | method        | getName()            | ()->String
+1.1     | ✔️          | ⭕️       | method        | getModifiers()       | ()->int
+1.1     | ✔️          | ⭕️       | method        | get()                | (Any?)->Any?
+1.1     | ✔️          | ⭕️       | method        | set()                | (inout Any, Any?)
+1.1     | ✔️          | ⭕️       | method        | getDeclaringClass()  | ()->Class
+1.1     | ✔️          | ⭕️       | method        | getGenericType()     | (Any)->Any.Type?
 
 #### java.lang.Class — Reflection additions (1.1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | getDeclaredFields()      | ()->Field[]
-1.1     | ⭕️          | ⭕️       | method        | getDeclaredMethods()     | ()->Method[]
-1.1     | ⭕️          | ⭕️       | method        | getDeclaredConstructors()| ()->Constructor[]
-1.1     | ⭕️          | ⭕️       | method        | getFields()              | ()->Field[]
-1.1     | ⭕️          | ⭕️       | method        | getMethods()             | ()->Method[]
-1.1     | ⭕️          | ⭕️       | method        | getConstructors()        | ()->Constructor[]
-1.1     | ⭕️          | ⭕️       | method        | getModifiers()           | ()->int
+1.1     | ✔️          | ⭕️       | method        | getDeclaredFields()      | (Any)->[Field] — via Swift Mirror
+1.1     | ✔️          | ⭕️       | method        | getFields()              | (Any)->[Field] — via Swift Mirror
+1.1     | ⭕️          | ⭕️       | method        | getDeclaredMethods()     | ()->Method[] — not portable in Swift
+1.1     | ⭕️          | ⭕️       | method        | getConstructors()        | ()->Constructor[] — not portable in Swift
+
+> **Not ported:** `java.lang.reflect.Method`, `Constructor`, `Array`, `InvocationTargetException` — Swift has no equivalent runtime method/constructor introspection API.
 
 ### java.lang — New wrapper classes in 1.1
 
@@ -817,15 +787,20 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ⭕️          | ⭕️       | class         | DatagramSocketImpl | abstract base for datagram socket implementations
 
-##### java.net.HttpURLConnection (0/0/⭕️)
+##### java.net.HttpURLConnection (5/5/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | getResponseCode() | ()->int
-1.1     | ⭕️          | ⭕️       | method        | getResponseMessage() | ()->String
-1.1     | ⭕️          | ⭕️       | method        | setRequestMethod() | (String)
-1.1     | ⭕️          | ⭕️       | method        | disconnect()   | ()
-1.1     | ⭕️          | ⭕️       | final field   | HTTP_OK, HTTP_NOT_FOUND, HTTP_MOVED_PERM, … | int constants
+1.1     | ✔️          | ✔️       | method        | getResponseCode()    | ()->int
+1.1     | ✔️          | ✔️       | method        | getResponseMessage() | ()->String?
+1.1     | ✔️          | ✔️       | method        | getRequestMethod()   | ()->String
+1.1     | ✔️          | ✔️       | method        | setRequestMethod()   | (String)
+1.1     | ✔️          | ✔️       | method        | disconnect()         | ()
+1.1     | ✔️          | ✔️       | static field  | followRedirects      | Bool
+1.1     | ✔️          | ✔️       | final field   | HTTP_OK, HTTP_CREATED, HTTP_ACCEPTED, HTTP_NO_CONTENT | int constants
+1.1     | ✔️          | ✔️       | final field   | HTTP_MOVED_PERM, HTTP_MOVED_TEMP, HTTP_NOT_MODIFIED | int constants
+1.1     | ✔️          | ✔️       | final field   | HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND | int constants
+1.1     | ✔️          | ✔️       | final field   | HTTP_INTERNAL_ERROR, HTTP_NOT_IMPLEMENTED, HTTP_BAD_GATEWAY, HTTP_UNAVAILABLE | int constants
 
 ##### java.net.MulticastSocket (0/0/⭕️)
 
@@ -1029,24 +1004,8 @@ version | implemented | tested   | type          | name                         
 ### java.awt.datatransfer — New package in 1.1 (not in scope)
 
 > **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
-> 
-> **AKTUELLER STATUS:** ⭕️ **KOMPLETT FEHLEND** (0/6 Klassen)
-> 
-> Das Paket existiert nicht. Enthält:
-> - Clipboard, ClipboardOwner, DataFlavor, Transferable, StringSelection, UnsupportedFlavorException
 
-### java.text — New package in 1.1 (partially implemented - 35% coverage)
-
-> **AKTUELLER STATUS:** ⚠️ **TEILWEISE IMPLEMENTIERT** (4/12 Klassen vorhanden)
-> 
-> **Vorhanden:**
-> - Format (base), NumberFormat, DateFormat, SimpleDateFormat
-> - ParseException, ParsePosition, FieldPosition
-> 
-> **Fehlend (65%):**
-> - DecimalFormat, MessageFormat, ChoiceFormat (KRITISCH für Formatierung)
-> - Collator, RuleBasedCollator, CollationKey (KRITISCH für Internationalisierung)
-> - AttributedString, AttributedCharacterIterator, Annotation
+### java.text — New package in 1.1 (partially implemented)
 
 Core formatting classes are now ported and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`.
 
@@ -1118,26 +1077,7 @@ version | implemented | tested   | type          | name                         
 
 > **Not yet ported:** `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator`, `CollationKey`.
 
-### java.util.zip — New in 1.1 (partially implemented - 20% coverage)
-
-> **AKTUELLER STATUS:** ⚠️ **TEILWEISE IMPLEMENTIERT** (5/19 Klassen vorhanden)
-> 
-> **Vorhanden (nur Checksummen):**
-> - Checksum (interface), CRC32, Adler32, CRC32C, DataFormatException
-> 
-> **FEHLEND - KRITISCH (80%):**
-> 
-> STREAM-KOMPRESSION (ESSENTIELL):
-> - Deflater, Inflater (Kompression/Dekompression-Algorithmen)
-> - DeflaterInputStream, DeflaterOutputStream
-> - InflaterInputStream, InflaterOutputStream
-> 
-> ZIP-ARCHIVE (ESSENTIELL):
-> - ZipFile, ZipEntry, ZipInputStream, ZipOutputStream
-> - ZipConstants, ZipException
-> 
-> OPTIONAL:
-> - GZIPInputStream, GZIPOutputStream
+### java.util.zip — New in 1.1
 
 ##### java.util.zip.Checksum (2/2/✔️)
 
@@ -1332,29 +1272,19 @@ version | implemented | tested   | type          | name           | more informa
 
 ## Implementation Status Summary
 
-### Critical Gaps (Must Implement First)
-
-| Package | Status | Impact | Classes |
-|---------|--------|--------|---------|
-| **java.lang.reflect** | ❌ 0% | 🔴 CRITICAL - No dynamic programming | 8 missing |
-| **java.beans (Descriptors)** | ⚠️ 26% | 🔴 CRITICAL - No introspection | 13 missing |
-| **java.util.zip (Streams/Archive)** | ✅ 100% | ✔️ Core compression/ZIP complete | 0 missing |
-
-### Important Gaps (Should Implement Soon)
-
-| Package | Status | Impact | Classes |
-|---------|--------|--------|---------|
-| **java.text** | ⚠️ 35% | 🟡 MEDIUM - Missing Collation/MessageFormat | 8 missing |
-| **java.security** | ⚠️ 35% | 🟡 MEDIUM - No cryptography | 24+ missing |
-| **java.awt.datatransfer** | ❌ 0% | 🟡 MEDIUM - No clipboard support | 6 missing |
-| **java.security.acl** | ❌ 0% | 🟡 MEDIUM - No access control | 8 missing |
-
-### Partially Implemented (Minor Work)
-
-| Package | Status | Impact | Classes |
-|---------|--------|--------|---------|
-| **java.awt.image** | ✔️ 60% | 🟢 LOW - ImageObserver missing | 7 missing |
-| **java.net** | ✔️ 70% | 🟢 LOW - Minor utilities missing | 4 missing |
+| Package | Status | Notes |
+|---------|--------|-------|
+| **java.io** (Reader/Writer hierarchy) | ✔️ implemented, ⭕️ tests | all classes present, tests sparse |
+| **java.io** (Object Serialization) | ✔️ stubs | Externalizable/ObjectStream stubs only |
+| **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
+| **java.text** | ✔️ core | Format, DateFormat, NumberFormat, SimpleDateFormat implemented; DecimalFormat/MessageFormat/Collator not ported |
+| **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater/Inflater, GZIP, ZIP streams |
+| **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
+| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
+| **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
+| **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; introspection not ported |
+| **java.awt.datatransfer** | ⭕️ not ported | platform-specific, no Swift equivalent |
+| **java.lang.reflect.Method/Constructor/Array** | ⭕️ not ported | Swift has no runtime method/constructor introspection API — not portable |
 
 ---
 
@@ -1364,9 +1294,8 @@ The following Java 1.1 APIs are explicitly **not** ported because they have no m
 
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
-- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. Bound-property and veto support (`PropertyChangeEvent`, `PropertyChangeSupport`, `VetoableChangeSupport`, etc.) **is** implemented — see java.beans section above.
+- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
 - **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
 - **java.text** (partially) — `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator` are not ported. Core classes (`Format`, `NumberFormat`, `DateFormat`, `SimpleDateFormat`, `ParseException`, `ParsePosition`, `FieldPosition`) are implemented — see java.text section above.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.
-- **java.applet** additions — Applet model is obsolete.
