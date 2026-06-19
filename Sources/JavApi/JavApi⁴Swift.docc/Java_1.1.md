@@ -814,28 +814,29 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.util — Internationalization additions in 1.1 (continued)
 
-##### java.util.ResourceBundle (0/0/⭕️)
+##### java.util.ResourceBundle (4/4/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | static method | getBundle()    | (String)->ResourceBundle
-1.1     | ⭕️          | ⭕️       | static method | getBundle()    | (String,Locale)->ResourceBundle
-1.1     | ⭕️          | ⭕️       | method        | getString()    | (String)->String
-1.1     | ⭕️          | ⭕️       | method        | getObject()    | (String)->Object
+1.1     | ✔️          | ⭕️       | static method | getBundle()    | (String)->ResourceBundle
+1.1     | ✔️          | ⭕️       | static method | getBundle()    | (String,Locale)->ResourceBundle
+1.1     | ✔️          | ⭕️       | method        | getString()    | (String)->String
+1.1     | ✔️          | ⭕️       | method        | getObject()    | (String)->Object
 
-##### java.util.ListResourceBundle (0/0/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | ListResourceBundle | abstract subclass of ResourceBundle backed by a list of key/value pairs
-
-##### java.util.PropertyResourceBundle (0/0/⭕️)
+##### java.util.ListResourceBundle (1/1/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
+1.1     | ✔️          | ⭕️       | class         | ListResourceBundle | abstract subclass of ResourceBundle backed by a list of key/value pairs
 
-##### java.util.SimpleTimeZone (0/0/✔️)
+##### java.util.PropertyResourceBundle (2/2/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | PropertyResourceBundle() | ()
+1.1     | ✔️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
+
+##### java.util.SimpleTimeZone (5/5/✔️)
 
 > **Note:** `@available(*, deprecated)` — deprecated in Java 26 for removal. Use `java.time.ZoneId` / `ZonedDateTime` instead.
 > DST rule parameters in the long constructor are accepted for API compatibility; actual DST logic is delegated to `Foundation.TimeZone`.
@@ -844,6 +845,8 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int rawOffset, String ID)
 1.1     | ✔️          | ✔️       | constructor   | SimpleTimeZone() | (int,String,int,int,int,int,int,int,int,int) — with DST rules
+1.1     | ✔️          | ✔️       | method        | getID()          | ()->String
+1.1     | ✔️          | ✔️       | method        | getRawOffset()   | ()->int — milliseconds
 1.1     | ✔️          | ✔️       | method        | inDaylightTime() | (Date)->boolean
 
 ### java.math — New package in 1.1
