@@ -29,6 +29,17 @@ extension java.io {
     /// `buf.count` means the buffer is empty.
     internal var pos: Int
 
+    
+    /// - Since: Java 1.0
+    @available(*, deprecated)
+    public var pushback : Int  {
+      get { _pushback }
+      set { _pushback = newValue }
+    }
+    /// JavApi intern usage without deprecation warning
+    private var _pushback: Int = -1
+
+    
     // MARK: - Initialisers
 
     /// Creates a `PushbackInputStream` with a pushback buffer of one byte.
@@ -66,7 +77,15 @@ extension java.io {
         pos += 1
         return byte
       }
-      return try `in`.read()
+      var value = -1
+      if self._pushback >= 0 {
+        value = self._pushback
+        self._pushback = -1
+        return value
+      }
+      else {
+        return try `in`.read()
+      }
     }
 
     /// Reads up to `length` bytes, consuming pushed-back bytes first.
@@ -112,6 +131,7 @@ extension java.io {
       guard pos > 0 else {
         throw java.io.IOException("Push back buffer is full")
       }
+      self._pushback = Int (buf [pos])
       pos -= 1
       buf[pos] = UInt8(b & 0xFF)
     }
@@ -121,7 +141,7 @@ extension java.io {
     /// - Parameter b: The bytes to push back.
     /// - Throws: `java.io.IOException` if the pushback buffer has insufficient space.
     ///
-    /// - Since: Java 1.0
+    /// - Since: Java 1.1
     public func unread(_ b: [UInt8]) throws {
       try unread(b, 0, b.count)
     }
@@ -135,11 +155,12 @@ extension java.io {
     ///
     /// - Throws: `java.io.IOException` if the pushback buffer has insufficient space.
     ///
-    /// - Since: Java 1.0
+    /// - Since: Java 1.1
     public func unread(_ b: [UInt8], _ offset: Int, _ length: Int) throws {
       guard pos >= length else {
         throw java.io.IOException("Push back buffer is full")
       }
+      self._pushback = Int(buf [offset])
       pos -= length
       buf[pos..<pos + length] = b[offset..<offset + length]
     }
