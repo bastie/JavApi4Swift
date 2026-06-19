@@ -888,9 +888,23 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+## Comprehensive Swing Coverage (as of current implementation)
+
+The following were historically marked "not in scope" but are now **fully implemented**:
+- ✅ **`JTextField`**, **`JTextArea`**, **`JPasswordField`**, **`JFormattedTextField`** — complete with `JTextComponent` base and document model
+- ✅ **`JList`** — with `DefaultListModel`, `ListModel`, `ListSelectionModel`
+- ✅ **`JComboBox`** — with `ComboBoxModel`, `DefaultComboBoxModel`, `MutableComboBoxModel`
+- ✅ **`JTree`** — with `DefaultTreeModel`, `TreeModel`, `TreeCellRenderer`, `DefaultTreeCellRenderer`, `TreePath`, `DefaultMutableTreeNode`
+- ✅ **`JTable`** — with cell renderers and editors (Java 1.2)
+- ✅ **`JSpinner`** — with `SpinnerModel`, `SpinnerNumberModel`, `SpinnerListModel`
+- ✅ **`javax.swing.text`** — document hierarchy, formatting, and text components (Java 1.4+)
+
 ## Not in scope for Java 1.2
 
-- **javax.swing** advanced — `JTextField`, `JTextArea`, `JList`, `JComboBox`, `JTable`, `JTree`, `JOptionPane`
+- ✅ **`JSplitPane`** — container with resizable divider; implemented
+- **`JOptionPane`** — message/option dialogs; not yet implemented
+- **`JInternalFrame`** — MDI frame container; not yet implemented
+- **`JFileChooser`** — file selection dialog; not yet implemented
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority

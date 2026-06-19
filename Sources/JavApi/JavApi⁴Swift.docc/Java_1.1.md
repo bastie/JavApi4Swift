@@ -677,7 +677,17 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.lang.reflect — New package in 1.1
 
-> **Note:** Java reflection cannot be fully mapped to Swift's type system. The classes below are stubs or partial implementations only.
+> **🔴 KRITISCH - KOMPLETT FEHLEND**
+> 
+> **Status:** NICHT IMPLEMENTIERT (0/8 Klassen) — Das komplette Paket fehlt!
+> 
+> Das ist eine fundamentale Lücke für JavApi4Swift. Reflection ist essentiell für:
+> - Dynamisches Methoden-Aufrufen
+> - Dynamisches Feld-Zugriff
+> - Dynamisches Instanzen-Erstellen
+> - Beans-Introspection
+> 
+> Ohne diese API ist keine echte dynamische Programmierung möglich.
 
 ##### java.lang.reflect.Field (0/0/⭕️)
 
@@ -722,6 +732,26 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ⭕️          | ⭕️       | static method | getLength()    | (Object)->int
 1.1     | ⭕️          | ⭕️       | static method | get()          | (Object,int)->Object
 1.1     | ⭕️          | ⭕️       | static method | set()          | (Object,int,Object)
+
+##### java.lang.reflect.AccessibleObject (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | method        | setAccessible()| (boolean)
+1.1     | ⭕️          | ⭕️       | method        | isAccessible() | ()->boolean
+
+##### java.lang.reflect.Member (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | interface     | Member         | getDeclaringClass(), getName(), getModifiers()
+
+##### java.lang.reflect.InvocationTargetException (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | constructor   | InvocationTargetException() | (Throwable)
+1.1     | ⭕️          | ⭕️       | method        | getTargetException() | ()->Throwable
 
 #### java.lang.Class — Reflection additions (1.1)
 
@@ -999,8 +1029,24 @@ version | implemented | tested   | type          | name                         
 ### java.awt.datatransfer — New package in 1.1 (not in scope)
 
 > **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
+> 
+> **AKTUELLER STATUS:** ⭕️ **KOMPLETT FEHLEND** (0/6 Klassen)
+> 
+> Das Paket existiert nicht. Enthält:
+> - Clipboard, ClipboardOwner, DataFlavor, Transferable, StringSelection, UnsupportedFlavorException
 
-### java.text — New package in 1.1 (partially implemented)
+### java.text — New package in 1.1 (partially implemented - 35% coverage)
+
+> **AKTUELLER STATUS:** ⚠️ **TEILWEISE IMPLEMENTIERT** (4/12 Klassen vorhanden)
+> 
+> **Vorhanden:**
+> - Format (base), NumberFormat, DateFormat, SimpleDateFormat
+> - ParseException, ParsePosition, FieldPosition
+> 
+> **Fehlend (65%):**
+> - DecimalFormat, MessageFormat, ChoiceFormat (KRITISCH für Formatierung)
+> - Collator, RuleBasedCollator, CollationKey (KRITISCH für Internationalisierung)
+> - AttributedString, AttributedCharacterIterator, Annotation
 
 Core formatting classes are now ported and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`.
 
@@ -1072,7 +1118,26 @@ version | implemented | tested   | type          | name                         
 
 > **Not yet ported:** `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator`, `CollationKey`.
 
-### java.util.zip — New in 1.1
+### java.util.zip — New in 1.1 (partially implemented - 20% coverage)
+
+> **AKTUELLER STATUS:** ⚠️ **TEILWEISE IMPLEMENTIERT** (5/19 Klassen vorhanden)
+> 
+> **Vorhanden (nur Checksummen):**
+> - Checksum (interface), CRC32, Adler32, CRC32C, DataFormatException
+> 
+> **FEHLEND - KRITISCH (80%):**
+> 
+> STREAM-KOMPRESSION (ESSENTIELL):
+> - Deflater, Inflater (Kompression/Dekompression-Algorithmen)
+> - DeflaterInputStream, DeflaterOutputStream
+> - InflaterInputStream, InflaterOutputStream
+> 
+> ZIP-ARCHIVE (ESSENTIELL):
+> - ZipFile, ZipEntry, ZipInputStream, ZipOutputStream
+> - ZipConstants, ZipException
+> 
+> OPTIONAL:
+> - GZIPInputStream, GZIPOutputStream
 
 ##### java.util.zip.Checksum (2/2/✔️)
 
@@ -1099,6 +1164,34 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | DataFormatException() | (String)
+
+## Implementation Status Summary
+
+### Critical Gaps (Must Implement First)
+
+| Package | Status | Impact | Classes |
+|---------|--------|--------|---------|
+| **java.lang.reflect** | ❌ 0% | 🔴 CRITICAL - No dynamic programming | 8 missing |
+| **java.beans (Descriptors)** | ⚠️ 26% | 🔴 CRITICAL - No introspection | 13 missing |
+| **java.util.zip (Streams/Archive)** | ⚠️ 20% | 🔴 HIGH - No compression/ZIP | 14 missing |
+
+### Important Gaps (Should Implement Soon)
+
+| Package | Status | Impact | Classes |
+|---------|--------|--------|---------|
+| **java.text** | ⚠️ 35% | 🟡 MEDIUM - Missing Collation/MessageFormat | 8 missing |
+| **java.security** | ⚠️ 35% | 🟡 MEDIUM - No cryptography | 24+ missing |
+| **java.awt.datatransfer** | ❌ 0% | 🟡 MEDIUM - No clipboard support | 6 missing |
+| **java.security.acl** | ❌ 0% | 🟡 MEDIUM - No access control | 8 missing |
+
+### Partially Implemented (Minor Work)
+
+| Package | Status | Impact | Classes |
+|---------|--------|--------|---------|
+| **java.awt.image** | ✔️ 60% | 🟢 LOW - ImageObserver missing | 7 missing |
+| **java.net** | ✔️ 70% | 🟢 LOW - Minor utilities missing | 4 missing |
+
+---
 
 ## Not in scope for this implementation
 
