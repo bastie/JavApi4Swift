@@ -11,18 +11,21 @@ extension javax.swing {
   /// `setValue(_:)` use `Any?` for `SpinnerModel` conformance.
   /// Use the typed accessors `getNumber()` / `setNumber(_:)` in Swift code.
   ///
+  /// Listener management and `fireStateChanged()` are inherited from
+  /// `AbstractSpinnerModel`.
+  ///
   /// ## Example
   ///
   /// ```swift
   /// // Integer spinner 0–100, start 50, step 5
-  /// let model = javax.swing.SpinnerNumberModel(value: 50.0, minimum: 0.0, maximum: 100.0, stepSize: 5.0)
+  /// let model = javax.swing.SpinnerNumberModel(50.0, 0.0, 100.0, 5.0)
   /// model.getNextValue()     // 55.0
   /// model.getPreviousValue() // 45.0
   /// ```
   ///
-  /// - Since: Java 1.4
+  /// - Since: Java 1.4 / JFC 1.0
   @MainActor
-  open class SpinnerNumberModel: javax.swing.SpinnerModel {
+  open class SpinnerNumberModel: javax.swing.AbstractSpinnerModel {
 
     // -------------------------------------------------------------------------
     // MARK: Properties
@@ -32,8 +35,6 @@ extension javax.swing {
     private var _minimum:  Double?
     private var _maximum:  Double?
     private var _stepSize: Double
-
-    private var listeners: [javax.swing.event.ChangeListener] = []
 
     // -------------------------------------------------------------------------
     // MARK: Initializers
@@ -51,6 +52,7 @@ extension javax.swing {
       _minimum  = minimum
       _maximum  = maximum
       _stepSize = stepSize
+      super.init()
     }
 
     /// Creates an integer-style model (all values are whole numbers).
@@ -59,39 +61,32 @@ extension javax.swing {
       _minimum  = Double(minimum)
       _maximum  = Double(maximum)
       _stepSize = Double(stepSize)
+      super.init()
     }
 
     // -------------------------------------------------------------------------
-    // MARK: SpinnerModel
+    // MARK: AbstractSpinnerModel overrides
     // -------------------------------------------------------------------------
 
-    open func getValue() -> Any? { _value }
+    override open func getValue() -> Any? { _value }
 
-    open func setValue(_ value: Any?) {
+    override open func setValue(_ value: Any?) {
       guard let v = value as? Double else { return }
       guard v != _value else { return }
       _value = v
       fireStateChanged()
     }
 
-    open func getNextValue() -> Any? {
+    override open func getNextValue() -> Any? {
       let next = _value + _stepSize
       if let max = _maximum, next > max { return nil }
       return next
     }
 
-    open func getPreviousValue() -> Any? {
+    override open func getPreviousValue() -> Any? {
       let prev = _value - _stepSize
       if let min = _minimum, prev < min { return nil }
       return prev
-    }
-
-    open func addChangeListener(_ l: javax.swing.event.ChangeListener) {
-      listeners.append(l)
-    }
-
-    open func removeChangeListener(_ l: javax.swing.event.ChangeListener) {
-      listeners.removeAll { $0 === (l as AnyObject) }
     }
 
     // -------------------------------------------------------------------------
@@ -124,14 +119,5 @@ extension javax.swing {
     /// Returns the step size.
     open func getStepSize() -> Double { _stepSize }
     open func setStepSize(_ step: Double) { _stepSize = step }
-
-    // -------------------------------------------------------------------------
-    // MARK: Fire
-    // -------------------------------------------------------------------------
-
-    open func fireStateChanged() {
-      let e = javax.swing.event.ChangeEvent(self)
-      for l in listeners { l.stateChanged(e) }
-    }
   }
 }

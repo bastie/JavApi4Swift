@@ -11,6 +11,8 @@ extension javax.swing {
   /// appropriate `ListDataEvent` on every mutation so that any attached `JList`
   /// (or other `ListDataListener`) stays in sync.
   ///
+  /// Listener management and fire methods are inherited from `AbstractListModel`.
+  ///
   /// ## Typical usage
   ///
   /// ```swift
@@ -21,44 +23,28 @@ extension javax.swing {
   /// model.removeElementAt(0)
   /// ```
   ///
-  /// - Since: Java 1.2
+  /// - Since: Java 1.2 / JFC 1.0
   @MainActor
-  open class DefaultListModel<E>: javax.swing.ListModel {
-
-    public typealias Element = E
+  open class DefaultListModel<E>: javax.swing.AbstractListModel<E> {
 
     // -------------------------------------------------------------------------
     // MARK: Storage
     // -------------------------------------------------------------------------
 
-    private var elements: [E] = []
+    fileprivate var elements: [E] = []
+
+    public override init() { super.init() }
 
     // -------------------------------------------------------------------------
-    // MARK: Listeners
-    // -------------------------------------------------------------------------
-
-    private var listeners: [javax.swing.event.ListDataListener] = []
-
-    public init() {}
-
-    // -------------------------------------------------------------------------
-    // MARK: ListModel protocol
+    // MARK: AbstractListModel overrides
     // -------------------------------------------------------------------------
 
     /// Returns the number of elements.
-    open func getSize() -> Int { elements.count }
+    override open func getSize() -> Int { elements.count }
 
-    /// Returns the element at `index`, or `nil` if out of range.
-    open func getElementAt(_ index: Int) -> E {
+    /// Returns the element at `index`.
+    override open func getElementAt(_ index: Int) -> E {
       elements[index]
-    }
-
-    open func addListDataListener(_ l: javax.swing.event.ListDataListener) {
-      listeners.append(l)
-    }
-
-    open func removeListDataListener(_ l: javax.swing.event.ListDataListener) {
-      listeners.removeAll { $0 === (l as AnyObject) }
     }
 
     // -------------------------------------------------------------------------
@@ -69,34 +55,32 @@ extension javax.swing {
     open func addElement(_ element: E) {
       let idx = elements.count
       elements.append(element)
-      fireIntervalAdded(idx, idx)
+      fireIntervalAdded(self, idx, idx)
     }
 
     /// Inserts `element` at `index`, shifting subsequent elements right.
     open func insertElementAt(_ element: E, _ index: Int) {
       elements.insert(element, at: index)
-      fireIntervalAdded(index, index)
+      fireIntervalAdded(self, index, index)
     }
 
     /// Replaces the element at `index` with `element`.
     open func setElementAt(_ element: E, _ index: Int) {
       elements[index] = element
-      fireContentsChanged(index, index)
+      fireContentsChanged(self, index, index)
     }
 
     /// Removes the element at `index`.
     open func removeElementAt(_ index: Int) {
       elements.remove(at: index)
-      fireIntervalRemoved(index, index)
+      fireIntervalRemoved(self, index, index)
     }
 
     /// Removes the first element that is identical (`===`) to `element`.
     ///
-    /// This base implementation requires `E: AnyObject`.
-    /// For `Equatable` element types, use the `Equatable`-constrained overload
-    /// on `DefaultListModel` instead.
+    /// This base implementation is a no-op for non-`AnyObject` element types.
+    /// For `Equatable` element types, use the `Equatable`-constrained overload.
     open func removeElement(_ element: E) {
-      // Base implementation: no-op for non-AnyObject element types.
       // Use the Equatable extension overload for value types.
     }
 
@@ -105,7 +89,7 @@ extension javax.swing {
       guard !elements.isEmpty else { return }
       let last = elements.count - 1
       elements.removeAll()
-      fireIntervalRemoved(0, last)
+      fireIntervalRemoved(self, 0, last)
     }
 
     /// Returns `true` if the list contains no elements.
@@ -119,46 +103,16 @@ extension javax.swing {
 
     /// Returns the index of the first occurrence of `element`, or -1.
     ///
-    /// This base implementation always returns -1.
     /// For `Equatable` element types, use the `Equatable`-constrained overload.
     open func indexOf(_ element: E) -> Int { -1 }
 
     /// Returns `true` if `element` is in the list.
     ///
-    /// This base implementation always returns `false`.
     /// For `Equatable` element types, use the `Equatable`-constrained overload.
     open func contains(_ element: E) -> Bool { false }
 
     /// Returns all elements as a Swift Array (copy).
     open func toArray() -> [E] { elements }
-
-    // -------------------------------------------------------------------------
-    // MARK: Fire helpers
-    // -------------------------------------------------------------------------
-
-    private func fireIntervalAdded(_ index0: Int, _ index1: Int) {
-      guard !listeners.isEmpty else { return }
-      let e = javax.swing.event.ListDataEvent(
-        self, javax.swing.event.ListDataEvent.INTERVAL_ADDED,
-        index0, index1)
-      for l in listeners { l.intervalAdded(e) }
-    }
-
-    private func fireIntervalRemoved(_ index0: Int, _ index1: Int) {
-      guard !listeners.isEmpty else { return }
-      let e = javax.swing.event.ListDataEvent(
-        self, javax.swing.event.ListDataEvent.INTERVAL_REMOVED,
-        index0, index1)
-      for l in listeners { l.intervalRemoved(e) }
-    }
-
-    private func fireContentsChanged(_ index0: Int, _ index1: Int) {
-      guard !listeners.isEmpty else { return }
-      let e = javax.swing.event.ListDataEvent(
-        self, javax.swing.event.ListDataEvent.CONTENTS_CHANGED,
-        index0, index1)
-      for l in listeners { l.contentsChanged(e) }
-    }
   }
 }
 

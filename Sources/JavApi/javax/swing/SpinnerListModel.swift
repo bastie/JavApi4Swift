@@ -11,6 +11,9 @@ extension javax.swing {
   /// `nil` when the current value is the last element, and `getPreviousValue()`
   /// returns `nil` when it is the first.
   ///
+  /// Listener management and `fireStateChanged()` are inherited from
+  /// `AbstractSpinnerModel`.
+  ///
   /// ## Example
   ///
   /// ```swift
@@ -19,9 +22,9 @@ extension javax.swing {
   /// model.getNextValue()     // "Tue"
   /// ```
   ///
-  /// - Since: Java 1.4
+  /// - Since: Java 1.4 / JFC 1.0
   @MainActor
-  open class SpinnerListModel: javax.swing.SpinnerModel {
+  open class SpinnerListModel: javax.swing.AbstractSpinnerModel {
 
     // -------------------------------------------------------------------------
     // MARK: Storage
@@ -29,8 +32,6 @@ extension javax.swing {
 
     private var list:         [Any]
     private var currentIndex: Int
-
-    private var listeners: [javax.swing.event.ChangeListener] = []
 
     // -------------------------------------------------------------------------
     // MARK: Initializers
@@ -42,15 +43,16 @@ extension javax.swing {
       precondition(!list.isEmpty, "SpinnerListModel requires a non-empty list")
       self.list         = list
       self.currentIndex = 0
+      super.init()
     }
 
     // -------------------------------------------------------------------------
-    // MARK: SpinnerModel
+    // MARK: AbstractSpinnerModel overrides
     // -------------------------------------------------------------------------
 
-    open func getValue() -> Any? { list[currentIndex] }
+    override open func getValue() -> Any? { list[currentIndex] }
 
-    open func setValue(_ value: Any?) {
+    override open func setValue(_ value: Any?) {
       guard let v = value else { return }
       // Find by string description (mirrors Java's equals-based lookup)
       if let idx = list.firstIndex(where: { "\($0)" == "\(v)" }) {
@@ -60,20 +62,12 @@ extension javax.swing {
       }
     }
 
-    open func getNextValue() -> Any? {
+    override open func getNextValue() -> Any? {
       currentIndex < list.count - 1 ? list[currentIndex + 1] : nil
     }
 
-    open func getPreviousValue() -> Any? {
+    override open func getPreviousValue() -> Any? {
       currentIndex > 0 ? list[currentIndex - 1] : nil
-    }
-
-    open func addChangeListener(_ l: javax.swing.event.ChangeListener) {
-      listeners.append(l)
-    }
-
-    open func removeChangeListener(_ l: javax.swing.event.ChangeListener) {
-      listeners.removeAll { $0 === (l as AnyObject) }
     }
 
     // -------------------------------------------------------------------------
@@ -89,15 +83,6 @@ extension javax.swing {
       list         = newList
       currentIndex = 0
       fireStateChanged()
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Fire
-    // -------------------------------------------------------------------------
-
-    open func fireStateChanged() {
-      let e = javax.swing.event.ChangeEvent(self)
-      for l in listeners { l.stateChanged(e) }
     }
   }
 }
