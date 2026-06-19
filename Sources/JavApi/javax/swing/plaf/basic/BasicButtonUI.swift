@@ -22,6 +22,25 @@ extension javax.swing.plaf.basic {
   open class BasicButtonUI: javax.swing.plaf.ComponentUI {
 
     // -------------------------------------------------------------------------
+    // MARK: Install / Uninstall
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      // Install the default button border only if the application has not set
+      // a custom one (i.e. the border is still nil or already a ButtonBorder).
+      if component.getBorder() == nil
+          || component.getBorder() is javax.swing.border.ButtonBorder {
+        component.setBorder(javax.swing.border.ButtonBorder())
+      }
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.ButtonBorder {
+        component.setBorder(nil)
+      }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
@@ -67,37 +86,8 @@ extension javax.swing.plaf.basic {
       g.setColor(bg)
       g.fillRect(0, 0, w, h)
 
-      // Border — simple 3-D effect, derived from bg so it always contrasts.
-      // dark = bg darkened by ~20, light = bg lightened by ~40
-      let borderDark = java.awt.Color(
-        Swift.max(0, bg.getRed()   - 50),
-        Swift.max(0, bg.getGreen() - 50),
-        Swift.max(0, bg.getBlue()  - 50))
-      let borderLight = java.awt.Color(
-        Swift.min(255, bg.getRed()   + 40),
-        Swift.min(255, bg.getGreen() + 40),
-        Swift.min(255, bg.getBlue()  + 40))
-
-      if btn.getModel().isPressed() {
-        // Inset: dark top-left, light bottom-right
-        g.setColor(borderDark)
-        g.drawLine(0, 0, w - 1, 0)
-        g.drawLine(0, 0, 0, h - 1)
-        g.setColor(borderLight)
-        g.drawLine(w - 1, 0, w - 1, h - 1)
-        g.drawLine(0, h - 1, w - 1, h - 1)
-      } else {
-        // Raised: light top-left, dark bottom-right
-        g.setColor(borderLight)
-        g.drawLine(0, 0, w - 2, 0)
-        g.drawLine(0, 0, 0, h - 2)
-        g.setColor(borderDark)
-        g.drawLine(w - 1, 0, w - 1, h - 1)
-        g.drawLine(0, h - 1, w - 1, h - 1)
-        g.setColor(java.awt.SystemColor.controlShadow)
-        g.drawLine(w - 2, 1, w - 2, h - 2)
-        g.drawLine(1, h - 2, w - 2, h - 2)
-      }
+      // Border is painted by JComponent.paint() via getBorder().paintBorder(...)
+      // (installed as ButtonBorder in installUI).
 
       // Icon + Label
       let pressOffset = btn.getModel().isPressed() ? 1 : 0

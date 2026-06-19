@@ -56,11 +56,18 @@ extension javax.swing.plaf.basic {
       h.combo = combo
       _mouseHandler = h
       component.addMouseListener(h)
+      if component.getBorder() == nil {
+        component.setBorder(javax.swing.BorderFactory.createLineBorder(
+          java.awt.SystemColor.controlShadow))
+      }
     }
 
     override open func uninstallUI(_ component: javax.swing.JComponent) {
       if let h = _mouseHandler { component.removeMouseListener(h) }
       _mouseHandler = nil
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -89,12 +96,7 @@ extension javax.swing.plaf.basic {
       g.setColor(java.awt.SystemColor.window)
       g.fillRect(0, 0, w, h)
 
-      // Outer border
-      g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawLine(0,   0,   w-1, 0)
-      g.drawLine(0,   0,   0,   h-1)
-      g.drawLine(w-1, 0,   w-1, h-1)
-      g.drawLine(0,   h-1, w-1, h-1)
+      // Outer border is painted by JComponent.paint() via getBorder().paintBorder(...)
 
       // Arrow button background
       let arrowX = w - arrowW

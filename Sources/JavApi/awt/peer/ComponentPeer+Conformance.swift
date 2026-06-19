@@ -9,14 +9,8 @@
 // peer object.  Each component IS its own peer.
 extension java.awt.Component: java.awt.peer._deprecatedComponentPeer {
 
-  /// Shows the component (Java 1.0 peer API — delegates to setVisible).
-  public func show()    { setVisible(true)  }
-  /// Hides the component (Java 1.0 peer API — delegates to setVisible).
-  public func hide()    { setVisible(false) }
-  /// Enables the component (Java 1.0 peer API).
-  public func enable()  { enabled = true    }
-  /// Disables the component (Java 1.0 peer API).
-  public func disable() { enabled = false   }
+  // show(), hide(), enable(), disable() are defined as open func on Component directly
+  // so they can be overridden in subclasses (e.g. JInternalFrame).
 
   /// Prints the component — default delegates to paint.
   public func print(_ g: java.awt.Graphics) { paint(g) }

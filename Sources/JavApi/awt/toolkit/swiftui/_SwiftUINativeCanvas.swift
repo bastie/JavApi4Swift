@@ -151,6 +151,12 @@ final class _SwiftUINativeCanvas: NSView {
   private weak var draggingSplitPane: javax.swing.JSplitPane?
   private var splitPaneDragStartCoord: Int = 0
   private var splitPaneDragStartPos:   Int = 0
+  // JInternalFrame being dragged by its title bar
+  private weak var draggingInternalFrame: javax.swing.JInternalFrame?
+  private var internalFrameDragStartX: Int = 0   // global
+  private var internalFrameDragStartY: Int = 0
+  private var internalFrameOriginX: Int = 0      // frame.bounds at drag start
+  private var internalFrameOriginY: Int = 0
   // Currently open Choice popup (tracked so outside clicks close it)
   private weak var openChoice: java.awt.Choice?
   // Currently open JComboBox popup (tracked so outside clicks close it)
@@ -556,6 +562,45 @@ final class _SwiftUINativeCanvas: NSView {
       draggingSplitPane       = sp
       splitPaneDragStartCoord = sp.isHorizontal ? Int(pt.x) : Int(pt.y)
       splitPaneDragStartPos   = sp.effectiveDividerLocation()
+    } else if let icon = hit as? javax.swing.JInternalFrame.JDesktopIcon {
+      // Double-click on desktop icon → deiconify
+      if event.clickCount >= 2, let frame = icon.getInternalFrame() {
+        frame.setIcon(false)   // resets _isIcon and calls deiconifyFrame
+        needsDisplay = true
+      }
+    } else if let iFrame = _nearestJInternalFrame(from: hit) {
+      // Activate the frame on every click
+      if let desktop = iFrame.getParent() as? javax.swing.JDesktopPane {
+        desktop.getDesktopManager().activateFrame(iFrame)
+      }
+      needsDisplay = true
+      // Convert global point to frame-local coordinates
+      let (fox, foy) = _SwingHitTest.absoluteOrigin(iFrame)
+      let flx = Int(pt.x) - fox
+      let fly = Int(pt.y) - foy
+      let tbH = javax.swing.plaf.basic.BasicInternalFrameUI.TITLE_BAR_HEIGHT
+      // Only title-bar interactions below; clicks in content area just activate
+      guard fly >= 0 && fly <= tbH else { return }
+      // Button hit?
+      if let btnHit = javax.swing.plaf.basic.BasicInternalFrameUI.hitButton(x: flx, y: fly, frame: iFrame) {
+        switch btnHit {
+        case .close:    iFrame.dispose()
+        case .maximize: iFrame.setMaximum(!iFrame.isMaximum())
+        case .iconify:  iFrame.setIcon(true)
+        }
+        setNeedsDisplay(self.bounds)
+        needsDisplay = true
+      } else {
+        // Start drag
+        draggingInternalFrame  = iFrame
+        internalFrameDragStartX = Int(pt.x)
+        internalFrameDragStartY = Int(pt.y)
+        internalFrameOriginX   = iFrame.bounds.x
+        internalFrameOriginY   = iFrame.bounds.y
+        if let desktop = iFrame.getParent() as? javax.swing.JDesktopPane {
+          desktop.getDesktopManager().beginDraggingFrame(iFrame)
+        }
+      }
     } else {
       // All other components (JToggleButton, JCheckBox, JRadioButton,
       // JTabbedPane, panels, etc.) are dispatched on mouseUp — record which
@@ -574,6 +619,17 @@ final class _SwiftUINativeCanvas: NSView {
 
   override func mouseDragged(with event: NSEvent) {
     let pt = awtPoint(from: event)
+
+    // JInternalFrame title bar drag
+    if let iFrame = draggingInternalFrame {
+      let newX = internalFrameOriginX + Int(pt.x) - internalFrameDragStartX
+      let newY = internalFrameOriginY + Int(pt.y) - internalFrameDragStartY
+      if let desktop = iFrame.getParent() as? javax.swing.JDesktopPane {
+        desktop.getDesktopManager().dragFrame(iFrame, newX, newY)
+      }
+      needsDisplay = true
+      return
+    }
 
     // JSplitPane divider drag
     if let sp = draggingSplitPane {
@@ -739,6 +795,16 @@ final class _SwiftUINativeCanvas: NSView {
     // If mouseDown was fully handled by menu-bar or popup logic, do nothing here.
     if _menuDownConsumed {
       _menuDownConsumed = false
+      return
+    }
+
+    // End JInternalFrame drag
+    if let iFrame = draggingInternalFrame {
+      draggingInternalFrame = nil
+      if let desktop = iFrame.getParent() as? javax.swing.JDesktopPane {
+        desktop.getDesktopManager().endDraggingFrame(iFrame)
+      }
+      needsDisplay = true
       return
     }
 
@@ -1169,6 +1235,17 @@ final class _SwiftUINativeCanvas: NSView {
   // Recursively find a JComboBox with an open popup in the component tree.
   /// Walk up from `hit` and return the nearest enclosing `JSplitPane`
   /// whose divider contains `(globalX, globalY)`, or nil.
+  /// Walks up the component hierarchy from `hit` and returns the first
+  /// `JInternalFrame` ancestor, or `nil` if none exists.
+  private func _nearestJInternalFrame(from hit: java.awt.Component) -> javax.swing.JInternalFrame? {
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let f = n as? javax.swing.JInternalFrame { return f }
+      node = n.parent
+    }
+    return nil
+  }
+
   private func _nearestJSplitPane(from hit: java.awt.Component, globalPt: CGPoint) -> javax.swing.JSplitPane? {
     var node: java.awt.Component? = hit
     while let n = node {

@@ -63,6 +63,10 @@ extension javax.swing.plaf.basic {
       _mouseHandler = h
       component.addMouseListener(h)
       component.addMouseMotionListener(h)
+      if component.getBorder() == nil {
+        component.setBorder(javax.swing.BorderFactory.createLineBorder(
+          java.awt.SystemColor.controlShadow))
+      }
     }
 
     override open func uninstallUI(_ component: javax.swing.JComponent) {
@@ -71,6 +75,9 @@ extension javax.swing.plaf.basic {
         component.removeMouseMotionListener(h)
       }
       _mouseHandler = nil
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -126,12 +133,7 @@ extension javax.swing.plaf.basic {
         g.drawString(label, 4, rowY + fm.getAscent() + 2)
       }
 
-      // Border
-      g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawLine(0,   0,   w-1, 0)
-      g.drawLine(0,   0,   0,   h-1)
-      g.drawLine(w-1, 0,   w-1, h-1)
-      g.drawLine(0,   h-1, w-1, h-1)
+      // Border is painted by JComponent.paint() via getBorder().paintBorder(...)
     }
   }
 }

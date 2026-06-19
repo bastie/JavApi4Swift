@@ -42,11 +42,18 @@ extension javax.swing.plaf.basic {
       h.spinner = spinner
       _mouseHandler = h
       component.addMouseListener(h)
+      if component.getBorder() == nil {
+        component.setBorder(javax.swing.BorderFactory.createLineBorder(
+          java.awt.SystemColor.controlShadow))
+      }
     }
 
     override open func uninstallUI(_ component: javax.swing.JComponent) {
       if let h = _mouseHandler { component.removeMouseListener(h) }
       _mouseHandler = nil
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -75,12 +82,7 @@ extension javax.swing.plaf.basic {
       g.setColor(java.awt.SystemColor.window)
       g.fillRect(0, 0, w - btnW, h)
 
-      // Text field border
-      g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawLine(0,          0,   w-btnW-1, 0)
-      g.drawLine(0,          0,   0,         h-1)
-      g.drawLine(w-btnW-1,   0,   w-btnW-1, h-1)
-      g.drawLine(0,          h-1, w-btnW-1, h-1)
+      // Text field outer border is painted by JComponent.paint() via getBorder().paintBorder(...)
 
       // Current value (baseline-correct). Format whole-number Doubles without
       // the ".0" suffix so that integer spinners look like integers.

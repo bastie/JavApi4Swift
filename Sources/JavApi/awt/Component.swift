@@ -384,6 +384,24 @@ extension java.awt {
     public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: f)
     }
+
+    // MARK: - Java 1.0 deprecated API (moved from ComponentPeer extension for overridability)
+
+    /// Shows the component — deprecated Java 1.0 API, use `setVisible(true)`.
+    @available(*, deprecated, renamed: "setVisible(_:)")
+    open func show()    { setVisible(true)  }
+
+    /// Hides the component — deprecated Java 1.0 API, use `setVisible(false)`.
+    @available(*, deprecated, renamed: "setVisible(_:)")
+    open func hide()    { setVisible(false) }
+
+    /// Enables the component — deprecated Java 1.0 API, use `setEnabled(true)`.
+    @available(*, deprecated, renamed: "setEnabled(_:)")
+    open func enable()  { enabled = true    }
+
+    /// Disables the component — deprecated Java 1.0 API, use `setEnabled(false)`.
+    @available(*, deprecated, renamed: "setEnabled(_:)")
+    open func disable() { enabled = false   }
   }
 }
 

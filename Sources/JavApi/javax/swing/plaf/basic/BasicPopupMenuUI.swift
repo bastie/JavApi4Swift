@@ -41,6 +41,23 @@ extension javax.swing.plaf.basic {
 
     private let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
 
+    // -------------------------------------------------------------------------
+    // MARK: Install / Uninstall
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() == nil {
+        component.setBorder(javax.swing.BorderFactory.createLineBorder(
+          java.awt.SystemColor.controlShadow))
+      }
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
+    }
+
     /// Item height computed from font metrics — not a hardcoded pixel value.
     private var itemHeight: Int {
       let fm = java.awt.FontMetrics.make(for: font)
@@ -93,9 +110,7 @@ extension javax.swing.plaf.basic {
       g.setColor(java.awt.SystemColor.menu)
       g.fillRect(0, 0, w, h)
 
-      // Border
-      g.setColor(java.awt.SystemColor.controlShadow)
-      g.drawRect(0, 0, w - 1, h - 1)
+      // Border is painted by JComponent.paint() via getBorder().paintBorder(...)
 
       // Items
       for (item, rect) in itemRects {
