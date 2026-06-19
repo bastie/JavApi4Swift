@@ -272,7 +272,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     let url = try java.net.URL("https://httpbin.org/json")
     let conn = url.openConnection() as! java.net.HttpURLConnection
     try conn.connect()
-    let stream = try conn.getInputStream()
+    _ = try conn.getInputStream()
     #expect(true) // If we got here without exception, it works
   }
 

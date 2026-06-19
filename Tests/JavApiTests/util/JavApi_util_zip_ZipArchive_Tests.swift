@@ -413,6 +413,146 @@ struct JavApi_util_zip_ZipArchive_Tests {
 
   // MARK: - ZipInputStream: close() ohne read()
 
+  // MARK: - Entry überspringen
+
+  @Test("ZipInputStream: mittleren Entry per closeEntry() überspringen")
+  func testZipInputStreamSkipMiddleEntry() throws {
+    let entries: [(String, String)] = [
+      ("a.txt", "Alpha"),
+      ("b.txt", "Beta"),
+      ("c.txt", "Gamma"),
+    ]
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    for (name, content) in entries {
+      let e = java.util.zip.ZipEntry(name)
+      try zos.putNextEntry(e)
+      try zos.write(Array(content.utf8), 0, content.utf8.count)
+      try zos.closeEntry()
+    }
+    try zos.finish()
+
+    let src = java.io.ByteArrayInputStream(sink.toByteArray())
+    let zis = java.util.zip.ZipInputStream(src)
+
+    // Ersten Entry lesen
+    let e1 = try zis.getNextEntry()
+    #expect(e1?.getName() == "a.txt")
+    var buf = [UInt8](repeating: 0, count: 64)
+    let n = try zis.read(&buf, 0, buf.count)
+    #expect(Array(buf[0..<n]) == Array("Alpha".utf8))
+
+    // Zweiten Entry ÜBERSPRINGEN (closeEntry ohne read)
+    _ = try zis.getNextEntry()  // öffnet b.txt
+    // kein read — direkt nächsten Entry holen
+    let e3 = try zis.getNextEntry()  // schließt b.txt implizit, öffnet c.txt
+    #expect(e3?.getName() == "c.txt")
+    var buf2 = [UInt8](repeating: 0, count: 64)
+    var data: [UInt8] = []
+    while true {
+      let m = try zis.read(&buf2, 0, buf2.count)
+      if m == -1 { break }
+      data.append(contentsOf: buf2[0..<m])
+    }
+    #expect(data == Array("Gamma".utf8))
+    try zis.close()
+  }
+
+  // MARK: - putNextEntry ohne vorheriges closeEntry
+
+  @Test("ZipOutputStream: putNextEntry ohne closeEntry schließt implizit")
+  func testZipOutputStreamImplicitCloseEntry() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+
+    try zos.putNextEntry(java.util.zip.ZipEntry("first.txt"))
+    try zos.write(Array("First".utf8), 0, 5)
+    // Kein closeEntry() — putNextEntry schließt implizit
+    try zos.putNextEntry(java.util.zip.ZipEntry("second.txt"))
+    try zos.write(Array("Second".utf8), 0, 6)
+    try zos.closeEntry()
+    try zos.finish()
+
+    let src = java.io.ByteArrayInputStream(sink.toByteArray())
+    let zis = java.util.zip.ZipInputStream(src)
+    var names: [String] = []
+    var contents: [[UInt8]] = []
+    while let e = try zis.getNextEntry() {
+      names.append(e.getName())
+      var data: [UInt8] = []
+      var buf = [UInt8](repeating: 0, count: 64)
+      while true { let n = try zis.read(&buf, 0, buf.count); if n == -1 { break }; data.append(contentsOf: buf[0..<n]) }
+      contents.append(data)
+      try zis.closeEntry()
+    }
+    try zis.close()
+    #expect(names    == ["first.txt", "second.txt"])
+    #expect(contents == [Array("First".utf8), Array("Second".utf8)])
+  }
+
+  // MARK: - write() nach finish()
+
+  @Test("ZipOutputStream: write() nach finish() wirft IOException")
+  func testZipOutputStreamWriteAfterFinish() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    try zos.putNextEntry(java.util.zip.ZipEntry("x.txt"))
+    try zos.closeEntry()
+    try zos.finish()
+    #expect(throws: java.io.IOException.self) {
+      try zos.write([0x41], 0, 1)
+    }
+  }
+
+  // MARK: - read() nach close()
+
+  @Test("ZipInputStream: read() nach close() wirft IOException")
+  func testZipInputStreamReadAfterClose() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    try zos.putNextEntry(java.util.zip.ZipEntry("x.txt"))
+    try zos.write(Array("hi".utf8), 0, 2)
+    try zos.closeEntry()
+    try zos.finish()
+
+    let src = java.io.ByteArrayInputStream(sink.toByteArray())
+    let zis = java.util.zip.ZipInputStream(src)
+    try zis.close()
+    var buf = [UInt8](repeating: 0, count: 16)
+    #expect(throws: java.io.IOException.self) {
+      _ = try zis.read(&buf, 0, buf.count)
+    }
+  }
+
+  // MARK: - ZipEntry Extra-Feld im Archiv
+
+  @Test("ZIP roundtrip: Entry mit Extra-Feld")
+  func testZipRoundtripEntryWithExtra() throws {
+    let input: [UInt8] = Array("extra field test".utf8)
+    let extra: [UInt8] = [0xDE, 0xAD, 0xBE, 0xEF]
+
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    let e = java.util.zip.ZipEntry("with-extra.txt")
+    e.setExtra(extra)
+    try zos.putNextEntry(e)
+    try zos.write(input, 0, input.count)
+    try zos.closeEntry()
+    try zos.finish()
+
+    let src = java.io.ByteArrayInputStream(sink.toByteArray())
+    let zis = java.util.zip.ZipInputStream(src)
+    let entry = try zis.getNextEntry()
+    #expect(entry?.getName() == "with-extra.txt")
+    var data: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true { let n = try zis.read(&buf, 0, buf.count); if n == -1 { break }; data.append(contentsOf: buf[0..<n]) }
+    try zis.close()
+    #expect(data == input)
+  }
+
+  // MARK: - ZipInputStream: close() ohne read() wirft nicht
+
   @Test("ZipInputStream: close() ohne read() wirft nicht")
   func testZipInputStreamCloseWithoutRead() throws {
     let sink = java.io.ByteArrayOutputStream()

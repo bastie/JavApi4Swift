@@ -11,6 +11,11 @@ extension java.util.zip {
   /// obtain its uncompressed data.  Mirrors `java.util.zip.ZipInputStream`
   /// from Java 1.1. Pure Swift — no system libraries.
   ///
+  /// - TODO: Java 6 — ZIP64 support: detect Zip64 extra field (tag 0x0001) in
+  ///   LOC/CEN and read 64-bit sizes/offsets from it when the 32-bit fields
+  ///   contain 0xFFFFFFFF. Recognise Zip64 EOCD signature (0x06064b50) in
+  ///   addition to the classic ENDSIG/CENSIG sentinels in `getNextEntry()`.
+  ///
   /// ```swift
   /// let src = java.io.ByteArrayInputStream(zipBytes)
   /// let zis = java.util.zip.ZipInputStream(src)
@@ -65,6 +70,7 @@ extension java.util.zip {
       // Accept ENDSIG or CENSIG as "no more local entries"
       if sig == Int(java.util.zip.ZipConstants.ENDSIG & 0xFFFF_FFFF) { return nil }
       if sig == Int(java.util.zip.ZipConstants.CENSIG & 0xFFFF_FFFF) { return nil }
+      // TODO: Java 6 — also accept Zip64 EOCD signature 0x06064b50 here
       guard sig == Int(java.util.zip.ZipConstants.LOCSIG & 0xFFFF_FFFF) else {
         throw java.util.zip.ZipException("Bad LOC header signature: 0x\(String(sig, radix:16))")
       }
@@ -95,6 +101,7 @@ extension java.util.zip {
         _ = try readFully(&extraBytes)
         extra = extraBytes
       }
+      if extra != nil {}
 
       // Build entry
       let entry = java.util.zip.ZipEntry(name)

@@ -356,4 +356,295 @@ struct JavApi_util_zip_Streams_Tests {
     try gunz.close()
     #expect(result == input)
   }
+
+  // MARK: - GZIP optionale Header-Felder
+
+  @Test("GZIPInputStream: dekodiert Stream mit FNAME-Feld")
+  func testGZIPInputStreamWithFNAME() throws {
+    // Python: gzip.GzipFile(filename="test.txt", mtime=0) → "Hello FNAME"
+    let gzipBytes: [UInt8] = [
+      0x1F, 0x8B, 0x08, 0x08, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF,
+      0x74, 0x65, 0x73, 0x74, 0x2E, 0x74, 0x78, 0x74, 0x00,  // "test.txt\0"
+      0xF3, 0x48, 0xCD, 0xC9, 0xC9, 0x57, 0x70, 0xF3, 0x73, 0xF4, 0x75, 0x05, 0x00,
+      0x4B, 0x99, 0xC2, 0xE9, 0x0B, 0x00, 0x00, 0x00
+    ]
+    let src  = java.io.ByteArrayInputStream(gzipBytes)
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true {
+      let n = try gunz.read(&buf, 0, buf.count)
+      if n == -1 { break }
+      result.append(contentsOf: buf[0..<n])
+    }
+    try gunz.close()
+    #expect(result == Array("Hello FNAME".utf8))
+  }
+
+  @Test("GZIPInputStream: dekodiert Stream mit FEXTRA-Feld")
+  func testGZIPInputStreamWithFEXTRA() throws {
+    // Manuell gebaut: FLG=0x04 (FEXTRA), 4 Extra-Bytes [0x01,0x02,0x03,0x04], Daten "Hello FEXTRA"
+    let gzipBytes: [UInt8] = [
+      0x1F, 0x8B, 0x08, 0x04, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF,
+      0x04, 0x00, 0x01, 0x02, 0x03, 0x04,  // XLEN=4 + extra
+      0xF3, 0x48, 0xCD, 0xC9, 0xC9, 0x57, 0x70, 0x73, 0x8D, 0x08, 0x09, 0x72, 0x04, 0x00,
+      0x67, 0xF1, 0x8B, 0x7E, 0x0C, 0x00, 0x00, 0x00
+    ]
+    let src  = java.io.ByteArrayInputStream(gzipBytes)
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true {
+      let n = try gunz.read(&buf, 0, buf.count)
+      if n == -1 { break }
+      result.append(contentsOf: buf[0..<n])
+    }
+    try gunz.close()
+    #expect(result == Array("Hello FEXTRA".utf8))
+  }
+
+  @Test("GZIPInputStream: dekodiert Stream mit FCOMMENT-Feld")
+  func testGZIPInputStreamWithFCOMMENT() throws {
+    // FLG=0x10 (FCOMMENT), Kommentar="my comment\0", Daten="Hello FCOMMENT"
+    let gzipBytes: [UInt8] = [
+      0x1F, 0x8B, 0x08, 0x10, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF,
+      0x6D, 0x79, 0x20, 0x63, 0x6F, 0x6D, 0x6D, 0x65, 0x6E, 0x74, 0x00,  // "my comment\0"
+      0xF3, 0x48, 0xCD, 0xC9, 0xC9, 0x57, 0x70, 0x73, 0xF6, 0xF7, 0xF5, 0x75, 0xF5, 0x0B, 0x01, 0x00,
+      0x07, 0xB9, 0xA3, 0xBC, 0x0E, 0x00, 0x00, 0x00
+    ]
+    let src  = java.io.ByteArrayInputStream(gzipBytes)
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true {
+      let n = try gunz.read(&buf, 0, buf.count)
+      if n == -1 { break }
+      result.append(contentsOf: buf[0..<n])
+    }
+    try gunz.close()
+    #expect(result == Array("Hello FCOMMENT".utf8))
+  }
+
+  @Test("GZIPInputStream: dekodiert Stream mit FHCRC-Feld")
+  func testGZIPInputStreamWithFHCRC() throws {
+    // FLG=0x02 (FHCRC), 2-Byte Header-CRC, Daten="Hello FHCRC"
+    let gzipBytes: [UInt8] = [
+      0x1F, 0x8B, 0x08, 0x02, 0x00, 0x00, 0x00, 0x00, 0x02, 0xFF,
+      0x12, 0xAB,  // CRC16 des Headers
+      0xF3, 0x48, 0xCD, 0xC9, 0xC9, 0x57, 0x70, 0xF3, 0x70, 0x0E, 0x72, 0x06, 0x00,
+      0x52, 0xB9, 0x14, 0xEB, 0x0B, 0x00, 0x00, 0x00
+    ]
+    let src  = java.io.ByteArrayInputStream(gzipBytes)
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true {
+      let n = try gunz.read(&buf, 0, buf.count)
+      if n == -1 { break }
+      result.append(contentsOf: buf[0..<n])
+    }
+    try gunz.close()
+    #expect(result == Array("Hello FHCRC".utf8))
+  }
+
+  // MARK: - GZIP Trailer-Fehler
+
+  @Test("GZIPInputStream: manipulierter ISIZE-Trailer wirft ZipException")
+  func testGZIPInputStreamISIZEMismatch() throws {
+    // Validen GZIP-Stream erzeugen, dann letztes ISIZE-Byte verfälschen
+    let input = Array("ISIZE test".utf8)
+    let sink = java.io.ByteArrayOutputStream()
+    let gz   = try java.util.zip.GZIPOutputStream(sink, 512)
+    try gz.write(input, 0, input.count)
+    try gz.finish()
+    var gzipBytes = sink.toByteArray()
+    // Letztes Byte = letztes ISIZE-Byte
+    gzipBytes[gzipBytes.count - 1] ^= 0xFF
+    let src  = java.io.ByteArrayInputStream(gzipBytes)
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var buf  = [UInt8](repeating: 0, count: 256)
+    #expect(throws: java.util.zip.ZipException.self) {
+      while true {
+        let n = try gunz.read(&buf, 0, buf.count)
+        if n == -1 { break }
+      }
+    }
+  }
+
+  // MARK: - Streams nach close()
+
+  @Test("Lesen aus geschlossenem InflaterInputStream wirft IOException")
+  func testInflaterInputStreamReadAfterClose() throws {
+    let input = Array("hello".utf8)
+    let compressed = try compressWithStream(input)
+    let src = java.io.ByteArrayInputStream(compressed)
+    let in_ = java.util.zip.InflaterInputStream(src)
+    try in_.close()
+    var buf = [UInt8](repeating: 0, count: 16)
+    #expect(throws: java.io.IOException.self) {
+      _ = try in_.read(&buf, 0, buf.count)
+    }
+  }
+
+  @Test("Schreiben in geschlossenen DeflaterOutputStream wirft IOException")
+  func testDeflaterOutputStreamWriteAfterClose() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let out  = java.util.zip.DeflaterOutputStream(sink)
+    try out.close()
+    #expect(throws: java.io.IOException.self) {
+      try out.write([0x41], 0, 1)
+    }
+  }
+
+  @Test("Schreiben in geschlossenen GZIPOutputStream wirft IOException")
+  func testGZIPOutputStreamWriteAfterClose() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let gz   = try java.util.zip.GZIPOutputStream(sink, 512)
+    try gz.close()
+    #expect(throws: java.io.IOException.self) {
+      try gz.write([0x41], 0, 1)
+    }
+  }
+
+  // MARK: - Deflater.setInput mit offset
+
+  @Test("Deflater.setInput(buf, off, len) mit off>0 komprimiert korrekt")
+  func testDeflaterSetInputWithOffset() throws {
+    // Puffer: "xxHELLO" — setInput mit offset=2, len=5 soll nur "HELLO" komprimieren
+    let padded = Array("xxHELLO".utf8)
+    let d = java.util.zip.Deflater()
+    d.setInput(padded, 2, 5)
+    d.finish()
+    var comp = [UInt8](repeating: 0, count: 64)
+    let n = d.deflate(&comp)
+    d.end()
+
+    let inf = java.util.zip.Inflater()
+    inf.setInput(Array(comp[0..<n]))
+    var out = [UInt8](repeating: 0, count: 64)
+    let m = try inf.inflate(&out)
+    inf.end()
+    #expect(Array(out[0..<m]) == Array("HELLO".utf8))
+  }
+
+  @Test("Inflater.setInput(buf, off, len) mit off>0 dekomprimiert korrekt")
+  func testInflaterSetInputWithOffset() throws {
+    // Komprimierten Stream mit Padding vorne übergeben
+    let input = Array("HELLO".utf8)
+    let d = java.util.zip.Deflater()
+    d.setInput(input); d.finish()
+    var comp = [UInt8](repeating: 0, count: 64)
+    let n = d.deflate(&comp); d.end()
+
+    // Padding vor komprimierten Daten
+    let padded = [UInt8](repeating: 0xAA, count: 3) + Array(comp[0..<n])
+    let inf = java.util.zip.Inflater()
+    inf.setInput(padded, 3, n)
+    var out = [UInt8](repeating: 0, count: 64)
+    let m = try inf.inflate(&out)
+    inf.end()
+    #expect(Array(out[0..<m]) == input)
+  }
+
+  // MARK: - GZIPOutputStream.write(int)
+
+  @Test("GZIPOutputStream: write(int) einzelnes Byte")
+  func testGZIPOutputStreamWriteSingleByte() throws {
+    let input: [UInt8] = [0x42, 0x43, 0x44]  // BCD
+    let sink = java.io.ByteArrayOutputStream()
+    let gz   = try java.util.zip.GZIPOutputStream(sink, 512)
+    for b in input { try gz.write(Int(b)) }
+    try gz.finish()
+
+    let src  = java.io.ByteArrayInputStream(sink.toByteArray())
+    let gunz = try java.util.zip.GZIPInputStream(src, 512)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true {
+      let n = try gunz.read(&buf, 0, buf.count)
+      if n == -1 { break }
+      result.append(contentsOf: buf[0..<n])
+    }
+    try gunz.close()
+    #expect(result == input)
+  }
+
+  // MARK: - Deflater level 3
+
+  @Test("Roundtrip: Deflater level=3 (mittlere Kompression)")
+  func testRoundtripLevel3() throws {
+    let input = Array("Mittlere Kompression — level 3".utf8)
+    let d = java.util.zip.Deflater(3, false)
+    d.setInput(input); d.finish()
+    var comp = [UInt8](repeating: 0, count: 256)
+    let n = d.deflate(&comp); d.end()
+
+    let inf = java.util.zip.Inflater()
+    inf.setInput(Array(comp[0..<n]))
+    var out = [UInt8](repeating: 0, count: 256)
+    let m = try inf.inflate(&out); inf.end()
+    #expect(Array(out[0..<m]) == input)
+  }
+
+  // MARK: - ZipOutputStream finish() Idempotenz
+
+  @Test("ZipOutputStream.finish() zweimal aufrufen ist idempotent")
+  func testZipOutputStreamFinishIdempotent() throws {
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    try zos.putNextEntry(java.util.zip.ZipEntry("f.txt"))
+    try zos.write(Array("hi".utf8), 0, 2)
+    try zos.closeEntry()
+    try zos.finish()
+    let size1 = sink.toByteArray().count
+    try zos.finish()  // zweites finish() darf nichts hinzufügen
+    let size2 = sink.toByteArray().count
+    #expect(size1 == size2)
+  }
+
+  // MARK: - ZipInputStream: Unicode-Namen
+
+  @Test("ZIP roundtrip: Unicode-Dateiname (Umlaute)")
+  func testZipRoundtripUnicodeName() throws {
+    let name  = "Ärger_mit_Ü.txt"
+    let input = Array("Inhalt mit Umlauten: äöü".utf8)
+
+    let sink = java.io.ByteArrayOutputStream()
+    let zos  = java.util.zip.ZipOutputStream(sink)
+    let e = java.util.zip.ZipEntry(name)
+    try zos.putNextEntry(e)
+    try zos.write(input, 0, input.count)
+    try zos.closeEntry()
+    try zos.finish()
+
+    let src = java.io.ByteArrayInputStream(sink.toByteArray())
+    let zis = java.util.zip.ZipInputStream(src)
+    let entry = try zis.getNextEntry()
+    #expect(entry?.getName() == name)
+    var result: [UInt8] = []
+    var buf = [UInt8](repeating: 0, count: 64)
+    while true { let n = try zis.read(&buf, 0, buf.count); if n == -1 { break }; result.append(contentsOf: buf[0..<n]) }
+    try zis.close()
+    #expect(result == input)
+  }
+
+  // MARK: - Adler32/CRC32C offset
+
+  @Test("Adler32: update mit offset > 0 korrekt")
+  func testAdler32WithOffset() {
+    let chk1 = java.util.zip.Adler32()
+    chk1.update(Array("HELLO".utf8), 0, 5)
+    let chk2 = java.util.zip.Adler32()
+    chk2.update(Array("xxHELLO".utf8), 2, 5)
+    #expect(chk1.getValue() == chk2.getValue())
+  }
+
+  @Test("CRC32C: update mit offset > 0 korrekt")
+  func testCRC32CWithOffset() {
+    let chk1 = java.util.zip.CRC32C()
+    chk1.update(Array("HELLO".utf8), 0, 5)
+    let chk2 = java.util.zip.CRC32C()
+    chk2.update(Array("xxHELLO".utf8), 2, 5)
+    #expect(chk1.getValue() == chk2.getValue())
+  }
 }

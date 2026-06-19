@@ -12,6 +12,12 @@ extension java.util.zip {
   /// Directory and End-of-Central-Directory record.
   /// Mirrors `java.util.zip.ZipOutputStream` from Java 1.1. Pure Swift.
   ///
+  /// - TODO: Java 6 — ZIP64 support: write Zip64 extended information extra field
+  ///   (tag 0x0001) in LOC/CEN when compressedSize or uncompressedSize > 0xFFFFFFFE,
+  ///   locOffset > 0xFFFFFFFE, or entriesWritten > 0xFFFE. Write Zip64 EOCD record
+  ///   (signature 0x06064b50) and Zip64 EOCD locator (0x07064b50) before the
+  ///   classic EOCD. Use 0xFFFFFFFF as sentinel in 32-bit fields.
+  ///
   /// ```swift
   /// let sink = java.io.ByteArrayOutputStream()
   /// let zos  = java.util.zip.ZipOutputStream(sink)
@@ -68,7 +74,7 @@ extension java.util.zip {
 
     /// Writes data for the current entry.
     public override func write(_ b: [UInt8], _ off: Int, _ len: Int) throws {
-      guard !closed else { throw java.io.IOException("Stream closed") }
+      guard !closed && !finished else { throw java.io.IOException("Stream closed") }
       guard currentEntry != nil else { throw java.io.IOException("No current entry") }
       guard len > 0 else { return }
       entryDataBuf.append(contentsOf: b[off..<(off + len)])
@@ -158,6 +164,8 @@ extension java.util.zip {
       written += Int64(centralDir.count)
 
       // Write End of Central Directory record
+      // TODO: Java 6 — if cdOffset > 0xFFFFFFFE or entriesWritten > 0xFFFE,
+      // write Zip64 EOCD + Zip64 EOCD locator before the classic EOCD.
       try writeEOCD(cdOffset: UInt32(cdOffset & 0xFFFF_FFFF),
                     cdSize:   UInt32(centralDir.count),
                     count:    UInt16(entriesWritten & 0xFFFF))
@@ -189,9 +197,10 @@ extension java.util.zip {
       appendLeUInt16(&loc, UInt16(entry.flag & 0xFFFF))                               // flags
       appendLeUInt16(&loc, UInt16(method & 0xFFFF))                                   // method
       appendLeUInt32(&loc, UInt32(dosTime & 0xFFFF_FFFF))                             // mod time+date
-      appendLeUInt32(&loc, crcVal)                                                    // CRC-32
-      appendLeUInt32(&loc, compSize)                                                  // compressed size
-      appendLeUInt32(&loc, uncompSize)                                                // uncompressed size
+      appendLeUInt32(&loc, crcVal)      // CRC-32
+      // TODO: Java 6 — write 0xFFFFFFFF here and add Zip64 extra field when sizes > 0xFFFFFFFE
+      appendLeUInt32(&loc, compSize)    // compressed size
+      appendLeUInt32(&loc, uncompSize)  // uncompressed size
       appendLeUInt16(&loc, UInt16(nameBytes.count & 0xFFFF))                         // name length
       appendLeUInt16(&loc, UInt16(extraBytes.count & 0xFFFF))                        // extra length
       loc.append(contentsOf: nameBytes)
@@ -222,9 +231,10 @@ extension java.util.zip {
       appendLeUInt16(&cen, UInt16(entry.flag & 0xFFFF))                                // flags
       appendLeUInt16(&cen, UInt16(method & 0xFFFF))                                    // method
       appendLeUInt32(&cen, UInt32(dosTime & 0xFFFF_FFFF))                              // mod time+date
-      appendLeUInt32(&cen, crcVal)                                                     // CRC-32
-      appendLeUInt32(&cen, compSize)                                                   // compressed size
-      appendLeUInt32(&cen, uncompSize)                                                 // uncompressed size
+      appendLeUInt32(&cen, crcVal)      // CRC-32
+      // TODO: Java 6 — write 0xFFFFFFFF and add Zip64 extra field (tag 0x0001) when sizes > 0xFFFFFFFE
+      appendLeUInt32(&cen, compSize)    // compressed size
+      appendLeUInt32(&cen, uncompSize)  // uncompressed size
       appendLeUInt16(&cen, UInt16(nameBytes.count & 0xFFFF))                          // name length
       appendLeUInt16(&cen, UInt16(extraBytes.count & 0xFFFF))                         // extra length
       appendLeUInt16(&cen, UInt16(comment.count & 0xFFFF))                            // comment length
