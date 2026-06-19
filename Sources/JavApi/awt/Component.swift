@@ -125,10 +125,19 @@ extension java.awt {
     public func setMaximumSize(_ d: java.awt.Dimension?) {
       _maximumSize = d
     }
-    
+
     public func getMaximumSize() -> java.awt.Dimension {
       _maximumSize ?? java.awt.Dimension(Int.max, Int.max)
     }
+
+    // Alignment hints used by BoxLayout and OverlayLayout (0.0 = left/top, 0.5 = center, 1.0 = right/bottom)
+    private var _alignmentX: Float = 0.5
+    private var _alignmentY: Float = 0.5
+
+    open func getAlignmentX() -> Float { _alignmentX }
+    open func getAlignmentY() -> Float { _alignmentY }
+    public func setAlignmentX(_ v: Float) { _alignmentX = max(0.0, min(1.0, v)) }
+    public func setAlignmentY(_ v: Float) { _alignmentY = max(0.0, min(1.0, v)) }
 
     // -------------------------------------------------------------------------
     // MARK: Position & size
