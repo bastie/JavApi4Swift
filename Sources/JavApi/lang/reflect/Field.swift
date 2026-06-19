@@ -64,6 +64,10 @@ extension java.lang.reflect {
 
     /// Swift does not expose access modifiers at runtime.
     /// Always returns `Modifier.PUBLIC` as a best-effort value.
+    ///
+    /// **TODO(SE-0379):** Once SE-0379 (Opt-In Reflection Metadata) is accepted,
+    /// this method can return actual access modifier flags from compiler-emitted
+    /// reflection metadata instead of always returning `PUBLIC`.
     public func getModifiers() -> Int { Modifier.PUBLIC }
 
     /// Swift-generated backing fields cannot be reliably detected;

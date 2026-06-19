@@ -16,6 +16,12 @@ extension java.lang.reflect {
   /// runtime. The `getAnnotation` / `getAnnotations` methods are provided
   /// as stubs for API compatibility and always return empty results.
   ///
+  /// **TODO(SE-0385):** Once SE-0385 (Custom Reflection Metadata) is accepted
+  /// and implemented, `getAnnotations()`, `getDeclaredAnnotations()`, and
+  /// `isAnnotationPresent(_:)` can be backed by `Attribute.allInstances(of:)`
+  /// to return real `@reflectionMetadata` attribute instances.
+  /// Track: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0385-custom-reflection-metadata.md
+  ///
   /// Implemented by: `AccessibleObject` → `Field`, `Method`, `Constructor`
   ///
   /// - Since: Java 1.5

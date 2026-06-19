@@ -18,6 +18,15 @@ extension java.lang.reflect {
   /// - Annotation methods are inherited from `AnnotatedElement` and always
   ///   return empty results (Swift does not expose annotations at runtime).
   ///
+  /// **TODO(SE-0379):** Once SE-0379 (Opt-In Reflection Metadata) is accepted,
+  /// `setAccessible(_:)` may gain real meaning: Swift could enforce `Reflectable`
+  /// conformance at compile time, making access checks more like Java's model.
+  /// Track: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0379-opt-in-reflection-metadata.md
+  ///
+  /// **TODO(SE-0385):** Once SE-0385 (Custom Reflection Metadata) is accepted,
+  /// annotation stubs in this class can delegate to `Attribute.allInstances(of:)`.
+  /// Track: https://github.com/swiftlang/swift-evolution/blob/main/proposals/0385-custom-reflection-metadata.md
+  ///
   /// - Since: Java 1.1
   open class AccessibleObject: AnnotatedElement, @unchecked Sendable {
 
