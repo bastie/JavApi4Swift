@@ -48,7 +48,8 @@ extension java.io {
         throw IndexOutOfBoundsException()
       }
       let k = min (length, (self.count - pos))
-      
+      guard k > 0 else { return -1 }  // EOF — Java spec: return -1, not 0
+
       for i in 0..<k {
         switch self.readUInt8() {
         case .success(let value):

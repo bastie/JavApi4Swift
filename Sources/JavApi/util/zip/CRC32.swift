@@ -54,7 +54,7 @@ extension java.util.zip {
     
     public func update(_ buf : [UInt8], _ _index : Int, _ len : Int) {
       var c : Int32 = ~v;
-      for i in _index..<len {
+      for i in _index..<(_index + len) {
         c = Int32(java.util.zip.CRC32.crc_table[(Int(c) ^ Int(buf[i])) & 0xff]) ^ (c >>> 8);
       }
       v = ~c;
