@@ -14,7 +14,7 @@ import Glibc
 #elseif canImport(Musl)
 import Musl
 #else
-// Fallback: declare POSIX symbols directly (e.g. static musl)
+// Fallback: declare POSIX dl* symbols directly (e.g. static musl, custom libc)
 @_silgen_name("dlopen")
 private func dlopen(_ path: UnsafePointer<CChar>?, _ flags: CInt) -> UnsafeMutableRawPointer?
 @_silgen_name("dlsym")
@@ -25,19 +25,22 @@ private func dlclose(_ handle: UnsafeMutableRawPointer?) -> CInt
 private func dlerror() -> UnsafeMutablePointer<CChar>?
 #endif
 
-#if os(Linux) || os(FreeBSD) || os(Android)
-private let _RTLD_LAZY: CInt = 0x00001
-private let _RTLD_GLOBAL: CInt = 0x00100
+// RTLD flags — define as CInt literals so we never clash with whatever type
+// Glibc/Musl happen to expose (they vary between UInt8, CInt, etc.).
+// Values are POSIX-standard and identical on Linux, macOS, FreeBSD, Android.
+#if !os(Windows)
+private let _rtldLazy:   CInt = 0x00001
+private let _rtldGlobal: CInt = 0x00100
 #endif
 
 // =============================================================================
 // MARK: _DynamicLoader
 // =============================================================================
 
-/// Internal plattform-agnostic wrapper around dynamic library loading.
+/// Internal platform-agnostic wrapper around dynamic library loading.
 ///
 /// On POSIX systems (Linux, macOS, Android, FreeBSD) this uses `dlopen` /
-/// `dlsym` / `dlclose`. On Windows it uses `LoadLibraryA` / `GetProcAddress`
+/// `dlsym` / `dlclose`. On Windows it uses `LoadLibraryW` / `GetProcAddress`
 /// / `FreeLibrary`.
 ///
 /// Provider libraries export a single C factory function whose name is read
@@ -46,7 +49,7 @@ private let _RTLD_GLOBAL: CInt = 0x00100
 ///
 /// **Convention for provider libraries:**
 /// ```swift
-/// // Swift — use the new @c attribute (Swift 6.3) for stable C export
+/// // Swift 6.3 — use @c for a stable, mangling-free C export name
 /// @c(MyService_create)
 /// public func myServiceCreate() -> UnsafeMutableRawPointer? {
 ///     let vtable = UnsafeMutablePointer<MyServiceVTable>.allocate(capacity: 1)
@@ -81,7 +84,7 @@ internal final class _DynamicLoader: @unchecked Sendable {
     }
     self.handle = h
 #else
-    guard let h = dlopen(path, _RTLD_LAZY | _RTLD_GLOBAL) else {
+    guard let h = dlopen(path, _rtldLazy | _rtldGlobal) else {
       let reason = dlerror().map { String(cString: $0) } ?? "unknown error"
       throw _DynamicLoader.linkError("dlopen failed for '\(path)': \(reason)")
     }
@@ -134,7 +137,7 @@ internal final class _DynamicLoader: @unchecked Sendable {
   /// - `"myservice"` → `"libmyservice.dylib"` (macOS)
   /// - `"myservice"` → `"myservice.dll"` (Windows)
   ///
-  /// If `name` already contains a path separator or extension it is returned
+  /// If `name` already contains a path separator or a `.` it is returned
   /// unchanged, so absolute paths from the `.properties` file always work.
   static func canonicalName(_ name: String) -> String {
     guard !name.contains("/") && !name.contains("\\") && !name.contains(".") else {
