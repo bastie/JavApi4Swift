@@ -60,6 +60,25 @@ extension javax.swing.text {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: DocumentFilter
+    // -------------------------------------------------------------------------
+
+    private var _documentFilter: javax.swing.text.DocumentFilter? = nil
+
+    /// Returns the `DocumentFilter` installed on this document, or `nil`.
+    public func getDocumentFilter() -> javax.swing.text.DocumentFilter? { _documentFilter }
+
+    /// Installs a `DocumentFilter` that intercepts all mutations.
+    ///
+    /// Subclasses that override `insertString(_:_:)` and `remove(_:_:)` must
+    /// check `getDocumentFilter()` and route mutations through it.
+    /// `AbstractDocument`'s own `insertString` / `remove` stubs do not do this
+    /// automatically because the actual storage logic lives in the subclass.
+    public func setDocumentFilter(_ filter: javax.swing.text.DocumentFilter?) {
+      _documentFilter = filter
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Document — property map
     // -------------------------------------------------------------------------
 

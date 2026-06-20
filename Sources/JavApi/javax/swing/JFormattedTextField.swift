@@ -63,6 +63,7 @@ extension javax.swing {
     open class AbstractFormatterFactory {
       public init() {}
       /// Returns the formatter to use for `tf`.
+      @MainActor
       open func getFormatter(_ tf: JFormattedTextField) -> AbstractFormatter? {
         fatalError("Subclasses of AbstractFormatterFactory must override getFormatter(_:)")
       }
@@ -96,6 +97,11 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     private var _value: Any? = nil
+
+    /// Internal: returns `true` if a value has been explicitly set.
+    /// Used by `DefaultFormatterFactory` to select the null-formatter slot
+    /// without triggering a recursive `getValue()` → `getFormatter()` call.
+    internal var _hasValue: Bool { _value != nil }
     private var _formatter: AbstractFormatter? = nil
     private var _formatterFactory: AbstractFormatterFactory? = nil
 

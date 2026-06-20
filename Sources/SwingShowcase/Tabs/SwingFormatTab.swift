@@ -61,7 +61,7 @@ class SwingFormatTab {
     let intlField = javax.swing.JFormattedTextField(9999)
     intlField.setValue(9999)
     // Install via factory
-    let intlFactory = InternationalFormatterFactory(intlFormatter)
+    let intlFactory = javax.swing.text.DefaultFormatterFactory(intlFormatter)
     intlField.setFormatterFactory(intlFactory)
     addRow("InternationalFormatter:", intlField)
 
@@ -70,7 +70,7 @@ class SwingFormatTab {
       java.text.NumberFormat.getIntegerInstance())
     numFormatter.setMinimum(0)
     numFormatter.setMaximum(999)
-    let numFactory = InternationalFormatterFactory(numFormatter)
+    let numFactory = javax.swing.text.DefaultFormatterFactory(numFormatter)
     let numField = javax.swing.JFormattedTextField(42)
     numField.setFormatterFactory(numFactory)
     addRow("NumberFormatter (0–999):", numField)
@@ -78,7 +78,7 @@ class SwingFormatTab {
     // ── 8. DateFormatter ──────────────────────────────────────────────────────
     let dateFormatter = javax.swing.text.DateFormatter(
       java.text.DateFormat.getDateInstance(java.text.DateFormat.LONG))
-    let dateFormFactory = InternationalFormatterFactory(dateFormatter)
+    let dateFormFactory = javax.swing.text.DefaultFormatterFactory(dateFormatter)
     let dateFormField = javax.swing.JFormattedTextField(java.util.Date())
     dateFormField.setFormatterFactory(dateFormFactory)
     addRow("DateFormatter (LONG):", dateFormField)
@@ -134,7 +134,7 @@ class SwingFormatTab {
     // ── 13. DefaultFormatter ──────────────────────────────────────────────────
     let defaultFmt = javax.swing.text.DefaultFormatter()
     defaultFmt.setAllowsInvalid(true)
-    let defaultFactory = DefaultFormatterFactory(defaultFmt)
+    let defaultFactory = javax.swing.text.DefaultFormatterFactory(defaultFmt)
     let defaultField = javax.swing.JFormattedTextField("free text")
     defaultField.setFormatterFactory(defaultFactory)
     addRow("DefaultFormatter (free):", defaultField)
@@ -149,27 +149,3 @@ class SwingFormatTab {
   }
 }
 
-// ---------------------------------------------------------------------------
-// MARK: - Simple one-shot formatter factories
-// ---------------------------------------------------------------------------
-
-/// A minimal `AbstractFormatterFactory` that always returns the same formatter.
-private class InternationalFormatterFactory: javax.swing.JFormattedTextField.AbstractFormatterFactory {
-  // nonisolated(unsafe): set once at init on the main actor, then only read
-  // from getFormatter which is called in a nonisolated context.
-  nonisolated(unsafe) private let formatter: javax.swing.text.InternationalFormatter
-  @MainActor
-  init(_ formatter: javax.swing.text.InternationalFormatter) { self.formatter = formatter; super.init() }
-  override func getFormatter(_ tf: javax.swing.JFormattedTextField) -> javax.swing.JFormattedTextField.AbstractFormatter? {
-    return formatter
-  }
-}
-
-private class DefaultFormatterFactory: javax.swing.JFormattedTextField.AbstractFormatterFactory {
-  nonisolated(unsafe) private let formatter: javax.swing.text.DefaultFormatter
-  @MainActor
-  init(_ formatter: javax.swing.text.DefaultFormatter) { self.formatter = formatter; super.init() }
-  override func getFormatter(_ tf: javax.swing.JFormattedTextField) -> javax.swing.JFormattedTextField.AbstractFormatter? {
-    return formatter
-  }
-}
