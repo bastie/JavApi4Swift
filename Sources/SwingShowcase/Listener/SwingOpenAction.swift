@@ -15,6 +15,12 @@ final class SwingOpenAction: SwingShowcaseAction {
     putValue(SwingOpenAction.SHORT_DESCRIPTION, "Open a file" as AnyObject)
   }
   override func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    print("File > Open…")
+    let chooser = javax.swing.JFileChooser()
+    chooser.setDialogTitle("Open File")
+    let result = chooser.showOpenDialog(nil)
+    if result == javax.swing.JFileChooser.APPROVE_OPTION,
+       let file = chooser.getSelectedFile() {
+      print("File > Open: \(file.getAbsolutePath())")
+    }
   }
 }

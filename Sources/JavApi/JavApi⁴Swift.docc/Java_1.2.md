@@ -602,6 +602,54 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | class         | BasicPopupMenuUI        |
 1.2     | ✔️          | ⭕️       | method        | paint()                 | bg + items; armed item highlighted
 
+### javax.swing.JCheckBoxMenuItem (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JCheckBoxMenuItem       | extends JMenuItem; toggles selected state on click
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBoxMenuItem()     | ()
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBoxMenuItem()     | (String)
+1.2     | ✔️          | ⭕️       | constructor   | JCheckBoxMenuItem()     | (String, selected: Bool)
+1.2     | ✔️          | ⭕️       | method        | isSelected()            | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | setSelected()           | (Bool)
+1.2     | ✔️          | ⭕️       | method        | getState() / setState() | Bool — alias for isSelected/setSelected
+1.2     | ✔️          | ⭕️       | method        | addItemListener()       | (ItemListener)
+
+### javax.swing.JRadioButtonMenuItem (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JRadioButtonMenuItem    | extends JMenuItem; use with ButtonGroup
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButtonMenuItem()  | ()
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButtonMenuItem()  | (String)
+1.2     | ✔️          | ⭕️       | constructor   | JRadioButtonMenuItem()  | (String, selected: Bool)
+1.2     | ✔️          | ⭕️       | method        | isSelected()            | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | setSelected()           | (Bool)
+
+### javax.swing.plaf.basic.BasicCheckBoxMenuItemUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicCheckBoxMenuItemUI | paints checkbox indicator + text
+1.2     | ✔️          | ⭕️       | method        | paint()                 | checkbox box, checkmark if selected, then text
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | box + gap + text width
+
+### javax.swing.plaf.basic.BasicRadioButtonMenuItemUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicRadioButtonMenuItemUI | paints radio indicator + text
+1.2     | ✔️          | ⭕️       | method        | paint()                 | circle, filled dot if selected, then text
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | circle + gap + text width
+
+### javax.swing.plaf.basic.BasicMenuItemUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicMenuItemUI         | base UI for JMenuItem
+1.2     | ✔️          | ⭕️       | method        | paint()                 | bg highlight when armed, text + accelerator
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | text width + padding
+
 ### javax.swing.Action / AbstractAction (✔️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations
@@ -886,6 +934,219 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | paint()                 | (Graphics,JComponent) — no-op, JScrollPane.paint handles all
 1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | (JComponent)->Dimension
 
+### javax.swing.JOptionPane (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JOptionPane             | extends JComponent
+1.2     | ✔️          | 🪄       | final field   | ERROR_MESSAGE           | int = 0
+1.2     | ✔️          | 🪄       | final field   | INFORMATION_MESSAGE     | int = 1
+1.2     | ✔️          | 🪄       | final field   | WARNING_MESSAGE         | int = 2
+1.2     | ✔️          | 🪄       | final field   | QUESTION_MESSAGE        | int = 3
+1.2     | ✔️          | 🪄       | final field   | PLAIN_MESSAGE           | int = -1
+1.2     | ✔️          | 🪄       | final field   | DEFAULT_OPTION          | int = -1
+1.2     | ✔️          | 🪄       | final field   | YES_NO_OPTION           | int = 0
+1.2     | ✔️          | 🪄       | final field   | YES_NO_CANCEL_OPTION    | int = 1
+1.2     | ✔️          | 🪄       | final field   | OK_CANCEL_OPTION        | int = 2
+1.2     | ✔️          | 🪄       | final field   | YES_OPTION / OK_OPTION  | int = 0
+1.2     | ✔️          | 🪄       | final field   | NO_OPTION               | int = 1
+1.2     | ✔️          | 🪄       | final field   | CANCEL_OPTION           | int = 2
+1.2     | ✔️          | 🪄       | final field   | CLOSED_OPTION           | int = -1
+1.2     | ✔️          | ⭕️       | static method | showMessageDialog()     | (Component?,Any?,String,Int)
+1.2     | ✔️          | ⭕️       | static method | showConfirmDialog()     | (Component?,Any?,String,Int,Int)->Int
+1.2     | ✔️          | ⭕️       | static method | showInputDialog()       | (Component?,Any?,String,Int)->String?
+1.2     | ✔️          | ⭕️       | static method | showOptionDialog()      | (Component?,Any?,String,Int,Int,Icon?,[Any]?,Any?)->Int
+1.2     | ✔️          | ⭕️       | method        | createDialog()          | (Component?,String)->JDialog
+1.2     | ✔️          | ⭕️       | method        | getValue() / setValue() | selected option result
+
+### javax.swing.plaf.basic.BasicOptionPaneUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicOptionPaneUI       | lays out message + icon + buttons
+1.2     | ✔️          | ⭕️       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | installUI()             | builds message panel + button row
+1.2     | ✔️          | ⭕️       | method        | paint()                 | fills background
+
+### javax.swing.JFileChooser (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JFileChooser            | extends JComponent
+1.2     | ✔️          | 🪄       | final field   | APPROVE_OPTION          | int = 0
+1.2     | ✔️          | 🪄       | final field   | CANCEL_OPTION           | int = 1
+1.2     | ✔️          | 🪄       | final field   | ERROR_OPTION            | int = -1
+1.2     | ✔️          | 🪄       | final field   | FILES_ONLY              | int = 0
+1.2     | ✔️          | 🪄       | final field   | DIRECTORIES_ONLY        | int = 1
+1.2     | ✔️          | 🪄       | final field   | FILES_AND_DIRECTORIES   | int = 2
+1.2     | ✔️          | ⭕️       | constructor   | JFileChooser()          | ()
+1.2     | ✔️          | ⭕️       | constructor   | JFileChooser()          | (String path)
+1.2     | ✔️          | ⭕️       | constructor   | JFileChooser()          | (File dir)
+1.2     | ✔️          | ⭕️       | method        | showOpenDialog()        | (Component?)->Int
+1.2     | ✔️          | ⭕️       | method        | showSaveDialog()        | (Component?)->Int
+1.2     | ✔️          | ⭕️       | method        | showDialog()            | (Component?,String)->Int
+1.2     | ✔️          | ⭕️       | method        | getSelectedFile()       | ()->File?
+1.2     | ✔️          | ⭕️       | method        | setSelectedFile()       | (File?)
+1.2     | ✔️          | ⭕️       | method        | getSelectedFiles()      | ()->[File]
+1.2     | ✔️          | ⭕️       | method        | getCurrentDirectory()   | ()->File?
+1.2     | ✔️          | ⭕️       | method        | setCurrentDirectory()   | (File?)
+1.2     | ✔️          | ⭕️       | method        | getFileSelectionMode()  | ()->Int
+1.2     | ✔️          | ⭕️       | method        | setFileSelectionMode()  | (Int)
+1.2     | ✔️          | ⭕️       | method        | approveSelection()      | ()
+1.2     | ✔️          | ⭕️       | method        | cancelSelection()       | ()
+
+### javax.swing.plaf.basic.BasicFileChooserUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicFileChooserUI      | directory list + file name field + approve/cancel
+1.2     | ✔️          | ⭕️       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | installUI()             | builds file browser layout
+1.2     | ✔️          | ⭕️       | method        | paint()                 | fills background
+
+### javax.swing.JColorChooser (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JColorChooser           | extends JComponent
+1.2     | ✔️          | ⭕️       | constructor   | JColorChooser()         | (Color initial)
+1.2     | ✔️          | ⭕️       | static method | showDialog()            | (Component?,String,Color?)->Color?
+1.2     | ✔️          | ⭕️       | method        | getColor()              | ()->Color
+1.2     | ✔️          | ⭕️       | method        | setColor()              | (Color)
+1.2     | ✔️          | ⭕️       | method        | setColor()              | (Int,Int,Int)
+
+### javax.swing.plaf.basic.BasicColorChooserUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicColorChooserUI     | preview strip + swatch grid + RGB sliders
+1.2     | ✔️          | ⭕️       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | installUI()             | builds color picker layout
+1.2     | ✔️          | ⭕️       | method        | paint()                 | fills background
+
+### javax.swing.plaf.basic.BasicDesktopPaneUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicDesktopPaneUI      | fills desktop background with `SystemColor.desktop`
+1.2     | ✔️          | ⭕️       | class method  | createUI()              | (JComponent)->ComponentUI
+1.2     | ✔️          | ⭕️       | method        | installUI()             | sets opaque=true, default background colour
+1.2     | ✔️          | ⭕️       | method        | paint()                 | fills bounds with background colour
+1.2     | ✔️          | 🪄       | method        | getPreferredSize()      | returns nil (adapts to parent)
+
+### javax.swing.AbstractListModel (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | abstract class| AbstractListModel       | base for ListModel implementations
+1.2     | ✔️          | ⭕️       | method        | addListDataListener()   | (ListDataListener)
+1.2     | ✔️          | ⭕️       | method        | removeListDataListener()| (ListDataListener)
+1.2     | ✔️          | ⭕️       | method        | fireContentsChanged()   | (Object,Int,Int)
+1.2     | ✔️          | ⭕️       | method        | fireIntervalAdded()     | (Object,Int,Int)
+1.2     | ✔️          | ⭕️       | method        | fireIntervalRemoved()   | (Object,Int,Int)
+
+### javax.swing.AbstractSpinnerModel (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ✔️          | ⭕️       | abstract class| AbstractSpinnerModel    | base for SpinnerModel implementations
+1.4     | ✔️          | ⭕️       | method        | addChangeListener()     | (ChangeListener)
+1.4     | ✔️          | ⭕️       | method        | removeChangeListener()  | (ChangeListener)
+1.4     | ✔️          | ⭕️       | method        | fireStateChanged()      | ()
+
+### javax.swing.FocusManager (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | abstract class| FocusManager            | manages keyboard focus traversal
+1.2     | ✔️          | ⭕️       | static method | getCurrentManager()     | ()->FocusManager
+1.2     | ✔️          | ⭕️       | static method | setCurrentManager()     | (FocusManager?)
+1.2     | ✔️          | ⭕️       | method        | focusNextComponent()    | (Component)
+1.2     | ✔️          | ⭕️       | method        | focusPreviousComponent()| (Component)
+
+### javax.swing.ToolTipManager (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | ToolTipManager          | singleton; manages tooltip display timing
+1.2     | ✔️          | ⭕️       | static method | sharedInstance()        | ()->ToolTipManager
+1.2     | ✔️          | ⭕️       | method        | setEnabled()            | (Bool)
+1.2     | ✔️          | ⭕️       | method        | isEnabled()             | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | setInitialDelay()       | (Int)
+1.2     | ✔️          | ⭕️       | method        | setDismissDelay()       | (Int)
+1.2     | ✔️          | ⭕️       | method        | setReshowDelay()        | (Int)
+
+### javax.swing.JToolTip (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JToolTip                | extends JComponent; tooltip popup widget
+1.2     | ✔️          | ⭕️       | constructor   | JToolTip()              | ()
+1.2     | ✔️          | ⭕️       | method        | getTipText()            | ()->String?
+1.2     | ✔️          | ⭕️       | method        | setTipText()            | (String?)
+1.2     | ✔️          | ⭕️       | method        | getComponent()          | ()->JComponent?
+
+### javax.swing.plaf.basic.BasicToolTipUI (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | BasicToolTipUI          | paints tooltip background and text
+1.2     | ✔️          | ⭕️       | method        | paint()                 | yellow bg, border, tip text
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | text width + padding
+
+### javax.swing.JApplet (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | class         | JApplet                 | extends java.applet.Applet; Swing root pane container
+1.2     | ✔️          | ⭕️       | method        | getContentPane()        | ()->Container
+1.2     | ✔️          | ⭕️       | method        | setJMenuBar()           | (JMenuBar?)
+
+### javax.swing.text — Document and Element (✔️/⭕️)
+
+> **Note — naming:** Due to a Swift compiler limitation where two files with
+> the same name in different directories cause build failures even if they
+> reside in different modules, `javax.swing.text.Document` is implemented in
+> `TextDocument.swift` and `javax.swing.text.Element` is implemented in
+> `TextElement.swift`. The Swift type names are `javax.swing.text.TextDocument`
+> (protocol) and `javax.swing.text.TextElement` (protocol). Call sites that
+> use `javax.swing.text.Document` or `javax.swing.text.Element` must use
+> these names instead.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | TextDocument            | mirrors `javax.swing.text.Document`; in TextDocument.swift
+1.2     | ✔️          | ⭕️       | protocol      | TextElement             | mirrors `javax.swing.text.Element`; in TextElement.swift
+1.2     | ✔️          | ⭕️       | method        | getText()               | (Int,Int)->String throws
+1.2     | ✔️          | ⭕️       | method        | insertString()          | (Int,String,AttributeSet?) throws
+1.2     | ✔️          | ⭕️       | method        | remove()                | (Int,Int) throws
+1.2     | ✔️          | ⭕️       | method        | getLength()             | ()->Int
+1.2     | ✔️          | ⭕️       | method        | getRootElements()       | ()->[TextElement]
+1.2     | ✔️          | ⭕️       | method        | addDocumentListener()   | (DocumentListener)
+1.2     | ✔️          | ⭕️       | method        | removeDocumentListener()| (DocumentListener)
+
+### javax.swing.text — Remaining text infrastructure (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | AttributeSet            | read-only attribute collection
+1.2     | ✔️          | ⭕️       | protocol      | MutableAttributeSet     | extends AttributeSet; add/removeAttribute
+1.2     | ✔️          | ⭕️       | class         | SimpleAttributeSet      | mutable AttributeSet backed by [String:Any]
+1.2     | ✔️          | ⭕️       | class         | StyleConstants          | standard attribute keys (Bold, Italic, FontSize, …)
+1.2     | ✔️          | ⭕️       | protocol      | StyledDocument          | extends TextDocument; character/paragraph attributes
+1.2     | ✔️          | ⭕️       | class         | DefaultStyledDocument   | concrete StyledDocument implementation
+1.2     | ✔️          | ⭕️       | class         | AbstractDocument        | open base class for PlainDocument/DefaultStyledDocument
+1.2     | ✔️          | ⭕️       | class         | PlainDocument           | plain-text Document (no attributes)
+1.2     | ✔️          | ⭕️       | class         | GapContent              | gap-buffer AbstractDocumentContent
+1.2     | ✔️          | ⭕️       | class         | StringContent           | simple array-based AbstractDocumentContent
+1.2     | ✔️          | ⭕️       | protocol      | Highlighter             | selection/search highlight management
+1.2     | ✔️          | ⭕️       | class         | DefaultHighlighter      | concrete Highlighter
+1.2     | ✔️          | ⭕️       | class         | Position                | document position that tracks insertions
+1.2     | ✔️          | ⭕️       | abstract class| View                    | visual representation of document model
+1.2     | ✔️          | ⭕️       | class         | Style                   | named AttributeSet with change listeners
+1.2     | ✔️          | ⭕️       | class         | StyledEditorKit         | EditorKit for styled text
+1.2     | ✔️          | ⭕️       | class         | AbstractWriter          | base class for document serializers
+
 ---
 
 ## Comprehensive Swing Coverage (as of current implementation)
@@ -992,10 +1253,25 @@ version | implemented | tested   | type          | name                    | mor
 
 ## Not in scope for Java 1.2
 
-- ✅ **`JSplitPane`** — container with resizable divider; implemented
-- **`JOptionPane`** — message/option dialogs; not yet implemented
-- **`JInternalFrame`** — MDI frame container; not yet implemented
-- **`JFileChooser`** — file selection dialog; not yet implemented
+- ✅ **`JSplitPane`** — implemented
+- ✅ **`JInternalFrame`** — implemented
+- ✅ **`JOptionPane`** — implemented (showMessageDialog, showConfirmDialog, showInputDialog, showOptionDialog)
+- ✅ **`JFileChooser`** — implemented (showOpenDialog, showSaveDialog, showDialog)
+- ✅ **`JColorChooser`** — implemented (showDialog, getColor/setColor, RGB sliders + swatch grid)
+- ✅ **`JCheckBoxMenuItem`** / **`JRadioButtonMenuItem`** — implemented
+- ✅ **`JApplet`** — implemented
+- ✅ **`JToolTip`** / **`ToolTipManager`** — implemented
+- ✅ **`AbstractListModel`** / **`AbstractSpinnerModel`** / **`FocusManager`** — implemented
+- ✅ **`javax.swing.text`** — full document model implemented; `Document` → `TextDocument.swift`, `Element` → `TextElement.swift` (Swift compiler filename restriction)
+- ✅ **`BasicEditorPaneUI`** — covered by `BasicTextPaneUI` (registered for `"EditorPaneUI"`)
+- ✅ **`BasicDesktopPaneUI`** — implemented, registered for `"DesktopPaneUI"`
+- ✅ **`BasicOptionPaneUI`** — implemented, registered for `"OptionPaneUI"`
+- ✅ **`BasicFileChooserUI`** — implemented, registered for `"FileChooserUI"`
+- ✅ **`BasicColorChooserUI`** — implemented, registered for `"ColorChooserUI"`
+- **`javax.swing.table.TableColumn`** / **`TableColumnModel`** / **`DefaultTableColumnModel`** — not yet implemented
+- **`javax.swing.tree.TreeSelectionModel`** / **`DefaultTreeSelectionModel`** — not yet implemented
+- **`javax.swing.event.AncestorEvent`** / **`HyperlinkEvent`** / **`TableColumnModelEvent`** / **`UndoableEditEvent`** (and matching Listeners) — not yet implemented
+- **`java.awt.GraphicsEnvironment`** / **`GraphicsDevice`** / **`GraphicsConfiguration`** / **`ComponentOrientation`** / **`AWTEventMulticaster`** — not yet implemented
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority

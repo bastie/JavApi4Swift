@@ -93,6 +93,17 @@ class SwingRichTextTab {
     }
     toolbar.add(blackBtn)
 
+    let colorBtn = javax.swing.JButton("Color…")
+    colorBtn.addActionListener { _ in
+      if let color = javax.swing.JColorChooser.showDialog(
+          nil, "Choose Text Color", java.awt.Color.black) {
+        let attrs = javax.swing.text.SimpleAttributeSet()
+        javax.swing.text.StyleConstants.setForeground(attrs, color)
+        pane.setCharacterAttributes(attrs, replace: false)
+      }
+    }
+    toolbar.add(colorBtn)
+
     toolbar.add(javax.swing.JSeparator(javax.swing.JSeparator.VERTICAL))
 
     // Font size buttons

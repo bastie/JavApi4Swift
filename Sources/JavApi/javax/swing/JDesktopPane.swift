@@ -48,7 +48,12 @@ extension javax.swing {
       super.init()
       // JDesktopPane uses absolute positioning — frames manage their own bounds.
       setLayout(nil)
+      updateUI()
     }
+
+    // MARK: - UI delegate
+
+    override open func getUIClassID() -> String { "DesktopPaneUI" }
 
     // MARK: - Drag mode
 

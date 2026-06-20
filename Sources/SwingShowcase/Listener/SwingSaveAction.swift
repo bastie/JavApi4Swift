@@ -15,6 +15,12 @@ final class SwingSaveAction: SwingShowcaseAction {
     putValue(SwingSaveAction.SHORT_DESCRIPTION, "Save the file" as AnyObject)
   }
   override func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    print("File > Save…")
+    let chooser = javax.swing.JFileChooser()
+    chooser.setDialogTitle("Save File")
+    let result = chooser.showSaveDialog(nil)
+    if result == javax.swing.JFileChooser.APPROVE_OPTION,
+       let file = chooser.getSelectedFile() {
+      print("File > Save: \(file.getAbsolutePath())")
+    }
   }
 }

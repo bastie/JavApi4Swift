@@ -17,6 +17,11 @@ extension javax.swing.plaf.basic {
   /// |-------------------|------------------------|
   /// | `"ButtonUI"`      | `BasicButtonUI`        |
   /// | `"CheckBoxUI"`    | `BasicCheckBoxUI`      |
+  /// | `"ColorChooserUI"`| `BasicColorChooserUI`  |
+  /// | `"DesktopPaneUI"` | `BasicDesktopPaneUI`   |
+  /// | `"EditorPaneUI"`  | `BasicTextPaneUI`      |
+  /// | `"FileChooserUI"` | `BasicFileChooserUI`   |
+  /// | `"OptionPaneUI"`  | `BasicOptionPaneUI`    |
   /// | `"LabelUI"`       | `BasicLabelUI`         |
   /// | `"MenuBarUI"`     | `BasicMenuBarUI`       |
   /// | `"PopupMenuUI"`   | `BasicPopupMenuUI`     |
@@ -42,6 +47,10 @@ extension javax.swing.plaf.basic {
     override open func getDefaults() -> javax.swing.UIDefaults {
       let d = javax.swing.UIDefaults()
       d["ButtonUI"]       = { javax.swing.plaf.basic.BasicButtonUI()       }
+      d["ColorChooserUI"] = { javax.swing.plaf.basic.BasicColorChooserUI() }
+      d["DesktopPaneUI"]  = { javax.swing.plaf.basic.BasicDesktopPaneUI()  }
+      d["FileChooserUI"]  = { javax.swing.plaf.basic.BasicFileChooserUI()  }
+      d["OptionPaneUI"]   = { javax.swing.plaf.basic.BasicOptionPaneUI()   }
       d["CheckBoxUI"]     = { javax.swing.plaf.basic.BasicCheckBoxUI()     }
       d["ComboBoxUI"]     = { javax.swing.plaf.basic.BasicComboBoxUI()     }
       d["LabelUI"]        = { javax.swing.plaf.basic.BasicLabelUI()        }
