@@ -71,6 +71,19 @@ extension java.awt.event {
     public static let VK_F9  = 120; public static let VK_F10 = 121
     public static let VK_F11 = 122; public static let VK_F12 = 123
 
+    // Punctuation / symbols
+    public static let VK_COMMA        = 44
+    public static let VK_PERIOD       = 46
+    public static let VK_SLASH        = 47
+    public static let VK_SEMICOLON    = 59
+    public static let VK_EQUALS       = 61
+    public static let VK_OPEN_BRACKET  = 91
+    public static let VK_BACK_SLASH   = 92
+    public static let VK_CLOSE_BRACKET = 93
+    public static let VK_MINUS        = 45
+    public static let VK_QUOTE        = 222
+    public static let VK_BACK_QUOTE   = 192
+
     // Misc
     public static let VK_META        = 157
     public static let VK_ALT_GRAPH   = 65406

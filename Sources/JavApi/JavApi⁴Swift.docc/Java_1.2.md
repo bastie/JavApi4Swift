@@ -122,6 +122,111 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | get()                   | (Key)->Object?
 1.2     | ✔️          | ⭕️       | method        | put()                   | (Key,Object)
 
+### java.awt.ComponentOrientation (✔️/🪄)
+
+> Describes the language-sensitivity of component orientation (LTR/RTL).
+> Static factory `getOrientation(Locale)` returns `RIGHT_TO_LEFT` for Arabic, Hebrew, Persian and Urdu locales.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | final class   | ComponentOrientation    | @unchecked Sendable
+1.2     | ✔️          | 🪄       | final field   | LEFT_TO_RIGHT           | horizontal LTR
+1.2     | ✔️          | 🪄       | final field   | RIGHT_TO_LEFT           | horizontal RTL
+1.2     | ✔️          | 🪄       | final field   | UNKNOWN                 | alias for LEFT_TO_RIGHT (stub)
+1.2     | ✔️          | ⭕️       | method        | isHorizontal()          | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | isLeftToRight()         | ()->Bool
+1.2     | ✔️          | ⭕️       | static method | getOrientation()        | (Locale)->ComponentOrientation
+
+### java.awt.FontFormatException (✔️/🪄)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | open class    | FontFormatException     | extends Exception; 4-init pattern; @unchecked Sendable
+
+### java.awt.HeadlessException (✔️/🪄)
+
+> Thrown when a display, keyboard or mouse is required but none is available.
+> Extends `UnsupportedOperationException`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | open class    | HeadlessException       | extends UnsupportedOperationException; 4-init pattern; @unchecked Sendable
+
+### java.awt.GraphicsConfiguration (✔️/⭕️)
+
+> Abstract class representing a graphics destination (screen, printer, image buffer).
+> Headless environments throw via `fatalError` from `getDevice()`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | open class    | GraphicsConfiguration   |
+1.2     | ✔️          | ⭕️       | method        | getDevice()             | ()->GraphicsDevice (fatalError stub)
+1.2     | ✔️          | ⭕️       | method        | getBounds()             | ()->Rectangle
+
+### java.awt.GraphicsDevice (✔️/⭕️)
+
+> Represents a graphics device such as a screen monitor, a printer or an image buffer.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | open class    | GraphicsDevice          |
+1.2     | ✔️          | 🪄       | final field   | TYPE_RASTER_SCREEN      | int = 0
+1.2     | ✔️          | 🪄       | final field   | TYPE_PRINTER            | int = 1
+1.2     | ✔️          | 🪄       | final field   | TYPE_IMAGE_BUFFER       | int = 2
+1.2     | ✔️          | ⭕️       | method        | getType()               | ()->Int
+1.2     | ✔️          | ⭕️       | method        | getIDstring()           | ()->String
+1.2     | ✔️          | ⭕️       | method        | getConfigurations()     | ()->[GraphicsConfiguration]
+1.2     | ✔️          | ⭕️       | method        | getDefaultConfiguration() | ()->GraphicsConfiguration (fatalError stub)
+1.2     | ✔️          | ⭕️       | method        | isFullScreenSupported() | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | getFullScreenWindow()   | ()->Window?
+1.2     | ✔️          | ⭕️       | @MainActor method | setFullScreenWindow() | (Window?)
+
+### java.awt.GraphicsEnvironment (✔️/⭕️)
+
+> Abstract singleton describing the GraphicsDevice and Font objects available on the current
+> platform. `getLocalGraphicsEnvironment()` returns `HeadlessGraphicsEnvironment` by default;
+> platform subclasses override via the internal `_localEnvironment` hook.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | open class    | GraphicsEnvironment     |
+1.2     | ✔️          | ⭕️       | static method | getLocalGraphicsEnvironment() | ()->GraphicsEnvironment
+1.2     | ✔️          | ⭕️       | static method | isHeadless()            | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | isHeadlessInstance()    | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | getScreenDevices()      | ()->[GraphicsDevice] (fatalError in headless)
+1.2     | ✔️          | ⭕️       | method        | getDefaultScreenDevice()| ()->GraphicsDevice (fatalError in headless)
+1.2     | ✔️          | ⭕️       | method        | getAllFonts()            | ()->[Font]
+1.2     | ✔️          | ⭕️       | method        | getAvailableFontFamilyNames() | ()->[String]
+
+### java.awt.AWTEventMulticaster (✔️/⭕️)
+
+> Binary-tree chaining of `EventListener` instances following the AWT multicaster pattern.
+> `AWTEventMulticaster.add(existing, newListener)` builds the chain;
+> `remove(existing, target)` prunes it. Thread safety: `@MainActor`.
+>
+> **Note:** `AWTEventMulticaster` was introduced in Java 1.1 but implemented here alongside
+> the Java 1.2 JFC work.
+>
+> Supported listener protocols: `ActionListener`, `MouseListener`, `MouseMotionListener`,
+> `KeyListener`, `WindowListener`, `FocusListener`, `ComponentListener`,
+> `ContainerListener`, `AdjustmentListener`, `ItemListener`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ✔️          | ⭕️       | final class   | AWTEventMulticaster     | @MainActor; conforms to 10 listener protocols
+1.1     | ✔️          | ⭕️       | static method | add()                   | overloads for each of 10 listener types
+1.1     | ✔️          | ⭕️       | static method | remove()                | overloads for each of 10 listener types
+1.1     | ✔️          | ⭕️       | method        | actionPerformed()       | ActionEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | mouseClicked/Pressed/Released/Entered/Exited() | MouseEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | mouseMoved/Dragged()    | MouseMotionEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | keyPressed/Released/Typed() | KeyEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | windowOpened/Closed/Activated/Deactivated/Iconified/Deiconified() | WindowEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | focusGained/Lost()      | FocusEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | componentResized/Moved/Shown/Hidden() | ComponentEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | componentAdded/Removed()| ContainerEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | adjustmentValueChanged()| AdjustmentEvent dispatch
+1.1     | ✔️          | ⭕️       | method        | itemStateChanged()      | ItemEvent dispatch
+
 ---
 
 ## java.awt.geom — New package in 1.2
@@ -1279,7 +1384,10 @@ version | implemented | tested   | type          | name                    | mor
 - ✅ **`javax.swing.event.UndoableEditEvent`** / **`UndoableEditListener`** — implemented (incl. `UndoableEdit` protocol)
 - ✅ **`javax.swing.event.HyperlinkEvent`** / **`HyperlinkListener`** — implemented
 - ✅ **`javax.swing.event.AncestorEvent`** / **`AncestorListener`** — implemented
-- **`java.awt.GraphicsEnvironment`** / **`GraphicsDevice`** / **`GraphicsConfiguration`** / **`ComponentOrientation`** / **`AWTEventMulticaster`** — not yet implemented
+- ✅ **`java.awt.GraphicsEnvironment`** / **`GraphicsDevice`** / **`GraphicsConfiguration`** — implemented (headless stubs; `fatalError` for screen queries; platform backends deferred)
+- ✅ **`java.awt.ComponentOrientation`** — implemented; RTL locales (Arabic, Hebrew, Persian, Urdu) resolved by `getOrientation(Locale)`
+- ✅ **`java.awt.AWTEventMulticaster`** — implemented; 10 listener types; `@MainActor` binary-tree chaining
+- ✅ **`java.awt.FontFormatException`** / **`HeadlessException`** — implemented (4-init exception pattern)
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority
