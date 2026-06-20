@@ -48,6 +48,7 @@ public final class _Win32WindowHost {
   public func openWindow(for awtWindow: java.awt.Window) {
     let id = ObjectIdentifier(awtWindow)
     guard registry[id] == nil else { return }
+    _Win32FocusManager.shared.rootComponent = awtWindow
     awtWindow.validate()
     let title  = (awtWindow as? java.awt.Frame)?.title ?? ""
     let b      = awtWindow.bounds

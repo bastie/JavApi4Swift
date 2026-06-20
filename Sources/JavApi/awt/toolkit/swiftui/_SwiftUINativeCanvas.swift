@@ -75,6 +75,11 @@ final class _SwiftUINativeCanvas: NSView {
        let combo = found as? _AnyJComboBox {
       _paintComboBoxPopup(g, combo: combo, component: found)
     }
+    // ── Tooltip overlay ──────────────────────────────────────────────────────
+    if _tooltipVisible, let tipComp = _tooltipComponent,
+       let text = tipComp.getToolTipText(), !text.isEmpty {
+      _paintTooltip(g, text: text, at: _tooltipPoint)
+    }
     cgContext.restoreGState()
   }
 
@@ -122,6 +127,43 @@ final class _SwiftUINativeCanvas: NSView {
     g.restore()
   }
   
+  /// Renders the tooltip bubble at canvas coordinates `pt` (bottom-left of bubble).
+  private func _paintTooltip(_ g: java.awt.Graphics, text: String, at pt: CGPoint) {
+    let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 11)
+    // Set the font on the Graphics context so drawString uses the same font
+    // as FontMetrics — otherwise size mismatch causes text to overflow the box.
+    g.setFont(font)
+    let fm   = java.awt.FontMetrics.make(for: font)
+    let tw   = fm.stringWidth(text)
+    let th   = fm.getHeight()
+    let padH = 6   // horizontal padding (left + right each)
+    let padV = 3   // vertical padding (top + bottom each)
+    let w    = tw + padH * 2
+    let h    = th + padV * 2
+    // Keep tooltip inside canvas bounds
+    var tx   = Int(pt.x) + 12
+    var ty   = Int(pt.y) + 16
+    let cw   = Int(bounds.width)
+    let ch   = Int(bounds.height)
+    if tx + w > cw { tx = max(0, cw - w - 2) }
+    if ty + h > ch { ty = max(0, Int(pt.y) - h - 4) }
+
+    g.save()
+    // Shadow (subtle, 1px offset)
+    g.setColor(java.awt.Color(0, 0, 0, 40))
+    g.fillRect(tx + 1, ty + 1, w, h)
+    // Background
+    g.setColor(java.awt.SystemColor.info)
+    g.fillRect(tx, ty, w, h)
+    // Border
+    g.setColor(java.awt.SystemColor.infoText)
+    g.drawRect(tx, ty, w - 1, h - 1)
+    // Text — baseline at ascent + top padding
+    let textY = ty + padV + fm.getAscent()
+    g.drawString(text, tx + padH, textY)
+    g.restore()
+  }
+
   // isFlipped=true → convert() already returns Y=0-at-top, matching AWT.
   // No manual Y-flip needed (it was needed before isFlipped=true; now it would double-flip).
   private func awtPoint(from event: NSEvent) -> CGPoint {
@@ -168,6 +210,19 @@ final class _SwiftUINativeCanvas: NSView {
   // True when mouseDown handled a menu-bar or popup click — mouseUp must not
   // dispatch a second event for whatever lies under the menu.
   private var _menuDownConsumed: Bool = false
+
+  // ── Tooltip state ───────────────────────────────────────────────────────────
+  // The component currently under the mouse that has a tooltip text.
+  private weak var _tooltipComponent: javax.swing.JComponent? = nil
+  // Canvas-coordinates where the tooltip should appear (below mouse).
+  private var _tooltipPoint: CGPoint = .zero
+  // Timer that delays tooltip appearance or auto-dismiss.
+  private var _tooltipTimer: Timer? = nil
+  // Whether the tooltip popup is currently visible.
+  private var _tooltipVisible: Bool = false
+  // Delays are read from ToolTipManager.sharedInstance() at the moment a
+  // timer fires, so changes to the manager take effect immediately.
+  private var _tooltipManager: javax.swing.ToolTipManager { .sharedInstance() }
   
   // ── Swing menu helpers ──────────────────────────────────────────────────────
 
@@ -235,7 +290,8 @@ final class _SwiftUINativeCanvas: NSView {
   override func mouseDown(with event: NSEvent) {
     guard let component else { return }
     let pt  = awtPoint(from: event)
-    
+    _hideTooltip()   // any click immediately dismisses the tooltip
+
     // ── Swing JMenu popup handling (must come before normal hit-test) ────────
     if let menu = openMenu {
       let popup = menu.swingPopupMenu
@@ -1124,6 +1180,25 @@ final class _SwiftUINativeCanvas: NSView {
       for l in hit.getMouseMotionListeners() { l.mouseMoved(e) }
     }
 
+    // ── Tooltip handling ─────────────────────────────────────────────────────
+    let tipComp = hit as? javax.swing.JComponent
+    let tipText = tipComp?.getToolTipText()
+    if _tooltipManager.isEnabled(), let tipText, !tipText.isEmpty {
+      if tipComp !== _tooltipComponent {
+        // Mouse moved to a different tooltip component — reset
+        _hideTooltip()
+        _tooltipComponent = tipComp
+        _tooltipPoint     = pt
+        _startTooltipTimer()
+      } else {
+        // Same component — update position but keep timer running
+        _tooltipPoint = pt
+      }
+    } else {
+      // No tooltip under cursor, or tooltips globally disabled
+      _hideTooltip()
+    }
+
     // Hover highlight inside an open JComboBox popup (canvas overlay)
     if let found = _findOpenComboBox(in: component),
        let combo = found as? _AnyJComboBox {
@@ -1171,6 +1246,41 @@ final class _SwiftUINativeCanvas: NSView {
 
   override func mouseExited(with event: NSEvent) {
     NSCursor.arrow.set()
+    _hideTooltip()
+  }
+
+  // ── Tooltip helpers ─────────────────────────────────────────────────────────
+
+  /// Starts the initial-delay timer before showing the tooltip.
+  /// Delays are read from `ToolTipManager.sharedInstance()` at fire time.
+  private func _startTooltipTimer() {
+    _tooltipTimer?.invalidate()
+    let initialDelay = _tooltipManager.initialDelaySeconds
+    _tooltipTimer = Timer.scheduledTimer(withTimeInterval: initialDelay, repeats: false) { [weak self] _ in
+      Task { @MainActor [weak self] in
+        guard let self, self._tooltipManager.isEnabled() else { return }
+        self._tooltipVisible = true
+        self.needsDisplay = true
+        // Auto-dismiss after dismissDelay
+        let dismissDelay = self._tooltipManager.dismissDelaySeconds
+        self._tooltipTimer = Timer.scheduledTimer(withTimeInterval: dismissDelay, repeats: false) { [weak self] _ in
+          Task { @MainActor [weak self] in
+            self?._hideTooltip()
+          }
+        }
+      }
+    }
+  }
+
+  /// Hides any visible tooltip and cancels the pending timer.
+  private func _hideTooltip() {
+    _tooltipTimer?.invalidate()
+    _tooltipTimer = nil
+    if _tooltipVisible || _tooltipComponent != nil {
+      _tooltipVisible   = false
+      _tooltipComponent = nil
+      needsDisplay = true
+    }
   }
 
   override func updateTrackingAreas() {

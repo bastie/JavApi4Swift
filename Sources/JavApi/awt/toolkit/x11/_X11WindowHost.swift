@@ -462,6 +462,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           let fnGC      = fnCreateGC
     else { return }
 
+    _X11FocusManager.shared.rootComponent = awtWindow
     awtWindow.validate()
 
     let screen  = fnScreen(dpy)
