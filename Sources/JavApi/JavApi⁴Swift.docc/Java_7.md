@@ -36,6 +36,21 @@ version | implemented | tested   | type          | name           | more informa
 7       | ✔️          | 🪄       | method (ext)  | tryWith()      | Swift replacement for try-with-resources — calls `close()` in `defer`
 7       | ✔️          | 🪄       | method (ext)  | try()          | alias for `tryWith()` using backtick escaping
 
+## java.nio.charset — Java 7 additions
+
+##### java.nio.charset.StandardCharsets (6/6/⭕️)
+
+Konstante Charset-Referenzen für die sechs garantiert verfügbaren Zeichensätze — hinzugefügt in Java 7, ersetzt Magic-Strings wie `"UTF-8"` durch typsichere Felder.
+
+version | implemented | tested | type     | name        | more informations
+------- | ----------- | ------ | -------- | ----------- | -----------------
+7       | ✔️          | ⭕️    | field    | ISO_8859_1  | Latin-1
+7       | ✔️          | ⭕️    | field    | US_ASCII    | 7-Bit ASCII
+7       | ✔️          | ⭕️    | field    | UTF_8       | Unicode UTF-8
+7       | ✔️          | ⭕️    | field    | UTF_16      | Unicode UTF-16, Byte-Order per BOM
+7       | ✔️          | ⭕️    | field    | UTF_16BE    | Unicode UTF-16, Big-Endian
+7       | ✔️          | ⭕️    | field    | UTF_16LE    | Unicode UTF-16, Little-Endian
+
 ## Not in scope for this implementation
 
 - **NIO.2 / `java.nio.file`** — `Path`, `Files`, `FileSystem`, `WatchService` etc. Swift Foundation provides equivalent APIs natively.

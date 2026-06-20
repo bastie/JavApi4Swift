@@ -17,6 +17,32 @@ extension java.nio.charset {
     }
     
     public func name () -> String {
+      switch self.delegate {
+      case .ascii : return "US-ASCII"
+      case .isoLatin1 : return "ISO-8859-1"
+      case .utf16 : return "UTF-16"
+      case .utf16BigEndian : return "UTF-16BE"
+      case .utf16LittleEndian : return "UTF-16LE"
+      case .iso2022JP : return "ISO-2022-JP"
+      case .isoLatin2 : return "ISO-8859-2"
+      case .japaneseEUC : return "EUC-JP"
+      case .macOSRoman : return "x-MacOS-Roman"
+      case .nextstep : return "x-Nextstep"
+      case .nonLossyASCII : return "x-UTF-8"
+      case .shiftJIS : return "Shift_JIS"
+      case .symbol : return "x-Symbol"
+      case .unicode : return "UTF-16"
+      case .utf32 : return "UTF-32"
+      case .utf32BigEndian : return "UTF-32BE"
+      case .utf32LittleEndian : return "UTF-32LE"
+      case .utf8 : return "UTF-8"
+      case .windowsCP1250 : return "Windows-1250"
+      case .windowsCP1251 : return "Windows-1251"
+      case .windowsCP1252 : return "Windows-1252"
+      case .windowsCP1253 : return "Windows-1253"
+      case .windowsCP1254 : return "Windows-1254"
+      default : break
+      }
 #if !os(visionOS)
       if #available(macOS 26.4, iOS 26.4, tvOS 26.4, watchOS 26.4, *) {
         return self.delegate.ianaName ?? "unknown"
@@ -60,6 +86,8 @@ extension java.nio.charset {
         result.delegate = .ascii
       case "ISO-8859-1" :
         result.delegate = .isoLatin1
+      case "ISO-8859-2" :
+        result.delegate = .isoLatin2
       default:
         throw java.nio.charset.UnsupportedCharsetException (name)
       }
