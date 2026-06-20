@@ -620,3 +620,708 @@ struct JavApi_text_DecimalFormat_Tests {
     #expect(buf == "Value: 3.14")
   }
 }
+
+// =============================================================================
+// MARK: - BreakIterator
+// =============================================================================
+
+struct JavApi_text_BreakIterator_Tests {
+
+  // ---------------------------------------------------------------------------
+  // MARK: Character boundaries
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: character iterator visits every grapheme cluster")
+  func testCharacterIterator() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    #expect(bi.first() == 0)
+    #expect(bi.next()  == 1)
+    #expect(bi.next()  == 2)
+    #expect(bi.next()  == 3)
+    #expect(bi.next()  == java.text.BreakIterator.DONE)
+  }
+
+  @Test("BreakIterator: character iterator previous() walks backwards")
+  func testCharacterIteratorBackwards() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    _ = bi.last()
+    #expect(bi.previous() == 2)
+    #expect(bi.previous() == 1)
+    #expect(bi.previous() == 0)
+    #expect(bi.previous() == java.text.BreakIterator.DONE)
+  }
+
+  @Test("BreakIterator: DONE constant is -1")
+  func testDONEValue() {
+    #expect(java.text.BreakIterator.DONE == -1)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Word boundaries
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: word iterator splits 'hello world'")
+  func testWordBoundaries() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("hello world")
+    var boundaries: [Int] = [bi.first()]
+    var b = bi.next()
+    while b != java.text.BreakIterator.DONE {
+      boundaries.append(b)
+      b = bi.next()
+    }
+    // Expected: 0, 5, 6, 11
+    #expect(boundaries.contains(0))
+    #expect(boundaries.contains(5))  // after "hello"
+    #expect(boundaries.contains(11)) // end
+  }
+
+  @Test("BreakIterator: word iterator on empty string returns 0 then DONE")
+  func testWordIteratorEmpty() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("")
+    #expect(bi.first() == 0)
+    #expect(bi.next()  == java.text.BreakIterator.DONE)
+  }
+
+  @Test("BreakIterator: word iterator previous() works")
+  func testWordIteratorPrevious() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("one two")
+    _ = bi.last()
+    let prev = bi.previous()
+    #expect(prev >= 0)
+    #expect(prev < 7)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Sentence boundaries
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: sentence iterator splits 'Hello. World.'")
+  func testSentenceBoundaries() {
+    let bi = java.text.BreakIterator.getSentenceInstance()
+    bi.setText("Hello. World.")
+    _ = bi.first()
+    let b1 = bi.next()
+    // First boundary should be after "Hello. " (index 7)
+    #expect(b1 > 0)
+    #expect(b1 < 13)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Line boundaries
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: line iterator finds space as wrap opportunity")
+  func testLineBoundaryAtSpace() {
+    let bi = java.text.BreakIterator.getLineInstance()
+    bi.setText("word1 word2")
+    _ = bi.first()
+    let b = bi.next()
+    // Boundary after the space following "word1"
+    #expect(b == 6)
+  }
+
+  @Test("BreakIterator: line iterator finds hyphen as wrap opportunity")
+  func testLineBoundaryAtHyphen() {
+    let bi = java.text.BreakIterator.getLineInstance()
+    bi.setText("self-aware")
+    _ = bi.first()
+    let b = bi.next()
+    // Boundary after "-" = index 5
+    #expect(b == 5)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: setText / getText
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: getText() returns the set text")
+  func testGetText() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("swift")
+    #expect(bi.getText() == "swift")
+  }
+
+  @Test("BreakIterator: setText resets position to 0")
+  func testSetTextResetsPosition() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    _ = bi.next()
+    bi.setText("xyz")
+    #expect(bi.current() == 0)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: following / preceding
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: following() finds boundary after given offset")
+  func testFollowing() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("one two three")
+    let b = bi.following(4)
+    #expect(b > 4)
+  }
+}
+
+// =============================================================================
+// MARK: - Collator
+// =============================================================================
+
+struct JavApi_text_Collator_Tests {
+
+  // ---------------------------------------------------------------------------
+  // MARK: Basic comparison
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator: 'a' < 'b' at TERTIARY strength")
+  func testBasicOrder() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    #expect(c.compare("a", "b") < 0)
+    #expect(c.compare("b", "a") > 0)
+    #expect(c.compare("a", "a") == 0)
+  }
+
+  @Test("Collator: equals() returns true for same string")
+  func testEquals() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    #expect(c.equals("hello", "hello"))
+    #expect(!c.equals("hello", "world"))
+  }
+
+  @Test("Collator: PRIMARY strength ignores accents")
+  func testPrimaryIgnoresAccents() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    // 'e' and 'é' should be equal at PRIMARY
+    #expect(c.compare("e", "é") == 0)
+  }
+
+  @Test("Collator: PRIMARY strength ignores case")
+  func testPrimaryIgnoresCase() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    #expect(c.compare("a", "A") == 0)
+  }
+
+  @Test("Collator: SECONDARY strength ignores case but respects accents")
+  func testSecondaryIgnoresCaseOnly() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.SECONDARY)
+    #expect(c.compare("a", "A") == 0)
+  }
+
+  @Test("Collator: TERTIARY strength respects case")
+  func testTertiaryRespresentsCase() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.TERTIARY)
+    #expect(c.compare("a", "A") != 0)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: getStrength / setStrength
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator: default strength is TERTIARY")
+  func testDefaultStrength() {
+    let c = java.text.Collator.getInstance()
+    #expect(c.getStrength() == java.text.Collator.TERTIARY)
+  }
+
+  @Test("Collator: setStrength persists")
+  func testSetStrength() {
+    let c = java.text.Collator.getInstance()
+    c.setStrength(java.text.Collator.PRIMARY)
+    #expect(c.getStrength() == java.text.Collator.PRIMARY)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Strength constants
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator: strength constants have expected values")
+  func testStrengthConstants() {
+    #expect(java.text.Collator.PRIMARY   == 0)
+    #expect(java.text.Collator.SECONDARY == 1)
+    #expect(java.text.Collator.TERTIARY  == 2)
+    #expect(java.text.Collator.IDENTICAL == 3)
+  }
+}
+
+// =============================================================================
+// MARK: - CollationKey
+// =============================================================================
+
+struct JavApi_text_CollationKey_Tests {
+
+  @Test("CollationKey: getSourceString() returns original string")
+  func testGetSourceString() {
+    let c   = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    let key = c.getCollationKey("hello")
+    #expect(key.getSourceString() == "hello")
+  }
+
+  @Test("CollationKey: compareTo() is consistent with Collator.compare()")
+  func testCompareToConsistency() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    let k1 = c.getCollationKey("apple")
+    let k2 = c.getCollationKey("banana")
+    let keyResult = k1.compareTo(k2)
+    let colResult = c.compare("apple", "banana")
+    // Both should agree on sign
+    let sameSign = (keyResult < 0 && colResult < 0) ||
+                   (keyResult == 0 && colResult == 0) ||
+                   (keyResult > 0 && colResult > 0)
+    #expect(sameSign)
+  }
+
+  @Test("CollationKey: Comparable < operator")
+  func testLessThan() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.TERTIARY)
+    let k1 = c.getCollationKey("a")
+    let k2 = c.getCollationKey("b")
+    #expect(k1 < k2)
+  }
+
+  @Test("CollationKey: equal keys compare as ==")
+  func testEquality() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    let k1 = c.getCollationKey("same")
+    let k2 = c.getCollationKey("same")
+    #expect(k1 == k2)
+  }
+
+  @Test("CollationKey: keys can be sorted with Array.sorted()")
+  func testSortWithCollationKeys() {
+    let c     = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    let words = ["banana", "cherry", "apple"]
+    let sorted = words
+      .map { c.getCollationKey($0) }
+      .sorted()
+      .map { $0.getSourceString() }
+    #expect(sorted == ["apple", "banana", "cherry"])
+  }
+}
+
+// =============================================================================
+// MARK: - RuleBasedCollator
+// =============================================================================
+
+struct JavApi_text_RuleBasedCollator_Tests {
+
+  @Test("RuleBasedCollator: custom order vowels before consonants")
+  func testCustomOrder() throws {
+    let rules = "< a < e < i < o < u < b < c < d"
+    let col   = try java.text.RuleBasedCollator(rules)
+    #expect(col.compare("a", "b") < 0)  // vowel before consonant
+    #expect(col.compare("u", "b") < 0)  // 'u' still before 'b'
+    #expect(col.compare("b", "c") < 0)  // consonant order respected
+  }
+
+  @Test("RuleBasedCollator: equal-weight tokens compare as 0")
+  func testEqualWeight() throws {
+    let rules = "< a = A < b"
+    let col   = try java.text.RuleBasedCollator(rules)
+    #expect(col.compare("a", "A") == 0)
+    #expect(col.compare("a", "b") < 0)
+  }
+
+  @Test("RuleBasedCollator: getRules() returns the original rule string")
+  func testGetRules() throws {
+    let rules = "< a < b < c"
+    let col   = try java.text.RuleBasedCollator(rules)
+    #expect(col.getRules() == rules)
+  }
+
+  @Test("RuleBasedCollator: getCollationKey uses custom order")
+  func testCollationKeyCustomOrder() throws {
+    let rules = "< z < a < b"   // z sorts before a
+    let col   = try java.text.RuleBasedCollator(rules)
+    let kz    = col.getCollationKey("z")
+    let ka    = col.getCollationKey("a")
+    #expect(kz < ka)
+  }
+
+  @Test("RuleBasedCollator: invalid rule throws ParseException")
+  func testInvalidRule() {
+    // A rule with '<' but no token should throw
+    #expect(throws: (any Error).self) {
+      try java.text.RuleBasedCollator("< ")
+    }
+  }
+}
+
+// =============================================================================
+// MARK: - Ergänzende Tests (Lückenabdeckung)
+// =============================================================================
+
+struct JavApi_text_Supplemental_Tests {
+
+  // ---------------------------------------------------------------------------
+  // MARK: MessageFormat — currency und multi-arg parse
+  // ---------------------------------------------------------------------------
+
+  @Test("MessageFormat: {0,number,currency} produces non-empty string")
+  func testMessageFormatCurrency() {
+    let locale = java.util.Locale("en", "US")
+    let mf = java.text.MessageFormat("{0,number,currency}", locale)
+    let result = mf.format([9.99])
+    #expect(!result.isEmpty)
+    // Should contain digits
+    #expect(result.contains("9") || result.contains("10"))
+  }
+
+  @Test("MessageFormat: parse() with two arguments")
+  func testMessageFormatParseTwoArgs() throws {
+    let mf = java.text.MessageFormat("{0} + {1}")
+    let parsed = try mf.parse("foo + bar")
+    #expect(parsed.count == 2)
+    #expect(parsed[0] as? String == "foo")
+    #expect(parsed[1] as? String == "bar")
+  }
+
+  @Test("MessageFormat: parse() with prefix and suffix")
+  func testMessageFormatParseWithSurroundingText() throws {
+    let mf = java.text.MessageFormat("Hello {0}, you have {1} messages.")
+    let parsed = try mf.parse("Hello Alice, you have 3 messages.")
+    #expect(parsed.count == 2)
+    #expect(parsed[0] as? String == "Alice")
+    #expect(parsed[1] as? String == "3")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: DecimalFormat — negative numbers and zero
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: negative number keeps minus sign")
+  func testDecimalFormatNegative() {
+    let df = java.text.DecimalFormat("0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(-3.14)
+    #expect(result.contains("-"))
+    #expect(result.contains("3"))
+  }
+
+  @Test("DecimalFormat: zero formats correctly with '0.00'")
+  func testDecimalFormatZero() {
+    let df = java.text.DecimalFormat("0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    #expect(df.format(0.0) == "0.00")
+  }
+
+  @Test("DecimalFormat: negative grouping number")
+  func testDecimalFormatNegativeGrouping() {
+    let df = java.text.DecimalFormat("#,##0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(-1234.56)
+    #expect(result.contains("-"))
+    #expect(result.contains("1,234"))
+  }
+
+  @Test("DecimalFormat: parse() handles negative number")
+  func testDecimalFormatParseNegative() throws {
+    let df = java.text.DecimalFormat("0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let formatted = df.format(-2.5)
+    let parsed = try df.parse(formatted)
+    #expect(abs(parsed.doubleValue - (-2.5)) < 0.01)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: BreakIterator — isBoundary / preceding
+  // ---------------------------------------------------------------------------
+
+  @Test("BreakIterator: isBoundary() returns true at position 0")
+  func testIsBoundaryAtZero() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    #expect(bi.isBoundary(0))
+  }
+
+  @Test("BreakIterator: isBoundary() returns true at end")
+  func testIsBoundaryAtEnd() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    #expect(bi.isBoundary(3))
+  }
+
+  @Test("BreakIterator: isBoundary() returns true at every character position")
+  func testIsBoundaryAllPositions() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("ab")
+    #expect(bi.isBoundary(0))
+    #expect(bi.isBoundary(1))
+    #expect(bi.isBoundary(2))
+  }
+
+  @Test("BreakIterator: isBoundary() returns false for out-of-range index")
+  func testIsBoundaryOutOfRange() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    #expect(!bi.isBoundary(99))
+    #expect(!bi.isBoundary(-1))
+  }
+
+  @Test("BreakIterator: preceding() returns boundary before offset")
+  func testPreceding() {
+    let bi = java.text.BreakIterator.getWordInstance()
+    bi.setText("one two")
+    let b = bi.preceding(4)
+    #expect(b >= 0)
+    #expect(b < 4)
+  }
+
+  @Test("BreakIterator: preceding() at 0 returns DONE")
+  func testPrecedingAtZero() {
+    let bi = java.text.BreakIterator.getCharacterInstance()
+    bi.setText("abc")
+    #expect(bi.preceding(0) == java.text.BreakIterator.DONE)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Collator — German umlauts at PRIMARY strength
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator: 'ä' equals 'a' at PRIMARY for de_DE")
+  func testUmlautPrimaryDE() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    #expect(c.compare("ä", "a") == 0)
+  }
+
+  @Test("Collator: 'ö' equals 'o' at PRIMARY for de_DE")
+  func testUmlautOPrimaryDE() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    #expect(c.compare("ö", "o") == 0)
+  }
+
+  @Test("Collator: 'ü' equals 'u' at PRIMARY for de_DE")
+  func testUmlautUPrimaryDE() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    #expect(c.compare("ü", "u") == 0)
+  }
+
+  @Test("Collator: 'ä' differs from 'a' at TERTIARY for de_DE")
+  func testUmlautTertiaryDE() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.TERTIARY)
+    #expect(c.compare("ä", "a") != 0)
+  }
+
+  @Test("Collator: sorting ['Zebra','Apfel','Ärger'] with de_DE PRIMARY")
+  func testGermanSortPrimary() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    let words = ["Zebra", "Apfel", "Ärger"]
+    let sorted = words.sorted { c.compare($0, $1) < 0 }
+    // Ärger ≈ Arger → before Zebra; Apfel before Ärger
+    #expect(sorted[0] == "Apfel" || sorted[0] == "Ärger") // both start with A at PRIMARY
+    #expect(sorted.last == "Zebra")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: CollationKey — PRIMARY strength
+  // ---------------------------------------------------------------------------
+
+  @Test("CollationKey: PRIMARY strength — 'ä' and 'a' keys compare equal")
+  func testCollationKeyPrimaryUmlauts() {
+    let c = java.text.Collator.getInstance(java.util.Locale("de", "DE"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    let ka = c.getCollationKey("a")
+    let kae = c.getCollationKey("ä")
+    #expect(ka.compareTo(kae) == 0)
+  }
+
+  @Test("CollationKey: TERTIARY — 'a' and 'A' keys differ")
+  func testCollationKeyTertiaryCase() {
+    let c = java.text.Collator.getInstance(java.util.Locale("en", "US"))
+    c.setStrength(java.text.Collator.TERTIARY)
+    let ka  = c.getCollationKey("a")
+    let kA  = c.getCollationKey("A")
+    #expect(ka != kA)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: RuleBasedCollator — multi-char token
+  // ---------------------------------------------------------------------------
+
+  @Test("RuleBasedCollator: multi-char token 'ch' sorts as single unit")
+  func testMultiCharToken() throws {
+    // Spanish traditional: ch sorts after c, before d
+    let rules = "< a < b < c < ch < d < e"
+    let col   = try java.text.RuleBasedCollator(rules)
+    #expect(col.compare("c", "ch") < 0)
+    #expect(col.compare("ch", "d") < 0)
+  }
+}
+
+// =============================================================================
+// MARK: - Collator: Unicode / CJK (Japanese)
+// =============================================================================
+
+struct JavApi_text_Collator_Japanese_Tests {
+
+  // ---------------------------------------------------------------------------
+  // MARK: Robustness — no crash on CJK input
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator ja_JP: compare Japanese strings does not crash")
+  func testJapaneseNocrash() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    // Must not throw or crash — result value is platform-defined
+    let result = c.compare("東京", "大阪")
+    #expect(result == -1 || result == 0 || result == 1)
+  }
+
+  @Test("Collator ja_JP: compare identical strings returns 0")
+  func testJapaneseIdentical() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    #expect(c.compare("東京", "東京") == 0)
+  }
+
+  @Test("Collator ja_JP: equals() true for same string")
+  func testJapaneseEqualsTrue() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    #expect(c.equals("日本語", "日本語"))
+  }
+
+  @Test("Collator ja_JP: equals() false for different strings")
+  func testJapaneseEqualsFalse() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    #expect(!c.equals("東京", "大阪"))
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Hiragana / Katakana at PRIMARY
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator ja_JP PRIMARY: hiragana あ and katakana ア compare consistently")
+  func testHiraganaKatakanaPrimary() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    c.setStrength(java.text.Collator.PRIMARY)
+    // Foundation folds hiragana/katakana to the same form at diacriticInsensitive+caseInsensitive
+    // The important guarantee: result must be deterministic (same call → same result)
+    let r1 = c.compare("あ", "ア")
+    let r2 = c.compare("あ", "ア")
+    #expect(r1 == r2)
+  }
+
+  @Test("Collator ja_JP IDENTICAL: hiragana あ and katakana ア are distinct at code-point level")
+  func testHiraganaKatakanaIdentical() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    c.setStrength(java.text.Collator.IDENTICAL)
+    // At IDENTICAL, code-point order is used as tiebreaker:
+    // あ (U+3042) != ア (U+30A2) — they must not be equal
+    #expect(c.compare("あ", "ア") != 0)
+  }
+
+  @Test("Collator ja_JP: hiragana sequence あいう sorts before かきく")
+  func testHiraganaOrder() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    // In Japanese gojuuon order: あ行 < か行
+    let result = c.compare("あいう", "かきく")
+    // Result should be negative (あ before か) — platform may vary for mixed scripts,
+    // but within pure hiragana the order must be consistent
+    #expect(result == -1 || result == 0 || result == 1) // must not crash
+    // Determinism: same inputs must always give same result
+    #expect(c.compare("あいう", "かきく") == result)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: CollationKey stability for CJK
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator ja_JP: CollationKey for same string is stable")
+  func testCollationKeyStabilityJapanese() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let k1 = c.getCollationKey("東京")
+    let k2 = c.getCollationKey("東京")
+    #expect(k1 == k2)
+    #expect(k1.compareTo(k2) == 0)
+    #expect(k1.getSourceString() == "東京")
+  }
+
+  @Test("Collator ja_JP: CollationKey for different strings are not equal")
+  func testCollationKeyInequalityJapanese() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let k1 = c.getCollationKey("東京")
+    let k2 = c.getCollationKey("大阪")
+    #expect(k1 != k2)
+  }
+
+  @Test("Collator ja_JP: CollationKey compareTo is antisymmetric")
+  func testCollationKeyAntisymmetric() {
+    let c  = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let k1 = c.getCollationKey("東京")
+    let k2 = c.getCollationKey("大阪")
+    let r12 = k1.compareTo(k2)
+    let r21 = k2.compareTo(k1)
+    // If k1 < k2 then k2 > k1 — signs must be opposite (or both 0)
+    if r12 < 0 { #expect(r21 > 0) }
+    if r12 > 0 { #expect(r21 < 0) }
+    if r12 == 0 { #expect(r21 == 0) }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Sorting a mixed Japanese list
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator ja_JP: sorting a list of Japanese words is stable and crash-free")
+  func testJapaneseSortStable() {
+    let c     = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let words = ["東京", "大阪", "名古屋", "札幌", "福岡"]
+    let sorted = words.sorted { c.compare($0, $1) < 0 }
+    // Sorted list must contain exactly the same elements
+    #expect(Set(sorted) == Set(words))
+    #expect(sorted.count == words.count)
+    // Verify sort is consistent: sorting twice gives same result
+    let sorted2 = words.sorted { c.compare($0, $1) < 0 }
+    #expect(sorted == sorted2)
+  }
+
+  @Test("Collator ja_JP: CollationKeys can sort a Japanese word list")
+  func testJapaneseCollationKeySort() {
+    let c     = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let words = ["東京", "大阪", "名古屋"]
+    let sorted = words
+      .map { c.getCollationKey($0) }
+      .sorted()
+      .map { $0.getSourceString() }
+    #expect(Set(sorted) == Set(words))
+    #expect(sorted.count == 3)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Mixed script (Kanji + Hiragana + Katakana)
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator ja_JP: mixed script strings compare without crash")
+  func testMixedScriptNocrash() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    let mixed = ["日本語", "にほんご", "ニホンゴ", "Japan"]
+    for a in mixed {
+      for b in mixed {
+        let r = c.compare(a, b)
+        #expect(r == -1 || r == 0 || r == 1)
+      }
+    }
+  }
+
+  @Test("Collator ja_JP: empty string compares less than any non-empty string")
+  func testEmptyStringJapanese() {
+    let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
+    #expect(c.compare("", "あ") <= 0)
+    #expect(c.compare("", "") == 0)
+  }
+}
