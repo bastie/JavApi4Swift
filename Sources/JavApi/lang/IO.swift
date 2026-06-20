@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-/// Helpertype to work only with console default input stream and default output stream
+/// Helpertype to work only with console default input stream and default output stream.
 ///
 /// - Since: Java 25
 public struct IO {
