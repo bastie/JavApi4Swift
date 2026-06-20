@@ -1075,7 +1075,14 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ⭕️       | method        | applyPattern(String)             |
 1.1     | ✔️          | ⭕️       | method        | format(Date) / parse(String)     | inherited from DateFormat
 
-> **Not yet ported:** `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator`, `CollationKey`.
+> **Fully ported** (as of 2026): `DecimalFormat`, `DecimalFormatSymbols`, `MessageFormat`, `ChoiceFormat`,
+> `Collator`, `RuleBasedCollator`, `CollationKey`, `CollationElementIterator`, `BreakIterator`,
+> `CharacterIterator`, `StringCharacterIterator` — all implemented with tests.
+>
+> - ``TODO:`` **Normalizer** (`java.text.Normalizer`) — Unicode normalization forms (NFC/NFD/NFKC/NFKD).
+>   Medium effort; depends on Foundation/ICU. Recommended for a future iteration.
+> - ``TODO:`` **Bidi** (`java.text.Bidi`) — Unicode Bidirectional Algorithm for RTL/mixed-direction text.
+>   High effort. Deferred; consider bridging to `CoreText` on Apple platforms or an ICU wrapper.
 
 ### java.util.zip — New in 1.1
 
@@ -1277,7 +1284,7 @@ version | implemented | tested   | type          | name           | more informa
 | **java.io** (Reader/Writer hierarchy) | ✔️ implemented, ⭕️ tests | all classes present, tests sparse |
 | **java.io** (Object Serialization) | ✔️ stubs | Externalizable/ObjectStream stubs only |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
-| **java.text** | ✔️ core | Format, DateFormat, NumberFormat, SimpleDateFormat implemented; DecimalFormat/MessageFormat/Collator not ported |
+| **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater/Inflater, GZIP, ZIP streams |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
@@ -1296,6 +1303,6 @@ The following Java 1.1 APIs are explicitly **not** ported because they have no m
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
 - **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
-- **java.text** (partially) — `DecimalFormat`, `MessageFormat`, `ChoiceFormat`, `Collator`, `BreakIterator` are not ported. Core classes (`Format`, `NumberFormat`, `DateFormat`, `SimpleDateFormat`, `ParseException`, `ParsePosition`, `FieldPosition`) are implemented — see java.text section above.
+- **java.text** (Normalizer/Bidi) — All core formatting and collation classes are implemented. `java.text.Normalizer` (NFC/NFD/NFKC/NFKD) and `java.text.Bidi` (Unicode Bidirectional Algorithm) are explicitly deferred; see TODO notes in the java.text section above.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.

@@ -899,6 +899,57 @@ The following were historically marked "not in scope" but are now **fully implem
 - ✅ **`JSpinner`** — with `SpinnerModel`, `SpinnerNumberModel`, `SpinnerListModel`
 - ✅ **`javax.swing.text`** — document hierarchy, formatting, and text components (Java 1.4+)
 
+---
+
+## java.text — Java 1.2 additions
+
+> **Note:** `java.text.AttributedString` and `java.text.AttributedCharacterIterator`
+> were introduced with Java 1.2 as part of the internationalization enhancements.
+> Both are **fully implemented** in JavApi4Swift (2026).
+
+### java.text.AttributedCharacterIterator (✔️/✔️)
+
+> Protocol mapping of the Java interface; `Attribute` inner class mapped as
+> `AttributedCharacterIteratorAttribute` with nested constants (`LANGUAGE`,
+> `READING`, `INPUT_METHOD_SEGMENT`).
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | protocol      | AttributedCharacterIterator | extends CharacterIterator
+1.2     | ✔️          | ✔️       | class         | Attribute               | mapped as `AttributedCharacterIteratorAttribute`
+1.2     | ✔️          | ✔️       | final field   | Attribute.LANGUAGE      | `AttributedCharacterIteratorAttribute.LANGUAGE`
+1.2     | ✔️          | ✔️       | final field   | Attribute.READING       | `AttributedCharacterIteratorAttribute.READING`
+1.2     | ✔️          | ✔️       | final field   | Attribute.INPUT_METHOD_SEGMENT | `AttributedCharacterIteratorAttribute.INPUT_METHOD_SEGMENT`
+1.2     | ✔️          | ✔️       | method        | getRunStart()           | ()->int; getRunStart(Attribute)->int
+1.2     | ✔️          | ✔️       | method        | getRunLimit()           | ()->int; getRunLimit(Attribute)->int
+1.2     | ✔️          | ✔️       | method        | getAttributes()         | ()->[Attribute:Any]
+1.2     | ✔️          | ✔️       | method        | getAttribute()          | (Attribute)->Any?
+1.2     | ✔️          | ✔️       | method        | getAllAttributeKeys()    | ()->Set<Attribute>
+
+### java.text.AttributedString (✔️/✔️)
+
+> Per-character attribute storage backed by `[[Attribute: Any]]`.
+> `getIterator()` overloads return `AttributedStringIterator` (`@unchecked Sendable`).
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | class         | AttributedString        |
+1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (String)
+1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (String, [Attribute:Any])
+1.2     | ✔️          | ✔️       | method        | addAttribute()          | (Attribute, Any)
+1.2     | ✔️          | ✔️       | method        | addAttribute()          | (Attribute, Any, beginIndex:Int, endIndex:Int)
+1.2     | ✔️          | ✔️       | method        | addAttributes()         | ([Attribute:Any], beginIndex:Int, endIndex:Int)
+1.2     | ✔️          | ✔️       | method        | getIterator()           | ()->AttributedCharacterIterator
+1.2     | ✔️          | ✔️       | method        | getIterator()           | (attributes:[Attribute])->AttributedCharacterIterator
+1.2     | ✔️          | ✔️       | method        | getIterator()           | (attributes:[Attribute], beginIndex:Int, endIndex:Int)->AttributedCharacterIterator
+
+> - ``TODO:`` **Normalizer** (`java.text.Normalizer`) — Unicode normalization forms (NFC/NFD/NFKC/NFKD).
+>   Medium effort. Recommended for a future java.text iteration.
+> - ``TODO:`` **Bidi** (`java.text.Bidi`) — Unicode Bidirectional Algorithm for RTL/mixed-direction text.
+>   High effort. Deferred; consider `CoreText` bridge on Apple platforms or an ICU wrapper.
+
+---
+
 ## Not in scope for Java 1.2
 
 - ✅ **`JSplitPane`** — container with resizable divider; implemented

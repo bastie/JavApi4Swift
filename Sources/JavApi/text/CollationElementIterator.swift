@@ -112,6 +112,30 @@ extension java.text {
       index = 0
     }
 
+    /// Replaces the text being iterated with the text from `iterator`
+    /// and resets to the beginning.
+    ///
+    /// Mirrors the `java.text.CollationElementIterator.setText(CharacterIterator)`
+    /// overload.
+    public func setText(_ iterator: any CharacterIterator, collator: RuleBasedCollator) {
+      setText(textFrom(iterator), collator: collator)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Private helper
+    // -------------------------------------------------------------------------
+
+    /// Drains a `CharacterIterator` into a `String`.
+    private func textFrom(_ iter: any CharacterIterator) -> String {
+      var result = ""
+      var ch = iter.first()
+      while ch != "\u{FFFF}" {   // CharacterIterator.DONE
+        result.append(ch)
+        ch = iter.next()
+      }
+      return result
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Order extraction (static)
     // -------------------------------------------------------------------------
