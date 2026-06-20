@@ -414,3 +414,209 @@ struct JavApi_text_SimpleDateFormat_Tests {
     #expect(formatted == "2026-06-19")
   }
 }
+
+// =============================================================================
+// MARK: - DecimalFormatSymbols
+// =============================================================================
+
+struct JavApi_text_DecimalFormatSymbols_Tests {
+
+  @Test("DecimalFormatSymbols: en_US decimal separator is '.'")
+  func testDecimalSeparatorUS() {
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    #expect(sym.getDecimalSeparator() == ".")
+  }
+
+  @Test("DecimalFormatSymbols: en_US grouping separator is ','")
+  func testGroupingSeparatorUS() {
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    #expect(sym.getGroupingSeparator() == ",")
+  }
+
+  @Test("DecimalFormatSymbols: minus sign is '-'")
+  func testMinusSign() {
+    let sym = java.text.DecimalFormatSymbols()
+    #expect(sym.getMinusSign() == "-")
+  }
+
+  @Test("DecimalFormatSymbols: percent symbol is '%'")
+  func testPercent() {
+    let sym = java.text.DecimalFormatSymbols()
+    #expect(sym.getPercent() == "%")
+  }
+
+  @Test("DecimalFormatSymbols: zero digit is '0'")
+  func testZeroDigit() {
+    let sym = java.text.DecimalFormatSymbols()
+    #expect(sym.getZeroDigit() == "0")
+  }
+
+  @Test("DecimalFormatSymbols: setDecimalSeparator overrides symbol")
+  func testSetDecimalSeparator() {
+    let sym = java.text.DecimalFormatSymbols()
+    sym.setDecimalSeparator(",")
+    #expect(sym.getDecimalSeparator() == ",")
+  }
+
+  @Test("DecimalFormatSymbols: getInstance() returns non-nil")
+  func testGetInstance() {
+    let sym = java.text.DecimalFormatSymbols.getInstance()
+    // just verify construction doesn't crash
+    #expect(sym.getZeroDigit() == "0")
+  }
+}
+
+// =============================================================================
+// MARK: - DecimalFormat
+// =============================================================================
+
+struct JavApi_text_DecimalFormat_Tests {
+
+  // ---------------------------------------------------------------------------
+  // MARK: Basic formatting
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: '#,##0.00' formats 1234567.89 with grouping and 2 decimals")
+  func testGroupingAndDecimals() {
+    let df = java.text.DecimalFormat("#,##0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(1234567.89)
+    #expect(result == "1,234,567.89")
+  }
+
+  @Test("DecimalFormat: '0.00' formats 3.1 with trailing zero")
+  func testTrailingZero() {
+    let df = java.text.DecimalFormat("0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(3.1)
+    #expect(result == "3.10")
+  }
+
+  @Test("DecimalFormat: '#.##' suppresses trailing zeros")
+  func testSuppressTrailingZeros() {
+    let df = java.text.DecimalFormat("#.##")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(3.1)
+    #expect(result == "3.1")
+  }
+
+  @Test("DecimalFormat: '0' formats integer part only")
+  func testIntegerOnly() {
+    let df = java.text.DecimalFormat("0")
+    let result = df.format(42.9)
+    // rounds to 43
+    #expect(result == "43")
+  }
+
+  @Test("DecimalFormat: format(Int64) produces same as format(Double)")
+  func testFormatInt64() {
+    let df = java.text.DecimalFormat("#,##0")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(Int64(1000))
+    #expect(result == "1,000")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Percentage
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: '0%' multiplies by 100 and appends percent")
+  func testPercent() {
+    let df = java.text.DecimalFormat("0%")
+    let result = df.format(0.5)
+    #expect(result == "50%")
+  }
+
+  @Test("DecimalFormat: '0.##%' shows decimal percentage")
+  func testPercentDecimals() {
+    let df = java.text.DecimalFormat("0.##%")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(0.1234)
+    #expect(result == "12.34%")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Scientific notation
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: '0.###E0' formats 123456.789 in scientific notation")
+  func testScientific() {
+    let df = java.text.DecimalFormat("0.###E0")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(123456.789)
+    // Expected: mantissa rounded to 3 fractional digits → "1.235E5"
+    #expect(result == "1.235E5")
+  }
+
+  @Test("DecimalFormat: '0.##E0' formats 0.00123")
+  func testScientificSmall() {
+    let df = java.text.DecimalFormat("0.##E0")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let result = df.format(0.00123)
+    #expect(result == "1.23E-3")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: toPattern / applyPattern
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: toPattern() returns the applied pattern")
+  func testToPattern() {
+    let df = java.text.DecimalFormat("#,##0.00")
+    #expect(df.toPattern() == "#,##0.00")
+  }
+
+  @Test("DecimalFormat: applyPattern() changes the active pattern")
+  func testApplyPattern() {
+    let df = java.text.DecimalFormat("#")
+    df.applyPattern("0.000")
+    #expect(df.toPattern() == "0.000")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    #expect(df.format(1.5) == "1.500")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Parse
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: parse() round-trips a formatted number")
+  func testParseRoundTrip() throws {
+    let df = java.text.DecimalFormat("#,##0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    let formatted = df.format(1234.56)
+    let parsed = try df.parse(formatted)
+    #expect(abs(parsed.doubleValue - 1234.56) < 0.01)
+  }
+
+  @Test("DecimalFormat: parse() throws ParseException on invalid input")
+  func testParseThrows() {
+    let df = java.text.DecimalFormat("#,##0.00")
+    #expect(throws: (any Error).self) {
+      try df.parse("not-a-number")
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: format(_:toAppendTo:pos:) from Format
+  // ---------------------------------------------------------------------------
+
+  @Test("DecimalFormat: format(_:toAppendTo:pos:) appends to buffer")
+  func testFormatToBuffer() {
+    let df = java.text.DecimalFormat("0.00")
+    let sym = java.text.DecimalFormatSymbols(java.util.Locale("en", "US"))
+    df.setDecimalFormatSymbols(sym)
+    var buf = "Value: "
+    let pos = java.text.FieldPosition(0)
+    _ = df.format(3.14 as Any, toAppendTo: &buf, pos: pos)
+    #expect(buf == "Value: 3.14")
+  }
+}
