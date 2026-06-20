@@ -272,6 +272,31 @@ extension java.awt {
     open func repaint(_ window: Window) {}
 
     // -------------------------------------------------------------------------
+    // MARK: Printing
+    // -------------------------------------------------------------------------
+
+    /// Initiates a print job and returns a `PrintJob` object, or `nil` if the
+    /// user cancelled the print dialog.
+    ///
+    /// Mirrors `java.awt.Toolkit.getPrintJob(Frame, String, Properties)`.
+    /// The `props` parameter is accepted for API compatibility but ignored in
+    /// the base implementation.
+    ///
+    /// Override in platform-specific subclasses to display a native print dialog
+    /// and return a concrete `PrintJob`.
+    ///
+    /// - Parameters:
+    ///   - frame: The parent frame for the print dialog.
+    ///   - jobtitle: A title string for the print job.
+    ///   - props: Optional print properties (ignored in base implementation).
+    /// - Returns: A `PrintJob` instance, or `nil` if printing was cancelled.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    open func getPrintJob(_ frame: Frame, _ jobtitle: String, _ props: java.util.Properties?) -> PrintJob? {
+      return nil
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Focus
     // -------------------------------------------------------------------------
 

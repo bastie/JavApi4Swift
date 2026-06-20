@@ -301,6 +301,33 @@ extension java.awt.toolkit.swiftui {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Printing
+    // -------------------------------------------------------------------------
+
+    /// Shows the native print panel and, if confirmed, returns a `_SwiftUIPrintJob`
+    /// that renders each page into a CoreGraphics PDF context.
+    ///
+    /// The resulting PDF is opened in Preview.app when `PrintJob.end()` is called.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    public override func getPrintJob(_ frame: java.awt.Frame, _ jobtitle: String, _ props: java.util.Properties?) -> java.awt.PrintJob? {
+#if os(macOS) && canImport(AppKit)
+      let printInfo = NSPrintInfo.shared
+      printInfo.jobDisposition = NSPrintInfo.JobDisposition.preview
+
+      let panel = NSPrintPanel()
+      panel.options = [.showsCopies, .showsPaperSize, .showsOrientation]
+
+      guard panel.runModal(with: printInfo) == NSApplication.ModalResponse.OK.rawValue else { return nil }
+
+      let paper = printInfo.paperSize
+      return _SwiftUIPrintJob(pageWidth: paper.width, pageHeight: paper.height)
+#else
+      return nil
+#endif
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Color model
     // -------------------------------------------------------------------------
 
