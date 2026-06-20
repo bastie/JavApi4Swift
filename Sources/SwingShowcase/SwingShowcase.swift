@@ -23,7 +23,16 @@ struct SwingShowcaseApp {
   @MainActor
   private func buildShowcase() -> javax.swing.JFrame {
     let frame = javax.swing.JFrame("JavApi⁴Swift – Swing Showcase")
-    frame.setSize(520, 400)
+
+    // Size the window to leave 20 % margin on every side
+    let screen = java.awt.Toolkit.getDefaultToolkit().getScreenSize()
+    let winWidth  = Int(Double(screen.width)  * 0.6)
+    let winHeight = Int(Double(screen.height) * 0.6)
+    let winX      = Int(Double(screen.width)  * 0.2)
+    let winY      = Int(Double(screen.height) * 0.2)
+    frame.setSize(winWidth, winHeight)
+    frame.setLocation(winX, winY)
+
     frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE)
 
     // ── JTabbedPane (built first so Actions can reference it) ─────────────────

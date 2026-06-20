@@ -481,13 +481,13 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | abstract class| JComponent              | extends java.awt.Container
 1.2     | ✔️          | ⭕️       | method        | paint()                 | fills bg if opaque (no UI), then paintComponent + paintChildren
 1.2     | ✔️          | ⭕️       | method        | paintComponent()        | hook for subclasses
-1.2     | ✔️          | ⭕️       | method        | paintChildren()         | translates g to each child's origin
+1.2     | ✔️          | ⭕️       | method        | paintChildren()         | translates g to each child's origin; skips zero-size children (empty clip)
 1.2     | ✔️          | ⭕️       | method        | updateUI()              | no-op; subclasses override
 1.2     | ✔️          | ⭕️       | method        | setUI()                 | installs ComponentUI delegate
 1.2     | ✔️          | ⭕️       | method        | isOpaque() / setOpaque()| controls background fill
 1.2     | ✔️          | ⭕️       | method        | getBackground() / setBackground() |
 1.2     | ✔️          | ⭕️       | method        | getForeground() / setForeground() |
-1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | delegates to UI then LayoutManager
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | explicit _preferredSize wins, then UI, then LayoutManager
 1.2     | ✔️          | ⭕️       | method        | getMinimumSize()        | delegates to UI
 1.2     | ✔️          | ⭕️       | method        | getMaximumSize()        | delegates to UI
 
@@ -530,6 +530,7 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | setDefaultCloseOperation()| EXIT_ON_CLOSE etc.
 1.2     | ✔️          | ⭕️       | method        | setJMenuBar()           |
 1.2     | ✔️          | ⭕️       | method        | getContentPane()        |
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | delegates to rootPane so pack() works
 1.2     | ✔️          | ⭕️       | method        | processWindowEvent()    | handles WINDOW_CLOSING
 
 ### javax.swing.JDialog (✔️/⭕️)
@@ -541,6 +542,7 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | setDefaultCloseOperation()| HIDE_ON_CLOSE (default), DISPOSE_ON_CLOSE
 1.2     | ✔️          | ⭕️       | method        | getContentPane()        |
 1.2     | ✔️          | ⭕️       | method        | add()                   | delegates to content pane
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | delegates to rootPane so pack() sizes correctly
 
 ### javax.swing.JMenuBar / JMenu / JMenuItem (✔️/⭕️)
 
@@ -557,6 +559,7 @@ version | implemented | tested   | type          | name                    | mor
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ✔️          | ⭕️       | class         | JRootPane               | manages layeredPane + contentPane + glassPane
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | contentPane preferred size + menu bar height (layout=nil)
 1.2     | ✔️          | ⭕️       | class         | JLayeredPane            | layer-ordered painting
 1.2     | ✔️          | 🪄       | final field   | DEFAULT_LAYER           | 0
 1.2     | ✔️          | 🪄       | final field   | POPUP_LAYER             | 300
@@ -878,7 +881,7 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | setValueIsAdjusting()   | (boolean)
 1.2     | ✔️          | ⭕️       | method        | addAdjustmentListener() | (AdjustmentListener)
 1.2     | ✔️          | ⭕️       | method        | removeAdjustmentListener() | (AdjustmentListener)
-1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | 16×100 (V) or 100×16 (H)
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | font-relative thickness; length unconstrained (LayoutManager decides)
 
 ### javax.swing.JViewport (✔️/⭕️)
 
@@ -954,18 +957,20 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | 🪄       | final field   | CLOSED_OPTION           | int = -1
 1.2     | ✔️          | ⭕️       | static method | showMessageDialog()     | (Component?,Any?,String,Int)
 1.2     | ✔️          | ⭕️       | static method | showConfirmDialog()     | (Component?,Any?,String,Int,Int)->Int
-1.2     | ✔️          | ⭕️       | static method | showInputDialog()       | (Component?,Any?,String,Int)->String?
+1.2     | ✔️          | ⭕️       | static method | showInputDialog()       | (Component?,Any?,String,Int)->String? — shows a JTextField for text entry
 1.2     | ✔️          | ⭕️       | static method | showOptionDialog()      | (Component?,Any?,String,Int,Int,Icon?,[Any]?,Any?)->Int
 1.2     | ✔️          | ⭕️       | method        | createDialog()          | (Component?,String)->JDialog
 1.2     | ✔️          | ⭕️       | method        | getValue() / setValue() | selected option result
+1.2     | ✔️          | ⭕️       | method        | getInitialValue() / setInitialValue() | String value triggers input field; setter rebuilds UI
 
 ### javax.swing.plaf.basic.BasicOptionPaneUI (✔️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ✔️          | ⭕️       | class         | BasicOptionPaneUI       | lays out message + icon + buttons
+1.2     | ✔️          | ⭕️       | class         | BasicOptionPaneUI       | lays out message + icon + input field + buttons
 1.2     | ✔️          | ⭕️       | class method  | createUI()              | (JComponent)->ComponentUI
-1.2     | ✔️          | ⭕️       | method        | installUI()             | builds message panel + button row
+1.2     | ✔️          | ⭕️       | method        | installUI()             | idempotent (removeAll first); builds message panel, optional input field, button row
+1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | font-relative; measures message text, button row, icon and input field via FontMetrics
 1.2     | ✔️          | ⭕️       | method        | paint()                 | fills background
 
 ### javax.swing.JFileChooser (✔️/⭕️)
@@ -1255,7 +1260,7 @@ version | implemented | tested   | type          | name                    | mor
 
 - ✅ **`JSplitPane`** — implemented
 - ✅ **`JInternalFrame`** — implemented
-- ✅ **`JOptionPane`** — implemented (showMessageDialog, showConfirmDialog, showInputDialog, showOptionDialog)
+- ✅ **`JOptionPane`** — implemented (showMessageDialog, showConfirmDialog, showInputDialog with text field, showOptionDialog); UI sized font-relative via FontMetrics, no hardcoded dimensions
 - ✅ **`JFileChooser`** — implemented (showOpenDialog, showSaveDialog, showDialog)
 - ✅ **`JColorChooser`** — implemented (showDialog, getColor/setColor, RGB sliders + swatch grid)
 - ✅ **`JCheckBoxMenuItem`** / **`JRadioButtonMenuItem`** — implemented
