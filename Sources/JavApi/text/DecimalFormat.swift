@@ -67,6 +67,10 @@ extension java.text {
     private var negativePrefix:    String = ""
     private var negativeSuffix:    String = ""
 
+    // Java 1.5 / 1.6 additions
+    private var _parseBigDecimal: Bool = false
+    private var _roundingMode: java.math.RoundingMode = .HALF_UP
+
     // -------------------------------------------------------------------------
     // MARK: Initialisers
     // -------------------------------------------------------------------------
@@ -114,6 +118,58 @@ extension java.text {
       _symbols = symbols
       configureFormatter()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Rounding mode (Java 1.6)
+    // -------------------------------------------------------------------------
+
+    /// Returns the rounding mode used during formatting.
+    ///
+    /// Default is ``java.math.RoundingMode/HALF_UP``, matching Java's default.
+    ///
+    /// - Since: Java 1.6
+    public func getRoundingMode() -> java.math.RoundingMode { _roundingMode }
+
+    /// Sets the rounding mode used during formatting.
+    ///
+    /// The mode is applied to the underlying `Foundation.NumberFormatter`.
+    ///
+    /// - Since: Java 1.6
+    public func setRoundingMode(_ mode: java.math.RoundingMode) {
+      _roundingMode = mode
+      formatter.roundingMode = toNSRoundingMode(mode)
+    }
+
+    /// Maps `java.math.RoundingMode` to `Foundation.NumberFormatter.RoundingMode`.
+    private func toNSRoundingMode(_ mode: java.math.RoundingMode) -> Foundation.NumberFormatter.RoundingMode {
+      switch mode {
+      case .UP:          return .ceiling   // towards +∞ (or ±∞ — closest approximation)
+      case .DOWN:        return .floor     // towards −∞
+      case .CEILING:     return .ceiling
+      case .FLOOR:       return .floor
+      case .HALF_UP:     return .halfUp
+      case .HALF_DOWN:   return .halfDown
+      case .HALF_EVEN:   return .halfEven
+      case .UNNECESSARY: return .halfUp    // no exact mode in NSNumberFormatter; caller must verify
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: ParseBigDecimal flag (Java 1.5)
+    // -------------------------------------------------------------------------
+
+    /// Returns whether `parse()` should attempt to return full-precision values.
+    ///
+    /// In JavApi4Swift `parse()` always returns `Double`; this flag is stored for
+    /// API compatibility but does not change the return type.
+    ///
+    /// - Since: Java 1.5
+    public func isParseBigDecimal() -> Bool { _parseBigDecimal }
+
+    /// Sets the `parseBigDecimal` flag.
+    ///
+    /// - Since: Java 1.5
+    public func setParseBigDecimal(_ value: Bool) { _parseBigDecimal = value }
 
     // -------------------------------------------------------------------------
     // MARK: Format overrides

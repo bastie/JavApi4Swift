@@ -75,6 +75,13 @@ extension java.text {
     // MARK: Factory methods
     // -------------------------------------------------------------------------
 
+    /// Returns the set of locales for which `Collator` instances are available.
+    ///
+    /// - Since: Java 1.2
+    public static func getAvailableLocales() -> [java.util.Locale] {
+      return Foundation.Locale.availableIdentifiers.map { java.util.Locale($0) }
+    }
+
     /// Returns a `Collator` for the default locale.
     public static func getInstance() -> Collator {
       return getInstance(java.util.Locale.getDefault())

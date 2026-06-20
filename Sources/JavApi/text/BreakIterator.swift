@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import Foundation
+
 extension java.text {
 
   /// Locates boundaries in text (characters, words, sentences, lines).
@@ -137,6 +139,13 @@ extension java.text {
     // -------------------------------------------------------------------------
     // MARK: Factory methods
     // -------------------------------------------------------------------------
+
+    /// Returns the set of locales for which `BreakIterator` instances are available.
+    ///
+    /// - Since: Java 1.2
+    public static func getAvailableLocales() -> [java.util.Locale] {
+      return Foundation.Locale.availableIdentifiers.map { java.util.Locale($0) }
+    }
 
     /// Returns a `BreakIterator` for Unicode grapheme-cluster (character) boundaries.
     public static func getCharacterInstance() -> BreakIterator {

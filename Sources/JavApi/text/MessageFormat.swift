@@ -78,6 +78,10 @@ extension java.text {
       case pattern(String)
     }
 
+    /// Override table: argument-index → user-supplied Format (set via setFormat/setFormatByArgumentIndex).
+    /// If present, supersedes the pattern-derived format for that argument.
+    private var formatOverrides: [Int: Format] = [:]
+
     // -------------------------------------------------------------------------
     // MARK: Initialisers
     // -------------------------------------------------------------------------
@@ -120,10 +124,104 @@ extension java.text {
     public func applyPattern(_ pattern: String) {
       self.pattern = pattern
       self.segments = Self.parse(pattern: pattern)
+      self.formatOverrides = [:]
     }
 
     /// Returns the pattern string.
     public func toPattern() -> String { pattern }
+
+    // -------------------------------------------------------------------------
+    // MARK: Format accessors (Java 1.2)
+    // -------------------------------------------------------------------------
+
+    /// Returns the formats applied to argument positions in pattern order.
+    ///
+    /// The array has one entry per format element in the pattern (in the order
+    /// they appear). Entries for arguments with no explicit format are `nil`.
+    ///
+    /// - Since: Java 1.2
+    public func getFormats() -> [Format?] {
+      var result: [Format?] = []
+      for segment in segments {
+        if case .argument(let idx, _) = segment {
+          result.append(formatOverrides[idx])
+        }
+      }
+      return result
+    }
+
+    /// Returns the formats indexed by argument index.
+    ///
+    /// The returned array has `(maxArgumentIndex + 1)` entries; unused indices
+    /// are `nil`.
+    ///
+    /// - Since: Java 1.2
+    public func getFormatsByArgumentIndex() -> [Format?] {
+      let maxIdx = argumentIndices().max() ?? -1
+      guard maxIdx >= 0 else { return [] }
+      var result: [Format?] = Array(repeating: nil, count: maxIdx + 1)
+      for (idx, fmt) in formatOverrides {
+        if idx <= maxIdx { result[idx] = fmt }
+      }
+      return result
+    }
+
+    /// Sets the format for the `formatElementIndex`-th format element
+    /// (in pattern order, counting only argument elements, not literals).
+    ///
+    /// - Since: Java 1.2
+    public func setFormat(_ formatElementIndex: Int, _ newFormat: Format?) {
+      let argSegments = segments.enumerated().filter {
+        if case .argument = $0.element { return true }
+        return false
+      }
+      guard formatElementIndex < argSegments.count else { return }
+      if case .argument(let idx, _) = argSegments[formatElementIndex].element {
+        if let fmt = newFormat {
+          formatOverrides[idx] = fmt
+        } else {
+          formatOverrides.removeValue(forKey: idx)
+        }
+      }
+    }
+
+    /// Sets the format for the argument at `argumentIndex`.
+    ///
+    /// - Since: Java 1.2
+    public func setFormatByArgumentIndex(_ argumentIndex: Int, _ newFormat: Format?) {
+      if let fmt = newFormat {
+        formatOverrides[argumentIndex] = fmt
+      } else {
+        formatOverrides.removeValue(forKey: argumentIndex)
+      }
+    }
+
+    /// Replaces all format overrides (in pattern order) at once.
+    ///
+    /// - Since: Java 1.2
+    public func setFormats(_ newFormats: [Format?]) {
+      formatOverrides = [:]
+      let argSegments = segments.filter {
+        if case .argument = $0 { return true }
+        return false
+      }
+      for (i, segment) in argSegments.enumerated() {
+        if i >= newFormats.count { break }
+        if case .argument(let idx, _) = segment, let fmt = newFormats[i] {
+          formatOverrides[idx] = fmt
+        }
+      }
+    }
+
+    /// Replaces all format overrides by argument index at once.
+    ///
+    /// - Since: Java 1.2
+    public func setFormatsByArgumentIndex(_ newFormats: [Format?]) {
+      formatOverrides = [:]
+      for (i, fmt) in newFormats.enumerated() {
+        if let fmt = fmt { formatOverrides[i] = fmt }
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Locale
@@ -145,7 +243,12 @@ extension java.text {
           result += s
         case .argument(let index, let fmt):
           let value: Any? = index < arguments.count ? arguments[index] : nil
-          result += formatValue(value, with: fmt)
+          // formatOverrides take priority over pattern-derived format
+          if let override = formatOverrides[index], let v = value {
+            result += override.format(v)
+          } else {
+            result += formatValue(value, with: fmt)
+          }
         }
       }
       return result
@@ -423,7 +526,15 @@ extension java.text {
       return nil
     }
 
-  } // end private func nextLiteralAfter
+    /// Returns all argument indices that appear in the pattern.
+    private func argumentIndices() -> [Int] {
+      return segments.compactMap {
+        if case .argument(let idx, _) = $0 { return idx }
+        return nil
+      }
+    }
+
+  } // end class MessageFormat
 
 } // end class MessageFormat
 

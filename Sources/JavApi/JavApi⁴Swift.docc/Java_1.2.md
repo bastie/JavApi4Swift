@@ -905,7 +905,45 @@ The following were historically marked "not in scope" but are now **fully implem
 
 > **Note:** `java.text.AttributedString` and `java.text.AttributedCharacterIterator`
 > were introduced with Java 1.2 as part of the internationalization enhancements.
-> Both are **fully implemented** in JavApi4Swift (2026).
+> In addition, Java 1.2 added `getAvailableLocales()` to `Collator`, `BreakIterator`,
+> `NumberFormat` and `DateFormat`, a subrange constructor for `AttributedString`,
+> and format-accessor methods (`getFormats`, `setFormat`, …) on `MessageFormat`.
+> All of these are **fully implemented** in JavApi4Swift (2026).
+
+### java.text.Collator — Java 1.2 addition (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | static method | getAvailableLocales()   | ()->[Locale]
+
+### java.text.BreakIterator — Java 1.2 addition (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | static method | getAvailableLocales()   | ()->[Locale]
+
+### java.text.NumberFormat — Java 1.2 addition (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | static method | getAvailableLocales()   | ()->[Locale]
+
+### java.text.DateFormat — Java 1.2 addition (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | static method | getAvailableLocales()   | ()->[Locale]
+
+### java.text.MessageFormat — Java 1.2 additions (✔️/✔️)
+
+version | implemented | tested   | type          | name                         | more informations
+------- | ----------- | -------- | ------------- | ---------------------------- | -----------------
+1.2     | ✔️          | ✔️       | method        | getFormats()                 | ()->[Format?] — in pattern order
+1.2     | ✔️          | ✔️       | method        | getFormatsByArgumentIndex()  | ()->[Format?] — indexed by argument index
+1.2     | ✔️          | ✔️       | method        | setFormat(int,Format?)       | sets format for nth format element
+1.2     | ✔️          | ✔️       | method        | setFormatByArgumentIndex(int,Format?) | sets format for argument index
+1.2     | ✔️          | ✔️       | method        | setFormats([Format?])        | replaces all format overrides (pattern order)
+1.2     | ✔️          | ✔️       | method        | setFormatsByArgumentIndex([Format?]) | replaces all format overrides (by index)
 
 ### java.text.AttributedCharacterIterator (✔️/✔️)
 
@@ -936,6 +974,8 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ✔️       | class         | AttributedString        |
 1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (String)
 1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (String, [Attribute:Any])
+1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (AttributedCharacterIterator)
+1.2     | ✔️          | ✔️       | constructor   | AttributedString()      | (AttributedCharacterIterator, beginIndex:Int, endIndex:Int)
 1.2     | ✔️          | ✔️       | method        | addAttribute()          | (Attribute, Any)
 1.2     | ✔️          | ✔️       | method        | addAttribute()          | (Attribute, Any, beginIndex:Int, endIndex:Int)
 1.2     | ✔️          | ✔️       | method        | addAttributes()         | ([Attribute:Any], beginIndex:Int, endIndex:Int)

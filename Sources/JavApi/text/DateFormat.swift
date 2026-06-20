@@ -41,6 +41,13 @@ extension java.text {
     // MARK: Factory methods
     // -------------------------------------------------------------------------
 
+    /// Returns the set of locales for which `DateFormat` instances are available.
+    ///
+    /// - Since: Java 1.2
+    public static func getAvailableLocales() -> [java.util.Locale] {
+      return Foundation.Locale.availableIdentifiers.map { java.util.Locale($0) }
+    }
+
     /// Returns a date-only format with `DEFAULT` style for the default locale.
     public static func getDateInstance() -> DateFormat {
       return getDateInstance(DEFAULT, locale: java.util.Locale.getDefault())

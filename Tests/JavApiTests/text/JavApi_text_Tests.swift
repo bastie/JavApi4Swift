@@ -1525,7 +1525,7 @@ struct JavApi_text_AttributedString_Tests {
   @Test("AttributedString: init with attributes — whole string covered")
   func testInitWithAttributes() {
     let key  = Attr.LANGUAGE
-    let as_  = java.text.AttributedString("Hi", attributes: [key: "en" as Any])
+    let as_  = java.text.AttributedString("Hi", [key: "en" as Any])
     let iter = as_.getIterator()
     let val  = iter.getAttribute(key) as? String
     #expect(val == "en")
@@ -1535,7 +1535,7 @@ struct JavApi_text_AttributedString_Tests {
   func testAddAttributeWholeString() {
     let as_  = java.text.AttributedString("Hello")
     let key  = Attr.LANGUAGE
-    as_.addAttribute(key, value: "de")
+    as_.addAttribute(key, "de")
     let iter = as_.getIterator()
     #expect(iter.getAttribute(key) as? String == "de")
   }
@@ -1562,7 +1562,7 @@ struct JavApi_text_AttributedString_Tests {
     let as_  = java.text.AttributedString("Test")
     let key1 = Attr.LANGUAGE
     let key2 = Attr.READING
-    as_.addAttributes([key1: "en" as Any, key2: "read" as Any], beginIndex: 0, endIndex: 2)
+    as_.addAttributes([key1: "en" as Any, key2: "read" as Any], 0, 2)
     let iter = as_.getIterator()
     #expect(iter.getAttribute(key1) as? String == "en")
     #expect(iter.getAttribute(key2) as? String == "read")
@@ -1616,5 +1616,129 @@ struct JavApi_text_AttributedString_Tests {
     #expect(iter.current() == copy.current())
     _ = iter.next()            // iter advances to DONE
     #expect(copy.current() == "Y")  // copy stays at 'Y'
+  }
+}
+
+// =============================================================================
+// MARK: - Java 1.2 java.text additions
+// =============================================================================
+
+@Suite("java.text Java 1.2 additions")
+struct JavApi_text_Java12_Tests {
+
+  // ---------------------------------------------------------------------------
+  // getAvailableLocales()
+  // ---------------------------------------------------------------------------
+
+  @Test("Collator.getAvailableLocales returns non-empty list")
+  func testCollatorAvailableLocales() {
+    let locales = java.text.Collator.getAvailableLocales()
+    #expect(!locales.isEmpty)
+  }
+
+  @Test("BreakIterator.getAvailableLocales returns non-empty list")
+  func testBreakIteratorAvailableLocales() {
+    let locales = java.text.BreakIterator.getAvailableLocales()
+    #expect(!locales.isEmpty)
+  }
+
+  @Test("NumberFormat.getAvailableLocales returns non-empty list")
+  func testNumberFormatAvailableLocales() {
+    let locales = java.text.NumberFormat.getAvailableLocales()
+    #expect(!locales.isEmpty)
+  }
+
+  @Test("DateFormat.getAvailableLocales returns non-empty list")
+  func testDateFormatAvailableLocales() {
+    let locales = java.text.DateFormat.getAvailableLocales()
+    #expect(!locales.isEmpty)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MessageFormat format accessors
+  // ---------------------------------------------------------------------------
+
+  @Test("MessageFormat.getFormats returns empty for pattern without overrides")
+  func testGetFormatsEmpty() {
+    let mf = java.text.MessageFormat("Hello {0}!")
+    let formats = mf.getFormats()
+    #expect(formats.count == 1)
+    #expect(formats[0] == nil)
+  }
+
+  @Test("MessageFormat.setFormatByArgumentIndex overrides argument format")
+  func testSetFormatByArgumentIndex() {
+    let mf  = java.text.MessageFormat("{0}")
+    let nf  = java.text.NumberFormat.getIntegerInstance()
+    mf.setFormatByArgumentIndex(0, nf)
+    let result = mf.format([42.7])
+    // IntegerInstance rounds to nearest integer
+    #expect(result == "43")
+  }
+
+  @Test("MessageFormat.setFormat overrides by format-element index")
+  func testSetFormat() {
+    let mf  = java.text.MessageFormat("{0} and {1}")
+    let nf  = java.text.NumberFormat.getIntegerInstance()
+    mf.setFormat(1, nf)   // second argument element
+    let result = mf.format(["hello", 3.9])
+    #expect(result == "hello and 4")
+  }
+
+  @Test("MessageFormat.getFormatsByArgumentIndex reflects overrides")
+  func testGetFormatsByArgumentIndex() {
+    let mf  = java.text.MessageFormat("{0} {1}")
+    let nf  = java.text.NumberFormat.getInstance()
+    mf.setFormatByArgumentIndex(1, nf)
+    let formats = mf.getFormatsByArgumentIndex()
+    #expect(formats.count == 2)
+    #expect(formats[0] == nil)
+    #expect(formats[1] != nil)
+  }
+
+  @Test("MessageFormat.setFormats replaces all overrides")
+  func testSetFormats() {
+    let mf  = java.text.MessageFormat("{0} {1}")
+    let nf  = java.text.NumberFormat.getIntegerInstance()
+    mf.setFormats([nil, nf])
+    #expect(mf.getFormats()[0] == nil)
+    #expect(mf.getFormats()[1] != nil)
+  }
+
+  @Test("MessageFormat.applyPattern clears overrides")
+  func testApplyPatternClearsOverrides() {
+    let mf  = java.text.MessageFormat("{0}")
+    let nf  = java.text.NumberFormat.getIntegerInstance()
+    mf.setFormatByArgumentIndex(0, nf)
+    mf.applyPattern("{0}")     // re-apply same pattern → clears overrides
+    #expect(mf.getFormats()[0] == nil)
+  }
+
+  // ---------------------------------------------------------------------------
+  // AttributedString(iter, beginIndex:, endIndex:)
+  // ---------------------------------------------------------------------------
+
+  @Test("AttributedString(iter,begin,end) copies subrange correctly")
+  func testAttributedStringSubrangeInit() {
+    let original = java.text.AttributedString("Hello World")
+    let key = java.text.AttributedCharacterIteratorAttribute.LANGUAGE
+    original.addAttribute(key, value: "en", beginIndex: 0, endIndex: 5)
+    original.addAttribute(key, value: "de", beginIndex: 6, endIndex: 11)
+
+    let iter = original.getIterator()
+    // Copy only "World" (indices 6..<11)
+    let sub  = java.text.AttributedString(iter, 6, 11)
+    let subIter = sub.getIterator()
+    #expect(subIter.getAttribute(key) as? String == "de")
+    // Length of sub should be 5
+    #expect(subIter.getEndIndex() == 5)
+  }
+
+  @Test("AttributedString(iter,begin,end) empty range produces empty string")
+  func testAttributedStringSubrangeEmpty() {
+    let original = java.text.AttributedString("ABC")
+    let iter = original.getIterator()
+    let sub  = java.text.AttributedString(iter, 2, 2)
+    #expect(sub.getIterator().getEndIndex() == 0)
   }
 }

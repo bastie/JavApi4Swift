@@ -76,3 +76,14 @@ version | implemented | tested   | type          | name                        |
 1.5     | ✔️          | ✔️       | static        | setDefault(Locale)          |
 
 > **Format specifiers supported by Java2SwiftFormatter:** `%s/%S`, `%d`, `%f`, `%e/%E`, `%g/%G`, `%o`, `%x/%X`, `%b/%B`, `%c`, `%n`, `%%`, `%,d`/`%,f` (grouping), `%tY`/`%tm`/… (date/time), `%1$s` (argument index). Decimal and grouping separators are locale-sensitive via `Locale.setDefault()`.
+
+### java.text.DecimalFormat — Java 1.5 additions
+
+> **See also:** `getRoundingMode`/`setRoundingMode` were added in Java 1.6 and are documented in ``Java_1.6``.
+
+##### java.text.DecimalFormat (isParseBigDecimal)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.5     | ✔️          | ✔️       | method        | isParseBigDecimal()     | ()->Bool — flag stored; parse() always returns Double in JavApi4Swift
+1.5     | ✔️          | ✔️       | method        | setParseBigDecimal(Bool)|

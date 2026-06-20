@@ -199,12 +199,14 @@ extension java.text {
 
     /// Creates an `AttributedString` from a plain string with initial attributes
     /// applied to the entire string.
-    public init(_ text: String, attributes: [Attribute: Any]) {
+    public init(_ text: String, _ attributes: [Attribute: Any]) {
       chars   = Array(text)
       attrMap = Array(repeating: attributes, count: chars.count)
     }
 
     /// Creates an `AttributedString` from an existing ``AttributedCharacterIterator``.
+    ///
+    /// Copies the full range `[iter.getBeginIndex(), iter.getEndIndex())`.
     public init(_ iter: any AttributedCharacterIterator) {
       let begin = iter.getBeginIndex()
       let end   = iter.getEndIndex()
@@ -221,12 +223,34 @@ extension java.text {
       attrMap = am
     }
 
+    /// Creates an `AttributedString` from the subrange `[beginIndex, endIndex)`
+    /// of an existing ``AttributedCharacterIterator``.
+    ///
+    /// - Since: Java 1.2
+    public init(_ iter: any AttributedCharacterIterator, _ beginIndex: Int, _ endIndex: Int) {
+      let lo = max(iter.getBeginIndex(), beginIndex)
+      let hi = min(iter.getEndIndex(),   endIndex)
+      var cs: [Character] = []
+      var am: [[Attribute: Any]] = []
+      if lo < hi {
+        _ = iter.setIndex(lo)
+        for i in lo..<hi {
+          cs.append(iter.current())
+          am.append(iter.getAttributes())
+          _ = iter.next()
+          _ = i
+        }
+      }
+      chars   = cs
+      attrMap = am
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Attribute manipulation
     // -------------------------------------------------------------------------
 
     /// Adds `attribute` with `value` over the entire string.
-    public func addAttribute(_ attribute: Attribute, value: Any) {
+    public func addAttribute(_ attribute: Attribute, _ value: Any) {
       addAttribute(attribute, value: value, beginIndex: 0, endIndex: chars.count)
     }
 
@@ -245,7 +269,7 @@ extension java.text {
     }
 
     /// Adds all entries in `attributes` over `[beginIndex, endIndex)`.
-    public func addAttributes(_ attributes: [Attribute: Any], beginIndex: Int, endIndex: Int) {
+    public func addAttributes(_ attributes: [Attribute: Any], _ beginIndex: Int, _ endIndex: Int) {
       for (key, value) in attributes {
         addAttribute(key, value: value, beginIndex: beginIndex, endIndex: endIndex)
       }
@@ -265,7 +289,7 @@ extension java.text {
     ///
     /// - Parameter attributes: Only these keys will be visible through the
     ///   iterator's `getAttributes()` and `getAttribute(_:)` methods.
-    public func getIterator(attributes: [Attribute]) -> any AttributedCharacterIterator {
+    public func getIterator(_ attributes: [Attribute]) -> any AttributedCharacterIterator {
       // Create a filtered copy of attrMap
       let keySet = Set(attributes)
       let filtered = AttributedString(String(chars))
@@ -280,7 +304,7 @@ extension java.text {
     }
 
     /// Returns an ``AttributedCharacterIterator`` over `[beginIndex, endIndex)`.
-    public func getIterator(beginIndex: Int, endIndex: Int) -> any AttributedCharacterIterator {
+    public func getIterator(_ beginIndex: Int, _ endIndex: Int) -> any AttributedCharacterIterator {
       let lo = max(0, beginIndex)
       let hi = min(chars.count, endIndex)
       let sub = AttributedString(String(chars[lo..<hi]))
