@@ -12,7 +12,7 @@ extension java.awt {
 
     /// Set the LayoutManager for this Container
     /// - Parameter mgr: LayoutManager instance
-    public func setLayout(_ mgr: LayoutManager?) {
+    open func setLayout(_ mgr: LayoutManager?) {
       layoutManager = mgr
     }
     public func getLayout() -> LayoutManager?    { layoutManager       }
@@ -52,7 +52,7 @@ extension java.awt {
     // MARK: Children
     // -------------------------------------------------------------------------
 
-    public func add(_ comp: Component) {
+    open func add(_ comp: Component) {
       comp.parent = self
       children.append(comp)
       layoutManager?.addLayoutComponent("", comp)
@@ -60,7 +60,7 @@ extension java.awt {
     }
 
     /// Add with BorderLayout-style string constraint.
-    public func add(_ comp: Component, _ constraint: String) {
+    open func add(_ comp: Component, _ constraint: String) {
       comp.parent = self
       children.append(comp)
       if let mgr2 = layoutManager as? LayoutManager2 {
@@ -81,7 +81,7 @@ extension java.awt {
       invalidate()
     }
 
-    public func remove(_ comp: Component) {
+    open func remove(_ comp: Component) {
       comp.parent = nil
       children.removeAll { $0 === comp }
       layoutManager?.removeLayoutComponent(comp)
