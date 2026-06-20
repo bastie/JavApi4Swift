@@ -126,6 +126,7 @@ struct SwingShowcaseApp {
     tabs.addTab("Range / Progress", SwingRangeComponentsTab.build())
     tabs.addTab("Borders", SwingBorderTab.build())
     tabs.addTab("MDI (JDesktopPane)", SwingMDITab.build())
+    tabs.addTab("Rich Text (JTextPane)", SwingRichTextTab.build())
 
     frame.add(tabs, java.awt.BorderLayout.CENTER)
 

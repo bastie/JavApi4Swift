@@ -414,6 +414,16 @@ final class _SwiftUINativeCanvas: NSView {
       }
       needsDisplay = true
 
+    } else if let jtp = hit as? javax.swing.JTextPane {
+      // Swing JTextPane: use BasicTextPaneUI layout for variable line heights
+      let clickIdx = _jtpCharIndex(jtp, localX: lx, localY: ly)
+      if event.modifierFlags.contains(.shift) {
+        jtp.moveCaretPosition(clickIdx)
+      } else {
+        jtp.setCaretPosition(clickIdx)
+      }
+      needsDisplay = true
+
     } else if let jta = hit as? javax.swing.JTextArea {
       // Swing JTextArea: find line by y, then char by x
       let fm     = java.awt.FontMetrics.make(for: jta.font)
@@ -757,6 +767,16 @@ final class _SwiftUINativeCanvas: NSView {
         prev = next
       }
       jtf.moveCaretPosition(idx)
+      needsDisplay = true
+      return
+    }
+
+    // Swing JTextPane selection drag
+    if let jtp = _SwiftUIFocusManager.shared.focusOwner as? javax.swing.JTextPane {
+      let origin = _SwingHitTest.absoluteOrigin(jtp)
+      let lx = Int(pt.x) - origin.x
+      let ly = Int(pt.y) - origin.y
+      jtp.moveCaretPosition(_jtpCharIndex(jtp, localX: lx, localY: ly))
       needsDisplay = true
       return
     }
@@ -1296,6 +1316,100 @@ final class _SwiftUINativeCanvas: NSView {
       node = n.parent
     }
     return nil
+  }
+
+  /// Convert a local (component-relative) point to a document character offset
+  /// in a `JTextPane`, using `BasicTextPaneUI`'s variable-line-height layout.
+  private func _jtpCharIndex(_ jtp: javax.swing.JTextPane, localX lx: Int, localY ly: Int) -> Int {
+    guard let ui = jtp.ui as? javax.swing.plaf.basic.BasicTextPaneUI,
+          let sd = jtp.getStyledDocument() else {
+      // Fallback: treat as fixed-height (base font)
+      let fm     = java.awt.FontMetrics.make(for: jtp.font)
+      let lineH  = fm.getHeight()
+      let relY   = ly - 3
+      let relX   = lx - 4
+      let lines  = jtp.getText().components(separatedBy: "\n")
+      let lineIdx = max(0, min(lines.count - 1, relY / max(1, lineH)))
+      var offset  = 0
+      for i in 0..<lineIdx { offset += lines[i].count + 1 }
+      let lineChars = Array(lines[lineIdx])
+      var prev = 0
+      var col  = lineChars.count
+      for i in 0..<lineChars.count {
+        let next = fm.stringWidth(String(lineChars.prefix(i + 1)))
+        if relX <= (prev + next) / 2 { col = i; break }
+        prev = next
+      }
+      return offset + col
+    }
+
+    let lines  = jtp.getText().components(separatedBy: "\n")
+    let layout = ui._lineLayout(lines: lines, sd: sd, baseFont: jtp.font)
+
+    // Find which line the click is in
+    let relY = ly   // layout yTop already includes padY
+    var lineIdx = lines.count - 1
+    for i in 0..<layout.count {
+      let (yTop, lineH, _) = layout[i]
+      if relY < yTop + lineH {
+        lineIdx = i
+        break
+      }
+    }
+
+    // Character offset to start of this line
+    var lineStart = 0
+    for i in 0..<lineIdx { lineStart += lines[i].count + 1 }
+
+    // Find column within the line.
+    // Use the same stringWidth-of-prefix approach as _xForCol in BasicTextPaneUI
+    // so that pixel positions match exactly (avoids cumulative kerning drift).
+    let relX      = lx - ui.padX
+    let line      = lines[lineIdx]
+    let lineChars = Array(line)
+    var col       = lineChars.count   // default: end of line
+
+    // Walk run by run, then within each run compare prefix widths
+    var runOffset = 0   // index into lineChars of the current run's start
+    var xRunStart = 0   // pixel X at the start of this run
+
+    while runOffset < lineChars.count {
+      let absIdx = lineStart + runOffset
+      let attrs  = sd.getCharacterElement(absIdx)
+      let (runFont, _, _, _) = ui._resolveAttrs(attrs, baseFont: jtp.font)
+      let runFm  = java.awt.FontMetrics.make(for: runFont)
+
+      // Find run end
+      var runEnd = runOffset + 1
+      while runEnd < lineChars.count {
+        if !ui._sameAttrs(attrs, sd.getCharacterElement(lineStart + runEnd)) { break }
+        runEnd += 1
+      }
+
+      let runChars  = Array(lineChars[runOffset..<runEnd])
+      let runWidth  = runFm.stringWidth(String(runChars))
+
+      if relX <= xRunStart + runWidth {
+        // Click is inside this run — find exact column via prefix widths.
+        // Default: after the last char in the run (click on right half of last char)
+        col = runOffset + runChars.count
+        for k in 0..<runChars.count {
+          let wBefore = runFm.stringWidth(String(runChars[0..<k]))
+          let wAfter  = runFm.stringWidth(String(runChars[0...k]))
+          let mid     = xRunStart + (wBefore + wAfter) / 2
+          if relX <= mid {
+            col = runOffset + k
+            break
+          }
+        }
+        break
+      }
+
+      xRunStart += runWidth
+      runOffset  = runEnd
+    }
+
+    return lineStart + col
   }
 
   private func _findOpenComboBox(in comp: java.awt.Component) -> javax.swing.JComponent? {

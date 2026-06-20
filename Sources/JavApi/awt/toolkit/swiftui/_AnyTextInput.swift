@@ -55,6 +55,20 @@ protocol _AnyTextInput: AnyObject {
   func _ti_moveCaretToLineEdge(end: Bool, extending: Bool)
 
   // -------------------------------------------------------------------------
+  // MARK: Document-aware mutation (attribute-preserving)
+  // -------------------------------------------------------------------------
+
+  /// Insert `string` at `offset`, preserving document attributes where possible.
+  ///
+  /// The default implementation rebuilds the full text via `setText`, which
+  /// loses any rich-text attributes.  Components with a styled document
+  /// (e.g. `JTextPane`) should override this to mutate the document directly.
+  func _ti_insertString(_ offset: Int, _ string: String)
+
+  /// Remove `length` characters starting at `offset`, preserving attributes.
+  func _ti_remove(_ offset: Int, _ length: Int)
+
+  // -------------------------------------------------------------------------
   // MARK: Action (Return key)
   // -------------------------------------------------------------------------
 
@@ -178,6 +192,47 @@ extension _AnyTextInput {
   func _ti_fallbackLineEdge(end: Bool, extending: Bool) {
     let target = end ? getText().count : 0
     if extending { extendSelection(to: target) } else { setCaretPosition(target) }
+  }
+}
+
+// =============================================================================
+// MARK: - AWT default mutation (setText-based, loses attributes)
+// =============================================================================
+
+extension java.awt.TextComponent {
+  func _ti_insertString(_ offset: Int, _ string: String) {
+    var chars = Array(getText())
+    let clamped = max(0, min(offset, chars.count))
+    chars.insert(contentsOf: string, at: clamped)
+    setText(String(chars))
+  }
+  func _ti_remove(_ offset: Int, _ length: Int) {
+    var chars = Array(getText())
+    let lo = max(0, offset)
+    let hi = min(chars.count, lo + length)
+    guard lo < hi else { return }
+    chars.removeSubrange(lo..<hi)
+    setText(String(chars))
+  }
+}
+
+// =============================================================================
+// MARK: - Swing mutation (document-based, attribute-preserving for JTextPane)
+// =============================================================================
+
+extension javax.swing.text.JTextComponent {
+  func _ti_insertString(_ offset: Int, _ string: String) {
+    // For JTextPane: apply the current input attributes so newly typed text
+    // inherits the style at the caret position (bold, size, color, …).
+    if let jtp = self as? javax.swing.JTextPane,
+       let sd  = jtp.getStyledDocument() {
+      sd.insertString(offset, string, jtp.getInputAttributes())
+    } else {
+      try? getDocument().insertString(offset, string)
+    }
+  }
+  func _ti_remove(_ offset: Int, _ length: Int) {
+    try? getDocument().remove(offset, length)
   }
 }
 

@@ -62,17 +62,14 @@ public final class _SwiftUIFocusManager {
   /// Insert `ch` at the caret, replacing any selection.
   func typeCharacter(_ ch: Character) {
     guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
-    var chars = Array(tc.getText())
     if tc._ti_hasSelection {
       let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
-      chars.removeSubrange(lo..<hi)
-      chars.insert(ch, at: lo)
-      tc.setText(String(chars))
+      tc._ti_remove(lo, hi - lo)
+      tc._ti_insertString(lo, String(ch))
       tc.setCaretPosition(lo + 1)
     } else {
-      let pos = min(tc._ti_caretPosition, chars.count)
-      chars.insert(ch, at: pos)
-      tc.setText(String(chars))
+      let pos = min(tc._ti_caretPosition, tc.getText().count)
+      tc._ti_insertString(pos, String(ch))
       tc.setCaretPosition(pos + 1)
     }
     tc._ti_ensureCaretVisible()
@@ -81,17 +78,14 @@ public final class _SwiftUIFocusManager {
   /// Delete the selection or the character before the caret (Backspace).
   func handleBackspace() {
     guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
-    var chars = Array(tc.getText())
     if tc._ti_hasSelection {
       let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
-      chars.removeSubrange(lo..<hi)
-      tc.setText(String(chars))
+      tc._ti_remove(lo, hi - lo)
       tc.setCaretPosition(lo)
     } else {
       let pos = tc._ti_caretPosition
       guard pos > 0 else { return }
-      chars.remove(at: pos - 1)
-      tc.setText(String(chars))
+      tc._ti_remove(pos - 1, 1)
       tc.setCaretPosition(pos - 1)
     }
     tc._ti_ensureCaretVisible()
@@ -100,17 +94,14 @@ public final class _SwiftUIFocusManager {
   /// Delete the selection or the character after the caret (Forward Delete).
   func handleDelete() {
     guard let tc = focusOwner as? _AnyTextInput, tc.isEditable() else { return }
-    var chars = Array(tc.getText())
     if tc._ti_hasSelection {
       let lo = tc._ti_selectionStart, hi = tc._ti_selectionEnd
-      chars.removeSubrange(lo..<hi)
-      tc.setText(String(chars))
+      tc._ti_remove(lo, hi - lo)
       tc.setCaretPosition(lo)
     } else {
       let pos = tc._ti_caretPosition
-      guard pos < chars.count else { return }
-      chars.remove(at: pos)
-      tc.setText(String(chars))
+      guard pos < tc.getText().count else { return }
+      tc._ti_remove(pos, 1)
       tc.setCaretPosition(pos)
     }
     tc._ti_ensureCaretVisible()
