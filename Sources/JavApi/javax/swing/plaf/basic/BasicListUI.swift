@@ -89,7 +89,14 @@ extension javax.swing.plaf.basic {
       let fm   = java.awt.FontMetrics.make(for: component.font)
       let rowH = fm.getHeight() + 4
       let rows = list._modelSize()
-      return java.awt.Dimension(150, max(1, rows) * rowH)
+      // Width: widest item text + 8px padding; no hardcoded fallback
+      var maxW = 0
+      for i in 0 ..< list._modelSize() {
+        if let item = list._modelElementAt(i) {
+          maxW = Swift.max(maxW, fm.stringWidth("\(item)"))
+        }
+      }
+      return java.awt.Dimension(maxW + 8, max(1, rows) * rowH)
     }
 
     // -------------------------------------------------------------------------
@@ -142,6 +149,7 @@ extension javax.swing.plaf.basic {
 @MainActor
 private protocol _AnyJList: AnyObject {
   func _modelSize()             -> Int
+  func _modelElementAt(_ i: Int) -> Any?
   func _elementLabel(at: Int)   -> String
   func _selModel()              -> javax.swing.ListSelectionModel
   func _cellHeight()            -> Int
@@ -150,10 +158,11 @@ private protocol _AnyJList: AnyObject {
 }
 
 extension javax.swing.JList: _AnyJList {
-  func _modelSize()            -> Int    { getModel().getSize() }
-  func _elementLabel(at i: Int) -> String { "\(getModel().getElementAt(i))" }
-  func _selModel()             -> javax.swing.ListSelectionModel { getSelectionModel() }
-  func _cellHeight()           -> Int    { getFixedCellHeight() }
-  func _hoverIndex()           -> Int    { _hoverIdx }
-  func _setHoverIndex(_ i: Int)          { _hoverIdx = i }
+  func _modelSize()              -> Int    { getModel().getSize() }
+  func _modelElementAt(_ i: Int) -> Any?  { getModel().getElementAt(i) }
+  func _elementLabel(at i: Int)  -> String { "\(getModel().getElementAt(i))" }
+  func _selModel()               -> javax.swing.ListSelectionModel { getSelectionModel() }
+  func _cellHeight()             -> Int    { getFixedCellHeight() }
+  func _hoverIndex()             -> Int    { _hoverIdx }
+  func _setHoverIndex(_ i: Int)            { _hoverIdx = i }
 }

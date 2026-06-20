@@ -30,7 +30,10 @@ extension javax.swing.plaf.basic {
       let fm   = java.awt.FontMetrics.make(for: component.font)
       let h    = fm.getHeight() + padY * 2 + 2  // +2 for top/bottom border
       let cols = (component as? javax.swing.JTextField)?.getColumns() ?? 0
-      let w    = cols > 0 ? fm.charWidth("m") * cols + padX * 2 + 2 : 120
+      // Default width: 20 "m"-wide characters when no columns hint is given —
+      // same heuristic as Java Swing (no hardcoded pixel constant).
+      let defaultCols = 20
+      let w    = fm.charWidth("m") * (cols > 0 ? cols : defaultCols) + padX * 2 + 2
       return java.awt.Dimension(w, h)
     }
 

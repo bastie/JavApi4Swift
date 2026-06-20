@@ -50,6 +50,9 @@ extension javax.swing.plaf.basic {
 
     override open func installUI(_ c: javax.swing.JComponent) {
       guard let pane = c as? javax.swing.JOptionPane else { return }
+      // Remove any previously built children so installUI is idempotent —
+      // setInitialValue() re-runs updateUI()/installUI() to rebuild contents.
+      pane.removeAll()
       pane.setLayout(java.awt.BorderLayout())
       buildContents(pane)
     }
@@ -68,7 +71,66 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension? {
-      return java.awt.Dimension(320, 140)
+      guard let pane = c as? javax.swing.JOptionPane else {
+        return nil
+      }
+
+      // ── Measure the message text ──────────────────────────────────────────
+      let msgText: String
+      if let msg = pane.getMessage() as? String {
+        msgText = msg
+      } else if let msg = pane.getMessage() {
+        msgText = "\(msg)"
+      } else {
+        msgText = ""
+      }
+
+      let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 13)
+      let fm   = java.awt.FontMetrics.make(for: font)
+
+      // Support multi-line messages (split on \n)
+      let lines      = msgText.components(separatedBy: "\n")
+      let maxLineW   = lines.map { fm.stringWidth($0) }.max() ?? 0
+      let lineHeight = fm.getHeight()
+      let msgHeight  = lineHeight * max(lines.count, 1)
+
+      // ── Button row width ──────────────────────────────────────────────────
+      let btnLabels  = buttonLabels(for: pane)
+      let btnFont    = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
+      let btnFm      = java.awt.FontMetrics.make(for: btnFont)
+      // Each button: text width + horizontal padding (24 px each side) + gap (8 px between)
+      let btnRowW    = btnLabels.reduce(0) { $0 + btnFm.stringWidth($1) + 48 }
+                       + 8 * max(btnLabels.count - 1, 0)
+
+      // ── Icon width (font-relative: icon uses 24pt font) ──────────────────
+      let hasIcon    = !iconString(for: pane.getMessageType()).isEmpty
+      let iconFont   = java.awt.Font("Dialog", java.awt.Font.PLAIN, 24)
+      let iconFm     = java.awt.FontMetrics.make(for: iconFont)
+      let iconW      = hasIcon ? iconFm.stringWidth("✖") + lineHeight : 0
+
+      // ── Input field extra height (showInputDialog) ────────────────────────
+      // Use the same font metrics as BasicTextFieldUI: getHeight() + 2*pad + 2px border
+      let inputH: Int
+      if pane.getInitialValue() is String {
+        let tfFont = java.awt.Font("Dialog", java.awt.Font.PLAIN, 12)
+        let tfFm   = java.awt.FontMetrics.make(for: tfFont)
+        inputH = tfFm.getHeight() + 6 + 2   // padY=3 each side + 2px border
+      } else {
+        inputH = 0
+      }
+
+      // ── Button row height (measured, not hardcoded) ───────────────────────
+      let btnH       = btnFm.getHeight() + 16   // button text + top/bottom padding
+      let topBottomPad = lineHeight             // one line-height of top+bottom margin
+
+      // ── Compose final size ────────────────────────────────────────────────
+      let hPad       = lineHeight * 2           // left + right dialog padding (font-relative)
+      let vPad       = btnH + topBottomPad      // button row + surrounding padding
+      let contentW   = max(maxLineW + iconW, btnRowW)
+      let width      = max(contentW + hPad, btnRowW + hPad)
+      let height     = max(msgHeight + inputH + vPad + topBottomPad, btnH * 3)
+
+      return java.awt.Dimension(width, height)
     }
 
     // -------------------------------------------------------------------------
@@ -76,11 +138,15 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     private func buildContents(_ pane: javax.swing.JOptionPane) {
-      // ── Message panel ───────────────────────────────────────────────────────
-      let msgPanel = javax.swing.JPanel(java.awt.BorderLayout())
-      msgPanel.setBackground(java.awt.SystemColor.control)
+      // ── Top panel: icon + message + optional input field ────────────────────
+      // Layout:
+      //   WEST  = icon (if any)
+      //   CENTER = vertical stack: message label / input field
+      let topPanel = javax.swing.JPanel(java.awt.BorderLayout())
+      topPanel.setBackground(java.awt.SystemColor.control)
 
-      // Icon label
+      // Icon — no setPreferredSize; JLabel with font 24pt lets BasicLabelUI
+      // compute the correct size via FontMetrics.
       let iconText = iconString(for: pane.getMessageType())
       if !iconText.isEmpty {
         let iconLabel = javax.swing.JLabel(iconText)
@@ -88,14 +154,31 @@ extension javax.swing.plaf.basic {
         let iconPad = javax.swing.JPanel(java.awt.BorderLayout())
         iconPad.setBackground(java.awt.SystemColor.control)
         iconPad.add(iconLabel, java.awt.BorderLayout.CENTER)
-        iconPad.setPreferredSize(java.awt.Dimension(48, 48))
-        msgPanel.add(iconPad, java.awt.BorderLayout.WEST)
+        topPanel.add(iconPad, java.awt.BorderLayout.WEST)
       }
 
-      // Message widget
+      // Center area: message label, and below it the input field when present
+      let centerPanel = javax.swing.JPanel(java.awt.BorderLayout())
+      centerPanel.setBackground(java.awt.SystemColor.control)
+
       let msgWidget = messageWidget(for: pane)
-      msgPanel.add(msgWidget, java.awt.BorderLayout.CENTER)
-      pane.add(msgPanel, java.awt.BorderLayout.CENTER)
+      centerPanel.add(msgWidget, java.awt.BorderLayout.CENTER)
+
+      // Input field — shown when initialValue is a String (showInputDialog)
+      let inputField: javax.swing.JTextField?
+      if pane.getInitialValue() is String {
+        let field = javax.swing.JTextField(pane.getInitialValue() as? String ?? "")
+        // No setPreferredSize — BasicTextFieldUI.getPreferredSize computes the
+        // correct height from the font metrics; width comes from getPreferredSize
+        // of the panel which stretches to the dialog width via BorderLayout.
+        centerPanel.add(field, java.awt.BorderLayout.SOUTH)
+        inputField = field
+      } else {
+        inputField = nil
+      }
+
+      topPanel.add(centerPanel, java.awt.BorderLayout.CENTER)
+      pane.add(topPanel, java.awt.BorderLayout.CENTER)
 
       // ── Button panel ────────────────────────────────────────────────────────
       let btnPanel = javax.swing.JPanel(java.awt.FlowLayout())
@@ -105,9 +188,16 @@ extension javax.swing.plaf.basic {
       for (idx, label) in labels.enumerated() {
         let btn = javax.swing.JButton(label)
         let capturedIdx = idx
+        let isOK = (label == "OK" || label == "Yes")
         btn.addActionListener(_SwingClosureActionListener { _ in
-          pane.setValue(capturedIdx)
-          // Walk up to enclosing JDialog and hide it
+          if isOK, let field = inputField {
+            // For input dialogs: OK stores the typed text
+            pane.setValue(field.getText())
+          } else if inputField == nil {
+            // For message/confirm dialogs: store the button index
+            pane.setValue(capturedIdx)
+          }
+          // Close the enclosing dialog
           var comp: java.awt.Component? = pane
           while let c = comp {
             if let dlg = c as? javax.swing.JDialog {
@@ -118,23 +208,6 @@ extension javax.swing.plaf.basic {
           }
         })
         btnPanel.add(btn)
-      }
-
-      // Input field (for showInputDialog)
-      if pane.getInitialValue() is String {
-        let field = javax.swing.JTextField()
-        field.setPreferredSize(java.awt.Dimension(200, 24))
-        let inputPanel = javax.swing.JPanel(java.awt.BorderLayout())
-        inputPanel.setBackground(java.awt.SystemColor.control)
-        inputPanel.add(field, java.awt.BorderLayout.CENTER)
-        pane.add(inputPanel, java.awt.BorderLayout.EAST)
-
-        // OK button sets the typed text as the pane value
-        if let okBtn = btnPanel.getComponents().first as? javax.swing.JButton {
-          okBtn.addActionListener(_SwingClosureActionListener { _ in
-            pane.setValue(field.getText())
-          })
-        }
       }
 
       pane.add(btnPanel, java.awt.BorderLayout.SOUTH)

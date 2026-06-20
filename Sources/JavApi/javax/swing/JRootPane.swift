@@ -75,6 +75,24 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Preferred size
+    // -------------------------------------------------------------------------
+
+    /// Returns the preferred size of the root pane.
+    ///
+    /// Because `JRootPane` uses no LayoutManager (`layout = nil`), the default
+    /// `Container.getPreferredSize()` would return the current bounds (often
+    /// 0×0 before `pack()`).  Instead we ask the `contentPane` for its
+    /// preferred size and add the menu bar height so that `Window.pack()` gets
+    /// the correct value.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      let cp = contentPane.getPreferredSize()
+      let barH = menuBar != nil ? javax.swing.JMenuBar.defaultHeight : 0
+      return java.awt.Dimension(cp.width, cp.height + barH)
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Layout
     // -------------------------------------------------------------------------
 

@@ -77,7 +77,16 @@ extension javax.swing.plaf.basic {
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       let fm = java.awt.FontMetrics.make(for: component.font)
       let h  = fm.getHeight() + 8
-      return java.awt.Dimension(120, h)
+      // Width: widest item text + arrow button (approx 2 × font height) + padding
+      let arrowW = h  // square arrow button
+      var maxItemW = 0
+      if let cb = component as? _AnyJComboBox {
+        for i in 0 ..< cb._itemCount() {
+          maxItemW = Swift.max(maxItemW, fm.stringWidth(cb._labelAt(i)))
+        }
+      }
+      let w = maxItemW + arrowW + 12   // 6px padding each side
+      return java.awt.Dimension(Swift.max(w, arrowW + 12), h)
     }
 
     // -------------------------------------------------------------------------

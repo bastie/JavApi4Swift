@@ -102,7 +102,7 @@ extension javax.swing.plaf.basic {
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension {
       guard let sp = c as? javax.swing.JScrollPane else {
-        return java.awt.Dimension(100, 100)
+        return java.awt.Dimension(0, 0)
       }
       return sp.getPreferredSize()
     }

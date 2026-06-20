@@ -63,7 +63,14 @@ extension javax.swing.plaf.basic {
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       let fm = java.awt.FontMetrics.make(for: component.font)
       let h  = fm.getHeight() + 8
-      return java.awt.Dimension(80, h)    // 80 is a minimum width hint only
+      // Width: current value text + two arrow buttons (each ≈ font height) + padding
+      let arrowW = h   // square arrow buttons
+      var valW = 0
+      if let sp = component as? javax.swing.JSpinner,
+         let val = sp.getValue() {
+        valW = fm.stringWidth("\(val)")
+      }
+      return java.awt.Dimension(valW + arrowW * 2 + 8, h)
     }
 
     // -------------------------------------------------------------------------

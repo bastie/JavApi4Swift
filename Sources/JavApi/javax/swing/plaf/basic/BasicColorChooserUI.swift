@@ -63,7 +63,9 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension? {
-      java.awt.Dimension(400, 260)
+      let fm = java.awt.FontMetrics.make(for: c.font)
+      let lineH = fm.getHeight()
+      return java.awt.Dimension(lineH * 25, lineH * 16)
     }
 
     // -------------------------------------------------------------------------
@@ -78,7 +80,7 @@ extension javax.swing.plaf.basic {
 
       let previewSwatch = javax.swing.JPanel()
       previewSwatch.setBackground(chooser.getColor())
-      previewSwatch.setPreferredSize(java.awt.Dimension(60, 28))
+      // no setPreferredSize — swatch fills the available WEST slot via BorderLayout
       previewSwatch.setOpaque(true)
 
       let hexLabel = javax.swing.JLabel("  " + hexString(chooser.getColor()))
@@ -95,7 +97,9 @@ extension javax.swing.plaf.basic {
       for namedColor in namedColors() {
         let swatch = javax.swing.JPanel()
         swatch.setBackground(namedColor)
-        swatch.setPreferredSize(java.awt.Dimension(20, 20))
+        // Swatch size: one line-height square (font-relative, no hardcoded pixels)
+        let swatchSize = java.awt.FontMetrics.make(for: swatch.font).getHeight()
+        swatch.setPreferredSize(java.awt.Dimension(swatchSize, swatchSize))
         swatch.setOpaque(true)
         swatch.setToolTipText(hexString(namedColor))
         // Click handler via mouse listener (use a thin wrapper)

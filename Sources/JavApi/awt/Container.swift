@@ -116,11 +116,11 @@ extension java.awt {
       // Save/restore the graphics state so a child that modifies the context
       // (clip, transform) does not affect siblings.
       for child in children where child.visible {
-        let dx = child.bounds.x
-        let dy = child.bounds.y
+        let b = child.bounds
+        guard b.width > 0 && b.height > 0 else { continue }
         g.save()
-        g.clipRect(dx, dy, child.bounds.width, child.bounds.height)
-        g.translate(dx, dy)
+        g.clipRect(b.x, b.y, b.width, b.height)
+        g.translate(b.x, b.y)
         child.paint(g)
         g.restore()
       }

@@ -52,15 +52,33 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Selection (single)
+    // MARK: Selection (single node + TreeSelectionModel)
     // -------------------------------------------------------------------------
 
     private var _selectedNode: AnyObject?
+    private var _selectionModel: (any javax.swing.tree.TreeSelectionModel)?
+    private var _treeSelectionListeners: [javax.swing.event.TreeSelectionListener] = []
 
     open func getLastSelectedPathComponent() -> AnyObject? { _selectedNode }
     open func setSelectedNode(_ node: AnyObject?) {
       _selectedNode = node
       repaint()
+    }
+
+    open func getSelectionModel() -> (any javax.swing.tree.TreeSelectionModel)? {
+      _selectionModel
+    }
+    open func setSelectionModel(_ model: (any javax.swing.tree.TreeSelectionModel)?) {
+      _selectionModel = model
+    }
+
+    open func addTreeSelectionListener(_ l: javax.swing.event.TreeSelectionListener) {
+      _treeSelectionListeners.append(l)
+      _selectionModel?.addTreeSelectionListener(l)
+    }
+    open func removeTreeSelectionListener(_ l: javax.swing.event.TreeSelectionListener) {
+      _treeSelectionListeners.removeAll { $0 === (l as AnyObject) }
+      _selectionModel?.removeTreeSelectionListener(l)
     }
 
     // -------------------------------------------------------------------------

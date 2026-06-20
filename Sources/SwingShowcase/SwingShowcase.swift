@@ -26,6 +26,22 @@ struct SwingShowcaseApp {
     frame.setSize(520, 400)
     frame.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE)
 
+    // ── JTabbedPane (built first so Actions can reference it) ─────────────────
+    let tabs = javax.swing.JTabbedPane()
+    tabs.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT)
+
+    tabs.addTab("Swing",                  SwingComponentsTab.build())
+    tabs.addTab("Swing (AWT analogue)",   SwingComponentsWithAnalogueInAWTTab.build())
+    tabs.addTab("Format",                 SwingFormatTab.build())
+    tabs.addTab("SplitPane / Master-Detail", SwingSplitPaneTab.build())
+    tabs.addTab("Range / Progress",       SwingRangeComponentsTab.build())
+    tabs.addTab("Borders",                SwingBorderTab.build())
+    tabs.addTab("MDI (JDesktopPane)",     SwingMDITab.build())
+    tabs.addTab("Rich Text (JTextPane)",  SwingRichTextTab.build())
+    tabs.addTab("Editor Pane (JEditorPane)", SwingEditorPaneTab.build())
+    tabs.addTab("Table & Tree",           SwingTableTreeTab.build())
+    tabs.addTab("Dialogs",                SwingDialogsTab.build())
+
     // ── Actions (shared between menu items and toolbar buttons) ──────────────
     let openAction       = SwingOpenAction()
     let saveAction       = SwingSaveAction()
@@ -45,6 +61,9 @@ struct SwingShowcaseApp {
     let overlayAction    = SwingOverlayLayoutAction(owner: frame)
     let springAction     = SwingSpringLayoutAction(owner: frame)
     let groupAction      = SwingGroupLayoutAction(owner: frame)
+
+    let tableTreeAction  = SwingTableTreeAction(tabs: tabs)
+    let dialogsAction    = SwingDialogsAction(tabs: tabs)
 
     let aboutAction      = SwingAboutAction(owner: frame)
 
@@ -81,6 +100,12 @@ struct SwingShowcaseApp {
     layoutMenu.add(groupAction)
     menuBar.add(layoutMenu)
 
+    // Components menu
+    let componentsMenu = javax.swing.JMenu("Components")
+    componentsMenu.add(tableTreeAction)
+    componentsMenu.add(dialogsAction)
+    menuBar.add(componentsMenu)
+
     // Help menu
     let helpMenu = javax.swing.JMenu("Help")
     helpMenu.add(aboutAction)
@@ -111,24 +136,13 @@ struct SwingShowcaseApp {
     toolbar.add(groupAction)
     toolbar.addSeparator()
 
+    toolbar.add(tableTreeAction)
+    toolbar.add(dialogsAction)
+    toolbar.addSeparator()
+
     toolbar.add(aboutAction)
 
     frame.add(toolbar, java.awt.BorderLayout.NORTH)
-
-    // ── JTabbedPane ──────────────────────────────────────────────────────────
-    let tabs = javax.swing.JTabbedPane()
-    tabs.setTabLayoutPolicy(javax.swing.JTabbedPane.SCROLL_TAB_LAYOUT)
-
-    tabs.addTab("Swing", SwingComponentsTab.build())
-    tabs.addTab("Swing (AWT analogue)", SwingComponentsWithAnalogueInAWTTab.build())
-    tabs.addTab("Format", SwingFormatTab.build())
-    tabs.addTab("SplitPane / Master-Detail", SwingSplitPaneTab.build())
-    tabs.addTab("Range / Progress", SwingRangeComponentsTab.build())
-    tabs.addTab("Borders", SwingBorderTab.build())
-    tabs.addTab("MDI (JDesktopPane)", SwingMDITab.build())
-    tabs.addTab("Rich Text (JTextPane)", SwingRichTextTab.build())
-    tabs.addTab("Editor Pane (JEditorPane)", SwingEditorPaneTab.build())
-
     frame.add(tabs, java.awt.BorderLayout.CENTER)
 
     return frame

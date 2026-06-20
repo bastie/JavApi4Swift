@@ -21,14 +21,15 @@ extension javax.swing.plaf.basic {
     // ── Preferred size ────────────────────────────────────────────────────────
 
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
+      let fm = java.awt.FontMetrics.make(for: component.font)
+      let rowH = fm.getHeight() + 4   // same padding as table rows
       guard let header = component as? javax.swing.table.JTableHeader else {
-        return java.awt.Dimension(100, 22)
+        return java.awt.Dimension(0, rowH)
       }
       let cols   = header.getColumnCount()
       var totalW = 0
-      // Use raw preferred widths so JScrollPane knows the natural content size.
       for c in 0 ..< cols { totalW += header.getColumnWidth(c) }
-      return java.awt.Dimension(max(0, totalW), 22)
+      return java.awt.Dimension(max(0, totalW), rowH)
     }
 
     // ── Paint ─────────────────────────────────────────────────────────────────

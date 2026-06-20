@@ -66,12 +66,13 @@ extension java.awt {
 
     /// Layoutet alle Kinder und passt die Fenstergröße auf `preferredSize` an.
     open func pack() {
-      validate()
-      // Minimale Implementierung: Fenstergröße = bevorzugte Größe des Inhalts
+      // First pass: compute preferred sizes (children may have bounds=0 here)
       let ps = getPreferredSize()
       if ps.width > 0 && ps.height > 0 {
         bounds = java.awt.Rectangle(bounds.x, bounds.y, ps.width, ps.height)
       }
+      // Second pass: now that bounds are set, lay out children into the real size
+      validate()
     }
 
     // -------------------------------------------------------------------------

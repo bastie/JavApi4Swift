@@ -141,7 +141,13 @@ extension javax.swing {
     public func setOptions(_ opts: [Any]?) { options = opts }
 
     public func getInitialValue() -> Any? { initialValue }
-    public func setInitialValue(_ val: Any?) { initialValue = val }
+    public func setInitialValue(_ val: Any?) {
+      initialValue = val
+      // Rebuild the UI so the input text field appears/disappears according to
+      // the new value. buildContents() inspects getInitialValue(); calling
+      // updateUI() re-runs installUI() which rebuilds the content hierarchy.
+      updateUI()
+    }
 
     public func getValue() -> Any? { value }
     public func setValue(_ val: Any?) { value = val }
@@ -196,9 +202,12 @@ extension javax.swing {
       _ title: String = "Input",
       _ messageType: Int = QUESTION_MESSAGE
     ) -> String? {
+      // initialValue must be set in the constructor — buildContents() runs
+      // during updateUI() inside init() and checks getInitialValue() to decide
+      // whether to add the input text field. Setting it afterwards is too late.
       let pane = JOptionPane(message: message, messageType: messageType,
-                             optionType: OK_CANCEL_OPTION)
-      pane.setInitialValue("")
+                             optionType: OK_CANCEL_OPTION,
+                             initialValue: "")
       let dialog = pane.createDialog(parentComponent, title)
       dialog.setVisible(true)
       if let v = pane.getValue() as? String { return v }

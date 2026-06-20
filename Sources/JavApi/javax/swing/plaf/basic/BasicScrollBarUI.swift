@@ -64,12 +64,15 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension {
+      // Scrollbar thickness: roughly one font line height; length unconstrained (0).
+      let fm    = java.awt.FontMetrics.make(for: c.font)
+      let thick = fm.getHeight()
       guard let bar = c as? javax.swing.JScrollBar else {
-        return java.awt.Dimension(16, 100)
+        return java.awt.Dimension(thick, thick)
       }
       return bar.getOrientation() == javax.swing.JScrollBar.VERTICAL
-        ? java.awt.Dimension(16, 100)
-        : java.awt.Dimension(100, 16)
+        ? java.awt.Dimension(thick, 0)
+        : java.awt.Dimension(0, thick)
     }
   }
 }

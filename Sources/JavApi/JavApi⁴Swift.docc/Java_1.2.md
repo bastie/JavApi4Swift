@@ -1268,9 +1268,12 @@ version | implemented | tested   | type          | name                    | mor
 - ✅ **`BasicOptionPaneUI`** — implemented, registered for `"OptionPaneUI"`
 - ✅ **`BasicFileChooserUI`** — implemented, registered for `"FileChooserUI"`
 - ✅ **`BasicColorChooserUI`** — implemented, registered for `"ColorChooserUI"`
-- **`javax.swing.table.TableColumn`** / **`TableColumnModel`** / **`DefaultTableColumnModel`** — not yet implemented
-- **`javax.swing.tree.TreeSelectionModel`** / **`DefaultTreeSelectionModel`** — not yet implemented
-- **`javax.swing.event.AncestorEvent`** / **`HyperlinkEvent`** / **`TableColumnModelEvent`** / **`UndoableEditEvent`** (and matching Listeners) — not yet implemented
+- ✅ **`javax.swing.table.TableColumn`** / **`TableColumnModel`** / **`DefaultTableColumnModel`** — implemented
+- ✅ **`javax.swing.tree.TreeSelectionModel`** / **`DefaultTreeSelectionModel`** — implemented
+- ✅ **`javax.swing.event.TableColumnModelEvent`** / **`TableColumnModelListener`** — implemented
+- ✅ **`javax.swing.event.UndoableEditEvent`** / **`UndoableEditListener`** — implemented (incl. `UndoableEdit` protocol)
+- ✅ **`javax.swing.event.HyperlinkEvent`** / **`HyperlinkListener`** — implemented
+- ✅ **`javax.swing.event.AncestorEvent`** / **`AncestorListener`** — implemented
 - **`java.awt.GraphicsEnvironment`** / **`GraphicsDevice`** / **`GraphicsConfiguration`** / **`ComponentOrientation`** / **`AWTEventMulticaster`** — not yet implemented
 - **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)

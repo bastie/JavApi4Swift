@@ -73,5 +73,11 @@ extension javax.swing.event {
 
     /// Returns `true` if the first path was added to the selection.
     public func isAddedPath() -> Bool { areNew.first ?? false }
+
+    /// Returns `true` if the given path was added to the selection.
+    public func isAddedPath(_ path: javax.swing.tree.TreePath) -> Bool {
+      guard let idx = paths.firstIndex(where: { $0 == path }) else { return false }
+      return isAddedPath(idx)
+    }
   }
 }

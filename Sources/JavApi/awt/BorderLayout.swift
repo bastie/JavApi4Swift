@@ -87,29 +87,31 @@ extension java.awt {
 
       if let c = north {
         let ps = c.getPreferredSize()
-        let h  = ps.height > 0 ? ps.height : c.bounds.height
-        c.bounds = java.awt.Rectangle(left, top, right - left, h)
-        top += h + vgap
+        let h  = Swift.max(0, Swift.min(ps.height > 0 ? ps.height : c.bounds.height, bottom - top))
+        c.bounds = java.awt.Rectangle(left, top, Swift.max(0, right - left), h)
+        top += h + (h > 0 ? vgap : 0)
       }
       if let c = south {
         let ps = c.getPreferredSize()
-        let h  = ps.height > 0 ? ps.height : c.bounds.height
-        c.bounds = java.awt.Rectangle(left, bottom - h, right - left, h)
-        bottom -= h + vgap
+        let h  = Swift.max(0, Swift.min(ps.height > 0 ? ps.height : c.bounds.height, bottom - top))
+        c.bounds = java.awt.Rectangle(left, bottom - h, Swift.max(0, right - left), h)
+        bottom -= h + (h > 0 ? vgap : 0)
       }
       if let c = east {
         let ps = c.getPreferredSize()
-        let w  = ps.width > 0 ? ps.width : c.bounds.width
-        c.bounds = java.awt.Rectangle(right - w, top, w, bottom - top)
-        right -= w + hgap
+        let w  = Swift.max(0, Swift.min(ps.width > 0 ? ps.width : c.bounds.width, right - left))
+        c.bounds = java.awt.Rectangle(right - w, top, w, Swift.max(0, bottom - top))
+        right -= w + (w > 0 ? hgap : 0)
       }
       if let c = west {
         let ps = c.getPreferredSize()
-        let w  = ps.width > 0 ? ps.width : c.bounds.width
-        c.bounds = java.awt.Rectangle(left, top, w, bottom - top)
-        left += w + hgap
+        let w  = Swift.max(0, Swift.min(ps.width > 0 ? ps.width : c.bounds.width, right - left))
+        c.bounds = java.awt.Rectangle(left, top, w, Swift.max(0, bottom - top))
+        left += w + (w > 0 ? hgap : 0)
       }
-      center?.bounds = java.awt.Rectangle(left, top, right - left, bottom - top)
+      center?.bounds = java.awt.Rectangle(left, top,
+                                          Swift.max(0, right - left),
+                                          Swift.max(0, bottom - top))
     }
 
     // -------------------------------------------------------------------------

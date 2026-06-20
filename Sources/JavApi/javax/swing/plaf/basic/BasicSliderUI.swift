@@ -88,11 +88,12 @@ extension javax.swing.plaf.basic {
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let slider = component as? javax.swing.JSlider else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
-      let thick = fm.getHeight() + 16
+      let thick  = fm.getHeight() + 16
+      let length = fm.charWidth("m") * 15   // ~15 character widths as default track length
       if slider.getOrientation() == javax.swing.JSlider.HORIZONTAL {
-        return java.awt.Dimension(200, thick)
+        return java.awt.Dimension(length, thick)
       } else {
-        return java.awt.Dimension(thick, 200)
+        return java.awt.Dimension(thick, length)
       }
     }
 

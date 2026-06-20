@@ -65,7 +65,11 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension? {
-      java.awt.Dimension(480, 320)
+      // Delegate to the content hierarchy built by buildContents / installUI.
+      // Falls back to a font-relative default before children are wired up.
+      let fm = java.awt.FontMetrics.make(for: c.font)
+      let lineH = fm.getHeight()
+      return java.awt.Dimension(lineH * 30, lineH * 20)
     }
 
     // -------------------------------------------------------------------------

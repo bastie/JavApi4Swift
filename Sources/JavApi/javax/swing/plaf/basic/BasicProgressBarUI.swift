@@ -24,11 +24,12 @@ extension javax.swing.plaf.basic {
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let bar = component as? javax.swing.JProgressBar else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
-      let thick = fm.getHeight() + 8    // perpendicular dimension
+      let thick  = fm.getHeight() + 8   // perpendicular dimension
+      let length = fm.charWidth("m") * 15   // ~15 character widths
       if bar.getOrientation() == javax.swing.JProgressBar.HORIZONTAL {
-        return java.awt.Dimension(200, thick)
+        return java.awt.Dimension(length, thick)
       } else {
-        return java.awt.Dimension(thick, 200)
+        return java.awt.Dimension(thick, length)
       }
     }
 

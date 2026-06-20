@@ -158,10 +158,14 @@ extension javax.swing {
     /// to each child's origin so the child can paint at (0,0).
     open func paintChildren(_ g: java.awt.Graphics) {
       for child in children where child.visible {
-        let dx = child.bounds.x
-        let dy = child.bounds.y
+        let b = child.bounds
+        // Skip children with zero-size bounds — clipRect(0-size) would create
+        // an empty CGContext clip, making all subsequent drawing invisible.
+        guard b.width > 0 && b.height > 0 else { continue }
+        let dx = b.x
+        let dy = b.y
         g.save()
-        g.clipRect(dx, dy, child.bounds.width, child.bounds.height)
+        g.clipRect(dx, dy, b.width, b.height)
         g.translate(dx, dy)
         child.paint(g)
         g.restore()
@@ -173,6 +177,8 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize() -> java.awt.Dimension {
+      // Explicitly set preferred size always wins (matches Java Swing behaviour)
+      if let d = _preferredSize { return d }
       if let d = ui?.getPreferredSize(_ : self) { return d }
       return super.getPreferredSize()
     }

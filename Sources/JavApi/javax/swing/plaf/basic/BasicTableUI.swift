@@ -32,7 +32,7 @@ extension javax.swing.plaf.basic {
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let table = component as? javax.swing.JTable,
             let model = table.getModel() else {
-        return java.awt.Dimension(100, 100)
+        return java.awt.Dimension(0, 0)
       }
       let rows   = model.getRowCount()
       let cols   = model.getColumnCount()

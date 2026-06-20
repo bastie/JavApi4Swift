@@ -92,6 +92,13 @@ extension javax.swing {
     // MARK: Layout
     // -------------------------------------------------------------------------
 
+    /// Delegates preferred size to the root pane so that `pack()` can compute
+    /// the correct window size from the content hierarchy.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      return rootPane.getPreferredSize()
+    }
+
     /// Fills the root pane to the full dialog bounds, then lets JRootPane
     /// distribute space to contentPane etc.
     /// Does NOT call super.doLayout() to avoid FlowLayout interference.

@@ -48,7 +48,7 @@ extension javax.swing.plaf.basic {
       guard let tree  = component as? javax.swing.JTree,
             let model = tree.getModel(),
             let root  = model.getRoot() else {
-        return java.awt.Dimension(100, 100)
+        return java.awt.Dimension(0, 0)
       }
       let rowH = tree.getRowHeight()
       var totalRows = 0
