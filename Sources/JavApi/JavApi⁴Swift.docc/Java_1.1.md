@@ -210,17 +210,51 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | windowActivated()   | (WindowEvent)
 1.1     | ✔️          | 🪄       | method        | windowDeactivated() | (WindowEvent)
 
-#### Printing (new in 1.1)
-
-##### java.awt.PrintJob (0/0/⭕️)
+##### java.awt.event.ContainerEvent (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | getGraphics()  | ()->Graphics — returns a Graphics for the next page
-1.1     | ⭕️          | ⭕️       | method        | getPageDimension() | ()->Dimension
-1.1     | ⭕️          | ⭕️       | method        | getPageResolution() | ()->int — DPI
-1.1     | ⭕️          | ⭕️       | method        | lastPageFirst() | ()->boolean
-1.1     | ⭕️          | ⭕️       | method        | end()          | () — finishes the print job
+1.1     | ✔️          | ⭕️       | class         | ContainerEvent | extends ComponentEvent; COMPONENT_ADDED, COMPONENT_REMOVED, getChild(), getContainer()
+
+##### java.awt.event.ContainerListener (2/2/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | componentAdded()   | (ContainerEvent)
+1.1     | ✔️          | 🪄       | method        | componentRemoved() | (ContainerEvent)
+
+##### java.awt.event — Adapter classes (0/0/⭕️)
+
+> **Note:** The 1.1 delegation event model also ships abstract no-op *adapter*
+> classes so listeners can override only the methods they need. All are
+> implemented in `awt/event/`. `MouseAdapter` conforms to both `MouseListener`
+> and `MouseMotionListener`, so it also covers `MouseMotionAdapter`.
+
+version | implemented | tested   | type          | name             | more informations
+------- | ----------- | -------- | ------------- | ---------------- | -----------------
+1.1     | ✔️          | ⭕️       | class         | ComponentAdapter | empty default impl of ComponentListener
+1.1     | ✔️          | ⭕️       | class         | ContainerAdapter | empty default impl of ContainerListener
+1.1     | ✔️          | ⭕️       | class         | FocusAdapter     | empty default impl of FocusListener
+1.1     | ✔️          | ⭕️       | class         | KeyAdapter       | empty default impl of KeyListener
+1.1     | ✔️          | ⭕️       | class         | MouseAdapter     | empty default impl of MouseListener + MouseMotionListener
+1.1     | ✔️          | ⭕️       | class         | WindowAdapter    | empty default impl of WindowListener (file `WindowsAdapter.swift`)
+
+#### Printing (new in 1.1)
+
+##### java.awt.PrintJob (5/5/⭕️)
+
+> **Note:** Implemented as an `open class` in `awt/PrintJob.swift` (the abstract
+> base) plus a concrete `_SwiftUIPrintJob` backend. The base methods return safe
+> default values (stub behaviour) and are meant to be overridden by the platform
+> backend, mirroring Java's abstract `PrintJob`.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | getGraphics()  | ()->Graphics — returns a Graphics for the next page
+1.1     | ✔️          | ⭕️       | method        | getPageDimension() | ()->Dimension
+1.1     | ✔️          | ⭕️       | method        | getPageResolution() | ()->int — DPI
+1.1     | ✔️          | ⭕️       | method        | lastPageFirst() | ()->boolean
+1.1     | ✔️          | ⭕️       | method        | end()          | () — finishes the print job
 
 > **Note:** `PrintJob` instances are obtained from `Toolkit.getPrintJob(frame, jobTitle, properties)`. The printing API introduced in Java 1.1 was superseded by `java.awt.print` (Java 1.2) and `javax.print` (Java 1.4).
 
@@ -228,7 +262,7 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | getPrintJob()  | (Frame,String,Properties)->PrintJob
+1.1     | ✔️          | ⭕️       | method        | getPrintJob()  | (Frame,String,Properties)->PrintJob — implemented in `awt/Toolkit.swift`
 
 #### New / extended AWT classes
 
@@ -241,6 +275,43 @@ version | implemented | tested   | type          | name           | more informa
 ##### java.awt.Cursor (0/0/✔️)
 
 Already tracked in Java_1.0.md (version column `1.1`). All constants and methods implemented ✔️.
+
+##### java.awt.SystemColor (0/0/⭕️)
+
+> **Note:** Implemented in `awt/SystemColor.swift` as a `final` subclass of `java.awt.Color`.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | class         | SystemColor    | symbolic desktop colors (window, text, control, …); subclass of Color
+
+##### java.awt.Adjustable (16/16/⭕️)
+
+> **Note:** Implemented as a `protocol` in `awt/Adjustable.swift`. Constants are
+> provided via a protocol extension and must be accessed through a concrete
+> conforming type (e.g. `Scrollbar.HORIZONTAL`). `NO_ORIENTATION` is a Java 1.4
+> addition included for API completeness.
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | final field   | HORIZONTAL / VERTICAL | Int orientation constants
+1.1     | ✔️          | 🪄       | method        | getOrientation()      | ()->int
+1.1     | ✔️          | 🪄       | method        | setMinimum() / getMinimum() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | setMaximum() / getMaximum() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | setUnitIncrement() / getUnitIncrement() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | setBlockIncrement() / getBlockIncrement() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | setVisibleAmount() / getVisibleAmount() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | setValue() / getValue() | (int) / ()->int
+1.1     | ✔️          | 🪄       | method        | addAdjustmentListener() / removeAdjustmentListener() | (AdjustmentListener)
+
+##### java.awt.ItemSelectable (3/3/⭕️)
+
+> **Note:** Implemented as a `protocol` in `awt/ItemSelectable.swift`.
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getSelectedObjects()  | ()->[AnyObject]?
+1.1     | ✔️          | 🪄       | method        | addItemListener()     | (ItemListener)
+1.1     | ✔️          | 🪄       | method        | removeItemListener()  | (ItemListener)
 
 ##### java.awt.MenuShortcut (0/0/✔️)
 
@@ -528,12 +599,14 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | interface     | Serializable   | marker protocol — no methods
 
-##### java.io.Externalizable (2/0/⭕️)
+##### java.io.Externalizable (2/2/⭕️)
+
+> **Note:** Implemented as a `protocol` in `io/Externalization.swift`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | writeExternal() | (ObjectOutput)
-1.1     | ⭕️          | ⭕️       | method        | readExternal()  | (ObjectInput)
+1.1     | ✔️          | ⭕️       | method        | writeExternal() | (ObjectOutput) throws
+1.1     | ✔️          | ⭕️       | method        | readExternal()  | (ObjectInput) throws
 
 ##### java.io.ObjectOutput (5/0/⭕️)
 
@@ -811,11 +884,13 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ⭕️          | ⭕️       | method        | joinGroup()    | (InetAddress)
 1.1     | ⭕️          | ⭕️       | method        | leaveGroup()   | (InetAddress)
 
-##### java.net.FileNameMap (0/0/⭕️)
+##### java.net.FileNameMap (1/1/⭕️)
+
+> **Note:** Implemented as a `protocol` in `net/FileNameMap.swift`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | getContentTypeFor() | (String)->String — interface
+1.1     | ✔️          | 🪄       | method        | getContentTypeFor() | (String)->String? — interface
 
 ### java.util — Internationalization additions in 1.1 (continued)
 
@@ -1079,9 +1154,13 @@ version | implemented | tested   | type          | name                         
 > `Collator`, `RuleBasedCollator`, `CollationKey`, `CollationElementIterator`, `BreakIterator`,
 > `CharacterIterator`, `StringCharacterIterator` — all implemented with tests.
 >
-> - ``TODO:`` **Normalizer** (`java.text.Normalizer`) — Unicode normalization forms (NFC/NFD/NFKC/NFKD).
+> The following are listed here only because they live in `java.text`, but they
+> are **not Java 1.1 APIs** (`Bidi` was added in Java 1.4, `Normalizer` in Java 6)
+> and belong to ``Java_1.4`` / ``Java_6``:
+>
+> - ``TODO:`` **Normalizer** (`java.text.Normalizer`, since Java 6) — Unicode normalization forms (NFC/NFD/NFKC/NFKD).
 >   Medium effort; depends on Foundation/ICU. Recommended for a future iteration.
-> - ``TODO:`` **Bidi** (`java.text.Bidi`) — Unicode Bidirectional Algorithm for RTL/mixed-direction text.
+> - ``TODO:`` **Bidi** (`java.text.Bidi`, since Java 1.4) — Unicode Bidirectional Algorithm for RTL/mixed-direction text.
 >   High effort. Deferred; consider bridging to `CoreText` on Apple platforms or an ICU wrapper.
 
 ### java.util.zip — New in 1.1
@@ -1111,6 +1190,23 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | DataFormatException() | (String)
+
+##### java.util.zip.Inflater (✔️)
+
+> **Note:** Implemented in `util/zip/Inflater.swift` (the decompression counterpart of `Deflater`).
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | Inflater()     | ()
+1.1     | ✔️          | ⭕️       | constructor   | Inflater(_ nowrap:) | (Bool)
+1.1     | ✔️          | ⭕️       | method        | setInput(_:)   | ([UInt8])
+1.1     | ✔️          | ⭕️       | method        | setDictionary(_:) | ([UInt8])
+1.1     | ✔️          | ⭕️       | method        | needsInput()   | ()->Bool
+1.1     | ✔️          | ⭕️       | method        | needsDictionary() | ()->Bool
+1.1     | ✔️          | ⭕️       | method        | finished()     | ()->Bool
+1.1     | ✔️          | ⭕️       | method        | inflate(_:)    | (inout [UInt8])->Int
+1.1     | ✔️          | ⭕️       | method        | reset()        | ()
+1.1     | ✔️          | ⭕️       | method        | end()          | ()
 
 ##### java.util.zip.Deflater (✔️)
 
@@ -1277,6 +1373,26 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.1     | ✔️          | ⭕️       | method        | clone()        | ()->ZipEntry
 
+##### java.util.zip.ZipFile (✔️)
+
+> **Note:** Implemented in `util/zip/ZipFile.swift`. Parses the central directory
+> for random-access lookup (unlike the sequential `ZipInputStream`). The archive
+> is read into memory on construction; `getInputStream(_:)` returns a
+> `ByteArrayInputStream` over the eagerly decompressed bytes. Conforms to
+> `java.io.Closeable`. ZIP64 is a future (Java 6) TODO.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | ZipFile(_ name:) | (String) throws
+1.1     | ✔️          | ⭕️       | constructor   | ZipFile(_ file:) | (File) throws
+1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
+1.1     | ✔️          | ⭕️       | method        | size()         | ()->Int
+1.1     | ✔️          | ⭕️       | method        | entries()      | ()->Enumeration\<ZipEntry\>
+1.1     | ✔️          | ⭕️       | method        | getEntry(_:)   | (String)->ZipEntry?
+1.1     | ✔️          | ⭕️       | method        | getInputStream(_:) | (ZipEntry)->InputStream throws
+1.1     | ✔️          | ⭕️       | method        | close()        | () throws
+1.3     | ✔️          | ⭕️       | constant      | OPEN_READ / OPEN_DELETE | Int (1.3 additions, for completeness)
+
 ## Implementation Status Summary
 
 | Package | Status | Notes |
@@ -1285,7 +1401,9 @@ version | implemented | tested   | type          | name           | more informa
 | **java.io** (Object Serialization) | ✔️ stubs | Externalizable/ObjectStream stubs only |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
-| **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater/Inflater, GZIP, ZIP streams |
+| **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read) |
+| **java.awt.event** | ✔️ complete | all listeners, events **and adapter classes**; ContainerEvent/ContainerListener included |
+| **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
@@ -1295,14 +1413,29 @@ version | implemented | tested   | type          | name           | more informa
 
 ---
 
+## What is still needed for full Java 1.1 compatibility
+
+These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
+implemented or only stubbed**. They are the concrete to-do list for closing the
+1.1 gap, verified against the actual source tree (June 2026):
+
+- **java.io.ObjectInputStream / ObjectOutputStream** — present only as
+  constructor stubs; real object-graph (de)serialization is not implemented.
+- **java.io.ObjectStreamClass** — missing (serialization descriptor lookup).
+- **java.io.ObjectInputValidation** — missing (validation callback interface).
+- **java.net.MulticastSocket** — missing (UDP multicast).
+- **java.net.DatagramSocketImpl** — missing (abstract SPI for datagram sockets).
+
+Everything else listed in the tables above is implemented (some with `⭕️`
+tests still to be written; that column tracks test coverage, not implementation).
+
 ## Not in scope for this implementation
 
-The following Java 1.1 APIs are explicitly **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
+The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
 
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
-- **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`); platform-specific, not portable.
-- **java.text** (Normalizer/Bidi) — All core formatting and collation classes are implemented. `java.text.Normalizer` (NFC/NFD/NFKC/NFKD) and `java.text.Bidi` (Unicode Bidirectional Algorithm) are explicitly deferred; see TODO notes in the java.text section above.
+- **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`).
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.
