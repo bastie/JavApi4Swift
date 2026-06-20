@@ -65,6 +65,39 @@ class SwingComponentsTab {
     let spinner = javax.swing.JSpinner(javax.swing.SpinnerNumberModel(0, 0, 100, 1))
     addComp(spinner, row: 3)
 
+    // ── JCheckBoxMenuItem ─────────────────────────────────────────────────────
+    addLabel("JCheckBoxMenuItem:", row: 4)
+    let cbmi = javax.swing.JCheckBoxMenuItem("Enable feature", selected: true)
+    cbmi.addItemListener(SwingCheckBoxMenuItemListener())
+    // Show it inside a small popup menu triggered by a button
+    let cbmiButton = javax.swing.JButton("Open popup ▸")
+    cbmiButton.addActionListener { _ in
+      let popup = javax.swing.JPopupMenu()
+      popup.add(cbmi)
+      popup.show(cbmiButton, 0, cbmiButton.getHeight())
+    }
+    addComp(cbmiButton, row: 4)
+
+    // ── JRadioButtonMenuItem ──────────────────────────────────────────────────
+    addLabel("JRadioButtonMenuItem:", row: 5)
+    let rbmi1 = javax.swing.JRadioButtonMenuItem("Small",  selected: true)
+    let rbmi2 = javax.swing.JRadioButtonMenuItem("Medium")
+    let rbmi3 = javax.swing.JRadioButtonMenuItem("Large")
+    // Manual group: selecting one deselects the others
+    let rbmiListener = SwingRadioMenuItemListener(items: [rbmi1, rbmi2, rbmi3])
+    rbmi1.addItemListener(rbmiListener)
+    rbmi2.addItemListener(rbmiListener)
+    rbmi3.addItemListener(rbmiListener)
+    let rbmiButton = javax.swing.JButton("Open popup ▸")
+    rbmiButton.addActionListener { _ in
+      let popup = javax.swing.JPopupMenu()
+      popup.add(rbmi1)
+      popup.add(rbmi2)
+      popup.add(rbmi3)
+      popup.show(rbmiButton, 0, rbmiButton.getHeight())
+    }
+    addComp(rbmiButton, row: 5)
+
     // ── Spacer row — pushes content to top ────────────────────────────────────
     gbc.gridx = 0; gbc.gridy = 99
     gbc.gridwidth = 2; gbc.weighty = 1.0

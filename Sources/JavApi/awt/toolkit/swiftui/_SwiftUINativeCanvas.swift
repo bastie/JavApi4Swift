@@ -163,6 +163,8 @@ final class _SwiftUINativeCanvas: NSView {
   private weak var openComboBox: javax.swing.JComponent?
   // Currently open Swing JMenu (tracked so outside clicks close the popup)
   private weak var openMenu: javax.swing.JMenu?
+  // Currently open free-standing JPopupMenu (tracked so outside clicks close it)
+  weak var openPopupMenu: javax.swing.JPopupMenu?
   // True when mouseDown handled a menu-bar or popup click — mouseUp must not
   // dispatch a second event for whatever lies under the menu.
   private var _menuDownConsumed: Bool = false
@@ -216,6 +218,15 @@ final class _SwiftUINativeCanvas: NSView {
     popup.parent?.remove(popup)   // remove from layeredPane
     popup.closePopup()
     openMenu = nil
+    if repaint { needsDisplay = true }
+  }
+
+  /// Closes the currently tracked free-standing `JPopupMenu`, if any.
+  func _closeOpenPopupMenu(repaint: Bool) {
+    guard let popup = openPopupMenu else { return }
+    popup.parent?.remove(popup)
+    popup.closePopup()
+    openPopupMenu = nil
     if repaint { needsDisplay = true }
   }
 
@@ -311,6 +322,31 @@ final class _SwiftUINativeCanvas: NSView {
       }
     }
     
+    // ── Free-standing JPopupMenu handling ───────────────────────────────────
+    if openPopupMenu == nil {
+      openPopupMenu = _findOpenJPopupMenu(in: component)
+    }
+    if let popup = openPopupMenu {
+      let pb = popup.bounds
+      if pb.contains(Int(pt.x), Int(pt.y)) {
+        // Click inside popup → dispatch item, then close
+        let localX = Int(pt.x) - pb.x
+        let localY = Int(pt.y) - pb.y
+        if let item = popup.itemAt(x: localX, y: localY) {
+          _closeOpenPopupMenu(repaint: false)
+          item.doClick()
+        } else {
+          _closeOpenPopupMenu(repaint: false)
+        }
+        needsDisplay = true
+        _menuDownConsumed = true
+        return
+      } else {
+        // Click outside popup → close it, fall through to normal dispatch
+        _closeOpenPopupMenu(repaint: false)
+      }
+    }
+
     // ── JComboBox popup handling ─────────────────────────────────────────────
     // Find any open JComboBox popup in the component tree.
     if openComboBox == nil {
@@ -1269,6 +1305,19 @@ final class _SwiftUINativeCanvas: NSView {
     if let container = comp as? java.awt.Container {
       for child in container.getComponents() {
         if let found = _findOpenComboBox(in: child) { return found }
+      }
+    }
+    return nil
+  }
+
+  /// Walks the component tree and returns the first visible `JPopupMenu`, or `nil`.
+  private func _findOpenJPopupMenu(in comp: java.awt.Component) -> javax.swing.JPopupMenu? {
+    if let popup = comp as? javax.swing.JPopupMenu, popup.isVisible() {
+      return popup
+    }
+    if let container = comp as? java.awt.Container {
+      for child in container.getComponents() {
+        if let found = _findOpenJPopupMenu(in: child) { return found }
       }
     }
     return nil

@@ -77,16 +77,27 @@ extension javax.swing.plaf.basic {
 
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let popup = component as? javax.swing.JPopupMenu else { return nil }
-      let fm = java.awt.FontMetrics.make(for: font)
       var maxW = Self.minWidth
       var totalH = 0
       for item in popup.getItems() {
         if item.isSeparator {
           totalH += Self.separatorHeight
         } else {
-          let w = fm.stringWidth(item.getText()) + Self.padX * 2
-          if w > maxW { maxW = w }
-          totalH += itemHeight
+          // Ask the item's own UI delegate for the preferred size so that
+          // CheckBoxMenuItem / RadioButtonMenuItem indicator widths are included.
+          let itemW: Int
+          let itemH: Int
+          if let itemUI = item.ui as? javax.swing.plaf.basic.BasicMenuItemUI,
+             let pref = itemUI.getPreferredSize(item) {
+            itemW = pref.width
+            itemH = pref.height
+          } else {
+            let fm = java.awt.FontMetrics.make(for: font)
+            itemW = fm.stringWidth(item.getText()) + Self.padX * 2
+            itemH = self.itemHeight
+          }
+          if itemW > maxW { maxW = itemW }
+          totalH += itemH
         }
       }
       // Add 2px for top+bottom border
@@ -101,7 +112,6 @@ extension javax.swing.plaf.basic {
       guard let popup = component as? javax.swing.JPopupMenu else { return }
       let w = popup.bounds.width
       let h = popup.bounds.height
-      let fm = java.awt.FontMetrics.make(for: font)
 
       // Rebuild item rects
       layoutItems(popup: popup)
@@ -112,22 +122,33 @@ extension javax.swing.plaf.basic {
 
       // Border is painted by JComponent.paint() via getBorder().paintBorder(...)
 
-      // Items
+      // Items — delegate to each item's UI so indicators are painted correctly
       for (item, rect) in itemRects {
         if item.isSeparator {
           let midY = rect.y + rect.height / 2
           g.setColor(java.awt.SystemColor.controlShadow)
           g.drawLine(1, midY, w - 2, midY)
         } else {
-          if item.isArmed {
-            g.setColor(java.awt.SystemColor.textHighlight)
-            g.fillRect(1, rect.y, w - 2, rect.height)
-            g.setColor(java.awt.SystemColor.textHighlightText)
+          // Set item bounds so the UI delegate paints in the right area
+          item.bounds = rect
+          if let itemUI = item.ui as? javax.swing.plaf.basic.BasicMenuItemUI {
+            // Translate graphics to item origin, paint, translate back
+            g.translate(rect.x, rect.y)
+            itemUI.paint(g, item)
+            g.translate(-rect.x, -rect.y)
           } else {
-            g.setColor(java.awt.SystemColor.menuText)
+            // Fallback: plain text rendering for plain JMenuItems
+            let fm = java.awt.FontMetrics.make(for: font)
+            if item.isArmed {
+              g.setColor(java.awt.SystemColor.textHighlight)
+              g.fillRect(1, rect.y, w - 2, rect.height)
+              g.setColor(java.awt.SystemColor.textHighlightText)
+            } else {
+              g.setColor(java.awt.SystemColor.menuText)
+            }
+            let textY = rect.y + (rect.height - fm.getHeight()) / 2 + fm.getAscent()
+            g.drawString(item.getText(), rect.x + Self.padX, textY)
           }
-          let textY = rect.y + (rect.height - fm.getHeight()) / 2 + fm.getAscent()
-          g.drawString(item.getText(), rect.x + Self.padX, textY)
         }
       }
     }
@@ -139,9 +160,17 @@ extension javax.swing.plaf.basic {
     private func layoutItems(popup: javax.swing.JPopupMenu) {
       itemRects.removeAll()
       var y = 1   // 1px top border
+      let w = popup.bounds.width
       for item in popup.getItems() {
-        let h = item.isSeparator ? Self.separatorHeight : itemHeight
-        let w = popup.bounds.width
+        let h: Int
+        if item.isSeparator {
+          h = Self.separatorHeight
+        } else if let itemUI = item.ui as? javax.swing.plaf.basic.BasicMenuItemUI,
+                  let pref = itemUI.getPreferredSize(item) {
+          h = pref.height
+        } else {
+          h = itemHeight
+        }
         itemRects.append((item: item, rect: java.awt.Rectangle(0, y, w, h)))
         y += h
       }

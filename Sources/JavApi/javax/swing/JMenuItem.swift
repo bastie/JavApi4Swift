@@ -56,6 +56,7 @@ extension javax.swing {
     public init(_ text: String = "") {
       self._text = text
       super.init()
+      updateUI()
     }
 
     /// Creates a menu item that delegates to an `Action`.
@@ -65,6 +66,14 @@ extension javax.swing {
       self._text = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
       super.init()
       actionListeners.append(action)
+      updateUI()
+    }
+
+    override open func getUIClassID() -> String { "MenuItemUI" }
+
+    override open func updateUI() {
+      setUI(javax.swing.plaf.basic.BasicMenuItemUI.createUI(self)
+            as! javax.swing.plaf.basic.BasicMenuItemUI)
     }
 
     /// Factory for a visual separator line.
@@ -80,6 +89,12 @@ extension javax.swing {
 
     public func getText() -> String     { _text }
     public func setText(_ t: String)    { _text = t; invalidate() }
+
+    /// Returns whether this menu item is in a selected/checked state.
+    ///
+    /// Base implementation returns `false`.  Subclasses (`JCheckBoxMenuItem`,
+    /// `JRadioButtonMenuItem`) override this to return their toggle state.
+    open func isSelected() -> Bool { false }
 
     // -------------------------------------------------------------------------
     // MARK: ActionListener
