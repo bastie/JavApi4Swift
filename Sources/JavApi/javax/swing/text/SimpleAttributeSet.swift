@@ -5,7 +5,7 @@
 
 extension javax.swing.text {
 
-  /// A mutable, dictionary-backed implementation of `AttributeSet`.
+  /// A mutable, dictionary-backed implementation of `MutableAttributeSet`.
   ///
   /// `SimpleAttributeSet` is the everyday choice when you need to build up a
   /// set of character or paragraph attributes to pass to
@@ -22,7 +22,7 @@ extension javax.swing.text {
   ///
   /// - Since: Java 1.2
   @MainActor
-  open class SimpleAttributeSet: javax.swing.text.AttributeSet {
+  open class SimpleAttributeSet: javax.swing.text.MutableAttributeSet {
 
     // -------------------------------------------------------------------------
     // MARK: Storage
@@ -94,6 +94,16 @@ extension javax.swing.text {
     /// Removes the attribute with the given name.
     open func removeAttribute(_ name: AnyHashable) {
       _attrs.removeValue(forKey: name)
+    }
+
+    /// Removes all attributes whose names appear in `names`.
+    open func removeAttributes(_ names: [AnyHashable]) {
+      for name in names { _attrs.removeValue(forKey: name) }
+    }
+
+    /// Removes all attributes that are defined in `attrs`.
+    open func removeAttributes(_ attrs: javax.swing.text.AttributeSet) {
+      for key in attrs.getAttributeNames() { _attrs.removeValue(forKey: key) }
     }
 
     /// Sets the resolving parent.

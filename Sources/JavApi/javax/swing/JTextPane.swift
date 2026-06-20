@@ -36,7 +36,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  open class JTextPane: javax.swing.text.JTextComponent {
+  open class JTextPane: javax.swing.JEditorPane {
 
     // -------------------------------------------------------------------------
     // MARK: Init
@@ -44,13 +44,16 @@ extension javax.swing {
 
     /// Creates an empty `JTextPane` backed by a `DefaultStyledDocument`.
     public override init() {
-      super.init(document: javax.swing.text.DefaultStyledDocument())
+      super.init()
+      // Replace the EditorKit's plain document with a DefaultStyledDocument
+      setDocument(javax.swing.text.DefaultStyledDocument())
       updateUI()
     }
 
     /// Creates a `JTextPane` backed by the supplied `StyledDocument`.
     public init(doc: javax.swing.text.StyledDocument) {
-      super.init(document: doc)
+      super.init()
+      setDocument(doc)
       updateUI()
     }
 
@@ -59,24 +62,6 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func getUIClassID() -> String { "TextPaneUI" }
-
-    // -------------------------------------------------------------------------
-    // MARK: StyledDocument access
-    // -------------------------------------------------------------------------
-
-    /// Returns the underlying `StyledDocument`.
-    ///
-    /// This is a typed convenience over the inherited `getDocument()`.
-    public func getStyledDocument() -> javax.swing.text.StyledDocument? {
-      return getDocument() as? javax.swing.text.StyledDocument
-    }
-
-    /// Replaces the underlying document with a `StyledDocument`.
-    ///
-    /// - Parameter doc: The new styled document.
-    public func setStyledDocument(_ doc: javax.swing.text.StyledDocument) {
-      setDocument(doc)
-    }
 
     // -------------------------------------------------------------------------
     // MARK: Character attributes
@@ -195,7 +180,7 @@ extension javax.swing {
 
     /// The MIME content type of this pane (e.g. `"text/plain"`, `"text/html"`).
     /// Setting this does not change rendering in the current SwiftUI backend.
-    public func getContentType() -> String { _contentType }
-    public func setContentType(_ type: String) { _contentType = type }
+    public override func getContentType() -> String { _contentType }
+    public override func setContentType(_ type: String) { _contentType = type }
   }
 }

@@ -43,7 +43,8 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
-      guard let pane = component as? javax.swing.JTextPane else { return }
+      // JEditorPane is the superclass of JTextPane — accept both
+      guard let pane = component as? javax.swing.JEditorPane else { return }
 
       let w = component.bounds.width
       let h = component.bounds.height
@@ -276,7 +277,7 @@ extension javax.swing.plaf.basic {
 
     /// Plain-text fallback when no `StyledDocument` is available.
     private func _paintPlain(_ g: java.awt.Graphics,
-                              _ pane: javax.swing.JTextPane,
+                              _ pane: javax.swing.JEditorPane,
                               w: Int, h: Int) {
       let fm    = java.awt.FontMetrics.make(for: pane.font)
       let text  = pane.getText()
