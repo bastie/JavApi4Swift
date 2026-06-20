@@ -121,16 +121,14 @@ extension java.text {
 
     open override func format(_ obj: Any, toAppendTo: inout String, pos: FieldPosition) -> String {
       switch obj {
-      case let v as Double:  toAppendTo += format(v);         return toAppendTo
-      case let v as Float:   toAppendTo += format(Double(v)); return toAppendTo
-      case let v as Int:     toAppendTo += format(Int64(v));  return toAppendTo
-      case let v as Int64:   toAppendTo += format(v);         return toAppendTo
-      case let v as Int32:   toAppendTo += format(Int64(v));  return toAppendTo
-      case let v as NSNumber: toAppendTo += format(v.doubleValue); return toAppendTo
-      default:
-        toAppendTo += "\(obj)"
-        return toAppendTo
+      case let v as Double:  toAppendTo += format(v)
+      case let v as Float:   toAppendTo += format(Double(v))
+      case let v as Int:     toAppendTo += format(Int64(v))
+      case let v as Int64:   toAppendTo += format(v)
+      case let v as Int32:   toAppendTo += format(Int64(v))
+      default:               toAppendTo += "\(obj)"
       }
+      return toAppendTo
     }
 
     /// Formats a `Double`.
@@ -160,8 +158,10 @@ extension java.text {
       return parse(source, pos: pos)
     }
 
-    public override func parse(_ source: String, pos: ParsePosition) -> NSNumber? {
-      // Strip prefix/suffix, then delegate to formatter
+    /// Parses a number from `source` starting at `pos.getIndex()`.
+    ///
+    /// Returns a `Double` (never `NSNumber`) for platform independence.
+    public override func parse(_ source: String, pos: ParsePosition) -> Double? {
       var s = source
       let start = pos.getIndex()
       if start > 0 {
@@ -181,13 +181,22 @@ extension java.text {
         var value = number.doubleValue
         if isPercent  { value /= 100.0  }
         if isPerMill  { value /= 1000.0 }
-        return NSNumber(value: value)
+        return value
+      }
+      // Fallback: plain Swift Double parsing
+      if let d = Double(s) {
+        pos.setIndex(source.count)
+        return d
       }
       pos.setErrorIndex(start)
       return nil
     }
 
-    public override func parse(_ source: String) throws -> NSNumber {
+    /// Parses a number from `source`.
+    ///
+    /// - Throws: `ParseException` if the string cannot be parsed.
+    /// - Returns: A `Double`.
+    public override func parse(_ source: String) throws -> Double {
       let pos = ParsePosition(0)
       guard let result = parse(source, pos: pos) else {
         throw ParseException("DecimalFormat.parse(\"\(source)\") failed", pos.getErrorIndex())
@@ -200,7 +209,6 @@ extension java.text {
     // -------------------------------------------------------------------------
 
     private func parsePattern(_ pattern: String) {
-      // Split on ';' for positive/negative sub-patterns
       let parts = pattern.split(separator: ";", maxSplits: 1, omittingEmptySubsequences: false)
         .map(String.init)
       let posPart = parts[0]
@@ -218,9 +226,8 @@ extension java.text {
     }
 
     private func parsePosSubPattern(posPat: String) {
-      // Reset
-      isPercent   = false
-      isPerMill   = false
+      isPercent    = false
+      isPerMill    = false
       isScientific = false
       useGrouping  = false
       minIntegerDigits  = 1
@@ -232,17 +239,14 @@ extension java.text {
       positivePrefix = extractPrefix(posPat)
       positiveSuffix = extractSuffix(posPat)
 
-      // Detect multiplier symbols in prefix/suffix
       let full = positivePrefix + posPat + positiveSuffix
-      if full.contains("%")         { isPercent  = true }
-      if full.contains("\u{2030}")  { isPerMill  = true }
+      if full.contains("%")        { isPercent = true }
+      if full.contains("\u{2030}") { isPerMill = true }
 
-      // Extract the numeric part (strip prefix/suffix)
       var numeric = posPat
       if !positivePrefix.isEmpty { numeric = String(numeric.dropFirst(positivePrefix.count)) }
       if !positiveSuffix.isEmpty { numeric = String(numeric.dropLast(positiveSuffix.count)) }
 
-      // Scientific notation?
       if let eRange = numeric.range(of: "E") {
         isScientific = true
         let expPart  = String(numeric[numeric.index(after: eRange.lowerBound)...])
@@ -250,19 +254,16 @@ extension java.text {
         numeric = String(numeric[..<eRange.lowerBound])
       }
 
-      // Grouping separator?
       if numeric.contains(",") {
         useGrouping = true
-        // Grouping size = number of digits between last comma and decimal point (or end)
-        let lastComma = numeric.lastIndex(of: ",")!
+        let lastComma  = numeric.lastIndex(of: ",")!
         let afterComma = String(numeric[numeric.index(after: lastComma)...])
         let beforeDot  = afterComma.split(separator: ".").first.map(String.init) ?? afterComma
-        groupingSize = beforeDot.filter { $0 == "0" || $0 == "#" }.count
+        groupingSize   = beforeDot.filter { $0 == "0" || $0 == "#" }.count
         if groupingSize == 0 { groupingSize = 3 }
       }
 
-      // Integer / fraction digit counts
-      let dotIdx = numeric.firstIndex(of: ".")
+      let dotIdx   = numeric.firstIndex(of: ".")
       let intPart  = dotIdx.map { String(numeric[..<$0]) } ?? numeric
       let fracPart = dotIdx.map { String(numeric[numeric.index(after: $0)...]) } ?? ""
 
@@ -274,7 +275,6 @@ extension java.text {
       maxFractionDigits = fracPart.filter { $0 == "0" || $0 == "#" }.count
     }
 
-    /// Extracts the literal prefix (characters before the first `#`, `0`, or `,`).
     private func extractPrefix(_ s: String) -> String {
       var prefix = ""
       var inQuote = false
@@ -288,7 +288,6 @@ extension java.text {
       return prefix
     }
 
-    /// Extracts the literal suffix (characters after the last `#`, `0`, or `.`).
     private func extractSuffix(_ s: String) -> String {
       var suffix = ""
       var inQuote = false
@@ -314,7 +313,6 @@ extension java.text {
       formatter.usesGroupingSeparator  = useGrouping
       if useGrouping { formatter.groupingSize = groupingSize }
       formatter.numberStyle = .decimal
-      // Decimal/grouping separator from symbols
       formatter.decimalSeparator  = String(_symbols.getDecimalSeparator())
       formatter.groupingSeparator = String(_symbols.getGroupingSeparator())
     }
@@ -331,7 +329,7 @@ extension java.text {
              + String(repeating: "0", count: max(minExponentDigits, 1))
       }
 
-      let exp = Int(floor(log10(abs(value))))
+      let exp      = Int(floor(log10(abs(value))))
       let mantissa = value / pow(10.0, Double(exp))
 
       let mantissaStr: String
@@ -356,12 +354,9 @@ extension java.text {
     // -------------------------------------------------------------------------
 
     private func applyPrefixSuffix(_ formatted: String, negative: Bool) -> String {
-      // The formatter already handles the minus sign; we only prepend/append
-      // custom prefix/suffix that aren't the minus sign itself.
       let prefix = negative ? negativePrefix : positivePrefix
       let suffix = negative ? negativeSuffix : positiveSuffix
 
-      // Avoid double-prefixing the minus
       if negative && prefix == String(_symbols.getMinusSign()) {
         return prefix + formatted.replacingOccurrences(
           of: String(_symbols.getMinusSign()), with: "") + suffix

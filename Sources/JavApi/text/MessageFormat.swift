@@ -237,7 +237,6 @@ extension java.text {
         case let i as Int:     return nf.format(Int64(i))
         case let i as Int64:   return nf.format(i)
         case let i as Int32:   return nf.format(Int64(i))
-        case let n as NSNumber: return nf.format(n.doubleValue)
         default: return "\(value)"
         }
 

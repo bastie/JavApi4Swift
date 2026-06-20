@@ -328,7 +328,7 @@ struct JavApi_text_NumberFormat_Tests {
   func testParse() throws {
     let nf = java.text.NumberFormat.getInstance(java.util.Locale("en", "US"))
     let num = try nf.parse("1,234")
-    #expect(num.intValue == 1234)
+    #expect(Int(num) == 1234)
   }
 
   @Test("NumberFormat.parse() throws ParseException on invalid input")
@@ -594,7 +594,7 @@ struct JavApi_text_DecimalFormat_Tests {
     df.setDecimalFormatSymbols(sym)
     let formatted = df.format(1234.56)
     let parsed = try df.parse(formatted)
-    #expect(abs(parsed.doubleValue - 1234.56) < 0.01)
+    #expect(abs(parsed - 1234.56) < 0.01)
   }
 
   @Test("DecimalFormat: parse() throws ParseException on invalid input")
@@ -1033,7 +1033,7 @@ struct JavApi_text_Supplemental_Tests {
     df.setDecimalFormatSymbols(sym)
     let formatted = df.format(-2.5)
     let parsed = try df.parse(formatted)
-    #expect(abs(parsed.doubleValue - (-2.5)) < 0.01)
+    #expect(abs(parsed - (-2.5)) < 0.01)
   }
 
   // ---------------------------------------------------------------------------
@@ -1323,5 +1323,298 @@ struct JavApi_text_Collator_Japanese_Tests {
     let c = java.text.Collator.getInstance(java.util.Locale("ja", "JP"))
     #expect(c.compare("", "あ") <= 0)
     #expect(c.compare("", "") == 0)
+  }
+}
+
+// =============================================================================
+// MARK: - CollationElementIterator
+// =============================================================================
+
+struct JavApi_text_CollationElementIterator_Tests {
+
+  @Test("CollationElementIterator: next() returns NULLORDER at end")
+  func testNullorderAtEnd() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b < c")
+    let iter = col.getCollationElementIterator("ab")
+    _ = iter.next()   // 'a'
+    _ = iter.next()   // 'b'
+    let sentinel = iter.next()
+    #expect(sentinel == java.text.CollationElementIterator.NULLORDER)
+  }
+
+  @Test("CollationElementIterator: primary order increases with rule order")
+  func testPrimaryOrderAscending() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b < c")
+    let iter = col.getCollationElementIterator("abc")
+    let ea   = iter.next()
+    let eb   = iter.next()
+    let ec   = iter.next()
+    let pa   = java.text.CollationElementIterator.primaryOrder(ea)
+    let pb   = java.text.CollationElementIterator.primaryOrder(eb)
+    let pc   = java.text.CollationElementIterator.primaryOrder(ec)
+    #expect(pa < pb)
+    #expect(pb < pc)
+  }
+
+  @Test("CollationElementIterator: reset() restarts iteration")
+  func testReset() throws {
+    let col   = try java.text.RuleBasedCollator("< a < b")
+    let iter  = col.getCollationElementIterator("ab")
+    let first = iter.next()
+    iter.reset()
+    let again = iter.next()
+    #expect(first == again)
+  }
+
+  @Test("CollationElementIterator: previous() walks backwards")
+  func testPrevious() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b < c")
+    let iter = col.getCollationElementIterator("abc")
+    _ = iter.next()
+    _ = iter.next()
+    _ = iter.next()
+    let ec = iter.previous()
+    let eb = iter.previous()
+    let ea = iter.previous()
+    let pa = java.text.CollationElementIterator.primaryOrder(ea)
+    let pb = java.text.CollationElementIterator.primaryOrder(eb)
+    let pc = java.text.CollationElementIterator.primaryOrder(ec)
+    #expect(pa < pb)
+    #expect(pb < pc)
+  }
+
+  @Test("CollationElementIterator: previous() returns NULLORDER at start")
+  func testPreviousAtStart() throws {
+    let col  = try java.text.RuleBasedCollator("< a")
+    let iter = col.getCollationElementIterator("a")
+    #expect(iter.previous() == java.text.CollationElementIterator.NULLORDER)
+  }
+
+  @Test("CollationElementIterator: order extractors are consistent")
+  func testOrderExtractors() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b")
+    let iter = col.getCollationElementIterator("a")
+    let e    = iter.next()
+    let p    = java.text.CollationElementIterator.primaryOrder(e)
+    let s    = java.text.CollationElementIterator.secondaryOrder(e)
+    let t    = java.text.CollationElementIterator.tertiaryOrder(e)
+    #expect(p >= 0)
+    #expect(s >= 0)
+    #expect(t >= 0)
+  }
+
+  @Test("CollationElementIterator: via StringCharacterIterator overload")
+  func testStringCharacterIteratorOverload() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b < c")
+    let sci  = java.text.StringCharacterIterator("abc")
+    let iter = col.getCollationElementIterator(sci)
+    let ea   = iter.next()
+    let eb   = iter.next()
+    let pa   = java.text.CollationElementIterator.primaryOrder(ea)
+    let pb   = java.text.CollationElementIterator.primaryOrder(eb)
+    #expect(pa < pb)
+  }
+
+  @Test("CollationElementIterator: setOffset repositions")
+  func testSetOffset() throws {
+    let col  = try java.text.RuleBasedCollator("< a < b < c")
+    let iter = col.getCollationElementIterator("abc")
+    iter.setOffset(1)
+    #expect(iter.getOffset() == 1)
+    let e2 = iter.next()   // element at index 1 ('b')
+    let p2 = java.text.CollationElementIterator.primaryOrder(e2)
+    let col2 = try java.text.RuleBasedCollator("< a < b < c")
+    let iter2 = col2.getCollationElementIterator("abc")
+    _ = iter2.next()       // 'a'
+    let e2ref = iter2.next()
+    let p2ref = java.text.CollationElementIterator.primaryOrder(e2ref)
+    #expect(p2 == p2ref)
+  }
+}
+
+// =============================================================================
+// MARK: - ChoiceFormat
+// =============================================================================
+
+struct JavApi_text_ChoiceFormat_Tests {
+
+  @Test("ChoiceFormat: format 0 → 'no files'")
+  func testZero() {
+    let cf = java.text.ChoiceFormat("0#no files|1#one file|2<many files")
+    #expect(cf.format(0.0) == "no files")
+  }
+
+  @Test("ChoiceFormat: format 1 → 'one file'")
+  func testOne() {
+    let cf = java.text.ChoiceFormat("0#no files|1#one file|2<many files")
+    #expect(cf.format(1.0) == "one file")
+  }
+
+  @Test("ChoiceFormat: format > 2 → 'many files'")
+  func testMany() {
+    let cf = java.text.ChoiceFormat("0#no files|1#one file|2<many files")
+    #expect(cf.format(5.0) == "many files")
+  }
+
+  @Test("ChoiceFormat: format exactly at '<' boundary → previous choice")
+  func testAtLtBoundary() {
+    // "2<many" means 2.0 itself still maps to "one file"
+    let cf = java.text.ChoiceFormat("0#no files|1#one file|2<many files")
+    #expect(cf.format(2.0) == "one file")
+  }
+
+  @Test("ChoiceFormat: negative number → first choice")
+  func testNegative() {
+    let cf = java.text.ChoiceFormat("0#zero|1#positive")
+    #expect(cf.format(-1.0) == "zero")
+  }
+
+  @Test("ChoiceFormat: limits+formats constructor")
+  func testLimitsFormatsConstructor() {
+    let cf = java.text.ChoiceFormat(limits: [0, 1, 2], formats: ["none", "one", "many"])
+    #expect(cf.format(0.0) == "none")
+    #expect(cf.format(1.0) == "one")
+    #expect(cf.format(3.0) == "many")
+  }
+
+  @Test("ChoiceFormat: toPattern round-trips")
+  func testToPattern() {
+    let pattern = "0#none|1#one|2#many"
+    let cf      = java.text.ChoiceFormat(pattern)
+    #expect(cf.toPattern() == pattern)
+  }
+
+  @Test("ChoiceFormat: getLimits / getFormats")
+  func testGetters() {
+    let cf = java.text.ChoiceFormat(limits: [0, 1], formats: ["a", "b"])
+    #expect(cf.getLimits() == [0, 1])
+    #expect(cf.getFormats() == ["a", "b"])
+  }
+
+  @Test("ChoiceFormat: parse matching text → limit")
+  func testParse() throws {
+    let cf = java.text.ChoiceFormat("0#none|1#one|2<many")
+    let d: Double = try cf.parseChoice("one")
+    #expect(d == 1.0)
+  }
+
+  @Test("ChoiceFormat: parse unknown text throws ParseException")
+  func testParseUnknown() {
+    let cf = java.text.ChoiceFormat("0#none|1#one")
+    #expect(throws: java.text.ParseException.self) {
+      try cf.parseChoice("unknown")
+    }
+  }
+}
+
+// =============================================================================
+// MARK: - AttributedString
+// =============================================================================
+
+struct JavApi_text_AttributedString_Tests {
+
+  typealias Attr = java.text.AttributedCharacterIteratorAttribute
+
+  @Test("AttributedString: plain init — no attributes")
+  func testPlainInit() {
+    let as_ = java.text.AttributedString("Hello")
+    let iter = as_.getIterator()
+    #expect(iter.getAttributes().isEmpty)
+  }
+
+  @Test("AttributedString: init with attributes — whole string covered")
+  func testInitWithAttributes() {
+    let key  = Attr.LANGUAGE
+    let as_  = java.text.AttributedString("Hi", attributes: [key: "en" as Any])
+    let iter = as_.getIterator()
+    let val  = iter.getAttribute(key) as? String
+    #expect(val == "en")
+  }
+
+  @Test("AttributedString: addAttribute over whole string")
+  func testAddAttributeWholeString() {
+    let as_  = java.text.AttributedString("Hello")
+    let key  = Attr.LANGUAGE
+    as_.addAttribute(key, value: "de")
+    let iter = as_.getIterator()
+    #expect(iter.getAttribute(key) as? String == "de")
+  }
+
+  @Test("AttributedString: addAttribute over subrange only")
+  func testAddAttributeSubrange() {
+    let as_  = java.text.AttributedString("Hello")
+    let key  = Attr.LANGUAGE
+    as_.addAttribute(key, value: "fr", beginIndex: 1, endIndex: 3)
+    let iter = as_.getIterator()
+    // Index 0: no attribute
+    #expect(iter.getAttribute(key) == nil)
+    // Index 1: has attribute
+    _ = iter.next()
+    #expect(iter.getAttribute(key) as? String == "fr")
+    // Index 3: no attribute
+    _ = iter.next()
+    _ = iter.next()
+    #expect(iter.getAttribute(key) == nil)
+  }
+
+  @Test("AttributedString: addAttributes (plural) over subrange")
+  func testAddAttributes() {
+    let as_  = java.text.AttributedString("Test")
+    let key1 = Attr.LANGUAGE
+    let key2 = Attr.READING
+    as_.addAttributes([key1: "en" as Any, key2: "read" as Any], beginIndex: 0, endIndex: 2)
+    let iter = as_.getIterator()
+    #expect(iter.getAttribute(key1) as? String == "en")
+    #expect(iter.getAttribute(key2) as? String == "read")
+  }
+
+  @Test("AttributedString: getAllAttributeKeys collects all distinct keys")
+  func testGetAllAttributeKeys() {
+    let as_  = java.text.AttributedString("AB")
+    let key1 = Attr.LANGUAGE
+    let key2 = Attr.READING
+    as_.addAttribute(key1, value: "en", beginIndex: 0, endIndex: 1)
+    as_.addAttribute(key2, value: "r",  beginIndex: 1, endIndex: 2)
+    let iter = as_.getIterator()
+    let keys = iter.getAllAttributeKeys()
+    #expect(keys.contains(key1))
+    #expect(keys.contains(key2))
+    #expect(keys.count == 2)
+  }
+
+  @Test("AttributedString: getRunStart / getRunLimit detect boundary")
+  func testRunBoundary() {
+    let as_  = java.text.AttributedString("ABCD")
+    let key  = Attr.LANGUAGE
+    as_.addAttribute(key, value: "x", beginIndex: 1, endIndex: 3)
+    let iter = as_.getIterator()
+    // Position 0: no attribute → run is [0,1)
+    #expect(iter.getRunStart() == 0)
+    #expect(iter.getRunLimit() == 1)
+    // Position 1: has "x" → run is [1,3)
+    _ = iter.next()
+    #expect(iter.getRunStart() == 1)
+    #expect(iter.getRunLimit() == 3)
+  }
+
+  @Test("AttributedString: iterator navigation matches CharacterIterator")
+  func testNavigation() {
+    let as_  = java.text.AttributedString("ABC")
+    let iter = as_.getIterator()
+    #expect(iter.first() == "A")
+    #expect(iter.next()  == "B")
+    #expect(iter.next()  == "C")
+    #expect(iter.next()  == java.text.StringCharacterIterator.DONE)
+  }
+
+  @Test("AttributedString: clone iterator is independent")
+  func testClone() {
+    let as_   = java.text.AttributedString("XY")
+    let iter  = as_.getIterator()
+    _ = iter.next()            // move to 'Y'
+    let copy  = iter.clone()
+    #expect(iter.current() == copy.current())
+    _ = iter.next()            // iter advances to DONE
+    #expect(copy.current() == "Y")  // copy stays at 'Y'
   }
 }

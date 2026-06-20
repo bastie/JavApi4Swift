@@ -15,14 +15,31 @@ extension java.text {
   /// `getCurrencyInstance`, `getPercentInstance`) to obtain an instance
   /// rather than calling the initialiser directly.
   ///
+  /// ## Public API types
+  ///
+  /// All public method signatures use plain Swift value types (`Double`, `Int64`).
+  /// `Foundation.NumberFormatter` and `NSNumber` are used **internally only**
+  /// for locale-sensitive formatting; they are not part of the public contract.
+  ///
   /// - Since: Java 1.1
   open class NumberFormat: Format {
 
     // -------------------------------------------------------------------------
-    // MARK: Backing formatter
+    // MARK: Field constants
+    // -------------------------------------------------------------------------
+
+    public static let FRACTION_FIELD: Int = 0
+    public static let INTEGER_FIELD:  Int = 1
+
+    // -------------------------------------------------------------------------
+    // MARK: Backing formatter (internal — subclasses may use it)
     // -------------------------------------------------------------------------
 
     let formatter: Foundation.NumberFormatter
+
+    // -------------------------------------------------------------------------
+    // MARK: Initialisers
+    // -------------------------------------------------------------------------
 
     init(_ formatter: Foundation.NumberFormatter) {
       self.formatter = formatter
@@ -106,63 +123,66 @@ extension java.text {
     public func setMaximumFractionDigits(_ n: Int) { formatter.maximumFractionDigits = n }
 
     // -------------------------------------------------------------------------
-    // MARK: Format overrides
+    // MARK: Format
     // -------------------------------------------------------------------------
 
-    /// Formats a number object (`Double`, `Int`, `Int64`, `NSNumber`, …) into
+    /// Formats a number object (`Double`, `Int`, `Int64`, `Float`, …) into
     /// `toAppendTo` and returns the result.
     open override func format(_ obj: Any, toAppendTo: inout String, pos: FieldPosition) -> String {
-      let number: NSNumber
       switch obj {
-      case let v as Double:  number = NSNumber(value: v)
-      case let v as Float:   number = NSNumber(value: v)
-      case let v as Int:     number = NSNumber(value: v)
-      case let v as Int64:   number = NSNumber(value: v)
-      case let v as Int32:   number = NSNumber(value: v)
-      case let v as NSNumber: number = v
-      default:
-        toAppendTo += "\(obj)"
-        return toAppendTo
+      case let v as Double:  toAppendTo += format(v)
+      case let v as Float:   toAppendTo += format(Double(v))
+      case let v as Int:     toAppendTo += format(Int64(v))
+      case let v as Int64:   toAppendTo += format(v)
+      case let v as Int32:   toAppendTo += format(Int64(v))
+      default:               toAppendTo += "\(obj)"
       }
-      let str = formatter.string(from: number) ?? "\(obj)"
-      toAppendTo += str
       return toAppendTo
     }
 
-    /// Formats any number directly to a `String`.
+    /// Formats a `Double` to a locale-sensitive `String`.
     public func format(_ number: Double) -> String {
       formatter.string(from: NSNumber(value: number)) ?? "\(number)"
     }
 
-    /// Formats any integer directly to a `String`.
+    /// Formats an `Int64` to a locale-sensitive `String`.
     public func format(_ number: Int64) -> String {
       formatter.string(from: NSNumber(value: number)) ?? "\(number)"
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Parse overrides
+    // MARK: Parse
     // -------------------------------------------------------------------------
 
     open override func parseObject(_ source: String, pos: ParsePosition) -> Any? {
       return parse(source, pos: pos)
     }
 
-    /// Parses `source` from the current index in `pos`.
-    public func parse(_ source: String, pos: ParsePosition) -> NSNumber? {
+    /// Parses a number from `source` starting at `pos.getIndex()`.
+    ///
+    /// - Returns: A `Double`, or `nil` on failure (sets `pos.errorIndex`).
+    public func parse(_ source: String, pos: ParsePosition) -> Double? {
       let start = pos.getIndex()
-      let sub = String(source[source.index(source.startIndex, offsetBy: start)...])
+      let sub = start < source.count
+        ? String(source[source.index(source.startIndex, offsetBy: start)...])
+        : source
       if let number = formatter.number(from: sub) {
         pos.setIndex(source.count)
-        return number
+        return number.doubleValue
+      }
+      if let d = Double(sub) {
+        pos.setIndex(source.count)
+        return d
       }
       pos.setErrorIndex(start)
       return nil
     }
 
-    /// Parses `source` from the beginning.
+    /// Parses a number from `source`.
     ///
     /// - Throws: `ParseException` if the string cannot be parsed.
-    public func parse(_ source: String) throws -> NSNumber {
+    /// - Returns: A `Double`.
+    public func parse(_ source: String) throws -> Double {
       let pos = ParsePosition(0)
       guard let result = parse(source, pos: pos) else {
         throw ParseException("NumberFormat.parse(\"\(source)\") failed", pos.getErrorIndex())

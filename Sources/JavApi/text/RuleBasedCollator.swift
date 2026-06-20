@@ -42,7 +42,8 @@ extension java.text {
 
     /// Maps each character (or string) to its primary sort index.
     /// Characters not in the table fall back to their Unicode code point.
-    private var orderTable: [String: Int] = [:]
+    /// Internal so ``CollationElementIterator`` can read it.
+    var orderTable: [String: Int] = [:]
 
     /// `true` when the rule string was successfully parsed into `orderTable`.
     private var hasCustomOrder: Bool = false
@@ -67,6 +68,27 @@ extension java.text {
 
     /// Returns the rule string used to create this collator.
     public func getRules() -> String { rules }
+
+    // -------------------------------------------------------------------------
+    // MARK: CollationElementIterator factory
+    // -------------------------------------------------------------------------
+
+    /// Returns a ``CollationElementIterator`` for the given string.
+    ///
+    /// - Parameter source: The string to iterate over.
+    /// - Returns: A `CollationElementIterator` positioned at the start of `source`.
+    public func getCollationElementIterator(_ source: String) -> CollationElementIterator {
+      return CollationElementIterator(text: source, collator: self)
+    }
+
+    /// Returns a ``CollationElementIterator`` for the text provided by
+    /// the given ``StringCharacterIterator``.
+    ///
+    /// - Parameter source: An iterator whose text will be iterated.
+    /// - Returns: A `CollationElementIterator` positioned at the start of the text.
+    public func getCollationElementIterator(_ source: StringCharacterIterator) -> CollationElementIterator {
+      return CollationElementIterator(text: source.getText(), collator: self)
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Comparison override
