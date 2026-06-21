@@ -1245,6 +1245,38 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,int,int) throws
 1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,boolean,boolean) throws
 
+### java.rmi — New package in 1.1 (exception stubs only)
+
+> **Note:** The RMI networking stack is **not implemented** — see
+> `NotImplemented.md` for the full rationale. However, the exception hierarchy
+> and the `Remote` marker protocol are provided as compile-time stubs so that
+> ported Java code that references these types compiles without modification.
+>
+> **Filename collisions:** Two classes share their simple name with types in
+> `java.net`, forcing non-canonical Swift filenames:
+> - `java.rmi.ConnectException` → `rmi/RMIConnectException.swift`
+>   (conflicts with `net/ConnectException.swift`)
+> - `java.rmi.UnknownHostException` → `rmi/RMIUnknownHostException.swift`
+>   (conflicts with `net/UnknownHostException.swift`)
+
+version | implemented | tested   | type          | name                   | more informations
+------- | ----------- | -------- | ------------- | ---------------------- | -----------------
+1.1     | ✔️          | 🪄       | protocol      | Remote                 | marker; `rmi/Remote.swift`
+1.1     | ✔️          | ⭕️       | class         | RemoteException        | extends IOException; `rmi/RemoteException.swift`
+1.1     | ✔️          | ⭕️       | class         | AccessException        | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | AlreadyBoundException  | extends Exception
+1.1     | ✔️          | ⭕️       | class         | ConnectException       | extends RemoteException; **file:** `RMIConnectException.swift`
+1.1     | ✔️          | ⭕️       | class         | ConnectIOException     | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | MarshalException       | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | NoSuchObjectException  | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | NotBoundException      | extends Exception
+1.1     | ✔️          | ⭕️       | class         | ServerError            | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | ServerException        | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | StubNotFoundException  | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | UnexpectedException    | extends RemoteException
+1.1     | ✔️          | ⭕️       | class         | UnknownHostException   | extends RemoteException; **file:** `RMIUnknownHostException.swift`
+1.1     | ✔️          | ⭕️       | class         | UnmarshalException     | extends RemoteException
+
 ### java.awt.datatransfer — New package in 1.1
 
 > **Platform support:**
@@ -1638,7 +1670,8 @@ version | implemented | tested   | type          | name           | more informa
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
-| **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; introspection not ported |
+| **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
+| **java.rmi** | ✔️ stubs | `Remote` marker + 14 exception classes as compile-time stubs; RMI networking stack not implemented |
 | **java.awt.datatransfer** | ✔️ implemented | `Transferable`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `UnsupportedFlavorException`, `Clipboard`; macOS/iOS native, X11/Win32 in-memory fallback (TODO: native) |
 | **java.lang.reflect.Method/Constructor/Array** | ⭕️ not ported | Swift has no runtime method/constructor introspection API — not portable |
 
@@ -1675,7 +1708,7 @@ tests still to be written; that column tracks test coverage, not implementation)
 
 The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
 
-- **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>.
+- **java.rmi networking stack**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>. The `java.rmi` exception hierarchy and `Remote` marker are present as compile-time stubs (see table above).
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
