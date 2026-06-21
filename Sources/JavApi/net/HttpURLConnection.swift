@@ -166,8 +166,14 @@ extension java.net {
     /// - Since: Java 1.1
     public func getResponseMessage() -> String? {
 #if os(WASI)
-      return nil
-#endif
+      guard connected else { return nil }
+      do {
+        let statusCode = try super.getResponseCode()
+        guard statusCode >= 0 else { return nil }
+        return self.httpStatusCodeDescription(forStatusCode: statusCode)
+      }
+      catch { return nil }
+#else
       guard connected else { return nil }
       do {
         let statusCode = try super.getResponseCode()
@@ -175,6 +181,7 @@ extension java.net {
         return HTTPURLResponse.localizedString(forStatusCode: statusCode)
       }
       catch { return nil }
+#endif
     }
 
     // MARK: - Disconnection

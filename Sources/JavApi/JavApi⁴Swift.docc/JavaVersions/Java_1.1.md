@@ -601,19 +601,25 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | getBuffer()          | ()->StringBuffer
 1.1     | ✔️          | ⭕️       | method        | toString()           | ()->String
 
-##### java.io.ObjectStreamClass (0/0/⭕️)
+##### java.io.ObjectStreamClass (3/3/⭕️)
+
+> **Note:** Implemented in `io/ObjectStreamClass.swift`. `lookup(_:)` accepts
+> any Swift `Any.Type` and always returns a descriptor. `getSerialVersionUID()`
+> returns `0` because Swift has no compile-time `serialVersionUID` equivalent.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | static method | lookup()       | (Class)->ObjectStreamClass
-1.1     | ⭕️          | ⭕️       | method        | getName()      | ()->String
-1.1     | ⭕️          | ⭕️       | method        | getSerialVersionUID() | ()->long
+1.1     | ✔️          | ⭕️       | static method | lookup()       | (Any.Type)->ObjectStreamClass?
+1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
+1.1     | ✔️          | ⭕️       | method        | getSerialVersionUID() | ()->Int64 (always 0)
 
-##### java.io.ObjectInputValidation (0/0/⭕️)
+##### java.io.ObjectInputValidation (1/1/⭕️)
+
+> **Note:** Implemented as a `protocol` in `io/ObjectInputValidation.swift`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | method        | validateObject() | () — callback interface for serialization validation
+1.1     | ✔️          | 🪄       | method        | validateObject() | () throws — callback interface for serialization validation
 
 ### java.io — Object Serialization (new in 1.1)
 
@@ -651,23 +657,30 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | skip()          | (long)->long
 1.1     | ✔️          | 🪄       | method        | close()         | ()
 
-##### java.io.ObjectOutputStream (0/0/⭕️)
+##### java.io.ObjectOutputStream (3/0/⭕️)
 
-> **Note:** Class exists in `io/ObjectOutputStream.swift` as an empty subclass
-> of `OutputStream` — no constructor or methods implemented yet.
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | ObjectOutputStream() | (OutputStream) — not yet implemented
-
-##### java.io.ObjectInputStream (0/0/⭕️)
-
-> **Note:** Class exists in `io/ObjectInputStream.swift` as an empty subclass
-> of `InputStream` — no constructor or methods implemented yet.
+> **Note:** Implemented in `io/ObjectOutputStream.swift`. Delegates `write`,
+> `flush`, and `close` to the wrapped `OutputStream`. `writeObject(_:)` throws
+> ``NotActiveException`` — full object serialization is not yet implemented.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | ObjectInputStream()  | (InputStream) — not yet implemented
+1.1     | ✔️          | ⭕️       | constructor   | ObjectOutputStream() | (OutputStream) — stub; delegates to wrapped stream
+1.1     | ✔️          | ⭕️       | method        | writeObject()  | (AnyObject?) throws — throws NotActiveException (not implemented)
+1.1     | ✔️          | ⭕️       | method        | write/flush/close | delegated to underlying OutputStream
+
+##### java.io.ObjectInputStream (3/0/⭕️)
+
+> **Note:** Implemented in `io/ObjectInputStream.swift`. Delegates `read` and
+> `close` to the wrapped `InputStream`. `readObject()` throws
+> ``NotActiveException`` — full object deserialization is not yet implemented.
+> `registerValidation(_:priority:)` is accepted but callbacks are never called.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | ObjectInputStream()  | (InputStream) — stub; delegates to wrapped stream
+1.1     | ✔️          | ⭕️       | method        | readObject()   | ()->AnyObject? throws — throws NotActiveException (not implemented)
+1.1     | ✔️          | ⭕️       | method        | registerValidation() | (ObjectInputValidation,Int) — accepted, not invoked
 
 ##### java.io.ObjectStreamException (1/1/⭕️)
 
@@ -884,11 +897,25 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.net.URLEncoder.encode(String,String) — already tracked above ✔️
 
-##### java.net.DatagramSocketImpl (0/0/⭕️)
+##### java.net.DatagramSocketImpl (9/0/⭕️)
+
+> **Note:** Implemented in `net/DatagramSocketImpl.swift` as an `open class`
+> following the same pattern as `SocketImpl`. All methods throw
+> ``java.io.IOException`` by default; subclasses must override them.
+> Platform-independent — pure Swift, no POSIX imports.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | DatagramSocketImpl | abstract base for datagram socket implementations
+1.1     | ✔️          | ⭕️       | field         | fd / localPort | Int32 / Int
+1.1     | ✔️          | ⭕️       | method        | create()       | () throws
+1.1     | ✔️          | ⭕️       | method        | bind()         | (Int,InetAddress) throws
+1.1     | ✔️          | ⭕️       | method        | send()         | (DatagramPacket) throws
+1.1     | ✔️          | ⭕️       | method        | receive()      | (DatagramPacket) throws
+1.1     | ✔️          | ⭕️       | method        | connect()      | (InetAddress,Int) throws — no-op default
+1.1     | ✔️          | ⭕️       | method        | disconnect()   | () — no-op default
+1.1     | ✔️          | ⭕️       | method        | setTTL()/getTTL() | (UInt8)/()->UInt8 throws
+1.1     | ✔️          | ⭕️       | method        | join()/leave() | (InetAddress) throws
+1.1     | ✔️          | ⭕️       | method        | getLocalPort() | ()->Int
 
 ##### java.net.HttpURLConnection (5/5/✔️)
 
@@ -905,14 +932,19 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ✔️       | final field   | HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND | int constants
 1.1     | ✔️          | ✔️       | final field   | HTTP_INTERNAL_ERROR, HTTP_NOT_IMPLEMENTED, HTTP_BAD_GATEWAY, HTTP_UNAVAILABLE | int constants
 
-##### java.net.MulticastSocket (0/0/⭕️)
+##### java.net.MulticastSocket (4/4/⭕️)
+
+> **Note:** Implemented in `net/MulticastSocket.swift` as a subclass of
+> ``DatagramSocket``. `joinGroup`/`leaveGroup` use POSIX `IP_ADD_MEMBERSHIP` /
+> `IP_DROP_MEMBERSHIP` on Darwin and Linux. On WASI and Windows these methods
+> throw ``SocketException``.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | constructor   | MulticastSocket() | ()
-1.1     | ⭕️          | ⭕️       | constructor   | MulticastSocket() | (int port)
-1.1     | ⭕️          | ⭕️       | method        | joinGroup()    | (InetAddress)
-1.1     | ⭕️          | ⭕️       | method        | leaveGroup()   | (InetAddress)
+1.1     | ✔️          | ⭕️       | constructor   | MulticastSocket() | ()
+1.1     | ✔️          | ⭕️       | constructor   | MulticastSocket() | (int port)
+1.1     | ✔️          | ⭕️       | method        | joinGroup()    | (InetAddress) — POSIX: Darwin/Linux; throws on WASI/Windows
+1.1     | ✔️          | ⭕️       | method        | leaveGroup()   | (InetAddress) — POSIX: Darwin/Linux; throws on WASI/Windows
 
 ##### java.net.FileNameMap (1/1/⭕️)
 
@@ -1489,7 +1521,7 @@ version | implemented | tested   | type          | name           | more informa
 | Package | Status | Notes |
 |---------|--------|-------|
 | **java.io** (Reader/Writer hierarchy) | ✔️ implemented, ⭕️ tests | all classes present, tests sparse |
-| **java.io** (Object Serialization) | ⭕️ partial | `Externalizable` protocol present; `ObjectInputStream`/`ObjectOutputStream` are empty class shells (no constructors); `ObjectStreamClass` and `ObjectInputValidation` missing |
+| **java.io** (Object Serialization) | ✔️ stub | `Externalizable`, `ObjectInputValidation`, `ObjectStreamClass` implemented; `ObjectInputStream`/`ObjectOutputStream` have constructors + stream delegation; `readObject`/`writeObject` throw `NotActiveException` |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read) |
@@ -1497,7 +1529,7 @@ version | implemented | tested   | type          | name           | more informa
 | **java.awt** (1.1 additions) | ✔️ | `AWTEventMulticaster`, `EventQueue` implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
-| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
+| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux); Windows/WASI: joinGroup/leaveGroup throw |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; introspection not ported |
 | **java.awt.datatransfer** | ✔️ implemented | `Transferable`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `UnsupportedFlavorException`, `Clipboard`; macOS/iOS native, X11/Win32 in-memory fallback (TODO: native) |
@@ -1511,16 +1543,18 @@ These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
 implemented or only stubbed**. They are the concrete to-do list for closing the
 1.1 gap, verified against the actual source tree (June 2026):
 
-- **java.io.ObjectInputStream / ObjectOutputStream** — class shells exist
-  (`io/ObjectInputStream.swift`, `io/ObjectOutputStream.swift`) but are
-  completely empty — no constructor, no methods. Real object-graph
-  (de)serialization is not implemented.
-- **java.io.ObjectStreamClass** — missing entirely (serialization descriptor
-  lookup: `lookup(Class)`, `getName()`, `getSerialVersionUID()`).
-- **java.io.ObjectInputValidation** — missing entirely (validation callback
-  interface: `validateObject()`).
-- **java.net.MulticastSocket** — missing (UDP multicast).
-- **java.net.DatagramSocketImpl** — missing (abstract SPI for datagram sockets).
+- **java.io.ObjectInputStream / ObjectOutputStream** — constructors and
+  stream delegation implemented. `readObject()` / `writeObject()` throw
+  ``NotActiveException``; full object-graph (de)serialization is not
+  implemented and would require a dedicated serialization format effort.
+- **java.io.ObjectStreamClass** — minimal stub implemented (`lookup`, `getName`,
+  `getSerialVersionUID` always returning 0). No real class descriptor introspection.
+- **java.io.ObjectInputValidation** — protocol implemented; `registerValidation`
+  is accepted but callbacks are never invoked (no real deserialization pipeline).
+- **java.net.MulticastSocket** — implemented; `joinGroup`/`leaveGroup` work on
+  Darwin and Linux via POSIX; throw ``SocketException`` on WASI and Windows.
+- **java.net.DatagramSocketImpl** — abstract stub implemented; no concrete
+  platform backend (``DatagramSocket`` uses its own POSIX fd directly).
 
 > **Note — source annotation bug:** `Externalization.swift` carries a
 > `@Since: Java 1.2` comment, but `java.io.Externalizable` is a **Java 1.1**
