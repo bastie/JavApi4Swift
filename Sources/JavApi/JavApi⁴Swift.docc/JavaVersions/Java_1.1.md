@@ -623,6 +623,8 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.io — Object Serialization (new in 1.1)
 
+> **Design decision:** The object serialization mechanism (`ObjectInputStream.readObject()` / `ObjectOutputStream.writeObject()`) is deliberately not implemented beyond stub level. For the full rationale see <doc:NotImplemented>.
+
 ##### java.io.Serializable (0/0/✔️)
 
 version | implemented | tested   | type          | name           | more informations
@@ -936,15 +938,16 @@ version | implemented | tested   | type          | name           | more informa
 
 > **Note:** Implemented in `net/MulticastSocket.swift` as a subclass of
 > ``DatagramSocket``. `joinGroup`/`leaveGroup` use POSIX `IP_ADD_MEMBERSHIP` /
-> `IP_DROP_MEMBERSHIP` on Darwin and Linux. On WASI and Windows these methods
-> throw ``SocketException``.
+> `IP_DROP_MEMBERSHIP` on Darwin and Linux; on Windows the same Winsock2 options
+> are called via ``platformSetsockopt``. On WASI only, these methods throw
+> ``SocketException``.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | MulticastSocket() | ()
 1.1     | ✔️          | ⭕️       | constructor   | MulticastSocket() | (int port)
-1.1     | ✔️          | ⭕️       | method        | joinGroup()    | (InetAddress) — POSIX: Darwin/Linux; throws on WASI/Windows
-1.1     | ✔️          | ⭕️       | method        | leaveGroup()   | (InetAddress) — POSIX: Darwin/Linux; throws on WASI/Windows
+1.1     | ✔️          | ⭕️       | method        | joinGroup()    | (InetAddress) — Darwin/Linux/Windows; throws on WASI
+1.1     | ✔️          | ⭕️       | method        | leaveGroup()   | (InetAddress) — Darwin/Linux/Windows; throws on WASI
 
 ##### java.net.FileNameMap (1/1/⭕️)
 
@@ -1529,7 +1532,7 @@ version | implemented | tested   | type          | name           | more informa
 | **java.awt** (1.1 additions) | ✔️ | `AWTEventMulticaster`, `EventQueue` implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
-| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux); Windows/WASI: joinGroup/leaveGroup throw |
+| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; introspection not ported |
 | **java.awt.datatransfer** | ✔️ implemented | `Transferable`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `UnsupportedFlavorException`, `Clipboard`; macOS/iOS native, X11/Win32 in-memory fallback (TODO: native) |
@@ -1552,7 +1555,8 @@ implemented or only stubbed**. They are the concrete to-do list for closing the
 - **java.io.ObjectInputValidation** — protocol implemented; `registerValidation`
   is accepted but callbacks are never invoked (no real deserialization pipeline).
 - **java.net.MulticastSocket** — implemented; `joinGroup`/`leaveGroup` work on
-  Darwin and Linux via POSIX; throw ``SocketException`` on WASI and Windows.
+  Darwin, Linux, and Windows (Winsock2 via ``platformSetsockopt``); throw
+  ``SocketException`` on WASI only.
 - **java.net.DatagramSocketImpl** — abstract stub implemented; no concrete
   platform backend (``DatagramSocket`` uses its own POSIX fd directly).
 
@@ -1567,7 +1571,7 @@ tests still to be written; that column tracks test coverage, not implementation)
 
 The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
 
-- **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
+- **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
 - ~~**java.awt.datatransfer**~~ — now implemented; see section above.

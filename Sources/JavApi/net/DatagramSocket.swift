@@ -44,7 +44,7 @@ extension java.net {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public class DatagramSocket: @unchecked Sendable {
 
-    private var fd: Int32 = -1
+    internal var fd: Int32 = -1
     private var _localPort: Int = -1
     private var _closed: Bool = false
     private var soTimeout: Int = 0

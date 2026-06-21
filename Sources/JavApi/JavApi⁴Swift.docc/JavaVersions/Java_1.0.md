@@ -2252,3 +2252,9 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | setLabel()     | (String)
 
+---
+
+## Deliberate Non-Implementations
+
+Java 1.0 itself does not include Serialization or RMI — both were introduced in Java 1.1. For the rationale on why these technologies are not implemented in JavApi⁴Swift, see <doc:NotImplemented> and ``Java_1.1``.
+

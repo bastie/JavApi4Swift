@@ -2,6 +2,8 @@
 
 Lessons learned and non-obvious design decisions for future contributors.
 
+> **See also:** <doc:NotImplemented> — rationale for Java technologies that are deliberately not ported (currently: Serialization and RMI).
+
 ---
 
 ## Swing Hit-Test Coordinate Translation — `_SwingHitTest.find()` (2026-06)
