@@ -338,6 +338,25 @@ extension java.awt.toolkit.swiftui {
     public override func getColorModel() -> java.awt.image.ColorModel {
       return java.awt.image.ColorModel.getRGBdefault()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Clipboard
+    // -------------------------------------------------------------------------
+
+    /// Returns the native Apple clipboard provider.
+    ///
+    /// - macOS: backed by `NSPasteboard.general`
+    /// - iOS/tvOS: backed by `UIPasteboard.general`
+    /// - watchOS: falls back to in-memory headless provider (no pasteboard API)
+    public override func _makeClipboardProvider() -> any java.awt.toolkit.ClipboardProvider {
+#if canImport(AppKit)
+      return java.awt.toolkit._AppKitClipboardProvider()
+#elseif canImport(UIKit) && !os(watchOS)
+      return java.awt.toolkit._UIKitClipboardProvider()
+#else
+      return java.awt.toolkit._HeadlessClipboardProvider()
+#endif
+    }
   }
 }
 

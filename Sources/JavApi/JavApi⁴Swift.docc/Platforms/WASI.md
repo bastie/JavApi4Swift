@@ -43,6 +43,31 @@ The high-level `java.net.URL` class and string parsing (`InetAddress` with a lit
 
 File I/O via `java.io.File`, `FileInputStream`, and `FileOutputStream` is available on WASI through the WASI filesystem interface, subject to the sandbox permissions granted to the module.
 
+## Clipboard (`java.awt.datatransfer`)
+
+`Toolkit.getSystemClipboard()` and `StringSelection` work on WASI, but use
+an **in-process in-memory buffer** rather than the browser's OS clipboard.
+
+Copy → paste within the same WASM module works correctly.  Cross-app / cross-tab
+transfer requires a JavaScript bridge.
+
+**Why not `navigator.clipboard`?**
+`navigator.clipboard.readText()` / `writeText()` return JavaScript `Promise`s.
+Java's `Clipboard` API is synchronous, and blocking a WASM thread on a JS
+`Promise` requires `SharedArrayBuffer` + `Atomics` with specific COOP/COEP HTTP
+headers — not reliably available in all deployments.
+
+**Extension point:** If your embedding provides
+[JavaScriptKit](https://github.com/swiftwasm/JavaScriptKit), you can supply a
+custom `ClipboardProvider` that fire-and-forgets writes to `navigator.clipboard`
+and reads back from a JS-side cache.
+
+| Scenario | Behaviour |
+|----------|-----------|
+| Copy → paste inside WASM module | ✔ via in-memory buffer |
+| Copy from WASM → paste in browser | ✖ requires JS bridge |
+| Paste from browser → WASM | ✖ requires JS bridge |
+
 ## Supported without restriction
 
 - All `java.lang` types except `Thread.sleep` blocking variant (see above)

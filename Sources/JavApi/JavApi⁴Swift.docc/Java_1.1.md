@@ -1106,9 +1106,70 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,int,int) throws
 1.1     | ✔️          | ✔️       | method        | fireVetoableChange()              | (String,boolean,boolean) throws
 
-### java.awt.datatransfer — New package in 1.1 (not in scope)
+### java.awt.datatransfer — New package in 1.1
 
-> **Note:** Clipboard/data-transfer infrastructure has no meaningful cross-platform Swift equivalent and is **not ported**. See "Not in scope" section.
+> **Platform support:**
+> - **macOS** — `NSPasteboard.general` via `_AppKitClipboardProvider`
+> - **iOS / tvOS** — `UIPasteboard.general` via `_UIKitClipboardProvider`
+> - **Linux / FreeBSD (X11)** — in-memory fallback; TODO: `XSetSelectionOwner` / `xclip` / `wl-clipboard`
+> - **Windows (Win32)** — in-memory fallback; TODO: refactor existing `OpenClipboard`/`SetClipboardData` from `_Win32FocusManager` into `_Win32ClipboardProvider`
+> - **WASI / Headless** — in-memory buffer (`_HeadlessClipboardProvider`): copy → paste works within the process even without OS clipboard access
+>
+> Entry point: `java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()`
+
+##### java.awt.datatransfer.Transferable (0/0/✔️)
+
+version | implemented | tested   | type          | name                       | more informations
+------- | ----------- | -------- | ------------- | -------------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getTransferDataFlavors()   | ()->[DataFlavor]
+1.1     | ✔️          | 🪄       | method        | isDataFlavorSupported()    | (DataFlavor)->boolean
+1.1     | ✔️          | 🪄       | method        | getTransferData()          | (DataFlavor)->Any throws
+
+##### java.awt.datatransfer.ClipboardOwner (0/0/✔️)
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | lostOwnership()     | (Clipboard, Transferable)
+
+##### java.awt.datatransfer.DataFlavor (0/0/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ✔️          | ⭕️       | static field  | stringFlavor            | DataFlavor for Unicode String
+1.1     | ✔️          | ⭕️       | static field  | plainTextFlavor         | deprecated since Java 1.3, kept for API compat
+1.1     | ✔️          | 🪄       | constructor   | DataFlavor()            | (String mimeType)
+1.1     | ✔️          | 🪄       | constructor   | DataFlavor()            | (String mimeType, String humanPresentableName)
+1.1     | ✔️          | ⭕️       | method        | getMimeType()           | ()->String
+1.1     | ✔️          | ⭕️       | method        | getHumanPresentableName() | ()->String
+1.1     | ✔️          | ⭕️       | method        | isMimeTypeEqual()       | (String)->boolean
+1.1     | ✔️          | ⭕️       | method        | equals()                | (DataFlavor)->boolean
+
+##### java.awt.datatransfer.UnsupportedFlavorException (0/0/✔️)
+
+version | implemented | tested   | type          | name                          | more informations
+------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | UnsupportedFlavorException()  | (DataFlavor)
+
+##### java.awt.datatransfer.StringSelection (0/0/✔️)
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | StringSelection()   | (String)
+1.1     | ✔️          | ⭕️       | method        | getTransferDataFlavors() | ()->[DataFlavor]
+1.1     | ✔️          | ⭕️       | method        | isDataFlavorSupported() | (DataFlavor)->boolean
+1.1     | ✔️          | ⭕️       | method        | getTransferData()   | (DataFlavor)->Any throws
+1.1     | ✔️          | ⭕️       | method        | lostOwnership()     | (Clipboard,Transferable)
+
+##### java.awt.datatransfer.Clipboard (0/0/✔️)
+
+version | implemented | tested   | type          | name                     | more informations
+------- | ----------- | -------- | ------------- | ------------------------ | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | Clipboard()              | (String name, ClipboardProvider) — internal
+1.1     | ✔️          | ⭕️       | method        | getName()                | ()->String
+1.1     | ✔️          | ⭕️       | method        | setContents()            | (Transferable, ClipboardOwner?)
+1.1     | ✔️          | ⭕️       | method        | getContents()            | (AnyObject?)->Transferable?
+1.1     | ✔️          | ⭕️       | method        | isDataFlavorAvailable()  | (DataFlavor)->boolean
+1.1     | ✔️          | ⭕️       | method        | getData()                | (DataFlavor)->Any throws
 
 ### java.text — New package in 1.1 (partially implemented)
 
@@ -1439,7 +1500,7 @@ version | implemented | tested   | type          | name           | more informa
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; introspection not ported |
-| **java.awt.datatransfer** | ⭕️ not ported | platform-specific, no Swift equivalent |
+| **java.awt.datatransfer** | ✔️ implemented | `Transferable`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `UnsupportedFlavorException`, `Clipboard`; macOS/iOS native, X11/Win32 in-memory fallback (TODO: native) |
 | **java.lang.reflect.Method/Constructor/Array** | ⭕️ not ported | Swift has no runtime method/constructor introspection API — not portable |
 
 ---
@@ -1475,6 +1536,6 @@ The following Java 1.1 APIs are explicitly a the moment **not** ported because t
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
-- **java.awt.datatransfer** — Clipboard infrastructure (`Clipboard`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `Transferable`, `UnsupportedFlavorException`).
+- ~~**java.awt.datatransfer**~~ — now implemented; see section above.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.

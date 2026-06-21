@@ -209,6 +209,19 @@ extension java.awt.toolkit.gdi {
     public override func getColorModel() -> java.awt.image.ColorModel {
       return java.awt.image.ColorModel.getRGBdefault()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Clipboard
+    // -------------------------------------------------------------------------
+
+    /// Returns the Win32 clipboard provider.
+    ///
+    /// The shared ``_Win32ClipboardProvider`` is also used by
+    /// ``_Win32FocusManager`` for Ctrl+C/V/X key handling, so both paths
+    /// read and write the same OS clipboard.
+    public override func _makeClipboardProvider() -> any java.awt.toolkit.ClipboardProvider {
+      return java.awt.toolkit._Win32ClipboardProvider.shared
+    }
   }
 }
 #endif

@@ -148,13 +148,15 @@ public final class _X11FocusManager {
   }
 
   // ---------------------------------------------------------------------------
-  // MARK: Clipboard — X11
-  // TODO: Implement via XSetSelectionOwner / XGetSelectionOwner (X11 CLIPBOARD atom)
-  //       or delegate to xclip/wl-clipboard for Wayland compatibility.
+  // MARK: Clipboard — X11 / Wayland (delegated to _X11ClipboardProvider)
   // ---------------------------------------------------------------------------
 
+  private let clipboardProvider = java.awt.toolkit._X11ClipboardProvider()
+
   func copySelection() {
-    // no-op until X11 selection protocol is implemented
+    guard let tc = focusOwner as? java.awt.TextComponent, tc.hasSelection else { return }
+    let selected = String(Array(tc.getText())[tc.selectionStart..<tc.selectionEnd])
+    clipboardProvider._setClipboardText(selected)
   }
 
   func cutSelection() {
@@ -165,7 +167,9 @@ public final class _X11FocusManager {
   }
 
   func pasteText() {
-    // no-op until X11 selection protocol is implemented
+    guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
+    guard let text = clipboardProvider._getClipboardText() else { return }
+    for ch in text { typeCharacter(ch) }
   }
 
   // ---------------------------------------------------------------------------
