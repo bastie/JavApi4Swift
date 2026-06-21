@@ -5,7 +5,7 @@
 
 extension java.io {
 
-  /// - Since: Java 1.2
+  /// - Since: Java 1.1
   public protocol Externalizable {
     func writeExternal(_ to : ObjectOutput) throws
     func readExternal(_ from : ObjectInput) throws

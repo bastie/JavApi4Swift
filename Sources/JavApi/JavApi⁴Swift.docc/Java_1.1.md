@@ -239,6 +239,30 @@ version | implemented | tested   | type          | name             | more infor
 1.1     | ✔️          | ⭕️       | class         | MouseAdapter     | empty default impl of MouseListener + MouseMotionListener
 1.1     | ✔️          | ⭕️       | class         | WindowAdapter    | empty default impl of WindowListener (file `WindowsAdapter.swift`)
 
+##### java.awt.AWTEventMulticaster (0/0/⭕️)
+
+> **Note:** Implemented in `awt/AWTEventMulticaster.swift`. Uses a binary-tree
+> chain of listener references. The static `add(_:_:)` / `remove(_:_:)` methods
+> are the primary public API; all `XxxListener` dispatch methods delegate to
+> both arms of the chain.
+
+version | implemented | tested   | type          | name             | more informations
+------- | ----------- | -------- | ------------- | ---------------- | -----------------
+1.1     | ✔️          | ⭕️       | static method | add()            | (XxxListener?, XxxListener?) -> XxxListener?
+1.1     | ✔️          | ⭕️       | static method | remove()         | (XxxListener?, XxxListener?) -> XxxListener?
+
+##### java.awt.EventQueue (0/0/⭕️)
+
+> **Note:** Implemented in `awt/EventQueue.swift`. The "Event Dispatch Thread"
+> is mapped to `@MainActor`. `invokeLater` / `invokeAndWait` execute on the
+> main actor, matching Java's EDT guarantee.
+
+version | implemented | tested   | type          | name               | more informations
+------- | ----------- | -------- | ------------- | ------------------ | -----------------
+1.1     | ✔️          | ⭕️       | static method | invokeLater()      | (Runnable)
+1.1     | ✔️          | ⭕️       | static method | invokeAndWait()    | (Runnable) throws
+1.1     | ✔️          | ⭕️       | static method | isDispatchThread() | ()->boolean
+
 #### Printing (new in 1.1)
 
 ##### java.awt.PrintJob (5/5/⭕️)
@@ -627,17 +651,23 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | skip()          | (long)->long
 1.1     | ✔️          | 🪄       | method        | close()         | ()
 
-##### java.io.ObjectOutputStream (1/0/⭕️)
+##### java.io.ObjectOutputStream (0/0/⭕️)
+
+> **Note:** Class exists in `io/ObjectOutputStream.swift` as an empty subclass
+> of `OutputStream` — no constructor or methods implemented yet.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | ObjectOutputStream() | (OutputStream) — stub
+1.1     | ⭕️          | ⭕️       | constructor   | ObjectOutputStream() | (OutputStream) — not yet implemented
 
-##### java.io.ObjectInputStream (1/0/⭕️)
+##### java.io.ObjectInputStream (0/0/⭕️)
+
+> **Note:** Class exists in `io/ObjectInputStream.swift` as an empty subclass
+> of `InputStream` — no constructor or methods implemented yet.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | ObjectInputStream()  | (InputStream) — stub
+1.1     | ⭕️          | ⭕️       | constructor   | ObjectInputStream()  | (InputStream) — not yet implemented
 
 ##### java.io.ObjectStreamException (1/1/⭕️)
 
@@ -1398,11 +1428,12 @@ version | implemented | tested   | type          | name           | more informa
 | Package | Status | Notes |
 |---------|--------|-------|
 | **java.io** (Reader/Writer hierarchy) | ✔️ implemented, ⭕️ tests | all classes present, tests sparse |
-| **java.io** (Object Serialization) | ✔️ stubs | Externalizable/ObjectStream stubs only |
+| **java.io** (Object Serialization) | ⭕️ partial | `Externalizable` protocol present; `ObjectInputStream`/`ObjectOutputStream` are empty class shells (no constructors); `ObjectStreamClass` and `ObjectInputValidation` missing |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read) |
 | **java.awt.event** | ✔️ complete | all listeners, events **and adapter classes**; ContainerEvent/ContainerListener included |
+| **java.awt** (1.1 additions) | ✔️ | `AWTEventMulticaster`, `EventQueue` implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket; MulticastSocket not ported |
@@ -1419,12 +1450,20 @@ These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
 implemented or only stubbed**. They are the concrete to-do list for closing the
 1.1 gap, verified against the actual source tree (June 2026):
 
-- **java.io.ObjectInputStream / ObjectOutputStream** — present only as
-  constructor stubs; real object-graph (de)serialization is not implemented.
-- **java.io.ObjectStreamClass** — missing (serialization descriptor lookup).
-- **java.io.ObjectInputValidation** — missing (validation callback interface).
+- **java.io.ObjectInputStream / ObjectOutputStream** — class shells exist
+  (`io/ObjectInputStream.swift`, `io/ObjectOutputStream.swift`) but are
+  completely empty — no constructor, no methods. Real object-graph
+  (de)serialization is not implemented.
+- **java.io.ObjectStreamClass** — missing entirely (serialization descriptor
+  lookup: `lookup(Class)`, `getName()`, `getSerialVersionUID()`).
+- **java.io.ObjectInputValidation** — missing entirely (validation callback
+  interface: `validateObject()`).
 - **java.net.MulticastSocket** — missing (UDP multicast).
 - **java.net.DatagramSocketImpl** — missing (abstract SPI for datagram sockets).
+
+> **Note — source annotation bug:** `Externalization.swift` carries a
+> `@Since: Java 1.2` comment, but `java.io.Externalizable` is a **Java 1.1**
+> API. The doc entry above is correct; the source comment should be corrected.
 
 Everything else listed in the tables above is implemented (some with `⭕️`
 tests still to be written; that column tracks test coverage, not implementation).
