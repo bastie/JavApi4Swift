@@ -956,6 +956,68 @@ default: break;
 
 > **AI hint:** Java `switch` falls through by default — check every `case` for a missing `break`. If fall-through is intentional translate it with Swift `fallthrough`. Add `default:` only if Java has one or if Swift requires exhaustiveness. Prepend `.` to enum case names in Swift `case` labels.
 
+#### Service Provider Interface (SPI)
+
+Java's `java.util.ServiceLoader` loads implementations at runtime via reflection and `META-INF/services` descriptor files. Swift has no runtime reflection and no classpath, so the entire mechanism must be replaced.
+
+**Solution: Static Registry**
+
+Instead of dynamic loading, use a static registry that third parties call explicitly to register their implementation. This is semantically equivalent — the difference is that registration is explicit (a method call) rather than implicit (classpath scanning).
+
+```swift
+extension java.sql {
+  public enum DriverManager {
+
+    // Registry replaces META-INF/services/java.sql.Driver
+    nonisolated(unsafe) private static var registeredDrivers: [any java.sql.Driver] = []
+
+    // Third-party registers its driver (replaces Class.forName side-effect)
+    public static func registerDriver(_ driver: any java.sql.Driver) throws {
+      registeredDrivers.append(driver)
+    }
+
+    // Consumers use the registry exactly as in Java
+    public static func getConnection(_ url: String) throws -> any java.sql.Connection {
+      for driver in registeredDrivers {
+        if let conn = try driver.connect(url) { return conn }
+      }
+      throw java.sql.SQLException("No suitable driver found for \(url)")
+    }
+  }
+}
+```
+
+**Usage by a third-party driver:**
+
+```swift
+// Once at app startup — replaces the implicit Class.forName("org.example.Driver") call
+try java.sql.DriverManager.registerDriver(MyDriver())
+```
+
+**General Pattern for all Java SPIs**
+
+This registry pattern applies to every Java SPI, not just JDBC. The mapping is always the same:
+
+| Java SPI mechanism | Swift equivalent |
+|---|---|
+| `META-INF/services/<InterfaceName>` | `XyzRegistry.register(impl)` |
+| `ServiceLoader.load(Xyz.class)` | `XyzRegistry.all()` |
+| `Class.forName(...)` static initializer | explicit `register()` call at startup |
+
+Apply this pattern consistently whenever porting a Java API that uses `ServiceLoader`:
+
+- `java.sql.Driver` → `DriverManager` registry  
+- `java.nio.charset.CharsetProvider` → `CharsetRegistry`  
+- `java.util.logging.Handler` → `LogManager` registry  
+- `javax.imageio.ImageReaderSpi` → `ImageIO` registry  
+- `java.security.Provider` → `Security` registry  
+
+**Why this is better than Java's approach**
+
+Java's `Class.forName` trick was always fragile — the wrong classpath entry silently skips registration with no error. The Swift registry makes the contract explicit: if `register()` is never called, `getConnection()` throws a clear error. This is a case where the Java→Swift port improves on the original.
+
+> **AI hint:** Whenever a Java API uses `ServiceLoader`, do not attempt to replicate runtime reflection. Instead, create a static registry (`nonisolated(unsafe) private static var providers: [any ProviderProtocol] = []`) with a `register(_ provider:)` method and a lookup method. Mark the registry storage `nonisolated(unsafe)` because it is write-once at startup and then read-only — matching Java's typical SPI registration lifecycle.
+
 #### visibility
 
 Swift visiblilities are:

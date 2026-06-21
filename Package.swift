@@ -16,6 +16,11 @@ let package = Package(
       targets: ["JavApi"]
     ),
     .library(name: "notonlyjava", targets: ["NO"]),
+    .library(
+      // Example driver implemetation
+      name: "SQLiteJDBC",
+      targets: ["SQLiteJDBC"]
+    ),
   ],
   targets: [
     .target(
@@ -26,17 +31,32 @@ let package = Package(
     ),
     .testTarget(
       name: "JavApiTests",
-      dependencies: ["JavApi"]),
+      dependencies: ["JavApi"]
+    ),
+    // Example AWT Showcase
     .executableTarget(
       name: "AWTShowcase",
       dependencies: ["JavApi"],
       path: "Sources/AWTShowcase",
       resources: [.process("Assets.xcassets")]
     ),
+    // Example Swing Showcase
     .executableTarget(
       name: "SwingShowcase",
       dependencies: ["JavApi"],
       path: "Sources/SwingShowcase"
+    ),
+    // Example JDBC 1.x driver implementation backed by SQLite (macOS only — uses import SQLite3)
+    .target(
+      name: "SQLiteJDBC",
+      dependencies: ["JavApi"],
+      path: "Sources/SQLiteJDBC",
+      linkerSettings: [.linkedLibrary("sqlite3")]
+    ),
+    .testTarget(
+      name: "SQLiteJDBCTests",
+      dependencies: ["JavApi", "SQLiteJDBC"],
+      path: "Tests/SQLiteJDBCTests"
     ),
   ]
 )

@@ -1655,6 +1655,154 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | close()        | () throws
 1.3     | ✔️          | ⭕️       | constant      | OPEN_READ / OPEN_DELETE | Int (1.3 additions, for completeness)
 
+### java.sql — New package in 1.1 (JDBC 1.x)
+
+> **Note:** JDBC 1.x defines the `java.sql` package. Concrete driver implementations
+> live in separate library targets (e.g. `SQLiteJDBC`). Drivers are registered via
+> the static SPI registry in ``java/sql/DriverManager`` — see ``Java2Swift`` for
+> the SPI→Registry pattern. `CallableStatement` is provided for API completeness
+> but no bundled driver implements it (SQLite has no stored procedures).
+
+##### java.sql.DriverManager (5/5/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | static method | registerDriver()      | (Driver)
+1.1     | ✔️          | ⭕️       | static method | deregisterDriver()    | (Driver)
+1.1     | ✔️          | ⭕️       | static method | getConnection()       | (String)->Connection
+1.1     | ✔️          | ⭕️       | static method | getConnection()       | (String,[String:String]?)->Connection
+1.1     | ✔️          | ⭕️       | static method | getDriver()           | (String)->Driver
+1.1     | ✔️          | ⭕️       | static method | getDrivers()          | ()->[Driver]
+
+##### java.sql.Driver (5/5/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | acceptsURL()          | (String)->Bool
+1.1     | ✔️          | 🪄       | method        | connect()             | (String,[String:String]?)->Connection?
+1.1     | ✔️          | 🪄       | method        | getPropertyInfo()     | (String,[String:String]?)->[DriverPropertyInfo]
+1.1     | ✔️          | 🪄       | property      | majorVersion          | Int
+1.1     | ✔️          | 🪄       | property      | minorVersion          | Int
+1.1     | ✔️          | 🪄       | property      | jdbcCompliant         | Bool
+
+##### java.sql.Connection (13/13/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | createStatement()       | ()->Statement
+1.1     | ✔️          | 🪄       | method        | prepareStatement()      | (String)->PreparedStatement
+1.1     | ✔️          | 🪄       | method        | prepareCall()           | (String)->CallableStatement
+1.1     | ✔️          | 🪄       | method        | getAutoCommit()         | ()->Bool
+1.1     | ✔️          | 🪄       | method        | setAutoCommit()         | (Bool)
+1.1     | ✔️          | 🪄       | method        | commit()                | ()
+1.1     | ✔️          | 🪄       | method        | rollback()              | ()
+1.1     | ✔️          | 🪄       | method        | close() / isClosed()    | ()
+1.1     | ✔️          | 🪄       | method        | getMetaData()           | ()->DatabaseMetaData
+1.1     | ✔️          | 🪄       | method        | getTransactionIsolation() / setTransactionIsolation() | ()
+1.1     | ✔️          | 🪄       | final field   | TRANSACTION_* constants | Int
+
+##### java.sql.Statement (8/8/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | executeQuery()        | (String)->ResultSet
+1.1     | ✔️          | 🪄       | method        | executeUpdate()       | (String)->Int
+1.1     | ✔️          | 🪄       | method        | execute()             | (String)->Bool
+1.1     | ✔️          | 🪄       | method        | getResultSet()        | ()->ResultSet?
+1.1     | ✔️          | 🪄       | method        | getUpdateCount()      | ()->Int
+1.1     | ✔️          | 🪄       | method        | close()               | ()
+1.1     | ✔️          | 🪄       | method        | setMaxRows()          | (Int)
+1.1     | ✔️          | 🪄       | method        | setQueryTimeout()     | (Int)
+
+##### java.sql.PreparedStatement (10/10/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | executeQuery()        | ()->ResultSet
+1.1     | ✔️          | 🪄       | method        | executeUpdate()       | ()->Int
+1.1     | ✔️          | 🪄       | method        | execute()             | ()->Bool
+1.1     | ✔️          | 🪄       | method        | clearParameters()     | ()
+1.1     | ✔️          | 🪄       | method        | setNull()             | (Int,Int)
+1.1     | ✔️          | 🪄       | method        | setBoolean/setInt/setLong/setDouble() | (Int,T)
+1.1     | ✔️          | 🪄       | method        | setString()           | (Int,String?)
+1.1     | ✔️          | 🪄       | method        | setDate/setTime/setTimestamp() | (Int,java.sql.T?)
+1.1     | ✔️          | 🪄       | method        | setBytes()            | (Int,[UInt8]?)
+
+##### java.sql.CallableStatement (⭕️ stub only)
+
+> **Note:** Protocol is defined for API completeness. No bundled driver implements it — SQLite has no stored procedures.
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | registerOutParameter() | (Int,Int)
+1.1     | ✔️          | 🪄       | method        | get*()                | result accessors
+
+##### java.sql.ResultSet (14/14/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | next()                | ()->Bool
+1.1     | ✔️          | 🪄       | method        | close() / wasNull()   | ()
+1.1     | ✔️          | 🪄       | method        | getString()           | (Int/String)->String?
+1.1     | ✔️          | 🪄       | method        | getBoolean/getInt/getLong/getDouble() | (Int/String)
+1.1     | ✔️          | 🪄       | method        | getDate/getTime/getTimestamp() | (Int/String)->java.sql.T?
+1.1     | ✔️          | 🪄       | method        | getMetaData()         | ()->ResultSetMetaData
+1.1     | ✔️          | 🪄       | method        | findColumn()          | (String)->Int
+
+##### java.sql.ResultSetMetaData (7/7/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getColumnCount()      | ()->Int
+1.1     | ✔️          | 🪄       | method        | getColumnName()       | (Int)->String
+1.1     | ✔️          | 🪄       | method        | getColumnLabel()      | (Int)->String
+1.1     | ✔️          | 🪄       | method        | getColumnType()       | (Int)->Int
+1.1     | ✔️          | 🪄       | method        | getColumnTypeName()   | (Int)->String
+1.1     | ✔️          | 🪄       | method        | isNullable()          | (Int)->Int
+1.1     | ✔️          | 🪄       | method        | getColumnDisplaySize()| (Int)->Int
+
+##### java.sql.DatabaseMetaData (minimal/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getDatabaseProductName/Version() | ()->String
+1.1     | ✔️          | 🪄       | method        | getDriverName/Version() | ()->String
+1.1     | ✔️          | 🪄       | method        | getTables()           | (String?,String?,String?,[String]?)->ResultSet
+1.1     | ✔️          | 🪄       | method        | getColumns()          | (String?,String?,String?,String?)->ResultSet
+1.1     | ✔️          | 🪄       | method        | supportsTransactions() | ()->Bool
+
+##### java.sql.Types (19/19/🪄)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | final field   | BIT/TINYINT/SMALLINT/INTEGER/BIGINT | Int constants
+1.1     | ✔️          | 🪄       | final field   | FLOAT/REAL/DOUBLE/NUMERIC/DECIMAL | Int constants
+1.1     | ✔️          | 🪄       | final field   | CHAR/VARCHAR/LONGVARCHAR | Int constants
+1.1     | ✔️          | 🪄       | final field   | DATE/TIME/TIMESTAMP  | Int constants
+1.1     | ✔️          | 🪄       | final field   | BINARY/VARBINARY/LONGVARBINARY | Int constants
+1.1     | ✔️          | 🪄       | final field   | NULL/OTHER           | Int constants
+
+##### java.sql.Date / Time / Timestamp (3/3/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | class         | Date                  | extends java.util.Date; toString() → `yyyy-MM-dd`
+1.1     | ✔️          | ⭕️       | class         | Time                  | extends java.util.Date; toString() → `HH:mm:ss`
+1.1     | ✔️          | ⭕️       | class         | Timestamp             | extends java.util.Date; getNanos()/setNanos(); toString() → `yyyy-MM-dd HH:mm:ss.nnnnnnnnn`
+
+##### java.sql.SQLException / SQLWarning (2/2/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | class         | SQLException          | extends Exception; getSQLState(), getErrorCode()
+1.1     | ✔️          | ⭕️       | class         | SQLWarning            | extends SQLException; getNextWarning(), setNextWarning()
+
+##### java.sql.DriverPropertyInfo (1/1/🪄)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | 🪄       | class         | DriverPropertyInfo    | name, value, required, description, choices
+
 ## Implementation Status Summary
 
 | Package | Status | Notes |
@@ -1671,6 +1819,7 @@ version | implemented | tested   | type          | name           | more informa
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
 | **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
+| **java.sql (JDBC 1.x)** | ✔️ protocols | All JDBC 1.x protocols + `DriverManager` registry; concrete driver in `SQLiteJDBC` target (macOS) |
 | **java.rmi** | ✔️ stubs | `Remote` marker + 14 exception classes as compile-time stubs; RMI networking stack not implemented |
 | **java.awt.datatransfer** | ✔️ implemented | `Transferable`, `ClipboardOwner`, `DataFlavor`, `StringSelection`, `UnsupportedFlavorException`, `Clipboard`; macOS/iOS native, X11/Win32 in-memory fallback (TODO: native) |
 | **java.lang.reflect.Method/Constructor/Array** | ⭕️ not ported | Swift has no runtime method/constructor introspection API — not portable |
@@ -1697,10 +1846,6 @@ implemented or only stubbed**. They are the concrete to-do list for closing the
 - **java.net.DatagramSocketImpl** — abstract stub implemented; no concrete
   platform backend (``DatagramSocket`` uses its own POSIX fd directly).
 
-> **Note — source annotation bug:** `Externalization.swift` carries a
-> `@Since: Java 1.2` comment, but `java.io.Externalizable` is a **Java 1.1**
-> API. The doc entry above is correct; the source comment should be corrected.
-
 Everything else listed in the tables above is implemented (some with `⭕️`
 tests still to be written; that column tracks test coverage, not implementation).
 
@@ -1709,7 +1854,6 @@ tests still to be written; that column tracks test coverage, not implementation)
 The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
 
 - **java.rmi networking stack**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>. The `java.rmi` exception hierarchy and `Remote` marker are present as compile-time stubs (see table above).
-- **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
-- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
+- **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. For the full rationale see <doc:NotImplemented>. 
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.
