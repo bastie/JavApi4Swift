@@ -1111,6 +1111,110 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,int,int)
 1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,boolean,boolean)
 
+##### java.beans.IntrospectionException (1/1/⭕️)
+
+version | implemented | tested   | type          | name                        | more informations
+------- | ----------- | -------- | ------------- | --------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | IntrospectionException()    | (String)
+
+##### java.beans.Visibility (4/4/⭕️)
+
+> **Note:** Implemented as a `protocol` in `beans/Visibility.swift`.
+
+version | implemented | tested   | type          | name              | more informations
+------- | ----------- | -------- | ------------- | ----------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | needsGui()        | ()->boolean
+1.1     | ✔️          | 🪄       | method        | dontUseGui()      | ()
+1.1     | ✔️          | 🪄       | method        | okToUseGui()      | ()
+1.1     | ✔️          | 🪄       | method        | isGuiAvailable()  | ()->boolean
+
+##### java.beans.FeatureDescriptor (9/9/⭕️)
+
+> **Note:** Implemented in `beans/FeatureDescriptor.swift`. Carries name,
+> display name, short description, and flag attributes. Does **not** carry
+> `java.lang.reflect` data — reflection-based subclasses are not ported.
+> `isPreferred()`/`setPreferred()` are a Java 1.2 addition included for
+> API completeness.
+
+version | implemented | tested   | type          | name                   | more informations
+------- | ----------- | -------- | ------------- | ---------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | getName()              | ()->String
+1.1     | ✔️          | ⭕️       | method        | setName()              | (String)
+1.1     | ✔️          | ⭕️       | method        | getDisplayName()       | ()->String
+1.1     | ✔️          | ⭕️       | method        | setDisplayName()       | (String)
+1.1     | ✔️          | ⭕️       | method        | getShortDescription()  | ()->String
+1.1     | ✔️          | ⭕️       | method        | setShortDescription()  | (String)
+1.1     | ✔️          | ⭕️       | method        | isExpert()             | ()->boolean
+1.1     | ✔️          | ⭕️       | method        | setExpert()            | (boolean)
+1.1     | ✔️          | ⭕️       | method        | isHidden()             | ()->boolean
+1.1     | ✔️          | ⭕️       | method        | setHidden()            | (boolean)
+
+##### java.beans.Beans (4/4/⭕️)
+
+> **Note:** Only the environment-query methods are implemented
+> (`beans/Beans.swift`). `instantiate(ClassLoader, String)` requires
+> `java.lang.Class` reflection and is **not ported** — see `NotImplemented.md`.
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | static method | isDesignTime()        | ()->boolean
+1.1     | ✔️          | ⭕️       | static method | setDesignTime()       | (boolean)
+1.1     | ✔️          | ⭕️       | static method | isGuiAvailable()      | ()->boolean
+1.1     | ✔️          | ⭕️       | static method | setGuiAvailable()     | (boolean)
+1.1     | ⭕️          | ⭕️       | static method | instantiate()         | (ClassLoader,String) — not portable
+
+##### java.beans.Customizer (3/3/⭕️)
+
+> **Note:** Implemented as a `protocol` in `beans/Customizer.swift`. In Java,
+> `Customizer` extends `java.awt.Component`; here it is a plain protocol —
+> conforming types should wrap a UI component independently.
+
+version | implemented | tested   | type          | name                          | more informations
+------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | setObject()                   | (Object)
+1.1     | ✔️          | 🪄       | method        | addPropertyChangeListener()   | (PropertyChangeListener)
+1.1     | ✔️          | 🪄       | method        | removePropertyChangeListener()| (PropertyChangeListener)
+
+##### java.beans.PropertyEditor (10/9/⭕️)
+
+> **Note:** Implemented as a `protocol` in `beans/PropertyEditor.swift`.
+> `getCustomEditor()` is **not included** — it returns `java.awt.Component`
+> and has no portable Swift equivalent outside an AWT context.
+
+version | implemented | tested   | type          | name                          | more informations
+------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | setValue()                    | (Object?)
+1.1     | ✔️          | 🪄       | method        | getValue()                    | ()->Object?
+1.1     | ✔️          | 🪄       | method        | isPaintable()                 | ()->boolean
+1.1     | ✔️          | 🪄       | method        | getAsText()                   | ()->String?
+1.1     | ✔️          | 🪄       | method        | setAsText()                   | (String) throws
+1.1     | ✔️          | 🪄       | method        | getTags()                     | ()->[String]?
+1.1     | ✔️          | 🪄       | method        | supportsCustomEditor()        | ()->boolean
+1.1     | ✔️          | 🪄       | method        | getJavaInitializationString() | ()->String?
+1.1     | ✔️          | 🪄       | method        | addPropertyChangeListener()   | (PropertyChangeListener)
+1.1     | ✔️          | 🪄       | method        | removePropertyChangeListener()| (PropertyChangeListener)
+1.1     | ⭕️          | ⭕️       | method        | getCustomEditor()             | ()->Component — not portable (AWT dependency)
+
+##### java.beans.PropertyEditorSupport (7/7/⭕️)
+
+> **Note:** Implemented in `beans/PropertyEditorSupport.swift`. Provides
+> default implementations of all `PropertyEditor` methods and delegates
+> listener management to an internal `PropertyChangeSupport`.
+
+version | implemented | tested   | type          | name                          | more informations
+------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | PropertyEditorSupport()       | ()
+1.1     | ✔️          | ⭕️       | constructor   | PropertyEditorSupport()       | (Object source)
+1.1     | ✔️          | ⭕️       | method        | getValue() / setValue()       | AnyObject?
+1.1     | ✔️          | ⭕️       | method        | getAsText() / setAsText()     | String?
+1.1     | ✔️          | ⭕️       | method        | getTags()                     | ()->[String]?
+1.1     | ✔️          | ⭕️       | method        | isPaintable()                 | ()->boolean (returns false)
+1.1     | ✔️          | ⭕️       | method        | supportsCustomEditor()        | ()->boolean (returns false)
+1.1     | ✔️          | ⭕️       | method        | getJavaInitializationString() | ()->String? (returns nil)
+1.1     | ✔️          | ⭕️       | method        | firePropertyChange()          | ()
+1.1     | ✔️          | ⭕️       | method        | addPropertyChangeListener()   | (PropertyChangeListener)
+1.1     | ✔️          | ⭕️       | method        | removePropertyChangeListener()| (PropertyChangeListener)
+
 ##### java.beans.PropertyVetoException (1/1/✔️)
 
 version | implemented | tested   | type          | name                      | more informations
@@ -1574,6 +1678,5 @@ The following Java 1.1 APIs are explicitly a the moment **not** ported because t
 - **java.rmi**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>.
 - **java.sql (JDBC)** — Database connectivity is handled natively in Swift/Apple platforms via other means.
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported.
-- ~~**java.awt.datatransfer**~~ — now implemented; see section above.
 - **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
 - **Inner classes** — Language feature of Java, not a library API to port.

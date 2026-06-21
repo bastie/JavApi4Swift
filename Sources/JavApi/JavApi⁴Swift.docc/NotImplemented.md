@@ -83,6 +83,98 @@ Wir behalten uns vor, diese Entscheidung jederzeit zu überdenken. Eine Neubewer
 
 ---
 
+## JavaBeans Introspection (`java.beans` — Reflection-basierte Teilmenge)
+
+### Was JavaBeans Introspection macht
+
+Die Introspection-API von `java.beans` ermöglicht es, zur Laufzeit alle
+Properties, Events und Methoden eines beliebigen JavaBeans-Objekts zu
+entdecken — ohne dass der Code des Beans im Voraus bekannt sein muss.
+`Introspector.getBeanInfo(Class)` analysiert die Klasse über
+`java.lang.reflect` und liefert Deskriptor-Objekte (`PropertyDescriptor`,
+`MethodDescriptor`, `EventSetDescriptor` usw.), die wiederum
+`java.lang.reflect.Method`-Instanzen kapseln. `SimpleBeanInfo` ist eine
+Basisklasse, die `BeanInfo` implementiert und alle Methoden als no-ops
+bereitstellt, damit Beans nur die gewünschten Aspekte überschreiben müssen.
+
+Folgende Typen sind betroffen:
+
+- `BeanInfo` (Interface)
+- `BeanDescriptor`
+- `EventSetDescriptor`
+- `IndexedPropertyDescriptor`
+- `Introspector`
+- `MethodDescriptor`
+- `ParameterDescriptor`
+- `PropertyDescriptor`
+- `PropertyEditorManager`
+- `SimpleBeanInfo`
+- `Beans.instantiate(ClassLoader, String)`
+
+### Warum wir es nicht umsetzen
+
+**1. Swift hat kein äquivalentes Laufzeit-Reflection-System für Methoden.**
+Swifts `Mirror`-API erlaubt das Lesen von gespeicherten Properties (Felder),
+aber es gibt keine Möglichkeit, zur Laufzeit die Methoden eines Typs zu
+enumerieren, ihre Signaturen zu analysieren oder sie als First-Class-Objekte
+zu kapseln. `java.lang.reflect.Method` und `java.lang.reflect.Constructor`
+haben in Swift keine Entsprechung — dies ist eine bewusste Designentscheidung
+zugunsten von Typsicherheit und Compiler-Optimierbarkeit.
+
+**2. Die Deskriptor-Klassen kapseln `Method`-Objekte direkt.**
+`PropertyDescriptor` speichert intern `java.lang.reflect.Method`-Referenzen
+für Getter und Setter. `MethodDescriptor` ist ausschließlich eine Hülle um
+`java.lang.reflect.Method`. Diese Klassen ohne ihre Kern-Payload zu
+implementieren wäre eine leere Hülle ohne Mehrwert.
+
+**3. `Introspector` ist vollständig reflection-getrieben.**
+`Introspector.getBeanInfo(Class)` analysiert eine Klasse, sucht nach
+Getter-/Setter-Paaren anhand von Namenskonventionen und erzeugt daraus
+Deskriptoren. Dieser Mechanismus existiert in Swift nicht. Eine
+Approximation über `Mirror` würde nur gespeicherte Properties erfassen —
+keine computed properties, keine Methoden, keine Events.
+
+**4. `PropertyEditorManager` benötigt Class-Lookup.**
+`PropertyEditorManager.registerEditor(Class, Class)` und
+`findEditor(Class)` arbeiten mit `java.lang.Class`-Objekten als Schlüsseln.
+Da Swift kein äquivalentes `Class`-Laufzeitobjekt hat, das beliebige Typen
+als Wert repräsentiert, ist dieser Registry-Mechanismus nicht direkt portierbar.
+
+**5. `Beans.instantiate()` erfordert dynamisches Laden.**
+`Beans.instantiate(ClassLoader, String)` lädt eine Klasse per vollständigem
+Klassennamen zur Laufzeit und instanziiert sie ohne expliziten Konstruktor.
+Swift hat keinen `ClassLoader`-Mechanismus; dynamisches Laden von Typen
+anhand eines Strings ist in Swift nicht vorgesehen.
+
+**Was portiert wurde:**
+Der nicht-reflection-abhängige Teil von `java.beans` ist vollständig
+implementiert: `PropertyChangeEvent`, `PropertyChangeListener`,
+`PropertyChangeSupport`, `VetoableChangeListener`, `VetoableChangeSupport`,
+`PropertyVetoException`, `IntrospectionException`, `Visibility`,
+`FeatureDescriptor` (ohne Reflect-Payload), `Beans` (Umgebungsabfragen),
+`Customizer`, `PropertyEditor` und `PropertyEditorSupport`.
+
+**Was stattdessen zu tun ist:**
+- JavaBeans-Properties, die in portiertem Code als `Serializable`-Felder
+  verwendet werden, direkt über Swift-`var`-Properties mit `willSet`/`didSet`
+  implementieren.
+- Wer zur Laufzeit Properties entdecken muss, kann `Mirror` für gespeicherte
+  Properties verwenden — mit dem expliziten Vorbehalt, dass computed
+  Properties und Methoden nicht erfasst werden.
+- UI-Builder-Szenarien, die Introspection benötigen, sollten auf
+  Swift-native Mechanismen (`@Observable`, SwiftUI `Binding`) umgestellt werden.
+
+### Neubewertung
+
+Wir behalten uns vor, diese Entscheidung zu überdenken, wenn Swift ein
+vollständiges, schreibfähiges und methoden-fähiges Reflection-System erhält.
+Darüber hinaus wäre eine partielle Umsetzung denkbar, falls ein konkreter
+Anwendungsfall im JavApi⁴Swift-Ökosystem entsteht, der sich mit den
+vorhandenen Swift-APIs nicht sinnvoll abdecken lässt. Rückmeldungen sind
+willkommen.
+
+---
+
 ## Weitere Bereiche
 
 Dieses Dokument wird fortlaufend ergänzt, wenn weitere Technologien aus dem Java-Ökosystem bewertet und bewusst ausgeschlossen werden.
