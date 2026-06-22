@@ -32,6 +32,38 @@ extension java.io {
 
     // MARK: - Methods
 
+    // print methods (no newline)
+    open func print(_ value: String) {
+      do {
+        if let w = delegateWriter {
+          try w.write(value)
+          if autoflush { try w.flush() }
+        } else {
+          let asData = [UInt8](value.data(using: .utf8)!)
+          try delegateStream?.write(asData, 0, asData.count)
+          if autoflush { try delegateStream?.flush() }
+        }
+      }
+      catch _ {}
+    }
+
+    open func print(_ value: Int) {
+      print(String(value))
+    }
+
+    open func print(_ value: Double) {
+      print(String(value))
+    }
+
+    open func print(_ value: Float) {
+      print(String(value))
+    }
+
+    open func print(_ value: Bool) {
+      print(String(value))
+    }
+
+    // println methods (with newline)
     open func println(_ line: String) {
       do {
         if let w = delegateWriter {
@@ -41,10 +73,32 @@ extension java.io {
         } else {
           let asData = [UInt8](line.data(using: .utf8)!)
           try delegateStream?.write(asData, 0, asData.count)
+          let newline = [UInt8]("\n".utf8)
+          try delegateStream?.write(newline, 0, newline.count)
           if autoflush { try delegateStream?.flush() }
         }
       }
       catch _ {}
+    }
+
+    open func println(_ value: Int) {
+      println(String(value))
+    }
+
+    open func println(_ value: Double) {
+      println(String(value))
+    }
+
+    open func println(_ value: Float) {
+      println(String(value))
+    }
+
+    open func println(_ value: Bool) {
+      println(String(value))
+    }
+
+    open func println() {
+      println("")
     }
 
     open override func write(_ buf: [Character], _ offset: Int, _ count: Int) throws {

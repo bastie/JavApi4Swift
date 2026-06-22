@@ -131,7 +131,6 @@ extension java.io {
       guard pos > 0 else {
         throw java.io.IOException("Push back buffer is full")
       }
-      self._pushback = Int (buf [pos])
       pos -= 1
       buf[pos] = UInt8(b & 0xFF)
     }
@@ -157,10 +156,12 @@ extension java.io {
     ///
     /// - Since: Java 1.1
     public func unread(_ b: [UInt8], _ offset: Int, _ length: Int) throws {
+      guard offset >= 0, length >= 0, offset + length <= b.count else {
+        throw IndexOutOfBoundsException()
+      }
       guard pos >= length else {
         throw java.io.IOException("Push back buffer is full")
       }
-      self._pushback = Int(buf [offset])
       pos -= length
       buf[pos..<pos + length] = b[offset..<offset + length]
     }
