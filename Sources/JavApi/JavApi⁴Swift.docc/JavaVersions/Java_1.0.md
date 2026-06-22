@@ -1277,19 +1277,19 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | push()         | (Object)->Object
 1.0.2   | ✔️          | ✔️       | method        | search()       | (Object)->int
 
-##### java.util.StringTokenizer (9/9/⭕️)
+##### java.util.StringTokenizer (9/9/✔️)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String)
-1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String,String)
-1.0.2   | ✔️          | ⭕️       | constructor   | StringTokenizer() | (String,String,boolean)
-1.0.2   | ✔️          | ⭕️       | method        | countTokens()     | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | hasMoreElements() | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | hasMoreTokens()   | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | nextElement()     | ()->Object
-1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | nextToken()       | (String)->String
+1.0.2   | ✔️          | ✔️       | constructor   | StringTokenizer() | (String)
+1.0.2   | ✔️          | ✔️       | constructor   | StringTokenizer() | (String,String)
+1.0.2   | ✔️          | ✔️       | constructor   | StringTokenizer() | (String,String,boolean)
+1.0.2   | ✔️          | ✔️       | method        | countTokens()     | ()->int
+1.0.2   | ✔️          | ✔️       | method        | hasMoreElements() | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | hasMoreTokens()   | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | nextElement()     | ()->Object
+1.0.2   | ✔️          | ✔️       | method        | nextToken()       | ()->String
+1.0.2   | ✔️          | ✔️       | method        | nextToken()       | (String)->String
 
 ##### java.util.Vector (23/23/⭕️)
 

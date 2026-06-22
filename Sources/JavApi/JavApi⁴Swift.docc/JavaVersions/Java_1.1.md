@@ -223,21 +223,29 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | componentAdded()   | (ContainerEvent)
 1.1     | ✔️          | 🪄       | method        | componentRemoved() | (ContainerEvent)
 
+##### java.awt.event.PaintEvent (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | PaintEvent     | extends ComponentEvent; PAINT / UPDATE constants — not yet implemented
+
 ##### java.awt.event — Adapter classes (0/0/⭕️)
 
 > **Note:** The 1.1 delegation event model also ships abstract no-op *adapter*
 > classes so listeners can override only the methods they need. All are
-> implemented in `awt/event/`. `MouseAdapter` conforms to both `MouseListener`
-> and `MouseMotionListener`, so it also covers `MouseMotionAdapter`.
+> implemented in `awt/event/`. `MouseAdapter` conforms to `MouseListener` only;
+> `MouseMotionAdapter` is a separate class conforming to `MouseMotionListener` only —
+> matching the Java 1.1 class hierarchy exactly.
 
-version | implemented | tested   | type          | name             | more informations
-------- | ----------- | -------- | ------------- | ---------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | ComponentAdapter | empty default impl of ComponentListener
-1.1     | ✔️          | ⭕️       | class         | ContainerAdapter | empty default impl of ContainerListener
-1.1     | ✔️          | ⭕️       | class         | FocusAdapter     | empty default impl of FocusListener
-1.1     | ✔️          | ⭕️       | class         | KeyAdapter       | empty default impl of KeyListener
-1.1     | ✔️          | ⭕️       | class         | MouseAdapter     | empty default impl of MouseListener + MouseMotionListener
-1.1     | ✔️          | ⭕️       | class         | WindowAdapter    | empty default impl of WindowListener (file `WindowsAdapter.swift`)
+version | implemented | tested   | type          | name               | more informations
+------- | ----------- | -------- | ------------- | ------------------ | -----------------
+1.1     | ✔️          | ⭕️       | class         | ComponentAdapter   | empty default impl of ComponentListener
+1.1     | ✔️          | ⭕️       | class         | ContainerAdapter   | empty default impl of ContainerListener
+1.1     | ✔️          | ⭕️       | class         | FocusAdapter       | empty default impl of FocusListener
+1.1     | ✔️          | ⭕️       | class         | KeyAdapter         | empty default impl of KeyListener
+1.1     | ✔️          | ⭕️       | class         | MouseAdapter       | empty default impl of MouseListener (`awt/event/MouseAdapter.swift`)
+1.1     | ✔️          | ⭕️       | class         | MouseMotionAdapter | empty default impl of MouseMotionListener (`awt/event/MouseMotionAdapter.swift`)
+1.1     | ✔️          | ⭕️       | class         | WindowAdapter      | empty default impl of WindowListener (file `WindowsAdapter.swift`)
 
 ##### java.awt.AWTEventMulticaster (0/0/⭕️)
 
@@ -336,6 +344,20 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | getSelectedObjects()  | ()->[AnyObject]?
 1.1     | ✔️          | 🪄       | method        | addItemListener()     | (ItemListener)
 1.1     | ✔️          | 🪄       | method        | removeItemListener()  | (ItemListener)
+
+##### java.awt.IllegalComponentStateException (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | IllegalComponentStateException | extends IllegalStateException — not yet implemented
+
+##### java.awt.Shape (0/0/✔️)
+
+> **Note:** Implemented as a `protocol` in `awt/Shape.swift`. `Rectangle` and `Polygon` conform via `Rectangle+Shape.swift`.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | interface     | Shape          | contains(double,double), intersects(Rectangle2D), getBounds()
 
 ##### java.awt.MenuShortcut (0/0/✔️)
 
@@ -897,6 +919,18 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.net — 1.1 additions
 
+### java.awt.image — 1.1 additions
+
+##### java.awt.image.AreaAveragingScaleFilter / ReplicateScaleFilter (0/0/⭕️)
+
+> **Note:** Both scale-filter subclasses of `ImageFilter` were added in Java 1.1.
+> Neither is implemented yet in JavApi4Swift.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
+1.1     | ⭕️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
+
 ##### java.net.URLEncoder.encode(String,String) — already tracked above ✔️
 
 ##### java.net.DatagramSocketImpl (9/0/⭕️)
@@ -1036,6 +1070,40 @@ version | implemented | tested   | type          | name           | more informa
 ### java.security — New package in 1.1
 
 > **Note:** Only the subset relevant for JavApi is implemented. `java.security.acl` is implemented and marked deprecated (removed in Java 24). `java.security.interfaces` is fully implemented — see below.
+
+##### java.security.DigestInputStream / DigestOutputStream (0/0/⭕️)
+
+> **Note:** Stream wrappers that compute a `MessageDigest` incrementally as bytes pass through. Not yet implemented.
+
+version | implemented | tested   | type          | name                 | more informations
+------- | ----------- | -------- | ------------- | -------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | DigestInputStream    | extends FilterInputStream; on()/off() toggle digesting
+1.1     | ⭕️          | ⭕️       | class         | DigestOutputStream   | extends FilterOutputStream; on()/off() toggle digesting
+
+##### java.security.KeyPair / KeyPairGenerator (0/0/⭕️)
+
+> **Note:** `KeyPairGenerator` is the SPI entry point for asymmetric key generation. Not yet implemented.
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | KeyPair             | immutable pair of PublicKey + PrivateKey
+1.1     | ⭕️          | ⭕️       | class         | KeyPairGenerator    | getInstance(String)->KeyPairGenerator; initialize(int); generateKeyPair()->KeyPair
+
+##### java.security.Signature (0/0/⭕️)
+
+> **Note:** Digital-signature engine (sign / verify). Not yet implemented.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | Signature      | getInstance(String); initSign(PrivateKey); update(byte[]); sign()->byte[]; initVerify(PublicKey); verify(byte[])->boolean
+
+##### java.security.Security (0/0/⭕️)
+
+> **Note:** Static registry of cryptographic `Provider` instances. Not yet implemented.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | Security       | addProvider(), getProvider(), getProviders(), getProperty(), setProperty()
 
 ##### java.security.MessageDigest (0/0/⭕️)
 
@@ -1584,6 +1652,15 @@ version | implemented | tested   | type          | name                         
 
 ### java.util.zip — New in 1.1
 
+##### java.util.zip.CheckedInputStream / CheckedOutputStream (0/0/⭕️)
+
+> **Note:** Java 1.1 additions wrapping any `InputStream`/`OutputStream` with a running `Checksum`. Not yet implemented.
+
+version | implemented | tested   | type          | name                 | more informations
+------- | ----------- | -------- | ------------- | -------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | class         | CheckedInputStream   | extends InputStream; updates a Checksum as bytes are read
+1.1     | ⭕️          | ⭕️       | class         | CheckedOutputStream  | extends OutputStream; updates a Checksum as bytes are written
+
 ##### java.util.zip.Checksum (2/2/✔️)
 
 version | implemented | tested   | type          | name           | more informations
@@ -1968,13 +2045,14 @@ version | implemented | tested   | type          | name                  | more 
 | **java.io** (Object Serialization) | ✔️ stub | `Externalizable`, `ObjectInputValidation`, `ObjectStreamClass` implemented; `ObjectInputStream`/`ObjectOutputStream` have constructors + stream delegation; `readObject`/`writeObject` throw `NotActiveException` |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
-| **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read) |
-| **java.awt.event** | ✔️ complete | all listeners, events **and adapter classes**; ContainerEvent/ContainerListener included |
-| **java.awt** (1.1 additions) | ✔️ | `AWTEventMulticaster`, `EventQueue` implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present |
+| **java.util.zip** | ✔️ mostly | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read); **missing:** `CheckedInputStream`, `CheckedOutputStream` |
+| **java.awt.event** | ✔️ mostly | all listeners, events **and adapter classes** (incl. `MouseMotionAdapter` as separate class); ContainerEvent/ContainerListener included; **missing:** `PaintEvent` |
+| **java.awt** (1.1 additions) | ✔️ mostly | `AWTEventMulticaster`, `EventQueue`, `Shape` (interface) implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present; **missing:** `IllegalComponentStateException` |
+| **java.awt.image** (1.1 additions) | ⭕️ | **missing:** `ReplicateScaleFilter`, `AreaAveragingScaleFilter` |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
-| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey; `acl` fully implemented (deprecated since Java 17, removed Java 24) |
+| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey, Provider; `acl` fully implemented (deprecated since Java 17, removed Java 24); **missing:** `DigestInputStream`, `DigestOutputStream`, `KeyPair`, `KeyPairGenerator`, `Signature`, `Security` |
 | **java.security.interfaces** | ✔️ complete | DSAParams, DSAKey, DSAPublicKey, DSAPrivateKey, DSAKeyPairGenerator — all pure protocols |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
 | **java.sql (JDBC 1.x)** | ✔️ protocols | All JDBC 1.x protocols + `DriverManager` registry; concrete driver in `SQLiteJDBC` target (macOS) |
@@ -1987,11 +2065,32 @@ version | implemented | tested   | type          | name                  | more 
 ## What is still needed for full Java 1.1 compatibility
 
 These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
-implemented or only stubbed**. They are the concrete to-do list for closing the
-1.1 gap, verified against the actual source tree (June 2026):
+implemented**. Verified against the actual source tree and javaalmanac.io (June 2026):
 
-- **java.net.DatagramSocketImpl** — abstract stub implemented; no concrete
-  platform backend (``DatagramSocket`` uses its own POSIX fd directly).
+### java.awt.event
+- **`PaintEvent`** — extends `ComponentEvent`; `PAINT` / `UPDATE` constants. Not yet implemented.
+
+### java.awt.image
+- **`ReplicateScaleFilter`** — nearest-neighbour image scaler; extends `ImageFilter`.
+- **`AreaAveragingScaleFilter`** — area-averaging image scaler; extends `ReplicateScaleFilter`.
+
+### java.awt
+- **`IllegalComponentStateException`** — extends `IllegalStateException`; thrown when a component is in an inappropriate state.
+
+### java.util.zip
+- **`CheckedInputStream`** / **`CheckedOutputStream`** — stream wrappers that update a running `Checksum` as bytes pass through.
+
+### java.security
+- **`DigestInputStream`** / **`DigestOutputStream`** — `FilterInputStream`/`FilterOutputStream` wrappers that compute a `MessageDigest` on the fly.
+- **`KeyPair`** — immutable holder of a `PublicKey` + `PrivateKey` pair.
+- **`KeyPairGenerator`** — SPI entry point for asymmetric key-pair generation (`getInstance`, `initialize`, `generateKeyPair`).
+- **`Signature`** — digital-signature engine (sign / verify lifecycle).
+- **`Security`** — static registry of cryptographic `Provider` instances.
+
+### java.net.DatagramSocketImpl — design note
+The abstract stub is implemented. `DatagramSocket` uses its own POSIX file descriptor directly rather than delegating to a `DatagramSocketImpl` subclass — this is a deliberate JavApi4Swift design decision, not a missing public API.
+
+---
 
 Everything else listed in the tables above is implemented (some with `⭕️`
 tests still to be written; that column tracks test coverage, not implementation).
