@@ -22,6 +22,62 @@ Java 1.4 introduced NIO (non-blocking I/O), logging (`java.util.logging`), asser
 
 ## Java Core Packages
 
+### java.nio — New I/O
+
+Java 1.4 introduced the `java.nio` package (NIO) with buffer classes and channels.
+
+##### java.nio.ByteOrder (3/3/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.4     | ✔️          | ✔️       | field         | BIG_ENDIAN     | static
+1.4     | ✔️          | ✔️       | field         | LITTLE_ENDIAN  | static
+1.4     | ✔️          | ✔️       | static method | nativeOrder()  | ()->ByteOrder
+1.4     | ✔️          | ✔️       | method        | toString()     | ()->String
+1.4     | ✔️          | ✔️       | method        | equals()       | (ByteOrder)->boolean
+
+##### java.nio.BufferOverflowException (1/1/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.4     | ✔️          | ✔️       | constructor   | BufferOverflowException() |
+
+##### java.nio.BufferUnderflowException (1/1/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.4     | ✔️          | ✔️       | constructor   | BufferUnderflowException() |
+
+##### java.nio.ByteBuffer (17/17/✔️)
+
+version | implemented | tested   | type          | name                       | more informations
+------- | ----------- | -------- | ------------- | -------------------------- | -----------------
+1.4     | ✔️          | ✔️       | static method | allocate(int)              | throws IllegalArgumentException for negative capacity
+1.4     | ✔️          | ✔️       | static method | wrap(byte[])               |
+1.4     | ✔️          | ✔️       | static method | wrap(byte[], int, int)     | offset + length window
+1.4     | ✔️          | ✔️       | method        | capacity()                 | ()->int
+1.4     | ✔️          | ✔️       | method        | limit()                    | ()->int
+1.4     | ✔️          | ✔️       | method        | limit(int)                 | throws IllegalArgumentException
+1.4     | ✔️          | ✔️       | method        | position()                 | ()->int
+1.4     | ✔️          | ✔️       | method        | position(int)              | throws IllegalArgumentException
+1.4     | ✔️          | ✔️       | method        | remaining()                | ()->int
+1.4     | ✔️          | ✔️       | method        | hasRemaining()             | ()->boolean
+1.4     | ✔️          | ✔️       | method        | flip()                     | ()->ByteBuffer
+1.4     | ✔️          | ✔️       | method        | clear()                    | ()->ByteBuffer
+1.4     | ✔️          | ✔️       | method        | rewind()                   | ()->ByteBuffer
+1.4     | ✔️          | ✔️       | method        | order()                    | ()->ByteOrder
+1.4     | ✔️          | ✔️       | method        | order(ByteOrder)           | ()->ByteBuffer; sets decode order, does not reorder existing bytes
+1.4     | ✔️          | ✔️       | method        | array()                    | ()->[UInt8]; returns full backing array
+1.4     | ✔️          | ✔️       | method        | put(byte)                  | throws BufferOverflowException
+1.4     | ✔️          | ✔️       | method        | put(byte[])                | throws BufferOverflowException
+1.4     | ✔️          | ✔️       | method        | put(byte[], int, int)      | throws IndexOutOfBoundsException, BufferOverflowException
+1.4     | ✔️          | ✔️       | method        | get()                      | throws BufferUnderflowException
+1.4     | ✔️          | ✔️       | method        | get(int)                   | absolute; throws IndexOutOfBoundsException
+
+> **Note:** `getInt()`, `putInt()`, `getLong()`, `putLong()`, `getFloat()`, `putFloat()` and similar
+> multi-byte primitive accessors are not yet implemented. They require the `ByteOrder` setting to be
+> respected during encoding/decoding.
+
 ### java.net — Java 1.4 additions
 
 ##### java.net.URLEncoder — encode(String, String) (1/1/⭕️)
