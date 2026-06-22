@@ -17,6 +17,13 @@ import Foundation
 public class SimpleTimeZone : TimeZone {
   public var delegate: Foundation.TimeZone
 
+  /// The Java-visible timezone ID — preserved exactly as passed by the caller.
+  ///
+  /// Foundation may normalize certain IDs (e.g. "UTC" → identifier "GMT"), so we
+  /// keep the original string separately to honour the Java contract:
+  /// `TimeZone.getTimeZone(id).getID() == id`.
+  private let javaID: String
+
   // MARK: - Constructors
 
   /// Creates a `SimpleTimeZone` with a fixed UTC offset and a timezone identifier.
@@ -28,6 +35,7 @@ public class SimpleTimeZone : TimeZone {
   ///     by the platform. The `rawOffset` is used as a fallback when the identifier
   ///     is unknown.
   public init(_ rawOffset: Int, _ id: String) {
+    self.javaID = id
     if let tz = Foundation.TimeZone(identifier: id) {
       self.delegate = tz
     } else {
@@ -57,6 +65,7 @@ public class SimpleTimeZone : TimeZone {
     _ startMonth: Int, _ startDay: Int, _ startDayOfWeek: Int, _ startTime: Int,
     _ endMonth: Int,   _ endDay: Int,   _ endDayOfWeek: Int,   _ endTime: Int
   ) {
+    self.javaID = id
     if let tz = Foundation.TimeZone(identifier: id) {
       self.delegate = tz
     } else {
@@ -75,8 +84,10 @@ public class SimpleTimeZone : TimeZone {
 
   // MARK: - TimeZone protocol
 
+  /// Returns the timezone ID exactly as it was passed to the constructor,
+  /// preserving the Java contract (`getTimeZone("UTC").getID() == "UTC"`).
   public func getID() -> String {
-    return delegate.identifier
+    return javaID
   }
 
   public func getRawOffset() -> Int {

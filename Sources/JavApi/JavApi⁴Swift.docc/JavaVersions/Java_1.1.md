@@ -782,25 +782,40 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.util.Calendar (0/0/⭕️)
 
-> **Note:** Calendar is a large abstract class. Only the most commonly used public API is listed.
+> **Note:** Calendar is an abstract class. `getInstance()` returns a `GregorianCalendar`.
+> All Java 1.1 field constants are implemented with the correct integer values from the spec.
+> Java months are 0-based (JANUARY=0 … DECEMBER=11); Foundation months are 1-based — the conversion is handled internally.
+>
+> **Bugs fixed (June 2026):**
+> - `DAY_OF_MONTH` was wrongly set to `8` (should be `5`); `DAY_OF_WEEK_IN_MONTH = 8` as per spec.
+> - `get(SECOND)` in the Swiftify extension was returning `dateComponents.minute` due to a copy-paste error.
+> - `GregorianCalendar.get(DAY_OF_MONTH)` was returning `dateComponents.month` instead of `dateComponents.day`.
+> - `GregorianCalendar` constructors were not applying the 0→1-based month conversion.
+> - `getInstance()` and `set(Int,Int)` were missing entirely.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | static method | getInstance()  | ()->Calendar
 1.1     | ✔️          | ⭕️       | static method | getInstance()  | (Locale)->Calendar
-1.1     | ✔️          | ⭕️       | method        | get()          | (int)->int
+1.1     | ✔️          | ⭕️       | method        | get()          | (int)->int — all 17 fields supported
 1.1     | ✔️          | ⭕️       | method        | set()          | (int,int)
 1.1     | ✔️          | ⭕️       | method        | getTime()      | ()->Date
 1.1     | ✔️          | ⭕️       | method        | setTime()      | (Date)
-1.1     | ✔️          | ⭕️       | final field   | YEAR, MONTH, DAY_OF_MONTH, HOUR, MINUTE, SECOND, MILLISECOND, … | int constants
+1.1     | ✔️          | ⭕️       | final field   | ERA=0, YEAR=1, MONTH=2, WEEK_OF_YEAR=3, WEEK_OF_MONTH=4, DATE/DAY_OF_MONTH=5, DAY_OF_YEAR=6, DAY_OF_WEEK=7, DAY_OF_WEEK_IN_MONTH=8, AM_PM=9, HOUR=10, HOUR_OF_DAY=11, MINUTE=12, SECOND=13, MILLISECOND=14, ZONE_OFFSET=15, DST_OFFSET=16, FIELD_COUNT=17 | int field constants
+1.1     | ✔️          | ⭕️       | final field   | SUNDAY=1 … SATURDAY=7 | day-of-week constants
+1.1     | ✔️          | ⭕️       | final field   | JANUARY=0 … DECEMBER=11, UNDECIMBER=12 | month constants
+1.1     | ✔️          | ⭕️       | final field   | AM=0, PM=1, BC=0, AD=1 | era/AM-PM constants
 
 ##### java.util.GregorianCalendar (0/0/⭕️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | ()
-1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int)
+1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int year, int month, int day) — month 0-based as per Java spec
+1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int,int,int) — with hour+minute
+1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int,int,int,int) — with hour+minute+second
 1.1     | ✔️          | ⭕️       | method        | isLeapYear()         | (int)->boolean
+1.1     | ✔️          | ⭕️       | method        | get()                | (int)->int — overrides Calendar; all fields supported
 
 ##### java.util.Locale (0/0/✔️)
 
@@ -818,12 +833,18 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.util.TimeZone (0/0/⭕️)
 
+> **Note:** Implemented as a Swift `protocol` (backed by `Foundation.TimeZone`). `SimpleTimeZone` is the concrete conforming type.
+> `getDefault()` and `getTimeZone(String)` were missing and have been added to the protocol extension (June 2026).
+> `getRawOffset()` returns the raw offset (without DST) in milliseconds.
+
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getDefault()    | ()->TimeZone
-1.1     | ✔️          | ⭕️       | static method | getTimeZone()   | (String)->TimeZone
+1.1     | ✔️          | ⭕️       | static method | getDefault()    | ()->TimeZone — returns SimpleTimeZone backed by Foundation.TimeZone.current
+1.1     | ✔️          | ⭕️       | static method | getTimeZone()   | (String)->TimeZone — looks up by identifier or abbreviation; falls back to GMT
+1.1     | ✔️          | ⭕️       | static method | getAvailableIDs() | ()->[String] — delegates to Foundation.TimeZone.knownTimeZoneIdentifiers
+1.1     | ✔️          | ⭕️       | static method | getAvailableIDs() | (int rawOffset)->[String]
 1.1     | ✔️          | ⭕️       | method        | getID()         | ()->String
-1.1     | ✔️          | ⭕️       | method        | getRawOffset()  | ()->int
+1.1     | ✔️          | ⭕️       | method        | getRawOffset()  | ()->int — raw offset in ms (total minus DST)
 
 ### java.lang.reflect — New package in 1.1
 
@@ -892,6 +913,8 @@ version | implemented | tested   | type          | name           | more informa
 > **Note:** `byte` in this project is `UInt8` for Swift compatibility. Therefore `Byte` wraps `UInt8`.
 > `MIN_VALUE` / `MAX_VALUE` alias `UMIN_VALUE` (0) / `UMAX_VALUE` (255).
 > Signed Java constants `SMIN_VALUE` (-128) / `SMAX_VALUE` (127) and `parseSignedByte()` / `signedByteValue()` are in `Byte+Java.swift`.
+>
+> **Swift/Java incompatibility:** In Java, `Byte extends Number`. In this project `Number` is a `typealias` for Swift's `Numeric` protocol (a value-type protocol), which a wrapper class cannot conform to. The numeric conversion methods (`intValue()`, `longValue()`, `floatValue()`, `doubleValue()`, `shortValue()`) are therefore added directly to `Byte` rather than inherited.
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -905,6 +928,11 @@ version | implemented | tested   | type          | name                | more in
 1.1     | ✔️          | ✔️       | static method | valueOf()           | (String)->Byte
 1.1     | ✔️          | ✔️       | method        | byteValue()         | ()->UInt8
 1.1     | ✔️          | ✔️       | method        | signedByteValue()   | ()->Int8 (Byte+Java.swift)
+1.1     | ✔️          | ✔️       | method        | intValue()          | ()->Int (unsigned, 0–255)
+1.1     | ✔️          | ✔️       | method        | longValue()         | ()->Int64
+1.1     | ✔️          | ✔️       | method        | floatValue()        | ()->Float
+1.1     | ✔️          | ✔️       | method        | doubleValue()       | ()->Double
+1.1     | ✔️          | ✔️       | method        | shortValue()        | ()->Int16
 1.1     | ✔️          | ✔️       | method        | equals()            | via Equatable
 1.1     | ✔️          | ✔️       | method        | toString()          | ()->String
 
