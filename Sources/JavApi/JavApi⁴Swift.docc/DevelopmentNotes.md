@@ -206,3 +206,66 @@ func testGetAvailableIDsIsNotEmpty() {
 
 Swift then treats the call site as intentionally deprecated and suppresses the warning.
 Annotating the method — not the struct — keeps non-deprecated tests in the same file warning-free.
+
+---
+
+## `Boolean(String)` Constructor — Swift Built-in Initializer Conflict (2026-06)
+
+### Problem
+
+`Boolean` is a `typealias` for Swift's `Bool`. Swift's standard library declares:
+
+```swift
+Bool.init?(_ description: String)   // failable, case-sensitive: only "true"/"false"
+```
+
+Writing `Boolean("TRUE")` in Swift code is therefore ambiguous — the compiler resolves it to
+the built-in failable initializer and returns `nil` instead of `true`, silently breaking
+Java-compatible behaviour.
+
+### JavApi implementation
+
+`Boolean.swift` declares:
+
+```swift
+public init(_ value: String?) {
+  self.init(value?.lowercased() == "true")
+}
+```
+
+This is non-failable and case-insensitive, matching Java's `new Boolean(String)`.
+Because the parameter type is `String?` (optional) rather than `String`, Swift can distinguish
+the two initializers — but only when the call site passes an explicit `Optional`:
+
+```swift
+let s: String? = "TRUE"
+let b = Boolean(s)   // → true  ✔  (JavApi init)
+
+let b2 = Boolean("TRUE")  // → nil  ✗  (Swift built-in failable init)
+```
+
+### Rule for call sites and tests
+
+Always use ``valueOf(_:)`` as the idiomatic API — it has no ambiguity:
+
+```swift
+Boolean.valueOf("TRUE")   // → true  ✔
+```
+
+When the `init(String?)` path must be tested directly (e.g. to verify nil-handling),
+pass an explicit `String?` variable, never a string literal:
+
+```swift
+let s: String? = "TRUE"
+#expect(Boolean(s) == true)
+```
+
+### Rule for tests covering the constructor
+
+Test structs that exercise `Boolean.init(String?)` must include this comment so the
+constraint is visible at the test site:
+
+```swift
+// Swift/Java interop: pass String? explicitly — Boolean("literal") resolves to
+// Swift's built-in Bool.init? and returns nil. See DevelopmentNotes.md.
+```

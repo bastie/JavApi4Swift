@@ -21,9 +21,24 @@ extension Boolean {
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   public static let FALSE = Bool.init (false)
 
-  /// Create a new `true` Boolean value if parameter in lowercase equals to `true` otherwise `false` Boolean value
-  /// - Parameter value true or not true
+  /// Create a new `true` Boolean value if parameter in lowercase equals to `true` otherwise `false` Boolean value.
+  ///
+  /// Matches Java's `new Boolean(String)` semantics: case-insensitive, `nil` → `false`.
+  ///
+  /// - Parameter value: `"true"` (any case) → `true`; any other value or `nil` → `false`.
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  ///
+  /// > Warning: **Swift/Java interop limitation.**
+  /// > Swift's standard library also declares `Bool.init?(_ description: String)` — a failable,
+  /// > case-sensitive initializer that only recognises the literals `"true"` and `"false"`.
+  /// > Because `Boolean` is a `typealias` for `Bool`, writing `Boolean("TRUE")` is ambiguous:
+  /// > Swift resolves it to the built-in failable initializer and returns `nil` instead of `true`.
+  /// > To invoke this Java-compatible initializer, pass an explicit `String?`:
+  /// > ```swift
+  /// > let s: String? = "TRUE"
+  /// > let b = Boolean(s)   // → true  ✔
+  /// > ```
+  /// > Use ``valueOf(_:)`` as the preferred Java-style API — it has no such ambiguity.
   public init (_ value : String?) {
     self.init (value?.lowercased () == "true")
   }

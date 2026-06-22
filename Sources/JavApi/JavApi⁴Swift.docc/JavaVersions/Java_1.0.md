@@ -349,20 +349,26 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | AbstractMethodError() | 
 
 
-##### java.lang.Boolean (8/8/0)
+##### java.lang.Boolean (9/9/9)
 
-<!-- 11 methods+fields, 11 full implemented, 1 test implemented -->
+> **Swift/Java interop limitation — `Boolean(String)` constructor:**
+> Because `Boolean` is a `typealias` for Swift's `Bool`, writing `Boolean("TRUE")` is ambiguous:
+> Swift resolves it to its own built-in `Bool.init?(_ description: String)` (failable, case-sensitive)
+> and returns `nil` instead of `true`. To invoke the JavApi case-insensitive constructor, pass an
+> explicit `String?`: `let s: String? = "TRUE"; Boolean(s)`. The preferred Java-style API is
+> ``valueOf(_:)``, which has no such ambiguity.
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | Class         | Boolean        | typealias and extension of `Bool`
-1.0.2   | ✔️          | ⭕️       | method        | booleanValue() | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
-1.0.2   | ✔️          | ⭕️       | static method | getBoolean()   | (String)->boolean, in result since Java 1.1 it is case insensitive the Java 1.0 case sensitive behavior must be explicit activated
-1.1     | ✔️          | ⭕️       | static method | getBoolean()   | (String)->boolean
-1.0.2   | ✔️          | ⭕️       | method        | hashcode()     | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
-1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Boolean
+1.0.2   | ✔️          | ✔️       | Class         | Boolean        | typealias and extension of `Bool`
+1.0.2   | ✔️          | ✔️       | constructor   | Boolean()      | (String) — case-insensitive; see interop note above
+1.0.2   | ✔️          | ✔️       | method        | booleanValue() | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | equals()       | (Object)->boolean
+1.0.2   | ✔️          | ✔️       | static method | getBoolean()   | (String)->boolean, Java 1.0 case-sensitive; use `for: "1.0"` parameter or set `java.expected.version=1.0`
+1.1     | ✔️          | ✔️       | static method | getBoolean()   | (String)->boolean — Java 1.1 case-insensitive (default)
+1.0.2   | ✔️          | ✔️       | method        | hashcode()     | ()->int
+1.0.2   | ✔️          | ✔️       | method        | toString()     | ()->String
+1.0.2   | ✔️          | ✔️       | static method | valueOf()      | (String)->Boolean
 
 ##### java.lang.Character (28/28/4)
 
@@ -477,27 +483,29 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ✔️       | static method | toString()     | (long,int)->String
 
 
-##### java.lang.Math (17/17/17)
+##### java.lang.Math (17/17/0)
+
+> **Note:** `abs()` exists in a test file but tests only `Math.abs()` — none of the 17 documented methods below are covered yet. All marked ⭕️ pending dedicated test cases.
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ✔️       | final field   | PI             | double
-1.0.2   | ✔️          | ✔️       | static method | sin()          | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | cos()          | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | tan()          | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | asin()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | acos()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | atan()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | exp()          | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | log()          | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | sqrt()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | IEEEremainder() | (double,double)->double
-1.0.2   | ✔️          | ✔️       | static method | ceil()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | floor()        | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | rint()         | (double)->double
-1.0.2   | ✔️          | ✔️       | static method | atan2()        | (double,double)->double
-1.0.2   | ✔️          | ✔️       | static method | pow()          | (double,double)->double
-1.0.2   | ✔️          | ✔️       | static method | round()        | (float)->int
+1.0.2   | ✔️          | ⭕️       | final field   | PI             | double
+1.0.2   | ✔️          | ⭕️       | static method | sin()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | cos()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | tan()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | asin()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | acos()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | atan()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | exp()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | log()          | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | sqrt()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | ceil()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | floor()        | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | rint()         | (double)->double
+1.0.2   | ✔️          | ⭕️       | static method | atan2()        | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | pow()          | (double,double)->double
+1.0.2   | ✔️          | ⭕️       | static method | round()        | (float)->int
 
 
 ##### java.lang.Number (4/4/0)

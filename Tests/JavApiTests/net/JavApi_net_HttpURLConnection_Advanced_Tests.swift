@@ -111,7 +111,7 @@ struct JavApi_net_HttpURLConnection_Advanced_Tests {
     let conn = url.openConnection() as! java.net.HttpURLConnection
     conn.disconnect()
     conn.disconnect() // Should not throw
-    #expect(true)
+    #expect(Bool(true))
   }
 
   // MARK: - URL Preservation

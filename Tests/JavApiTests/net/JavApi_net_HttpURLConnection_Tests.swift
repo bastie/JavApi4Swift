@@ -253,7 +253,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     try conn.connect()
     _ = conn.getHeaderField("Server")
     // httpbin may or may not include Server header
-    #expect(true)
+    #expect(Bool(true))
   }
 
   @Test("Unknown header returns nil")
