@@ -5,17 +5,18 @@
 
 extension java.awt.event {
 
-  /// Convenience base class — override only the methods you need.
+  /// Convenience base class for receiving mouse events — override only the methods you need.
+  ///
+  /// Conforms to ``MouseListener`` only. For motion events subclass ``MouseMotionAdapter``
+  /// or implement ``MouseMotionListener`` directly.
   /// - Since: Java 1.1
   @MainActor
-  open class MouseAdapter: MouseListener, MouseMotionListener {
+  open class MouseAdapter: MouseListener {
     public init() {}
     open func mouseClicked (_ e: java.awt.event.MouseEvent) {}
     open func mousePressed (_ e: java.awt.event.MouseEvent) {}
     open func mouseReleased(_ e: java.awt.event.MouseEvent) {}
     open func mouseEntered (_ e: java.awt.event.MouseEvent) {}
     open func mouseExited  (_ e: java.awt.event.MouseEvent) {}
-    open func mouseMoved   (_ e: java.awt.event.MouseEvent) {}
-    open func mouseDragged (_ e: java.awt.event.MouseEvent) {}
   }
 }

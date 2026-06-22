@@ -4,11 +4,17 @@
  */
 
 extension javax.swing.event {
- 
-  /// - Since: Java 1.1
-  open class MouseMotionAdapter : java.awt.event.MouseMotionListener {
-    public init () {}
-    open func mouseDragged(_ e: java.awt.event.MouseEvent){}
-    open func mouseMoved  (_ e: java.awt.event.MouseEvent){}
+
+  /// Convenience base class for receiving both mouse and mouse-motion events.
+  ///
+  /// Implements ``MouseInputListener`` (= ``MouseListener`` + ``MouseMotionListener``)
+  /// with empty default methods — override only those you need.
+  ///
+  /// - Since: Swing 1.0 / Java 1.1 era (JFC add-on)
+  @MainActor
+  open class MouseInputAdapter: java.awt.event.MouseAdapter, java.awt.event.MouseMotionListener {
+    public override init() {}
+    open func mouseMoved  (_ e: java.awt.event.MouseEvent) {}
+    open func mouseDragged(_ e: java.awt.event.MouseEvent) {}
   }
 }

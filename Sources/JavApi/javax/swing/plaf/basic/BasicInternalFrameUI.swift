@@ -196,7 +196,7 @@ extension javax.swing.plaf.basic {
 
 /// Handles mouse events on the title bar: activate, drag-to-move, button clicks.
 @MainActor
-private class _TitleBarHandler: java.awt.event.MouseAdapter, @unchecked Sendable {
+private class _TitleBarHandler: java.awt.event.MouseAdapter, java.awt.event.MouseMotionListener, @unchecked Sendable {
 
   private weak var frame: javax.swing.JInternalFrame?
 
@@ -245,7 +245,7 @@ private class _TitleBarHandler: java.awt.event.MouseAdapter, @unchecked Sendable
 
   // MARK: MouseMotionListener
 
-  override func mouseDragged(_ e: java.awt.event.MouseEvent) {
+  func mouseDragged(_ e: java.awt.event.MouseEvent) {
     guard let frame, let origin = dragOrigin else { return }
     guard let desktop = frame.getParent() as? javax.swing.JDesktopPane else { return }
     let newX = frame.bounds.x + e.getX() - origin.x
@@ -253,5 +253,5 @@ private class _TitleBarHandler: java.awt.event.MouseAdapter, @unchecked Sendable
     desktop.getDesktopManager().dragFrame(frame, newX, newY)
   }
 
-  override func mouseMoved(_ e: java.awt.event.MouseEvent) {}
+  func mouseMoved(_ e: java.awt.event.MouseEvent) {}
 }

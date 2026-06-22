@@ -20,7 +20,7 @@ extension javax.swing.plaf.basic {
     // MARK: Mouse drag handler
     // -------------------------------------------------------------------------
 
-    private class _DragHandler: java.awt.event.MouseAdapter {
+    private class _DragHandler: java.awt.event.MouseAdapter, java.awt.event.MouseMotionListener {
       weak var slider: javax.swing.JSlider?
 
       override func mousePressed(_ e: java.awt.event.MouseEvent) {
@@ -29,7 +29,9 @@ extension javax.swing.plaf.basic {
         updateValue(slider, e)
       }
 
-      override func mouseDragged(_ e: java.awt.event.MouseEvent) {
+      func mouseMoved(_ e: java.awt.event.MouseEvent) {}
+
+      func mouseDragged(_ e: java.awt.event.MouseEvent) {
         guard let slider else { return }
         updateValue(slider, e)
       }

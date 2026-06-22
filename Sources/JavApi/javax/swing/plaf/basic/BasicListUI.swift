@@ -19,7 +19,7 @@ extension javax.swing.plaf.basic {
     // MARK: Install / uninstall
     // -------------------------------------------------------------------------
 
-    private class _MouseHandler: java.awt.event.MouseAdapter {
+    private class _MouseHandler: java.awt.event.MouseAdapter, java.awt.event.MouseMotionListener {
       weak var list: (AnyObject & _AnyJList)?
 
       private func rowAt(_ e: java.awt.event.MouseEvent) -> Int? {
@@ -37,7 +37,9 @@ extension javax.swing.plaf.basic {
         (list as? javax.swing.JComponent)?.repaint()
       }
 
-      override func mouseMoved(_ e: java.awt.event.MouseEvent) {
+      func mouseDragged(_ e: java.awt.event.MouseEvent) {}
+
+      func mouseMoved(_ e: java.awt.event.MouseEvent) {
         guard let list else { return }
         let newHover = rowAt(e) ?? -1
         if newHover != list._hoverIndex() {
