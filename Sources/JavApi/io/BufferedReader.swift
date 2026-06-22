@@ -35,6 +35,8 @@ extension java.io {
     /// Maximum characters that can be read before the mark is invalidated.
     private var markLimit: Int = 0
     private var closed: Bool = false
+    /// Track if last read character was CR (for CRLF handling across readLine() calls).
+    private var lastWasCR: Bool = false
 
     // MARK: - Initialisers
 
@@ -79,7 +81,7 @@ extension java.io {
               .update(from: ptr.baseAddress!.advanced(by: markPos), count: keep)
           }
         }
-        bufPos  = keep - (bufCount - bufPos)   // recalculate read position
+        bufPos  = bufPos - markPos   // recalculate read position relative to new start
         markPos = 0
         bufCount = keep
       } else {
@@ -143,7 +145,6 @@ extension java.io {
       try ensureOpen()
       var line = ""
       var gotChar = false
-      var lastWasCR = false
 
       while true {
         if bufPos >= bufCount {
@@ -161,8 +162,11 @@ extension java.io {
         }
         if ch == "\n" {
           if lastWasCR {
-            // \r\n — the \r already returned the line; skip the \n silently.
+            // \n is the second byte of \r\n from a previous call — skip it
+            // and continue building the new line
             lastWasCR = false
+            gotChar = false
+            line = ""
             continue
           }
           return line

@@ -15,7 +15,7 @@ extension java.io {
         self.in = newBaseInputStream
       }
       else {
-        self.in = NilInputStream()
+        self.in = java.io.NullInputStream()
       }
     }
  

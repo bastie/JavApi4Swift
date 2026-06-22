@@ -34,6 +34,7 @@ extension java.io {
      */
     /// - Since: JavaApi &gt; 0.18.0 (Java 1.0)
     public var count : Int = 0
+    private var isClosed: Bool = false
     
     /**
      * Constructs a new {@code BufferedOutputStream} on the {@link OutputStream}
@@ -108,34 +109,35 @@ extension java.io {
      *             If offset or count is outside of bounds.
      */
     public override func write(_ buffer : [UInt8], _ offset : Int, _ length : Int) throws {
-      var internalBuffer = buf;
-      
-      if (length >= internalBuffer.length) {
-        try flushInternal();
+      guard !isClosed else { throw java.io.IOException("Stream is closed") }
+      if (length >= buf.count) {
+        try flushInternal()
         try out.write(buffer, offset, length)
         return
       }
-      
-      if (offset < 0 || offset > buffer.length - length) {
+
+      if (offset < 0 || offset > buffer.count - length) {
         throw ArrayIndexOutOfBoundsException("Offset out of bounds : \(offset)")
-        
       }
       if (length < 0) {
         throw ArrayIndexOutOfBoundsException("Length out of bounds : \(length)")
       }
-      
+
       // flush the internal buffer first if we have not enough space left
-      if (length >= (internalBuffer.length - count)) {
-        try flushInternal();
+      if (length >= (buf.count - count)) {
+        try flushInternal()
       }
-      
-      // the length is always less than (internalBuffer.length - count) here so arraycopy is safe
-      System.arraycopy(buffer, offset, &internalBuffer, count, length);
-      count += length;
+
+      // the length is always less than (buf.count - count) here so arraycopy is safe
+      System.arraycopy(buffer, offset, &buf, count, length)
+      count += length
     }
     
     public override func close() throws {
-      try super.close();
+      guard !isClosed else { return }
+      isClosed = true
+      try flush()
+      try super.close()
     }
     
     /**
@@ -151,14 +153,18 @@ extension java.io {
      *             if an error occurs attempting to write to this stream.
      */
     public override func write(_ oneByte : Int) throws {
-      var internalBuffer = buf;
-      
-      if (count == internalBuffer.length) {
-        try out.write(internalBuffer, 0, count);
-        count = 0;
+      guard !isClosed else { throw java.io.IOException("Stream is closed") }
+      if (count == buf.count) {
+        try out.write(buf, 0, count)
+        count = 0
       }
-      internalBuffer[count] = UInt8 (oneByte)
+      buf[count] = UInt8(oneByte)
       count += 1
+      // Auto-flush when buffer is full after write
+      if count == buf.count {
+        try out.write(buf, 0, count)
+        count = 0
+      }
     }
     
     /**

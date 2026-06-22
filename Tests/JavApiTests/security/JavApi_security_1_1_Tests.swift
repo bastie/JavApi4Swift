@@ -218,7 +218,7 @@ struct JavApi_security_Signature_Tests {
 
 // MARK: - Security
 
-@Suite("java.security.Security")
+@Suite("java.security.Security", .serialized)
 struct JavApi_security_Security_Tests {
 
   @Test("getProviders enthält mindestens einen Provider")

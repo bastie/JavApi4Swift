@@ -46,6 +46,7 @@ extension java.io {
     ///
     /// - Since: Java 1.0
     open func skip(_ n : Int) throws -> Int {
+      guard n > 0 else { return 0 }
       var ignored : [UInt8] = Array(repeating: 0, count: n)
       var count = 0
       do {
@@ -60,7 +61,7 @@ extension java.io {
     /// - Returns: empty `InputStream`
     /// - Since: Java 1.0
     public static func nullInputStream () -> InputStream {
-      let result = NilInputStream()
+      let result = java.io.NullInputStream()
       return result;
     }
     

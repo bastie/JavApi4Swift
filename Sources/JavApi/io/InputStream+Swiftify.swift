@@ -8,13 +8,13 @@ extension java.io.InputStream {
   /// Create and return an `InputStream` that returns no bytes.
   /// - Returns: empty `InputStream`
   public static func nilInputStream () -> java.io.InputStream {
-    return nullInputStream()
+    return java.io.NullInputStream()
   }
 }
 
 extension java.io {
   
-  public class NilInputStream : InputStream {
+  public class NullInputStream : InputStream {
     private var streamIsOpen = true
     public override func close () throws {
       streamIsOpen = false
@@ -29,13 +29,13 @@ extension java.io {
       guard streamIsOpen else {
         throw IOException("read after NilInputStream is closed")
       }
-      return 0
+      return -1  // EOF - no bytes available
     }
     public override func read(_ array : inout [UInt8], _ offset : Int, _ length : Int) throws -> Int {
       guard streamIsOpen else {
         throw IOException("read after NilInputStream is closed")
       }
-      return 0
+      return -1  // EOF - no bytes available
     }
     public func readAllBytes() throws -> [UInt8]{
       guard streamIsOpen else {

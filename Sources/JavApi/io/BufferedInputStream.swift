@@ -47,6 +47,8 @@ extension java.io {
     /// - Note: protected in Java
     public var marklimit: Int = 0
 
+    private var closed: Bool = false
+
     // MARK: - Default buffer size
 
     private static let defaultBufferSize = 8192
@@ -77,8 +79,13 @@ extension java.io {
 
     // MARK: - Private helpers
 
+    private func ensureOpen() throws {
+      if closed { throw java.io.IOException("Stream closed") }
+    }
+
     /// Fills the buffer from the underlying stream.
     private func fill() throws {
+      try ensureOpen()
       if markpos < 0 {
         // No mark — reset to start of buffer
         pos = 0
@@ -87,10 +94,12 @@ extension java.io {
         if pos >= buf.count {
           if marklimit > buf.count {
             // Grow buffer to accommodate mark look-ahead
-            let newSize = min(marklimit, buf.count * 2)
-            var newBuf = [UInt8](repeating: 0, count: newSize)
             let valid = count - markpos
-            newBuf[0..<valid] = buf[markpos..<count]
+            let newSize = max(marklimit, valid * 2)
+            var newBuf = [UInt8](repeating: 0, count: newSize)
+            if valid > 0 {
+              newBuf[0..<valid] = buf[markpos..<count]
+            }
             buf = newBuf
             pos = valid
             markpos = 0
@@ -113,6 +122,7 @@ extension java.io {
     /// - Returns: The byte value (0–255), or -1 at end of stream.
     /// - Since: Java 1.0
     public override func read() throws -> Int {
+      try ensureOpen()
       if pos >= count { try fill() }
       guard pos < count else { return -1 }
       let byte = Int(buf[pos])
@@ -212,8 +222,9 @@ extension java.io {
     /// Closes this stream and the underlying `InputStream`.
     /// - Since: JavaApi (Java 1.0)
     public override func close() throws {
+      guard !closed else { return }
+      closed = true
       try `in`.close()
-      buf = []
     }
   }
 }
