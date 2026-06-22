@@ -3,8 +3,6 @@
  * SPDX-License-Identifier: MIT
  */
 
-#if canImport(SwiftUI)
-
 /// Internal bridge protocol used by `_SwiftUIFocusManager` and
 /// `_SwiftUINativeCanvas` to handle both AWT (`java.awt.TextComponent`)
 /// and Swing (`javax.swing.text.JTextComponent`) text-input components
@@ -141,7 +139,7 @@ extension javax.swing.text.JTextComponent: _AnyTextInput {
       return
     }
     let content = area.getText()
-    let lines   = content.components(separatedBy: "\n")
+    let lines   = content.components(separatedBy: System.getProperty("line.separator", "\n"))
     let pos     = getCaretPosition()
     // Find current line + column
     var charCount = 0
@@ -176,7 +174,7 @@ extension javax.swing.text.JTextComponent: _AnyTextInput {
     } else if isEditable() {
       // JTextArea: insert newline at caret
       let pos = getCaretPosition()
-      try? getDocument().insertString(pos, "\n")
+      try? getDocument().insertString(pos, System.getProperty("line.separator", "\n"))
       setCaretPosition(pos + 1)
     }
   }
@@ -242,5 +240,3 @@ private extension Optional where Wrapped == Void {
     if lhs == nil { rhs() }
   }
 }
-
-#endif
