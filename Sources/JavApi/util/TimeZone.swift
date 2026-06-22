@@ -6,19 +6,17 @@
 import Foundation
 
 extension java.util {
-  typealias TimeZone = JavApi.TimeZone
+  
+  public protocol TimeZone {
+    var delegate : Foundation.TimeZone { get set }
+    /// Returns the timezone ID as passed to the constructor (Java contract).
+    func getID() -> String
+    /// Returns the raw UTC offset in milliseconds (without DST).
+    func getRawOffset() -> Int
+  }
 }
 
-
-protocol TimeZone {
-  var delegate : Foundation.TimeZone { get set }
-  /// Returns the timezone ID as passed to the constructor (Java contract).
-  func getID() -> String
-  /// Returns the raw UTC offset in milliseconds (without DST).
-  func getRawOffset() -> Int
-}
-
-extension TimeZone {
+extension java.util.TimeZone {
 
   static func getAvailableIDs () -> [String] {
     return Foundation.TimeZone.knownTimeZoneIdentifiers
@@ -32,9 +30,9 @@ extension TimeZone {
   }
 
   /// Returns the default `TimeZone` for this host, as a `SimpleTimeZone`.
-  static func getDefault () -> any JavApi.TimeZone {
+  static func getDefault () -> any java.util.TimeZone {
     let tz = Foundation.TimeZone.current
-    return SimpleTimeZone(tz.secondsFromGMT() * 1000, tz.identifier)
+    return java.util.SimpleTimeZone(tz.secondsFromGMT() * 1000, tz.identifier)
   }
 
   /// Returns the `TimeZone` with the given ID, or GMT if the ID is unknown.
@@ -43,13 +41,13 @@ extension TimeZone {
   /// requested `id` string (e.g. `getTimeZone("UTC").getID() == "UTC"`),
   /// even if Foundation internally maps the identifier to an equivalent name.
   /// For unknown IDs Java returns GMT — we do the same.
-  static func getTimeZone (_ id: String) -> any JavApi.TimeZone {
+  static func getTimeZone (_ id: String) -> any java.util.TimeZone {
     if let tz = Foundation.TimeZone(identifier: id) ?? Foundation.TimeZone(abbreviation: id) {
       // Preserve the originally requested ID, matching Java's contract.
-      return SimpleTimeZone(tz.secondsFromGMT() * 1000, id)
+      return java.util.SimpleTimeZone(tz.secondsFromGMT() * 1000, id)
     } else {
       // Unknown ID → GMT, as Java specifies.
-      return SimpleTimeZone(0, "GMT")
+      return java.util.SimpleTimeZone(0, "GMT")
     }
   }
 

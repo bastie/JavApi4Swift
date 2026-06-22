@@ -150,7 +150,7 @@ struct JavApi_awt_image_MemoryImageSource_1_1_Tests {
     let src = java.awt.image.MemoryImageSource(W, H, pix, 0, W)
     src.setAnimated(true)
 
-    var receivedRect: (x: Int, y: Int, w: Int, h: Int)? = nil
+    let receivedRect: (x: Int, y: Int, w: Int, h: Int)? = nil
 
     final class RectConsumer: java.awt.image.ImageConsumer {
       var lastX = -1, lastY = -1, lastW = -1, lastH = -1

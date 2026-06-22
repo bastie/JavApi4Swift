@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated)
 extension java.security.acl {
 
   /// Thrown when a non-owner attempts an operation that requires ownership.

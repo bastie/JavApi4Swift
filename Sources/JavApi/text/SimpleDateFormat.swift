@@ -85,10 +85,85 @@ extension java.text {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Format / parse  (inherited from DateFormat)
+    // MARK: Format / parse
     // -------------------------------------------------------------------------
-    // DateFormat.format(_:) and parse(_:) delegate to self.formatter, so they
-    // work automatically with the dateFormat we set above.
+    // Foundation's DateFormatter does not support Java's `S` (milliseconds)
+    // pattern letter.  We handle it by replacing each unquoted S-run with a
+    // unique quoted placeholder before passing the pattern to Foundation, then
+    // substituting the real millisecond value in the output string.
+
+    /// Formats a `java.util.Date` to a `String` using the stored pattern.
+    ///
+    /// Handles the `S` (millisecond) pattern letter which Foundation does not support.
+    public override func format(_ date: java.util.Date) -> String {
+      // Fast path: no 'S' in pattern at all
+      guard _pattern.contains("S") else {
+        return formatter.string(from: date.delegate)
+      }
+      let ms = Int(date.getTime() % 1000)
+      // Build a temporary Foundation pattern with S-runs replaced by placeholders,
+      // format, then swap placeholders back for the real millisecond string.
+      let (tempPattern, tokens) = Self.extractSTokens(from: Self.toUnicodePattern(_pattern))
+      let tempFormatter = Foundation.DateFormatter()
+      tempFormatter.locale = formatter.locale
+      tempFormatter.timeZone = formatter.timeZone
+      tempFormatter.dateFormat = tempPattern
+      var output = tempFormatter.string(from: date.delegate)
+      // Replace placeholders in reverse order (to keep indices stable)
+      for (placeholder, width) in tokens.reversed() {
+        let msStr = String(format: "%03d", ms)
+        let replacement: String
+        if width <= 3 {
+          replacement = String(msStr.prefix(width))
+        } else {
+          replacement = msStr + String(repeating: "0", count: width - 3)
+        }
+        output = output.replacingOccurrences(of: placeholder, with: replacement)
+      }
+      return output
+    }
+
+    /// Scans `pattern` for unquoted `S+` runs, replaces each with a unique
+    /// quoted placeholder, and returns the modified pattern together with a list
+    /// of `(placeholder, originalWidth)` pairs in appearance order.
+    private static func extractSTokens(from pattern: String) -> (String, [(String, Int)]) {
+      var result = ""
+      var tokens: [(String, Int)] = []
+      var tokenIndex = 0
+      var i = pattern.startIndex
+      while i < pattern.endIndex {
+        let ch = pattern[i]
+        if ch == "'" {
+          // Quoted literal — copy verbatim
+          result.append(ch)
+          i = pattern.index(after: i)
+          while i < pattern.endIndex {
+            let q = pattern[i]
+            result.append(q)
+            i = pattern.index(after: i)
+            if q == "'" { break }
+          }
+          continue
+        }
+        if ch == "S" {
+          var count = 0
+          while i < pattern.endIndex && pattern[i] == "S" {
+            count += 1
+            i = pattern.index(after: i)
+          }
+          // Use a placeholder that Foundation will output literally.
+          // We use a distinctive string unlikely to appear in date output.
+          let placeholder = "\u{FFFE}\(tokenIndex)\u{FFFE}"
+          tokens.append((placeholder, count))
+          tokenIndex += 1
+          result += "'\(placeholder)'"
+          continue
+        }
+        result.append(ch)
+        i = pattern.index(after: i)
+      }
+      return (result, tokens)
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Java → Unicode CLDR pattern translation

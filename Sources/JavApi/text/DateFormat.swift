@@ -91,6 +91,30 @@ extension java.text {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: TimeZone access (Java 1.1)
+    // -------------------------------------------------------------------------
+
+    /// Returns the time zone used by this format's calendar.
+    public func getTimeZone() -> java.util.TimeZone {
+      let tz = formatter.timeZone!
+      // Foundation normalises "UTC" to identifier "GMT"; restore the canonical
+      // Java name so that getTimeZone().getID() == "UTC" when UTC was set.
+      let id = (tz.secondsFromGMT() == 0 && tz.identifier == "GMT") ? "UTC" : tz.identifier
+      return java.util.SimpleTimeZone(tz.secondsFromGMT() * 1000, id)
+    }
+
+    /// Sets the time zone for this format's calendar.
+    ///
+    /// Mirrors `java.text.DateFormat.setTimeZone(TimeZone)`.
+    public func setTimeZone(_ zone: java.util.TimeZone) {
+      if let tz = Foundation.TimeZone(identifier: zone.getID()) {
+        formatter.timeZone = tz
+      } else if let tz = Foundation.TimeZone(abbreviation: zone.getID()) {
+        formatter.timeZone = tz
+      }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Format overrides
     // -------------------------------------------------------------------------
 

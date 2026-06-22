@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated)
 extension java.security.acl {
 
   /// Represents a permission, such as the ability to read or write a file.

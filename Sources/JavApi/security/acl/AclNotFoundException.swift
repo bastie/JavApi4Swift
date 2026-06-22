@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated)
 extension java.security.acl {
 
   /// Thrown when a reference is made to a non-existent ACL.

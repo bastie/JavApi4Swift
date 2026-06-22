@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated)
 extension java.security.acl {
 
   /// Represents a group of principals.

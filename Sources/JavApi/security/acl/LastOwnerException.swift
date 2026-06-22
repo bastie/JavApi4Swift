@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
+@available(*, deprecated)
 extension java.security.acl {
 
   /// Thrown when an attempt is made to remove the last owner of an ACL.

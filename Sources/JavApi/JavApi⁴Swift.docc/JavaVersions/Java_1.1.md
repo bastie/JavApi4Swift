@@ -36,21 +36,37 @@ Key additions already implemented:
 
 #### java.io.Reader / Writer (new character-stream hierarchy)
 
-##### java.io.Reader (3/3/✔️)
+##### java.io.Reader (8/8/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | read()         | ()->int
 1.1     | ✔️          | 🪄       | method        | read()         | (char[])->int
-1.1     | ✔️          | 🪄       | method        | close()        | ()
+1.1     | ✔️          | 🪄       | method        | read()         | (char[],int,int)->int — abstract
+1.1     | ✔️          | 🪄       | method        | skip()         | (long)->long
+1.1     | ✔️          | 🪄       | method        | ready()        | ()->boolean
+1.1     | ✔️          | 🪄       | method        | markSupported()| ()->boolean
+1.1     | ✔️          | 🪄       | method        | mark()         | (int)
+1.1     | ✔️          | 🪄       | method        | reset()        | ()
+1.1     | ✔️          | 🪄       | method        | close()        | () — abstract
 
-##### java.io.Writer (3/3/✔️)
+##### java.io.Writer (6/6/✔️)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | write()        | (int)
 1.1     | ✔️          | 🪄       | method        | write()        | (char[])
-1.1     | ✔️          | 🪄       | method        | close()        | ()
+1.1     | ✔️          | 🪄       | method        | write()        | (char[],int,int) — abstract
+1.1     | ✔️          | 🪄       | method        | write()        | (String)
+1.1     | ✔️          | 🪄       | method        | write()        | (String,int,int)
+1.1     | ✔️          | 🪄       | method        | flush()        | () — abstract
+1.1     | ✔️          | 🪄       | method        | close()        | () — abstract
+
+##### java.io.UnsupportedEncodingException (1/1/⭕️)
+
+version | implemented | tested   | type          | name                          | more informations
+------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | UnsupportedEncodingException()| () and (String)
 
 ## Java UI Packages
 
@@ -833,10 +849,6 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.util.TimeZone (0/0/⭕️)
 
-> **Note:** Implemented as a Swift `protocol` (backed by `Foundation.TimeZone`). `SimpleTimeZone` is the concrete conforming type.
-> `getDefault()` and `getTimeZone(String)` were missing and have been added to the protocol extension (June 2026).
-> `getRawOffset()` returns the raw offset (without DST) in milliseconds.
-
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | static method | getDefault()    | ()->TimeZone — returns SimpleTimeZone backed by Foundation.TimeZone.current
@@ -1146,9 +1158,6 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
 
 ##### java.util.SimpleTimeZone (5/5/✔️)
-
-> **Note:** `@available(*, deprecated)` — deprecated in Java 26 for removal. Use `java.time.ZoneId` / `ZonedDateTime` instead.
-> DST rule parameters in the long constructor are accepted for API compatibility; actual DST logic is delegated to `Foundation.TimeZone`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1697,9 +1706,9 @@ version | implemented | tested   | type          | name                     | mo
 1.1     | ✔️          | ⭕️       | method        | isDataFlavorAvailable()  | (DataFlavor)->boolean
 1.1     | ✔️          | ⭕️       | method        | getData()                | (DataFlavor)->Any throws
 
-### java.text — New package in 1.1 (partially implemented)
+### java.text — New package in 1.1 (mostly complete)
 
-Core formatting classes are now ported and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`.
+All core formatting, collation, and text-iteration classes are implemented and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`. Only `DateFormatSymbols` is missing (see "What is still needed" below).
 
 ##### java.text.Format (abstract base)
 
@@ -1766,6 +1775,142 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ⭕️       | method        | toPattern()                      |
 1.1     | ✔️          | ⭕️       | method        | applyPattern(String)             |
 1.1     | ✔️          | ⭕️       | method        | format(Date) / parse(String)     | inherited from DateFormat
+
+##### java.text.DecimalFormat
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | DecimalFormat()                  | ()
+1.1     | ✔️          | ⭕️       | constructor   | DecimalFormat()                  | (String pattern)
+1.1     | ✔️          | ⭕️       | method        | toPattern()                      | ()->String
+1.1     | ✔️          | ⭕️       | method        | applyPattern()                   | (String)
+1.1     | ✔️          | ⭕️       | method        | getDecimalFormatSymbols()        | ()->DecimalFormatSymbols
+1.1     | ✔️          | ⭕️       | method        | setDecimalFormatSymbols()        | (DecimalFormatSymbols)
+1.1     | ✔️          | ⭕️       | method        | getRoundingMode()/setRoundingMode() | RoundingMode
+1.1     | ✔️          | ⭕️       | method        | isParseBigDecimal()/setParseBigDecimal() | boolean
+
+##### java.text.DecimalFormatSymbols
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | DecimalFormatSymbols()           | ()
+1.1     | ✔️          | ⭕️       | constructor   | DecimalFormatSymbols()           | (Locale)
+1.1     | ✔️          | ⭕️       | method        | getDecimalSeparator()/setDecimalSeparator() | char
+1.1     | ✔️          | ⭕️       | method        | getGroupingSeparator()/setGroupingSeparator() | char
+1.1     | ✔️          | ⭕️       | method        | getMinusSign()/setMinusSign()    | char
+1.1     | ✔️          | ⭕️       | method        | getPercent()/setPercent()        | char
+1.1     | ✔️          | ⭕️       | method        | getZeroDigit()/setZeroDigit()    | char
+1.1     | ✔️          | ⭕️       | method        | getInfinity()/setInfinity()      | String
+1.1     | ✔️          | ⭕️       | method        | getNaN()/setNaN()                | String
+
+##### java.text.MessageFormat
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | MessageFormat()                  | (String pattern)
+1.1     | ✔️          | ⭕️       | static method | format()                         | (String pattern, Object...)->String
+1.1     | ✔️          | ⭕️       | method        | applyPattern()                   | (String)
+1.1     | ✔️          | ⭕️       | method        | toPattern()                      | ()->String
+
+##### java.text.ChoiceFormat
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | ChoiceFormat()                   | (String pattern)
+1.1     | ✔️          | ⭕️       | method        | applyPattern()                   | (String)
+1.1     | ✔️          | ⭕️       | method        | toPattern()                      | ()->String
+1.1     | ✔️          | ⭕️       | method        | getLimits()                      | ()->[double]
+1.1     | ✔️          | ⭕️       | method        | getFormats()                     | ()->[String]
+
+##### java.text.CharacterIterator
+
+> **Note:** Implemented as a `protocol` in `text/CharacterIterator.swift`. Constants `DONE` (= `￿`) match Java spec.
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | 🪄       | final field   | DONE                             | char = '￿'
+1.1     | ✔️          | 🪄       | method        | first() / last()                 | ()->char
+1.1     | ✔️          | 🪄       | method        | current()                        | ()->char
+1.1     | ✔️          | 🪄       | method        | next() / previous()              | ()->char
+1.1     | ✔️          | 🪄       | method        | setIndex()                       | (int)->char
+1.1     | ✔️          | 🪄       | method        | getBeginIndex() / getEndIndex()  | ()->int
+1.1     | ✔️          | 🪄       | method        | getIndex()                       | ()->int
+1.1     | ✔️          | 🪄       | method        | clone()                          | ()->CharacterIterator
+
+##### java.text.StringCharacterIterator
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | StringCharacterIterator()        | (String)
+1.1     | ✔️          | ⭕️       | method        | setText()                        | (String)
+1.1     | ✔️          | ⭕️       | method        | getText()                        | ()->String
+1.1     | ✔️          | ⭕️       | method        | first()/last()/current()/next()/previous() | ()->char
+1.1     | ✔️          | ⭕️       | method        | getBeginIndex()/getEndIndex()/getIndex() | ()->int
+1.1     | ✔️          | ⭕️       | method        | clone()                          | ()->CharacterIterator
+
+##### java.text.Collator
+
+> **Note:** Implemented in `text/Collator.swift`. Backed by Foundation's `NSString` comparison with locale-sensitive `CompareOptions`. `getAvailableLocales()` is a Java 1.2 addition, tracked in ``Java_1.2``.
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | static method | getInstance()                    | ()->Collator
+1.1     | ✔️          | ⭕️       | static method | getInstance()                    | (Locale)->Collator
+1.1     | ✔️          | ⭕️       | final field   | PRIMARY / SECONDARY / TERTIARY / IDENTICAL | int strength constants
+1.1     | ✔️          | ⭕️       | method        | getStrength() / setStrength()    | int
+1.1     | ✔️          | ⭕️       | method        | getDecomposition() / setDecomposition() | int
+1.1     | ✔️          | ⭕️       | method        | compare()                        | (String,String)->int
+1.1     | ✔️          | ⭕️       | method        | equals()                         | (String,String)->boolean
+1.1     | ✔️          | ⭕️       | method        | getCollationKey()                | (String)->CollationKey
+
+##### java.text.RuleBasedCollator
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | RuleBasedCollator()              | (String rules)
+1.1     | ✔️          | ⭕️       | method        | getRules()                       | ()->String
+1.1     | ✔️          | ⭕️       | method        | getCollationElementIterator()    | (String)->CollationElementIterator
+1.1     | ✔️          | ⭕️       | method        | getCollationElementIterator()    | (StringCharacterIterator)->CollationElementIterator
+
+##### java.text.CollationKey
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | compareTo()                      | (CollationKey)->int
+1.1     | ✔️          | ⭕️       | method        | getSourceString()                | ()->String
+
+##### java.text.CollationElementIterator
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | next() / previous()              | ()->int
+1.1     | ✔️          | ⭕️       | method        | reset()                          | ()
+1.1     | ✔️          | ⭕️       | method        | getOffset() / setOffset()        | int
+1.1     | ✔️          | ⭕️       | method        | setText()                        | (String) or (CharacterIterator)
+
+##### java.text.BreakIterator
+
+> **Note:** Implemented in `text/BreakIterator.swift`. Backed by `StringBreakingIterator` using Foundation `NSString.enumerateSubstrings`. `getAvailableLocales()` is a Java 1.2 addition, tracked in ``Java_1.2``.
+
+version | implemented | tested   | type          | name                             | more informations
+------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
+1.1     | ✔️          | ⭕️       | final field   | DONE                             | int = -1
+1.1     | ✔️          | ⭕️       | static method | getCharacterInstance()           | ()->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getCharacterInstance()           | (Locale)->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getWordInstance()                | ()->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getWordInstance()                | (Locale)->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getSentenceInstance()            | ()->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getSentenceInstance()            | (Locale)->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getLineInstance()                | ()->BreakIterator
+1.1     | ✔️          | ⭕️       | static method | getLineInstance()                | (Locale)->BreakIterator
+1.1     | ✔️          | ⭕️       | method        | setText()                        | (String)
+1.1     | ✔️          | ⭕️       | method        | first() / last()                 | ()->int
+1.1     | ✔️          | ⭕️       | method        | next() / previous()              | ()->int
+1.1     | ✔️          | ⭕️       | method        | current()                        | ()->int
+1.1     | ✔️          | ⭕️       | method        | following()                      | (int)->int
+1.1     | ✔️          | ⭕️       | method        | isBoundary()                     | (int)->boolean
+
+> **Missing from implementation:** `java.text.DateFormatSymbols` — provides locale-sensitive names for months, weekdays, AM/PM strings etc. Not yet implemented; `SimpleDateFormat` delegates formatting to Foundation instead of using a `DateFormatSymbols` instance. Tracked as ⭕️ (not ported).
 
 > The following are listed here only because they live in `java.text`, but they
 > are **not Java 1.1 APIs** (`Bidi` was added in Java 1.4, `Normalizer` in Java 6)
@@ -2175,7 +2320,7 @@ version | implemented | tested   | type          | name                  | more 
 | **java.io** (Reader/Writer hierarchy) | ✔️ implemented, ⭕️ tests | all classes present, tests sparse |
 | **java.io** (Object Serialization) | ✔️ stub | `Externalizable`, `ObjectInputValidation`, `ObjectStreamClass` implemented; `ObjectInputStream`/`ObjectOutputStream` have constructors + stream delegation; `readObject`/`writeObject` throw `NotActiveException` |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
-| **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
+| **java.text** | ✔️ mostly complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; `DateFormatSymbols` not yet implemented (SimpleDateFormat delegates to Foundation); Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read), `CheckedInputStream`, `CheckedOutputStream` |
 | **java.awt.event** | ✔️ complete | all listeners, events and adapter classes; `PaintEvent` added; `MouseAdapter` (MouseListener only) and `MouseMotionAdapter` (MouseMotionListener only) are separate classes — matching Java 1.1 exactly |
 | **java.awt** (1.1 additions) | ✔️ complete | `AWTEventMulticaster`, `EventQueue`, `Shape`, `IllegalComponentStateException` implemented; all 1.1 types present |
@@ -2196,8 +2341,13 @@ version | implemented | tested   | type          | name                  | more 
 ## What is still needed for full Java 1.1 compatibility
 
 Verified against the actual source tree and javaalmanac.io (June 2026).
-As of the latest update, **all in-scope Java 1.1 public API items have been
-implemented**. The remaining open work is:
+Almost all in-scope Java 1.1 public API items have been implemented.
+The remaining open work is:
+
+### java.text.DateFormatSymbols (⭕️ not implemented)
+`java.text.DateFormatSymbols` provides locale-sensitive names for months, weekdays, AM/PM strings, era names etc. and is used by `SimpleDateFormat` in Java.
+In JavApi4Swift, `SimpleDateFormat` delegates date formatting directly to Foundation (`DateFormatter`) rather than using a `DateFormatSymbols` instance. As a result `DateFormatSymbols` itself is not implemented.
+This is an intentional design trade-off — implementing it fully would require duplicating Foundation's locale tables. Tracked here for completeness.
 
 ### java.net.DatagramSocketImpl — design note
 The abstract stub is implemented. `DatagramSocket` uses its own POSIX file descriptor directly rather than delegating to a `DatagramSocketImpl` subclass — this is a deliberate JavApi4Swift design decision, not a missing public API.

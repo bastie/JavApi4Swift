@@ -1742,3 +1742,169 @@ struct JavApi_text_Java12_Tests {
     #expect(sub.getIterator().getEndIndex() == 0)
   }
 }
+
+// =============================================================================
+// MARK: - SimpleDateFormat — Java compatibility tests
+// =============================================================================
+// All tests pin the formatter to UTC so results are deterministic on any host.
+// Reference date: 2000-03-15 14:05:09.078 UTC = 953_129_109_078 ms since epoch
+//
+// The shared constants use `nonisolated(unsafe)` because they are effectively
+// immutable after initialisation — correct for Swift 6 concurrency.
+
+struct JavApi_text_SimpleDateFormat_Compat_Tests {
+
+  /// UTC timezone used for all tests.
+  nonisolated(unsafe) private static let utc = java.util.SimpleTimeZone(0, "UTC")
+
+  /// Fixed reference date: 2000-03-15 14:05:09.078 UTC
+  nonisolated(unsafe) private static let ref = java.util.Date(953_129_109_078)
+
+  // ---------------------------------------------------------------------------
+  // Basic numeric patterns
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: yyyy-MM-dd in UTC")
+  func testIsoDate() {
+    let sdf = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "2000-03-15")
+  }
+
+  @Test("SimpleDateFormat: HH:mm:ss in UTC")
+  func testTime24h() {
+    let sdf = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "14:05:09")
+  }
+
+  @Test("SimpleDateFormat: hh:mm:ss a (12-hour AM/PM) in UTC")
+  func testTime12h() {
+    let sdf = java.text.SimpleDateFormat("hh:mm:ss a", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "02:05:09 PM")
+  }
+
+  @Test("SimpleDateFormat: yyyy-MM-dd'T'HH:mm:ss (ISO 8601 local) in UTC")
+  func testIsoDateTime() {
+    let sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "2000-03-15T14:05:09")
+  }
+
+  @Test("SimpleDateFormat: SSS milliseconds in UTC")
+  func testMilliseconds() {
+    let sdf = java.text.SimpleDateFormat("SSS", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "078")
+  }
+
+  @Test("SimpleDateFormat: dd/MM/yyyy in UTC")
+  func testEuropeanDate() {
+    let sdf = java.text.SimpleDateFormat("dd/MM/yyyy", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "15/03/2000")
+  }
+
+  // ---------------------------------------------------------------------------
+  // Text patterns (locale-sensitive — use en_US)
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: MMMM full month name in en_US")
+  func testFullMonthName() {
+    let sdf = java.text.SimpleDateFormat("MMMM", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "March")
+  }
+
+  @Test("SimpleDateFormat: MMM abbreviated month name in en_US")
+  func testShortMonthName() {
+    let sdf = java.text.SimpleDateFormat("MMM", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "Mar")
+  }
+
+  @Test("SimpleDateFormat: EEEE full weekday name in en_US")
+  func testFullWeekdayName() {
+    // 2000-03-15 is a Wednesday
+    let sdf = java.text.SimpleDateFormat("EEEE", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "Wednesday")
+  }
+
+  @Test("SimpleDateFormat: EEE abbreviated weekday name in en_US")
+  func testShortWeekdayName() {
+    let sdf = java.text.SimpleDateFormat("EEE", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "Wed")
+  }
+
+  // ---------------------------------------------------------------------------
+  // Timezone pattern
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: Z RFC 822 offset for CET (+0100)")
+  func testRfc822OffsetCET() {
+    // CET = UTC+1; RFC 822 "Z" pattern should give "+0100"
+    let sdf = java.text.SimpleDateFormat("Z", java.util.Locale("en", "US"))
+    sdf.setTimeZone(java.util.SimpleTimeZone(3_600_000, "CET"))
+    #expect(sdf.format(Self.ref) == "+0100")
+  }
+
+  @Test("SimpleDateFormat: Z RFC 822 offset for UTC starts with + or -")
+  func testRfc822OffsetUtcFormat() {
+    // Foundation may output "+0000" or "-0000" — both are valid RFC 822 for UTC.
+    let sdf = java.text.SimpleDateFormat("Z", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    let result = sdf.format(Self.ref)
+    #expect(result.hasPrefix("+") || result.hasPrefix("-"))
+    #expect(result.count == 5) // ±HHmm
+  }
+
+  // ---------------------------------------------------------------------------
+  // Quoted literals
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: quoted literal 'T' separator")
+  func testQuotedLiteral() {
+    let sdf = java.text.SimpleDateFormat("yyyy'T'MM", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "2000T03")
+  }
+
+  // ---------------------------------------------------------------------------
+  // setTimeZone / getTimeZone
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: setTimeZone shifts the formatted hour")
+  func testSetTimeZone() {
+    let sdf = java.text.SimpleDateFormat("HH", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.format(Self.ref) == "14")  // UTC: 14h
+
+    // CET = UTC+1
+    sdf.setTimeZone(java.util.SimpleTimeZone(3_600_000, "CET"))
+    #expect(sdf.format(Self.ref) == "15")  // CET: 15h
+  }
+
+  @Test("SimpleDateFormat: getTimeZone returns current zone")
+  func testGetTimeZone() {
+    let sdf = java.text.SimpleDateFormat("HH", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    #expect(sdf.getTimeZone().getID() == "UTC")
+  }
+
+  // ---------------------------------------------------------------------------
+  // parse() round-trip
+  // ---------------------------------------------------------------------------
+
+  @Test("SimpleDateFormat: parse() round-trip yyyy-MM-dd'T'HH:mm:ss in UTC")
+  func testParseRoundTrip() throws {
+    let sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale("en", "US"))
+    sdf.setTimeZone(Self.utc)
+    let formatted = sdf.format(Self.ref)
+    let parsed = try sdf.parse(formatted)
+    // Re-format and compare (milliseconds are lost in this pattern — that is expected)
+    #expect(sdf.format(parsed) == formatted)
+  }
+}
