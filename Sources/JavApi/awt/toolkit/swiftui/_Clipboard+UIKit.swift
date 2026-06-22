@@ -3,12 +3,12 @@
  * SPDX-License-Identifier: MIT
  */
 
-#if canImport(UIKit) && !os(watchOS)
+#if canImport(UIKit) && !os(watchOS) && !os(tvOS)
 import UIKit
 
 extension java.awt.toolkit {
 
-  /// iOS / tvOS clipboard backend backed by `UIPasteboard.general`.
+  /// iOS clipboard backend backed by `UIPasteboard.general`.
   ///
   /// - Since: JavaApi (Java 1.1 datatransfer)
   public final class _UIKitClipboardProvider: ClipboardProvider, @unchecked Sendable {
@@ -21,6 +21,28 @@ extension java.awt.toolkit {
 
     public func _setClipboardText(_ text: String) {
       UIPasteboard.general.string = text
+    }
+  }
+}
+#endif
+
+#if os(tvOS)
+
+extension java.awt.toolkit {
+
+  /// tvOS clipboard backend — no-op (`UIPasteboard` is unavailable on tvOS).
+  ///
+  /// - Since: JavaApi (Java 1.1 datatransfer)
+  public final class _UIKitClipboardProvider: ClipboardProvider, @unchecked Sendable {
+
+    public init() {}
+
+    public func _getClipboardText() -> String? {
+      nil
+    }
+
+    public func _setClipboardText(_ text: String) {
+      // UIPasteboard is unavailable on tvOS — no-op
     }
   }
 }
