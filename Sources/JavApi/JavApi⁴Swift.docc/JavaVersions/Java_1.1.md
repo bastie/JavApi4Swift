@@ -1652,14 +1652,19 @@ version | implemented | tested   | type          | name                         
 
 ### java.util.zip — New in 1.1
 
-##### java.util.zip.CheckedInputStream / CheckedOutputStream (0/0/⭕️)
+##### java.util.zip.CheckedInputStream / CheckedOutputStream (2/2/✔️)
 
-> **Note:** Java 1.1 additions wrapping any `InputStream`/`OutputStream` with a running `Checksum`. Not yet implemented.
+> **Note:** Implemented in `util/zip/CheckedInputStream.swift` and
+> `util/zip/CheckedOutputStream.swift`. Both wrap any
+> `FilterInputStream`/`FilterOutputStream` and update a `Checksum` protocol
+> instance on every byte transferred. `CheckedInputStream` also provides a
+> `skip(_:)` that reads-and-updates so the checksum stays accurate over skipped
+> bytes.
 
 version | implemented | tested   | type          | name                 | more informations
 ------- | ----------- | -------- | ------------- | -------------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | CheckedInputStream   | extends InputStream; updates a Checksum as bytes are read
-1.1     | ⭕️          | ⭕️       | class         | CheckedOutputStream  | extends OutputStream; updates a Checksum as bytes are written
+1.1     | ✔️          | ✔️       | class         | CheckedInputStream   | extends FilterInputStream; updates a Checksum as bytes are read
+1.1     | ✔️          | ✔️       | class         | CheckedOutputStream  | extends FilterOutputStream; updates a Checksum as bytes are written
 
 ##### java.util.zip.Checksum (2/2/✔️)
 
@@ -2045,7 +2050,7 @@ version | implemented | tested   | type          | name                  | more 
 | **java.io** (Object Serialization) | ✔️ stub | `Externalizable`, `ObjectInputValidation`, `ObjectStreamClass` implemented; `ObjectInputStream`/`ObjectOutputStream` have constructors + stream delegation; `readObject`/`writeObject` throw `NotActiveException` |
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
-| **java.util.zip** | ✔️ mostly | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read); **missing:** `CheckedInputStream`, `CheckedOutputStream` |
+| **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read), `CheckedInputStream`, `CheckedOutputStream` |
 | **java.awt.event** | ✔️ mostly | all listeners, events **and adapter classes** (incl. `MouseMotionAdapter` as separate class); ContainerEvent/ContainerListener included; **missing:** `PaintEvent` |
 | **java.awt** (1.1 additions) | ✔️ mostly | `AWTEventMulticaster`, `EventQueue`, `Shape` (interface) implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present; **missing:** `IllegalComponentStateException` |
 | **java.awt.image** (1.1 additions) | ⭕️ | **missing:** `ReplicateScaleFilter`, `AreaAveragingScaleFilter` |
@@ -2076,9 +2081,6 @@ implemented**. Verified against the actual source tree and javaalmanac.io (June 
 
 ### java.awt
 - **`IllegalComponentStateException`** — extends `IllegalStateException`; thrown when a component is in an inappropriate state.
-
-### java.util.zip
-- **`CheckedInputStream`** / **`CheckedOutputStream`** — stream wrappers that update a running `Checksum` as bytes pass through.
 
 ### java.security
 - **`DigestInputStream`** / **`DigestOutputStream`** — `FilterInputStream`/`FilterOutputStream` wrappers that compute a `MessageDigest` on the fly.
