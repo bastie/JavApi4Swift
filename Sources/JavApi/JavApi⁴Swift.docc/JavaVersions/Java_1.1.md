@@ -1091,37 +1091,37 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.security.DigestInputStream / DigestOutputStream (0/0/⭕️)
 
-> **Note:** Stream wrappers that compute a `MessageDigest` incrementally as bytes pass through. Not yet implemented.
+> **Note:** Implemented in `security/DigestInputStream.swift` and `security/DigestOutputStream.swift`. Both wrap a `FilterInputStream`/`FilterOutputStream` and feed bytes through the configured `MessageDigest`. Digest mode can be toggled on/off via `on()`/`off()`.
 
 version | implemented | tested   | type          | name                 | more informations
 ------- | ----------- | -------- | ------------- | -------------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | DigestInputStream    | extends FilterInputStream; on()/off() toggle digesting
-1.1     | ⭕️          | ⭕️       | class         | DigestOutputStream   | extends FilterOutputStream; on()/off() toggle digesting
+1.1     | ✔️          | ⭕️       | class         | DigestInputStream    | extends FilterInputStream; on()/off() toggle digesting
+1.1     | ✔️          | ⭕️       | class         | DigestOutputStream   | extends FilterOutputStream; on()/off() toggle digesting
 
 ##### java.security.KeyPair / KeyPairGenerator (0/0/⭕️)
 
-> **Note:** `KeyPairGenerator` is the SPI entry point for asymmetric key generation. Not yet implemented.
+> **Note:** Implemented in `security/KeyPair.swift` and `security/KeyPairGenerator.swift`. `KeyPairGenerator` uses the provider SPI (`SwiftMessageDigestServiceProvider`) registered in `Security`; call `getInstance(algorithm:)` then `initialize` / `generateKeyPair()`.
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | KeyPair             | immutable pair of PublicKey + PrivateKey
-1.1     | ⭕️          | ⭕️       | class         | KeyPairGenerator    | getInstance(String)->KeyPairGenerator; initialize(int); generateKeyPair()->KeyPair
+1.1     | ✔️          | ⭕️       | class         | KeyPair             | immutable pair of PublicKey + PrivateKey
+1.1     | ✔️          | ⭕️       | class         | KeyPairGenerator    | getInstance(String)->KeyPairGenerator; initialize(int); generateKeyPair()->KeyPair
 
 ##### java.security.Signature (0/0/⭕️)
 
-> **Note:** Digital-signature engine (sign / verify). Not yet implemented.
+> **Note:** Implemented in `security/Signature.swift` as an abstract base class. States: `UNINITIALIZED` → `SIGN` / `VERIFY`. `getInstance` resolves an algorithm from the provider registry. Concrete DSA implementation provided by `SwiftMessageDigestServiceProvider`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | Signature      | getInstance(String); initSign(PrivateKey); update(byte[]); sign()->byte[]; initVerify(PublicKey); verify(byte[])->boolean
+1.1     | ✔️          | ⭕️       | class         | Signature      | getInstance(String); initSign(PrivateKey); update(byte[]); sign()->byte[]; initVerify(PublicKey); verify(byte[])->boolean
 
 ##### java.security.Security (0/0/⭕️)
 
-> **Note:** Static registry of cryptographic `Provider` instances. Not yet implemented.
+> **Note:** Implemented in `security/Security.swift` as a static utility class (non-instantiable). Maintains an ordered provider list; pre-registers `SwiftMessageDigestServiceProvider`. Thread-unsafe by design, matching Java's behaviour.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | Security       | addProvider(), getProvider(), getProviders(), getProperty(), setProperty()
+1.1     | ✔️          | ⭕️       | class         | Security       | addProvider(), getProvider(), getProviders(), getProperty(), setProperty()
 
 ##### java.security.MessageDigest (0/0/⭕️)
 
@@ -1655,10 +1655,6 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ⭕️       | method        | applyPattern(String)             |
 1.1     | ✔️          | ⭕️       | method        | format(Date) / parse(String)     | inherited from DateFormat
 
-> **Fully ported** (as of 2026): `DecimalFormat`, `DecimalFormatSymbols`, `MessageFormat`, `ChoiceFormat`,
-> `Collator`, `RuleBasedCollator`, `CollationKey`, `CollationElementIterator`, `BreakIterator`,
-> `CharacterIterator`, `StringCharacterIterator` — all implemented with tests.
->
 > The following are listed here only because they live in `java.text`, but they
 > are **not Java 1.1 APIs** (`Bidi` was added in Java 1.4, `Normalizer` in Java 6)
 > and belong to ``Java_1.4`` / ``Java_6``:
@@ -2069,13 +2065,13 @@ version | implemented | tested   | type          | name                  | more 
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read), `CheckedInputStream`, `CheckedOutputStream` |
-| **java.awt.event** | ✔️ complete | all listeners, events and adapter classes; `PaintEvent` added; `MouseMotionAdapter` merged into `MouseAdapter` |
+| **java.awt.event** | ✔️ complete | all listeners, events and adapter classes; `PaintEvent` added; `MouseAdapter` (MouseListener only) and `MouseMotionAdapter` (MouseMotionListener only) are separate classes — matching Java 1.1 exactly |
 | **java.awt** (1.1 additions) | ✔️ complete | `AWTEventMulticaster`, `EventQueue`, `Shape`, `IllegalComponentStateException` implemented; all 1.1 types present |
 | **java.awt.image** (1.1 additions) | ✔️ complete | `ReplicateScaleFilter` (nearest-neighbour), `AreaAveragingScaleFilter` (area-averaging) implemented |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
-| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey, Provider; `acl` fully implemented (deprecated since Java 17, removed Java 24); **missing:** `DigestInputStream`, `DigestOutputStream`, `KeyPair`, `KeyPairGenerator`, `Signature`, `Security` |
+| **java.security** | ✔️ complete | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey, Provider, DigestInputStream, DigestOutputStream, KeyPair, KeyPairGenerator, Signature, Security; `acl` fully implemented (deprecated since Java 17, removed Java 24) |
 | **java.security.interfaces** | ✔️ complete | DSAParams, DSAKey, DSAPublicKey, DSAPrivateKey, DSAKeyPairGenerator — all pure protocols |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
 | **java.sql (JDBC 1.x)** | ✔️ protocols | All JDBC 1.x protocols + `DriverManager` registry; concrete driver in `SQLiteJDBC` target (macOS) |
@@ -2087,15 +2083,8 @@ version | implemented | tested   | type          | name                  | more 
 
 ## What is still needed for full Java 1.1 compatibility
 
-These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
-implemented**. Verified against the actual source tree and javaalmanac.io (June 2026):
-
-### java.security
-- **`DigestInputStream`** / **`DigestOutputStream`** — `FilterInputStream`/`FilterOutputStream` wrappers that compute a `MessageDigest` on the fly.
-- **`KeyPair`** — immutable holder of a `PublicKey` + `PrivateKey` pair.
-- **`KeyPairGenerator`** — SPI entry point for asymmetric key-pair generation (`getInstance`, `initialize`, `generateKeyPair`).
-- **`Signature`** — digital-signature engine (sign / verify lifecycle).
-- **`Security`** — static registry of cryptographic `Provider` instances.
+All in-scope APIs are now implemented. Verified against the actual source tree
+and javaalmanac.io (June 2026).
 
 ### java.net.DatagramSocketImpl — design note
 The abstract stub is implemented. `DatagramSocket` uses its own POSIX file descriptor directly rather than delegating to a `DatagramSocketImpl` subclass — this is a deliberate JavApi4Swift design decision, not a missing public API.
