@@ -102,7 +102,7 @@ struct JavApi_net_HttpURLConnection_Advanced_Tests {
     let url = try java.net.URL("http://example.com")
     let conn = url.openConnection() as! java.net.HttpURLConnection
     conn.disconnect()
-    #expect(true) // If no exception, test passes
+    #expect(Bool(true)) // If no exception, test passes
   }
 
   @Test("Can call disconnect() multiple times")

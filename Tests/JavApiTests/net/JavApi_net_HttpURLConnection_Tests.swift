@@ -157,7 +157,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     let conn = url.openConnection() as! java.net.HttpURLConnection
     try conn.connect()
     conn.disconnect()
-    #expect(true) // If disconnect throws, test fails
+    #expect(Bool(true)) // If disconnect throws, test fails
   }
 
   @Test("Can reconnect after disconnect")

@@ -1,0 +1,26 @@
+/*
+ * SPDX-FileCopyrightText: 2026 - Sebastian Ritter <bastie@users.noreply.github.com>
+ * SPDX-License-Identifier: MIT
+ */
+
+extension java.security.acl {
+
+  /// Thrown when a reference is made to a non-existent ACL.
+  ///
+  /// Mirrors `java.security.acl.AclNotFoundException` (Java 1.1).
+  ///
+  /// > Warning: Deprecated since Java 17 for removal; removed in Java 24.
+  ///
+  /// - Since: JavaApi > 0.x (Java 1.1)
+  @available(*, deprecated, message: "java.security.acl.AclNotFoundException is deprecated since Java 17 for removal and was removed in Java 24.")
+  public class AclNotFoundException: Exception, @unchecked Sendable {
+
+    public override init() {
+      super.init()
+    }
+
+    public override init(_ message: String) {
+      super.init(message)
+    }
+  }
+}

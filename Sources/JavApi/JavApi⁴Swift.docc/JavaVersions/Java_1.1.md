@@ -1035,7 +1035,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.security — New package in 1.1
 
-> **Note:** Only the subset relevant for JavApi is implemented. `java.security.acl` is not in scope (removed in Java 24). `java.security.interfaces` is fully implemented — see below.
+> **Note:** Only the subset relevant for JavApi is implemented. `java.security.acl` is implemented and marked deprecated (removed in Java 24). `java.security.interfaces` is fully implemented — see below.
 
 ##### java.security.MessageDigest (0/0/⭕️)
 
@@ -1071,6 +1071,15 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NoSuchAlgorithmException() | (String)
+
+##### java.security.Principal (0/0/✔️)
+
+> **Note:** Implemented as a protocol in `security/Principal.swift`. Not deprecated —
+> still in active use in modern Java (JAAS etc.).
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getName()      | ()->String
 
 ### java.security.interfaces — New package in 1.1 (complete)
 
@@ -1132,6 +1141,93 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | initialize()   | (DSAParams, SecureRandom) throws
 1.1     | ✔️          | 🪄       | method        | initialize()   | (Int, Bool, SecureRandom) throws
+
+### java.security.acl — New package in 1.1 (deprecated)
+
+> **Warning:** The entire `java.security.acl` package was **deprecated in Java 17**
+> for removal and **removed in Java 24**. It is provided here for Java 1.1–16
+> compatibility. All types carry `@available(*, deprecated, ...)`.
+> Set the system property `java.expected.version` to a value < 17 to suppress
+> Swift compiler deprecation warnings in legacy code.
+
+##### java.security.Principal — see java.security above ✔️
+
+##### java.security.acl.Permission (0/0/⭕️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | equals()       | (Any?)->Bool
+1.1     | ✔️          | ⭕️       | method        | toString()     | ()->String
+
+##### java.security.acl.Owner (0/0/⭕️)
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | addOwner()          | (Principal,Principal)->Bool throws NotOwnerException
+1.1     | ✔️          | ⭕️       | method        | deleteOwner()       | (Principal,Principal)->Bool throws NotOwnerException, LastOwnerException
+1.1     | ✔️          | ⭕️       | method        | isOwner()           | (Principal)->Bool
+
+##### java.security.acl.Group (0/0/⭕️)
+
+> **Note:** Extends `java.security.Principal`.
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | addMember()         | (Principal)->Bool
+1.1     | ✔️          | ⭕️       | method        | removeMember()      | (Principal)->Bool
+1.1     | ✔️          | ⭕️       | method        | isMember()          | (Principal)->Bool
+1.1     | ✔️          | ⭕️       | method        | members()           | ()->Enumeration<Principal>
+
+##### java.security.acl.AclEntry (0/0/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | setPrincipal()        | (Principal)->Bool
+1.1     | ✔️          | ⭕️       | method        | getPrincipal()        | ()->Principal?
+1.1     | ✔️          | ⭕️       | method        | setNegativePermissions() | ()
+1.1     | ✔️          | ⭕️       | method        | isNegative()          | ()->Bool
+1.1     | ✔️          | ⭕️       | method        | addPermission()       | (Permission)->Bool
+1.1     | ✔️          | ⭕️       | method        | removePermission()    | (Permission)->Bool
+1.1     | ✔️          | ⭕️       | method        | checkPermission()     | (Permission)->Bool
+1.1     | ✔️          | ⭕️       | method        | permissions()         | ()->Enumeration<Permission>
+1.1     | ✔️          | ⭕️       | method        | clone()               | ()->AclEntry
+1.1     | ✔️          | ⭕️       | method        | toString()            | ()->String
+
+##### java.security.acl.Acl (0/0/⭕️)
+
+> **Note:** Extends `Owner`.
+
+version | implemented | tested   | type          | name                | more informations
+------- | ----------- | -------- | ------------- | ------------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | setName()           | (Principal,String) throws NotOwnerException
+1.1     | ✔️          | ⭕️       | method        | getName()           | ()->String
+1.1     | ✔️          | ⭕️       | method        | addEntry()          | (Principal,AclEntry)->Bool throws NotOwnerException
+1.1     | ✔️          | ⭕️       | method        | removeEntry()       | (Principal,AclEntry)->Bool throws NotOwnerException
+1.1     | ✔️          | ⭕️       | method        | getPermissions()    | (Principal)->Enumeration<Permission>
+1.1     | ✔️          | ⭕️       | method        | entries()           | ()->Enumeration<AclEntry>
+1.1     | ✔️          | ⭕️       | method        | checkPermission()   | (Principal,Permission)->Bool
+1.1     | ✔️          | ⭕️       | method        | toString()          | ()->String
+
+##### java.security.acl.AclNotFoundException (0/0/⭕️)
+
+version | implemented | tested   | type          | name                   | more informations
+------- | ----------- | -------- | ------------- | ---------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | AclNotFoundException() | ()
+1.1     | ✔️          | ⭕️       | constructor   | AclNotFoundException() | (String)
+
+##### java.security.acl.LastOwnerException (0/0/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | LastOwnerException()  | ()
+1.1     | ✔️          | ⭕️       | constructor   | LastOwnerException()  | (String)
+
+##### java.security.acl.NotOwnerException (0/0/⭕️)
+
+version | implemented | tested   | type          | name                  | more informations
+------- | ----------- | -------- | ------------- | --------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | NotOwnerException()   | ()
+1.1     | ✔️          | ⭕️       | constructor   | NotOwnerException()   | (String)
 
 ### java.beans — New package in 1.1 (partial)
 
@@ -1878,7 +1974,7 @@ version | implemented | tested   | type          | name                  | more 
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
-| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Key/PublicKey/PrivateKey protocols; `acl` not in scope (removed Java 24) |
+| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey; `acl` fully implemented (deprecated since Java 17, removed Java 24) |
 | **java.security.interfaces** | ✔️ complete | DSAParams, DSAKey, DSAPublicKey, DSAPrivateKey, DSAKeyPairGenerator — all pure protocols |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
 | **java.sql (JDBC 1.x)** | ✔️ protocols | All JDBC 1.x protocols + `DriverManager` registry; concrete driver in `SQLiteJDBC` target (macOS) |
@@ -1894,17 +1990,6 @@ These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
 implemented or only stubbed**. They are the concrete to-do list for closing the
 1.1 gap, verified against the actual source tree (June 2026):
 
-- **java.io.ObjectInputStream / ObjectOutputStream** — constructors and
-  stream delegation implemented. `readObject()` / `writeObject()` throw
-  ``NotActiveException``; full object-graph (de)serialization is not
-  implemented and would require a dedicated serialization format effort.
-- **java.io.ObjectStreamClass** — minimal stub implemented (`lookup`, `getName`,
-  `getSerialVersionUID` always returning 0). No real class descriptor introspection.
-- **java.io.ObjectInputValidation** — protocol implemented; `registerValidation`
-  is accepted but callbacks are never invoked (no real deserialization pipeline).
-- **java.net.MulticastSocket** — implemented; `joinGroup`/`leaveGroup` work on
-  Darwin, Linux, and Windows (Winsock2 via ``platformSetsockopt``); throw
-  ``SocketException`` on WASI only.
 - **java.net.DatagramSocketImpl** — abstract stub implemented; no concrete
   platform backend (``DatagramSocket`` uses its own POSIX fd directly).
 
@@ -1917,5 +2002,4 @@ The following Java 1.1 APIs are explicitly a the moment **not** ported because t
 
 - **java.rmi networking stack**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>. The `java.rmi` exception hierarchy and `Remote` marker are present as compile-time stubs (see table above).
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. For the full rationale see <doc:NotImplemented>. 
-- **java.security.acl** — Removed in Java 24; no portability value. Not ported.
 - **Inner classes** — Language feature of Java, not a library API to port.
