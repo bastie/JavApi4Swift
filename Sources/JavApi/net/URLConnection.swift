@@ -26,6 +26,48 @@ extension java.net {
   /// - Since: Java 1.0
   public class URLConnection: @unchecked Sendable {
 
+    // MARK: - Global file name map (Java 1.1)
+
+    /// Built-in default `FileNameMap` with common extension-to-MIME mappings.
+    private final class DefaultFileNameMap: java.net.FileNameMap, @unchecked Sendable {
+      func getContentTypeFor(_ fileName: String) -> String? {
+        let ext = (fileName as NSString).pathExtension.lowercased()
+        switch ext {
+        case "html", "htm": return "text/html"
+        case "txt", "text": return "text/plain"
+        case "css":         return "text/css"
+        case "js":          return "application/javascript"
+        case "json":        return "application/json"
+        case "xml":         return "application/xml"
+        case "gif":         return "image/gif"
+        case "png":         return "image/png"
+        case "jpg", "jpeg": return "image/jpeg"
+        case "svg":         return "image/svg+xml"
+        case "pdf":         return "application/pdf"
+        case "zip":         return "application/zip"
+        case "gz":          return "application/gzip"
+        default:            return nil
+        }
+      }
+    }
+
+    /// The global file name map, replaceable via ``setFileNameMap(_:)``.
+    nonisolated(unsafe) private static var _fileNameMap: any java.net.FileNameMap = DefaultFileNameMap()
+
+    /// Returns the file name map used to guess content types from file names.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public static func getFileNameMap() -> any java.net.FileNameMap {
+      return _fileNameMap
+    }
+
+    /// Replaces the global file name map.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public static func setFileNameMap(_ map: any java.net.FileNameMap) {
+      _fileNameMap = map
+    }
+
     // MARK: - Global content handler factory
 
     /// The global content handler factory, set via ``setContentHandlerFactory(_:)``.

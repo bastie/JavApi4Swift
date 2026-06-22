@@ -13,12 +13,19 @@ extension java.awt.image {
   /// into a caller-supplied `[Int]` array in the default RGB color model —
   /// mirrors `java.awt.image.PixelGrabber`.
   ///
-  /// ### Usage
+  /// ### Usage with external pixel array
   /// ```swift
   /// var pixels = [Int](repeating: 0, count: w * h)
   /// let pg = java.awt.image.PixelGrabber(producer, x, y, w, h,
   ///                                      &pixels, 0, w)
   /// _ = try pg.grabPixels()
+  /// ```
+  ///
+  /// ### Usage with internal pixel array (Java 1.1)
+  /// ```swift
+  /// let pg = java.awt.image.PixelGrabber(image, x, y, w, h, true)
+  /// _ = try pg.grabPixels()
+  /// let pixels = pg.getPixels()
   /// ```
   public class PixelGrabber: ImageConsumer {
 
@@ -29,21 +36,32 @@ extension java.awt.image {
     private let producer:  any ImageProducer
     private let grabX:     Int
     private let grabY:     Int
-    private let grabW:     Int
-    private let grabH:     Int
+    private var grabW:     Int   // may be -1 until setDimensions is called
+    private var grabH:     Int   // may be -1 until setDimensions is called
     private var pixels:    [Int]
     private let offset:    Int
-    private let scansize:  Int
+    private var scansize:  Int
 
     /// Bitwise status flags (mirrors ImageObserver flags).
-    /// 8 = FRAMEBITS (complete frame available)
-    /// 64 = ALLBITS   (full image delivered)
-    /// 128 = ERROR
-    /// 64 = ABORT
+    /// 64  = ALLBITS   (full image delivered)
+    /// 128 = ERROR / ABORT
     private var statusFlags: Int = 0
 
     /// Set to `true` once `imageComplete` is called.
     private var done: Bool = false
+
+    /// Guards against calling `startProduction` more than once.
+    private var grabbing: Bool = false
+
+    /// Whether we allocated the pixel array internally (Java 1.1 constructor).
+    private var internalPixels: Bool = false
+
+    /// The color model reported by the image producer.
+    private var grabbedModel: ColorModel? = nil
+
+    /// Image dimensions reported by `setDimensions` (needed when grabW/grabH < 0).
+    private var imageWidth:  Int = -1
+    private var imageHeight: Int = -1
 
     #if canImport(Dispatch)
     private let semaphore = DispatchSemaphore(value: 0)
@@ -53,19 +71,18 @@ extension java.awt.image {
     // MARK: Constructors
     // -------------------------------------------------------------------------
 
-    // §2.8.1  from Image — in Swift we use its producer
-    /// Creates a pixel grabber that reads from `img`'s producer.
+    // §2.8.1  from Image, external pixel array
+    /// Creates a pixel grabber that reads from `img`'s producer into `pix`.
     public convenience init(_ img: java.awt.Image,
                             _ x: Int, _ y: Int, _ w: Int, _ h: Int,
                             _ pix: inout [Int], _ off: Int, _ scansize: Int) {
-      // Unwrap the optional producer; use an empty MemoryImageSource as fallback.
       let ip: any ImageProducer = img.getSource()
                                   ?? MemoryImageSource(0, 0, [], 0, 0)
       self.init(ip, x, y, w, h, &pix, off, scansize)
     }
 
-    // §2.8.2  from ImageProducer
-    /// Creates a pixel grabber that reads directly from `ip`.
+    // §2.8.2  from ImageProducer, external pixel array
+    /// Creates a pixel grabber that reads directly from `ip` into `pix`.
     public init(_ ip: any ImageProducer,
                 _ x: Int, _ y: Int, _ w: Int, _ h: Int,
                 _ pix: inout [Int], _ off: Int, _ scansize: Int) {
@@ -79,15 +96,45 @@ extension java.awt.image {
       self.scansize  = scansize
     }
 
+    // §2.8.3 (Java 1.1)  from Image, internal pixel array, optional RGB coercion
+    /// Creates a pixel grabber that allocates its own pixel buffer.
+    ///
+    /// If `w` or `h` is `-1`, the grabber waits for `setDimensions` to learn
+    /// the full image size and allocates the buffer then.
+    ///
+    /// - Parameter forceRGB: When `true`, pixels are converted to the default
+    ///   RGB color model. When `false`, the native model is preserved (in this
+    ///   Swift port all `setPixels` paths convert via `model.getRGB()`, so the
+    ///   flag records intent rather than changing behaviour).
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public convenience init(_ img: java.awt.Image,
+                            _ x: Int, _ y: Int, _ w: Int, _ h: Int,
+                            _ forceRGB: Bool) {
+      let ip: any ImageProducer = img.getSource()
+                                  ?? MemoryImageSource(0, 0, [], 0, 0)
+      // Allocate buffer if size is known; otherwise defer to setDimensions.
+      var buf: [Int]
+      let scan: Int
+      if w >= 0 && h >= 0 {
+        buf  = [Int](repeating: 0, count: w * h)
+        scan = w
+      } else {
+        buf  = []
+        scan = 0
+      }
+      self.init(ip, x, y, w, h, &buf, 0, scan)
+      self.internalPixels = true
+      self.pixels = buf
+    }
+
     // -------------------------------------------------------------------------
-    // MARK: grabPixels  §2.8.3 / §2.8.4
+    // MARK: grabPixels  §2.8.4 / §2.8.5
     // -------------------------------------------------------------------------
 
     /// Starts pixel delivery and waits until all pixels have arrived.
     ///
     /// - Returns: `true` on success; `false` on abort or error.
-    /// - Throws: `java.lang.InterruptedException` (mapped to Swift `throw`) if
-    ///           the wait is interrupted.
+    /// - Throws: `java.lang.InterruptedException` if the wait is interrupted.
     @discardableResult
     public func grabPixels() throws -> Bool {
       return try grabPixels(0)
@@ -95,10 +142,12 @@ extension java.awt.image {
 
     /// Starts pixel delivery and waits up to `ms` milliseconds.
     ///
-    /// - Parameter ms: Maximum wait in milliseconds; 0 means wait indefinitely.
+    /// - Parameter ms: Maximum wait in milliseconds; `0` means wait indefinitely.
     /// - Returns: `true` if all pixels were grabbed within the timeout.
     @discardableResult
     public func grabPixels(_ ms: Int64) throws -> Bool {
+      guard !grabbing else { return done && (statusFlags & 192) != 0 }
+      grabbing = true
       producer.startProduction(self)
       #if canImport(Dispatch)
       if ms <= 0 {
@@ -113,11 +162,67 @@ extension java.awt.image {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: startGrabbing / abortGrabbing (Java 1.1)
+    // -------------------------------------------------------------------------
+
+    /// Starts pixel delivery asynchronously without blocking.
+    ///
+    /// Returns immediately. Poll ``status()`` to check for completion, or
+    /// call ``grabPixels()`` if you want to block for the result.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func startGrabbing() {
+      guard !grabbing else { return }
+      grabbing = true
+      producer.startProduction(self)
+    }
+
+    /// Aborts an in-progress grab.
+    ///
+    /// Sets an error/abort flag, unregisters this grabber from the producer,
+    /// and unblocks any pending ``grabPixels()`` call (which will return `false`).
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func abortGrabbing() {
+      statusFlags |= 128   // ABORT
+      producer.removeConsumer(self)
+      done = true
+      #if canImport(Dispatch)
+      semaphore.signal()
+      #endif
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: status  §2.8.12
     // -------------------------------------------------------------------------
 
     /// Returns the bitwise OR of applicable `ImageObserver` flags.
     public func status() -> Int { statusFlags }
+
+    // -------------------------------------------------------------------------
+    // MARK: Accessors (Java 1.1)
+    // -------------------------------------------------------------------------
+
+    /// Returns the width of the grabbed image, or `-1` if not yet known.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func getWidth() -> Int {
+      if grabW >= 0 { return grabW }
+      return imageWidth
+    }
+
+    /// Returns the height of the grabbed image, or `-1` if not yet known.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func getHeight() -> Int {
+      if grabH >= 0 { return grabH }
+      return imageHeight
+    }
+
+    /// Returns the color model of the grabbed image, or `nil` if not yet known.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func getColorModel() -> ColorModel? { return grabbedModel }
 
     // -------------------------------------------------------------------------
     // MARK: Swift convenience — access the filled pixel array
@@ -131,17 +236,32 @@ extension java.awt.image {
     public func getPixels() -> [Int] { pixels }
 
     // -------------------------------------------------------------------------
-    // MARK: ImageConsumer callbacks — §2.8.5 – §2.8.11
+    // MARK: ImageConsumer callbacks — §2.8.6 – §2.8.11
     // -------------------------------------------------------------------------
 
-    /// Ignored — PixelGrabber uses the dimensions passed to the constructor.
-    public func setDimensions(_ width: Int, _ height: Int) {}
+    /// Records the image dimensions; allocates the internal buffer if needed
+    /// (only when constructed with the Java 1.1 `forceRGB` constructor and
+    /// `w` or `h` was `-1`).
+    public func setDimensions(_ width: Int, _ height: Int) {
+      imageWidth  = width
+      imageHeight = height
+      if internalPixels && pixels.isEmpty {
+        let w = (grabW < 0) ? width  : grabW
+        let h = (grabH < 0) ? height : grabH
+        if grabW < 0 { grabW = w }
+        if grabH < 0 { grabH = h }
+        scansize = w
+        pixels   = [Int](repeating: 0, count: w * h)
+      }
+    }
 
     /// Ignored.
     public func setProperties(_ props: java.util.Hashtable<AnyHashable, AnyObject>) {}
 
-    /// Ignored — pixels are always converted to default RGB.
-    public func setColorModel(_ model: ColorModel) {}
+    /// Records the producer's color model (returned by `getColorModel()`).
+    public func setColorModel(_ model: ColorModel) {
+      grabbedModel = model
+    }
 
     /// Ignored.
     public func setHints(_ hints: Int) {}
@@ -151,7 +271,6 @@ extension java.awt.image {
                           _ model: ColorModel,
                           _ srcPixels: [UInt8],
                           _ srcOff: Int, _ srcScan: Int) {
-      // Clip to grab rectangle
       let ix = max(x, grabX);  let iy = max(y, grabY)
       let ix2 = min(x + w, grabX + grabW)
       let iy2 = min(y + h, grabY + grabH)
