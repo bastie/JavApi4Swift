@@ -25,25 +25,3 @@ extension java.awt.toolkit {
   }
 }
 #endif
-
-#if os(tvOS)
-
-extension java.awt.toolkit {
-
-  /// tvOS clipboard backend — no-op (`UIPasteboard` is unavailable on tvOS).
-  ///
-  /// - Since: JavaApi (Java 1.1 datatransfer)
-  public final class _UIKitClipboardProvider: ClipboardProvider, @unchecked Sendable {
-
-    public init() {}
-
-    public func _getClipboardText() -> String? {
-      nil
-    }
-
-    public func _setClipboardText(_ text: String) {
-      // UIPasteboard is unavailable on tvOS — no-op
-    }
-  }
-}
-#endif
