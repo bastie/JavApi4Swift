@@ -93,7 +93,7 @@ struct JavApi_util_Calendar_Tests {
   @Test("Calendar.getInstance() returns a non-nil Calendar")
   func testGetInstance() {
     // Test sinnlos, aber er ist nunmal da...
-    let cal = java.util.Calendar.getInstance()
+    _ = java.util.Calendar.getInstance()
     #expect(Bool(true))
   }
 

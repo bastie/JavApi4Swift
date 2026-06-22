@@ -168,7 +168,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     conn.disconnect()
     // Should be able to connect again
     try conn.connect()
-    #expect(true)
+    #expect(Bool(true))
   }
 
   // MARK: - Redirect Behavior
@@ -210,7 +210,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     let conn = url.openConnection() as! java.net.HttpURLConnection
     _ = conn.getResponseMessage()
     // Message might be nil if not connected
-    #expect(true)
+    #expect(Bool(true))
   }
 
   // MARK: - URL Property
@@ -273,7 +273,7 @@ struct JavApi_net_HttpURLConnection_Tests {
     let conn = url.openConnection() as! java.net.HttpURLConnection
     try conn.connect()
     _ = try conn.getInputStream()
-    #expect(true) // If we got here without exception, it works
+    #expect(Bool(true)) // If we got here without exception, it works
   }
 
   // MARK: - Subclass Identity

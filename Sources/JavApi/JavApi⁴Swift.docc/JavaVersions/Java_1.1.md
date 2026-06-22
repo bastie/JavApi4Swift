@@ -491,28 +491,9 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | remove()       | (Component)
 1.1     | ✔️          | ⭕️       | method        | removeAll()    | ()
 
-##### java.awt.FontMetrics (9/9/⭕️)
+##### java.awt.FontMetrics (no 1.1 additions)
 
-> **Note:** `FontMetrics` is an abstract class. On Apple platforms the concrete
-> implementation is `CoreTextFontMetrics` (backed by `CTFont`). On all other
-> platforms a proportional-approximation fallback is used. Instances are
-> obtained via `Graphics.getFontMetrics()` or `Graphics.getFontMetrics(Font)`.
-
-version | implemented | tested   | type          | name              | more informations
-------- | ----------- | -------- | ------------- | ----------------- | -----------------
-1.0     | ✔️          | ⭕️       | constructor   | FontMetrics()     | (Font) — protected
-1.0     | ✔️          | ⭕️       | method        | getFont()         | ()->Font
-1.0     | ✔️          | ⭕️       | method        | getAscent()       | ()->int — CoreText: CTFontGetAscent; fallback: font.size×0.75
-1.0     | ✔️          | ⭕️       | method        | getDescent()      | ()->int — CoreText: CTFontGetDescent; fallback: font.size×0.20
-1.0     | ✔️          | ⭕️       | method        | getLeading()      | ()->int — CoreText: CTFontGetLeading; fallback: font.size×0.10
-1.0     | ✔️          | ⭕️       | method        | getHeight()       | ()->int — ascent + descent + leading (final)
-1.0     | ✔️          | ⭕️       | method        | getMaxAscent()    | ()->int
-1.0     | ✔️          | ⭕️       | method        | getMaxDescent()   | ()->int
-1.0     | ✔️          | ⭕️       | method        | getMaxAdvance()   | ()->int — CoreText: advance of 'M'; fallback: -1
-1.0     | ✔️          | ⭕️       | method        | charWidth()       | (char)->int — CoreText: CTLine width; fallback: font.size×0.60
-1.0     | ✔️          | ⭕️       | method        | charsWidth()      | (char[],int,int)->int
-1.0     | ✔️          | ⭕️       | method        | stringWidth()     | (String)->int — CoreText: CTLineGetTypographicBounds
-1.0     | ✔️          | ⭕️       | method        | getWidths()       | ()->[int] — widths of first 256 Unicode scalars
+> **Note:** `FontMetrics` was fully defined in Java 1.0. See Java_1.0.md for complete documentation. It is an abstract class. On Apple platforms the concrete implementation is `CoreTextFontMetrics` (backed by `CTFont`). On all other platforms a proportional-approximation fallback is used. Instances are obtained via `Graphics.getFontMetrics()` or `Graphics.getFontMetrics(Font)`.
 
 ## Java Core Packages — Continued
 
@@ -1075,25 +1056,15 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | getContentTypeFor() | (String)->String? — interface
 
-### java.awt.image — 1.1 additions
+### java.awt.image — no 1.1 additions (see Java_1.0.md)
 
-##### java.awt.image.ReplicateScaleFilter / AreaAveragingScaleFilter (2/2/⭕️)
-
-> **Note:**
-> - `ReplicateScaleFilter` (`awt/image/ReplicateScaleFilter.swift`) — nearest-
->   neighbour scaling. Constructor takes `(width, height)`, `-1` for either
->   dimension derives it from the aspect ratio. Builds row/column mapping tables
->   in `setDimensions` and rescales both byte- and int-pixel variants.
-> - `AreaAveragingScaleFilter` (`awt/image/AreaAveragingScaleFilter.swift`) —
->   extends `ReplicateScaleFilter`. Accumulates the full source image in
->   `setPixels`, then in `imageComplete` either applies a weighted area-average
->   (downscaling) or falls back to nearest-neighbour (upscaling). Both classes
->   implement `makeInstance()` for `getFilterInstance` compatibility.
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
-1.1     | ✔️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
+> **Note:** java.awt.image was fully defined in Java 1.0. See Java_1.0.md for complete documentation of all classes and interfaces, including:
+> - ColorModel, DirectColorModel, IndexColorModel (color models)
+> - ImageFilter, RGBImageFilter, CropImageFilter, FilteredImageSource (filters)
+> - ImageProducer, ImageConsumer, ImageObserver (producer/consumer pipeline)
+> - MemoryImageSource, PixelGrabber (sources)
+>
+> **1.1 extensions** to existing classes are documented below only.
 
 ##### java.awt.image.MemoryImageSource — 1.1 additions (7/0/⭕️)
 
@@ -1116,13 +1087,6 @@ version | implemented | tested   | type          | name                       | 
 1.1     | ✔️          | ⭕️       | method        | newPixels()                | (int[],ColorModel,int,int)
 
 ##### java.awt.image.PixelGrabber — 1.1 additions (6/0/⭕️)
-
-> **Note:** All Java 1.1 additions are now implemented in
-> `awt/image/PixelGrabber.swift`. The new convenience constructor allocates its
-> own pixel buffer; if `w` or `h` is `-1`, the buffer is deferred until
-> `setDimensions` is called. `setColorModel` now records the producer's model
-> (returned by `getColorModel()`). `abortGrabbing()` sets the abort flag and
-> signals the semaphore to unblock any pending `grabPixels()` call.
 
 version | implemented | tested   | type          | name                       | more informations
 ------- | ----------- | -------- | ------------- | -------------------------- | -----------------
@@ -1171,8 +1135,6 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.math.BigInteger (0/0/⭕️)
 
-> **Note:** Fully implemented — see `Sources/JavApi/math/BigInteger.swift`. Only key API listed here.
-
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | BigInteger()   | (String)
@@ -1192,8 +1154,6 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.math.BigDecimal (0/0/⭕️)
 
-> **Note:** Implemented as `typealias BigDecimal = Decimal` (Swift Foundation). Key API listed.
-
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | BigDecimal()   | (String)
@@ -1212,7 +1172,6 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.security.DigestInputStream / DigestOutputStream (0/0/⭕️)
 
-> **Note:** Implemented in `security/DigestInputStream.swift` and `security/DigestOutputStream.swift`. Both wrap a `FilterInputStream`/`FilterOutputStream` and feed bytes through the configured `MessageDigest`. Digest mode can be toggled on/off via `on()`/`off()`.
 
 version | implemented | tested   | type          | name                 | more informations
 ------- | ----------- | -------- | ------------- | -------------------- | -----------------
@@ -1221,7 +1180,6 @@ version | implemented | tested   | type          | name                 | more i
 
 ##### java.security.KeyPair / KeyPairGenerator (0/0/⭕️)
 
-> **Note:** Implemented in `security/KeyPair.swift` and `security/KeyPairGenerator.swift`. `KeyPairGenerator` uses the provider SPI (`SwiftMessageDigestServiceProvider`) registered in `Security`; call `getInstance(algorithm:)` then `initialize` / `generateKeyPair()`.
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1230,7 +1188,6 @@ version | implemented | tested   | type          | name                | more in
 
 ##### java.security.Signature (0/0/⭕️)
 
-> **Note:** Implemented in `security/Signature.swift` as an abstract base class. States: `UNINITIALIZED` → `SIGN` / `VERIFY`. `getInstance` resolves an algorithm from the provider registry. Concrete DSA implementation provided by `SwiftMessageDigestServiceProvider`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1238,7 +1195,6 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.security.Security (0/0/⭕️)
 
-> **Note:** Implemented in `security/Security.swift` as a static utility class (non-instantiable). Maintains an ordered provider list; pre-registers `SwiftMessageDigestServiceProvider`. Thread-unsafe by design, matching Java's behaviour.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1281,18 +1237,11 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.security.Principal (0/0/✔️)
 
-> **Note:** Implemented as a protocol in `security/Principal.swift`. Not deprecated —
-> still in active use in modern Java (JAAS etc.).
-
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | getName()      | ()->String
 
 ### java.security.interfaces — New package in 1.1 (complete)
-
-> **Note:** Pure protocol package — only interfaces, no concrete implementations.
-> All five protocols are in `security/interfaces/`. The required base protocols
-> `Key`, `PublicKey`, and `PrivateKey` were added to `java.security` as well.
 
 ##### java.security.Key (0/0/✔️)
 
@@ -1376,8 +1325,6 @@ version | implemented | tested   | type          | name                | more in
 
 ##### java.security.acl.Group (0/0/⭕️)
 
-> **Note:** Extends `java.security.Principal`.
-
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
 1.1     | ✔️          | ⭕️       | method        | addMember()         | (Principal)->Bool
@@ -1401,8 +1348,6 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ⭕️       | method        | toString()            | ()->String
 
 ##### java.security.acl.Acl (0/0/⭕️)
-
-> **Note:** Extends `Owner`.
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1708,8 +1653,6 @@ version | implemented | tested   | type          | name                     | mo
 
 ### java.text — New package in 1.1 (mostly complete)
 
-All core formatting, collation, and text-iteration classes are implemented and back `JFormattedTextField` as well as `String.format()` / `java.util.Formatter`. Only `DateFormatSymbols` is missing (see "What is still needed" below).
-
 ##### java.text.Format (abstract base)
 
 version | implemented | tested   | type          | name                                      | more informations
@@ -1890,7 +1833,7 @@ version | implemented | tested   | type          | name                         
 
 ##### java.text.BreakIterator
 
-> **Note:** Implemented in `text/BreakIterator.swift`. Backed by `StringBreakingIterator` using Foundation `NSString.enumerateSubstrings`. `getAvailableLocales()` is a Java 1.2 addition, tracked in ``Java_1.2``.
+> **Note:** Implemented in `text/BreakIterator.swift`. Backed by `StringBreakingIterator` using Foundation `NSString.enumerateSubstrings`.
 
 version | implemented | tested   | type          | name                             | more informations
 ------- | ----------- | -------- | ------------- | -------------------------------- | -----------------
@@ -1912,13 +1855,6 @@ version | implemented | tested   | type          | name                         
 
 > **Missing from implementation:** `java.text.DateFormatSymbols` — provides locale-sensitive names for months, weekdays, AM/PM strings etc. Not yet implemented; `SimpleDateFormat` delegates formatting to Foundation instead of using a `DateFormatSymbols` instance. Tracked as ⭕️ (not ported).
 
-> The following are listed here only because they live in `java.text`, but they
-> are **not Java 1.1 APIs** (`Bidi` was added in Java 1.4, `Normalizer` in Java 6)
-> and belong to ``Java_1.4`` / ``Java_6``:
->
-> - ``TODO:`` **Normalizer** (`java.text.Normalizer`, since Java 6) — Unicode normalization forms (NFC/NFD/NFKC/NFKD).
->   Medium effort; depends on Foundation/ICU. Recommended for a future iteration.
-> - ``TODO:`` **Bidi** (`java.text.Bidi`, since Java 1.4) — Unicode Bidirectional Algorithm for RTL/mixed-direction text.
 >   High effort. Deferred; consider bridging to `CoreText` on Apple platforms or an ICU wrapper.
 
 ### java.util.zip — New in 1.1
@@ -2240,8 +2176,6 @@ version | implemented | tested   | type          | name                  | more 
 
 ##### java.sql.CallableStatement (⭕️ stub only)
 
-> **Note:** Protocol is defined for API completeness. No bundled driver implements it — SQLite has no stored procedures.
-
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | registerOutParameter() | (Int,Int)
@@ -2343,17 +2277,6 @@ version | implemented | tested   | type          | name                  | more 
 Verified against the actual source tree and javaalmanac.io (June 2026).
 Almost all in-scope Java 1.1 public API items have been implemented.
 The remaining open work is:
-
-### java.text.DateFormatSymbols (⭕️ not implemented)
-`java.text.DateFormatSymbols` provides locale-sensitive names for months, weekdays, AM/PM strings, era names etc. and is used by `SimpleDateFormat` in Java.
-In JavApi4Swift, `SimpleDateFormat` delegates date formatting directly to Foundation (`DateFormatter`) rather than using a `DateFormatSymbols` instance. As a result `DateFormatSymbols` itself is not implemented.
-This is an intentional design trade-off — implementing it fully would require duplicating Foundation's locale tables. Tracked here for completeness.
-
-### java.net.DatagramSocketImpl — design note
-The abstract stub is implemented. `DatagramSocket` uses its own POSIX file descriptor directly rather than delegating to a `DatagramSocketImpl` subclass — this is a deliberate JavApi4Swift design decision, not a missing public API.
-
-### Version note: URLEncoder.encode(String, String)
-> **Correction:** `URLEncoder.encode(String, String)` is a **Java 1.4** addition, not Java 1.1. Java 1.1 only defined the single-argument `encode(String)`. The two-argument form is implemented (see `net/URLEncoder.swift`) and tracked in `Java_1.4.md`. The entry in `Java_1.0.md` incorrectly listed it as version 1.1.
 
 ---
 
