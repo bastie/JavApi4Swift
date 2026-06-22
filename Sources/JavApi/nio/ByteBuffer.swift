@@ -25,7 +25,7 @@ open class ByteBuffer {
       throw IllegalArgumentException("sorry for my failure master, I cant not create a ByteBuffer with negative count of bytes")
     }
     let buffer = ByteBuffer()
-    //buffer.content = Array(repeating: 0, count: count)
+    buffer.content = Array(repeating: 0, count: count)
     return buffer
   }
   
@@ -47,22 +47,7 @@ open class ByteBuffer {
   /// - Returns ``ByteBuffer`` self
   /// - Since: JavaApi &gt; 0.17.0 (Java 1.4)
   open func order(_ order: java.nio.ByteOrder) -> ByteBuffer {
-    guard SELF_BYTE_ORDER != order else {
-      return self
-    }
-    guard SELF_BYTE_ORDER == .BIG_ENDIAN || SELF_BYTE_ORDER == .LITTLE_ENDIAN else {
-      /// FIXME: create a log message
-      return self
-    }
-    
-    // reverse byte order
-    self.content.reverse()
-    if SELF_BYTE_ORDER == .LITTLE_ENDIAN {
-      self.SELF_BYTE_ORDER = .BIG_ENDIAN
-    }
-    else {
-      self.SELF_BYTE_ORDER = .LITTLE_ENDIAN
-    }
+    self.SELF_BYTE_ORDER = order
     return self
   }
   
@@ -79,16 +64,12 @@ open class ByteBuffer {
   }
   
   open func put (_ bytes : [UInt8], _ offset : Int, _ length : Int) throws -> ByteBuffer {
-    guard offset > -1 && offset < bytes.count else {
-      throw IndexOutOfBoundsException("illegal start position \(offset)")
-    }
-    guard length > -1 && length <= (bytes.count-offset) else {
-      throw IndexOutOfBoundsException("illegal length \(length)")
+    guard offset >= 0 && length >= 0 && (offset + length) <= bytes.count else {
+      throw IndexOutOfBoundsException("illegal offset \(offset) or length \(length) for array of size \(bytes.count)")
     }
     for i in offset..<(offset+length) {
       try _ = self.put(bytes[i])
     }
-    
     return self
   }
 }
