@@ -203,7 +203,7 @@ extension java.util {
                      "yyyy-MM-dd"] {
         fmt.dateFormat = format
         if let d = fmt.date(from: s) {
-          return Int64(d.timeIntervalSince1970) * 1000
+          return Int64((d.timeIntervalSince1970 * 1000).rounded())
         }
       }
       return -1
