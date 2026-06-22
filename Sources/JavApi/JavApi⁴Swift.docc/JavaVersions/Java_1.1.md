@@ -1035,7 +1035,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.security — New package in 1.1
 
-> **Note:** Only the subset relevant for JavApi is implemented. Full java.security.acl and java.security.interfaces are not in scope.
+> **Note:** Only the subset relevant for JavApi is implemented. `java.security.acl` is not in scope (removed in Java 24). `java.security.interfaces` is fully implemented — see below.
 
 ##### java.security.MessageDigest (0/0/⭕️)
 
@@ -1071,6 +1071,67 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NoSuchAlgorithmException() | (String)
+
+### java.security.interfaces — New package in 1.1 (complete)
+
+> **Note:** Pure protocol package — only interfaces, no concrete implementations.
+> All five protocols are in `security/interfaces/`. The required base protocols
+> `Key`, `PublicKey`, and `PrivateKey` were added to `java.security` as well.
+
+##### java.security.Key (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getAlgorithm() | ()->String
+1.1     | ✔️          | 🪄       | method        | getFormat()    | ()->String?
+1.1     | ✔️          | 🪄       | method        | getEncoded()   | ()->[UInt8]?
+
+##### java.security.PublicKey (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | protocol      | PublicKey      | extends Key — marker
+
+##### java.security.PrivateKey (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | protocol      | PrivateKey     | extends Key — marker
+
+##### java.security.interfaces.DSAParams (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getP()         | ()->BigInteger
+1.1     | ✔️          | 🪄       | method        | getQ()         | ()->BigInteger
+1.1     | ✔️          | 🪄       | method        | getG()         | ()->BigInteger
+
+##### java.security.interfaces.DSAKey (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | getParams()    | ()->(any DSAParams)?
+
+##### java.security.interfaces.DSAPublicKey (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | protocol      | DSAPublicKey   | extends DSAKey + PublicKey
+1.1     | ✔️          | 🪄       | method        | getY()         | ()->BigInteger — public value y
+
+##### java.security.interfaces.DSAPrivateKey (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | protocol      | DSAPrivateKey  | extends DSAKey + PrivateKey
+1.1     | ✔️          | 🪄       | method        | getX()         | ()->BigInteger — private value x
+
+##### java.security.interfaces.DSAKeyPairGenerator (0/0/✔️)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | 🪄       | method        | initialize()   | (DSAParams, SecureRandom) throws
+1.1     | ✔️          | 🪄       | method        | initialize()   | (Int, Bool, SecureRandom) throws
 
 ### java.beans — New package in 1.1 (partial)
 
@@ -1817,7 +1878,8 @@ version | implemented | tested   | type          | name                  | more 
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
-| **java.security** | ✔️ partial | MessageDigest, SecureRandom; acl/interfaces not ported |
+| **java.security** | ✔️ partial | MessageDigest, SecureRandom, Key/PublicKey/PrivateKey protocols; `acl` not in scope (removed Java 24) |
+| **java.security.interfaces** | ✔️ complete | DSAParams, DSAKey, DSAPublicKey, DSAPrivateKey, DSAKeyPairGenerator — all pure protocols |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
 | **java.sql (JDBC 1.x)** | ✔️ protocols | All JDBC 1.x protocols + `DriverManager` registry; concrete driver in `SQLiteJDBC` target (macOS) |
 | **java.rmi** | ✔️ stubs | `Remote` marker + 14 exception classes as compile-time stubs; RMI networking stack not implemented |
@@ -1851,9 +1913,9 @@ tests still to be written; that column tracks test coverage, not implementation)
 
 ## Not in scope for this implementation
 
-The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent or are platform-infrastructure concerns:
+The following Java 1.1 APIs are explicitly a the moment **not** ported because they have no meaningful Swift equivalent concerns:
 
 - **java.rmi networking stack**, **java.rmi.dgc**, **java.rmi.registry**, **java.rmi.server** — Remote Method Invocation requires a JVM runtime; no Swift equivalent. For the full rationale see <doc:NotImplemented>. The `java.rmi` exception hierarchy and `Remote` marker are present as compile-time stubs (see table above).
 - **java.beans (BeanDescriptor, Introspector, BeanInfo, etc.)** — Reflection-based introspection API has no Swift equivalent and is not ported. For the full rationale see <doc:NotImplemented>. 
-- **java.security.acl**, **java.security.interfaces** — ACL and key-interface sub-packages; not relevant for current scope.
+- **java.security.acl** — Removed in Java 24; no portability value. Not ported.
 - **Inner classes** — Language feature of Java, not a library API to port.
