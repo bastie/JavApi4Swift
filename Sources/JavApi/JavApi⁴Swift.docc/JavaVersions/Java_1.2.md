@@ -1361,6 +1361,53 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+---
+
+## java.util — Collections Framework (Java 1.2)
+
+> The Collections Framework was the central new API of Java 1.2. It introduced
+> a unified hierarchy of interfaces and implementations for ordered and unordered
+> collections, maps, and sets.
+
+### Implemented (partial)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | Collection              | `Collection.swift`
+1.2     | ✔️          | ⭕️       | protocol      | List                    | `List.swift`
+1.2     | ✔️          | ⭕️       | protocol      | Map                     | `Map.swift`
+1.2     | ✔️          | ⭕️       | protocol      | Iterator                | `Iterator.swift`
+1.2     | ✔️          | ⭕️       | protocol      | ListIterator            | `ListIterator.swift`
+1.2     | ✔️          | ⭕️       | protocol      | Queue                   | `Queue.swift`
+1.2     | ✔️          | ⭕️       | open class    | AbstractCollection      | `AbstractCollection.swift`
+1.2     | ✔️          | ⭕️       | open class    | AbstractList            | `AbstractList.swift`
+1.2     | ✔️          | ⭕️       | open class    | ArrayList               | `ArrayList.swift`; backed by Swift Array
+1.2     | ✔️          | ⭕️       | open class    | HashMap                 | `HashMap.swift`; backed by Swift Dictionary (minimal: put/get/containsKey only)
+1.2     | ✔️          | ⭕️       | open class    | Collections             | `Collections.swift`; only `emptySet()` implemented
+1.2     | ✔️          | ⭕️       | open class    | Arrays                  | `Arrays.swift`
+
+### Not yet implemented — missing Java 1.2 Collections types
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | SortedMap               | missing
+1.2     | ⭕️          | ⭕️       | protocol      | SortedSet               | missing
+1.2     | ⭕️          | ⭕️       | open class    | AbstractMap             | missing
+1.2     | ⭕️          | ⭕️       | open class    | AbstractSet             | missing
+1.2     | ⭕️          | ⭕️       | open class    | AbstractSequentialList  | missing
+1.2     | ⭕️          | ⭕️       | open class    | LinkedList              | missing (also implements Queue/Deque)
+1.2     | ⭕️          | ⭕️       | open class    | TreeMap                 | missing (implements SortedMap)
+1.2     | ⭕️          | ⭕️       | open class    | TreeSet                 | missing (implements SortedSet)
+1.2     | ⭕️          | ⭕️       | open class    | HashSet                 | missing
+1.2     | ⭕️          | ⭕️       | open class    | WeakHashMap             | missing
+1.2     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | missing (actually Java 1.4, but worth noting)
+
+> **Note:** `java.util.Collections` utility methods (`sort`, `shuffle`, `reverse`,
+> `binarySearch`, `synchronizedList`, `unmodifiableList`, etc.) are also missing
+> beyond the single `emptySet()` stub.
+
+---
+
 ## Not in scope for Java 1.2
 
 - ✅ **`JSplitPane`** — implemented
@@ -1392,6 +1439,9 @@ version | implemented | tested   | type          | name                    | mor
 - **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
 - **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority
 - **java.awt.image.renderable** — not in scope
-- **java.util.Collections framework** (`ArrayList`, `HashMap`, `LinkedList`, etc.) — tracked separately
-- **java.lang.ref** (weak/soft/phantom references) — not in scope
-- **java.security** additions — not in scope
+- **java.lang.ref** (`WeakReference`, `SoftReference`, `PhantomReference`, `ReferenceQueue`) — not in scope; Swift uses ARC natively (`weak var` / `unowned`)
+- **java.security** additions (`AccessController`, `AccessControlContext`, `PrivilegedAction`, `Policy`, `CodeSource`, `SecureClassLoader`) — not in scope
+- **java.awt.GradientPaint** / **TexturePaint** / **AWTPermission** / **GraphicsConfigTemplate** — not yet implemented (Java 2D Phase 2)
+- **java.awt.event**: `AWTEventListener`, `InputMethodEvent`, `InvocationEvent`, `InputMethodListener` — not yet implemented
+- **java.awt.datatransfer**: `FlavorMap`, `SystemFlavorMap` — not yet implemented
+- **java.awt.image**: Many Java 1.2 additions not yet ported — `AffineTransformOp`, `BandCombineOp`, `BandedSampleModel`, `BufferedImageFilter`, `BufferedImageOp`, `ByteLookupTable`, `ColorConvertOp`, `ComponentColorModel`, `ComponentSampleModel`, `ConvolveOp`, `DataBufferShort`, `DataBufferUShort`, `ImagingOpException`, `Kernel`, `LookupOp`, `LookupTable`, `MultiPixelPackedSampleModel`, `PackedColorModel`, `PixelInterleavedSampleModel`, `RasterFormatException`, `RasterOp`, `RenderedImage`, `RescaleOp`, `ShortLookupTable`, `TileObserver`, `WritableRenderedImage` — tracked separately
