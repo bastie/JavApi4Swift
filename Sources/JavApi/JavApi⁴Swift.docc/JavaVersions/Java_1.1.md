@@ -223,11 +223,18 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | componentAdded()   | (ContainerEvent)
 1.1     | ✔️          | 🪄       | method        | componentRemoved() | (ContainerEvent)
 
-##### java.awt.event.PaintEvent (0/0/⭕️)
+##### java.awt.event.PaintEvent (3/3/⭕️)
+
+> **Note:** Implemented in `awt/event/PaintEvent.swift`. Carries the dirty
+> rectangle (`updateRect`) that identifies which region of the component needs
+> repainting. `PAINT_FIRST = 800`, `PAINT_LAST = 801`, `PAINT = 800`,
+> `UPDATE = 801`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | PaintEvent     | extends ComponentEvent; PAINT / UPDATE constants — not yet implemented
+1.1     | ✔️          | ⭕️       | class         | PaintEvent     | extends ComponentEvent
+1.1     | ✔️          | 🪄       | final field   | PAINT / UPDATE / PAINT_FIRST / PAINT_LAST | int constants
+1.1     | ✔️          | ⭕️       | method        | getUpdateRect() / setUpdateRect() | ()->Rectangle / (Rectangle)
 
 ##### java.awt.event — Adapter classes (0/0/⭕️)
 
@@ -345,11 +352,14 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | addItemListener()     | (ItemListener)
 1.1     | ✔️          | 🪄       | method        | removeItemListener()  | (ItemListener)
 
-##### java.awt.IllegalComponentStateException (0/0/⭕️)
+##### java.awt.IllegalComponentStateException (1/1/⭕️)
+
+> **Note:** Implemented in `awt/IllegalComponentStateException.swift` as a
+> subclass of `IllegalStateException`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | IllegalComponentStateException | extends IllegalStateException — not yet implemented
+1.1     | ✔️          | ⭕️       | class         | IllegalComponentStateException | extends IllegalStateException
 
 ##### java.awt.Shape (0/0/✔️)
 
@@ -921,15 +931,23 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.awt.image — 1.1 additions
 
-##### java.awt.image.AreaAveragingScaleFilter / ReplicateScaleFilter (0/0/⭕️)
+##### java.awt.image.ReplicateScaleFilter / AreaAveragingScaleFilter (2/2/⭕️)
 
-> **Note:** Both scale-filter subclasses of `ImageFilter` were added in Java 1.1.
-> Neither is implemented yet in JavApi4Swift.
+> **Note:**
+> - `ReplicateScaleFilter` (`awt/image/ReplicateScaleFilter.swift`) — nearest-
+>   neighbour scaling. Constructor takes `(width, height)`, `-1` for either
+>   dimension derives it from the aspect ratio. Builds row/column mapping tables
+>   in `setDimensions` and rescales both byte- and int-pixel variants.
+> - `AreaAveragingScaleFilter` (`awt/image/AreaAveragingScaleFilter.swift`) —
+>   extends `ReplicateScaleFilter`. Accumulates the full source image in
+>   `setPixels`, then in `imageComplete` either applies a weighted area-average
+>   (downscaling) or falls back to nearest-neighbour (upscaling). Both classes
+>   implement `makeInstance()` for `getFilterInstance` compatibility.
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ⭕️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
-1.1     | ⭕️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
+1.1     | ✔️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
+1.1     | ✔️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
 
 ##### java.net.URLEncoder.encode(String,String) — already tracked above ✔️
 
@@ -2051,9 +2069,9 @@ version | implemented | tested   | type          | name                  | more 
 | **java.lang.reflect** | ✔️ partial | Field + Mirror-based; Method/Constructor not portable |
 | **java.text** | ✔️ complete | Format, NumberFormat, DecimalFormat, DecimalFormatSymbols, DateFormat, SimpleDateFormat, MessageFormat, ChoiceFormat, Collator, RuleBasedCollator, CollationKey, CollationElementIterator, BreakIterator, CharacterIterator, StringCharacterIterator — all implemented; Normalizer/Bidi deferred (see TODO notes above) |
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read), `CheckedInputStream`, `CheckedOutputStream` |
-| **java.awt.event** | ✔️ mostly | all listeners, events **and adapter classes** (incl. `MouseMotionAdapter` as separate class); ContainerEvent/ContainerListener included; **missing:** `PaintEvent` |
-| **java.awt** (1.1 additions) | ✔️ mostly | `AWTEventMulticaster`, `EventQueue`, `Shape` (interface) implemented; `AWTEvent`, `Cursor`, `SystemColor`, `ScrollPane`, `PopupMenu`, `PrintJob`, `MenuShortcut` present; **missing:** `IllegalComponentStateException` |
-| **java.awt.image** (1.1 additions) | ⭕️ | **missing:** `ReplicateScaleFilter`, `AreaAveragingScaleFilter` |
+| **java.awt.event** | ✔️ complete | all listeners, events and adapter classes; `PaintEvent` added; `MouseMotionAdapter` merged into `MouseAdapter` |
+| **java.awt** (1.1 additions) | ✔️ complete | `AWTEventMulticaster`, `EventQueue`, `Shape`, `IllegalComponentStateException` implemented; all 1.1 types present |
+| **java.awt.image** (1.1 additions) | ✔️ complete | `ReplicateScaleFilter` (nearest-neighbour), `AreaAveragingScaleFilter` (area-averaging) implemented |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
 | **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
@@ -2071,16 +2089,6 @@ version | implemented | tested   | type          | name                  | more 
 
 These APIs are in scope (they have a meaningful Swift mapping) but are **not yet
 implemented**. Verified against the actual source tree and javaalmanac.io (June 2026):
-
-### java.awt.event
-- **`PaintEvent`** — extends `ComponentEvent`; `PAINT` / `UPDATE` constants. Not yet implemented.
-
-### java.awt.image
-- **`ReplicateScaleFilter`** — nearest-neighbour image scaler; extends `ImageFilter`.
-- **`AreaAveragingScaleFilter`** — area-averaging image scaler; extends `ReplicateScaleFilter`.
-
-### java.awt
-- **`IllegalComponentStateException`** — extends `IllegalStateException`; thrown when a component is in an inappropriate state.
 
 ### java.security
 - **`DigestInputStream`** / **`DigestOutputStream`** — `FilterInputStream`/`FilterOutputStream` wrappers that compute a `MessageDigest` on the fly.
