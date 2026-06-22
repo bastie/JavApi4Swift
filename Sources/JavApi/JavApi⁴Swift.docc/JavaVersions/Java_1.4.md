@@ -26,7 +26,7 @@ Java 1.4 introduced NIO (non-blocking I/O), logging (`java.util.logging`), asser
 
 Java 1.4 introduced the `java.nio` package (NIO) with buffer classes and channels.
 
-##### java.nio.ByteOrder (3/3/✔️)
+##### java.nio.ByteOrder (5/5/5)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -36,19 +36,19 @@ version | implemented | tested   | type          | name           | more informa
 1.4     | ✔️          | ✔️       | method        | toString()     | ()->String
 1.4     | ✔️          | ✔️       | method        | equals()       | (ByteOrder)->boolean
 
-##### java.nio.BufferOverflowException (1/1/✔️)
+##### java.nio.BufferOverflowException (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.4     | ✔️          | ✔️       | constructor   | BufferOverflowException() |
 
-##### java.nio.BufferUnderflowException (1/1/✔️)
+##### java.nio.BufferUnderflowException (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.4     | ✔️          | ✔️       | constructor   | BufferUnderflowException() |
 
-##### java.nio.ByteBuffer (17/17/✔️)
+##### java.nio.ByteBuffer (21/21/21)
 
 version | implemented | tested   | type          | name                       | more informations
 ------- | ----------- | -------- | ------------- | -------------------------- | -----------------
@@ -80,7 +80,7 @@ version | implemented | tested   | type          | name                       | 
 
 ### java.net — Java 1.4 additions
 
-##### java.net.URLEncoder — encode(String, String) (1/1/⭕️)
+##### java.net.URLEncoder — encode(String, String) (1/1/0)
 
 > **Note:** `URLEncoder.encode(String, String)` with explicit charset name was added in Java 1.4.
 > The single-argument `encode(String)` (Java 1.0) was simultaneously deprecated.
@@ -94,7 +94,7 @@ version | implemented | tested   | type          | name           | more informa
 
 #### java.lang.Runtime — Java 1.4 additions
 
-##### java.lang.Runtime (2/2/⭕️)
+##### java.lang.Runtime (2/2/0)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
@@ -105,13 +105,13 @@ version | implemented | tested   | type          | name                    | mor
 
 Java 1.4 introduced the `java.util.logging` package as the standard logging framework.
 
-##### java.util.logging.Filter (1/1/🪄)
+##### java.util.logging.Filter (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.4     | ✔️          | 🪄       | method        | isLoggable()   | (LogRecord)->boolean
 
-##### java.util.logging.Formatter (3/3/⭕️)
+##### java.util.logging.Formatter (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -120,7 +120,7 @@ version | implemented | tested   | type          | name           | more informa
 1.4     | ✔️          | 🪄       | method        | getHead()      | (Handler)->String
 1.4     | ✔️          | 🪄       | method        | getTail()      | (Handler)->String
 
-##### java.util.logging.Handler (3/3/⭕️)
+##### java.util.logging.Handler (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -128,7 +128,7 @@ version | implemented | tested   | type          | name           | more informa
 1.4     | ✔️          | ⭕️       | method        | setLevel()     | (Level)
 1.4     | ✔️          | ⭕️       | method        | getLevel()     | ()->Level
 
-##### java.util.logging.Level (12/12/⭕️)
+##### java.util.logging.Level (15/15/0)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
@@ -148,14 +148,14 @@ version | implemented | tested   | type          | name                    | mor
 1.4     | ✔️          | ⭕️       | method        | getResourceBundleName() | ()->String?
 1.4     | ✔️          | ⭕️       | method        | parse()                 | (String)->Level
 
-##### java.util.logging.LogManager (2/2/⭕️)
+##### java.util.logging.LogManager (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.4     | ✔️          | 🪄       | method        | getLogManager()| ()->LogManager — static singleton
 1.4     | ✔️          | ⭕️       | method        | addLogger()    | (Logger)->boolean
 
-##### java.util.logging.LogRecord (8/8/⭕️)
+##### java.util.logging.LogRecord (9/9/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -169,7 +169,7 @@ version | implemented | tested   | type          | name           | more informa
 1.4     | ✔️          | ⭕️       | method        | setMillis()    | (long) — deprecated since Java 9, use setInstant()
 1.4     | ✔️          | ⭕️       | method        | getMillis()    | ()->long — deprecated since Java 9, use getInstant()
 
-##### java.util.logging.Logger (7/7/⭕️)
+##### java.util.logging.Logger (8/8/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------

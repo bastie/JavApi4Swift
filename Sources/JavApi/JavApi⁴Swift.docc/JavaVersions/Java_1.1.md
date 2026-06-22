@@ -36,7 +36,7 @@ Key additions already implemented:
 
 #### java.io.Reader / Writer (new character-stream hierarchy)
 
-##### java.io.Reader (8/8/✔️)
+##### java.io.Reader (9/9/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -50,7 +50,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | reset()        | ()
 1.1     | ✔️          | 🪄       | method        | close()        | () — abstract
 
-##### java.io.Writer (6/6/✔️)
+##### java.io.Writer (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -62,7 +62,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | flush()        | () — abstract
 1.1     | ✔️          | 🪄       | method        | close()        | () — abstract
 
-##### java.io.UnsupportedEncodingException (1/1/⭕️)
+##### java.io.UnsupportedEncodingException (1/1/0)
 
 version | implemented | tested   | type          | name                          | more informations
 ------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
@@ -89,37 +89,37 @@ Java 1.1 replaced the 1.0 event model with the delegation event model and added 
 
 All listener interfaces and event classes are implemented.
 
-##### java.awt.event.ActionEvent (0/0/✔️)
+##### java.awt.event.ActionEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | ActionEvent    | with ACTION_PERFORMED, getActionCommand(), getModifiers()
 
-##### java.awt.event.ActionListener (1/1/✔️)
+##### java.awt.event.ActionListener (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | actionPerformed() | (ActionEvent)
 
-##### java.awt.event.AdjustmentEvent (0/0/✔️)
+##### java.awt.event.AdjustmentEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | AdjustmentEvent | with UNIT_INCREMENT, UNIT_DECREMENT, BLOCK_INCREMENT, BLOCK_DECREMENT, TRACK
 
-##### java.awt.event.AdjustmentListener (1/1/✔️)
+##### java.awt.event.AdjustmentListener (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | adjustmentValueChanged() | (AdjustmentEvent)
 
-##### java.awt.event.ComponentEvent (0/0/✔️)
+##### java.awt.event.ComponentEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | ComponentEvent | with COMPONENT_MOVED, COMPONENT_RESIZED, COMPONENT_SHOWN, COMPONENT_HIDDEN
 
-##### java.awt.event.ComponentListener (4/4/✔️)
+##### java.awt.event.ComponentListener (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -128,44 +128,44 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | componentShown()   | (ComponentEvent)
 1.1     | ✔️          | 🪄       | method        | componentHidden()  | (ComponentEvent)
 
-##### java.awt.event.FocusEvent (0/0/✔️)
+##### java.awt.event.FocusEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | FocusEvent     | with FOCUS_GAINED, FOCUS_LOST
 
-##### java.awt.event.FocusListener (2/2/✔️)  — see ComponentListener
+##### java.awt.event.FocusListener (2/2/0)  — see ComponentListener
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | focusGained()  | (FocusEvent)
 1.1     | ✔️          | 🪄       | method        | focusLost()    | (FocusEvent)
 
-##### java.awt.event.InputEvent (0/0/✔️)
+##### java.awt.event.InputEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | class         | InputEvent     | base for KeyEvent and MouseEvent; SHIFT_MASK, CTRL_MASK, META_MASK, ALT_MASK
 
-##### java.awt.event.ItemEvent (0/0/✔️)
+##### java.awt.event.ItemEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | ItemEvent      | with SELECTED, DESELECTED, getItem(), getStateChange()
 
-##### java.awt.event.ItemListener (1/1/✔️)
+##### java.awt.event.ItemListener (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | itemStateChanged() | (ItemEvent)
 
-##### java.awt.event.KeyEvent (0/0/✔️)
+##### java.awt.event.KeyEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | KeyEvent       | with KEY_PRESSED, KEY_RELEASED, KEY_TYPED; VK_* constants; getKeyCode(), getKeyChar()
 
-##### java.awt.event.KeyListener (3/3/✔️)
+##### java.awt.event.KeyListener (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -173,13 +173,13 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | keyReleased()  | (KeyEvent)
 1.1     | ✔️          | 🪄       | method        | keyTyped()     | (KeyEvent)
 
-##### java.awt.event.MouseEvent (0/0/✔️)
+##### java.awt.event.MouseEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | MouseEvent     | with MOUSE_CLICKED, MOUSE_PRESSED, MOUSE_RELEASED, MOUSE_ENTERED, MOUSE_EXITED, MOUSE_MOVED, MOUSE_DRAGGED; getX(), getY(), getClickCount()
 
-##### java.awt.event.MouseListener (5/5/✔️)
+##### java.awt.event.MouseListener (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -189,32 +189,32 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | mousePressed() | (MouseEvent)
 1.1     | ✔️          | 🪄       | method        | mouseReleased()| (MouseEvent)
 
-##### java.awt.event.MouseMotionListener (2/2/✔️)
+##### java.awt.event.MouseMotionListener (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | mouseDragged() | (MouseEvent)
 1.1     | ✔️          | 🪄       | method        | mouseMoved()   | (MouseEvent)
 
-##### java.awt.event.TextEvent (0/0/✔️)
+##### java.awt.event.TextEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | TextEvent      | with TEXT_VALUE_CHANGED
 
-##### java.awt.event.TextListener (1/1/✔️)
+##### java.awt.event.TextListener (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | textValueChanged() | (TextEvent)
 
-##### java.awt.event.WindowEvent (0/0/✔️)
+##### java.awt.event.WindowEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | WindowEvent    | with WINDOW_OPENED, WINDOW_CLOSING, WINDOW_CLOSED, WINDOW_ICONIFIED, WINDOW_DEICONIFIED, WINDOW_ACTIVATED, WINDOW_DEACTIVATED
 
-##### java.awt.event.WindowListener (7/7/✔️)
+##### java.awt.event.WindowListener (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -226,20 +226,20 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | windowActivated()   | (WindowEvent)
 1.1     | ✔️          | 🪄       | method        | windowDeactivated() | (WindowEvent)
 
-##### java.awt.event.ContainerEvent (0/0/⭕️)
+##### java.awt.event.ContainerEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | ContainerEvent | extends ComponentEvent; COMPONENT_ADDED, COMPONENT_REMOVED, getChild(), getContainer()
 
-##### java.awt.event.ContainerListener (2/2/✔️)
+##### java.awt.event.ContainerListener (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | componentAdded()   | (ContainerEvent)
 1.1     | ✔️          | 🪄       | method        | componentRemoved() | (ContainerEvent)
 
-##### java.awt.event.PaintEvent (3/3/⭕️)
+##### java.awt.event.PaintEvent (3/3/2)
 
 > **Note:** Implemented in `awt/event/PaintEvent.swift`. Carries the dirty
 > rectangle (`updateRect`) that identifies which region of the component needs
@@ -248,11 +248,11 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | PaintEvent     | extends ComponentEvent
+1.1     | ✔️          | ✔️       | class         | PaintEvent     | extends ComponentEvent
 1.1     | ✔️          | 🪄       | final field   | PAINT / UPDATE / PAINT_FIRST / PAINT_LAST | int constants
-1.1     | ✔️          | ⭕️       | method        | getUpdateRect() / setUpdateRect() | ()->Rectangle / (Rectangle)
+1.1     | ✔️          | ✔️       | method        | getUpdateRect() / setUpdateRect() | ()->Rectangle / (Rectangle)
 
-##### java.awt.event — Adapter classes (0/0/⭕️)
+##### java.awt.event — Adapter classes (7/7/0)
 
 > **Note:** The 1.1 delegation event model also ships abstract no-op *adapter*
 > classes so listeners can override only the methods they need. All are
@@ -270,7 +270,7 @@ version | implemented | tested   | type          | name               | more inf
 1.1     | ✔️          | ⭕️       | class         | MouseMotionAdapter | empty default impl of MouseMotionListener (`awt/event/MouseMotionAdapter.swift`)
 1.1     | ✔️          | ⭕️       | class         | WindowAdapter      | empty default impl of WindowListener (file `WindowsAdapter.swift`)
 
-##### java.awt.AWTEventMulticaster (0/0/⭕️)
+##### java.awt.AWTEventMulticaster (2/2/0)
 
 > **Note:** Implemented in `awt/AWTEventMulticaster.swift`. Uses a binary-tree
 > chain of listener references. The static `add(_:_:)` / `remove(_:_:)` methods
@@ -282,7 +282,7 @@ version | implemented | tested   | type          | name             | more infor
 1.1     | ✔️          | ⭕️       | static method | add()            | (XxxListener?, XxxListener?) -> XxxListener?
 1.1     | ✔️          | ⭕️       | static method | remove()         | (XxxListener?, XxxListener?) -> XxxListener?
 
-##### java.awt.EventQueue (0/0/⭕️)
+##### java.awt.EventQueue (3/3/0)
 
 > **Note:** Implemented in `awt/EventQueue.swift`. The "Event Dispatch Thread"
 > is mapped to `@MainActor`. `invokeLater` / `invokeAndWait` execute on the
@@ -296,7 +296,7 @@ version | implemented | tested   | type          | name               | more inf
 
 #### Printing (new in 1.1)
 
-##### java.awt.PrintJob (5/5/⭕️)
+##### java.awt.PrintJob (5/5/0)
 
 > **Note:** Implemented as an `open class` in `awt/PrintJob.swift` (the abstract
 > base) plus a concrete `_SwiftUIPrintJob` backend. The base methods return safe
@@ -321,7 +321,7 @@ version | implemented | tested   | type          | name           | more informa
 
 #### New / extended AWT classes
 
-##### java.awt.AWTEvent (0/0/✔️)
+##### java.awt.AWTEvent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -331,7 +331,7 @@ version | implemented | tested   | type          | name           | more informa
 
 Already tracked in Java_1.0.md (version column `1.1`). All constants and methods implemented ✔️.
 
-##### java.awt.SystemColor (0/0/⭕️)
+##### java.awt.SystemColor (1/1/0)
 
 > **Note:** Implemented in `awt/SystemColor.swift` as a `final` subclass of `java.awt.Color`.
 
@@ -339,7 +339,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | SystemColor    | symbolic desktop colors (window, text, control, …); subclass of Color
 
-##### java.awt.Adjustable (16/16/⭕️)
+##### java.awt.Adjustable (9/9/0)
 
 > **Note:** Implemented as a `protocol` in `awt/Adjustable.swift`. Constants are
 > provided via a protocol extension and must be accessed through a concrete
@@ -358,7 +358,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | setValue() / getValue() | (int) / ()->int
 1.1     | ✔️          | 🪄       | method        | addAdjustmentListener() / removeAdjustmentListener() | (AdjustmentListener)
 
-##### java.awt.ItemSelectable (3/3/⭕️)
+##### java.awt.ItemSelectable (3/3/0)
 
 > **Note:** Implemented as a `protocol` in `awt/ItemSelectable.swift`.
 
@@ -368,16 +368,16 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | addItemListener()     | (ItemListener)
 1.1     | ✔️          | 🪄       | method        | removeItemListener()  | (ItemListener)
 
-##### java.awt.IllegalComponentStateException (1/1/⭕️)
+##### java.awt.IllegalComponentStateException (1/1/1)
 
 > **Note:** Implemented in `awt/IllegalComponentStateException.swift` as a
 > subclass of `IllegalStateException`.
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | IllegalComponentStateException | extends IllegalStateException
+1.1     | ✔️          | ✔️       | class         | IllegalComponentStateException | extends IllegalStateException
 
-##### java.awt.Shape (0/0/✔️)
+##### java.awt.Shape (1/1/0)
 
 > **Note:** Implemented as a `protocol` in `awt/Shape.swift`. `Rectangle` and `Polygon` conform via `Rectangle+Shape.swift`.
 
@@ -385,19 +385,19 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | interface     | Shape          | contains(double,double), intersects(Rectangle2D), getBounds()
 
-##### java.awt.MenuShortcut (0/0/✔️)
+##### java.awt.MenuShortcut (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | MenuShortcut   | with key, usesShift, getKey(), usesShiftModifier(), equals()
 
-##### java.awt.PopupMenu (0/0/✔️)
+##### java.awt.PopupMenu (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | PopupMenu      | extends Menu; show(Component,int,int); AppKit native on macOS
 
-##### java.awt.ScrollPane (0/0/✔️)
+##### java.awt.ScrollPane (8/8/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -410,7 +410,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | setScrollPosition()   | (int,int)
 1.1     | ✔️          | ⭕️       | method        | getViewportSize()     | ()->Dimension
 
-##### java.awt.LayoutManager2 (5/5/✔️)
+##### java.awt.LayoutManager2 (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -420,7 +420,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | getLayoutAlignmentY()| (Container)->float
 1.1     | ✔️          | 🪄       | method        | invalidateLayout()   | (Container)
 
-##### java.awt.GridBagLayout (4/4/✔️)
+##### java.awt.GridBagLayout (14/14/0)
 
 > **Step 2 (complete)** — gridx/gridy/gridwidth/gridheight, fill, anchor, insets,
 > ipadx/ipady, weightx/weighty extra-space distribution, and RELATIVE/REMAINDER
@@ -443,7 +443,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | field         | ipadx/ipady       | internal padding applied to preferred size
 1.0.2   | ✔️          | ⭕️       | field         | RELATIVE/REMAINDER | auto-placement fully implemented
 
-##### java.awt.GridBagConstraints (15/15/✔️)
+##### java.awt.GridBagConstraints (34/34/0)
 
 Already tracked and fully implemented — see Java_1.0.md.
 
@@ -501,117 +501,117 @@ version | implemented | tested   | type          | name           | more informa
 
 #### Concrete Reader implementations
 
-##### java.io.BufferedReader (3/3/✔️)
+##### java.io.BufferedReader (3/3/3)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | BufferedReader()     | (Reader)
-1.1     | ✔️          | ⭕️       | constructor   | BufferedReader()     | (Reader,int)
-1.1     | ✔️          | ⭕️       | method        | readLine()           | ()->String?
+1.1     | ✔️          | ✔️       | constructor   | BufferedReader()     | (Reader)
+1.1     | ✔️          | ✔️       | constructor   | BufferedReader()     | (Reader,int)
+1.1     | ✔️          | ✔️       | method        | readLine()           | ()->String?
 
-##### java.io.CharArrayReader (2/2/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | CharArrayReader()    | (char[])
-1.1     | ✔️          | ⭕️       | constructor   | CharArrayReader()    | (char[],int,int)
-
-##### java.io.FileReader (2/2/⭕️)
+##### java.io.CharArrayReader (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | FileReader()         | (File)
-1.1     | ✔️          | ⭕️       | constructor   | FileReader()         | (String)
+1.1     | ✔️          | ✔️       | constructor   | CharArrayReader()    | (char[])
+1.1     | ✔️          | ✔️       | constructor   | CharArrayReader()    | (char[],int,int)
 
-##### java.io.FilterReader (1/1/⭕️)
+##### java.io.FileReader (2/2/2)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | FileReader()         | (File)
+1.1     | ✔️          | ✔️       | constructor   | FileReader()         | (String)
+
+##### java.io.FilterReader (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | FilterReader()       | (Reader)
 
-##### java.io.InputStreamReader (2/2/⭕️)
+##### java.io.InputStreamReader (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | InputStreamReader()  | (InputStream)
-1.1     | ✔️          | ⭕️       | constructor   | InputStreamReader()  | (InputStream,String) — charset name
+1.1     | ✔️          | ✔️       | constructor   | InputStreamReader()  | (InputStream)
+1.1     | ✔️          | ✔️       | constructor   | InputStreamReader()  | (InputStream,String) — charset name
 
-##### java.io.LineNumberReader (2/2/⭕️)
+##### java.io.LineNumberReader (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | LineNumberReader()   | (Reader)
-1.1     | ✔️          | ⭕️       | method        | getLineNumber()      | ()->int
+1.1     | ✔️          | ✔️       | constructor   | LineNumberReader()   | (Reader)
+1.1     | ✔️          | ✔️       | method        | getLineNumber()      | ()->int
 
-##### java.io.PipedReader (2/2/⭕️)
+##### java.io.PipedReader (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | PipedReader()        | ()
 1.1     | ✔️          | ⭕️       | constructor   | PipedReader()        | (PipedWriter)
 
-##### java.io.PushbackReader (2/2/⭕️)
+##### java.io.PushbackReader (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | PushbackReader()     | (Reader)
-1.1     | ✔️          | ⭕️       | constructor   | PushbackReader()     | (Reader,int)
+1.1     | ✔️          | ✔️       | constructor   | PushbackReader()     | (Reader)
+1.1     | ✔️          | ✔️       | constructor   | PushbackReader()     | (Reader,int)
 
-##### java.io.StringReader (1/1/⭕️)
+##### java.io.StringReader (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | StringReader()       | (String)
+1.1     | ✔️          | ✔️       | constructor   | StringReader()       | (String)
 
 #### Concrete Writer implementations
 
-##### java.io.BufferedWriter (3/3/⭕️)
+##### java.io.BufferedWriter (3/3/3)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | BufferedWriter()     | (Writer)
-1.1     | ✔️          | ⭕️       | constructor   | BufferedWriter()     | (Writer,int)
-1.1     | ✔️          | ⭕️       | method        | newLine()            | ()
+1.1     | ✔️          | ✔️       | constructor   | BufferedWriter()     | (Writer)
+1.1     | ✔️          | ✔️       | constructor   | BufferedWriter()     | (Writer,int)
+1.1     | ✔️          | ✔️       | method        | newLine()            | ()
 
-##### java.io.CharArrayWriter (3/3/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | CharArrayWriter()    | ()
-1.1     | ✔️          | ⭕️       | constructor   | CharArrayWriter()    | (int)
-1.1     | ✔️          | ⭕️       | method        | toCharArray()        | ()->char[]
-1.1     | ✔️          | ⭕️       | method        | reset()              | ()
-1.1     | ✔️          | ⭕️       | method        | size()               | ()->int
-
-##### java.io.FileWriter (2/2/⭕️)
+##### java.io.CharArrayWriter (5/5/5)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | FileWriter()         | (File)
-1.1     | ✔️          | ⭕️       | constructor   | FileWriter()         | (String)
-1.1     | ✔️          | ⭕️       | constructor   | FileWriter()         | (String,boolean) — append mode
+1.1     | ✔️          | ✔️       | constructor   | CharArrayWriter()    | ()
+1.1     | ✔️          | ✔️       | constructor   | CharArrayWriter()    | (int)
+1.1     | ✔️          | ✔️       | method        | toCharArray()        | ()->char[]
+1.1     | ✔️          | ✔️       | method        | reset()              | ()
+1.1     | ✔️          | ✔️       | method        | size()               | ()->int
 
-##### java.io.FilterWriter (1/1/⭕️)
+##### java.io.FileWriter (3/3/3)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | FileWriter()         | (File)
+1.1     | ✔️          | ✔️       | constructor   | FileWriter()         | (String)
+1.1     | ✔️          | ✔️       | constructor   | FileWriter()         | (String,boolean) — append mode
+
+##### java.io.FilterWriter (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | FilterWriter()       | (Writer)
 
-##### java.io.OutputStreamWriter (2/2/⭕️)
+##### java.io.OutputStreamWriter (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | OutputStreamWriter() | (OutputStream)
-1.1     | ✔️          | ⭕️       | constructor   | OutputStreamWriter() | (OutputStream,String) — charset name
+1.1     | ✔️          | ✔️       | constructor   | OutputStreamWriter() | (OutputStream)
+1.1     | ✔️          | ✔️       | constructor   | OutputStreamWriter() | (OutputStream,String) — charset name
 
-##### java.io.PipedWriter (2/2/⭕️)
+##### java.io.PipedWriter (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | ()
 1.1     | ✔️          | ⭕️       | constructor   | PipedWriter()        | (PipedReader)
 
-##### java.io.PrintWriter (5/5/✔️)
+##### java.io.PrintWriter (5/5/5)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -621,16 +621,16 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer)
 1.1     | ✔️          | ✔️       | constructor   | PrintWriter()        | (Writer,boolean)
 
-##### java.io.StringWriter (2/2/⭕️)
+##### java.io.StringWriter (4/4/4)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | StringWriter()       | ()
-1.1     | ✔️          | ⭕️       | constructor   | StringWriter()       | (int)
-1.1     | ✔️          | ⭕️       | method        | getBuffer()          | ()->StringBuffer
-1.1     | ✔️          | ⭕️       | method        | toString()           | ()->String
+1.1     | ✔️          | ✔️       | constructor   | StringWriter()       | ()
+1.1     | ✔️          | ✔️       | constructor   | StringWriter()       | (int)
+1.1     | ✔️          | ✔️       | method        | getBuffer()          | ()->StringBuffer
+1.1     | ✔️          | ✔️       | method        | toString()           | ()->String
 
-##### java.io.ObjectStreamClass (3/3/⭕️)
+##### java.io.ObjectStreamClass (3/3/0)
 
 > **Note:** Implemented in `io/ObjectStreamClass.swift`. `lookup(_:)` accepts
 > any Swift `Any.Type` and always returns a descriptor. `getSerialVersionUID()`
@@ -642,7 +642,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
 1.1     | ✔️          | ⭕️       | method        | getSerialVersionUID() | ()->Int64 (always 0)
 
-##### java.io.ObjectInputValidation (1/1/⭕️)
+##### java.io.ObjectInputValidation (1/1/0)
 
 > **Note:** Implemented as a `protocol` in `io/ObjectInputValidation.swift`.
 
@@ -654,13 +654,13 @@ version | implemented | tested   | type          | name           | more informa
 
 > **Design decision:** The object serialization mechanism (`ObjectInputStream.readObject()` / `ObjectOutputStream.writeObject()`) is deliberately not implemented beyond stub level. For the full rationale see <doc:NotImplemented>.
 
-##### java.io.Serializable (0/0/✔️)
+##### java.io.Serializable (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | interface     | Serializable   | marker protocol — no methods
 
-##### java.io.Externalizable (2/2/⭕️)
+##### java.io.Externalizable (2/2/0)
 
 > **Note:** Implemented as a `protocol` in `io/Externalization.swift`.
 
@@ -669,7 +669,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | writeExternal() | (ObjectOutput) throws
 1.1     | ✔️          | ⭕️       | method        | readExternal()  | (ObjectInput) throws
 
-##### java.io.ObjectOutput (5/0/⭕️)
+##### java.io.ObjectOutput (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -679,7 +679,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | flush()         | ()
 1.1     | ✔️          | 🪄       | method        | close()         | ()
 
-##### java.io.ObjectInput (4/0/⭕️)
+##### java.io.ObjectInput (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -688,7 +688,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | skip()          | (long)->long
 1.1     | ✔️          | 🪄       | method        | close()         | ()
 
-##### java.io.ObjectOutputStream (3/0/⭕️)
+##### java.io.ObjectOutputStream (3/3/0)
 
 > **Note:** Implemented in `io/ObjectOutputStream.swift`. Delegates `write`,
 > `flush`, and `close` to the wrapped `OutputStream`. `writeObject(_:)` throws
@@ -700,7 +700,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | writeObject()  | (AnyObject?) throws — throws NotActiveException (not implemented)
 1.1     | ✔️          | ⭕️       | method        | write/flush/close | delegated to underlying OutputStream
 
-##### java.io.ObjectInputStream (3/0/⭕️)
+##### java.io.ObjectInputStream (3/3/0)
 
 > **Note:** Implemented in `io/ObjectInputStream.swift`. Delegates `read` and
 > `close` to the wrapped `InputStream`. `readObject()` throws
@@ -713,50 +713,50 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | readObject()   | ()->AnyObject? throws — throws NotActiveException (not implemented)
 1.1     | ✔️          | ⭕️       | method        | registerValidation() | (ObjectInputValidation,Int) — accepted, not invoked
 
-##### java.io.ObjectStreamException (1/1/⭕️)
+##### java.io.ObjectStreamException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | ObjectStreamException() |
 
-##### java.io.InvalidClassException (1/1/⭕️)
+##### java.io.InvalidClassException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | InvalidClassException() | (String)
 
-##### java.io.InvalidObjectException (1/1/⭕️)
+##### java.io.InvalidObjectException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | InvalidObjectException() | (String)
 
-##### java.io.NotActiveException (1/1/⭕️)
+##### java.io.NotActiveException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NotActiveException() | (String)
 
-##### java.io.NotSerializableException (1/1/⭕️)
+##### java.io.NotSerializableException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | NotSerializableException() | (String)
 
-##### java.io.OptionalDataException (0/0/⭕️)
+##### java.io.OptionalDataException (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | field         | eof            | boolean
 1.1     | ✔️          | ⭕️       | field         | length         | int
 
-##### java.io.StreamCorruptedException (1/1/⭕️)
+##### java.io.StreamCorruptedException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | StreamCorruptedException() | (String)
 
-##### java.io.WriteAbortedException (1/1/⭕️)
+##### java.io.WriteAbortedException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -764,20 +764,20 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.util — New in 1.1
 
-##### java.util.EventObject (2/2/✔️)
+##### java.util.EventObject (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | EventObject()  | (Object source)
 1.1     | ✔️          | ⭕️       | method        | getSource()    | ()->Object
 
-##### java.util.EventListener (0/0/✔️)
+##### java.util.EventListener (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | interface     | EventListener  | marker protocol — no methods
 
-##### java.util.Calendar (0/0/⭕️)
+##### java.util.Calendar (10/10/8)
 
 > **Note:** Calendar is an abstract class. `getInstance()` returns a `GregorianCalendar`.
 > All Java 1.1 field constants are implemented with the correct integer values from the spec.
@@ -792,29 +792,29 @@ version | implemented | tested   | type          | name           | more informa
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getInstance()  | ()->Calendar
-1.1     | ✔️          | ⭕️       | static method | getInstance()  | (Locale)->Calendar
-1.1     | ✔️          | ⭕️       | method        | get()          | (int)->int — all 17 fields supported
-1.1     | ✔️          | ⭕️       | method        | set()          | (int,int)
+1.1     | ✔️          | ✔️       | static method | getInstance()  | ()->Calendar
+1.1     | ✔️          | ✔️       | static method | getInstance()  | (Locale)->Calendar
+1.1     | ✔️          | ✔️       | method        | get()          | (int)->int — all 17 fields supported
+1.1     | ✔️          | ✔️       | method        | set()          | (int,int)
 1.1     | ✔️          | ⭕️       | method        | getTime()      | ()->Date
 1.1     | ✔️          | ⭕️       | method        | setTime()      | (Date)
-1.1     | ✔️          | ⭕️       | final field   | ERA=0, YEAR=1, MONTH=2, WEEK_OF_YEAR=3, WEEK_OF_MONTH=4, DATE/DAY_OF_MONTH=5, DAY_OF_YEAR=6, DAY_OF_WEEK=7, DAY_OF_WEEK_IN_MONTH=8, AM_PM=9, HOUR=10, HOUR_OF_DAY=11, MINUTE=12, SECOND=13, MILLISECOND=14, ZONE_OFFSET=15, DST_OFFSET=16, FIELD_COUNT=17 | int field constants
-1.1     | ✔️          | ⭕️       | final field   | SUNDAY=1 … SATURDAY=7 | day-of-week constants
-1.1     | ✔️          | ⭕️       | final field   | JANUARY=0 … DECEMBER=11, UNDECIMBER=12 | month constants
-1.1     | ✔️          | ⭕️       | final field   | AM=0, PM=1, BC=0, AD=1 | era/AM-PM constants
+1.1     | ✔️          | ✔️       | final field   | ERA=0, YEAR=1, MONTH=2, WEEK_OF_YEAR=3, WEEK_OF_MONTH=4, DATE/DAY_OF_MONTH=5, DAY_OF_YEAR=6, DAY_OF_WEEK=7, DAY_OF_WEEK_IN_MONTH=8, AM_PM=9, HOUR=10, HOUR_OF_DAY=11, MINUTE=12, SECOND=13, MILLISECOND=14, ZONE_OFFSET=15, DST_OFFSET=16, FIELD_COUNT=17 | int field constants
+1.1     | ✔️          | ✔️       | final field   | SUNDAY=1 … SATURDAY=7 | day-of-week constants
+1.1     | ✔️          | ✔️       | final field   | JANUARY=0 … DECEMBER=11, UNDECIMBER=12 | month constants
+1.1     | ✔️          | ✔️       | final field   | AM=0, PM=1, BC=0, AD=1 | era/AM-PM constants
 
-##### java.util.GregorianCalendar (0/0/⭕️)
+##### java.util.GregorianCalendar (6/6/6)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | ()
-1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int year, int month, int day) — month 0-based as per Java spec
-1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int,int,int) — with hour+minute
-1.1     | ✔️          | ⭕️       | constructor   | GregorianCalendar()  | (int,int,int,int,int,int) — with hour+minute+second
-1.1     | ✔️          | ⭕️       | method        | isLeapYear()         | (int)->boolean
-1.1     | ✔️          | ⭕️       | method        | get()                | (int)->int — overrides Calendar; all fields supported
+1.1     | ✔️          | ✔️       | constructor   | GregorianCalendar()  | ()
+1.1     | ✔️          | ✔️       | constructor   | GregorianCalendar()  | (int year, int month, int day) — month 0-based as per Java spec
+1.1     | ✔️          | ✔️       | constructor   | GregorianCalendar()  | (int,int,int,int,int) — with hour+minute
+1.1     | ✔️          | ✔️       | constructor   | GregorianCalendar()  | (int,int,int,int,int,int) — with hour+minute+second
+1.1     | ✔️          | ✔️       | method        | isLeapYear()         | (int)->boolean
+1.1     | ✔️          | ✔️       | method        | get()                | (int)->int — overrides Calendar; all fields supported
 
-##### java.util.Locale (0/0/✔️)
+##### java.util.Locale (7/7/7)
 
 > **Note:** Locale delegates to `Foundation.Locale` internally. Constants use the same `init(String)` path and are backed by `Foundation.Locale(identifier:)`.
 
@@ -828,22 +828,22 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ✔️       | static field  | ENGLISH, FRENCH, GERMAN, ITALIAN, JAPANESE, KOREAN, CHINESE | language-only constants
 1.1     | ✔️          | ✔️       | static field  | US, UK, CANADA, FRANCE, GERMANY, ITALY, JAPAN, KOREA, CHINA | country/region constants
 
-##### java.util.TimeZone (0/0/⭕️)
+##### java.util.TimeZone (6/6/6)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getDefault()    | ()->TimeZone — returns SimpleTimeZone backed by Foundation.TimeZone.current
-1.1     | ✔️          | ⭕️       | static method | getTimeZone()   | (String)->TimeZone — looks up by identifier or abbreviation; falls back to GMT
-1.1     | ✔️          | ⭕️       | static method | getAvailableIDs() | ()->[String] — delegates to Foundation.TimeZone.knownTimeZoneIdentifiers
-1.1     | ✔️          | ⭕️       | static method | getAvailableIDs() | (int rawOffset)->[String]
-1.1     | ✔️          | ⭕️       | method        | getID()         | ()->String
-1.1     | ✔️          | ⭕️       | method        | getRawOffset()  | ()->int — raw offset in ms (total minus DST)
+1.1     | ✔️          | ✔️       | static method | getDefault()    | ()->TimeZone — returns SimpleTimeZone backed by Foundation.TimeZone.current
+1.1     | ✔️          | ✔️       | static method | getTimeZone()   | (String)->TimeZone — looks up by identifier or abbreviation; falls back to GMT
+1.1     | ✔️          | ✔️       | static method | getAvailableIDs() | ()->[String] — delegates to Foundation.TimeZone.knownTimeZoneIdentifiers
+1.1     | ✔️          | ✔️       | static method | getAvailableIDs() | (int rawOffset)->[String]
+1.1     | ✔️          | ✔️       | method        | getID()         | ()->String
+1.1     | ✔️          | ✔️       | method        | getRawOffset()  | ()->int — raw offset in ms (total minus DST)
 
 ### java.lang.reflect — New package in 1.1
 
 > **Note:** Java reflection cannot be fully mapped to Swift's type system. Field introspection is backed by Swift Mirror. Method/Constructor reflection is not portable.
 
-##### java.lang.reflect.AnnotatedElement (0/0/✔️)
+##### java.lang.reflect.AnnotatedElement (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -852,13 +852,13 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | getDeclaredAnnotations() | ()->[Any]
 1.1     | ✔️          | 🪄       | method        | isAnnotationPresent()    | (Type)->Bool
 
-##### java.lang.reflect.Member (0/0/✔️)
+##### java.lang.reflect.Member (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | protocol      | Member         | getDeclaringClass(), getName(), getModifiers(), isSynthetic()
 
-##### java.lang.reflect.AccessibleObject (4/4/⭕️)
+##### java.lang.reflect.AccessibleObject (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -867,7 +867,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | static method | setAccessible()          | ([AccessibleObject],boolean)
 1.1     | ✔️          | ⭕️       | method        | toString()               | ()->String
 
-##### java.lang.reflect.Modifier (7/7/⭕️)
+##### java.lang.reflect.Modifier (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -875,7 +875,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | static field  | STATIC, FINAL, SYNCHRONIZED | int constants
 1.1     | ✔️          | ⭕️       | static field  | VOLATILE, TRANSIENT, NATIVE | int constants
 
-##### java.lang.reflect.Field (6/6/⭕️)
+##### java.lang.reflect.Field (10/8/0)
 
 > **Note:** Backed by Swift Mirror. `get()` / `set()` use Mirror-based introspection; write access is limited.
 
@@ -901,7 +901,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.lang — New wrapper classes in 1.1
 
-##### java.lang.Byte (0/0/✔️)
+##### java.lang.Byte (17/17/17)
 
 > **Note:** `byte` in this project is `UInt8` for Swift compatibility. Therefore `Byte` wraps `UInt8`.
 > `MIN_VALUE` / `MAX_VALUE` alias `UMIN_VALUE` (0) / `UMAX_VALUE` (255).
@@ -929,7 +929,7 @@ version | implemented | tested   | type          | name                | more in
 1.1     | ✔️          | ✔️       | method        | equals()            | via Equatable
 1.1     | ✔️          | ✔️       | method        | toString()          | ()->String
 
-##### java.lang.Short (0/0/✔️)
+##### java.lang.Short (8/8/8)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -942,7 +942,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ✔️       | method        | equals()       | via Equatable
 1.1     | ✔️          | ✔️       | method        | toString()     | ()->String
 
-##### java.lang.Void (0/0/✔️)
+##### java.lang.Void (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -950,7 +950,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.net — 1.1 additions
 
-##### java.net.BindException / ConnectException / NoRouteToHostException (3/3/⭕️)
+##### java.net.BindException / ConnectException / NoRouteToHostException (3/3/0)
 
 > **Note:** All three are new `IOException` subclasses added in Java 1.1.
 > Implemented in `net/BindException.swift`, `net/ConnectException.swift`,
@@ -963,7 +963,7 @@ version | implemented | tested   | type          | name                    | mor
 1.1     | ✔️          | ⭕️       | class         | ConnectException        | extends SocketException; connection refused
 1.1     | ✔️          | ⭕️       | class         | NoRouteToHostException  | extends SocketException; no route to host
 
-##### java.net.DatagramPacket — 1.1 additions (4/4/⭕️)
+##### java.net.DatagramPacket — 1.1 additions (4/4/0)
 
 > **Note:** Java 1.1 added setter methods to `DatagramPacket` (previously read-only).
 > All implemented in `net/DatagramPacket.swift`.
@@ -975,19 +975,19 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | setLength()    | (int)
 1.1     | ✔️          | ⭕️       | method        | setPort()      | (int)
 
-##### java.net.DatagramSocket — 1.1 additions (4/0/⭕️)
+##### java.net.DatagramSocket — 1.1 additions (4/4/4)
 
 > **Note:** Java 1.1 added a new constructor, socket-option accessors, and
 > `getLocalAddress()`. All four are implemented in `net/DatagramSocket.swift`.
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | DatagramSocket()        | (int port, InetAddress laddr)
-1.1     | ✔️          | ⭕️       | method        | getSoTimeout()          | ()->int
-1.1     | ✔️          | ⭕️       | method        | setSoTimeout()          | (int)
-1.1     | ✔️          | ⭕️       | method        | getLocalAddress()       | ()->InetAddress?
+1.1     | ✔️          | ✔️       | constructor   | DatagramSocket()        | (int port, InetAddress laddr)
+1.1     | ✔️          | ✔️       | method        | getSoTimeout()          | ()->int
+1.1     | ✔️          | ✔️       | method        | setSoTimeout()          | (int)
+1.1     | ✔️          | ✔️       | method        | getLocalAddress()       | ()->InetAddress?
 
-##### java.net.URLConnection — 1.1 additions (2/0/⭕️)
+##### java.net.URLConnection — 1.1 additions (2/2/2)
 
 > **Note:** `getFileNameMap()` and `setFileNameMap()` are implemented as static
 > methods in `net/URLConnection.swift`. A built-in `DefaultFileNameMap` provides
@@ -995,10 +995,10 @@ version | implemented | tested   | type          | name                    | mor
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getFileNameMap()        | ()->FileNameMap
-1.1     | ✔️          | ⭕️       | static method | setFileNameMap()        | (FileNameMap)
+1.1     | ✔️          | ✔️       | static method | getFileNameMap()        | ()->FileNameMap
+1.1     | ✔️          | ✔️       | static method | setFileNameMap()        | (FileNameMap)
 
-##### java.net.DatagramSocketImpl (9/0/⭕️)
+##### java.net.DatagramSocketImpl (10/10/0)
 
 > **Note:** Implemented in `net/DatagramSocketImpl.swift` as an `open class`
 > following the same pattern as `SocketImpl`. All methods throw
@@ -1018,7 +1018,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | join()/leave() | (InetAddress) throws
 1.1     | ✔️          | ⭕️       | method        | getLocalPort() | ()->Int
 
-##### java.net.HttpURLConnection (5/5/✔️)
+##### java.net.HttpURLConnection (10/10/10)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1033,7 +1033,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ✔️       | final field   | HTTP_BAD_REQUEST, HTTP_UNAUTHORIZED, HTTP_FORBIDDEN, HTTP_NOT_FOUND | int constants
 1.1     | ✔️          | ✔️       | final field   | HTTP_INTERNAL_ERROR, HTTP_NOT_IMPLEMENTED, HTTP_BAD_GATEWAY, HTTP_UNAVAILABLE | int constants
 
-##### java.net.MulticastSocket (4/4/⭕️)
+##### java.net.MulticastSocket (4/4/0)
 
 > **Note:** Implemented in `net/MulticastSocket.swift` as a subclass of
 > ``DatagramSocket``. `joinGroup`/`leaveGroup` use POSIX `IP_ADD_MEMBERSHIP` /
@@ -1048,7 +1048,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | joinGroup()    | (InetAddress) — Darwin/Linux/Windows; throws on WASI
 1.1     | ✔️          | ⭕️       | method        | leaveGroup()   | (InetAddress) — Darwin/Linux/Windows; throws on WASI
 
-##### java.net.FileNameMap (1/1/⭕️)
+##### java.net.FileNameMap (1/1/0)
 
 > **Note:** Implemented as a `protocol` in `net/FileNameMap.swift`.
 
@@ -1066,7 +1066,7 @@ version | implemented | tested   | type          | name           | more informa
 >
 > **1.1 extensions** to existing classes are documented below only.
 
-##### java.awt.image.MemoryImageSource — 1.1 additions (7/0/⭕️)
+##### java.awt.image.MemoryImageSource — 1.1 additions (7/7/0)
 
 > **Note:** Java 1.1 animation support is now implemented in
 > `awt/image/MemoryImageSource.swift`. `setAnimated(true)` keeps consumers
@@ -1086,7 +1086,7 @@ version | implemented | tested   | type          | name                       | 
 1.1     | ✔️          | ⭕️       | method        | newPixels()                | (byte[],ColorModel,int,int)
 1.1     | ✔️          | ⭕️       | method        | newPixels()                | (int[],ColorModel,int,int)
 
-##### java.awt.image.PixelGrabber — 1.1 additions (6/0/⭕️)
+##### java.awt.image.PixelGrabber — 1.1 additions (6/6/0)
 
 version | implemented | tested   | type          | name                       | more informations
 ------- | ----------- | -------- | ------------- | -------------------------- | -----------------
@@ -1099,29 +1099,29 @@ version | implemented | tested   | type          | name                       | 
 
 ### java.util — Internationalization additions in 1.1 (continued)
 
-##### java.util.ResourceBundle (4/4/⭕️)
+##### java.util.ResourceBundle (4/4/4)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getBundle()    | (String)->ResourceBundle
-1.1     | ✔️          | ⭕️       | static method | getBundle()    | (String,Locale)->ResourceBundle
-1.1     | ✔️          | ⭕️       | method        | getString()    | (String)->String
-1.1     | ✔️          | ⭕️       | method        | getObject()    | (String)->Object
+1.1     | ✔️          | ✔️       | static method | getBundle()    | (String)->ResourceBundle
+1.1     | ✔️          | ✔️       | static method | getBundle()    | (String,Locale)->ResourceBundle
+1.1     | ✔️          | ✔️       | method        | getString()    | (String)->String
+1.1     | ✔️          | ✔️       | method        | getObject()    | (String)->Object
 
-##### java.util.ListResourceBundle (1/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | ListResourceBundle | abstract subclass of ResourceBundle backed by a list of key/value pairs
-
-##### java.util.PropertyResourceBundle (2/2/⭕️)
+##### java.util.ListResourceBundle (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | PropertyResourceBundle() | ()
-1.1     | ✔️          | ⭕️       | constructor   | PropertyResourceBundle() | (InputStream)
+1.1     | ✔️          | ✔️       | class         | ListResourceBundle | abstract subclass of ResourceBundle backed by a list of key/value pairs
 
-##### java.util.SimpleTimeZone (5/5/✔️)
+##### java.util.PropertyResourceBundle (2/2/2)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ✔️       | constructor   | PropertyResourceBundle() | ()
+1.1     | ✔️          | ✔️       | constructor   | PropertyResourceBundle() | (InputStream)
+
+##### java.util.SimpleTimeZone (5/5/5)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1133,7 +1133,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.math — New package in 1.1
 
-##### java.math.BigInteger (0/0/⭕️)
+##### java.math.BigInteger (14/14/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1152,7 +1152,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | intValue()     | ()->int
 1.1     | ✔️          | ⭕️       | method        | longValue()    | ()->long
 
-##### java.math.BigDecimal (0/0/⭕️)
+##### java.math.BigDecimal (9/9/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1170,72 +1170,72 @@ version | implemented | tested   | type          | name           | more informa
 
 > **Note:** Only the subset relevant for JavApi is implemented. `java.security.acl` is implemented and marked deprecated (removed in Java 24). `java.security.interfaces` is fully implemented — see below.
 
-##### java.security.DigestInputStream / DigestOutputStream (0/0/⭕️)
+##### java.security.DigestInputStream / DigestOutputStream (2/2/2)
 
 
 version | implemented | tested   | type          | name                 | more informations
 ------- | ----------- | -------- | ------------- | -------------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | DigestInputStream    | extends FilterInputStream; on()/off() toggle digesting
-1.1     | ✔️          | ⭕️       | class         | DigestOutputStream   | extends FilterOutputStream; on()/off() toggle digesting
+1.1     | ✔️          | ✔️       | class         | DigestInputStream    | extends FilterInputStream; on()/off() toggle digesting
+1.1     | ✔️          | ✔️       | class         | DigestOutputStream   | extends FilterOutputStream; on()/off() toggle digesting
 
-##### java.security.KeyPair / KeyPairGenerator (0/0/⭕️)
+##### java.security.KeyPair / KeyPairGenerator (2/2/2)
 
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | KeyPair             | immutable pair of PublicKey + PrivateKey
-1.1     | ✔️          | ⭕️       | class         | KeyPairGenerator    | getInstance(String)->KeyPairGenerator; initialize(int); generateKeyPair()->KeyPair
+1.1     | ✔️          | ✔️       | class         | KeyPair             | immutable pair of PublicKey + PrivateKey
+1.1     | ✔️          | ✔️       | class         | KeyPairGenerator    | getInstance(String)->KeyPairGenerator; initialize(int); generateKeyPair()->KeyPair
 
-##### java.security.Signature (0/0/⭕️)
-
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | Signature      | getInstance(String); initSign(PrivateKey); update(byte[]); sign()->byte[]; initVerify(PublicKey); verify(byte[])->boolean
-
-##### java.security.Security (0/0/⭕️)
+##### java.security.Signature (1/1/1)
 
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | Security       | addProvider(), getProvider(), getProviders(), getProperty(), setProperty()
+1.1     | ✔️          | ✔️       | class         | Signature      | getInstance(String); initSign(PrivateKey); update(byte[]); sign()->byte[]; initVerify(PublicKey); verify(byte[])->boolean
 
-##### java.security.MessageDigest (0/0/⭕️)
+##### java.security.Security (1/1/1)
+
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | static method | getInstance()  | (String)->MessageDigest
-1.1     | ✔️          | ⭕️       | method        | update()       | (byte[])
-1.1     | ✔️          | ⭕️       | method        | digest()       | ()->byte[]
-1.1     | ✔️          | ⭕️       | method        | reset()        | ()
+1.1     | ✔️          | ✔️       | class         | Security       | addProvider(), getProvider(), getProviders(), getProperty(), setProperty()
 
-##### java.security.SecureRandom (0/0/⭕️)
+##### java.security.MessageDigest (4/4/4)
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ✔️       | static method | getInstance()  | (String)->MessageDigest
+1.1     | ✔️          | ✔️       | method        | update()       | (byte[])
+1.1     | ✔️          | ✔️       | method        | digest()       | ()->byte[]
+1.1     | ✔️          | ✔️       | method        | reset()        | ()
+
+##### java.security.SecureRandom (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | SecureRandom() | ()
 1.1     | ✔️          | ⭕️       | method        | nextBytes()    | (byte[])
 
-##### java.security.Provider (0/0/⭕️)
+##### java.security.Provider (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
-1.1     | ✔️          | ⭕️       | method        | getVersion()   | ()->double
+1.1     | ✔️          | ✔️       | method        | getName()      | ()->String
+1.1     | ✔️          | ✔️       | method        | getVersion()   | ()->double
 
-##### java.security.GeneralSecurityException (0/0/⭕️)
+##### java.security.GeneralSecurityException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | GeneralSecurityException() | (String)
 
-##### java.security.NoSuchAlgorithmException (0/0/⭕️)
+##### java.security.NoSuchAlgorithmException (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | NoSuchAlgorithmException() | (String)
+1.1     | ✔️          | ✔️       | constructor   | NoSuchAlgorithmException() | (String)
 
-##### java.security.Principal (0/0/✔️)
+##### java.security.Principal (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1243,7 +1243,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.security.interfaces — New package in 1.1 (complete)
 
-##### java.security.Key (0/0/✔️)
+##### java.security.Key (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1251,19 +1251,19 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | getFormat()    | ()->String?
 1.1     | ✔️          | 🪄       | method        | getEncoded()   | ()->[UInt8]?
 
-##### java.security.PublicKey (0/0/✔️)
+##### java.security.PublicKey (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | protocol      | PublicKey      | extends Key — marker
 
-##### java.security.PrivateKey (0/0/✔️)
+##### java.security.PrivateKey (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | protocol      | PrivateKey     | extends Key — marker
 
-##### java.security.interfaces.DSAParams (0/0/✔️)
+##### java.security.interfaces.DSAParams (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1271,27 +1271,27 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | getQ()         | ()->BigInteger
 1.1     | ✔️          | 🪄       | method        | getG()         | ()->BigInteger
 
-##### java.security.interfaces.DSAKey (0/0/✔️)
+##### java.security.interfaces.DSAKey (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | getParams()    | ()->(any DSAParams)?
 
-##### java.security.interfaces.DSAPublicKey (0/0/✔️)
+##### java.security.interfaces.DSAPublicKey (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | protocol      | DSAPublicKey   | extends DSAKey + PublicKey
 1.1     | ✔️          | 🪄       | method        | getY()         | ()->BigInteger — public value y
 
-##### java.security.interfaces.DSAPrivateKey (0/0/✔️)
+##### java.security.interfaces.DSAPrivateKey (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | protocol      | DSAPrivateKey  | extends DSAKey + PrivateKey
 1.1     | ✔️          | 🪄       | method        | getX()         | ()->BigInteger — private value x
 
-##### java.security.interfaces.DSAKeyPairGenerator (0/0/✔️)
+##### java.security.interfaces.DSAKeyPairGenerator (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1308,14 +1308,14 @@ version | implemented | tested   | type          | name           | more informa
 
 ##### java.security.Principal — see java.security above ✔️
 
-##### java.security.acl.Permission (0/0/⭕️)
+##### java.security.acl.Permission (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | ⭕️       | method        | equals()       | (Any?)->Bool
 1.1     | ✔️          | ⭕️       | method        | toString()     | ()->String
 
-##### java.security.acl.Owner (0/0/⭕️)
+##### java.security.acl.Owner (3/3/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1323,7 +1323,7 @@ version | implemented | tested   | type          | name                | more in
 1.1     | ✔️          | ⭕️       | method        | deleteOwner()       | (Principal,Principal)->Bool throws NotOwnerException, LastOwnerException
 1.1     | ✔️          | ⭕️       | method        | isOwner()           | (Principal)->Bool
 
-##### java.security.acl.Group (0/0/⭕️)
+##### java.security.acl.Group (4/4/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1332,7 +1332,7 @@ version | implemented | tested   | type          | name                | more in
 1.1     | ✔️          | ⭕️       | method        | isMember()          | (Principal)->Bool
 1.1     | ✔️          | ⭕️       | method        | members()           | ()->Enumeration<Principal>
 
-##### java.security.acl.AclEntry (0/0/⭕️)
+##### java.security.acl.AclEntry (10/10/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -1347,7 +1347,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ⭕️       | method        | clone()               | ()->AclEntry
 1.1     | ✔️          | ⭕️       | method        | toString()            | ()->String
 
-##### java.security.acl.Acl (0/0/⭕️)
+##### java.security.acl.Acl (8/8/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1360,21 +1360,21 @@ version | implemented | tested   | type          | name                | more in
 1.1     | ✔️          | ⭕️       | method        | checkPermission()   | (Principal,Permission)->Bool
 1.1     | ✔️          | ⭕️       | method        | toString()          | ()->String
 
-##### java.security.acl.AclNotFoundException (0/0/⭕️)
+##### java.security.acl.AclNotFoundException (2/2/0)
 
 version | implemented | tested   | type          | name                   | more informations
 ------- | ----------- | -------- | ------------- | ---------------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | AclNotFoundException() | ()
 1.1     | ✔️          | ⭕️       | constructor   | AclNotFoundException() | (String)
 
-##### java.security.acl.LastOwnerException (0/0/⭕️)
+##### java.security.acl.LastOwnerException (2/2/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | LastOwnerException()  | ()
 1.1     | ✔️          | ⭕️       | constructor   | LastOwnerException()  | (String)
 
-##### java.security.acl.NotOwnerException (0/0/⭕️)
+##### java.security.acl.NotOwnerException (2/2/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -1386,7 +1386,7 @@ version | implemented | tested   | type          | name                  | more 
 Only the bound-property and veto-change subset needed for JFC 1.0 / Swing is implemented.
 Reflection-based introspection (`BeanDescriptor`, `BeanInfo`, `Introspector`, `MethodDescriptor`, …) is not in scope.
 
-##### java.beans.PropertyChangeEvent (4/4/✔️)
+##### java.beans.PropertyChangeEvent (6/6/6)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -1397,13 +1397,13 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ✔️       | method        | setPropagationId()    | (Object?)
 1.1     | ✔️          | ✔️       | method        | getPropagationId()    | ()->Object?
 
-##### java.beans.PropertyChangeListener (1/1/✔️)
+##### java.beans.PropertyChangeListener (1/1/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | propertyChange()      | (PropertyChangeEvent)
 
-##### java.beans.PropertyChangeSupport (8/8/✔️)
+##### java.beans.PropertyChangeSupport (12/12/12)
 
 version | implemented | tested   | type          | name                              | more informations
 ------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
@@ -1420,13 +1420,13 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,int,int)
 1.1     | ✔️          | ✔️       | method        | firePropertyChange()              | (String,boolean,boolean)
 
-##### java.beans.IntrospectionException (1/1/⭕️)
+##### java.beans.IntrospectionException (1/1/0)
 
 version | implemented | tested   | type          | name                        | more informations
 ------- | ----------- | -------- | ------------- | --------------------------- | -----------------
 1.1     | ✔️          | ⭕️       | constructor   | IntrospectionException()    | (String)
 
-##### java.beans.Visibility (4/4/⭕️)
+##### java.beans.Visibility (4/4/0)
 
 > **Note:** Implemented as a `protocol` in `beans/Visibility.swift`.
 
@@ -1437,7 +1437,7 @@ version | implemented | tested   | type          | name              | more info
 1.1     | ✔️          | 🪄       | method        | okToUseGui()      | ()
 1.1     | ✔️          | 🪄       | method        | isGuiAvailable()  | ()->boolean
 
-##### java.beans.FeatureDescriptor (9/9/⭕️)
+##### java.beans.FeatureDescriptor (10/10/0)
 
 > **Note:** Implemented in `beans/FeatureDescriptor.swift`. Carries name,
 > display name, short description, and flag attributes. Does **not** carry
@@ -1458,7 +1458,7 @@ version | implemented | tested   | type          | name                   | more
 1.1     | ✔️          | ⭕️       | method        | isHidden()             | ()->boolean
 1.1     | ✔️          | ⭕️       | method        | setHidden()            | (boolean)
 
-##### java.beans.Beans (4/4/⭕️)
+##### java.beans.Beans (5/4/0)
 
 > **Note:** Only the environment-query methods are implemented
 > (`beans/Beans.swift`). `instantiate(ClassLoader, String)` requires
@@ -1472,7 +1472,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ⭕️       | static method | setGuiAvailable()     | (boolean)
 1.1     | ⭕️          | ⭕️       | static method | instantiate()         | (ClassLoader,String) — not portable
 
-##### java.beans.Customizer (3/3/⭕️)
+##### java.beans.Customizer (3/3/0)
 
 > **Note:** Implemented as a `protocol` in `beans/Customizer.swift`. In Java,
 > `Customizer` extends `java.awt.Component`; here it is a plain protocol —
@@ -1484,7 +1484,7 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | 🪄       | method        | addPropertyChangeListener()   | (PropertyChangeListener)
 1.1     | ✔️          | 🪄       | method        | removePropertyChangeListener()| (PropertyChangeListener)
 
-##### java.beans.PropertyEditor (10/9/⭕️)
+##### java.beans.PropertyEditor (11/10/0)
 
 > **Note:** Implemented as a `protocol` in `beans/PropertyEditor.swift`.
 > `getCustomEditor()` is **not included** — it returns `java.awt.Component`
@@ -1504,7 +1504,7 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | 🪄       | method        | removePropertyChangeListener()| (PropertyChangeListener)
 1.1     | ⭕️          | ⭕️       | method        | getCustomEditor()             | ()->Component — not portable (AWT dependency)
 
-##### java.beans.PropertyEditorSupport (7/7/⭕️)
+##### java.beans.PropertyEditorSupport (11/11/0)
 
 > **Note:** Implemented in `beans/PropertyEditorSupport.swift`. Provides
 > default implementations of all `PropertyEditor` methods and delegates
@@ -1524,20 +1524,20 @@ version | implemented | tested   | type          | name                         
 1.1     | ✔️          | ⭕️       | method        | addPropertyChangeListener()   | (PropertyChangeListener)
 1.1     | ✔️          | ⭕️       | method        | removePropertyChangeListener()| (PropertyChangeListener)
 
-##### java.beans.PropertyVetoException (1/1/✔️)
+##### java.beans.PropertyVetoException (2/2/2)
 
 version | implemented | tested   | type          | name                      | more informations
 ------- | ----------- | -------- | ------------- | ------------------------- | -----------------
 1.1     | ✔️          | ✔️       | constructor   | PropertyVetoException()   | (String,PropertyChangeEvent)
 1.1     | ✔️          | ✔️       | method        | getPropertyChangeEvent()  | ()->PropertyChangeEvent
 
-##### java.beans.VetoableChangeListener (1/1/✔️)
+##### java.beans.VetoableChangeListener (1/1/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | vetoableChange()      | (PropertyChangeEvent) throws
 
-##### java.beans.VetoableChangeSupport (8/8/✔️)
+##### java.beans.VetoableChangeSupport (27/27/12)
 
 version | implemented | tested   | type          | name                              | more informations
 ------- | ----------- | -------- | ------------- | --------------------------------- | -----------------
@@ -1597,7 +1597,7 @@ version | implemented | tested   | type          | name                   | more
 >
 > Entry point: `java.awt.Toolkit.getDefaultToolkit().getSystemClipboard()`
 
-##### java.awt.datatransfer.Transferable (0/0/✔️)
+##### java.awt.datatransfer.Transferable (3/3/0)
 
 version | implemented | tested   | type          | name                       | more informations
 ------- | ----------- | -------- | ------------- | -------------------------- | -----------------
@@ -1605,51 +1605,51 @@ version | implemented | tested   | type          | name                       | 
 1.1     | ✔️          | 🪄       | method        | isDataFlavorSupported()    | (DataFlavor)->boolean
 1.1     | ✔️          | 🪄       | method        | getTransferData()          | (DataFlavor)->Any throws
 
-##### java.awt.datatransfer.ClipboardOwner (0/0/✔️)
+##### java.awt.datatransfer.ClipboardOwner (1/1/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | lostOwnership()     | (Clipboard, Transferable)
 
-##### java.awt.datatransfer.DataFlavor (0/0/✔️)
+##### java.awt.datatransfer.DataFlavor (8/8/6)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ✔️          | ⭕️       | static field  | stringFlavor            | DataFlavor for Unicode String
-1.1     | ✔️          | ⭕️       | static field  | plainTextFlavor         | deprecated since Java 1.3, kept for API compat
+1.1     | ✔️          | ✔️       | static field  | stringFlavor            | DataFlavor for Unicode String
+1.1     | ✔️          | ✔️       | static field  | plainTextFlavor         | deprecated since Java 1.3, kept for API compat
 1.1     | ✔️          | 🪄       | constructor   | DataFlavor()            | (String mimeType)
 1.1     | ✔️          | 🪄       | constructor   | DataFlavor()            | (String mimeType, String humanPresentableName)
-1.1     | ✔️          | ⭕️       | method        | getMimeType()           | ()->String
-1.1     | ✔️          | ⭕️       | method        | getHumanPresentableName() | ()->String
-1.1     | ✔️          | ⭕️       | method        | isMimeTypeEqual()       | (String)->boolean
-1.1     | ✔️          | ⭕️       | method        | equals()                | (DataFlavor)->boolean
+1.1     | ✔️          | ✔️       | method        | getMimeType()           | ()->String
+1.1     | ✔️          | ✔️       | method        | getHumanPresentableName() | ()->String
+1.1     | ✔️          | ✔️       | method        | isMimeTypeEqual()       | (String)->boolean
+1.1     | ✔️          | ✔️       | method        | equals()                | (DataFlavor)->boolean
 
-##### java.awt.datatransfer.UnsupportedFlavorException (0/0/✔️)
+##### java.awt.datatransfer.UnsupportedFlavorException (1/1/1)
 
 version | implemented | tested   | type          | name                          | more informations
 ------- | ----------- | -------- | ------------- | ----------------------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | UnsupportedFlavorException()  | (DataFlavor)
+1.1     | ✔️          | ✔️       | constructor   | UnsupportedFlavorException()  | (DataFlavor)
 
-##### java.awt.datatransfer.StringSelection (0/0/✔️)
+##### java.awt.datatransfer.StringSelection (5/5/4)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | StringSelection()   | (String)
-1.1     | ✔️          | ⭕️       | method        | getTransferDataFlavors() | ()->[DataFlavor]
-1.1     | ✔️          | ⭕️       | method        | isDataFlavorSupported() | (DataFlavor)->boolean
-1.1     | ✔️          | ⭕️       | method        | getTransferData()   | (DataFlavor)->Any throws
+1.1     | ✔️          | ✔️       | constructor   | StringSelection()   | (String)
+1.1     | ✔️          | ✔️       | method        | getTransferDataFlavors() | ()->[DataFlavor]
+1.1     | ✔️          | ✔️       | method        | isDataFlavorSupported() | (DataFlavor)->boolean
+1.1     | ✔️          | ✔️       | method        | getTransferData()   | (DataFlavor)->Any throws
 1.1     | ✔️          | ⭕️       | method        | lostOwnership()     | (Clipboard,Transferable)
 
-##### java.awt.datatransfer.Clipboard (0/0/✔️)
+##### java.awt.datatransfer.Clipboard (6/6/6)
 
 version | implemented | tested   | type          | name                     | more informations
 ------- | ----------- | -------- | ------------- | ------------------------ | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | Clipboard()              | (String name, ClipboardProvider) — internal
-1.1     | ✔️          | ⭕️       | method        | getName()                | ()->String
-1.1     | ✔️          | ⭕️       | method        | setContents()            | (Transferable, ClipboardOwner?)
-1.1     | ✔️          | ⭕️       | method        | getContents()            | (AnyObject?)->Transferable?
-1.1     | ✔️          | ⭕️       | method        | isDataFlavorAvailable()  | (DataFlavor)->boolean
-1.1     | ✔️          | ⭕️       | method        | getData()                | (DataFlavor)->Any throws
+1.1     | ✔️          | ✔️       | constructor   | Clipboard()              | (String name, ClipboardProvider) — internal
+1.1     | ✔️          | ✔️       | method        | getName()                | ()->String
+1.1     | ✔️          | ✔️       | method        | setContents()            | (Transferable, ClipboardOwner?)
+1.1     | ✔️          | ✔️       | method        | getContents()            | (AnyObject?)->Transferable?
+1.1     | ✔️          | ✔️       | method        | isDataFlavorAvailable()  | (DataFlavor)->boolean
+1.1     | ✔️          | ✔️       | method        | getData()                | (DataFlavor)->Any throws
 
 ### java.text — New package in 1.1 (mostly complete)
 
@@ -1859,7 +1859,7 @@ version | implemented | tested   | type          | name                         
 
 ### java.util.zip — New in 1.1
 
-##### java.util.zip.CheckedInputStream / CheckedOutputStream (2/2/✔️)
+##### java.util.zip.CheckedInputStream / CheckedOutputStream (2/2/2)
 
 > **Note:** Implemented in `util/zip/CheckedInputStream.swift` and
 > `util/zip/CheckedOutputStream.swift`. Both wrap any
@@ -1873,7 +1873,7 @@ version | implemented | tested   | type          | name                 | more i
 1.1     | ✔️          | ✔️       | class         | CheckedInputStream   | extends FilterInputStream; updates a Checksum as bytes are read
 1.1     | ✔️          | ✔️       | class         | CheckedOutputStream  | extends FilterOutputStream; updates a Checksum as bytes are written
 
-##### java.util.zip.Checksum (2/2/✔️)
+##### java.util.zip.Checksum (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1881,19 +1881,19 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | getValue()     | ()->long
 1.1     | ✔️          | 🪄       | method        | reset()        | ()
 
-##### java.util.zip.CRC32 (1/1/✔️)
+##### java.util.zip.CRC32 (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | CRC32()        | ()
+1.1     | ✔️          | ✔️       | constructor   | CRC32()        | ()
 
-##### java.util.zip.Adler32 (1/1/✔️)
+##### java.util.zip.Adler32 (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | Adler32()      | ()
+1.1     | ✔️          | ✔️       | constructor   | Adler32()      | ()
 
-##### java.util.zip.DataFormatException (1/1/⭕️)
+##### java.util.zip.DataFormatException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2109,7 +2109,7 @@ version | implemented | tested   | type          | name           | more informa
 > the SPI→Registry pattern. `CallableStatement` is provided for API completeness
 > but no bundled driver implements it (SQLite has no stored procedures).
 
-##### java.sql.DriverManager (5/5/⭕️)
+##### java.sql.DriverManager (6/6/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2120,7 +2120,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ⭕️       | static method | getDriver()           | (String)->Driver
 1.1     | ✔️          | ⭕️       | static method | getDrivers()          | ()->[Driver]
 
-##### java.sql.Driver (5/5/⭕️)
+##### java.sql.Driver (6/6/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2131,7 +2131,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | property      | minorVersion          | Int
 1.1     | ✔️          | 🪄       | property      | jdbcCompliant         | Bool
 
-##### java.sql.Connection (13/13/⭕️)
+##### java.sql.Connection (11/11/0)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
@@ -2147,7 +2147,7 @@ version | implemented | tested   | type          | name                    | mor
 1.1     | ✔️          | 🪄       | method        | getTransactionIsolation() / setTransactionIsolation() | ()
 1.1     | ✔️          | 🪄       | final field   | TRANSACTION_* constants | Int
 
-##### java.sql.Statement (8/8/⭕️)
+##### java.sql.Statement (8/8/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2160,7 +2160,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | setMaxRows()          | (Int)
 1.1     | ✔️          | 🪄       | method        | setQueryTimeout()     | (Int)
 
-##### java.sql.PreparedStatement (10/10/⭕️)
+##### java.sql.PreparedStatement (9/9/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2181,7 +2181,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | registerOutParameter() | (Int,Int)
 1.1     | ✔️          | 🪄       | method        | get*()                | result accessors
 
-##### java.sql.ResultSet (14/14/⭕️)
+##### java.sql.ResultSet (7/7/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2193,7 +2193,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | getMetaData()         | ()->ResultSetMetaData
 1.1     | ✔️          | 🪄       | method        | findColumn()          | (String)->Int
 
-##### java.sql.ResultSetMetaData (7/7/⭕️)
+##### java.sql.ResultSetMetaData (7/7/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2215,7 +2215,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | method        | getColumns()          | (String?,String?,String?,String?)->ResultSet
 1.1     | ✔️          | 🪄       | method        | supportsTransactions() | ()->Bool
 
-##### java.sql.Types (19/19/🪄)
+##### java.sql.Types (6/6/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2226,7 +2226,7 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | 🪄       | final field   | BINARY/VARBINARY/LONGVARBINARY | Int constants
 1.1     | ✔️          | 🪄       | final field   | NULL/OTHER           | Int constants
 
-##### java.sql.Date / Time / Timestamp (3/3/⭕️)
+##### java.sql.Date / Time / Timestamp (3/3/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
@@ -2234,14 +2234,14 @@ version | implemented | tested   | type          | name                  | more 
 1.1     | ✔️          | ⭕️       | class         | Time                  | extends java.util.Date; toString() → `HH:mm:ss`
 1.1     | ✔️          | ⭕️       | class         | Timestamp             | extends java.util.Date; getNanos()/setNanos(); toString() → `yyyy-MM-dd HH:mm:ss.nnnnnnnnn`
 
-##### java.sql.SQLException / SQLWarning (2/2/⭕️)
+##### java.sql.SQLException / SQLWarning (2/2/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------
 1.1     | ✔️          | ⭕️       | class         | SQLException          | extends Exception; getSQLState(), getErrorCode()
 1.1     | ✔️          | ⭕️       | class         | SQLWarning            | extends SQLException; getNextWarning(), setNextWarning()
 
-##### java.sql.DriverPropertyInfo (1/1/🪄)
+##### java.sql.DriverPropertyInfo (21/18/0)
 
 version | implemented | tested   | type          | name                  | more informations
 ------- | ----------- | -------- | ------------- | --------------------- | -----------------

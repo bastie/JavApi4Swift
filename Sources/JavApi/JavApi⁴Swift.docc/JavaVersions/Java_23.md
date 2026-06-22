@@ -24,7 +24,7 @@ Java 23 introduced `java.io.IO` as a preview API — a lightweight helper type f
 
 ## java.io — Java 23 additions
 
-##### java.io.IO (4/4/🪄)
+##### java.io.IO (1/1/0)
 
 Lightweight console I/O helper — added as a preview API in Java 23, deprecated in favour of `java.lang.IO` in Java 25.
 

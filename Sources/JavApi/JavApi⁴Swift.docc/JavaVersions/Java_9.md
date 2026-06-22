@@ -24,7 +24,7 @@ Java 9 introduced the module system (JPMS), the `java.util.zip.CRC32C` checksum 
 
 ## java.util.zip — Java 9 additions
 
-##### java.util.zip.CRC32C (1/1/⭕️)
+##### java.util.zip.CRC32C (4/4/0)
 
 CRC-32C (Castagnoli) checksum algorithm — added to `java.util.zip` in Java 9.
 Implements the same `Checksum` interface as `CRC32`.

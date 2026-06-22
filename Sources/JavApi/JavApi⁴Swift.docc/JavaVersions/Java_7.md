@@ -24,7 +24,7 @@ Java 7 introduced try-with-resources (`AutoCloseable`), the diamond operator, mu
 
 ### Try-with-resources
 
-##### java.io.AutoCloseable (1/1/✔️)
+##### java.io.AutoCloseable (3/3/0)
 
 > **Note:** Java 7 moved `AutoCloseable` to `java.lang`; for historical and Swift-namespace reasons it lives in `java.io` in this project, extending `java.io.Closeable`.
 >
@@ -38,7 +38,7 @@ version | implemented | tested   | type          | name           | more informa
 
 ## java.nio.charset — Java 7 additions
 
-##### java.nio.charset.StandardCharsets (6/6/⭕️)
+##### java.nio.charset.StandardCharsets (6/6/0)
 
 Konstante Charset-Referenzen für die sechs garantiert verfügbaren Zeichensätze — hinzugefügt in Java 7, ersetzt Magic-Strings wie `"UTF-8"` durch typsichere Felder.
 

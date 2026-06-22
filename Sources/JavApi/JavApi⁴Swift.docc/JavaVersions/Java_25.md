@@ -22,7 +22,7 @@ Java 25 is a Long-Term Support release. It standardised `java.lang.IO` (previous
 
 ## java.lang — Java 25 additions
 
-##### java.lang.IO (4/4/⭕️)
+##### java.lang.IO (5/5/0)
 
 Lightweight console I/O helper — standardised in Java 25 after preview in Java 23 (`java.io.IO`).
 Provides simple `print`, `println`, and `readln` operations on `System.out` / `System.in` without importing stream classes.

@@ -26,7 +26,7 @@ Java 1.5 introduced generics, autoboxing/unboxing, enhanced for-loop, varargs, s
 
 #### java.lang.System — Java 1.5 additions
 
-##### java.lang.System (3/3/⭕️)
+##### java.lang.System (3/3/0)
 
 version | implemented | tested   | type          | name             | more informations
 ------- | ----------- | -------- | ------------- | ---------------- | -----------------

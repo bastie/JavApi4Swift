@@ -49,217 +49,217 @@ Java 1.0 splits his packages in two parts.
 
 <!-- 11+24+8+5+5+22+23+23+23+32+4+11+7+16+32+48+31+16+41+23+7=412 -->
 
-##### java.lang.VirtualMachineError (1/1/⭕️)
+##### java.lang.VirtualMachineError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | VirtualMachineError() | 
 
 
-##### java.lang.VerifyError (1/1/⭕️)
+##### java.lang.VerifyError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | VerifyError()  | 
 
 
-##### java.lang.UnsatisfiedLinkError (1/1/⭕️)
+##### java.lang.UnsatisfiedLinkError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | UnsatisfiedLinkError() | 
 
 
-##### java.lang.UnknownError (1/1/⭕️)
+##### java.lang.UnknownError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | UnknownError() | 
 
 
-##### java.lang.ThreadDeath (1/1/⭕️)
+##### java.lang.ThreadDeath (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ThreadDeath()  |
 
 
-##### java.lang.StringIndexOutOfBoundsException (1/1/⭕️)
+##### java.lang.StringIndexOutOfBoundsException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | StringIndexOutOfBoundsException() | 
 
 
-##### java.lang.StackOverflowError (1/1/⭕️)
+##### java.lang.StackOverflowError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | StackOverflowError() | 
 
 
-##### java.lang.SecurityException (1/1/⭕️)
+##### java.lang.SecurityException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | SecurityException() | 
 
 
-##### java.lang.RuntimeException (1/1/⭕️)
+##### java.lang.RuntimeException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | RuntimeException() | 
 
 
-##### java.lang.Runnable (1/1/⭕️)
+##### java.lang.Runnable (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | run()          | () — implemented as Swift `protocol` requirement
 
 
-##### java.lang.OutOfMemoryError (1/1/⭕️)
+##### java.lang.OutOfMemoryError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | OutOfMemoryError() | 
 
 
-##### java.lang.NumberFormatException (1/1/⭕️)
+##### java.lang.NumberFormatException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NumberFormatException() | 
 
 
-##### java.lang.NullPointerException (1/1/⭕️)
+##### java.lang.NullPointerException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NullPointerException() | 
 
 
-##### java.lang.NoSuchMethodException (1/1/⭕️)
+##### java.lang.NoSuchMethodException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchMethodException() | 
 
 
-##### java.lang.NoSuchMethodError (1/1/⭕️)
+##### java.lang.NoSuchMethodError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchMethodError() | 
 
 
-##### java.lang.NoSuchFieldError (1/1/⭕️)
+##### java.lang.NoSuchFieldError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchFieldError() | 
 
 
-##### java.lang.NoClassDefFoundError (1/1/⭕️)
+##### java.lang.NoClassDefFoundError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NoClassDefFoundError() | 
 
 
-##### java.lang.NegativeArraySizeException (1/1/⭕️)
+##### java.lang.NegativeArraySizeException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NegativeArraySizeException() | 
 
 
-##### java.lang.LinkageError (1/1/⭕️)
+##### java.lang.LinkageError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | LinkageError() | 
 
 
-##### java.lang.InterruptedException (1/1/⭕️)
+##### java.lang.InterruptedException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InterruptedException() | 
 
 
-##### java.lang.InternalError (1/1/⭕️)
+##### java.lang.InternalError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InternalError() | 
 
 
-##### java.lang.InstantiationException (1/1/⭕️)
+##### java.lang.InstantiationException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InstantiationException() | 
 
 
-##### java.lang.InstantiationError (1/1/⭕️)
+##### java.lang.InstantiationError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InstantiationError() | 
 
 
-##### java.lang.IndexOutOfBoundsException (1/1/⭕️)
+##### java.lang.IndexOutOfBoundsException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IndexOutOfBoundsException() | 
 
 
-##### java.lang.IncompatibleClassChangeError (1/1/⭕️)
+##### java.lang.IncompatibleClassChangeError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IncompatibleClassChangeError() | 
 
 
-##### java.lang.IllegalThreadStateException (1/1/⭕️)
+##### java.lang.IllegalThreadStateException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalThreadStateException() | 
 
 
-##### java.lang.IllegalMonitorStateException (1/1/⭕️)
+##### java.lang.IllegalMonitorStateException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalMonitorStateException() | 
 
 
-##### java.lang.IllegalArgumentException (1/1/⭕️)
+##### java.lang.IllegalArgumentException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalArgumentException() | 
 
 
-##### java.lang.IllegalAccessException (1/1/⭕️)
+##### java.lang.IllegalAccessException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessException() | 
 
 
-##### java.lang.IllegalAccessError (1/1/⭕️)
+##### java.lang.IllegalAccessError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IllegalAccessError() | 
 
 
-##### java.lang.Exception (4/4/⭕️)
+##### java.lang.Exception (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -269,7 +269,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | Exception(Throwable) |
 
 
-##### java.lang.Error (4/4/⭕️)
+##### java.lang.Error (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -279,77 +279,77 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | Error(Throwable) |
 
 
-##### java.lang.Cloneable (1/1/⭕️)
+##### java.lang.Cloneable (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | interface     | Cloneable      | implemented as Swift `protocol`
 
 
-##### java.lang.CloneNotSupportedException (1/1/⭕️)
+##### java.lang.CloneNotSupportedException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CloneNotSupportedException() | 
 
 
-##### java.lang.ClassNotFoundException (1/1/⭕️)
+##### java.lang.ClassNotFoundException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ClassNotFoundException() | 
 
 
-##### java.lang.ClassFormatError (1/1/⭕️)
+##### java.lang.ClassFormatError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ClassFormatError() | 
 
 
-##### java.lang.ClassCircularityError (1/1/⭕️)
+##### java.lang.ClassCircularityError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ClassCircularityError() | 
 
 
-##### java.lang.ClassCastException (1/1/⭕️)
+##### java.lang.ClassCastException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ClassCastException() | 
 
 
-##### java.lang.ArrayStoreException (1/1/⭕️)
+##### java.lang.ArrayStoreException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ArrayStoreException() | 
 
 
-##### java.lang.ArrayIndexOutOfBoundsException (1/1/⭕️)
+##### java.lang.ArrayIndexOutOfBoundsException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ArrayIndexOutOfBoundsException() | 
 
 
-##### java.lang.ArithmeticException (1/1/⭕️)
+##### java.lang.ArithmeticException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ArithmeticException() | 
 
 
-##### java.lang.AbstractMethodError (1/1/⭕️)
+##### java.lang.AbstractMethodError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | AbstractMethodError() | 
 
 
-##### java.lang.Boolean (8/8/⭕️)
+##### java.lang.Boolean (8/8/0)
 
 <!-- 11 methods+fields, 11 full implemented, 1 test implemented -->
 
@@ -364,11 +364,11 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | valueOf()      | (String)->Boolean
 
-##### java.lang.Character (28/28/⭕️)
+##### java.lang.Character (28/28/4)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | Class         | Boolean        | typealias and extension of `char`
+1.0.2   | ✔️          | ✔️       | Class         | Boolean        | typealias and extension of `char`
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_RADIX      | 
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | 
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_RADIX      | 
@@ -377,15 +377,15 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | digit()        | (char,int)->int
 1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | forDigit()     | (char,int)->int
-1.1     | ✔️          | ⭕️       | static method | getNumericValue()        | (char)->int
+1.1     | ✔️          | ✔️       | static method | getNumericValue()        | (char)->int
 1.0.2   | ✔️          | ⭕️       | method        | hashCode()     | ()->int
 1.0.2   | ✔️          | ⭕️       | static method | isDefined()    | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isDigit()      | (char)->boolean
 5       | ✔️          | ⭕️       | static method | isDigit()      | (int)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isJavaLetter()           | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isJavaLetterOrDigit()    | (char)->boolean
-1.0.2   | ✔️          | ⭕️       | static method | isLetter()               | (char)->boolean
-5       | ✔️          | ⭕️       | static method | isLetter()               | (int)->boolean
+1.0.2   | ✔️          | ✔️       | static method | isLetter()               | (char)->boolean
+5       | ✔️          | ✔️       | static method | isLetter()               | (int)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isLetterOrDigit()        | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isLowerCase()            | (char)->boolean
 1.0.2   | ✔️          | ⭕️       | static method | isSpace()                | (char)->boolean
@@ -398,7 +398,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | static method | isWhiteSpace()           | (char)->boolean
 
 
-##### java.lang.Class (8/8/⭕️)
+##### java.lang.Class (8/8/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -412,14 +412,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()       | ()->String
 
 
-##### java.lang.ClassLoader (1/1/⭕️)
+##### java.lang.ClassLoader (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ClassLoader()  | fatalError/TODO: future implementation via `dlopen`/`dlsym` (POSIX) or `NSBundle` (Apple)
 
 
-##### java.lang.Compiler (6/6/⭕️)
+##### java.lang.Compiler (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -431,7 +431,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | disable()      | ()
 
 
-##### java.lang.Double (8/8/⭕️)
+##### java.lang.Double (8/8/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -445,7 +445,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | isNaN()        | (double)->boolean
 
 
-##### java.lang.Float (8/8/⭕️)
+##### java.lang.Float (8/8/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -459,48 +459,48 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | isNaN()        | (float)->boolean
 
 
-##### java.lang.Integer (3/3/⭕️)
+##### java.lang.Integer (3/3/3)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | int
-1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | int
-1.0.2   | ✔️          | ⭕️       | static method | toString()     | (int,int)->String
+1.0.2   | ✔️          | ✔️       | final field   | MIN_VALUE      | int
+1.0.2   | ✔️          | ✔️       | final field   | MAX_VALUE      | int
+1.0.2   | ✔️          | ✔️       | static method | toString()     | (int,int)->String
 
 
-##### java.lang.Long (3/3/⭕️)
+##### java.lang.Long (3/3/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | final field   | MIN_VALUE      | long
 1.0.2   | ✔️          | ⭕️       | final field   | MAX_VALUE      | long
-1.0.2   | ✔️          | ⭕️       | static method | toString()     | (long,int)->String
+1.0.2   | ✔️          | ✔️       | static method | toString()     | (long,int)->String
 
 
-##### java.lang.Math (17/17/⭕️)
+##### java.lang.Math (17/17/17)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | final field   | PI             | double
-1.0.2   | ✔️          | ⭕️       | static method | sin()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | cos()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | tan()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | asin()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | acos()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | atan()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | exp()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | log()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | sqrt()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | ceil()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | floor()        | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | rint()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | atan2()        | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | pow()          | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | round()        | (float)->int
+1.0.2   | ✔️          | ✔️       | final field   | PI             | double
+1.0.2   | ✔️          | ✔️       | static method | sin()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | cos()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | tan()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | asin()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | acos()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | atan()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | exp()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | log()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | sqrt()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | IEEEremainder() | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | ceil()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | floor()        | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | rint()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | atan2()        | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | pow()          | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | round()        | (float)->int
 
 
-##### java.lang.Number (4/4/⭕️)
+##### java.lang.Number (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -510,7 +510,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | doubleValue()  | ()->double
 
 
-##### java.lang.Object (3/3/🪄)
+##### java.lang.Object (3/3/0)
 
 Swift has no common `Object` base class. The three Java `Object` methods are handled as follows:
 
@@ -521,7 +521,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | 🪄       | method        | equals()       | (Object)->boolean — implemented per type; Swift's `Equatable` (`==`) is the idiomatic equivalent
 
 
-##### java.lang.Process (6/6/⭕️)
+##### java.lang.Process (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -533,42 +533,42 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | destroy()         | ()
 
 
-##### java.lang.Runtime (1/1/⭕️)
+##### java.lang.Runtime (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | static method | getRuntime()   | ()->Runtime
 
 
-##### java.lang.SecurityManager (1/1/⭕️)
+##### java.lang.SecurityManager (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | getInCheck()   | ()->boolean
 
 
-##### java.lang.String (0/0/⭕️)
+##### java.lang.String (1/0/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 | note: Swift's native `String` covers the Java String API; no separate port needed
 
 
-##### java.lang.StringBuffer (1/1/⭕️)
+##### java.lang.StringBuffer (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | StringBuffer() | 
 
 
-##### java.lang.System (1/1/⭕️)
+##### java.lang.System (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | static method | setSecurityManager() | (SecurityManager)
+1.0.2   | ✔️          | ✔️       | static method | setSecurityManager() | (SecurityManager)
 
 
-##### java.lang.Thread (8/8/⭕️)
+##### java.lang.Thread (8/8/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -582,14 +582,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | sleep()        | (long,int)
 
 
-##### java.lang.ThreadGroup (1/1/⭕️)
+##### java.lang.ThreadGroup (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | ThreadGroup()  | String
 
 
-##### java.lang.Throwable (7/7/⭕️)
+##### java.lang.Throwable (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -604,21 +604,21 @@ version | implemented | tested   | type          | name           | more informa
 
 #### java.io
 
-##### java.io.UTFDataFormatException (1/1/⭕️)
+##### java.io.UTFDataFormatException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | UTFDataFormatException() | 
 
 
-##### java.io.StringBufferInputStream (1/1/⭕️)
+##### java.io.StringBufferInputStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | StringBufferInputStream() | String
 
 
-##### java.io.StreamTokenizer (10/10/⭕️)
+##### java.io.StreamTokenizer (10/10/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -634,57 +634,57 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | StreamTokenizer() | InputStream
 
 
-##### java.io.SequenceInputStream (1/1/⭕️)
+##### java.io.SequenceInputStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | SequenceInputStream() | Enumeration
 
 
-##### java.io.RandomAccessFile (1/1/⭕️)
+##### java.io.RandomAccessFile (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | RandomAccessFile() | String,String
 
 
-##### java.io.PushbackInputStream (1/1/⭕️)
+##### java.io.PushbackInputStream (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | PushbackInputStream() | InputStream
+1.0.2   | ✔️          | ✔️       | constructor   | PushbackInputStream() | InputStream
 
 
-##### java.io.PrintStream (1/1/⭕️)
+##### java.io.PrintStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | PrintStream()  | OutputStream
 
 
-##### java.io.PipedOutputStream (1/1/⭕️)
+##### java.io.PipedOutputStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | PipedOutputStream() | PipedInputStream
 
 
-##### java.io.PipedInputStream (1/1/⭕️)
+##### java.io.PipedInputStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | PipedInputStream() | PipedOutputStream
 
 
-##### java.io.OutputStream (2/2/⭕️)
+##### java.io.OutputStream (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (int)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte)
 
 
-##### java.io.LineNumberInputStream (3/3/⭕️)
+##### java.io.LineNumberInputStream (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -693,64 +693,64 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | LineNumberInputStream() | InputStream
 
 
-##### java.io.InterruptedIOException (1/1/⭕️)
+##### java.io.InterruptedIOException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InterruptedIOException() | 
 
 
-##### java.io.InputStream (3/3/⭕️)
+##### java.io.InputStream (3/3/3)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | method        | read()         | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte)->int
-1.0.2   | ✔️          | ⭕️       | method        | read()         | (b,0,b.length)->return
+1.0.2   | ✔️          | ✔️       | method        | read()         | ()->int
+1.0.2   | ✔️          | ✔️       | method        | read()         | (byte)->int
+1.0.2   | ✔️          | ✔️       | method        | read()         | (b,0,b.length)->return
 
 
-##### java.io.IOException (1/1/⭕️)
+##### java.io.IOException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | IOException()  | 
 
 
-##### java.io.FilterInputStream (1/1/⭕️)
+##### java.io.FilterInputStream (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | FilterInputStream() | InputStream
 
 
-##### java.io.FilenameFilter (1/1/⭕️)
+##### java.io.FilenameFilter (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | accept()       | (File,String)->boolean
 
 
-##### java.io.FileNotFoundException (1/1/⭕️)
+##### java.io.FileNotFoundException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | FileNotFoundException() | 
 
 
-##### java.io.FileInputStream (4/4/⭕️)
+##### java.io.FileInputStream (7/7/7)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | FileInputStream() | (File)
-1.0.2   | ✔️          | ⭕️       | constructor   | FileInputStream() | (String)
-1.0.2   | ✔️          | ⭕️       | method        | read()         | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte[])->int
-1.0.2   | ✔️          | ⭕️       | method        | read()         | (byte[],int,int)->int
-1.0.2   | ✔️          | ⭕️       | method        | skip()         | (int)->int
-1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ✔️       | constructor   | FileInputStream() | (File)
+1.0.2   | ✔️          | ✔️       | constructor   | FileInputStream() | (String)
+1.0.2   | ✔️          | ✔️       | method        | read()         | ()->int
+1.0.2   | ✔️          | ✔️       | method        | read()         | (byte[])->int
+1.0.2   | ✔️          | ✔️       | method        | read()         | (byte[],int,int)->int
+1.0.2   | ✔️          | ✔️       | method        | skip()         | (int)->int
+1.0.2   | ✔️          | ✔️       | method        | close()        | ()
 
 
-##### java.io.File (18/18/⭕️)
+##### java.io.File (23/23/18)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -758,100 +758,100 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static field  | separatorChar  | char
 1.0.2   | ✔️          | ⭕️       | static field  | pathSeparator  | String
 1.0.2   | ✔️          | ⭕️       | static field  | pathSeparatorChar | char
-1.0.2   | ✔️          | ⭕️       | constructor   | File()         | (String)
+1.0.2   | ✔️          | ✔️       | constructor   | File()         | (String)
 1.0.2   | ✔️          | ⭕️       | constructor   | File()         | (File,String)
-1.0.2   | ✔️          | ⭕️       | method        | canExecute()   | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | canRead()      | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | canWrite()     | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | delete()       | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | exists()       | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | getAbsolutePath() | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | getName()      | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | getPath()      | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | isDirectory()  | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | isFile()       | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | isHidden()     | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | lastModified() | ()->long
-1.0.2   | ✔️          | ⭕️       | method        | length()       | ()->long
-1.0.2   | ✔️          | ⭕️       | method        | list()         | ()->String[]
-1.0.2   | ✔️          | ⭕️       | method        | mkdir()        | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | mkdirs()       | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
+1.0.2   | ✔️          | ✔️       | method        | canExecute()   | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | canRead()      | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | canWrite()     | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | delete()       | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | exists()       | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | getAbsolutePath() | ()->String
+1.0.2   | ✔️          | ✔️       | method        | getName()      | ()->String
+1.0.2   | ✔️          | ✔️       | method        | getPath()      | ()->String
+1.0.2   | ✔️          | ✔️       | method        | isDirectory()  | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | isFile()       | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | isHidden()     | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | lastModified() | ()->long
+1.0.2   | ✔️          | ✔️       | method        | length()       | ()->long
+1.0.2   | ✔️          | ✔️       | method        | list()         | ()->String[]
+1.0.2   | ✔️          | ✔️       | method        | mkdir()        | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | mkdirs()       | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | toString()     | ()->String
 
 
-##### java.io.EOFException (1/1/⭕️)
+##### java.io.EOFException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | EOFException() | 
 
 
-##### java.io.DataOutputStream (1/1/⭕️)
+##### java.io.DataOutputStream (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | DataOutputStream() | OutputStream
+1.0.2   | ✔️          | ✔️       | constructor   | DataOutputStream() | OutputStream
 
 
-##### java.io.DataOutput (14/14/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte,int,int)
-1.0.2   | ✔️          | ⭕️       | method        | writeBoolean() | (boolean)
-1.0.2   | ✔️          | ⭕️       | method        | writeByte()    | (int)
-1.0.2   | ✔️          | ⭕️       | method        | writeShort()   | (int)
-1.0.2   | ✔️          | ⭕️       | method        | writeChar()    | (int)
-1.0.2   | ✔️          | ⭕️       | method        | writeInt()     | (int)
-1.0.2   | ✔️          | ⭕️       | method        | writeLong()    | (long)
-1.0.2   | ✔️          | ⭕️       | method        | writeFloat()   | (float)
-1.0.2   | ✔️          | ⭕️       | method        | writeDouble()  | (double)
-1.0.2   | ✔️          | ⭕️       | method        | writeBytes()   | (String)
-1.0.2   | ✔️          | ⭕️       | method        | writeChars()   | (String)
-1.0.2   | ✔️          | ⭕️       | method        | writeUTF()     | (String)
-
-
-##### java.io.DataInputStream (1/1/⭕️)
+##### java.io.DataOutput (14/14/14)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | DataInputStream() | InputStream
+1.0.2   | ✔️          | ✔️       | method        | write()        | (int)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte,int,int)
+1.0.2   | ✔️          | ✔️       | method        | writeBoolean() | (boolean)
+1.0.2   | ✔️          | ✔️       | method        | writeByte()    | (int)
+1.0.2   | ✔️          | ✔️       | method        | writeShort()   | (int)
+1.0.2   | ✔️          | ✔️       | method        | writeChar()    | (int)
+1.0.2   | ✔️          | ✔️       | method        | writeInt()     | (int)
+1.0.2   | ✔️          | ✔️       | method        | writeLong()    | (long)
+1.0.2   | ✔️          | ✔️       | method        | writeFloat()   | (float)
+1.0.2   | ✔️          | ✔️       | method        | writeDouble()  | (double)
+1.0.2   | ✔️          | ✔️       | method        | writeBytes()   | (String)
+1.0.2   | ✔️          | ✔️       | method        | writeChars()   | (String)
+1.0.2   | ✔️          | ✔️       | method        | writeUTF()     | (String)
 
 
-##### java.io.ByteArrayOutputStream (1/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | ByteArrayOutputStream() | 
-
-
-##### java.io.ByteArrayInputStream (1/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | ByteArrayInputStream() | byte
-
-
-##### java.io.BufferedInputStream (1/1/⭕️)
-
-version | implemented | tested   | type          | name           | more informations     
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | BufferedInputStream() | InputStream
-
-
-##### java.io.BufferedOutputStream (5/5/⭕️)
+##### java.io.DataInputStream (1/1/1)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream)
-1.0.2   | ✔️          | ⭕️       | constructor   | BufferedOutputStream | (OutputStream, Int)
-1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+1.0.2   | ✔️          | ✔️       | constructor   | DataInputStream() | InputStream
 
-##### java.io.DataInput (15/15/⭕️)
+
+##### java.io.ByteArrayOutputStream (1/1/1)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ✔️       | constructor   | ByteArrayOutputStream() | 
+
+
+##### java.io.ByteArrayInputStream (1/1/1)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ✔️       | constructor   | ByteArrayInputStream() | byte
+
+
+##### java.io.BufferedInputStream (1/1/1)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ✔️       | constructor   | BufferedInputStream() | InputStream
+
+
+##### java.io.BufferedOutputStream (5/5/5)
+
+version | implemented | tested   | type          | name           | more informations     
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.0.2   | ✔️          | ✔️       | constructor   | BufferedOutputStream | (OutputStream)
+1.0.2   | ✔️          | ✔️       | constructor   | BufferedOutputStream | (OutputStream, Int)
+1.0.2   | ✔️          | ✔️       | method        | flush          | ()
+1.0.2   | ✔️          | ✔️       | method        | write()        | (int)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte[],int,int)
+
+##### java.io.DataInput (15/15/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -871,63 +871,63 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | 🪄       | method        | readUTF    | ()->String
 1.0.2   | ✔️          | 🪄       | method        | skipBytes    | (Int)
 
-##### java.io.FileDescriptor (2/2/⭕️)
+##### java.io.FileDescriptor (2/2/2)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | FileDescriptor | ()
-1.0.2   | ✔️          | ⭕️       | method        | valid()        | ()->boolean
+1.0.2   | ✔️          | ✔️       | constructor   | FileDescriptor | ()
+1.0.2   | ✔️          | ✔️       | method        | valid()        | ()->boolean
 
-##### java.io.FileOutputStream (9/9/⭕️)
+##### java.io.FileOutputStream (9/9/7)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (File)
+1.0.2   | ✔️          | ✔️       | constructor   | FileOutputStream | (File)
 1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (FileDescriptor)
-1.0.2   | ✔️          | ⭕️       | constructor   | FileOutputStream | (String)
-1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
+1.0.2   | ✔️          | ✔️       | constructor   | FileOutputStream | (String)
+1.0.2   | ✔️          | ✔️       | method        | close()        | ()
 1.0.2   | ✔️          | ⭕️       | method        | finalize()     | () calls only close()
-1.0.2   | ✔️          | ⭕️       | method        | getFD()        | ()->FileDescriptor
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[])
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+1.0.2   | ✔️          | ✔️       | method        | getFD()        | ()->FileDescriptor
+1.0.2   | ✔️          | ✔️       | method        | write()        | (int)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte[])
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte[],int,int)
 
-##### java.io.FilterOutputStream (6/6/⭕️)
+##### java.io.FilterOutputStream (6/6/6)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | constructor   | FilterOutputStream | (OutputStream)
-1.0.2   | ✔️          | ⭕️       | method        | close()        | ()
-1.0.2   | ✔️          | ⭕️       | method        | flush          | ()
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (int)
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[])
-1.0.2   | ✔️          | ⭕️       | method        | write()        | (byte[],int,int)
+1.0.2   | ✔️          | ✔️       | constructor   | FilterOutputStream | (OutputStream)
+1.0.2   | ✔️          | ✔️       | method        | close()        | ()
+1.0.2   | ✔️          | ✔️       | method        | flush          | ()
+1.0.2   | ✔️          | ✔️       | method        | write()        | (int)
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte[])
+1.0.2   | ✔️          | ✔️       | method        | write()        | (byte[],int,int)
 
 
 #### java.net
 
-##### java.net.UnknownServiceException (1/1/⭕️)
+##### java.net.UnknownServiceException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | UnknownServiceException() | 
 
 
-##### java.net.UnknownHostException (1/1/⭕️)
+##### java.net.UnknownHostException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | UnknownHostException() | String
 
 
-##### java.net.URLStreamHandlerFactory (1/1/⭕️)
+##### java.net.URLStreamHandlerFactory (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | createURLStreamHandler() | (String)->URLStreamHandler
 
 
-##### java.net.URLStreamHandler (2/2/⭕️)
+##### java.net.URLStreamHandler (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -935,16 +935,16 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
 
 
-##### java.net.URLEncoder (1/1/⭕️)
+##### java.net.URLEncoder (1/1/1)
 
 > **Note:** `encode(String, String)` is a **Java 1.4** addition (not 1.1) — tracked in `Java_1.4.md`.
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | static method | encode()       | (String)->String — @deprecated since Java 1.4, use encode(String,String) instead
+1.0.2   | ✔️          | ✔️       | static method | encode()       | (String)->String — @deprecated since Java 1.4, use encode(String,String) instead
 
 
-##### java.net.URLConnection (17/17/⭕️)
+##### java.net.URLConnection (17/17/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -967,7 +967,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setIfModifiedSince() | (long)
 
 
-##### java.net.URL (4/4/⭕️)
+##### java.net.URL (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -989,14 +989,14 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.net.SocketImplFactory (1/1/⭕️)
+##### java.net.SocketImplFactory (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | createSocketImpl() | ()->SocketImpl
 
 
-##### java.net.SocketImpl (11/11/⭕️)
+##### java.net.SocketImpl (11/11/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1013,14 +1013,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | getFileDescriptor() | ()->FileDescriptor
 
 
-##### java.net.SocketException (1/1/⭕️)
+##### java.net.SocketException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | SocketException() | String
 
 
-##### java.net.Socket (15/15/⭕️)
+##### java.net.Socket (17/17/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1043,7 +1043,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | getTcpNoDelay() | ()->boolean
 
 
-##### java.net.ServerSocket (3/3/⭕️)
+##### java.net.ServerSocket (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1052,7 +1052,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | ServerSocket() | int,int
 
 
-##### java.net.ProtocolException (1/1/⭕️)
+##### java.net.ProtocolException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1065,29 +1065,29 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.net.MalformedURLException (1/1/⭕️)
+##### java.net.MalformedURLException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | MalformedURLException() | 
 
 
-##### java.net.InetAddress (9/9/⭕️)
+##### java.net.InetAddress (9/9/4)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | 
 1.0.2   | ✔️          | ⭕️       | constructor   | InetAddress()  | String,byte
-1.0.2   | ✔️          | ⭕️       | static method | getByName()    | (String)->InetAddress
+1.0.2   | ✔️          | ✔️       | static method | getByName()    | (String)->InetAddress
 1.0.2   | ✔️          | ⭕️       | static method | getAllByName()  | (String)->InetAddress[]
 1.0.2   | ✔️          | ⭕️       | static method | getLocalHost() | ()->InetAddress
-1.0.2   | ✔️          | ⭕️       | method        | getHostName()  | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | getHostAddress() | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | getAddress()   | ()->byte[]
+1.0.2   | ✔️          | ✔️       | method        | getHostName()  | ()->String
+1.0.2   | ✔️          | ✔️       | method        | getHostAddress() | ()->String
+1.0.2   | ✔️          | ✔️       | method        | getAddress()   | ()->byte[]
 1.0.2   | ✔️          | ⭕️       | method        | equals()       | (Object)->boolean
 
 
-##### java.net.DatagramSocket (3/3/⭕️)
+##### java.net.DatagramSocket (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1096,21 +1096,21 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | DatagramSocket(int, InetAddress) |
 
 
-##### java.net.DatagramPacket (1/1/⭕️)
+##### java.net.DatagramPacket (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | DatagramPacket() | byte,int
 
 
-##### java.net.ContentHandlerFactory (1/1/⭕️)
+##### java.net.ContentHandlerFactory (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | createContentHandler() | (String)->ContentHandler — als Swift protocol
 
 
-##### java.net.ContentHandler (1/1/⭕️)
+##### java.net.ContentHandler (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1121,21 +1121,21 @@ version | implemented | tested   | type          | name           | more informa
 
 <!-- 11+27+7+2+14+9+2+8+10+5+6+23=124 -->
 
-##### java.util.NoSuchElementException (1/1/⭕️)
+##### java.util.NoSuchElementException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | NoSuchElementException() | 
 
 
-##### java.util.EmptyStackException (1/1/⭕️)
+##### java.util.EmptyStackException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | EmptyStackException() | 
 
 
-##### java.util.BitSet (13/13/⭕️)
+##### java.util.BitSet (13/13/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1153,7 +1153,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 1.0.2   | ✔️          | ⭕️       | method        | xor()          | (BitSet)
 
-##### java.util.Date (27/27/⭕️)
+##### java.util.Date (27/27/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1185,7 +1185,7 @@ version | implemented | tested   | type          | name                | more in
 1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
 1.0.2   | ✔️          | ⭕️       | static method | UTC()               | (int,int,int,int,int,int)->long — deprecated since 1.1
 
-##### java.util.Dictionary (7/7/⭕️)
+##### java.util.Dictionary (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1197,14 +1197,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | remove()       | (Object)->Object — extension on Swift Dictionary
 1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int — extension on Swift Dictionary
 
-##### java.util.Enumeration (2/2/⭕️)
+##### java.util.Enumeration (2/2/2)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
 1.0.2   | ✔️          | ✔️       | method        | hasMoreElements() | ()->boolean
 1.0.2   | ✔️          | ✔️       | method        | nextElement()     | ()->Object
 
-##### java.util.Hashtable (12/12/⭕️)
+##### java.util.Hashtable (12/12/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1221,7 +1221,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | size()         | ()->int
 1.0.2   | ✔️          | ⭕️       | method        | toString()     | ()->String
 
-##### java.util.Observable (9/9/⭕️)
+##### java.util.Observable (9/9/0)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -1235,14 +1235,14 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | notifyObservers() | (Object)
 1.0.2   | ✔️          | ⭕️       | method        | setChanged()      | ()
 
-##### java.util.Observer (2/2/⭕️)
+##### java.util.Observer (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | update()       | (Observable,Object)
 1.0.2   | ✔️          | 🪄       | method        | hashCode()     | ()->int — default via ObjectIdentifier for class types
 
-##### java.util.Properties (7/7/⭕️)
+##### java.util.Properties (7/7/0)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -1254,7 +1254,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ⭕️       | method        | save()            | (OutputStream,String) — deprecated since 1.2, use store()
 1.0.2   | ✔️          | ⭕️       | method        | setProperty()     | (String,String)->Object
 
-##### java.util.Random (9/9/⭕️)
+##### java.util.Random (9/9/9)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -1268,17 +1268,17 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | nextLong()        | ()->long
 1.0.2   | ✔️          | ✔️       | method        | setSeed()         | (long)
 
-##### java.util.Stack (5/5/⭕️)
+##### java.util.Stack (5/5/5)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | method        | empty()        | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | peek()         | ()->Object
-1.0.2   | ✔️          | ⭕️       | method        | pop()          | ()->Object
-1.0.2   | ✔️          | ⭕️       | method        | push()         | (Object)->Object
+1.0.2   | ✔️          | ✔️       | method        | empty()        | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | peek()         | ()->Object
+1.0.2   | ✔️          | ✔️       | method        | pop()          | ()->Object
+1.0.2   | ✔️          | ✔️       | method        | push()         | (Object)->Object
 1.0.2   | ✔️          | ✔️       | method        | search()       | (Object)->int
 
-##### java.util.StringTokenizer (9/9/✔️)
+##### java.util.StringTokenizer (9/9/9)
 
 version | implemented | tested   | type          | name              | more informations
 ------- | ----------- | -------- | ------------- | ----------------- | -----------------
@@ -1292,7 +1292,7 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | nextToken()       | ()->String
 1.0.2   | ✔️          | ✔️       | method        | nextToken()       | (String)->String
 
-##### java.util.Vector (23/23/⭕️)
+##### java.util.Vector (23/23/0)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
@@ -1323,7 +1323,7 @@ version | implemented | tested   | type          | name                | more in
 #### java.applet
 
 
-##### java.applet.AudioClip (3/3/⭕️)
+##### java.applet.AudioClip (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1332,7 +1332,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | stop()         | ()
 
 
-##### java.applet.AppletStub (6/6/⭕️)
+##### java.applet.AppletStub (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1344,7 +1344,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | appletResize() | (int,int)
 
 
-##### java.applet.AppletContext (7/7/⭕️)
+##### java.applet.AppletContext (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1357,7 +1357,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | showStatus()   | (String)
 
 
-##### java.applet.Applet (1/1/⭕️)
+##### java.applet.Applet (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1366,14 +1366,14 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt
 
 
-##### java.awt.Window (0/0/✔️)
+##### java.awt.Window (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Window         | implemented as Container subclass with setVisible, dispose, pack, toFront, toBack
 
 
-##### java.awt.Toolkit (7/7/⭕️)
+##### java.awt.Toolkit (7/7/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1386,7 +1386,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static method | getDefaultToolkit() | ()->Toolkit
 
 
-##### java.awt.TextField (2/2/✔️)
+##### java.awt.TextField (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1394,21 +1394,21 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | TextField()    | 
 
 
-##### java.awt.TextComponent (1/1/✔️)
+##### java.awt.TextComponent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | TextComponent() | String
 
 
-##### java.awt.TextArea (1/1/✔️)
+##### java.awt.TextArea (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | TextArea()     | 
 
 
-##### java.awt.Scrollbar (2/2/✔️)
+##### java.awt.Scrollbar (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1416,42 +1416,42 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | VERTICAL       | int
 
 
-##### java.awt.Rectangle (0/0/✔️)
+##### java.awt.Rectangle (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Rectangle      | implemented with x,y,width,height fields, constructors, contains, intersects, union, etc.
 
 
-##### java.awt.Polygon (0/0/✔️)
+##### java.awt.Polygon (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Polygon        | implemented with npoints, xpoints, ypoints, addPoint, contains, getBoundingBox
 
 
-##### java.awt.Point (0/0/✔️)
+##### java.awt.Point (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Point          | implemented with x,y fields, constructors, distance, equals, translate
 
 
-##### java.awt.Panel (0/0/✔️)
+##### java.awt.Panel (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Panel          | implemented as Container subclass
 
 
-##### java.awt.MenuItem (1/1/✔️)
+##### java.awt.MenuItem (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuItem()     | String
 
 
-##### java.awt.MenuContainer (3/3/⭕️)
+##### java.awt.MenuContainer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1460,28 +1460,28 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | remove()       | (MenuComponent)
 
 
-##### java.awt.MenuComponent (1/1/✔️)
+##### java.awt.MenuComponent (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->MenuContainer — via open class MenuComponent
 
 
-##### java.awt.MenuBar (1/1/✔️)
+##### java.awt.MenuBar (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | MenuBar()      | 
 
 
-##### java.awt.Menu (1/1/✔️)
+##### java.awt.Menu (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | field         | tearOff        | boolean
 
 
-##### java.awt.MediaTracker (1/1/✔️)
+##### java.awt.MediaTracker (19/19/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1506,14 +1506,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | 🪄       | method        | isErrorID()    | (int)->boolean
 
 
-##### java.awt.List (0/0/✔️)
+##### java.awt.List (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | List           | implemented as Component subclass with add, select, getSelectedItem, ItemListener, ActionListener
 
 
-##### java.awt.LayoutManager (5/5/✔️)
+##### java.awt.LayoutManager (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1524,7 +1524,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | layoutContainer() | (Container)
 
 
-##### java.awt.Label (3/3/✔️)
+##### java.awt.Label (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1533,14 +1533,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
 
 
-##### java.awt.Insets (0/0/✔️)
+##### java.awt.Insets (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Insets         | implemented with top,left,bottom,right fields, constructors, clone, equals
 
 
-##### java.awt.Image (6/6/⭕️)
+##### java.awt.Image (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1552,14 +1552,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | flush()        | ()
 
 
-##### java.awt.GridLayout (1/1/✔️)
+##### java.awt.GridLayout (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | GridLayout()   | int,int
 
 
-##### java.awt.GridBagLayout (4/4/✔️)
+##### java.awt.GridBagLayout (4/4/0)
 
 See Java_1.1.md for full implementation notes (Step 1 complete).
 
@@ -1571,7 +1571,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | GridBagLayout() | 
 
 
-##### java.awt.GridBagConstraints (15/15/✔️)
+##### java.awt.GridBagConstraints (15/15/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1592,14 +1592,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | 🪄       | final field   | NORTHWEST      | int
 
 
-##### java.awt.Graphics (0/0/✔️)
+##### java.awt.Graphics (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Graphics       | implemented mapped to CGContext (canImport(CoreGraphics))
 
 
-##### java.awt.Frame (14/14/✔️)
+##### java.awt.Frame (14/14/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1619,14 +1619,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | MOVE_CURSOR    | int
 
 
-##### java.awt.FontMetrics (1/1/✔️)
+##### java.awt.FontMetrics (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | FontMetrics()  | Font
 
 
-##### java.awt.Font (3/3/✔️)
+##### java.awt.Font (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1635,7 +1635,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | ITALIC         | int
 
 
-##### java.awt.FlowLayout (3/3/✔️)
+##### java.awt.FlowLayout (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1644,7 +1644,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | RIGHT          | int
 
 
-##### java.awt.FileDialog (3/3/✔️)
+##### java.awt.FileDialog (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1653,7 +1653,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | constructor   | FileDialog()   | Frame,String
 
 
-##### java.awt.Event (58/58/⭕️)
+##### java.awt.Event (58/58/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1717,28 +1717,28 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | field         | clickCount     | int
 
 
-##### java.awt.Dimension (0/0/✔️)
+##### java.awt.Dimension (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Dimension      | implemented with width,height fields, constructors, equals, getSize, setSize, toString
 
 
-##### java.awt.Dialog (0/0/✔️)
+##### java.awt.Dialog (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Dialog         | implemented as Window subclass with modal support
 
 
-##### java.awt.Container (1/1/✔️)
+##### java.awt.Container (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | countComponents() | ()->int — via children.count
 
 
-##### java.awt.Cursor (15/15/✔️)
+##### java.awt.Cursor (18/18/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1762,84 +1762,84 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | ⭕️       | method        | getName()      | ()->String
 
 
-##### java.awt.Component (1/1/✔️)
+##### java.awt.Component (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | getParent()    | ()->Container
 
 
-##### java.awt.Color (0/0/✔️)
+##### java.awt.Color (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Color          | implemented with RGB constants, constructors, getRGB, brighter, darker
 
 
-##### java.awt.Choice (0/0/✔️)
+##### java.awt.Choice (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Choice         | implemented as Component subclass with add, select, getSelectedItem, getItemCount
 
 
-##### java.awt.CheckboxMenuItem (1/1/✔️)
+##### java.awt.CheckboxMenuItem (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxMenuItem() | String
 
 
-##### java.awt.CheckboxGroup (1/1/✔️)
+##### java.awt.CheckboxGroup (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CheckboxGroup() | 
 
 
-##### java.awt.Checkbox (0/0/✔️)
+##### java.awt.Checkbox (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Checkbox       | implemented as Component subclass with label, state, CheckboxGroup, ItemListener
 
 
-##### java.awt.CardLayout (1/1/✔️)
+##### java.awt.CardLayout (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | CardLayout()   | 
 
 
-##### java.awt.Canvas (0/0/✔️)
+##### java.awt.Canvas (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Canvas         | implemented as Component subclass with paint()
 
 
-##### java.awt.Button (0/0/✔️)
+##### java.awt.Button (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | class         | Button         | implemented as Component subclass with label, ActionListener, actionCommand
 
 
-##### java.awt.BorderLayout (1/1/✔️)
+##### java.awt.BorderLayout (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | BorderLayout() | 
 
 
-##### java.awt.AWTException (1/1/✔️)
+##### java.awt.AWTException (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | constructor   | AWTException() | String
 
 
-##### java.awt.AWTError (1/1/✔️)
+##### java.awt.AWTError (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1848,7 +1848,7 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt.image
 
 
-##### java.awt.image.RGBImageFilter (11/11/⭕️)
+##### java.awt.image.RGBImageFilter (11/11/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1865,7 +1865,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | substituteColorModel() | (ColorModel,ColorModel)
 
 
-##### java.awt.image.PixelGrabber (12/12/⭕️)
+##### java.awt.image.PixelGrabber (12/12/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1883,7 +1883,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | status()       | ()->int
 
 
-##### java.awt.image.MemoryImageSource (11/11/⭕️)
+##### java.awt.image.MemoryImageSource (11/11/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1900,7 +1900,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | startProduction() | (ImageConsumer)
 
 
-##### java.awt.image.IndexColorModel (13/13/⭕️)
+##### java.awt.image.IndexColorModel (13/13/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1919,7 +1919,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | getAlphas()    | (byte[])
 
 
-##### java.awt.image.ImageProducer (5/5/⭕️)
+##### java.awt.image.ImageProducer (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1930,7 +1930,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | requestTopDownLeftRightResend() | (ImageConsumer)
 
 
-##### java.awt.image.ImageObserver (9/9/⭕️)
+##### java.awt.image.ImageObserver (9/9/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1945,7 +1945,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | final field   | ABORT          | int
 
 
-##### java.awt.image.ImageFilter (12/12/⭕️)
+##### java.awt.image.ImageFilter (12/12/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1963,7 +1963,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
 
 
-##### java.awt.image.ImageConsumer (18/18/⭕️)
+##### java.awt.image.ImageConsumer (16/16/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1985,7 +1985,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | imageComplete() | (int)
 
 
-##### java.awt.image.FilteredImageSource (6/6/⭕️)
+##### java.awt.image.FilteredImageSource (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -1997,7 +1997,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | startProduction() | (ImageConsumer)
 
 
-##### java.awt.image.CropImageFilter (5/5/⭕️)
+##### java.awt.image.CropImageFilter (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2008,7 +2008,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setProperties() | (Hashtable)
 
 
-##### java.awt.image.ColorModel (3/3/⭕️)
+##### java.awt.image.ColorModel (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2016,7 +2016,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | static field  | RGBdefault     | ColorModel
 1.0.2   | ✔️          | ⭕️       | static method | getRGBdefault() | ()->ColorModel
 
-##### java.awt.image.DirectColorModel (15/15/⭕️)
+##### java.awt.image.DirectColorModel (15/15/0)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2039,7 +2039,7 @@ version | implemented | tested   | type          | name           | more informa
 #### java.awt.peer
 
 
-##### java.awt.peer.WindowPeer (2/2/⭕️)
+##### java.awt.peer.WindowPeer (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2047,7 +2047,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | toBack()       | ()
 
 
-##### java.awt.peer.TextFieldPeer (3/3/⭕️)
+##### java.awt.peer.TextFieldPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2056,7 +2056,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
 
 
-##### java.awt.peer.TextComponentPeer (6/6/⭕️)
+##### java.awt.peer.TextComponentPeer (6/6/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2068,7 +2068,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | select()       | (int,int)
 
 
-##### java.awt.peer.TextAreaPeer (4/4/⭕️)
+##### java.awt.peer.TextAreaPeer (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2078,7 +2078,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int,int)->Dimension
 
 
-##### java.awt.peer.ScrollbarPeer (4/4/⭕️)
+##### java.awt.peer.ScrollbarPeer (4/4/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2094,7 +2094,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.peer.MenuPeer (3/3/⭕️)
+##### java.awt.peer.MenuPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2103,7 +2103,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | delItem()      | (int)
 
 
-##### java.awt.peer.MenuItemPeer (3/3/⭕️)
+##### java.awt.peer.MenuItemPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2112,14 +2112,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | disable()      | ()
 
 
-##### java.awt.peer.MenuComponentPeer (1/1/⭕️)
+##### java.awt.peer.MenuComponentPeer (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | dispose()      | ()
 
 
-##### java.awt.peer.MenuBarPeer (3/3/⭕️)
+##### java.awt.peer.MenuBarPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2128,7 +2128,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | addHelpMenu()  | (Menu)
 
 
-##### java.awt.peer.ListPeer (10/10/⭕️)
+##### java.awt.peer.ListPeer (10/10/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2144,7 +2144,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | minimumSize()  | (int)->Dimension
 
 
-##### java.awt.peer.LabelPeer (2/2/⭕️)
+##### java.awt.peer.LabelPeer (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2152,7 +2152,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setAlignment() | (int)
 
 
-##### java.awt.peer.FramePeer (5/5/⭕️)
+##### java.awt.peer.FramePeer (5/5/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2163,7 +2163,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setCursor()    | (int)
 
 
-##### java.awt.peer.FileDialogPeer (3/3/⭕️)
+##### java.awt.peer.FileDialogPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2172,7 +2172,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setFilenameFilter() | (FilenameFilter)
 
 
-##### java.awt.peer.DialogPeer (2/2/⭕️)
+##### java.awt.peer.DialogPeer (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2180,14 +2180,14 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setResizable() | (boolean)
 
 
-##### java.awt.peer.ContainerPeer (1/1/⭕️)
+##### java.awt.peer.ContainerPeer (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.0.2   | ✔️          | ⭕️       | method        | insets()       | ()->Insets
 
 
-##### java.awt.peer.ComponentPeer (24/24/⭕️)
+##### java.awt.peer.ComponentPeer (24/24/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2217,7 +2217,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | checkImage()   | (Image,int,int,ImageObserver)
 
 
-##### java.awt.peer.ChoicePeer (2/2/⭕️)
+##### java.awt.peer.ChoicePeer (2/2/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2225,7 +2225,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | select()       | (int)
 
 
-##### java.awt.peer.CheckboxPeer (3/3/⭕️)
+##### java.awt.peer.CheckboxPeer (3/3/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2234,7 +2234,7 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | setLabel()     | (String)
 
 
-##### java.awt.peer.CheckboxMenuItemPeer (1/1/⭕️)
+##### java.awt.peer.CheckboxMenuItemPeer (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -2247,7 +2247,7 @@ version | implemented | tested   | type          | name           | more informa
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 
 
-##### java.awt.peer.ButtonPeer (1/1/⭕️)
+##### java.awt.peer.ButtonPeer (1/1/0)
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
