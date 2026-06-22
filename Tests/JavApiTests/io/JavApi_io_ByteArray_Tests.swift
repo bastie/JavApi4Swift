@@ -308,7 +308,7 @@ struct JavApi_io_ByteArrayOutputStream_Advanced_Tests {
     let stream = java.io.ByteArrayOutputStream()
     try stream.write([72, 101, 108, 108, 111])  // "Hello" in ASCII/UTF-8
     // ASCII: should work fine for this data
-    let result = try stream.toString("UTF-8")
+    let result = stream.toString("UTF-8")
     #expect(result == "Hello")
   }
 

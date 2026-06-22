@@ -168,7 +168,7 @@ extension java.io {
         self.lock?.unlock()
       }
       
-      let newElementsCount = len - offset
+      let newElementsCount = len
       for i in 0..<newElementsCount {
         self.buf[self.count + i] = c[offset + i]
       }
@@ -190,10 +190,10 @@ extension java.io {
       }
       
       if self.count < self.buf.count {
-        self.buf.append(oneChar)
+        self.buf[self.count] = oneChar
       }
       else {
-        self.buf[self.count] = oneChar
+        self.buf.append(oneChar)
       }
       self.count += 1
     }

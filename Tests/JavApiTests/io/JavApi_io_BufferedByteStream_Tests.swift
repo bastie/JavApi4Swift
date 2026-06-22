@@ -13,7 +13,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream reads from underlying stream")
   func testRead() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     #expect(try buffered.read() == 1)
     #expect(try buffered.read() == 2)
@@ -23,7 +23,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.read(buffer) reads into buffer")
   func testReadBuffer() throws {
     let underlying = java.io.ByteArrayInputStream([10, 20, 30, 40, 50])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     var buf = [UInt8](repeating: 0, count: 3)
     let read = try buffered.read(&buf)
@@ -34,7 +34,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream with custom buffer size")
   func testCustomBufferSize() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5, 6, 7, 8])
-    let buffered = try java.io.BufferedInputStream(underlying, 2)
+    let buffered = java.io.BufferedInputStream(underlying, 2)
 
     // Should work despite small buffer
     #expect(try buffered.read() == 1)
@@ -45,7 +45,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.available() returns bytes available")
   func testAvailable() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     let available = try buffered.available()
     #expect(available > 0)
@@ -57,7 +57,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.skip() skips bytes in buffer")
   func testSkip() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     let skipped = try buffered.skip(2)
     #expect(skipped >= 2) // May skip more due to buffering
@@ -67,11 +67,11 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.mark() and reset() work correctly")
   func testMarkReset() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     _ = try buffered.read() // 1
     _ = try buffered.read() // 2
-    try buffered.mark(100)
+    buffered.mark(100)
     _ = try buffered.read() // 3
     _ = try buffered.read() // 4
     try buffered.reset()
@@ -81,14 +81,14 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.markSupported() returns true")
   func testMarkSupported() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
     #expect(buffered.markSupported())
   }
 
   @Test("BufferedInputStream EOF returns -1")
   func testEOF() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     _ = try buffered.read()
     _ = try buffered.read()
@@ -98,7 +98,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream.close() closes underlying stream")
   func testClose() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     _ = try buffered.read()
     try buffered.close()
@@ -112,7 +112,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   func testLargeRead() throws {
     let data = (0..<1000).map { UInt8($0 % 256) }
     let underlying = java.io.ByteArrayInputStream(data)
-    let buffered = try java.io.BufferedInputStream(underlying, 256)
+    let buffered = java.io.BufferedInputStream(underlying, 256)
 
     var buf = [UInt8](repeating: 0, count: 500)
     let read = try buffered.read(&buf)
@@ -123,18 +123,18 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream multiple mark/reset cycles")
   func testMultipleMarkReset() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     // First cycle
     _ = try buffered.read() // 1
-    try buffered.mark(100)
+    buffered.mark(100)
     _ = try buffered.read() // 2
     try buffered.reset()
     #expect(try buffered.read() == 2)
 
     // Second cycle
     _ = try buffered.read() // 3
-    try buffered.mark(100)
+    buffered.mark(100)
     _ = try buffered.read() // 4
     try buffered.reset()
     #expect(try buffered.read() == 4)
@@ -143,7 +143,7 @@ struct JavApi_io_BufferedInputStream_Tests {
   @Test("BufferedInputStream with empty underlying stream")
   func testEmptyStream() throws {
     let underlying = java.io.ByteArrayInputStream([])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     #expect(try buffered.read() == -1)
     #expect(try buffered.available() == 0)
@@ -283,7 +283,7 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
   func testBufferedInput() throws {
     let data = (0..<100).map { UInt8($0 % 256) }
     let underlying = java.io.ByteArrayInputStream(data)
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     var buf = [UInt8](repeating: 0, count: 100)
     let read = try buffered.read(&buf)
@@ -307,11 +307,11 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
   func testChainedBuffering() throws {
     let data: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     let underlying = java.io.ByteArrayInputStream(data)
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     _ = try buffered.read()
     _ = try buffered.read()
-    try buffered.mark(100)
+    buffered.mark(100)
     _ = try buffered.read()
     try buffered.reset()
 
@@ -329,7 +329,7 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
 
     // Read
     let underlying = java.io.ByteArrayInputStream(out.toByteArray())
-    let bufferedIn = try java.io.BufferedInputStream(underlying)
+    let bufferedIn = java.io.BufferedInputStream(underlying)
     var readData = [UInt8](repeating: 0, count: 50)
     _ = try bufferedIn.read(&readData)
 
@@ -339,12 +339,12 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
   @Test("Buffered stream with mark/reset and writes")
   func testBufferedMarkResetWithWrites() throws {
     let underlying = java.io.ByteArrayInputStream([1, 2, 3, 4, 5] as [UInt8])
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     _ = try buffered.read() // 1
-    try buffered.mark(100)
-    let b1 = try buffered.read() // 2
-    let b2 = try buffered.read() // 3
+    buffered.mark(100)
+    _ = try buffered.read() // 2
+    _ = try buffered.read() // 3
     try buffered.reset()
 
     #expect(try buffered.read() == 2)
@@ -354,8 +354,8 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
   @Test("Multiple buffered input streams reading same source independently")
   func testMultipleBufferedInputs() throws {
     let data: [UInt8] = [1, 2, 3, 4, 5]
-    let in1 = try java.io.BufferedInputStream(java.io.ByteArrayInputStream(data))
-    let in2 = try java.io.BufferedInputStream(java.io.ByteArrayInputStream(data))
+    let in1 = java.io.BufferedInputStream(java.io.ByteArrayInputStream(data))
+    let in2 = java.io.BufferedInputStream(java.io.ByteArrayInputStream(data))
 
     #expect(try in1.read() == 1)
     #expect(try in2.read() == 1)
@@ -375,7 +375,7 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
 
     // Read buffered
     let underlying = java.io.ByteArrayInputStream(out.toByteArray())
-    let bufferedIn = try java.io.BufferedInputStream(underlying, 4096)
+    let bufferedIn = java.io.BufferedInputStream(underlying, 4096)
     var readData = [UInt8](repeating: 0, count: 10000)
     _ = try bufferedIn.read(&readData)
 
@@ -386,7 +386,7 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
   func testBufferedSkip() throws {
     let data: [UInt8] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
     let underlying = java.io.ByteArrayInputStream(data)
-    let buffered = try java.io.BufferedInputStream(underlying)
+    let buffered = java.io.BufferedInputStream(underlying)
 
     let skipped = try buffered.skip(5)
     #expect(skipped >= 5)
@@ -405,10 +405,10 @@ struct JavApi_io_BufferedByteStream_Integration_Tests {
 
     // Step 2: Buffered read
     let underlying = java.io.ByteArrayInputStream(out.toByteArray())
-    let bufferedIn = try java.io.BufferedInputStream(underlying, 5)
+    let bufferedIn = java.io.BufferedInputStream(underlying, 5)
     let b1 = try bufferedIn.read()
     let b2 = try bufferedIn.read()
-    try bufferedIn.mark(100)
+    bufferedIn.mark(100)
     let b3 = try bufferedIn.read()
     try bufferedIn.reset()
     let b3again = try bufferedIn.read()

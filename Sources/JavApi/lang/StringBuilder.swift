@@ -16,8 +16,8 @@ public class StringBuilder {
   }
   
   // TODO: Test it
-  public init (_ newContent : any CharSequence) {
-    self.content = "\(newContent)"
+  public init<CS: JavApi.CharSequence> (_ newContent : CS) {
+    self.content = newContent.toString()
   }
   
   /// Append a String type

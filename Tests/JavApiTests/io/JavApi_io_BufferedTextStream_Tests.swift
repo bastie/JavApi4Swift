@@ -165,7 +165,7 @@ struct JavApi_io_BufferedReader_Tests {
     let content = lines.joined(separator: "\n")
     let reader = java.io.BufferedReader(java.io.StringReader(content))
 
-    for (index, expected) in lines.enumerated() {
+    for (_, expected) in lines.enumerated() {
       let line = try reader.readLine()
       #expect(line == expected)
     }
