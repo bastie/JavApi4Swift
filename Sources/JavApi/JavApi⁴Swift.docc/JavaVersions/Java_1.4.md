@@ -22,6 +22,18 @@ Java 1.4 introduced NIO (non-blocking I/O), logging (`java.util.logging`), asser
 
 ## Java Core Packages
 
+### java.net — Java 1.4 additions
+
+##### java.net.URLEncoder — encode(String, String) (1/1/⭕️)
+
+> **Note:** `URLEncoder.encode(String, String)` with explicit charset name was added in Java 1.4.
+> The single-argument `encode(String)` (Java 1.0) was simultaneously deprecated.
+> Both are implemented in `net/URLEncoder.swift`.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.4     | ✔️          | ⭕️       | static method | encode()       | (String, String) throws — charset-aware; replaces deprecated encode(String)
+
 ### java.lang
 
 #### java.lang.Runtime — Java 1.4 additions

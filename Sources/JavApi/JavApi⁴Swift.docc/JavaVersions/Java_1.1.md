@@ -957,27 +957,53 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.net — 1.1 additions
 
-### java.awt.image — 1.1 additions
+##### java.net.BindException / ConnectException / NoRouteToHostException (3/3/⭕️)
 
-##### java.awt.image.ReplicateScaleFilter / AreaAveragingScaleFilter (2/2/⭕️)
-
-> **Note:**
-> - `ReplicateScaleFilter` (`awt/image/ReplicateScaleFilter.swift`) — nearest-
->   neighbour scaling. Constructor takes `(width, height)`, `-1` for either
->   dimension derives it from the aspect ratio. Builds row/column mapping tables
->   in `setDimensions` and rescales both byte- and int-pixel variants.
-> - `AreaAveragingScaleFilter` (`awt/image/AreaAveragingScaleFilter.swift`) —
->   extends `ReplicateScaleFilter`. Accumulates the full source image in
->   `setPixels`, then in `imageComplete` either applies a weighted area-average
->   (downscaling) or falls back to nearest-neighbour (upscaling). Both classes
->   implement `makeInstance()` for `getFilterInstance` compatibility.
+> **Note:** All three are new `IOException` subclasses added in Java 1.1.
+> Implemented in `net/BindException.swift`, `net/ConnectException.swift`,
+> `net/NoRouteToHostException.swift`. Each provides the standard two-constructor
+> pattern (no-arg + message).
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.1     | ✔️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
-1.1     | ✔️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
+1.1     | ✔️          | ⭕️       | class         | BindException           | extends SocketException; address already in use
+1.1     | ✔️          | ⭕️       | class         | ConnectException        | extends SocketException; connection refused
+1.1     | ✔️          | ⭕️       | class         | NoRouteToHostException  | extends SocketException; no route to host
 
-##### java.net.URLEncoder.encode(String,String) — already tracked above ✔️
+##### java.net.DatagramPacket — 1.1 additions (4/4/⭕️)
+
+> **Note:** Java 1.1 added setter methods to `DatagramPacket` (previously read-only).
+> All implemented in `net/DatagramPacket.swift`.
+
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.1     | ✔️          | ⭕️       | method        | setAddress()   | (InetAddress)
+1.1     | ✔️          | ⭕️       | method        | setData()      | (byte[])
+1.1     | ✔️          | ⭕️       | method        | setLength()    | (int)
+1.1     | ✔️          | ⭕️       | method        | setPort()      | (int)
+
+##### java.net.DatagramSocket — 1.1 additions (3/0/⭕️)
+
+> **Note:** Java 1.1 added a new constructor and socket-option accessors.
+> Implemented in `net/DatagramSocket.swift`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ✔️          | ⭕️       | constructor   | DatagramSocket()        | (int port, InetAddress laddr)
+1.1     | ✔️          | ⭕️       | method        | getSoTimeout()          | ()->int
+1.1     | ✔️          | ⭕️       | method        | setSoTimeout()          | (int)
+1.1     | ⭕️          | ⭕️       | method        | getLocalAddress()       | ()->InetAddress — not yet implemented
+
+##### java.net.URLConnection — 1.1 additions (0/0/⭕️)
+
+> **Note:** `getFileNameMap()` and `setFileNameMap()` were added to `URLConnection`
+> in Java 1.1. `FileNameMap` (the interface) is implemented; the `URLConnection`
+> accessors are not yet wired up.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | static method | getFileNameMap()        | ()->FileNameMap
+1.1     | ⭕️          | ⭕️       | static method | setFileNameMap()        | (FileNameMap)
 
 ##### java.net.DatagramSocketImpl (9/0/⭕️)
 
@@ -1036,6 +1062,59 @@ version | implemented | tested   | type          | name           | more informa
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
 1.1     | ✔️          | 🪄       | method        | getContentTypeFor() | (String)->String? — interface
+
+### java.awt.image — 1.1 additions
+
+##### java.awt.image.ReplicateScaleFilter / AreaAveragingScaleFilter (2/2/⭕️)
+
+> **Note:**
+> - `ReplicateScaleFilter` (`awt/image/ReplicateScaleFilter.swift`) — nearest-
+>   neighbour scaling. Constructor takes `(width, height)`, `-1` for either
+>   dimension derives it from the aspect ratio. Builds row/column mapping tables
+>   in `setDimensions` and rescales both byte- and int-pixel variants.
+> - `AreaAveragingScaleFilter` (`awt/image/AreaAveragingScaleFilter.swift`) —
+>   extends `ReplicateScaleFilter`. Accumulates the full source image in
+>   `setPixels`, then in `imageComplete` either applies a weighted area-average
+>   (downscaling) or falls back to nearest-neighbour (upscaling). Both classes
+>   implement `makeInstance()` for `getFilterInstance` compatibility.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.1     | ✔️          | ⭕️       | class         | ReplicateScaleFilter    | extends ImageFilter; nearest-neighbour image scaling
+1.1     | ✔️          | ⭕️       | class         | AreaAveragingScaleFilter| extends ReplicateScaleFilter; area-averaging image scaling
+
+##### java.awt.image.MemoryImageSource — 1.1 additions (0/0/⭕️)
+
+> **Note:** Java 1.1 added animation support to `MemoryImageSource` via
+> `setAnimated()`, `setFullBufferUpdates()`, and several `newPixels()` overloads.
+> **These are not yet implemented** — `MemoryImageSource.swift` only contains the
+> Java 1.0 constructors and static producer methods.
+
+version | implemented | tested   | type          | name                       | more informations
+------- | ----------- | -------- | ------------- | -------------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | method        | setAnimated()              | (boolean) — enables animation mode
+1.1     | ⭕️          | ⭕️       | method        | setFullBufferUpdates()     | (boolean)
+1.1     | ⭕️          | ⭕️       | method        | newPixels()                | () — push full frame to consumers
+1.1     | ⭕️          | ⭕️       | method        | newPixels()                | (int,int,int,int) — push sub-region
+1.1     | ⭕️          | ⭕️       | method        | newPixels()                | (int,int,int,int,boolean)
+1.1     | ⭕️          | ⭕️       | method        | newPixels()                | (byte[],ColorModel,int,int)
+1.1     | ⭕️          | ⭕️       | method        | newPixels()                | (int[],ColorModel,int,int)
+
+##### java.awt.image.PixelGrabber — 1.1 additions (0/0/⭕️)
+
+> **Note:** Java 1.1 added a new convenience constructor and several accessor /
+> control methods to `PixelGrabber`. **Not yet implemented** in
+> `awt/image/PixelGrabber.swift` — only the Java 1.0 constructors and
+> `grabPixels()` / `getPixels()` / `status()` are present.
+
+version | implemented | tested   | type          | name                       | more informations
+------- | ----------- | -------- | ------------- | -------------------------- | -----------------
+1.1     | ⭕️          | ⭕️       | constructor   | PixelGrabber()             | (Image,int,int,int,int,boolean) — convenience; allocates pixel array internally
+1.1     | ⭕️          | ⭕️       | method        | abortGrabbing()            | ()
+1.1     | ⭕️          | ⭕️       | method        | startGrabbing()            | ()
+1.1     | ⭕️          | ⭕️       | method        | getColorModel()            | ()->ColorModel?
+1.1     | ⭕️          | ⭕️       | method        | getHeight()                | ()->int
+1.1     | ⭕️          | ⭕️       | method        | getWidth()                 | ()->int
 
 ### java.util — Internationalization additions in 1.1 (continued)
 
@@ -2095,10 +2174,10 @@ version | implemented | tested   | type          | name                  | more 
 | **java.util.zip** | ✔️ complete | Checksum, CRC32, Adler32, Deflater, Inflater, GZIP, ZIP streams, `ZipFile` (random-access read), `CheckedInputStream`, `CheckedOutputStream` |
 | **java.awt.event** | ✔️ complete | all listeners, events and adapter classes; `PaintEvent` added; `MouseAdapter` (MouseListener only) and `MouseMotionAdapter` (MouseMotionListener only) are separate classes — matching Java 1.1 exactly |
 | **java.awt** (1.1 additions) | ✔️ complete | `AWTEventMulticaster`, `EventQueue`, `Shape`, `IllegalComponentStateException` implemented; all 1.1 types present |
-| **java.awt.image** (1.1 additions) | ✔️ complete | `ReplicateScaleFilter` (nearest-neighbour), `AreaAveragingScaleFilter` (area-averaging) implemented |
+| **java.awt.image** (1.1 additions) | ⭕️ partial | `ReplicateScaleFilter`, `AreaAveragingScaleFilter` implemented; `MemoryImageSource` animation methods (`newPixels`, `setAnimated`, `setFullBufferUpdates`) and `PixelGrabber` 1.1 additions (`abortGrabbing`, `startGrabbing`, `getColorModel`, `getHeight`, `getWidth`, new constructor) not yet implemented |
 | **java.awt printing** | ✔️ stub | `PrintJob` + `Toolkit.getPrintJob()` present; base returns defaults, platform backend overrides |
 | **java.util** (i18n) | ✔️ | Locale, TimeZone, SimpleTimeZone, ResourceBundle, Calendar |
-| **java.net** | ✔️ | URLConnection, HttpURLConnection, DatagramSocket, DatagramSocketImpl (abstract stub), MulticastSocket (Darwin/Linux/Windows via Winsock2); WASI only: joinGroup/leaveGroup throw |
+| **java.net** | ⭕️ mostly complete | `BindException`, `ConnectException`, `NoRouteToHostException`, `DatagramPacket` setters, `DatagramSocket(int,InetAddress)`, `getSoTimeout`/`setSoTimeout` implemented; `DatagramSocket.getLocalAddress()` and `URLConnection.getFileNameMap()/setFileNameMap()` not yet implemented |
 | **java.security** | ✔️ complete | MessageDigest, SecureRandom, Principal, Key/PublicKey/PrivateKey, Provider, DigestInputStream, DigestOutputStream, KeyPair, KeyPairGenerator, Signature, Security; `acl` fully implemented (deprecated since Java 17, removed Java 24) |
 | **java.security.interfaces** | ✔️ complete | DSAParams, DSAKey, DSAPublicKey, DSAPrivateKey, DSAKeyPairGenerator — all pure protocols |
 | **java.beans** | ✔️ | PropertyChange + VetoableChange fully implemented; `IntrospectionException`, `Visibility`, `FeatureDescriptor`, `Beans` (env queries), `Customizer`, `PropertyEditor`, `PropertyEditorSupport` added; reflection-based introspection not ported |
@@ -2111,11 +2190,24 @@ version | implemented | tested   | type          | name                  | more 
 
 ## What is still needed for full Java 1.1 compatibility
 
-All in-scope APIs are now implemented. Verified against the actual source tree
-and javaalmanac.io (June 2026).
+Verified against the actual source tree and javaalmanac.io (June 2026).
+The following items are in-scope for Java 1.1 but not yet implemented:
+
+### java.awt.image — animation API (medium effort)
+
+- `MemoryImageSource.setAnimated(boolean)`, `setFullBufferUpdates(boolean)`, and five `newPixels()` overloads — needed for animated AWT images.
+- `PixelGrabber(Image,int,int,int,int,boolean)` convenience constructor, `abortGrabbing()`, `startGrabbing()`, `getColorModel()`, `getHeight()`, `getWidth()`.
+
+### java.net — minor gaps
+
+- `DatagramSocket.getLocalAddress()` — returns the local address the socket is bound to.
+- `URLConnection.getFileNameMap()` / `URLConnection.setFileNameMap(FileNameMap)` — the `FileNameMap` interface is present; the accessors on `URLConnection` are not yet wired up.
 
 ### java.net.DatagramSocketImpl — design note
 The abstract stub is implemented. `DatagramSocket` uses its own POSIX file descriptor directly rather than delegating to a `DatagramSocketImpl` subclass — this is a deliberate JavApi4Swift design decision, not a missing public API.
+
+### Version note: URLEncoder.encode(String, String)
+> **Correction:** `URLEncoder.encode(String, String)` is a **Java 1.4** addition, not Java 1.1. Java 1.1 only defined the single-argument `encode(String)`. The two-argument form is implemented (see `net/URLEncoder.swift`) and tracked in `Java_1.4.md`. The entry in `Java_1.0.md` incorrectly listed it as version 1.1.
 
 ---
 

@@ -935,12 +935,13 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ⭕️       | method        | parseURL()     | (URL,String,int,int)
 
 
-##### java.net.URLEncoder (2/2/⭕️)
+##### java.net.URLEncoder (1/1/⭕️)
+
+> **Note:** `encode(String, String)` is a **Java 1.4** addition (not 1.1) — tracked in `Java_1.4.md`.
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | static method | encode()       | (String)->String
-1.1     | ✔️          | ⭕️       | static method | encode()       | (String,String)->String
+1.0.2   | ✔️          | ⭕️       | static method | encode()       | (String)->String — @deprecated since Java 1.4, use encode(String,String) instead
 
 
 ##### java.net.URLConnection (17/17/⭕️)
