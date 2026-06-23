@@ -30,16 +30,16 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     /// open mode
-    public static let LOAD = 0
+    public static let LOAD = FileDialogMode.LOAD.rawValue
     /// save mode
-    public static let SAVE = 1
+    public static let SAVE = FileDialogMode.SAVE.rawValue
 
     // -------------------------------------------------------------------------
     // MARK: Eigenschaften
     // -------------------------------------------------------------------------
 
     /// the mode `LOAD` or `SAVE`.
-    internal private(set) var mode: FileDialogMode
+    internal var mode: FileDialogMode
 
     /// Verzeichnis, das beim Öffnen angezeigt wird.
     /// Nach `setVisible(true)` enthält es das Verzeichnis der gewählten Datei.
@@ -58,10 +58,10 @@ extension java.awt {
     // -------------------------------------------------------------------------
 
     public init(_ parent: Frame?, _ title: String = "", _ mode: Int = FileDialog.LOAD) throws (IllegalArgumentException) {
-      guard mode == FileDialog.LOAD || mode == FileDialog.SAVE else {
+      guard nil != FileDialogMode(rawValue: mode) else {
         throw IllegalArgumentException("illegal file dialog mode: \(mode)")
       }
-      self.mode = FileDialogMode(rawValue: mode) ?? .LOAD
+      self.mode = FileDialogMode(rawValue: mode)! // thx guard, ! is save
       super.init(parent, title, true)   // FileDialog ist laut Java-Spec immer modal
     }
 
@@ -85,12 +85,18 @@ extension java.awt {
     public func setFile(_ f: String?)        {
       file = f
     }
-    public func setMode(_ m: Int)            {
-      mode = FileDialogMode(rawValue: m) ?? .LOAD
+    
+    /// Set the mode of FileDialog
+    /// - Parameter mode: mode `SAVE` or `LOAD`
+    public func setMode(_ mode: Int) throws {
+      guard nil != FileDialogMode(rawValue: mode) else {
+        throw IllegalArgumentException("illegal file dialog mode: \(mode)")
+      }
+      self.mode = FileDialogMode(rawValue: mode)! // thx guard, ! is save
     }
 
     /// Delegates working to platform native implementiation
-    /// - Seealso: FileDialogProvider for native implementation
+    /// - SeeAlso: FileDialogProvider for native implementation
     open override func setVisible(_ visible: Bool) {
       guard visible else { return }
       _setToolkitVisible()
