@@ -164,7 +164,7 @@ extension java.util.zip {
     /// - Returns CRC-32 table
     public static func getCRC32Table() -> [Int]{
       var target : [Int] = Array (repeating: 0, count: crc_table.length)
-      System.arraycopy(crc_table, 0, &target, 0, target.length);
+      try! System.arraycopy(crc_table, 0, &target, 0, target.length);
       return target
     }
   }

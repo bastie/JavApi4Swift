@@ -53,7 +53,7 @@ extension java.math {
       var modules = [Int](repeating: 0, count: primes.count)
       var isDivisible = [Bool](repeating: false, count: gapSize)
       let startPoint = BigInteger(1, n.numberLength, [Int](repeating: 0, count: n.numberLength + 1))
-      System.arraycopy(n.digits, 0, &startPoint.digits, 0, n.numberLength)
+      try! System.arraycopy(n.digits, 0, &startPoint.digits, 0, n.numberLength)
       if try n.testBit(0) {
         _Elementary.inplaceAdd(startPoint, 2)
       }

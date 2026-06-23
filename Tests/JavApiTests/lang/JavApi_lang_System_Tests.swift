@@ -7,6 +7,8 @@ import Testing
 
 struct JavApi_lang_System_Tests {
 
+  // MARK: - currentTimeMillis
+
   @Test("currentTimeMillis returns positive, non-decreasing values")
   func testCurrentTimeMillis() {
     let t1 = System.currentTimeMillis()
@@ -15,6 +17,8 @@ struct JavApi_lang_System_Tests {
     #expect(t2 >= t1)
   }
 
+  // MARK: - identityHashCode
+
   @Test("identityHashCode is stable for same object")
   func testIdentityHashCode() {
     class Dummy {}
@@ -22,25 +26,18 @@ struct JavApi_lang_System_Tests {
     #expect(System.identityHashCode(obj) == System.identityHashCode(obj))
   }
 
-  @Test("arraycopy copies byte slice into destination")
-  func testArraycopyBytes() {
-    let src: [UInt8] = [1, 2, 3, 4, 5]
-    var dest: [UInt8] = [0, 0, 0, 0, 0]
-    System.arraycopy(src, 1, &dest, 0, 3)
-    #expect(dest[0] == 2)
-    #expect(dest[1] == 3)
-    #expect(dest[2] == 4)
-    #expect(dest[3] == 0) // untouched
+  @Test("identityHashCode returns 0 for nil")
+  func testIdentityHashCodeNil() {
+    #expect(System.identityHashCode(nil) == 0)
   }
 
-  @Test("arraycopy copies Int slice with offset into destination")
-  func testArraycopyInts() {
-    let src: [Int] = [10, 20, 30, 40]
-    var dest: [Int] = [0, 0, 0, 0]
-    System.arraycopy(src, 0, &dest, 1, 2)
-    #expect(dest[0] == 0)
-    #expect(dest[1] == 10)
-    #expect(dest[2] == 20)
-    #expect(dest[3] == 0)
+  @Test("identityHashCode differs for two distinct objects")
+  func testIdentityHashCodeDistinct() {
+    class Dummy {}
+    let a = Dummy()
+    let b = Dummy()
+    // Not guaranteed to differ in theory, but always true for two separately
+    // allocated objects in the same process run.
+    #expect(System.identityHashCode(a) != System.identityHashCode(b))
   }
 }

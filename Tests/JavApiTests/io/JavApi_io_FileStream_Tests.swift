@@ -18,7 +18,7 @@ struct JavApi_io_FileInputStream_Tests {
     if let data = content {
       try Data(data).write(to: URL(fileURLWithPath: path))
     } else {
-      FileManager.default.createFile(atPath: path, contents: nil)
+      _ = FileManager.default.createFile(atPath: path, contents: nil)
     }
     return path
   }

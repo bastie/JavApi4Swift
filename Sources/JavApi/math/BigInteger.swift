@@ -571,7 +571,7 @@ extension java.math {
 
     func copy() -> BigInteger {
       var copyDigits = [Int](repeating: 0, count: numberLength)
-      System.arraycopy(digits, 0, &copyDigits, 0, numberLength)
+      try! System.arraycopy(digits, 0, &copyDigits, 0, numberLength)
       return BigInteger(sign, numberLength, copyDigits)
     }
 

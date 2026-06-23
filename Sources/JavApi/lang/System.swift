@@ -6,68 +6,137 @@
 import Foundation
 
 public struct System {
-  // FIXME: create a generic function
-  /*
-   src − This is the source array.
-   srcPos − This is the starting position in the source array.
-   dest − This is the destination array.
-   destPos − This is the starting position in the destination data.
-   length − This is the number of array elements to be copied.
-   */
-  public static func arraycopy (_ src : [UInt8]?, _ srcPos : Int, _ dest : inout [UInt8]? , _ destPos : Int, _ length : Int) {
-    if let src {
-      if var dest {
-        for offset in 0..<length {
-          dest [destPos+offset] = src [srcPos+offset]
-        }
-      }
+
+  // MARK: - arraycopy
+  //
+  // Java signature: System.arraycopy(src, srcPos, dest, destPos, length)
+  //
+  // Swift arrays are value types: assigning an array to a new variable produces
+  // an independent copy (copy-on-write). The `inout` parameter keyword is the
+  // correct way to write back into the caller's array — no loops needed.
+  //
+  // Overlapping copies (src === dest with offset) are not supported: Swift's
+  // exclusive-access rules forbid passing the same variable as both a read and
+  // an inout argument. This matches Java's undefined-behaviour note for
+  // overlapping System.arraycopy on the same array object when src == dest in
+  // practice uses memmove, but callers in this codebase never overlap.
+  //
+  // Bounds violations throw ArrayIndexOutOfBoundsException, matching Java.
+
+  /// Validates indices before a copy and throws `ArrayIndexOutOfBoundsException`
+  /// with a descriptive message if any bound is invalid.
+  private static func checkBounds(
+    srcCount: Int, srcPos: Int,
+    destCount: Int, destPos: Int,
+    length: Int
+  ) throws {
+    guard length >= 0 else {
+      throw ArrayIndexOutOfBoundsException("arraycopy: length \(length) is negative")
+    }
+    guard srcPos >= 0 else {
+      throw ArrayIndexOutOfBoundsException("arraycopy: srcPos \(srcPos) is negative")
+    }
+    guard destPos >= 0 else {
+      throw ArrayIndexOutOfBoundsException("arraycopy: destPos \(destPos) is negative")
+    }
+    guard srcPos + length <= srcCount else {
+      throw ArrayIndexOutOfBoundsException(
+        "arraycopy: src range [\(srcPos)..<\(srcPos+length)] out of bounds for length \(srcCount)")
+    }
+    guard destPos + length <= destCount else {
+      throw ArrayIndexOutOfBoundsException(
+        "arraycopy: dest range [\(destPos)..<\(destPos+length)] out of bounds for length \(destCount)")
     }
   }
-  public static func arraycopy (_ src : [UInt8], _ srcPos : Int, _ dest : inout [UInt8] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = src [srcPos+offset]
+
+  /// Generic same-type copy — covers `[UInt8]`, `[Int]`, `[Int16]`, `[UInt16]`,
+  /// `[Character]` and any future element type in one implementation.
+  ///
+  /// Uses `replaceSubrange` which maps to a single optimised buffer operation
+  /// (equivalent to `memmove` for trivial types) instead of an element-by-element loop.
+  ///
+  /// - Throws: `ArrayIndexOutOfBoundsException` on invalid indices or length.
+  public static func arraycopy<T>(
+    _ src: [T], _ srcPos: Int,
+    _ dest: inout [T], _ destPos: Int,
+    _ length: Int
+  ) throws {
+    try checkBounds(
+      srcCount: src.count, srcPos: srcPos,
+      destCount: dest.count, destPos: destPos,
+      length: length)
+    dest.replaceSubrange(
+      destPos ..< destPos + length,
+      with: src[srcPos ..< srcPos + length])
+  }
+
+  /// Optional-dest convenience overload: unwraps `dest` and delegates to the
+  /// generic `inout [T]` overload. Throws `NullPointerException` when `dest` is nil.
+  ///
+  /// - Throws: `NullPointerException` if `dest` is nil;
+  ///           `ArrayIndexOutOfBoundsException` on invalid indices.
+  public static func arraycopy<T>(
+    _ src: [T], _ srcPos: Int,
+    _ dest: inout [T]?, _ destPos: Int,
+    _ length: Int
+  ) throws {
+    guard dest != nil else {
+      throw NullPointerException("arraycopy: dest is null")
     }
+    try arraycopy(src, srcPos, &dest!, destPos, length)
   }
-  public static func arraycopy (_ src : [UInt8], _ srcPos : Int, _ dest : inout [Int] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = Int(src [srcPos+offset])
+
+  // MARK: - Type-converting overloads
+  //
+  // These exist because Java arrays are covariant and allow copies between
+  // compatible numeric types (e.g. short[] → byte[]). Swift generics cannot
+  // express this, so explicit overloads are needed.
+
+  /// Copies `[Int16]` into `[UInt8]` via truncating cast — mirrors Java
+  /// `System.arraycopy(short[], …, byte[], …)`.
+  ///
+  /// - Throws: `ArrayIndexOutOfBoundsException` on invalid indices.
+  public static func arraycopy(
+    _ src: [Int16], _ srcPos: Int,
+    _ dest: inout [UInt8], _ destPos: Int,
+    _ length: Int
+  ) throws {
+    try checkBounds(
+      srcCount: src.count, srcPos: srcPos,
+      destCount: dest.count, destPos: destPos,
+      length: length)
+    dest.replaceSubrange(
+      destPos ..< destPos + length,
+      with: src[srcPos ..< srcPos + length].map { UInt8(truncatingIfNeeded: $0) })
+  }
+
+  /// Optional-dest variant of the `[Int16] → [UInt8]` converting overload.
+  public static func arraycopy(
+    _ src: [Int16], _ srcPos: Int,
+    _ dest: inout [UInt8]?, _ destPos: Int,
+    _ length: Int
+  ) throws {
+    guard dest != nil else {
+      throw NullPointerException("arraycopy: dest is null")
     }
+    try arraycopy(src, srcPos, &dest!, destPos, length)
   }
-  public static func arraycopy (_ src : [UInt16], _ srcPos : Int, _ dest : inout [UInt16] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = src [srcPos+offset]
-    }
-  }
-  public static func arraycopy (_ src : [Int16], _ srcPos : Int, _ dest : inout [Int16] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = src [srcPos+offset]
-    }
-  }
-  
-  
-  public static func arraycopy (_ src : [Int], _ srcPos : Int, _ dest : inout [Int] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = src [srcPos+offset]
-    }
-  }
-  
-  public static func arraycopy (_ src : [UInt16], _ srcPos : Int, _ dest : inout [UInt16]? , _ destPos : Int, _ length : Int) {
-    System.arraycopy(src, srcPos, &dest!, destPos, length)
-  }
-  
-  public static func arraycopy (_ src : [Int16], _ srcPos : Int, _ dest : inout [UInt8]? , _ destPos : Int, _ length : Int) {
-    System.arraycopy(src, srcPos, &dest!, destPos, length)
-  }
-  
-  public static func arraycopy (_ src : [Int16], _ srcPos : Int, _ dest : inout [UInt8] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = UInt8(src [srcPos+offset])
-    }
-  }
-  public static func arraycopy (_ src : [Character], _ srcPos : Int, _ dest : inout [Character] , _ destPos : Int, _ length : Int) {
-    for offset in 0..<length {
-      dest [destPos+offset] = src [srcPos+offset]
-    }
+
+  /// Copies `[UInt8]` into `[Int]` — mirrors Java widening `byte[] → int[]`.
+  ///
+  /// - Throws: `ArrayIndexOutOfBoundsException` on invalid indices.
+  public static func arraycopy(
+    _ src: [UInt8], _ srcPos: Int,
+    _ dest: inout [Int], _ destPos: Int,
+    _ length: Int
+  ) throws {
+    try checkBounds(
+      srcCount: src.count, srcPos: srcPos,
+      destCount: dest.count, destPos: destPos,
+      length: length)
+    dest.replaceSubrange(
+      destPos ..< destPos + length,
+      with: src[srcPos ..< srcPos + length].map { Int($0) })
   }
   
   /// Return the current time in milliseconds

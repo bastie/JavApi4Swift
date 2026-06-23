@@ -129,7 +129,7 @@ extension java.io {
       }
 
       // the length is always less than (buf.count - count) here so arraycopy is safe
-      System.arraycopy(buffer, offset, &buf, count, length)
+      try System.arraycopy(buffer, offset, &buf, count, length)
       count += length
     }
     
