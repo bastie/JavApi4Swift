@@ -173,11 +173,36 @@ extension java.net {
 
     // MARK: - connect
 
+    /// The HTTP method to use for the request. Overridden by `HttpURLConnection`
+    /// to honour `setRequestMethod(_:)`. The base class derives it from `doOutput`.
+    internal var effectiveRequestMethod: String {
+      return doOutput ? "POST" : "GET"
+    }
+
     /// Opens a connection to the resource referenced by this URL.
     ///
-    /// Performs a synchronous HTTP GET (or HEAD) request using `URLSession`.
-    /// Must be called before ``getInputStream()``, ``getContentLength()``, or
-    /// ``getHeaderField(_:)``.
+    /// Performs a synchronous HTTP request and stores the response body and
+    /// headers. Must be called before ``getInputStream()``,
+    /// ``getContentLength()``, or ``getHeaderField(_:)``.
+    ///
+    /// - Platform note: On Apple platforms the request is performed with
+    ///   `Foundation.URLSession`. On Linux `URLSession` is **not** used here:
+    ///   swift-corelibs-foundation's libcurl-backed `URLSession` has a known
+    ///   bug where the internal `_MultiHandle` tears down its socket
+    ///   `DispatchSource` before the cancellation handler runs, leaving a
+    ///   non-zero retain count and aborting the process (signal 6). See
+    ///   swift-corelibs-foundation issue #4791. To avoid that crash we shell
+    ///   out to the synchronous `curl` command-line tool on Linux, which does
+    ///   not exercise the broken `_MultiHandle` teardown path.
+    ///
+    /// - FIXME: Remove the Linux-only `curl` workaround (the `#elseif os(Linux)`
+    ///   branch here plus `connectViaCurl()` and its helpers) and let Linux use
+    ///   the regular `URLSession` path once swift-corelibs-foundation issue
+    ///   #4791 (`_MultiHandle` deallocated with non-zero retain count) is fixed
+    ///   by Apple. Also drop the `#elseif os(Linux)` branches in
+    ///   `headerValue(_:)` and `getResponseCode()`, the Linux override in
+    ///   `HttpURLConnection.swift`, and the `_linuxStatusCode` / `_linuxHeaders`
+    ///   storage once the upstream fix is available.
     ///
     /// - Throws: `java.io.IOException` if the connection fails.
     /// - Since: Java 1.0
@@ -185,6 +210,9 @@ extension java.net {
       guard !connected else { return }
 #if os(WASI)
       throw java.io.IOException("URLConnection.connect() is unavailable on WASI")
+#elseif os(Linux)
+      try connectViaCurl()
+      connected = true
 #else
       var request = URLRequest(url: url.foundationURL)
       for (key, value) in requestProperties {
@@ -193,7 +221,7 @@ extension java.net {
       if connectTimeout > 0 {
         request.timeoutInterval = Double(connectTimeout) / 1000.0
       }
-      request.httpMethod = doOutput ? "POST" : "GET"
+      request.httpMethod = effectiveRequestMethod
       if ifModifiedSince > 0 {
         // Convert epoch-milliseconds to HTTP date string
         let date = Date(timeIntervalSince1970: Double(ifModifiedSince) / 1000.0)
@@ -211,14 +239,15 @@ extension java.net {
       if !useCaches { config.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData }
       let session = URLSession(configuration: config)
 
-      session.dataTask(with: request) { data, response, error in
-        self.responseData = data
-        self._httpResponse = response as? HTTPURLResponse
+      session.dataTask(with: request) { [weak self] data, response, error in
+        self?.responseData = data
+        self?._httpResponse = response as? HTTPURLResponse
         fetchError = error
         semaphore.signal()
       }.resume()
 
       semaphore.wait()
+      session.finishTasksAndInvalidate()
 
       if let error = fetchError {
         throw java.io.IOException(error.localizedDescription)
@@ -226,6 +255,172 @@ extension java.net {
       connected = true
 #endif
     }
+
+#if os(Linux)
+    /// Linux-only synchronous HTTP fetch via the `curl` command-line tool.
+    ///
+    /// This deliberately avoids `Foundation.URLSession` on Linux to work around
+    /// swift-corelibs-foundation issue #4791 (`_MultiHandle` deallocated with
+    /// non-zero retain count → SIGABRT). `Foundation.Process` runs `curl`
+    /// synchronously and we parse the response headers and body ourselves.
+    private func connectViaCurl() throws {
+      let process = Foundation.Process()
+      process.executableURL = Foundation.URL(fileURLWithPath: "/usr/bin/curl")
+
+      var args: [String] = [
+        "-sS",            // silent but still report errors
+        "-i",             // include response headers in output
+        "-X", effectiveRequestMethod,
+      ]
+      if instanceFollowsRedirectsForCurl {
+        args.append("-L")   // follow redirects; curl does not by default
+      }
+      for (key, value) in requestProperties {
+        args.append("-H")
+        args.append("\(key): \(value)")
+      }
+      if connectTimeout > 0 {
+        args.append("--connect-timeout")
+        args.append(String(Double(connectTimeout) / 1000.0))
+      }
+      if readTimeoutForCurl > 0 {
+        args.append("--max-time")
+        args.append(String(Double(readTimeoutForCurl) / 1000.0))
+      }
+      if ifModifiedSince > 0 {
+        let date = Date(timeIntervalSince1970: Double(ifModifiedSince) / 1000.0)
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = Foundation.TimeZone(abbreviation: "GMT") ?? Foundation.TimeZone(secondsFromGMT: 0)!
+        formatter.dateFormat = "EEE, dd MMM yyyy HH:mm:ss zzz"
+        args.append("-H")
+        args.append("If-Modified-Since: \(formatter.string(from: date))")
+      }
+      args.append(url.toExternalForm())
+      process.arguments = args
+
+      let stdoutPipe = Pipe()
+      let stderrPipe = Pipe()
+      process.standardOutput = stdoutPipe
+      process.standardError = stderrPipe
+
+      do {
+        try process.run()
+      } catch {
+        throw java.io.IOException("Failed to launch curl: \(error.localizedDescription)")
+      }
+
+      // Read fully BEFORE waitUntilExit to avoid deadlock on large pipe buffers.
+      let outData = stdoutPipe.fileHandleForReading.readDataToEndOfFile()
+      let errData = stderrPipe.fileHandleForReading.readDataToEndOfFile()
+      process.waitUntilExit()
+
+      guard process.terminationStatus == 0 else {
+        let msg = String(data: errData, encoding: .utf8) ?? "curl exited with status \(process.terminationStatus)"
+        throw java.io.IOException(msg.isEmpty ? "curl exited with status \(process.terminationStatus)" : msg)
+      }
+
+      try parseCurlResponse(outData)
+    }
+
+    /// Splits curl's `-i` output (possibly several header blocks across
+    /// redirects) into the final header block and the response body, then
+    /// stores them on this connection.
+    ///
+    /// The header/body boundary is located on the raw bytes (so the body is
+    /// preserved byte-exact, never re-encoded), while the header block itself is
+    /// decoded as text for parsing. HTTP headers are ASCII, so decoding them is
+    /// always safe. Both `\r\n\r\n` and `\n\n` separators are handled.
+    private func parseCurlResponse(_ raw: Data) throws {
+      let crlfcrlf = Data([0x0D, 0x0A, 0x0D, 0x0A]) // \r\n\r\n
+      let lflf = Data([0x0A, 0x0A])                 // \n\n
+      let httpPrefix = Data("HTTP/".utf8)
+
+      // Locate the boundary (lowerBound = end of header block,
+      // upperBound = start of body) of the FINAL header block. curl -i prints
+      // [headers]<sep>[headers]<sep>...[final headers]<sep>[body], and every
+      // header block begins with "HTTP/".
+      func nextBoundary(from index: Data.Index) -> Range<Data.Index>? {
+        let crlf = raw.range(of: crlfcrlf, in: index..<raw.endIndex)
+        let lf = raw.range(of: lflf, in: index..<raw.endIndex)
+        switch (crlf, lf) {
+        case let (.some(a), .some(b)): return a.lowerBound <= b.lowerBound ? a : b
+        case let (.some(a), .none):    return a
+        case let (.none, .some(b)):    return b
+        case (.none, .none):           return nil
+        }
+      }
+
+      var blockStart = raw.startIndex
+      var bestRange: Range<Data.Index>? = nil
+      var bestStart = raw.startIndex
+      var cursor = raw.startIndex
+      while let boundary = nextBoundary(from: cursor) {
+        if raw[blockStart...].starts(with: httpPrefix) {
+          bestRange = boundary
+          bestStart = blockStart
+        }
+        cursor = boundary.upperBound
+        blockStart = boundary.upperBound
+        if !raw[cursor...].starts(with: httpPrefix) { break }
+      }
+
+      let headerData: Data
+      let bodyData: Data
+      if let boundary = bestRange {
+        headerData = raw.subdata(in: bestStart..<boundary.lowerBound)
+        bodyData = raw.subdata(in: boundary.upperBound..<raw.endIndex)
+      } else {
+        headerData = Data()
+        bodyData = raw
+      }
+
+      self.responseData = bodyData
+      // Headers are ASCII; normalise CRLF→LF for line-based parsing.
+      let headerBlock = String(decoding: headerData, as: UTF8.self)
+        .replacingOccurrences(of: "\r\n", with: "\n")
+      self._linuxStatusCode = parseStatusCode(from: headerBlock)
+      self._linuxHeaders = parseHeaders(from: headerBlock)
+    }
+
+    private func parseStatusCode(from headerBlock: String) -> Int {
+      // First line looks like: "HTTP/1.1 200 OK" or "HTTP/2 200 ".
+      guard let firstLine = headerBlock.split(separator: "\n", maxSplits: 1, omittingEmptySubsequences: true).first
+      else { return -1 }
+      // split(separator:) omits empty subsequences, so a trailing space is fine.
+      let parts = firstLine.split(separator: " ")
+      guard parts.count >= 2, let code = Int(parts[1]) else { return -1 }
+      return code
+    }
+
+    private func parseHeaders(from headerBlock: String) -> [String: String] {
+      var headers: [String: String] = [:]
+      let lines = headerBlock.split(separator: "\n", omittingEmptySubsequences: true)
+      for line in lines.dropFirst() { // skip status line
+        guard let colon = line.firstIndex(of: ":") else { continue }
+        let key = line[line.startIndex..<colon].trimmingCharacters(in: .whitespaces)
+        let value = line[line.index(after: colon)...].trimmingCharacters(in: .whitespaces)
+        if !key.isEmpty { headers[key] = value }
+      }
+      return headers
+    }
+
+    /// Linux-side storage for the parsed status code (URLSession path uses `_httpResponse`).
+    nonisolated(unsafe) private var _linuxStatusCode: Int = -1
+    /// Linux-side storage for the parsed response headers.
+    nonisolated(unsafe) private var _linuxHeaders: [String: String] = [:]
+
+    /// Linux status-code accessor for subclasses / `getResponseCode()`.
+    internal var linuxStatusCode: Int { _linuxStatusCode }
+    /// Linux header accessor used by `headerValue(_:)`.
+    internal var linuxHeaders: [String: String] { _linuxHeaders }
+
+    /// Whether curl should follow redirects. Base class never redirects;
+    /// `HttpURLConnection` overrides this from `instanceFollowRedirects`.
+    internal var instanceFollowsRedirectsForCurl: Bool { false }
+    /// Read timeout in ms exposed to the curl path (base class has no public getter override need).
+    private var readTimeoutForCurl: Int { getReadTimeout() }
+#endif
 
     // MARK: - Content
 
@@ -298,10 +493,16 @@ extension java.net {
       return headerValue(name)
     }
 
-    /// Cross-platform header lookup (case-insensitive) via `allHeaderFields`.
+    /// Cross-platform header lookup (case-insensitive).
     /// - Returns optional value of named header
     private func headerValue(_ name: String) -> String? {
 #if os(WASI)
+      return nil
+#elseif os(Linux)
+      let lower = name.lowercased()
+      for (key, value) in linuxHeaders where key.lowercased() == lower {
+        return value
+      }
       return nil
 #else
       guard let headers = _httpResponse?.allHeaderFields else { return nil }
@@ -321,6 +522,8 @@ extension java.net {
     open func getResponseCode() throws -> Int {
 #if os(WASI)
       return -1
+#elseif os(Linux)
+      return linuxStatusCode
 #else
       return _httpResponse?.statusCode ?? -1
 #endif

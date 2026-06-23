@@ -115,6 +115,21 @@ extension java.net {
       super.init(url: url)
     }
 
+    // MARK: - Request configuration overrides
+
+    /// HTTP-specific request method honouring `setRequestMethod(_:)`.
+    internal override var effectiveRequestMethod: String {
+      return requestMethod
+    }
+
+#if os(Linux)
+    /// On Linux the curl-backed `connect()` should follow redirects according
+    /// to `instanceFollowRedirects` (matching Java's HttpURLConnection default).
+    internal override var instanceFollowsRedirectsForCurl: Bool {
+      return instanceFollowRedirects
+    }
+#endif
+
     // MARK: - Request Method
 
     /// Sets the HTTP request method (GET, POST, PUT, DELETE, HEAD, etc.).
