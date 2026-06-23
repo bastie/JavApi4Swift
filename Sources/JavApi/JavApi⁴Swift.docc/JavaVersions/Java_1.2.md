@@ -1399,10 +1399,10 @@ version | implemented | tested   | type          | name                    | mor
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ✔️          | ✔️       | open class    | ArrayList               | `ArrayList.swift`; `ArrayList+Swiftify.swift`: `init(from:[E])`, `toSwiftArray()`, subscript, `Array.toJavaArrayList()`
 1.2     | ✔️          | ✔️       | open class    | HashMap                 | `HashMap.swift`; `HashMap+Swiftify.swift`: `init(from:[K:V])`, `toSwiftDictionary()`, subscript, `Dictionary.toJavaHashMap()`
-1.2     | ✔️          | ✔️       | open class    | HashSet                 | `HashSet.swift`; backed by `HashMap<E,AnyObject>`; ⭕️ `HashSet+Swiftify.swift` fehlt
-1.2     | ✔️          | ✔️       | open class    | LinkedList              | `LinkedList.swift`; implements `List` + `Queue`; bidirectional `ListIterator`; ⭕️ `LinkedList+Swiftify.swift` fehlt
-1.2     | ✔️          | ✔️       | open class    | TreeMap                 | `TreeMap.swift`; implements `SortedMap`; sorted array backing O(log n) lookup; ⭕️ `TreeMap+Swiftify.swift` fehlt
-1.2     | ✔️          | ✔️       | open class    | TreeSet                 | `TreeSet.swift`; implements `SortedSet`; sorted array backing; ⭕️ `TreeSet+Swiftify.swift` fehlt
+1.2     | ✔️          | ✔️       | open class    | HashSet                 | `HashSet.swift`; backed by `HashMap<E,AnyObject>`; `HashSet+Swiftify.swift`: `init(from: Swift.Set<E>)`, `toSwiftSet()`, `Swift.Set.toJavaHashSet()`
+1.2     | ✔️          | ✔️       | open class    | LinkedList              | `LinkedList.swift`; implements `List` + `Queue`; bidirectional `ListIterator`; `LinkedList+Swiftify.swift`: `init(from:[E])`, `toSwiftArray()`, subscript, `Array.toJavaLinkedList()`
+1.2     | ✔️          | ✔️       | open class    | TreeMap                 | `TreeMap.swift`; implements `SortedMap`; sorted array backing O(log n) lookup; `TreeMap+Swiftify.swift`: `init(from:[K:V])`, `toSwiftDictionary()`, subscript, `Dictionary.toJavaTreeMap()`
+1.2     | ✔️          | ✔️       | open class    | TreeSet                 | `TreeSet.swift`; implements `SortedSet`; sorted array backing; `TreeSet+Swiftify.swift`: `init(from:[E])`, `init(from:Swift.Set<E>)`, `toSwiftArray()`, `toSwiftSet()`, `Array.toJavaTreeSet()`, `Swift.Set.toJavaTreeSet()`
 1.2     | ✔️          | ✔️       | open class    | Collections             | `Collections.swift`: `sort`, `reverse`, `shuffle`, `min`, `max`, `frequency`, `disjoint`, `fill`, `nCopies`, `singletonList`, `emptyList/Set/Map`, `unmodifiableList`, `synchronizedList`, `binarySearch`, `addAll`
 1.2     | ✔️          | ✔️       | open class    | Arrays                  | `Arrays.swift`; `Arrays+Swiftify.swift`
 
@@ -1413,15 +1413,11 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ✔️       | open class    | WeakHashMap             | `Key: AnyObject` — Swift `weak` requires class instances; value types unsupported (see DevelopmentNotes)
 1.4     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | Java 1.4, deferred
 
-### Missing Swiftify bridges (⭕️)
+### Swiftify bridges (✔️)
 
-The following classes have no `+Swiftify.swift` file yet. Each needs `init(from:)`,
-`toSwiftXxx()`, a subscript where meaningful, and a reverse extension on the Swift type:
-
-- `HashSet+Swiftify.swift` — `init(from: Swift.Set<E>)`, `toSwiftSet()`, `Swift.Set.toJavaHashSet()`
-- `LinkedList+Swiftify.swift` — `init(from: [E])`, `toSwiftArray()`, subscript, `Array.toJavaLinkedList()`
-- `TreeMap+Swiftify.swift` — `init(from: [K:V])`, `toSwiftDictionary()`, subscript, `Dictionary.toJavaTreeMap()`
-- `TreeSet+Swiftify.swift` — `init(from: Swift.Set<E>)`, `init(from: [E])`, `toSwiftArray()`, `toSwiftSet()`, `Array.toJavaTreeSet()`, `Swift.Set.toJavaTreeSet()`
+All concrete collection classes have `+Swiftify.swift` bridge files providing
+`init(from:)`, `toSwiftXxx()`, subscripts where meaningful, and reverse extensions
+on Swift types (`Array`, `Swift.Set`, `Dictionary`).
 
 ---
 
