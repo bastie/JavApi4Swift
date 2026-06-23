@@ -198,7 +198,7 @@ extension java.math {
       let bitN = n & 31
       let resLength = Swift.max(intCount + 1, val.numberLength) + 1
       var resDigits = [Int](repeating: 0, count: resLength)
-      System.arraycopy(val.digits, 0, &resDigits, 0, val.numberLength)
+      try! System.arraycopy(val.digits, 0, &resDigits, 0, val.numberLength)
       let bitNumber = 1 << bitN
       if val.sign < 0 {
         if intCount >= val.numberLength {

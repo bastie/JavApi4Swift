@@ -12,12 +12,17 @@ extension java.awt {
 
     /// Set the LayoutManager for this Container
     /// - Parameter mgr: LayoutManager instance
-    public func setLayout(_ mgr: LayoutManager?) {
+    open func setLayout(_ mgr: LayoutManager?) {
       layoutManager = mgr
     }
     public func getLayout() -> LayoutManager?    { layoutManager       }
 
-    public func doLayout() { layoutManager?.layoutContainer(self) }
+    public func doLayout() {
+      layoutManager?.layoutContainer(self)
+      for child in children {
+        (child as? Container)?.doLayout()
+      }
+    }
 
     /// Returns the preferred size as reported by the layout manager, or falls
     /// back to `Component.getPreferredSize()` if no layout manager is set.
@@ -47,7 +52,7 @@ extension java.awt {
     // MARK: Children
     // -------------------------------------------------------------------------
 
-    public func add(_ comp: Component) {
+    open func add(_ comp: Component) {
       comp.parent = self
       children.append(comp)
       layoutManager?.addLayoutComponent("", comp)
@@ -55,7 +60,7 @@ extension java.awt {
     }
 
     /// Add with BorderLayout-style string constraint.
-    public func add(_ comp: Component, _ constraint: String) {
+    open func add(_ comp: Component, _ constraint: String) {
       comp.parent = self
       children.append(comp)
       if let mgr2 = layoutManager as? LayoutManager2 {
@@ -76,7 +81,7 @@ extension java.awt {
       invalidate()
     }
 
-    public func remove(_ comp: Component) {
+    open func remove(_ comp: Component) {
       comp.parent = nil
       children.removeAll { $0 === comp }
       layoutManager?.removeLayoutComponent(comp)
@@ -108,14 +113,16 @@ extension java.awt {
 
     override open func paint(_ g: java.awt.Graphics) {
       // Each child's bounds are in the parent's LOCAL coordinate space.
-      // Translate the graphics context to the child's origin so the child
-      // can paint at (0, 0) — matching Java AWT / Swing behaviour.
+      // Save/restore the graphics state so a child that modifies the context
+      // (clip, transform) does not affect siblings.
       for child in children where child.visible {
-        let dx = child.bounds.x
-        let dy = child.bounds.y
-        g.translate(dx, dy)
+        let b = child.bounds
+        guard b.width > 0 && b.height > 0 else { continue }
+        g.save()
+        g.clipRect(b.x, b.y, b.width, b.height)
+        g.translate(b.x, b.y)
         child.paint(g)
-        g.translate(-dx, -dy)
+        g.restore()
       }
     }
 

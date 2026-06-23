@@ -81,5 +81,13 @@ extension javax.swing.tree {
       }
       return true
     }
+
+    /// Returns `true` if both paths refer to the same sequence of nodes
+    /// (identity comparison on each component).
+    public static func == (lhs: javax.swing.tree.TreePath,
+                           rhs: javax.swing.tree.TreePath) -> Bool {
+      guard lhs.components.count == rhs.components.count else { return false }
+      return zip(lhs.components, rhs.components).allSatisfy { $0 === $1 }
+    }
   }
 }

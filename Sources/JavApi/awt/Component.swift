@@ -9,6 +9,33 @@ extension java.awt {
   @MainActor
   open class Component: MenuContainer {
 
+    /// Store locale for this component
+    /// - Since: Java 1.1
+    internal var _componentLocale: java.util.Locale?
+    
+    /// - Returns: Locale of component or if not set on this component, locale of parent component (recursive) or if not set on any parent, java.util.Locale.getDefault()
+    /// - Since: Java 1.1
+    open func getLocale() -> java.util.Locale {
+      if let _componentLocale {
+        return _componentLocale
+      }
+      else {
+        let locale = getParent()?.getLocale()
+        if let locale {
+          return locale
+        }
+        else {
+          return java.util.Locale.getDefault()
+        }
+      }
+    }
+    /// Set component specific locale
+    /// - Parameter locale: new locale for component
+    /// - Since: Java 1.1
+    open func setLocale(_ locale: java.util.Locale?) {
+      self._componentLocale = locale
+    }
+    
     // -------------------------------------------------------------------------
     // MARK: Visual properties
     // -------------------------------------------------------------------------
@@ -23,11 +50,23 @@ extension java.awt {
     public func getBackgroundColor () -> java.awt.Color {
       return self.background
     }
-    
+
+    /// Java-compatible alias for `getBackgroundColor()`.
+    public func getBackground() -> java.awt.Color { background }
+
+    /// Sets the background color.
+    public func setBackground(_ color: java.awt.Color) { background = color }
+
     /// - Since: Java 1.0
     public func getForegroundColor () -> java.awt.Color {
       return self.foreground
     }
+
+    /// Java-compatible alias for `getForegroundColor()`.
+    public func getForeground() -> java.awt.Color { foreground }
+
+    /// Java-compatible alias for `setForegroundColor(_:)`.
+    public func setForeground(_ color: java.awt.Color) { setForegroundColor(color) }
     
     /// - Since: Java 1.0
     public func setForegroundColor (_ color : java.awt.Color?) {
@@ -86,10 +125,19 @@ extension java.awt {
     public func setMaximumSize(_ d: java.awt.Dimension?) {
       _maximumSize = d
     }
-    
+
     public func getMaximumSize() -> java.awt.Dimension {
       _maximumSize ?? java.awt.Dimension(Int.max, Int.max)
     }
+
+    // Alignment hints used by BoxLayout and OverlayLayout (0.0 = left/top, 0.5 = center, 1.0 = right/bottom)
+    private var _alignmentX: Float = 0.5
+    private var _alignmentY: Float = 0.5
+
+    open func getAlignmentX() -> Float { _alignmentX }
+    open func getAlignmentY() -> Float { _alignmentY }
+    public func setAlignmentX(_ v: Float) { _alignmentX = max(0.0, min(1.0, v)) }
+    public func setAlignmentY(_ v: Float) { _alignmentY = max(0.0, min(1.0, v)) }
 
     // -------------------------------------------------------------------------
     // MARK: Position & size
@@ -102,8 +150,15 @@ extension java.awt {
     open func setVisible(_ v: Bool) {
       visible = v
     }
-    open func isVisible() -> Bool   {
+    open func isVisible() -> Bool {
       return visible
+    }
+
+    open func setEnabled(_ e: Bool) {
+      enabled = e
+    }
+    open func isEnabled() -> Bool {
+      return enabled
     }
 
     // -------------------------------------------------------------------------
@@ -329,6 +384,24 @@ extension java.awt {
     public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
       java.awt.FontMetrics.make(for: f)
     }
+
+    // MARK: - Java 1.0 deprecated API (moved from ComponentPeer extension for overridability)
+
+    /// Shows the component — deprecated Java 1.0 API, use `setVisible(true)`.
+    @available(*, deprecated, renamed: "setVisible(_:)")
+    open func show()    { setVisible(true)  }
+
+    /// Hides the component — deprecated Java 1.0 API, use `setVisible(false)`.
+    @available(*, deprecated, renamed: "setVisible(_:)")
+    open func hide()    { setVisible(false) }
+
+    /// Enables the component — deprecated Java 1.0 API, use `setEnabled(true)`.
+    @available(*, deprecated, renamed: "setEnabled(_:)")
+    open func enable()  { enabled = true    }
+
+    /// Disables the component — deprecated Java 1.0 API, use `setEnabled(false)`.
+    @available(*, deprecated, renamed: "setEnabled(_:)")
+    open func disable() { enabled = false   }
   }
 }
 

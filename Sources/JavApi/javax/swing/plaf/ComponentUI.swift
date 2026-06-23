@@ -62,20 +62,20 @@ extension javax.swing.plaf {
     /// - Parameters:
     ///   - g: The graphics context to paint into.
     ///   - component: The component being painted.
-    open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {}
+    open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {}
 
     /// Paints the component's background before `paint(_:on:)` is called.
     ///
     /// The default implementation fills the component's bounds with
     /// `component.getBackground()` when `component.isOpaque()` returns `true`.
-    open func update(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    open func update(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       if component.isOpaque() {
         g.setColor(component.getBackground())
         // The graphics context is already translated to this component's origin
         // by paintChildren — so fill from (0,0), not (bounds.x, bounds.y).
         g.fillRect(0, 0, component.bounds.width, component.bounds.height)
       }
-      paint(g, on: component)
+      paint(g, component)
     }
 
     // -------------------------------------------------------------------------

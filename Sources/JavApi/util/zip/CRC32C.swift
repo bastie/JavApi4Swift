@@ -22,8 +22,9 @@ extension java.util.zip {
     
     public func update(_ buf: [UInt8], _ index: Int, _ len: Int) {
       let reversedPolynomial: UInt32 = 0x82f6_3b78
-      var crc: UInt32 = 0 ^ 0xffff_ffff
-      
+      // Seed from current state so incremental updates accumulate correctly.
+      var crc: UInt32 = UInt32(v & 0xffff_ffff) ^ 0xffff_ffff
+
       for i in index..<index+len {
         crc ^= UInt32(buf[i])
         crc = ((crc & 1) != 0) ? (crc >> 1) ^ reversedPolynomial : crc >> 1
@@ -35,9 +36,7 @@ extension java.util.zip {
         crc = ((crc & 1) != 0) ? (crc >> 1) ^ reversedPolynomial : crc >> 1
         crc = ((crc & 1) != 0) ? (crc >> 1) ^ reversedPolynomial : crc >> 1
       }
-      crc = crc ^ 0xffff_ffff
-      
-      v = Int64(crc)
+      v = Int64(crc ^ 0xffff_ffff)
     }
   }
 }

@@ -3,16 +3,54 @@
  * SPDX-License-Identifier: MIT
  */
 
-// Platform-independent hit-testing and click-dispatch for the AWT component
-// tree.  Uses only java.awt types (no CoreGraphics / SwiftUI) so it compiles
-// on every platform — including Windows.
+// Platform-independent hit-testing and click-dispatch for the **AWT** component
+// tree (`java.awt.*` only).  Uses no CoreGraphics / SwiftUI and compiles on
+// every platform — including Windows.
 //
-// _SwiftUIHitTest in the swiftui/ backend wraps these helpers with CGPoint
+// For mixed AWT+Swing component trees use `_SwingHitTest` as the entry point —
+// it handles Swing-specific containers (JScrollPane, …) and delegates to
+// `_AWTHitTest` for everything else.
+//
+// `_SwiftUIHitTest` in the swiftui/ backend wraps `_SwingHitTest` with CGPoint
 // convenience overloads for callers that already hold a CGPoint.
 
-/// Hit-testing and click-dispatch for the AWT component tree.
+/// Hit-testing and click-dispatch for the pure-AWT component tree.
+///
+/// Do **not** call this directly from toolkit backends — use `_SwingHitTest`
+/// instead so that Swing containers are handled correctly.
 @MainActor
 enum _AWTHitTest {
+
+  // ---------------------------------------------------------------------------
+  // MARK: Swing recursion hook
+  // ---------------------------------------------------------------------------
+
+  /// Optional callback that re-enters the Swing-aware hit-test for child
+  /// components.  `_SwingHitTest` installs this once at startup so that
+  /// Swing-specific containers (e.g. `JScrollPane` with a scroll offset) are
+  /// handled correctly **even when reached through a plain AWT container**
+  /// such as `JTabbedPane` or `JSplitPane`.
+  ///
+  /// Without this hook the container recursion below would call
+  /// `_AWTHitTest.findWithLocal` directly and lose all Swing awareness from
+  /// that point downwards — see the type-level comment ("Do not call this
+  /// directly … use `_SwingHitTest`").
+  ///
+  /// Write-once at startup, read-only afterwards — therefore
+  /// `nonisolated(unsafe)` is safe (see Java2Swift.md, "static variables and
+  /// Swift 6 concurrency").
+  nonisolated(unsafe)
+  static var swingRecurse:
+    (@MainActor (_ x: Int, _ y: Int, _ root: java.awt.Component)
+      -> (java.awt.Component, Int, Int)?)? = nil
+
+  /// Recurse into a child component, preferring the Swing-aware path when the
+  /// hook is installed; falls back to the pure-AWT recursion otherwise.
+  private static func recurse(_ x: Int, _ y: Int, _ root: java.awt.Component)
+    -> (java.awt.Component, Int, Int)? {
+    if let hook = swingRecurse { return hook(x, y, root) }
+    return findWithLocal(x: x, y: y, in: root)
+  }
 
   // ---------------------------------------------------------------------------
   // MARK: Hit test
@@ -77,15 +115,18 @@ enum _AWTHitTest {
       if lx < vp.width, ly < vp.height, let child = sp.getChild() {
         let childX = lx + sp.scrollX
         let childY = ly + sp.scrollY
-        if let hit = findWithLocal(x: childX, y: childY, in: child) { return hit }
+        if let hit = recurse(childX, childY, child) { return hit }
       }
       return (root, lx, ly)
     }
 
     if let container = root as? java.awt.Container {
       // For containers: try children first (they may lie below bounds.height).
+      // Use `recurse` so that Swing-specific containers nested below a plain
+      // AWT container (e.g. a JScrollPane inside a JSplitPane inside a
+      // JTabbedPane) regain their Swing-aware coordinate handling.
       for child in container.getComponents().reversed() {
-        if let hit = findWithLocal(x: lx, y: ly, in: child) { return hit }
+        if let hit = recurse(lx, ly, child) { return hit }
       }
       // Only claim the container itself if the click is within its own bounds.
       guard ly < b.height else { return nil }
@@ -118,11 +159,12 @@ enum _AWTHitTest {
   /// `x` and `y` are the click position in the **component's** local coordinate
   /// system.  Pass the window-relative hit point minus the component's own
   /// origin to get the correct local coordinates.
+  /// Dispatch a click for **AWT** components only.
+  ///
+  /// Swing components are not handled here — use `_SwingHitTest.dispatch(click:x:y:)`
+  /// which handles Swing types first and falls through to this method.
   static func dispatch(click component: java.awt.Component, x: Int, y: Int) {
     switch component {
-    case let btn as javax.swing.JButton:
-      btn.doClick()
-
     case let btn as java.awt.Button:
       btn.doClick()
 

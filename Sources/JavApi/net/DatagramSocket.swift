@@ -44,8 +44,9 @@ extension java.net {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public class DatagramSocket: @unchecked Sendable {
 
-    private var fd: Int32 = -1
+    internal var fd: Int32 = -1
     private var _localPort: Int = -1
+    private var _localAddress: InetAddress? = nil
     private var _closed: Bool = false
     private var soTimeout: Int = 0
 
@@ -139,6 +140,15 @@ extension java.net {
 
       self.fd = sockFd
       self._localPort = Int(localAddr.sin_port.bigEndian)
+      // Capture the local IP address for getLocalAddress()
+      var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
+#if canImport(WinSDK)
+      platformInet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#else
+      inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+#endif
+      let localIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
+      self._localAddress = try? InetAddress.getByName(localIP)
 #endif
     }
 
@@ -261,6 +271,13 @@ extension java.net {
     ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func getLocalPort() -> Int { return _localPort }
+
+    /// Returns the local address to which this socket is bound.
+    ///
+    /// Returns `nil` if the socket has not been bound or is closed.
+    ///
+    /// - Since: JavaApi > 0.20.0 (Java 1.1)
+    public func getLocalAddress() -> InetAddress? { return _localAddress }
 
     /// Returns `true` if this socket has been closed.
     ///

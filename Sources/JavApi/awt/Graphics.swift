@@ -49,9 +49,12 @@ extension java.awt {
     // MARK: Color
     // -------------------------------------------------------------------------
 
+    private var _color: java.awt.Color = java.awt.Color.black
+
     public func setColor(_ color: java.awt.Color) {
       // getRed/getGreen/getBlue werden von SystemColor überschrieben und liefern
       // den aktuellen Systemwert (Dark-Mode-sicher). Daher Getter statt stored properties.
+      _color = color
       let r = CGFloat(color.getRed())   / 255.0
       let g = CGFloat(color.getGreen()) / 255.0
       let b = CGFloat(color.getBlue())  / 255.0
@@ -60,6 +63,8 @@ extension java.awt {
       cgContext.setFillColor(cg)
       cgContext.setStrokeColor(cg)
     }
+
+    public func getColor() -> java.awt.Color { _color }
 
     // -------------------------------------------------------------------------
     // MARK: Shapes
@@ -85,6 +90,30 @@ extension java.awt {
 
     open func drawOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {
       cgContext.strokeEllipse(in: CGRect(x: x, y: y, width: width, height: height))
+    }
+
+    open func drawRoundRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                            _ arcWidth: Int, _ arcHeight: Int) {
+      let path = CGPath(
+        roundedRect: CGRect(x: x, y: y, width: width, height: height),
+        cornerWidth:  CGFloat(arcWidth)  / 2,
+        cornerHeight: CGFloat(arcHeight) / 2,
+        transform: nil
+      )
+      cgContext.addPath(path)
+      cgContext.strokePath()
+    }
+
+    open func fillRoundRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                            _ arcWidth: Int, _ arcHeight: Int) {
+      let path = CGPath(
+        roundedRect: CGRect(x: x, y: y, width: width, height: height),
+        cornerWidth:  CGFloat(arcWidth)  / 2,
+        cornerHeight: CGFloat(arcHeight) / 2,
+        transform: nil
+      )
+      cgContext.addPath(path)
+      cgContext.fillPath()
     }
 
     // -------------------------------------------------------------------------
@@ -242,12 +271,18 @@ extension java.awt {
       java.awt.FontMetrics.make(for: f)
     }
 
-    public func setColor(_ color: java.awt.Color) {}
+    private var _color: java.awt.Color = java.awt.Color.black
+    public func setColor(_ color: java.awt.Color) { _color = color }
+    public func getColor() -> java.awt.Color { _color }
     open func fillRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     open func drawRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     open func drawLine(_ x1: Int, _ y1: Int, _ x2: Int, _ y2: Int) {}
     open func fillOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
     open func drawOval(_ x: Int, _ y: Int, _ width: Int, _ height: Int) {}
+    open func drawRoundRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                            _ arcWidth: Int, _ arcHeight: Int) {}
+    open func fillRoundRect(_ x: Int, _ y: Int, _ width: Int, _ height: Int,
+                            _ arcWidth: Int, _ arcHeight: Int) {}
     open func drawString(_ str: String, _ x: Int, _ y: Int) {}
     open func save()    {}
     open func restore() {}

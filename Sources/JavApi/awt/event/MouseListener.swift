@@ -4,6 +4,8 @@
  */
 
 extension java.awt.event {
+
+  /// - Since: Java 1.0
   @MainActor
   public protocol MouseListener: java.util.EventListener {
     func mouseClicked (_ e: java.awt.event.MouseEvent)
@@ -13,9 +15,4 @@ extension java.awt.event {
     func mouseExited  (_ e: java.awt.event.MouseEvent)
   }
 
-  @MainActor
-  public protocol MouseMotionListener: java.util.EventListener {
-    func mouseDragged(_ e: java.awt.event.MouseEvent)
-    func mouseMoved  (_ e: java.awt.event.MouseEvent)
-  }
 }

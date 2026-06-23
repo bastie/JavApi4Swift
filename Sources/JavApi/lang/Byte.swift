@@ -70,6 +70,23 @@ public final class Byte : Equatable {
     return String(value)
   }
 
+  // MARK: - Number methods (Java 1.1 — inherited from Number in Java)
+
+  /// Returns the value as `Int` (unsigned, 0–255).
+  public func intValue() -> Int { Int(value) }
+
+  /// Returns the value as `Int64` (unsigned, 0–255).
+  public func longValue() -> Int64 { Int64(value) }
+
+  /// Returns the value as `Float`.
+  public func floatValue() -> Float { Float(value) }
+
+  /// Returns the value as `Double`.
+  public func doubleValue() -> Double { Double(value) }
+
+  /// Returns the value as `Int16` (unsigned, 0–255).
+  public func shortValue() -> Int16 { Int16(value) }
+
   // MARK: - Equatable
 
   public static func == (lhs: Byte, rhs: Byte) -> Bool {

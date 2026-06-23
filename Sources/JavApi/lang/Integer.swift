@@ -146,7 +146,8 @@ public final class Integer: Number, @unchecked Sendable {
     throw NumberFormatException("\(string) is not a number")
   }
   
-  public static func valueOf (_ string : String, _ radix : Int) throws -> Int {
+  /// - Since: Java 1.0
+  public static func valueOf (_ string : String, _ radix : Int) throws (NumberFormatException) -> Int {
     return try parseInt(string)
   }
   
@@ -170,5 +171,24 @@ public final class Integer: Number, @unchecked Sendable {
   public static func toString (_ i : Int, _ radix : Int) -> String {
     let r = (radix < 2 || radix > 36) ? 10 : radix
     return String(i, radix: r, uppercase: false)
+  }
+  
+  /// Decode a string also with given prefix for hexadecimal (`0x` or `#`) or octal (`0`) numeric values
+  /// - Since: Java 1.1
+  public static func decode (_ string : String) throws (NumberFormatException) -> Int {
+    var trimmed = string.trimmingCharacters(in: .whitespaces).lowercased()
+    if trimmed.hasPrefix("0x") {
+      trimmed = trimmed.substring(2)
+      return try Integer.valueOf(trimmed, 16)
+    }
+    if trimmed.hasPrefix("x") {
+      trimmed = trimmed.substring(1)
+      return try Integer.valueOf(trimmed, 16)
+    }
+    if trimmed.hasPrefix("0") {
+      trimmed = trimmed.substring(8)
+      return try Integer.valueOf(trimmed, 16)
+    }
+    return try Integer.valueOf(trimmed, 10)
   }
 }

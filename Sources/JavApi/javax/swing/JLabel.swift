@@ -73,6 +73,8 @@ extension javax.swing {
     // MARK: UI delegate
     // -------------------------------------------------------------------------
 
+    override open func getUIClassID() -> String { "LabelUI" }
+
     override open func updateUI() {
       super.updateUI()
     }

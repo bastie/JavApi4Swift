@@ -28,10 +28,15 @@ extension javax.swing {
     // MARK: Orientation constants
     // -------------------------------------------------------------------------
 
-    /// Horizontal scroll bar (= `SwingConstants.HORIZONTAL` = 0).
-    public static let HORIZONTAL: Int = JScrollBar.HORIZONTAL
-    /// Vertical scroll bar (= `SwingConstants.VERTICAL` = 1).
-    public static let VERTICAL:   Int = JScrollBar.VERTICAL
+    // The orientation constants are inherited from the `javax.swing.SwingConstants`
+    // protocol extension (`HORIZONTAL == 0`, `VERTICAL == 1`).
+    //
+    // They must NOT be re-declared here as stored `static let`: a stored property
+    // shadows the protocol's computed property, and an initialiser like
+    // `static let HORIZONTAL = JScrollBar.HORIZONTAL` then references *itself*,
+    // resolving to 0 for BOTH constants. That made every scroll bar report the
+    // same orientation, so the horizontal bar was painted with vertical geometry.
+    // See Java2Swift.md, "constants — access via concrete class".
 
     // -------------------------------------------------------------------------
     // MARK: Model + orientation
@@ -87,6 +92,19 @@ extension javax.swing {
       let bridge = _ModelBridge(self)
       modelBridge = bridge
       model.addChangeListener(bridge)
+      updateUI()
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: UI delegate
+    // -------------------------------------------------------------------------
+
+    open override func getUIClassID() -> String { "ScrollBarUI" }
+
+    open override func updateUI() {
+      if let factory = javax.swing.UIManager.getUI(self) {
+        ui = factory
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -166,22 +184,23 @@ extension javax.swing {
       _orientation == JScrollBar.VERTICAL ? bounds.width : bounds.height
     }
 
+    /// All geometry helpers return local coordinates (origin = 0,0 of the bar).
     public func decrementButtonRect() -> java.awt.Rectangle {
       let bs = buttonSize
       return _orientation == JScrollBar.VERTICAL
-        ? java.awt.Rectangle(bounds.x, bounds.y, bounds.width, bs)
-        : java.awt.Rectangle(bounds.x, bounds.y, bs, bounds.height)
+        ? java.awt.Rectangle(0, 0, bounds.width, bs)
+        : java.awt.Rectangle(0, 0, bs, bounds.height)
     }
 
     public func incrementButtonRect() -> java.awt.Rectangle {
       let bs = buttonSize
       return _orientation == JScrollBar.VERTICAL
-        ? java.awt.Rectangle(bounds.x, bounds.y + bounds.height - bs, bounds.width, bs)
-        : java.awt.Rectangle(bounds.x + bounds.width - bs, bounds.y, bs, bounds.height)
+        ? java.awt.Rectangle(0, bounds.height - bs, bounds.width, bs)
+        : java.awt.Rectangle(bounds.width - bs, 0, bs, bounds.height)
     }
 
     public func thumbRect() -> java.awt.Rectangle {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      let w = bounds.width, h = bounds.height
       let bs    = buttonSize
       let min   = model.getMinimum()
       let max   = model.getMaximum()
@@ -192,13 +211,13 @@ extension javax.swing {
       if _orientation == JScrollBar.VERTICAL {
         let trackH = h - 2 * bs
         let thumbH = Math.max(12, trackH * ext / range)
-        let thumbY = trackH <= thumbH ? y + bs : y + bs + (trackH - thumbH) * (val - min) / Math.max(1, range - ext)
-        return java.awt.Rectangle(x, thumbY, w, thumbH)
+        let thumbY = trackH <= thumbH ? bs : bs + (trackH - thumbH) * (val - min) / Math.max(1, range - ext)
+        return java.awt.Rectangle(0, thumbY, w, thumbH)
       } else {
         let trackW = w - 2 * bs
         let thumbW = Math.max(12, trackW * ext / range)
-        let thumbX = trackW <= thumbW ? x + bs : x + bs + (trackW - thumbW) * (val - min) / Math.max(1, range - ext)
-        return java.awt.Rectangle(thumbX, y, thumbW, h)
+        let thumbX = trackW <= thumbW ? bs : bs + (trackW - thumbW) * (val - min) / Math.max(1, range - ext)
+        return java.awt.Rectangle(thumbX, 0, thumbW, h)
       }
     }
 
@@ -224,11 +243,11 @@ extension javax.swing {
 
     /// Inline fallback renderer — same visuals as BasicScrollBarUI.
     private func _paintInline(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      let w = bounds.width, h = bounds.height
 
       // Track
       g.setColor(java.awt.SystemColor.scrollbar)
-      g.fillRect(x, y, w, h)
+      g.fillRect(0, 0, w, h)
 
       // Thumb
       let tr = thumbRect()
@@ -246,10 +265,10 @@ extension javax.swing {
 
       // Outer border
       g.setColor(java.awt.SystemColor.controlDkShadow)
-      g.drawLine(x,     y,     x+w-1, y)
-      g.drawLine(x,     y,     x,     y+h-1)
-      g.drawLine(x+w-1, y,     x+w-1, y+h-1)
-      g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+      g.drawLine(0,   0,   w-1, 0)
+      g.drawLine(0,   0,   0,   h-1)
+      g.drawLine(w-1, 0,   w-1, h-1)
+      g.drawLine(0,   h-1, w-1, h-1)
     }
 
     internal func _drawArrow(_ g: java.awt.Graphics, rect r: java.awt.Rectangle, decrement: Bool) {
@@ -274,16 +293,6 @@ extension javax.swing {
           g.drawLine(dx, cy - col, dx, cy + col)
         }
       }
-    }
-
-    // -------------------------------------------------------------------------
-    // MARK: Preferred size
-    // -------------------------------------------------------------------------
-
-    override open func getPreferredSize() -> java.awt.Dimension {
-      _orientation == JScrollBar.VERTICAL
-        ? java.awt.Dimension(16, 100)
-        : java.awt.Dimension(100, 16)
     }
 
     override open func dispose() {

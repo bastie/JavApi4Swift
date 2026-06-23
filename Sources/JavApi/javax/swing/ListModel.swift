@@ -27,7 +27,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public protocol ListModel: AnyObject {
+  public protocol ListModel<Element>: AnyObject {
 
     /// The type of the elements stored in this model.
     associatedtype Element

@@ -211,9 +211,18 @@ extension java.net {
 
     /// Opens a connection to this URL and returns a ``URLConnection``.
     ///
+    /// Returns an ``HttpURLConnection`` for HTTP and HTTPS URLs,
+    /// otherwise returns a generic ``URLConnection``.
+    ///
     /// - Since: JavaApi > 0.19.1 (Java 1.0)
     public func openConnection() -> URLConnection {
-      return URLConnection(url: self)
+      let scheme = (foundationURL.scheme ?? "").lowercased()
+      switch scheme {
+      case "http", "https":
+        return HttpURLConnection(url: self)
+      default:
+        return URLConnection(url: self)
+      }
     }
 
     /// Opens a connection to this URL and returns an input stream for reading.

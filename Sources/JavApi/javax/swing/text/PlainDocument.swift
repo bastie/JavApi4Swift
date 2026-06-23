@@ -70,16 +70,45 @@ extension javax.swing.text {
     // -------------------------------------------------------------------------
 
     override open func insertString(_ offset: Int, _ string: String) throws {
+      if let filter = getDocumentFilter() {
+        try filter.insertString(_PlainDocumentBypass(self), offset, string)
+      } else {
+        try _insertStringDirect(offset, string)
+      }
+    }
+
+    override open func remove(_ offset: Int, _ length: Int) throws {
+      if let filter = getDocumentFilter() {
+        try filter.remove(_PlainDocumentBypass(self), offset, length)
+      } else {
+        try _removeDirect(offset, length)
+      }
+    }
+
+    /// Replaces `length` characters at `offset` with `text`, routing through any installed filter.
+    open func replace(_ offset: Int, _ length: Int, _ text: String) throws {
+      if let filter = getDocumentFilter() {
+        try filter.replace(_PlainDocumentBypass(self), offset, length, text)
+      } else {
+        try _replaceDirect(offset, length, text)
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Direct (unfiltered) mutation — called by FilterBypass
+    // -------------------------------------------------------------------------
+
+    func _insertStringDirect(_ offset: Int, _ string: String) throws {
       guard offset >= 0, offset <= content.count else {
         throw javax.swing.text.BadLocationException(
           "insertString: offset=\(offset) docLength=\(content.count)", offset)
       }
       let idx = content.index(content.startIndex, offsetBy: offset)
       content.insert(contentsOf: string, at: idx)
-      fireInsertUpdate(offset: offset, length: string.count)  // internal helper — labels OK
+      fireInsertUpdate(offset: offset, length: string.count)
     }
 
-    override open func remove(_ offset: Int, _ length: Int) throws {
+    func _removeDirect(_ offset: Int, _ length: Int) throws {
       guard offset >= 0, length >= 0, offset + length <= content.count else {
         throw javax.swing.text.BadLocationException(
           "remove: offset=\(offset) length=\(length) docLength=\(content.count)",
@@ -92,11 +121,47 @@ extension javax.swing.text {
       fireRemoveUpdate(offset: offset, length: length)
     }
 
+    func _replaceDirect(_ offset: Int, _ length: Int, _ text: String) throws {
+      try _removeDirect(offset, length)
+      if !text.isEmpty { try _insertStringDirect(offset, text) }
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Convenience
     // -------------------------------------------------------------------------
 
     /// Returns the entire document content as a `String`.
     open func getText() -> String { content }
+  }
+}
+
+// -----------------------------------------------------------------------------
+// MARK: Internal FilterBypass for PlainDocument
+// -----------------------------------------------------------------------------
+
+/// Concrete `FilterBypass` that routes calls directly into `PlainDocument`'s
+/// unfiltered mutation methods, bypassing any installed `DocumentFilter`.
+@MainActor
+private final class _PlainDocumentBypass: javax.swing.text.DocumentFilter.FilterBypass {
+
+  private let doc: javax.swing.text.PlainDocument
+
+  init(_ doc: javax.swing.text.PlainDocument) {
+    self.doc = doc
+    super.init()
+  }
+
+  override var document: javax.swing.text.Document { doc }
+
+  override func insertString(_ offset: Int, _ string: String) throws {
+    try doc._insertStringDirect(offset, string)
+  }
+
+  override func remove(_ offset: Int, _ length: Int) throws {
+    try doc._removeDirect(offset, length)
+  }
+
+  override func replace(_ offset: Int, _ length: Int, _ text: String) throws {
+    try doc._replaceDirect(offset, length, text)
   }
 }

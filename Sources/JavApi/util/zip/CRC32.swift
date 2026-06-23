@@ -54,7 +54,7 @@ extension java.util.zip {
     
     public func update(_ buf : [UInt8], _ _index : Int, _ len : Int) {
       var c : Int32 = ~v;
-      for i in _index..<len {
+      for i in _index..<(_index + len) {
         c = Int32(java.util.zip.CRC32.crc_table[(Int(c) ^ Int(buf[i])) & 0xff]) ^ (c >>> 8);
       }
       v = ~c;
@@ -164,7 +164,7 @@ extension java.util.zip {
     /// - Returns CRC-32 table
     public static func getCRC32Table() -> [Int]{
       var target : [Int] = Array (repeating: 0, count: crc_table.length)
-      System.arraycopy(crc_table, 0, &target, 0, target.length);
+      try! System.arraycopy(crc_table, 0, &target, 0, target.length);
       return target
     }
   }

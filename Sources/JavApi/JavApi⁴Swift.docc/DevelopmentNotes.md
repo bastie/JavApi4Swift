@@ -2,19 +2,21 @@
 
 Lessons learned and non-obvious design decisions for future contributors.
 
+> **See also:** <doc:NotImplemented> — rationale for Java technologies that are deliberately not ported (currently: Serialization and RMI).
+
 ---
 
-## Swing Hit-Test Coordinate Translation — `_AWTHitTest.find()` (2026-06)
+## Swing Hit-Test Coordinate Translation — `_SwingHitTest.find()` (2026-06)
 
 ### Problem
-`_AWTHitTest.find(x:y:in:)` checked whether a point fell within a child component's `bounds`,
+`_SwingHitTest.find(x:y:in:)` (formerly `_AWTHitTest.find`) checked whether a point fell within a child component's `bounds`,
 but then passed the **original** (parent-relative) `x, y` unchanged when recursing into that child.
 Because a child's own children store their bounds relative to the child's origin (not the root),
 every nested hit-test was wrong: clicking a `JButton` inside a `JPanel` inside a `JFrame`
 never returned the button.
 
 This bug affected **all backends** (SwiftUI, X11, GDI) because the code lives in
-platform-independent `_AWTHitTest.swift`.
+platform-independent `_SwingHitTest.swift` / `_AWTHitTest.swift`.
 
 ### Solution
 Translate into the child's local space before recursing:
@@ -204,3 +206,109 @@ func testGetAvailableIDsIsNotEmpty() {
 
 Swift then treats the call site as intentionally deprecated and suppresses the warning.
 Annotating the method — not the struct — keeps non-deprecated tests in the same file warning-free.
+
+---
+
+## `WeakHashMap` — `Key: AnyObject` Constraint (2026-06)
+
+### Why not `Key: Any`?
+
+Java's `WeakHashMap` holds its keys as weak references via `WeakReference<K>`. When the GC
+collects a key, the entry is automatically removed from the map.
+
+In Swift, `weak` is a language keyword that only applies to **class instances** (`AnyObject`).
+Value types (`String`, `Int`, `struct`) are allocated on the stack or inline — they are not
+reference-counted and cannot be held weakly.
+
+`WeakHashMap<Key: AnyObject, Value>` is therefore not an artificial restriction; it is the
+honest mapping of what "weak reference" means in Swift.
+
+### What about wrapping value types in a class box?
+
+```swift
+final class StringBox { let value: String; init(_ v: String) { self.value = v } }
+let map = WeakHashMap<StringBox, Int>()
+let key = StringBox("hello")
+map[key] = 42
+// key goes out of scope → entry vanishes immediately
+```
+
+This compiles but breaks the semantics: the `StringBox` wrapper has no external strong owner
+other than the call site. Once the local variable goes out of scope the entry disappears — not
+"when the GC collects it" as in Java, but **immediately** via ARC. The result is an unreliable
+map that loses entries unpredictably from the caller's perspective.
+
+### Typical use case
+
+`WeakHashMap` is appropriate only for listener registries or caches where the key is a
+**real object with its own lifecycle** (a view, controller, or component). For `String` or
+other value-type keys, use `HashMap`.
+
+### CharSequence note
+
+`java.lang.CharSequence` is a protocol that is conformed to by both class types
+(`StringBuilder`, `StringBuffer`) and value types (`String`, `Substring`). It therefore
+cannot be used as `WeakHashMap` key either.
+
+---
+
+## `Boolean(String)` Constructor — Swift Built-in Initializer Conflict (2026-06)
+
+### Problem
+
+`Boolean` is a `typealias` for Swift's `Bool`. Swift's standard library declares:
+
+```swift
+Bool.init?(_ description: String)   // failable, case-sensitive: only "true"/"false"
+```
+
+Writing `Boolean("TRUE")` in Swift code is therefore ambiguous — the compiler resolves it to
+the built-in failable initializer and returns `nil` instead of `true`, silently breaking
+Java-compatible behaviour.
+
+### JavApi implementation
+
+`Boolean.swift` declares:
+
+```swift
+public init(_ value: String?) {
+  self.init(value?.lowercased() == "true")
+}
+```
+
+This is non-failable and case-insensitive, matching Java's `new Boolean(String)`.
+Because the parameter type is `String?` (optional) rather than `String`, Swift can distinguish
+the two initializers — but only when the call site passes an explicit `Optional`:
+
+```swift
+let s: String? = "TRUE"
+let b = Boolean(s)   // → true  ✔  (JavApi init)
+
+let b2 = Boolean("TRUE")  // → nil  ✗  (Swift built-in failable init)
+```
+
+### Rule for call sites and tests
+
+Always use ``valueOf(_:)`` as the idiomatic API — it has no ambiguity:
+
+```swift
+Boolean.valueOf("TRUE")   // → true  ✔
+```
+
+When the `init(String?)` path must be tested directly (e.g. to verify nil-handling),
+pass an explicit `String?` variable, never a string literal:
+
+```swift
+let s: String? = "TRUE"
+#expect(Boolean(s) == true)
+```
+
+### Rule for tests covering the constructor
+
+Test structs that exercise `Boolean.init(String?)` must include this comment so the
+constraint is visible at the test site:
+
+```swift
+// Swift/Java interop: pass String? explicitly — Boolean("literal") resolves to
+// Swift's built-in Bool.init? and returns nil. See DevelopmentNotes.md.
+```

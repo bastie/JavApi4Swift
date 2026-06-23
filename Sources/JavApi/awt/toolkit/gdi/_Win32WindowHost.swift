@@ -48,6 +48,7 @@ public final class _Win32WindowHost {
   public func openWindow(for awtWindow: java.awt.Window) {
     let id = ObjectIdentifier(awtWindow)
     guard registry[id] == nil else { return }
+    _Win32FocusManager.shared.rootComponent = awtWindow
     awtWindow.validate()
     let title  = (awtWindow as? java.awt.Frame)?.title ?? ""
     let b      = awtWindow.bounds
@@ -405,6 +406,9 @@ public final class _Win32Canvas {
   private weak var draggingScrollbar:       java.awt.Scrollbar?
   private weak var draggingScrollPane:      java.awt.ScrollPane?
   private weak var draggingTextAreaScroll:  java.awt.TextArea?
+  private weak var draggingSplitPane:       javax.swing.JSplitPane?
+  private var splitPaneDragStartCoord: Int  = 0
+  private var splitPaneDragStartPos:   Int  = 0
   // Button whose press started this mouse-down cycle
   private weak var pressedButton:           java.awt.Button?
 
@@ -453,6 +457,24 @@ public final class _Win32Canvas {
     if repaintAfter { invalidate() }
   }
 
+  /// Walk up from `hit` and return the nearest `JSplitPane` whose divider
+  /// contains `(globalX, globalY)`, or nil.
+  private func _nearestJSplitPane(_ hit: java.awt.Component, globalX: Int, globalY: Int) -> javax.swing.JSplitPane? {
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let sp = n as? javax.swing.JSplitPane {
+        var ox = 0, oy = 0
+        var walk: java.awt.Component? = sp
+        while let w = walk { ox += w.bounds.x; oy += w.bounds.y; walk = w.parent }
+        let localCoord = sp.isHorizontal ? (globalX - ox) : (globalY - oy)
+        let pos = sp.effectiveDividerLocation()
+        if localCoord >= pos && localCoord < pos + sp.getDividerSize() { return sp }
+      }
+      node = n.parent
+    }
+    return nil
+  }
+
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseDown(x: Int, y: Int) {
@@ -494,9 +516,18 @@ public final class _Win32Canvas {
         }
       }
       // Normal Swing content click
-      if let (hit, lx0, ly0) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
+      if let (hit, lx0, ly0) = _SwingHitTest.findWithLocal(x: x, y: y, in: awtWindow) {
         _Win32FocusManager.shared.requestFocus(hit)
-        _AWTHitTest.dispatch(click: hit, x: lx0, y: ly0)
+        // ── JSplitPane divider drag ──────────────────────────────────────
+        if let sp = _nearestJSplitPane(hit, globalX: x, globalY: y) {
+          draggingSplitPane       = sp
+          splitPaneDragStartCoord = sp.isHorizontal ? x : y
+          splitPaneDragStartPos   = sp.effectiveDividerLocation()
+          if let hwnd { SetCapture(hwnd) }
+          invalidate()
+          return
+        }
+        _SwingHitTest.dispatch(click: hit, x: lx0, y: ly0)
       } else {
         _Win32FocusManager.shared.requestFocus(nil)
       }
@@ -509,7 +540,7 @@ public final class _Win32Canvas {
       let pr = choice.popupRect()
       if pr.contains(x, y) {
         // Click inside popup → select item and close
-        if let idx = choice.popupItemIndex(atY: y) {
+        if let idx = choice.popupItemIndex(y) {
           choice.select(idx)
           choice.fireItemEvent(index: idx)
         }
@@ -522,13 +553,13 @@ public final class _Win32Canvas {
         choice.isOpen = false
         openChoice    = nil
         invalidate()
-        let closeHit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+        let closeHit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
         if closeHit === choice { return }
         // Fall through so the actual click target is dispatched normally.
       }
     }
 
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     _Win32FocusManager.shared.requestFocus(hit)
     if let hwnd { SetCapture(hwnd) }
     // Track pressed button for drag-outside detection in onMouseUp
@@ -642,7 +673,7 @@ public final class _Win32Canvas {
         list.scrollDragStartY    = y
         list.scrollDragStartOff  = list.scrollOffset
       } else {
-        if let idx = list.itemIndex(atY: y) {
+        if let idx = list.itemIndex(y) {
           list.select(idx)
           list.fireItemEvent(index: idx,
                              stateChange: java.awt.event.ItemEvent.SELECTED)
@@ -653,6 +684,12 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseUp(x: Int, y: Int) {
+    // End JSplitPane divider drag
+    if let sp = draggingSplitPane {
+      draggingSplitPane = nil
+      _ = sp
+      ReleaseCapture(); invalidate(); return
+    }
     // End ScrollPane drag
     if let sp = draggingScrollPane {
       sp.isDraggingV     = false
@@ -684,25 +721,25 @@ public final class _Win32Canvas {
       btn.isPressed = false
       pressedButton = nil
       ReleaseCapture()
-      let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+      let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
       if hit === btn { btn.doClick() }
       invalidate()
       return
     }
     // Other components — dispatch click (Choice/List/Scrollbar/ScrollPane already handled)
     ReleaseCapture()
-    if let (hit, lx1, ly1) = _AWTHitTest.findWithLocal(x: x, y: y, in: awtWindow),
+    if let (hit, lx1, ly1) = _SwingHitTest.findWithLocal(x: x, y: y, in: awtWindow),
        !(hit is java.awt.Choice), !(hit is java.awt.List),
        !(hit is java.awt.Scrollbar), !(hit is java.awt.ScrollPane) {
-      _AWTHitTest.dispatch(click: hit, x: lx1, y: ly1)
+      _SwingHitTest.dispatch(click: hit, x: lx1, y: ly1)
     }
     invalidate()
   }
 
   fileprivate func onDoubleClick(x: Int, y: Int) {
-    let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     if let list = hit as? java.awt.List {
-      if let idx = list.itemIndex(atY: y) {
+      if let idx = list.itemIndex(y) {
         list.fireActionEvent(index: idx)
       }
     }
@@ -710,6 +747,19 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseDrag(x: Int, y: Int) {
+    // JSplitPane divider drag
+    if let sp = draggingSplitPane {
+      let coord = sp.isHorizontal ? x : y
+      let delta = coord - splitPaneDragStartCoord
+      let newPos = max(0, splitPaneDragStartPos + delta)
+      let (spOx, spOy) = _SwingHitTest.absoluteOrigin(sp)
+      let total = sp.isHorizontal ? sp.bounds.width : sp.bounds.height
+      let clamped = min(newPos, max(0, total - sp.getDividerSize()))
+      sp.setDividerLocation(clamped)
+      _ = (spOx, spOy) // suppress unused warning
+      invalidate()
+      return
+    }
     // ScrollPane thumb drag
     if let sp = draggingScrollPane {
       if sp.isDraggingV, let track = sp.vScrollbarRect() {
@@ -781,11 +831,11 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseWheel(x: Int, y: Int, deltaY: Int, deltaX: Int = 0) {
-    guard let hit = _AWTHitTest.find(x: x, y: y, in: awtWindow) else { return }
+    guard let hit = _SwingHitTest.find(x: x, y: y, in: awtWindow) else { return }
     let linesY = deltaY / 40
     let linesX = deltaX / 40
 
-    if let sp = _AWTHitTest.nearestScrollPane(hit) {
+    if let sp = _SwingHitTest.nearestScrollPane(hit) {
       sp.setScrollPosition(sp.scrollX - linesX, sp.scrollY - linesY)
     } else if let ta = hit as? java.awt.TextArea {
       let lineH    = max(1, ta.getFontMetrics(ta.font).getHeight())
@@ -861,7 +911,7 @@ public final class _Win32Canvas {
   /// Returns the Win32 IDC resource ID for the AWT component under (x,y).
   /// Returns a plain UInt so it can cross the MainActor boundary without Sendable issues.
   fileprivate func cursorIDC(x: Int, y: Int) -> UInt {
-    let comp = _AWTHitTest.find(x: x, y: y, in: awtWindow)
+    let comp = _SwingHitTest.find(x: x, y: y, in: awtWindow)
     // Walk up the parent chain for an explicit cursor, then infer from type.
     let awtType: Int
     var found: Int? = nil
@@ -896,7 +946,7 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onRightMouseDown(x: Int, y: Int) {
-    guard let hit   = _AWTHitTest.find(x: x, y: y, in: awtWindow),
+    guard let hit   = _SwingHitTest.find(x: x, y: y, in: awtWindow),
           let popup = hit.popupMenu else { return }
     showPopupMenu(popup, x: x, y: y)
   }

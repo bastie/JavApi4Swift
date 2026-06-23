@@ -104,6 +104,12 @@ extension javax.swing {
       super.add(rootPane)
     }
 
+    /// Delegates preferred size to the root pane so that `pack()` works.
+    override public func getPreferredSize() -> java.awt.Dimension {
+      if let d = _preferredSize { return d }
+      return rootPane.getPreferredSize()
+    }
+
     /// Fills the root pane to the full frame bounds, then lets rootPane
     /// lay out its own children (menuBar, contentPane, etc.).
     /// Does NOT call super.doLayout() — JFrame has no LayoutManager and

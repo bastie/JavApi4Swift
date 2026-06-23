@@ -160,7 +160,7 @@ extension java.math {
     static func completeInPlaceSubtract(_ op1: BigInteger, _ op2: BigInteger) {
       let resultSign = op1.compareTo(op2)
       if op1.sign == 0 {
-        System.arraycopy(op2.digits, 0, &op1.digits, 0, op2.numberLength)
+        try! System.arraycopy(op2.digits, 0, &op1.digits, 0, op2.numberLength)
         op1.sign = -op2.sign
       } else if op1.sign != op2.sign {
         addInto(&op1.digits, op1.digits, op1.numberLength, op2.digits, op2.numberLength)
@@ -182,7 +182,7 @@ extension java.math {
     /// `op1 += op2` without sign restrictions.
     static func completeInPlaceAdd(_ op1: BigInteger, _ op2: BigInteger) {
       if op1.sign == 0 {
-        System.arraycopy(op2.digits, 0, &op1.digits, 0, op2.numberLength)
+        try! System.arraycopy(op2.digits, 0, &op1.digits, 0, op2.numberLength)
       } else if op2.sign == 0 {
         return
       } else if op1.sign == op2.sign {

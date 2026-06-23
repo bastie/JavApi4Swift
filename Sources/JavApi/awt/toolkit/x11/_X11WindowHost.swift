@@ -239,6 +239,10 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private weak var draggingScrollbar:  java.awt.Scrollbar?
   // ScrollPane whose thumb is being dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingScrollPane: java.awt.ScrollPane?
+  // JSplitPane whose divider is being dragged (cleared on ButtonRelease)
+  @MainActor private weak var draggingSplitPane: javax.swing.JSplitPane?
+  @MainActor private var splitPaneDragStartCoord: Int = 0
+  @MainActor private var splitPaneDragStartPos:   Int = 0
   // TextComponent being selection-dragged (cleared on ButtonRelease)
   @MainActor private weak var draggingTextComponent: java.awt.TextComponent?
   // List whose scrollbar thumb is being dragged (cleared on ButtonRelease)
@@ -420,6 +424,27 @@ public final class _X11WindowHost: @unchecked Sendable {
     if repaintAfter { repaint(awtWindow, xwin: xwin) }
   }
 
+  /// Walk up the component tree from `contentX/Y` and return the nearest
+  /// enclosing `JSplitPane` whose divider contains that point, or nil.
+  @MainActor private func _nearestJSplitPane(contentX: Int, contentY: Int,
+                                              in root: java.awt.Component) -> javax.swing.JSplitPane? {
+    guard let (hit, _, _) = _SwingHitTest.findWithLocal(x: contentX, y: contentY, in: root) else { return nil }
+    var node: java.awt.Component? = hit
+    while let n = node {
+      if let sp = n as? javax.swing.JSplitPane {
+        // Compute the split pane's origin in root coordinates
+        var ox = 0, oy = 0
+        var walk: java.awt.Component? = sp
+        while let w = walk { ox += w.bounds.x; oy += w.bounds.y; walk = w.parent }
+        let localCoord = sp.isHorizontal ? (contentX - ox) : (contentY - oy)
+        let pos = sp.effectiveDividerLocation()
+        if localCoord >= pos && localCoord < pos + sp.getDividerSize() { return sp }
+      }
+      node = n.parent
+    }
+    return nil
+  }
+
   // MARK: Window lifecycle
   // ---------------------------------------------------------------------------
 
@@ -437,6 +462,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           let fnGC      = fnCreateGC
     else { return }
 
+    _X11FocusManager.shared.rootComponent = awtWindow
     awtWindow.validate()
 
     let screen  = fnScreen(dpy)
@@ -758,7 +784,7 @@ public final class _X11WindowHost: @unchecked Sendable {
         let contentX = clickX
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight : clickY
-        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow),
+        if let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow),
            let popup = hit.popupMenu {
           // Popup top-left corner = cursor position in window coordinates
           _X11PopupWindow.show(menu: popup,
@@ -791,10 +817,10 @@ public final class _X11WindowHost: @unchecked Sendable {
         let contentX = clickX
         let contentY = menuBarRegistry[xwin] != nil
                      ? clickY - _X11MenuBar.menuBarHeight : clickY
-        if let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow) {
+        if let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow) {
           // Walk up the parent chain to find the nearest ScrollPane —
           // the hit may land on a child component (e.g. Canvas) inside the pane.
-          if let sp = _AWTHitTest.nearestScrollPane(hit) {
+          if let sp = _SwingHitTest.nearestScrollPane(hit) {
             let (maxX, maxY) = sp.maxScroll()
             // Use ~10% of viewport size as scroll step, minimum 20px
             let vp   = sp.getViewportSize()
@@ -866,9 +892,9 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
         }
         // Normal Swing content click — hit-test and dispatch via _AWTHitTest
-        if let (hit, lx, ly) = _AWTHitTest.findWithLocal(x: clickX, y: clickY, in: awtWindow) {
+        if let (hit, lx, ly) = _SwingHitTest.findWithLocal(x: clickX, y: clickY, in: awtWindow) {
           _X11FocusManager.shared.requestFocus(hit)
-          _AWTHitTest.dispatch(click: hit, x: lx, y: ly)
+          _SwingHitTest.dispatch(click: hit, x: lx, y: ly)
           repaint(awtWindow, xwin: xwin)
         }
         return
@@ -924,7 +950,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           let pr = choice.popupRect()
           if pr.contains(contentX, contentY) {
             // Click inside popup → select item and close
-            if let idx = choice.popupItemIndex(atY: contentY) {
+            if let idx = choice.popupItemIndex(contentY) {
               choice.select(idx)
               choice.fireItemEvent(index: idx)
             }
@@ -944,7 +970,7 @@ public final class _X11WindowHost: @unchecked Sendable {
           }
         }
 
-        let hit = _AWTHitTest.find(x: contentX, y: contentY, in: awtWindow)
+        let hit = _SwingHitTest.find(x: contentX, y: contentY, in: awtWindow)
         let prevFocus = _X11FocusManager.shared.focusOwner
         _X11FocusManager.shared.requestFocus(hit)
         // Set caret position on click for TextField/TextArea BEFORE repaint
@@ -1048,7 +1074,7 @@ public final class _X11WindowHost: @unchecked Sendable {
             list.scrollDragStartY    = contentY
             list.scrollDragStartOff  = list.scrollOffset
           } else {
-            if let idx = list.itemIndex(atY: contentY) {
+            if let idx = list.itemIndex(contentY) {
               list.select(idx)
               list.fireItemEvent(index: idx,
                                  stateChange: java.awt.event.ItemEvent.SELECTED)
@@ -1065,6 +1091,13 @@ public final class _X11WindowHost: @unchecked Sendable {
           ta.scrollDragStartY     = contentY
           ta.scrollDragStartOff   = ta.scrollOffsetY
 
+        } else if let sp = _nearestJSplitPane(contentX: contentX, contentY: contentY, in: awtWindow) {
+          // _nearestJSplitPane already verified the divider hit
+          draggingSplitPane       = sp
+          splitPaneDragStartCoord = sp.isHorizontal ? contentX : contentY
+          splitPaneDragStartPos   = sp.effectiveDividerLocation()
+          repaint(awtWindow, xwin: xwin)
+
         } else if let btn = hit as? java.awt.Button {
           // Set pressed state for visual feedback; dispatch on ButtonRelease (AWT convention)
           btn.isPressed = true
@@ -1073,12 +1106,12 @@ public final class _X11WindowHost: @unchecked Sendable {
           repaint(awtWindow, xwin: xwin)
         } else if isDoubleClick, let list = hit as? java.awt.List {
           // Double-click on List fires actionPerformed (same as GDI onDoubleClick)
-          if let idx = list.itemIndex(atY: contentY) {
+          if let idx = list.itemIndex(contentY) {
             list.fireActionEvent(index: idx)
           }
         } else {
-          if let (hitComp, lx2, ly2) = _AWTHitTest.findWithLocal(x: contentX, y: contentY, in: awtWindow) {
-            _AWTHitTest.dispatch(click: hitComp, x: lx2, y: ly2)
+          if let (hitComp, lx2, ly2) = _SwingHitTest.findWithLocal(x: contentX, y: contentY, in: awtWindow) {
+            _SwingHitTest.dispatch(click: hitComp, x: lx2, y: ly2)
           }
         }
       }
@@ -1093,6 +1126,7 @@ public final class _X11WindowHost: @unchecked Sendable {
       draggingList           = nil
       draggingTextAreaScroll = nil
       draggingTextComponent  = nil
+      draggingSplitPane      = nil
       // Fire button action on release (correct AWT behaviour) and clear pressed state
       if let btn = pressedButton, let win = pressedButtonWindow {
         btn.isPressed       = false
@@ -1111,6 +1145,15 @@ public final class _X11WindowHost: @unchecked Sendable {
       let contentMY = menuBarRegistry[xwin] != nil ? my - _X11MenuBar.menuBarHeight : my
       var needsRepaint = false
 
+      // JSplitPane divider drag
+      if let sp = draggingSplitPane {
+        let coord = sp.isHorizontal ? mx : contentMY
+        let delta = coord - splitPaneDragStartCoord
+        let newPos = max(0, splitPaneDragStartPos + delta)
+        let total  = sp.isHorizontal ? sp.bounds.width : sp.bounds.height
+        sp.setDividerLocation(min(newPos, max(0, total - sp.getDividerSize())))
+        needsRepaint = true
+      }
       // Scrollbar thumb drag
       if let sb = draggingScrollbar {
         let isVert = sb.orientation == java.awt.Scrollbar.VERTICAL
@@ -1252,7 +1295,7 @@ public final class _X11WindowHost: @unchecked Sendable {
         needsRepaint = true
       }
       // Update cursor based on component under pointer
-      let hitForCursor = _AWTHitTest.find(x: mx, y: contentMY, in: awtWindow)
+      let hitForCursor = _SwingHitTest.find(x: mx, y: contentMY, in: awtWindow)
       updateCursor(for: hitForCursor, xwin: xwin)
 
       if needsRepaint { repaint(awtWindow, xwin: xwin) }

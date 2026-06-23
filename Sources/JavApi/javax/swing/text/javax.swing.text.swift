@@ -6,7 +6,8 @@
 extension javax.swing {
 
   /// The `javax.swing.text` namespace contains the text-component model
-  /// classes: `Document`, `AbstractDocument`, `PlainDocument`, and the
-  /// supporting event types (`DocumentEvent`, `DocumentListener`).
+  /// and the abstract base class for all Swing text components:
+  /// `Document`, `AbstractDocument`, `PlainDocument`, `JTextComponent`,
+  /// and supporting types (`BadLocationException`).
   public enum text {}
 }

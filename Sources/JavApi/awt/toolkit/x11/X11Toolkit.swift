@@ -202,6 +202,20 @@ extension java.awt.toolkit.x11 {
     public override func getColorModel() -> java.awt.image.ColorModel {
       return java.awt.image.ColorModel.getRGBdefault()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Clipboard
+    // -------------------------------------------------------------------------
+
+    /// Returns the X11 / Wayland clipboard provider.
+    ///
+    /// ``_X11ClipboardProvider`` auto-detects the session at first use:
+    /// Wayland (`wl-copy`/`wl-paste`) takes priority over X11 (`xclip`/`xsel`).
+    /// If no display tool is available (headless/CI) it falls back to an
+    /// in-memory buffer.
+    public override func _makeClipboardProvider() -> any java.awt.toolkit.ClipboardProvider {
+      return java.awt.toolkit._X11ClipboardProvider()
+    }
   }
 }
 #endif

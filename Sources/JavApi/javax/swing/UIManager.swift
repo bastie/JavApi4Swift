@@ -87,18 +87,8 @@ extension javax.swing {
     /// of the class name and appending `"UI"`:
     /// `javax.swing.JButton` → `"ButtonUI"`.
     public static func getUI(_ component: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI? {
-      let key = uiKey(for: component)
+      let key = component.getUIClassID()
       return _defaults.getUI(for: key)
-    }
-
-    /// Derives the `UIDefaults` key for a given component.
-    private static func uiKey(for component: javax.swing.JComponent) -> String {
-      // Swift type name: "javax.swing.JButton" → last segment "JButton" → "ButtonUI"
-      let typeName = String(describing: type(of: component))
-      let simple   = typeName.components(separatedBy: ".").last ?? typeName
-      // Strip leading "J" if present
-      let stripped = simple.hasPrefix("J") ? String(simple.dropFirst()) : simple
-      return stripped + "UI"
     }
 
     // -------------------------------------------------------------------------

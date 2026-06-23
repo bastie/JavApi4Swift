@@ -31,7 +31,14 @@ extension java.io {
     /// - Parameter s: The string to read from.
     /// - Since: Java 1.1
     public init(_ s: String) {
-      source = Array(s)
+      // Swift treats \r\n as a single Character. We must split them into
+      // separate Characters so that readLine() can detect \r and \n individually.
+      var chars: [Character] = []
+      chars.reserveCapacity(s.unicodeScalars.count)
+      for scalar in s.unicodeScalars {
+        chars.append(Character(scalar))
+      }
+      source = chars
       super.init()
     }
 
@@ -65,11 +72,11 @@ extension java.io {
       return toCopy
     }
 
-    /// Returns `true` — a `StringReader` is always ready to read.
+    /// Returns `true` if there are characters left to read.
     /// - Since: Java 1.1
     public override func ready() throws -> Bool {
       try ensureOpen()
-      return true
+      return pos < source.count
     }
 
     /// Returns `true` — `StringReader` supports `mark`/`reset`.

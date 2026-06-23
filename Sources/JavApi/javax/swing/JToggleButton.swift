@@ -22,6 +22,8 @@ extension javax.swing {
   @MainActor
   open class JToggleButton: javax.swing.AbstractButton {
 
+    override open func getUIClassID() -> String { "ToggleButtonUI" }
+
     // -------------------------------------------------------------------------
     // MARK: Initialisers
     // -------------------------------------------------------------------------

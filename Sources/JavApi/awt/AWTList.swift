@@ -194,7 +194,7 @@ extension java.awt {
     }
 
     /// The item index at LOCAL y coordinate `localY` (0 = top of list), or `nil`.
-    func itemIndex(atLocalY localY: Int) -> Int? {
+    func itemIndex(_ localY: Int) -> Int? {
       let vRows = visibleRows()
       guard localY >= 0, localY < vRows * itemHeight else { return nil }
       let idx = scrollOffset + localY / itemHeight

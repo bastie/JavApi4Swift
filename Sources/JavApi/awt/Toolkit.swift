@@ -272,6 +272,71 @@ extension java.awt {
     open func repaint(_ window: Window) {}
 
     // -------------------------------------------------------------------------
+    // MARK: Printing
+    // -------------------------------------------------------------------------
+
+    /// Initiates a print job and returns a `PrintJob` object, or `nil` if the
+    /// user cancelled the print dialog.
+    ///
+    /// Mirrors `java.awt.Toolkit.getPrintJob(Frame, String, Properties)`.
+    /// The `props` parameter is accepted for API compatibility but ignored in
+    /// the base implementation.
+    ///
+    /// Override in platform-specific subclasses to display a native print dialog
+    /// and return a concrete `PrintJob`.
+    ///
+    /// - Parameters:
+    ///   - frame: The parent frame for the print dialog.
+    ///   - jobtitle: A title string for the print job.
+    ///   - props: Optional print properties (ignored in base implementation).
+    /// - Returns: A `PrintJob` instance, or `nil` if printing was cancelled.
+    ///
+    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    open func getPrintJob(_ frame: Frame, _ jobtitle: String, _ props: java.util.Properties?) -> PrintJob? {
+      return nil
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Clipboard
+    // -------------------------------------------------------------------------
+
+    private var _systemClipboard: java.awt.datatransfer.Clipboard? = nil
+    private let _clipboardLock = CrossPlatformMutex(0)
+
+    /// Returns the system clipboard.
+    ///
+    /// The base implementation returns a clipboard backed by an in-process
+    /// memory buffer (``java.awt.toolkit._HeadlessClipboardProvider``).
+    /// Platform subclasses override ``_makeClipboardProvider()`` to supply a
+    /// native backend (`NSPasteboard`, Win32, X11, …).
+    ///
+    /// On WASI the in-process buffer means copy → paste works within the
+    /// running module even though there is no cross-app clipboard API.
+    ///
+    /// - Since: JavaApi (Java 1.1)
+    public final func getSystemClipboard() -> java.awt.datatransfer.Clipboard {
+      var clipboard: java.awt.datatransfer.Clipboard? = nil
+      _clipboardLock.withLock { _ in clipboard = _systemClipboard }
+      if let existing = clipboard { return existing }
+      let newClipboard = java.awt.datatransfer.Clipboard(
+        name: "System",
+        provider: _makeClipboardProvider()
+      )
+      _clipboardLock.withLock { _ in _systemClipboard = newClipboard }
+      return newClipboard
+    }
+
+    /// Returns the platform-specific ``ClipboardProvider``.
+    ///
+    /// Override in platform toolkits to provide the native backend.
+    /// The default returns ``_HeadlessClipboardProvider`` (in-memory).
+    ///
+    /// - Since: JavaApi (Java 1.1)
+    open func _makeClipboardProvider() -> any java.awt.toolkit.ClipboardProvider {
+      return java.awt.toolkit._HeadlessClipboardProvider()
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Focus
     // -------------------------------------------------------------------------
 

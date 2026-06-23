@@ -57,6 +57,10 @@ extension javax.swing {
       invalidate()
     }
 
+    /// Returns the UIDefaults key used to look up the UI delegate class.
+    /// Subclasses override this to return e.g. `"ButtonUI"`, `"ListUI"`, etc.
+    open func getUIClassID() -> String { "ComponentUI" }
+
     /// Fetches and installs the UI delegate for this component from `UIManager`.
     ///
     /// Subclasses may override this; the base implementation asks `UIManager`
@@ -65,6 +69,30 @@ extension javax.swing {
       if let newUI = javax.swing.UIManager.getUI(self) {
         setUI(newUI)
       }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Border
+    // -------------------------------------------------------------------------
+
+    private var _border: (any javax.swing.border.Border)? = nil
+
+    /// Sets the border of this component.
+    ///
+    /// The border is painted around the component's bounds.  Its insets are
+    /// taken into account by `getInsets()` so that layout managers leave room
+    /// for it.
+    public func setBorder(_ border: (any javax.swing.border.Border)?) {
+      _border = border
+      invalidate()
+    }
+
+    /// Returns the current border, or `nil` if none is set.
+    public func getBorder() -> (any javax.swing.border.Border)? { _border }
+
+    /// Returns the insets of the border, or zero insets if no border is set.
+    public func getInsets() -> java.awt.Insets {
+      _border?.getBorderInsets(self) ?? java.awt.Insets(0, 0, 0, 0)
     }
 
     // -------------------------------------------------------------------------
@@ -101,16 +129,6 @@ extension javax.swing {
     public func setOpaque(_ opaque: Bool) { _opaque = opaque }
 
     // -------------------------------------------------------------------------
-    // MARK: Background / Foreground  (delegates to AWT Component)
-    // -------------------------------------------------------------------------
-
-    public func getBackground() -> java.awt.Color { background }
-    public func setBackground(_ color: java.awt.Color) { background = color }
-
-    public func getForeground() -> java.awt.Color { foreground }
-    public func setForeground(_ color: java.awt.Color) { foreground = color }
-
-    // -------------------------------------------------------------------------
     // MARK: Paint hook
     // -------------------------------------------------------------------------
 
@@ -121,15 +139,17 @@ extension javax.swing {
     open func paintComponent(_ g: java.awt.Graphics) {}
 
     /// Paints this component: background via the L&F delegate, then the
-    /// subclass hook, then all children.
+    /// border, then the subclass hook, then all children.
     override open func paint(_ g: java.awt.Graphics) {
       if let ui {
-        ui.update(g, on: self)
+        ui.update(g, self)
       } else if isOpaque() {
         // No UI delegate but opaque — fill background directly.
         g.setColor(background)
         g.fillRect(0, 0, bounds.width, bounds.height)
       }
+      // Paint border on top of background, before content
+      _border?.paintBorder(self, g, 0, 0, bounds.width, bounds.height)
       paintComponent(g)
       paintChildren(g)
     }
@@ -138,11 +158,17 @@ extension javax.swing {
     /// to each child's origin so the child can paint at (0,0).
     open func paintChildren(_ g: java.awt.Graphics) {
       for child in children where child.visible {
-        let dx = child.bounds.x
-        let dy = child.bounds.y
+        let b = child.bounds
+        // Skip children with zero-size bounds — clipRect(0-size) would create
+        // an empty CGContext clip, making all subsequent drawing invisible.
+        guard b.width > 0 && b.height > 0 else { continue }
+        let dx = b.x
+        let dy = b.y
+        g.save()
+        g.clipRect(dx, dy, b.width, b.height)
         g.translate(dx, dy)
         child.paint(g)
-        g.translate(-dx, -dy)
+        g.restore()
       }
     }
 
@@ -151,6 +177,8 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize() -> java.awt.Dimension {
+      // Explicitly set preferred size always wins (matches Java Swing behaviour)
+      if let d = _preferredSize { return d }
       if let d = ui?.getPreferredSize(_ : self) { return d }
       return super.getPreferredSize()
     }

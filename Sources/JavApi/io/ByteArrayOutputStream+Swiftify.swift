@@ -25,10 +25,11 @@ extension java.io.ByteArrayOutputStream {
     try write([UInt8](data), 0, data.count)
   }
 
+}
+
+extension java.io.ByteArrayOutputStream : CustomStringConvertible {
   /// `CustomStringConvertible` support — delegates to ``toString()``.
   public var description: String {
     return toString()
   }
 }
-
-extension java.io.ByteArrayOutputStream : CustomStringConvertible {}

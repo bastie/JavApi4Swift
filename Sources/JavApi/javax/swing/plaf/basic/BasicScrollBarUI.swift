@@ -27,14 +27,15 @@ extension javax.swing.plaf.basic {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
-    open func paint(_ g: java.awt.Graphics, _ c: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ c: javax.swing.JComponent) {
       guard let bar = c as? javax.swing.JScrollBar else { return }
 
-      let x = bar.bounds.x, y = bar.bounds.y, w = bar.bounds.width, h = bar.bounds.height
+      // g is already translated to (0,0) of bar — use local coordinates
+      let w = bar.bounds.width, h = bar.bounds.height
 
       // Track
       g.setColor(java.awt.SystemColor.scrollbar)
-      g.fillRect(x, y, w, h)
+      g.fillRect(0, 0, w, h)
 
       // Thumb
       let tr = bar.thumbRect()
@@ -52,10 +53,10 @@ extension javax.swing.plaf.basic {
 
       // Outer border
       g.setColor(java.awt.SystemColor.controlDkShadow)
-      g.drawLine(x,     y,     x+w-1, y)
-      g.drawLine(x,     y,     x,     y+h-1)
-      g.drawLine(x+w-1, y,     x+w-1, y+h-1)
-      g.drawLine(x,     y+h-1, x+w-1, y+h-1)
+      g.drawLine(0,     0,     w-1, 0)
+      g.drawLine(0,     0,     0,   h-1)
+      g.drawLine(w-1,   0,     w-1, h-1)
+      g.drawLine(0,     h-1,   w-1, h-1)
     }
 
     // -------------------------------------------------------------------------
@@ -63,12 +64,15 @@ extension javax.swing.plaf.basic {
     // -------------------------------------------------------------------------
 
     override open func getPreferredSize(_ c: javax.swing.JComponent) -> java.awt.Dimension {
+      // Scrollbar thickness: roughly one font line height; length unconstrained (0).
+      let fm    = java.awt.FontMetrics.make(for: c.font)
+      let thick = fm.getHeight()
       guard let bar = c as? javax.swing.JScrollBar else {
-        return java.awt.Dimension(16, 100)
+        return java.awt.Dimension(thick, thick)
       }
       return bar.getOrientation() == javax.swing.JScrollBar.VERTICAL
-        ? java.awt.Dimension(16, 100)
-        : java.awt.Dimension(100, 16)
+        ? java.awt.Dimension(thick, 0)
+        : java.awt.Dimension(0, thick)
     }
   }
 }

@@ -25,6 +25,10 @@ public final class _Win32FocusManager {
 
   private(set) weak var focusOwner: java.awt.Component?
 
+  /// The root component of the current window — set by the window host so
+  /// that Tab-order traversal can walk the full component tree.
+  weak var rootComponent: java.awt.Component?
+
   // ---------------------------------------------------------------------------
   // MARK: Focus transfer
   // ---------------------------------------------------------------------------
@@ -142,13 +146,13 @@ public final class _Win32FocusManager {
   }
 
   // ---------------------------------------------------------------------------
-  // MARK: Clipboard — Win32
+  // MARK: Clipboard — Win32 (delegated to _Win32ClipboardProvider)
   // ---------------------------------------------------------------------------
 
   func copySelection() {
     guard let tc = focusOwner as? java.awt.TextComponent, tc.hasSelection else { return }
     let selected = String(Array(tc.getText())[tc.selectionStart..<tc.selectionEnd])
-    setWin32Clipboard(selected)
+    java.awt.toolkit._Win32ClipboardProvider.shared._setClipboardText(selected)
   }
 
   func cutSelection() {
@@ -160,35 +164,57 @@ public final class _Win32FocusManager {
 
   func pasteText() {
     guard let tc = focusOwner as? java.awt.TextComponent, tc.editable else { return }
-    guard let text = getWin32Clipboard() else { return }
+    guard let text = java.awt.toolkit._Win32ClipboardProvider.shared._getClipboardText() else { return }
     for ch in text { typeCharacter(ch) }
   }
 
   // ---------------------------------------------------------------------------
-  // MARK: Win32 clipboard helpers
+  // MARK: Tab / focus traversal
   // ---------------------------------------------------------------------------
 
-  private func setWin32Clipboard(_ text: String) {
-    guard OpenClipboard(nil) else { return }
-    EmptyClipboard()
-    let wide    = Array(text.utf16) + [0]
-    let bytes   = wide.count * MemoryLayout<WCHAR>.size
-    let hMem    = GlobalAlloc(UINT(GMEM_MOVEABLE), SIZE_T(bytes))!
-    let ptr     = GlobalLock(hMem)!
-    ptr.copyMemory(from: wide, byteCount: bytes)
-    GlobalUnlock(hMem)
-    SetClipboardData(UINT(CF_UNICODETEXT), hMem)
-    CloseClipboard()
+  func transferFocus(forward: Bool) {
+    guard let root = rootComponent else { return }
+    let all = focusableComponents(in: root)
+    guard !all.isEmpty else { return }
+    if let current = focusOwner, let idx = all.firstIndex(where: { $0 === current }) {
+      let next = forward
+        ? all[(idx + 1) % all.count]
+        : all[(idx - 1 + all.count) % all.count]
+      requestFocus(next)
+    } else {
+      requestFocus(forward ? all.first : all.last)
+    }
   }
 
-  private func getWin32Clipboard() -> String? {
-    guard OpenClipboard(nil)                          else { return nil }
-    defer { CloseClipboard() }
-    guard let hMem = GetClipboardData(UINT(CF_UNICODETEXT)) else { return nil }
-    guard let ptr  = GlobalLock(hMem)                       else { return nil }
-    defer { GlobalUnlock(hMem) }
-    return String(decodingCString: ptr.bindMemory(to: WCHAR.self, capacity: 1),
-                  as: UTF16.self)
+  private func focusableComponents(in component: java.awt.Component) -> [java.awt.Component] {
+    guard component.isVisible() && component.isEnabled() else { return [] }
+    if !(component is java.awt.Container) {
+      return isFocusable(component) ? [component] : []
+    }
+    var result: [java.awt.Component] = []
+    if isFocusable(component) {
+      result.append(component)
+    } else if let container = component as? java.awt.Container {
+      for child in container.getComponents() {
+        result += focusableComponents(in: child)
+      }
+    }
+    return result
+  }
+
+  private func isFocusable(_ c: java.awt.Component) -> Bool {
+    guard c.isVisible() && c.isEnabled() else { return false }
+    if c is _AnyTextInput              { return true }
+    if c is javax.swing.JButton        { return true }
+    if c is javax.swing.JToggleButton  { return true }
+    if c is javax.swing.JCheckBox      { return true }
+    if c is javax.swing.JRadioButton   { return true }
+    if c is javax.swing.JSpinner       { return true }
+    if let jc = c as? javax.swing.JComponent {
+      let id = jc.getUIClassID()
+      if id == "ComboBoxUI" || id == "ListUI" { return true }
+    }
+    return false
   }
 }
 

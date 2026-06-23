@@ -85,7 +85,7 @@ public protocol Checksum {
 
 // default implementations like Java
 extension Checksum {
-  
+
   public func update (_ buffer : [UInt8]) {
     self.update(buffer, 0, buffer.count)
   }

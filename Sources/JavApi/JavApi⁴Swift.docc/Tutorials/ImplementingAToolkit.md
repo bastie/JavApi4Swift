@@ -884,8 +884,9 @@ The `openDialog` method should:
 
 Hit-testing is a **platform-independent** utility that can be used directly from any backend:
 
-- `_AWTHitTest.find(x:y:in:)` — recursively finds the deepest visible component at a point in AWT coordinates (Y from top). Lives in `toolkit/_AWTHitTest.swift`; no CoreGraphics or SwiftUI dependency.
-- `_AWTHitTest.dispatch(click:)` — dispatches a click to the hit component (Button, Checkbox, TextField, …).
+- `_SwingHitTest.find(x:y:in:)` — recursively finds the deepest visible component at a point in AWT coordinates (Y from top). Handles both AWT and Swing containers (e.g. `JScrollPane` scroll-offset translation). Lives in `toolkit/_SwingHitTest.swift`; no CoreGraphics or SwiftUI dependency.
+- `_SwingHitTest.dispatch(click:)` — dispatches a click to the hit component (JButton, Button, Checkbox, JTextComponent, …). Swing components are handled first; AWT components fall through to `_AWTHitTest`.
+- `_AWTHitTest` — lower-level helper for pure `java.awt.*` trees. Do **not** call directly from backends — use `_SwingHitTest` so that Swing containers are handled correctly.
 
 **Focus management is platform-specific.** Each backend provides its own focus manager with identical text-input logic but a platform-native clipboard implementation:
 
@@ -904,9 +905,9 @@ Translate your native events into AWT coordinates, then call these utilities:
 // Mouse click at native coordinates (nx, ny)
 // Win32 / Linux: Y is already from top — no flip needed (same as AWT)
 // NSEvent on non-flipped NSView: flip with  y = windowHeight - ny
-let hit = _AWTHitTest.find(x: nx, y: ny, in: awtWindow)
+let hit = _SwingHitTest.find(x: nx, y: ny, in: awtWindow)
 _MyPlatformFocusManager.shared.requestFocus(hit)
-_AWTHitTest.dispatch(click: hit ?? awtWindow)
+_SwingHitTest.dispatch(click: hit ?? awtWindow)
 
 // Key input — printable characters
 _MyPlatformFocusManager.shared.typeCharacter(character)
@@ -925,15 +926,15 @@ _MyPlatformFocusManager.shared.pasteText()
 _MyPlatformFocusManager.shared.cutSelection()
 ```
 
-> **ScrollPane coordinate translation:** `_AWTHitTest.find(x:y:in:)` already handles `ScrollPane` by translating the hit-point into the child's scrolled coordinate space. No extra work is needed in your input handler.
+> **ScrollPane coordinate translation:** `_SwingHitTest.find(x:y:in:)` handles both `java.awt.ScrollPane` and `javax.swing.JScrollPane` by translating the hit-point into the child's scrolled coordinate space. No extra work is needed in your input handler.
 
-> **CGPoint convenience:** The SwiftUI backend provides `_SwiftUIHitTest` as a thin CGPoint wrapper around `_AWTHitTest`. Use it when you already hold a `CGPoint`; otherwise call `_AWTHitTest` directly.
+> **CGPoint convenience:** The SwiftUI backend provides `_SwiftUIHitTest` as a thin CGPoint wrapper around `_SwingHitTest`. Use it when you already hold a `CGPoint`; otherwise call `_SwingHitTest` directly.
 
 For scrollbars, Choice popups, List selection, and TextArea scrolling, see `_SwiftUINativeCanvas` — it is the complete reference for translating mouse drag and scroll-wheel events into AWT component operations.
 
 ### Mouse-wheel scrolling (vertical and horizontal)
 
-`_AWTHitTest.find(x:y:in:)` returns the **deepest** child component — typically the content panel inside a `ScrollPane`, not the `ScrollPane` itself. Walk the parent chain to find the nearest enclosing `ScrollPane`:
+`_SwingHitTest.find(x:y:in:)` returns the **deepest** child component — typically the content panel inside a `ScrollPane`, not the `ScrollPane` itself. Walk the parent chain to find the nearest enclosing scroll container:
 
 ```swift
 static func nearestScrollPane(_ component: java.awt.Component?) -> java.awt.ScrollPane? {
@@ -1290,7 +1291,7 @@ Before shipping your toolkit, verify these are working:
 - [ ] X11 popup drawn checkbox uses lines not Unicode glyph; box aligned to text baseline not item height; fixed `checkW` column reserved for all items
 - [ ] Linux `FileDialog` shells out to `zenity` (GNOME) or `kdialog` (KDE) via `Process`; falls back to `nil` if neither is installed; `terminationStatus == 0` guards against cancel; result path split into `file` + `directory` with trailing `/`
 - [ ] `X11Toolkit.show(_:)` returns early for `FileDialog` — the dialog is self-managed via `setVisible` and must not receive an X11 window
-- [ ] Mouse-wheel scroll uses `nearestScrollPane(_:)` parent-chain walk — `_AWTHitTest.find` returns the deepest child, not the `ScrollPane` itself
+- [ ] Mouse-wheel scroll uses `nearestScrollPane(_:)` / `nearestJScrollPane(_:)` parent-chain walk — `_SwingHitTest.find` returns the deepest child, not the `ScrollPane` itself
 - [ ] X11 scroll buttons 4/5 (vertical) and 6/7 (horizontal) handled in `ButtonPress`; step size proportional to viewport dimension
 - [ ] Win32 `WM_MOUSEWHEEL` with `MK_SHIFT` detected for horizontal scroll; `WM_MOUSEHWHEEL` handled separately for tilt wheels; `SetFocus(hwnd)` called in `WM_LBUTTONDOWN` and `WM_ACTIVATE` so `WM_MOUSEHWHEEL` is delivered
 - [ ] `TextField._charIndex(at:)` and `TextArea._charIndex(atX:atY:)` use `FontMetrics.stringWidth` with prefix strings to find the nearest character boundary; `padding` constant matches `paint()`'s padding
@@ -1308,8 +1309,9 @@ Before shipping your toolkit, verify these are working:
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowHost.swift` + `+macOS.swift` | Complete implementation for Apple platforms — window lifecycle, render loop, input dispatch, menu bar, dialogs |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIWindowSizeDelegate.swift` | NSWindowDelegate — size constraints, `WINDOW_CLOSING` dispatch with `didFireClosing` duplicate guard, `WINDOW_ACTIVATED` / `WINDOW_DEACTIVATED` |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUINativeCanvas.swift` | Full mouse, keyboard, scroll-wheel, cursor, and right-click handling for macOS and iOS |
-| `Sources/JavApi/awt/toolkit/_AWTHitTest.swift` | Platform-independent AWT hit-test and click-dispatch — no CoreGraphics dependency, usable from any backend |
-| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIHitTest.swift` | Thin CGPoint wrapper around `_AWTHitTest` for SwiftUI/CoreGraphics callers |
+| `Sources/JavApi/awt/toolkit/_SwingHitTest.swift` | Entry point for all backends — handles Swing containers (JScrollPane, …) and dispatches Swing clicks; delegates AWT cases to `_AWTHitTest` |
+| `Sources/JavApi/awt/toolkit/_AWTHitTest.swift` | Pure `java.awt.*` hit-test and click-dispatch — do not call directly from backends |
+| `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIHitTest.swift` | Thin CGPoint wrapper around `_SwingHitTest` for SwiftUI/CoreGraphics callers |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIFocusManager.swift` | Platform-independent keyboard focus and text-input routing (clipboard section needs platform adaptation) |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIPopupMenu.swift` | PopupMenu rendering on macOS |
 | `Sources/JavApi/awt/toolkit/swiftui/_SwiftUIMenuItemTarget.swift` | Objective-C action target bridging `NSMenuItem` → `java.awt.MenuItem.doAction()` |

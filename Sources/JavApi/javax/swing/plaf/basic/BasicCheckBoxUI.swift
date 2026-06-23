@@ -31,7 +31,7 @@ extension javax.swing.plaf.basic {
       return java.awt.Dimension(w, h)
     }
 
-    override open func paint(_ g: java.awt.Graphics, on component: javax.swing.JComponent) {
+    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let btn = component as? javax.swing.AbstractButton else { return }
 
       let h   = component.bounds.height

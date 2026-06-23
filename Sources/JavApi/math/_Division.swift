@@ -24,8 +24,8 @@ extension java.math {
         _BitLevel.shiftLeft(&normA, a, 0, divisorShift)
       }
       else {
-        System.arraycopy(a, 0, &normA, 0, aLength)
-        System.arraycopy(b, 0, &normB, 0, bLength)
+        try! System.arraycopy(a, 0, &normA, 0, aLength)
+        try! System.arraycopy(b, 0, &normB, 0, bLength)
       }
       let firstDivisorDigit = normB[normBLength - 1]
       var i = quotLength - 1
@@ -83,7 +83,7 @@ extension java.math {
         _BitLevel.shiftRight(&normB, normBLength, normA, 0, divisorShift)
         return normB
       }
-      System.arraycopy(normA, 0, &normB, 0, bLength)
+      try! System.arraycopy(normA, 0, &normB, 0, bLength)
       return normA
     }
 

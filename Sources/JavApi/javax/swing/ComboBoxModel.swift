@@ -17,7 +17,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public protocol ComboBoxModel: javax.swing.ListModel {
+  public protocol ComboBoxModel<Element>: javax.swing.ListModel {
 
     /// Returns the currently selected item, or `nil` if nothing is selected.
     ///

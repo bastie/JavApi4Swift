@@ -16,30 +16,26 @@ extension java.util {
     
     /// Create a new `java.util.Date` instance at 1. Januar 1970
     /// - Parameter millisecondsSince1970: milliseconds since 1970
-    /// - Note: In result of Swift works with seconds instead of milliseconds the milliseconds part are ignored
     /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
     public convenience init(_ millisecondsSince1970: Int64) {
       self.init()
-      let secondsSince1970 = millisecondsSince1970 / 1000
-      let interval = TimeInterval(secondsSince1970)
+      // Preserve sub-second precision by converting via TimeInterval (Double).
+      let interval = TimeInterval(millisecondsSince1970) / 1000.0
       delegate = Foundation.Date(timeIntervalSince1970: interval)
     }
-    
+
     /// time in milliseconds since 1. January 1970
-    /// - Note: In result of Swift works with seconds instead of milliseconds this implementation it returns time in seconds `*` 1000
     /// - Returns: milliseconds since 1. January 1970
     /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
     open func getTime() -> Int64 {
-      return Int64(self.delegate.timeIntervalSince1970) * 1000
+      return Int64((self.delegate.timeIntervalSince1970 * 1000).rounded())
     }
-    
+
     /// set the ``Date`` object with the new seconds relative to 1. January 1970
     /// - Parameter millisecondsSince1970: milliseconds since 1970
-    /// - Note: In result of Swift works with seconds instead of milliseconds the milliseconds part are ignored
     /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
     open func setTime(_ millisecondsSince1970: Int64) {
-      let secondsSince1970 = millisecondsSince1970 / 1000
-      let interval = TimeInterval(secondsSince1970)
+      let interval = TimeInterval(millisecondsSince1970) / 1000.0
       self.delegate = Foundation.Date(timeIntervalSince1970: interval)
     }
     
@@ -207,7 +203,7 @@ extension java.util {
                      "yyyy-MM-dd"] {
         fmt.dateFormat = format
         if let d = fmt.date(from: s) {
-          return Int64(d.timeIntervalSince1970) * 1000
+          return Int64((d.timeIntervalSince1970 * 1000).rounded())
         }
       }
       return -1

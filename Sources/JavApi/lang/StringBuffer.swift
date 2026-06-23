@@ -33,8 +33,8 @@ public final class StringBuffer {
   /// Creates a buffer containing the given CharSequence
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
-  public init(_ newContent: any CharSequence) {
-    self.content = "\(newContent)"
+  public init<CS: JavApi.CharSequence>(_ newContent: CS) {
+    self.content = newContent.toString()
   }
 
   /// Creates an empty buffer with the given initial capacity hint.

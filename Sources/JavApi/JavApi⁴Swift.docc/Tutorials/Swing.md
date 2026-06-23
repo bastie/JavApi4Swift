@@ -489,7 +489,7 @@ switching visibility — no manual redraw is needed.
 
 ## Hit-test coordinate system
 
-The `_AWTHitTest.find(x:y:in:)` function translates coordinates into each child's local
+The `_SwingHitTest.find(x:y:in:)` function translates coordinates into each child's local
 space before recursing. This is essential for the Swing component hierarchy, where all
 layout managers place children at **local** (0,0-relative) coordinates:
 

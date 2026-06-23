@@ -3,75 +3,96 @@
  * SPDX-License-Identifier: MIT
  */
 
-// - NOTE: file is named "TextDocument" instead of "Document" because Swift compiler did not accept same filenames (directory is not important here). So filename is changed but type name is correct.
-
 extension javax.swing.text {
 
-  /// The model for Swing text components (`JTextField`, `JTextArea`, etc.).
+  /// The central interface for text-component models — mirrors
+  /// `javax.swing.text.Document` from Java 1.2 / JFC 1.0.
   ///
-  /// A `Document` stores text as a character sequence with an optional set
-  /// of attributes per run.  The content is accessed via `getText(offset:length:)`
-  /// and modified with `insertString(_:_:)` and `remove(offset:length:)`.
+  /// A `Document` stores the text content and fires `DocumentEvent`s to
+  /// registered `DocumentListener`s whenever the content changes.
   ///
-  /// Every mutation fires a `DocumentEvent` to registered `DocumentListener`s.
+  /// ## Hierarchy
   ///
-  /// ## Key property
+  /// ```
+  /// Document                   ← this protocol
+  ///   └── StyledDocument       ← adds character/paragraph attributes
+  ///         └── AbstractDocument (open class, partial impl)
+  ///               ├── PlainDocument
+  ///               └── DefaultStyledDocument
+  /// ```
   ///
-  /// The `"content"` key stored in the document's property map is often used
-  /// to hold the raw string; use `getProperty(_:)` / `putProperty(_:_:)`.
+  /// ## Key properties
   ///
-  /// - Since: Java 1.2
+  /// | Key constant | Type | Meaning |
+  /// |---|---|---|
+  /// | `StreamDescriptionProperty` | `String` | Description of the stream used to init this doc |
+  /// | `TitleProperty` | `String` | Title of the document |
+  ///
+  /// - Since: Java 1.2 / JFC 1.0
   @MainActor
   public protocol Document: AnyObject {
 
     // -------------------------------------------------------------------------
-    // MARK: Length
+    // MARK: Content access
     // -------------------------------------------------------------------------
 
-    /// The number of characters currently in the document.
+    /// Returns the number of characters in this document.
     func getLength() -> Int
 
-    // -------------------------------------------------------------------------
-    // MARK: Text access
-    // -------------------------------------------------------------------------
-
-    /// Returns the text in the range `[offset, offset+length)`.
+    /// Returns the text stored in `[offset, offset+length)`.
     ///
-    /// - Throws: If `offset` or `length` is out of range.
+    /// - Throws: `BadLocationException` if the range is out of bounds.
     func getText(_ offset: Int, _ length: Int) throws -> String
 
     // -------------------------------------------------------------------------
     // MARK: Mutation
     // -------------------------------------------------------------------------
 
-    /// Inserts `string` at `offset`.
+    /// Inserts `string` into the document at `offset`.
     ///
-    /// In Java: `insertString(int offset, String str, AttributeSet a)`.
-    /// `AttributeSet` is not yet implemented and omitted here.
-    ///
-    /// - Throws: If `offset` is out of range.
+    /// - Throws: `BadLocationException` if `offset` is out of bounds.
     func insertString(_ offset: Int, _ string: String) throws
 
     /// Removes `length` characters starting at `offset`.
     ///
-    /// - Throws: If the range is out of range.
+    /// - Throws: `BadLocationException` if the range is out of bounds.
     func remove(_ offset: Int, _ length: Int) throws
 
     // -------------------------------------------------------------------------
     // MARK: Properties
     // -------------------------------------------------------------------------
 
-    /// Returns the value associated with `key` in the document's property map.
+    /// Returns the value stored under `key` in this document's property map,
+    /// or `nil` if no value is associated with `key`.
     func getProperty(_ key: String) -> Any?
 
-    /// Stores `value` under `key` in the document's property map.
+    /// Stores `value` under `key` in this document's property map.
+    /// Pass `nil` to remove the entry.
     func putProperty(_ key: String, _ value: Any?)
 
     // -------------------------------------------------------------------------
-    // MARK: Listeners
+    // MARK: Listener management
     // -------------------------------------------------------------------------
 
+    /// Registers `l` to receive change notifications from this document.
     func addDocumentListener(_ l: javax.swing.event.DocumentListener)
+
+    /// Removes a previously registered listener.
     func removeDocumentListener(_ l: javax.swing.event.DocumentListener)
   }
+}
+
+// -----------------------------------------------------------------------------
+// MARK: Standard property key constants
+// -----------------------------------------------------------------------------
+
+extension javax.swing.text.Document {
+
+  /// Property key for a description of the stream used to initialise this
+  /// document (analogous to Java's `Document.StreamDescriptionProperty`).
+  public static var StreamDescriptionProperty: String { "stream" }
+
+  /// Property key for the document title
+  /// (analogous to Java's `Document.TitleProperty`).
+  public static var TitleProperty: String { "title" }
 }

@@ -173,6 +173,10 @@ struct AWTShowcaseApp {
     fileMenu.add(openItem)
     fileMenu.add(saveItem)
     fileMenu.addSeparator()
+    let printItem = java.awt.MenuItem("Print…", java.awt.MenuShortcut(80))   // Cmd+P
+    printItem.addActionListener(PrintListener(frame: frame))
+    fileMenu.add(printItem)
+    fileMenu.addSeparator()
     let quitItem = java.awt.MenuItem("Quit", java.awt.MenuShortcut(81))   // Cmd+Q
     quitItem.addActionListener(ShowcaseActionListener())
     fileMenu.add(quitItem)

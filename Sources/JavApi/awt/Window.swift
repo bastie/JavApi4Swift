@@ -20,6 +20,15 @@ extension java.awt {
   /// - `toFront()` / `toBack()` — Fensterstapel (Stub, plattformabhängig)
   @MainActor
   open class Window: Container {
+    
+    /// - Returns: Returns a Window specific locale if set or the system defautl Locale
+    /// - Since: Java 1.1
+    open override func getLocale() -> java.util.Locale {
+      if let myLocale = _componentLocale {
+        return myLocale
+      }
+      return java.util.Locale.getDefault()
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Sichtbarkeit
@@ -57,12 +66,13 @@ extension java.awt {
 
     /// Layoutet alle Kinder und passt die Fenstergröße auf `preferredSize` an.
     open func pack() {
-      validate()
-      // Minimale Implementierung: Fenstergröße = bevorzugte Größe des Inhalts
+      // First pass: compute preferred sizes (children may have bounds=0 here)
       let ps = getPreferredSize()
       if ps.width > 0 && ps.height > 0 {
         bounds = java.awt.Rectangle(bounds.x, bounds.y, ps.width, ps.height)
       }
+      // Second pass: now that bounds are set, lay out children into the real size
+      validate()
     }
 
     // -------------------------------------------------------------------------

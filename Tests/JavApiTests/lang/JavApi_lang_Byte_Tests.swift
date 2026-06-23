@@ -106,6 +106,44 @@ struct JavApi_lang_Byte_Tests {
     #expect(Byte(42).toString() == "42")
   }
 
+  // MARK: - Number methods (Java 1.1 — added June 2026, were missing before fix)
+
+  @Test("Byte.intValue() returns unsigned 0–255 as Int")
+  func testIntValue() {
+    #expect(Byte(0).intValue()   == 0)
+    #expect(Byte(255).intValue() == 255)
+    #expect(Byte(128).intValue() == 128)
+    #expect(Byte(42).intValue()  == 42)
+  }
+
+  @Test("Byte.longValue() returns unsigned 0–255 as Int64")
+  func testLongValue() {
+    #expect(Byte(0).longValue()   == Int64(0))
+    #expect(Byte(255).longValue() == Int64(255))
+    #expect(Byte(128).longValue() == Int64(128))
+  }
+
+  @Test("Byte.floatValue() returns unsigned value as Float")
+  func testFloatValue() {
+    #expect(Byte(0).floatValue()   == Float(0))
+    #expect(Byte(255).floatValue() == Float(255))
+    #expect(Byte(42).floatValue()  == Float(42))
+  }
+
+  @Test("Byte.doubleValue() returns unsigned value as Double")
+  func testDoubleValue() {
+    #expect(Byte(0).doubleValue()   == Double(0))
+    #expect(Byte(255).doubleValue() == Double(255))
+    #expect(Byte(42).doubleValue()  == Double(42))
+  }
+
+  @Test("Byte.shortValue() returns unsigned value as Int16")
+  func testShortValue() {
+    #expect(Byte(0).shortValue()   == Int16(0))
+    #expect(Byte(255).shortValue() == Int16(255))
+    #expect(Byte(128).shortValue() == Int16(128))
+  }
+
   // MARK: - Equatable
 
   @Test("equals compares by value")

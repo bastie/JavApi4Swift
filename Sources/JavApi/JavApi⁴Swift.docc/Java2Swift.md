@@ -501,34 +501,41 @@ let orientation = SwingConstants.HORIZONTAL   // compiler error or wrong constan
 ```
 
 **Why this matters for AI code generation:**  
-When a linter or code assistant suggests "use `JSeparator.HORIZONTAL` instead of `SwingConstants.HORIZONTAL`" inside `JSeparator.swift` itself, that creates a **self-referential static `let`** (`public static let HORIZONTAL: Int = JSeparator.HORIZONTAL`) which is an OK. Never use the `SwingConstants` *enum* (the global constants enum) for the right-hand side of constant declarations inside the concrete class, and use the concrete class name (`JSeparator.HORIZONTAL`) everywhere else.
+A **self-referential stored constant** is a silent, dangerous bug. Writing
+`public static let HORIZONTAL: Int = JSeparator.HORIZONTAL` inside `JSeparator.swift`
+does **not** "refer to the protocol value" — the stored `static let` *shadows* the
+protocol's computed property, so the right-hand side refers to the property being
+declared. The initialiser reads its own (not-yet-initialised) storage and resolves
+to `0` for **every** such constant. If both `HORIZONTAL` and `VERTICAL` are written
+this way they both become `0`, so orientation checks like
+`_orientation == VERTICAL` are always true — e.g. a horizontal scroll bar gets
+painted with vertical geometry. **Never write a self-referential stored constant.**
 
 ```swift
-// ✅ correct — inside JSeparator.swift
-public static let HORIZONTAL: Int = JSeparator.HORIZONTAL   // refers to the local type
-
-// ❌ wrong — protocols cannot be used as types for static member access
-public static let HORIZONTAL: Int = SwingConstants.HORIZONTAL
+// ❌ wrong — self-reference, resolves to 0 for BOTH constants (silent bug)
+public static let HORIZONTAL: Int = JSeparator.HORIZONTAL
+public static let VERTICAL:   Int = JSeparator.VERTICAL
 ```
 
-> **AI hint:** When generating or reviewing constant declarations inside a Swing component class, never use `SwingConstants.HORIZONTAL` / `SwingConstants.VERTICAL` (the global `enum SwingConstants`) on the right-hand side — always use the concrete class's own name. At call sites (outside the defining class), always use the concrete class: `JToolBar.HORIZONTAL`, `JSeparator.VERTICAL`, `JTabbedPane.TOP`, etc.
+> **AI hint:** When generating or reviewing constant declarations inside a Swing component class, never use `SwingConstants.HORIZONTAL` / `SwingConstants.VERTICAL` (the global `enum SwingConstants`) on the right-hand side, and never write a self-referential stored constant (`X = ClassName.X`). At call sites (outside the defining class), always use the concrete class: `JToolBar.HORIZONTAL`, `JSeparator.VERTICAL`, `JTabbedPane.TOP`, etc.
 
 **Special case — classes inside `javax.swing` that expose `SwingConstants` values:** Inside the `javax.swing` namespace, the name `SwingConstants` resolves to the *protocol* `javax.swing.SwingConstants`, not to the global `enum SwingConstants`. A plain `public static let HORIZONTAL: Int = SwingConstants.HORIZONTAL` therefore causes a compiler error.
 
-The correct solution is to **declare conformance to `javax.swing.SwingConstants`** on the class. The protocol's extension then supplies the values, and `ClassName.HORIZONTAL` resolves to those extension-provided values — no self-reference, no literal:
+The correct solution is to **declare conformance to `javax.swing.SwingConstants`** on the class and **not re-declare the constants at all**. The protocol's extension supplies the values, and `ClassName.HORIZONTAL` resolves to those extension-provided values directly — no stored property, no self-reference, no literal:
 
 ```swift
-// ✅ correct — conformance lets the protocol extension supply the values
+// ✅ correct — conformance alone lets the protocol extension supply the values.
+//    Do NOT re-declare HORIZONTAL / VERTICAL here; a stored static let would
+//    shadow the protocol value and (via self-reference) resolve to 0.
 open class JScrollBar: javax.swing.JComponent, javax.swing.SwingConstants {
-
-  public static let HORIZONTAL: Int = JScrollBar.HORIZONTAL  // resolved via protocol extension
-  public static let VERTICAL:   Int = JScrollBar.VERTICAL    // resolved via protocol extension
+  // JScrollBar.HORIZONTAL == 0 and JScrollBar.VERTICAL == 1 come from the
+  // SwingConstants protocol extension automatically.
 }
 ```
 
 This mirrors the Java idiom where a class *implements* `SwingConstants` to inherit its constants.
 
-> **AI hint:** Whenever a Swing component inside `javax.swing` needs to re-export `SwingConstants` values as its own constants, add `, javax.swing.SwingConstants` to the class declaration and use `ClassName.CONSTANT` on the right-hand side. Do **not** use integer literals and do **not** use the bare name `SwingConstants.CONSTANT` (that would refer to the protocol, not the enum).
+> **AI hint:** Whenever a Swing component inside `javax.swing` needs `SwingConstants` values as its own constants, add `, javax.swing.SwingConstants` to the class declaration and **rely on the inherited values** — do not re-declare them. If a value genuinely must be re-declared, use the integer literal (`public static let HORIZONTAL: Int = 0`), never `ClassName.HORIZONTAL` (self-reference) and never the bare `SwingConstants.CONSTANT` (protocol).
 
 #### interfaces with constants
 
@@ -948,6 +955,68 @@ default: break;
 ```
 
 > **AI hint:** Java `switch` falls through by default — check every `case` for a missing `break`. If fall-through is intentional translate it with Swift `fallthrough`. Add `default:` only if Java has one or if Swift requires exhaustiveness. Prepend `.` to enum case names in Swift `case` labels.
+
+#### Service Provider Interface (SPI)
+
+Java's `java.util.ServiceLoader` loads implementations at runtime via reflection and `META-INF/services` descriptor files. Swift has no runtime reflection and no classpath, so the entire mechanism must be replaced.
+
+**Solution: Static Registry**
+
+Instead of dynamic loading, use a static registry that third parties call explicitly to register their implementation. This is semantically equivalent — the difference is that registration is explicit (a method call) rather than implicit (classpath scanning).
+
+```swift
+extension java.sql {
+  public enum DriverManager {
+
+    // Registry replaces META-INF/services/java.sql.Driver
+    nonisolated(unsafe) private static var registeredDrivers: [any java.sql.Driver] = []
+
+    // Third-party registers its driver (replaces Class.forName side-effect)
+    public static func registerDriver(_ driver: any java.sql.Driver) throws {
+      registeredDrivers.append(driver)
+    }
+
+    // Consumers use the registry exactly as in Java
+    public static func getConnection(_ url: String) throws -> any java.sql.Connection {
+      for driver in registeredDrivers {
+        if let conn = try driver.connect(url) { return conn }
+      }
+      throw java.sql.SQLException("No suitable driver found for \(url)")
+    }
+  }
+}
+```
+
+**Usage by a third-party driver:**
+
+```swift
+// Once at app startup — replaces the implicit Class.forName("org.example.Driver") call
+try java.sql.DriverManager.registerDriver(MyDriver())
+```
+
+**General Pattern for all Java SPIs**
+
+This registry pattern applies to every Java SPI, not just JDBC. The mapping is always the same:
+
+| Java SPI mechanism | Swift equivalent |
+|---|---|
+| `META-INF/services/<InterfaceName>` | `XyzRegistry.register(impl)` |
+| `ServiceLoader.load(Xyz.class)` | `XyzRegistry.all()` |
+| `Class.forName(...)` static initializer | explicit `register()` call at startup |
+
+Apply this pattern consistently whenever porting a Java API that uses `ServiceLoader`:
+
+- `java.sql.Driver` → `DriverManager` registry  
+- `java.nio.charset.CharsetProvider` → `CharsetRegistry`  
+- `java.util.logging.Handler` → `LogManager` registry  
+- `javax.imageio.ImageReaderSpi` → `ImageIO` registry  
+- `java.security.Provider` → `Security` registry  
+
+**Why this is better than Java's approach**
+
+Java's `Class.forName` trick was always fragile — the wrong classpath entry silently skips registration with no error. The Swift registry makes the contract explicit: if `register()` is never called, `getConnection()` throws a clear error. This is a case where the Java→Swift port improves on the original.
+
+> **AI hint:** Whenever a Java API uses `ServiceLoader`, do not attempt to replicate runtime reflection. Instead, create a static registry (`nonisolated(unsafe) private static var providers: [any ProviderProtocol] = []`) with a `register(_ provider:)` method and a lookup method. Mark the registry storage `nonisolated(unsafe)` because it is write-once at startup and then read-only — matching Java's typical SPI registration lifecycle.
 
 #### visibility
 

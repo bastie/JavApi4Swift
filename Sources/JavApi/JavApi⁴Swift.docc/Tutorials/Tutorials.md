@@ -50,6 +50,10 @@ Work through the articles in order, or jump to a topic that interests you.
 
 - <doc:Swing> — Lightweight Swing components, pluggable Look & Feel, and the JFrame root-pane architecture.
 
+### Extensibility and Plugins
+
+- <doc:SPI> — Discovering and loading pluggable implementations at runtime using `java.util.ServiceLoader` and C vtables.
+
 ### Porting and Platform Development
 
 - <doc:ImplementingAToolkit> — How to implement a custom AWT Toolkit backend for a new platform (Linux desktop, FreeBSD, Windows, …).

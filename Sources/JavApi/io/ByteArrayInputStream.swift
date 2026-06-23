@@ -22,13 +22,14 @@ extension java.io {
     
     public init(_ newData : [UInt8], _ offset : Int, _ length : Int) {
       self.data = newData
-      self.pos = max (offset, 0)
-      self.count = min (offset+length, length)
+      self.pos = max(offset, 0)
+      // count = min(offset + length, data.count), but ensure >= 0
+      self.count = max(0, min(offset + length, newData.count))
       self.mark = offset
     }
     
     public override func read() throws -> Int {
-      guard pos < self.data.count else {
+      guard pos < self.count else {
         return -1
       }
       pos += 1
@@ -36,7 +37,7 @@ extension java.io {
     }
     
     internal func readUInt8() -> Result<UInt8,Error> {
-      guard pos < self.data.count else {
+      guard pos < self.count else {
         return .failure(java.io.IOException())
       }
       pos += 1
@@ -47,8 +48,13 @@ extension java.io {
       guard offset >= 0, length >= 0, length <= (array.count - offset) else {
         throw IndexOutOfBoundsException()
       }
+      // If length is 0, return 0 immediately
+      if length == 0 {
+        return 0
+      }
       let k = min (length, (self.count - pos))
-      
+      guard k > 0 else { return -1 }  // EOF — Java spec: return -1, not 0
+
       for i in 0..<k {
         switch self.readUInt8() {
         case .success(let value):
@@ -60,7 +66,8 @@ extension java.io {
       return k
     }
     
-    public func skip (_ requestCount : Int64) -> Int64 {
+    public func skip (_ requestCount : Int64) throws -> Int64 {
+      guard requestCount > 0 else { return 0 }
       let k = min (requestCount, Int64(self.count - self.pos))
       self.pos += Int(k)
       return k
@@ -82,7 +89,7 @@ extension java.io {
       self.pos = self.mark
     }
     
-    override open func close() {
+    override open func close() throws {
       // its weekend, I do nothing 😎
     }
   }

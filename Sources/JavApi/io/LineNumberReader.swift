@@ -24,6 +24,7 @@ extension java.io {
     private var lineNumber: Int = 0
     private var markLineNumber: Int = 0
     private var lastWasCR: Bool = false
+    private var markLastWasCR: Bool = false
     private var pushback: Character? = nil
 
     // MARK: - Initialisers
@@ -106,6 +107,7 @@ extension java.io {
       guard offset >= 0, count >= 0, offset + count <= buf.count else {
         throw IndexOutOfBoundsException()
       }
+      if count == 0 { return 0 }
       var read = 0
       while read < count {
         let c = try self.read()
@@ -144,6 +146,7 @@ extension java.io {
     /// - Since: Java 1.1
     public override func mark(_ readLimit: Int) throws {
       markLineNumber = lineNumber
+      markLastWasCR = lastWasCR
       try inner.mark(readLimit)
     }
 
@@ -151,7 +154,7 @@ extension java.io {
     /// - Since: Java 1.1
     public override func reset() throws {
       lineNumber = markLineNumber
-      lastWasCR = false
+      lastWasCR = markLastWasCR
       pushback = nil
       try inner.reset()
     }
@@ -161,7 +164,13 @@ extension java.io {
     /// - Returns: bytes really skiped
     /// - Since: Java 1.1
     public override func skip(_ count: Int64) throws -> Int64 {
-      return try inner.skip(count)
+      var skipped: Int64 = 0
+      while skipped < count {
+        let c = try self.read()
+        if c == -1 { break }
+        skipped += 1
+      }
+      return skipped
     }
 
     /// Closes the underlying reader.

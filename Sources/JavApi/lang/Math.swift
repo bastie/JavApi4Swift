@@ -23,6 +23,14 @@ public class Math {
       return value
     }
   }
+  // Java spec: abs(Int.min) == Int.min — overflow wraps silently, no exception.
+  // Use overflow operator &* so Swift debug builds do not trap.
+  public static func abs(_ value: Int) -> Int {
+    return value < 0 ? (0 &- value) : value
+  }
+  public static func abs(_ value: Int64) -> Int64 {
+    return value < 0 ? (0 &- value) : value
+  }
   public static func abs<T: Numeric & Comparable>(_ value: T) -> T {
     if value < .zero {
       return -1 * value
@@ -59,6 +67,12 @@ public class Math {
   public static func floor (_ value : Double) -> Double {
     return Foundation.floor(value)
   }
+  /// Returns sqrt(x² + y²) without intermediate overflow or underflow.
+  /// - Since: Java 1.5
+  public static func hypot(_ x: Double, _ y: Double) -> Double {
+    return Foundation.hypot(x, y)
+  }
+
   public static func log (_ value : Double) -> Double {
     return Foundation.log(value)
   }
@@ -90,7 +104,7 @@ public class Math {
     return value * PI / 180
   }
   public static func toDegrees (_ value : Double) -> Double {
-    return value * PI / 180
+    return value * 180 / PI
   }
   @inlinable
   public static func min<T>(_ x: T, _ y: T) -> T where T : Comparable {
@@ -100,9 +114,44 @@ public class Math {
   public static func max<T>(_ x: T, _ y: T) -> T where T : Comparable {
     Swift.max(x, y)
   }
+
+  /// Java spec: min(NaN, x) = NaN and min(x, NaN) = NaN.
+  /// Swift.min does not propagate NaN — this overload corrects that.
+  public static func min(_ x: Double, _ y: Double) -> Double {
+    if x.isNaN || y.isNaN { return Double.nan }
+    return Swift.min(x, y)
+  }
+  /// Java spec: max(NaN, x) = NaN and max(x, NaN) = NaN.
+  public static func max(_ x: Double, _ y: Double) -> Double {
+    if x.isNaN || y.isNaN { return Double.nan }
+    return Swift.max(x, y)
+  }
+  /// Java spec: min(NaN, x) = NaN for Float.
+  public static func min(_ x: Float, _ y: Float) -> Float {
+    if x.isNaN || y.isNaN { return Float.nan }
+    return Swift.min(x, y)
+  }
+  /// Java spec: max(NaN, x) = NaN for Float.
+  public static func max(_ x: Float, _ y: Float) -> Float {
+    if x.isNaN || y.isNaN { return Float.nan }
+    return Swift.max(x, y)
+  }
   
+  /// Java spec: round(a) = (long) floor(a + 0.5) — half-up rounding (not banker's rounding).
   public static func round (_ d : Double) -> Int64 {
-    return Foundation.llround(d)
+    if d.isNaN { return 0 }
+    if d >= Double(Int64.max) { return Int64.max }
+    if d < Double(Int64.min) { return Int64.min }
+    return Int64(Foundation.floor(d + 0.5))
+  }
+
+  /// Java spec: round(a) = (int) floor(a + 0.5f) — half-up rounding.
+  /// NaN → 0, +infinity → Int.max, -infinity → Int.min (matching Java Integer.MAX/MIN_VALUE).
+  public static func round (_ f : Float) -> Int {
+    if f.isNaN { return 0 }
+    if f >= Float(Int.max) { return Int.max }
+    if f < Float(Int.min)  { return Int.min }
+    return Int(Foundation.floorf(f + 0.5))
   }
 
   /// IEEE remainder: f1 - (round(f1/f2) * f2)

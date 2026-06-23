@@ -12,7 +12,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public protocol MutableComboBoxModel: javax.swing.ComboBoxModel {
+  public protocol MutableComboBoxModel<Element>: javax.swing.ComboBoxModel {
 
     /// Appends `item` to the end of the model.
     func addElement(_ item: Element)

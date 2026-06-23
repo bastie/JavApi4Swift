@@ -41,6 +41,12 @@ extension javax.swing {
     public static let DRAG_LAYER:         Int = 400
     public static let FRAME_CONTENT_LAYER: Int = -30000
 
+    public override init() {
+      super.init()
+      // JLayeredPane manages Z-order manually — no layout manager needed.
+      setLayout(nil)
+    }
+
     // -------------------------------------------------------------------------
     // MARK: Layer map
     // -------------------------------------------------------------------------
@@ -84,20 +90,30 @@ extension javax.swing {
     // MARK: Layer-ordered painting
     // -------------------------------------------------------------------------
 
-    /// Paints children in ascending layer order (lowest layer first → painted below),
-    /// translating the graphics context to each child's origin.
+    /// Paints children in ascending layer order (lowest layer first → painted below).
+    /// Within the same layer the order from the children array is preserved
+    /// (bringToFront moves a frame to the end → painted last → on top).
     override open func paintChildren(_ g: java.awt.Graphics) {
+      // Sort by layer ascending; within the same layer children-array order is
+      // preserved (index 0 = bottom, last index = top / drawn last).
+      // bringToFront() moves a component to children[last] so it is drawn on top.
       let sorted = children.sorted {
         let la = layerMap[ObjectIdentifier($0)] ?? JLayeredPane.DEFAULT_LAYER
         let lb = layerMap[ObjectIdentifier($1)] ?? JLayeredPane.DEFAULT_LAYER
-        return la < lb
+        if la != lb { return la < lb }
+        // same layer: preserve children-array order (stable sort would do this
+        // automatically, but Swift's sort IS stable, so this branch is redundant
+        // but left here for clarity)
+        return false
       }
       for child in sorted where child.visible {
         let dx = child.bounds.x
         let dy = child.bounds.y
+        g.save()
+        g.clipRect(dx, dy, child.bounds.width, child.bounds.height)
         g.translate(dx, dy)
         child.paint(g)
-        g.translate(-dx, -dy)
+        g.restore()
       }
     }
   }

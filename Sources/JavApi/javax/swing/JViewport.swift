@@ -103,21 +103,35 @@ extension javax.swing {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
+    override open func doLayout() {
+      guard let view = _view else { return }
+      // Give the view its preferred size (at least as large as the viewport),
+      // positioned at (0, 0) in the viewport's local coordinate space.
+      let ps = view.getPreferredSize()
+      let vw = max(bounds.width,  ps.width)
+      let vh = max(bounds.height, ps.height)
+      view.bounds = java.awt.Rectangle(0, 0, vw, vh)
+      // Propagate layout into the view so nested containers (e.g. a JPanel
+      // with BorderLayout containing a JLabel) compute child bounds correctly.
+      (view as? java.awt.Container)?.doLayout()
+    }
+
     override open func paint(_ g: java.awt.Graphics) {
-      let x = bounds.x, y = bounds.y, w = bounds.width, h = bounds.height
+      // The Graphics context is already translated to this component's origin,
+      // so local coordinates start at (0, 0) — do NOT use bounds.x / bounds.y.
+      let w = bounds.width, h = bounds.height
 
       // Background
       g.setColor(background)
-      g.fillRect(x, y, w, h)
+      g.fillRect(0, 0, w, h)
 
       guard let view = _view else { return }
 
-      // Clip to viewport area, translate so that view-coordinate (0,0) maps to
-      // (x - scrollX, y - scrollY) in window space — i.e. the scroll offset is
-      // subtracted and the viewport origin is added.
+      // Clip to viewport area (local coords), then shift by the scroll offset
+      // so that view-coordinate (viewPosition.x, viewPosition.y) maps to (0, 0).
       g.save()
-      g.clipRect(x, y, w, h)
-      g.translate(x - _viewPosition.x, y - _viewPosition.y)
+      g.clipRect(0, 0, w, h)
+      g.translate(-_viewPosition.x, -_viewPosition.y)
       view.paint(g)
       g.restore()
     }

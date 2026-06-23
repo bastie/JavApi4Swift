@@ -7,8 +7,8 @@ import Foundation
 
 extension java.util {
   
-  open class Locale {
-
+  open class Locale : Equatable {
+    
     // MARK: - Language constants (Java 1.1)
     nonisolated(unsafe) public static let ENGLISH  = Locale("en")
     nonisolated(unsafe) public static let FRENCH   = Locale("fr")
@@ -17,7 +17,7 @@ extension java.util {
     nonisolated(unsafe) public static let JAPANESE = Locale("ja")
     nonisolated(unsafe) public static let KOREAN   = Locale("ko")
     nonisolated(unsafe) public static let CHINESE  = Locale("zh")
-
+    
     // MARK: - Country/region constants (Java 1.1)
     nonisolated(unsafe) public static let US      = Locale("en_US")
     nonisolated(unsafe) public static let UK      = Locale("en_GB")
@@ -28,11 +28,24 @@ extension java.util {
     nonisolated(unsafe) public static let JAPAN   = Locale("ja_JP")
     nonisolated(unsafe) public static let KOREA   = Locale("ko_KR")
     nonisolated(unsafe) public static let CHINA   = Locale("zh_CN")
-
+    
     public var delegate : Foundation.Locale!
     
+    // MARK: - Default locale (global, thread-unsafe — matches Java behaviour)
+    
+    nonisolated(unsafe) private static var _default: Locale? = nil
+    
     public static func getDefault() -> Locale {
-      return Locale()
+      return _default ?? Locale()
+    }
+    
+    /// Sets the default locale for this JVM instance.
+    ///
+    /// Equivalent to Java's `Locale.setDefault(Locale)`.
+    /// Affects all locale-sensitive operations that use `Locale.getDefault()`,
+    /// including `Java2SwiftFormatter` grouping/decimal output.
+    public static func setDefault(_ locale: Locale) {
+      _default = locale
     }
     
     public init() {
@@ -42,7 +55,7 @@ extension java.util {
     public init (_ languageCode: String) {
       delegate = Foundation.Locale(identifier: languageCode)
     }
-
+    
     /// Creates a Locale from a language code and a country/region code.
     /// - Parameters:
     ///   - language: ISO 639 language code, e.g. `"de"`
@@ -56,7 +69,7 @@ extension java.util {
     public func getCountry() -> String {
       delegate.region?.identifier ?? ""
     }
-
+    
     /// Returns a POSIX locale string suitable for `setlocale(3)`, e.g. `"de_DE.UTF-8"`.
     /// Always appends `.UTF-8` so X11 font sets and multibyte rendering work correctly.
     /// - Note: Not part of the Java API — JavApi4Swift internal helper for platform bridges.
@@ -67,7 +80,7 @@ extension java.util {
       if country.isEmpty { return "\(lang).UTF-8" }
       return "\(lang)_\(country).UTF-8"
     }
-
+    
     /// The language code of Locale
     /// - Returns The language code, or the empty string if none is defined.
     ///
@@ -87,6 +100,20 @@ extension java.util {
       }
       return langCode
     }
+    
+    open func equals (_ o: Any?) -> Bool {
+      if let o = o as? Locale {
+        return self.delegate == o.delegate
+      }
+      return false
+    }
+    
+    open func hashCode () -> Int {
+      return self.delegate.hashValue
+    }
+    
+    public static func == (lhs: java.util.Locale, rhs: java.util.Locale) -> Bool {
+      return lhs.delegate == rhs.delegate
+    }
   }
-  
 }

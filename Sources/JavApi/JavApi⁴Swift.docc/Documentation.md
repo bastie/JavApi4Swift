@@ -40,6 +40,12 @@ Porting existing Java code to Swift? Read this first.
 
 - <doc:Java2Swift>
 
+### Design Decisions
+
+Rationale for deliberate non-implementations and architectural choices.
+
+- <doc:NotImplemented>
+
 ### Platform Notes
 
 Platform-specific behaviour, limitations and requirements.

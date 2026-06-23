@@ -38,18 +38,53 @@ extension javax.swing {
     private var items: [javax.swing.JMenuItem] = []
 
     // -------------------------------------------------------------------------
+    // MARK: PopupMenuListeners
+    // -------------------------------------------------------------------------
+
+    private var popupMenuListeners: [javax.swing.event.PopupMenuListener] = []
+
+    public func addPopupMenuListener(_ l: javax.swing.event.PopupMenuListener) {
+      popupMenuListeners.append(l)
+    }
+
+    public func removePopupMenuListener(_ l: javax.swing.event.PopupMenuListener) {
+      popupMenuListeners.removeAll { $0 === l }
+    }
+
+    /// Fires `popupMenuWillBecomeVisible` on all registered listeners.
+    public func firePopupMenuWillBecomeVisible() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuWillBecomeVisible(e) }
+    }
+
+    /// Fires `popupMenuWillBecomeInvisible` on all registered listeners.
+    public func firePopupMenuWillBecomeInvisible() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuWillBecomeInvisible(e) }
+    }
+
+    /// Fires `popupMenuCanceled` on all registered listeners.
+    public func firePopupMenuCanceled() {
+      let e = javax.swing.event.PopupMenuEvent(self)
+      for l in popupMenuListeners { l.popupMenuCanceled(e) }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Init
     // -------------------------------------------------------------------------
 
     public override init() {
       super.init()
       setOpaque(true)
+      setVisible(false)   // hidden until show() is called
       updateUI()
     }
 
     // -------------------------------------------------------------------------
     // MARK: UI delegate
     // -------------------------------------------------------------------------
+
+    override open func getUIClassID() -> String { "PopupMenuUI" }
 
     override open func updateUI() {
       super.updateUI()
@@ -96,14 +131,63 @@ extension javax.swing {
     /// The caller is responsible for adding the popup to the layered pane
     /// before calling `show`.
     public func show(x: Int, y: Int) {
-      // Measure preferred height via UI delegate, fall back to item count
+      firePopupMenuWillBecomeVisible()
       let prefSize = getPreferredSize()
       bounds = java.awt.Rectangle(x, y, prefSize.width, prefSize.height)
       setVisible(true)
     }
 
+    /// Displays this popup at position `(x, y)` relative to `invoker`.
+    ///
+    /// Mirrors `JPopupMenu.show(Component invoker, int x, int y)` from Java.
+    /// The popup is attached to the nearest `JLayeredPane` found by walking
+    /// up the component hierarchy from `invoker`, then shown at the invoker's
+    /// frame-local origin offset by `(x, y)`.
+    ///
+    /// - Parameters:
+    ///   - invoker: The component relative to which `(x, y)` is measured.
+    ///   - x:       X offset in invoker-local coordinates.
+    ///   - y:       Y offset in invoker-local coordinates (e.g. `invoker.bounds.height`
+    ///              to appear directly below the invoker).
+    public func show(_ invoker: java.awt.Component, _ x: Int, _ y: Int) {
+      // Walk up to find the JLayeredPane
+      var candidate: java.awt.Component? = invoker
+      var layeredPane: javax.swing.JLayeredPane? = nil
+      while let c = candidate {
+        if let lp = c as? javax.swing.JLayeredPane {
+          layeredPane = lp
+          break
+        }
+        candidate = c.parent
+      }
+      guard let lp = layeredPane else {
+        // Fallback: no layered pane found, use absolute coords as-is
+        show(x: invoker.bounds.x + x, y: invoker.bounds.y + y)
+        return
+      }
+
+      // Convert invoker-local (x,y) to layered-pane coordinates by
+      // accumulating the bounds of each ancestor up to the layered pane.
+      var absX = x
+      var absY = y
+      var walk: java.awt.Component? = invoker
+      while let c = walk, c !== lp {
+        absX += c.bounds.x
+        absY += c.bounds.y
+        walk = c.parent
+      }
+
+      // Add the popup to the layered pane if not already there
+      if self.parent !== lp {
+        lp.add(self, layer: javax.swing.JLayeredPane.POPUP_LAYER)
+      }
+
+      show(x: absX, y: absY)
+    }
+
     /// Hides the popup and clears the armed state on all items.
     public func closePopup() {
+      firePopupMenuWillBecomeInvisible()
       for item in items { item.isArmed = false }
       setVisible(false)
     }

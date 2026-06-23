@@ -34,6 +34,7 @@ extension java.awt {
     open func getComposite() -> any java.awt.Composite { java.awt.AlphaComposite.SrcOver }
     open func setBackground(_ color: java.awt.Color) {}
     open func getBackground() -> java.awt.Color { java.awt.Color.white }
+    public override func getColor() -> java.awt.Color { java.awt.Color.black}
     open func setRenderingHint(_ key: java.awt.RenderingHints.Key, _ value: java.awt.RenderingHints.Value) { _hints.put(key, value) }
     open func getRenderingHint(_ key: java.awt.RenderingHints.Key) -> java.awt.RenderingHints.Value? { _hints.get(key) }
     open func getRenderingHints() -> java.awt.RenderingHints { _hints }
