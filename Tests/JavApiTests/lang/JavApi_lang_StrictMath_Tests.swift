@@ -640,3 +640,202 @@ struct JavApi_lang_StrictMath_random_Tests {
     }
   }
 }
+
+// MARK: - NaN / Infinity special values (Harmony-parity)
+
+struct JavApi_lang_StrictMath_special_Tests {
+
+  // abs(MIN_VALUE) wraps silently — no exception, unlike absExact
+  @Test("abs(Int.min) wraps silently — Java spec, no exception")
+  func testAbsIntMin() {
+    #expect(StrictMath.abs(Int.min) == Int.min)
+  }
+  @Test("abs(Int64.min) wraps silently — Java spec, no exception")
+  func testAbsLongMin() {
+    #expect(StrictMath.abs(Int64.min) == Int64.min)
+  }
+
+  // Trig NaN/infinity
+  @Test("sin/cos/tan: NaN and ±infinity inputs → NaN")
+  func testTrigSpecial() {
+    #expect(StrictMath.sin(Double.nan).isNaN)
+    #expect(StrictMath.sin(Double.infinity).isNaN)
+    #expect(StrictMath.sin(-Double.infinity).isNaN)
+    #expect(StrictMath.cos(Double.nan).isNaN)
+    #expect(StrictMath.cos(Double.infinity).isNaN)
+    #expect(StrictMath.tan(Double.nan).isNaN)
+    #expect(StrictMath.tan(Double.infinity).isNaN)
+  }
+
+  @Test("asin/acos: domain outside [-1,1] and NaN → NaN")
+  func testAsinAcosSpecial() {
+    #expect(StrictMath.asin(Double.nan).isNaN)
+    #expect(StrictMath.asin(2.0).isNaN)
+    #expect(StrictMath.acos(Double.nan).isNaN)
+    #expect(StrictMath.acos(2.0).isNaN)
+  }
+
+  @Test("atan(NaN)==NaN, atan(±inf)==±PI/2; atan2(NaN,x)==NaN")
+  func testAtanSpecial() {
+    #expect(StrictMath.atan(Double.nan).isNaN)
+    #expect(abs(StrictMath.atan(Double.infinity)  -  StrictMath.PI / 2) < epsilon)
+    #expect(abs(StrictMath.atan(-Double.infinity) - -StrictMath.PI / 2) < epsilon)
+    #expect(StrictMath.atan2(Double.nan, 1.0).isNaN)
+    #expect(StrictMath.atan2(1.0, Double.nan).isNaN)
+  }
+
+  // exp/log/sqrt NaN/infinity
+  @Test("exp(NaN)==NaN, exp(+inf)==+inf, exp(-inf)==0")
+  func testExpSpecial() {
+    #expect(StrictMath.exp(Double.nan).isNaN)
+    #expect(StrictMath.exp(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.exp(-Double.infinity) == 0.0)
+  }
+
+  @Test("log(0)==-inf, log(negative)==NaN, log(NaN)==NaN, log(+inf)==+inf")
+  func testLogSpecial() {
+    #expect(StrictMath.log(0.0) == -Double.infinity)
+    #expect(StrictMath.log(-1.0).isNaN)
+    #expect(StrictMath.log(Double.nan).isNaN)
+    #expect(StrictMath.log(Double.infinity) == Double.infinity)
+  }
+
+  @Test("log10(0)==-inf, log10(negative)==NaN, log10(+inf)==+inf")
+  func testLog10Special() {
+    #expect(StrictMath.log10(0.0) == -Double.infinity)
+    #expect(StrictMath.log10(-1.0).isNaN)
+    #expect(StrictMath.log10(Double.infinity) == Double.infinity)
+  }
+
+  @Test("log1p(-1)==-inf, log1p(below -1)==NaN, log1p(+inf)==+inf")
+  func testLog1pSpecial() {
+    #expect(StrictMath.log1p(-1.0) == -Double.infinity)
+    #expect(StrictMath.log1p(-2.0).isNaN)
+    #expect(StrictMath.log1p(Double.infinity) == Double.infinity)
+  }
+
+  @Test("expm1(NaN)==NaN, expm1(+inf)==+inf, expm1(-inf)==-1")
+  func testExpm1Special() {
+    #expect(StrictMath.expm1(Double.nan).isNaN)
+    #expect(StrictMath.expm1(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.expm1(-Double.infinity) == -1.0)
+  }
+
+  @Test("sqrt(NaN)==NaN, sqrt(+inf)==+inf")
+  func testSqrtSpecial() {
+    #expect(StrictMath.sqrt(Double.nan).isNaN)
+    #expect(StrictMath.sqrt(Double.infinity) == Double.infinity)
+  }
+
+  @Test("cbrt(NaN)==NaN, cbrt(±inf)==±inf")
+  func testCbrtSpecial() {
+    #expect(StrictMath.cbrt(Double.nan).isNaN)
+    #expect(StrictMath.cbrt(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.cbrt(-Double.infinity) == -Double.infinity)
+  }
+
+  // pow IEEE 754 special cases
+  @Test("pow: NaN rules — pow(NaN,0)==1, pow(1,NaN)==1, pow(NaN,y≠0)==NaN")
+  func testPowNaN() {
+    #expect(StrictMath.pow(Double.nan, 0.0) == 1.0)
+    #expect(StrictMath.pow(1.0, Double.nan) == 1.0)
+    #expect(StrictMath.pow(Double.nan, 2.0).isNaN)
+    #expect(StrictMath.pow(2.0, Double.nan).isNaN)
+  }
+
+  @Test("pow: zero base rules")
+  func testPowZeroBase() {
+    #expect(StrictMath.pow(0.0,  -1.0) == Double.infinity)
+    #expect(StrictMath.pow(0.0,   2.0) == 0.0)
+    #expect(StrictMath.pow(-0.0, -3.0) == -Double.infinity)
+    #expect(StrictMath.pow(-0.0, -2.0) ==  Double.infinity)
+    let negZeroOdd = StrictMath.pow(-0.0, 3.0)
+    #expect(negZeroOdd == 0.0 && negZeroOdd.sign == .minus)
+    #expect(StrictMath.pow(-0.0, 2.0) == 0.0)
+  }
+
+  @Test("pow: negative base non-integer exponent → NaN")
+  func testPowNegBaseNonInt() {
+    #expect(StrictMath.pow(-2.0, 0.5).isNaN)
+  }
+
+  @Test("pow: ±1 with infinity exponent → 1.0")
+  func testPowOneInf() {
+    #expect(StrictMath.pow(1.0,   Double.infinity) == 1.0)
+    #expect(StrictMath.pow(-1.0,  Double.infinity) == 1.0)
+    #expect(StrictMath.pow(1.0,  -Double.infinity) == 1.0)
+    #expect(StrictMath.pow(-1.0, -Double.infinity) == 1.0)
+  }
+
+  @Test("pow: |x|<1 and |x|>1 with ±infinity exponent")
+  func testPowInfExp() {
+    #expect(StrictMath.pow(0.5,  Double.infinity)  == 0.0)
+    #expect(StrictMath.pow(2.0,  Double.infinity)  == Double.infinity)
+    #expect(StrictMath.pow(0.5, -Double.infinity)  == Double.infinity)
+    #expect(StrictMath.pow(2.0, -Double.infinity)  == 0.0)
+  }
+
+  @Test("pow: ±infinity base")
+  func testPowInfBase() {
+    #expect(StrictMath.pow(Double.infinity,   2.0) == Double.infinity)
+    #expect(StrictMath.pow(Double.infinity,  -2.0) == 0.0)
+    #expect(StrictMath.pow(-Double.infinity,  3.0) == -Double.infinity)
+    #expect(StrictMath.pow(-Double.infinity,  2.0) ==  Double.infinity)
+    #expect(StrictMath.pow(-Double.infinity, -2.0) ==  0.0)
+  }
+
+  // hypot special
+  @Test("hypot(inf,NaN)==inf — Java spec: infinity dominates NaN")
+  func testHypotSpecial() {
+    #expect(StrictMath.hypot(Double.infinity, Double.nan) == Double.infinity)
+    #expect(StrictMath.hypot(Double.nan, Double.infinity) == Double.infinity)
+    #expect(StrictMath.hypot(Double.nan, Double.nan).isNaN)
+  }
+
+  // ceil/floor with NaN and -0
+  @Test("ceil(NaN)==NaN, ceil(±inf)==±inf, ceil(-0.0)==-0.0")
+  func testCeilSpecial() {
+    #expect(StrictMath.ceil(Double.nan).isNaN)
+    #expect(StrictMath.ceil(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.ceil(-Double.infinity) == -Double.infinity)
+    let negZeroCeil = StrictMath.ceil(-0.0)
+    #expect(negZeroCeil == 0.0 && negZeroCeil.sign == .minus)
+  }
+
+  @Test("floor(NaN)==NaN, floor(±inf)==±inf, floor(-0.0)==-0.0")
+  func testFloorSpecial() {
+    #expect(StrictMath.floor(Double.nan).isNaN)
+    #expect(StrictMath.floor(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.floor(-Double.infinity) == -Double.infinity)
+    let negZeroFloor = StrictMath.floor(-0.0)
+    #expect(negZeroFloor == 0.0 && negZeroFloor.sign == .minus)
+  }
+
+  @Test("rint(NaN)==NaN, rint(±inf)==±inf")
+  func testRintSpecial() {
+    #expect(StrictMath.rint(Double.nan).isNaN)
+    #expect(StrictMath.rint(Double.infinity)  == Double.infinity)
+    #expect(StrictMath.rint(-Double.infinity) == -Double.infinity)
+  }
+
+  @Test("round(NaN)==0, round(+inf)==Int64.max, round(-inf)==Int64.min")
+  func testRoundSpecial() {
+    #expect(StrictMath.round(Double.nan)       == Int64(0))
+    #expect(StrictMath.round(Double.infinity)  == Int64.max)
+    #expect(StrictMath.round(-Double.infinity) == Int64.min)
+    #expect(StrictMath.round(Float.nan)        == 0)
+  }
+
+  // min/max NaN propagation
+  @Test("min(NaN,x)==NaN and min(x,NaN)==NaN — Java spec")
+  func testMinNaN() {
+    #expect(StrictMath.min(Double.nan, 1.0).isNaN)
+    #expect(StrictMath.min(1.0, Double.nan).isNaN)
+  }
+
+  @Test("max(NaN,x)==NaN and max(x,NaN)==NaN — Java spec")
+  func testMaxNaN() {
+    #expect(StrictMath.max(Double.nan, 1.0).isNaN)
+    #expect(StrictMath.max(1.0, Double.nan).isNaN)
+  }
+}
