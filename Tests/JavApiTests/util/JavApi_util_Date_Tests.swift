@@ -139,6 +139,7 @@ struct JavApi_util_Date_Tests {
 
   // MARK: - UTC() statische Methode
 
+  @available(*, deprecated)
   @Test("UTC(70,0,1,0,0,0) ergibt Epoche 0")
   func testUTCEpoch() {
     // Jahr 70 = 1970, Monat 0 = Januar
@@ -146,12 +147,14 @@ struct JavApi_util_Date_Tests {
     #expect(ms == 0)
   }
 
+  @available(*, deprecated)
   @Test("UTC(124,0,1,0,0,0) ergibt 2024-01-01 00:00:00 UTC")
   func testUTC2024() {
     let ms = java.util.Date.UTC(124, 0, 1, 0, 0, 0)
     #expect(ms == 1704067200000)
   }
 
+  @available(*, deprecated)
   @Test("UTC Monat ist 0-basiert: Monat 1 = Februar")
   func testUTCMonthOffset() {
     // 2000-03-01 00:00:00 UTC
@@ -160,6 +163,7 @@ struct JavApi_util_Date_Tests {
     #expect(ms == 951868800000)
   }
 
+  @available(*, deprecated)
   @Test("UTC Jahr ist (Realjahr - 1900): 100 = Jahr 2000")
   func testUTCYearOffset() {
     // 2000-01-01 00:00:00 UTC
@@ -168,6 +172,7 @@ struct JavApi_util_Date_Tests {
     #expect(ms == 946684800000)
   }
 
+  @available(*, deprecated)
   @Test("UTC Schaltjahr 2000: 29. Februar existiert")
   func testUTCLeapYear2000() {
     let ms = java.util.Date.UTC(100, 1, 29, 0, 0, 0)
@@ -181,6 +186,7 @@ struct JavApi_util_Date_Tests {
   // Getestet werden insbesondere Off-by-One-Fehler bei Monat (Java 0-basiert vs. Foundation 1-basiert)
   // und Jahr (Java = Realjahr - 1900).
 
+  @available(*, deprecated)
   @Test("getYear/setYear: Java-Jahr ist Realjahr minus 1900")
   func testYearRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -188,6 +194,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getYear() == 124)
   }
 
+  @available(*, deprecated)
   @Test("setYear(0) ergibt getYear() == 0, nicht 1900")
   func testYearZero() {
     let d = java.util.Date(Int64(0))
@@ -195,6 +202,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getYear() == 0)
   }
 
+  @available(*, deprecated)
   @Test("getMonth/setMonth: Monat ist 0-basiert (Januar=0, Dezember=11)")
   func testMonthRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -206,6 +214,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getMonth() == 11)
   }
 
+  @available(*, deprecated)
   @Test("setMonth(5) ergibt getMonth() == 5, nicht 6 (kein Foundation-Offset-Leak)")
   func testMonthJune() {
     let d = java.util.Date(Int64(0))
@@ -213,6 +222,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getMonth() == 5)
   }
 
+  @available(*, deprecated)
   @Test("getDate/setDate Round-Trip")
   func testDateRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -220,6 +230,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getDate() == 15)
   }
 
+  @available(*, deprecated)
   @Test("getHours/setHours Round-Trip")
   func testHoursRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -227,6 +238,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getHours() == 14)
   }
 
+  @available(*, deprecated)
   @Test("getMinutes/setMinutes Round-Trip")
   func testMinutesRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -234,6 +246,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getMinutes() == 30)
   }
 
+  @available(*, deprecated)
   @Test("getSeconds/setSeconds Round-Trip")
   func testSecondsRoundTrip() {
     let d = java.util.Date(Int64(0))
@@ -241,6 +254,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getSeconds() == 45)
   }
 
+  @available(*, deprecated)
   @Test("set/get sind unabhängig: Monat-Set ändert nicht Jahr")
   func testSetMonthDoesNotChangeYear() {
     let d = java.util.Date(Int64(0))
@@ -252,6 +266,7 @@ struct JavApi_util_Date_Tests {
 
   // MARK: - getDay (Wochentag)
 
+  @available(*, deprecated)
   @Test("getDay: Epoche (1970-01-01) war ein Donnerstag (Java: 4)")
   func testGetDayEpochLocal() {
     // getDay() nutzt lokale Zeitzone — daher prüfen wir den lokalen Wochentag
@@ -264,6 +279,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getDay() == expected)
   }
 
+  @available(*, deprecated)
   @Test("getDay Wertebereich ist 0-6")
   func testGetDayRange() {
     // 7 aufeinanderfolgende Tage abdecken alle Wochentage
@@ -277,6 +293,7 @@ struct JavApi_util_Date_Tests {
 
   // MARK: - getTimezoneOffset
 
+  @available(*, deprecated)
   @Test("getTimezoneOffset entspricht dem negierten Foundation-Offset in Minuten")
   func testTimezoneOffset() {
     let d = java.util.Date()
@@ -287,6 +304,7 @@ struct JavApi_util_Date_Tests {
     #expect(d.getTimezoneOffset() == expectedOffset)
   }
 
+  @available(*, deprecated)
   @Test("getTimezoneOffset ist ein Vielfaches von 1 (Minuten-Granularität)")
   func testTimezoneOffsetIsMinutes() {
     let d = java.util.Date()
@@ -302,12 +320,14 @@ struct JavApi_util_Date_Tests {
   // (Greenwich Mean Time), nicht der Standard UTC. GMT und UTC haben denselben
   // Offset (+0), aber "GMT" bezeichnet eine Zeitzone. Format: "d MMM yyyy HH:mm:ss GMT"
 
+  @available(*, deprecated)
   @Test("toGMTString endet mit 'GMT' (Zeitzone, nicht UTC-Standard)")
   func testToGMTStringEndsWithGMT() {
     let d = java.util.Date(Int64(0))
     #expect(d.toGMTString().hasSuffix("GMT"))
   }
 
+  @available(*, deprecated)
   @Test("toGMTString gibt GMT-Zeit aus unabhängig von lokaler Zeitzone")
   func testToGMTStringIsGMTBased() {
     // 2024-01-01 00:00:00 GMT = 1704067200000 ms
@@ -320,6 +340,7 @@ struct JavApi_util_Date_Tests {
     #expect(s.hasSuffix("GMT"))
   }
 
+  @available(*, deprecated)
   @Test("toGMTString Epoche: 1 Jan 1970 00:00:00 GMT")
   func testToGMTStringEpoch() {
     let d = java.util.Date(Int64(0))
@@ -335,12 +356,14 @@ struct JavApi_util_Date_Tests {
   // DateFormatter erkennt "GMT" im zzz-Token als UTC+0 — korrekt,
   // da GMT denselben Offset wie UTC hat (0 Sekunden).
 
+  @available(*, deprecated)
   @Test("parse gibt -1 für ungültige Strings zurück")
   func testParseInvalid() {
     let result = java.util.Date.parse("kein datum")
     #expect(result == -1)
   }
 
+  @available(*, deprecated)
   @Test("parse erkennt yyyy-MM-dd Format")
   func testParseISO() {
     let result = java.util.Date.parse("2024-01-01")
@@ -352,6 +375,7 @@ struct JavApi_util_Date_Tests {
     #expect(result <= 1704239999000)
   }
 
+  @available(*, deprecated)
   @Test("parse erkennt GMT-String aus toGMTString() exakt")
   func testParseGMTString() {
     // GMT = UTC+0: parse() muss exakt den ursprünglichen ms-Wert zurückgeben
@@ -364,6 +388,7 @@ struct JavApi_util_Date_Tests {
     #expect(parsedMs == originalMs)
   }
 
+  @available(*, deprecated)
   @Test("parse(toGMTString()) Round-Trip: sekundengenau")
   func testParseGMTStringRoundTrip() {
     let originalMs: Int64 = 1718446830000 // 2024-06-15 10:20:30 GMT

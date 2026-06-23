@@ -1306,33 +1306,33 @@ version | implemented | tested   | type          | name              | more info
 1.0.2   | ✔️          | ✔️       | method        | nextToken()       | ()->String
 1.0.2   | ✔️          | ✔️       | method        | nextToken()       | (String)->String
 
-##### java.util.Vector (23/23/0)
+##### java.util.Vector (24/24/24)
 
 version | implemented | tested   | type          | name                | more informations
 ------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | method        | addElement()        | (Object)
-1.0.2   | ✔️          | ⭕️       | method        | capacity()          | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | contains()          | (Object)->boolean
-1.0.2   | ✔️          | ⭕️       | method        | copyInto()          | (Object[])
-1.0.2   | ✔️          | ⭕️       | method        | elementAt()         | (int)->Object
-1.0.2   | ✔️          | ⭕️       | method        | elements()          | ()->Enumeration
-1.0.2   | ✔️          | ⭕️       | method        | ensureCapacity()    | (int)
-1.0.2   | ✔️          | ⭕️       | method        | firstElement()      | ()->Object
-1.0.2   | ✔️          | ⭕️       | method        | indexOf()           | (Object)->int
-1.0.2   | ✔️          | ⭕️       | method        | indexOf()           | (Object,int)->int
-1.0.2   | ✔️          | ⭕️       | method        | insertElementAt()   | (Object,int)
-1.0.2   | ✔️          | ⭕️       | method        | isEmpty()           | ()->boolean
-1.0.2   | ✔️          | ⭕️       | method        | lastElement()       | ()->Object
-1.0.2   | ✔️          | ⭕️       | method        | lastIndexOf()       | (Object)->int
-1.0.2   | ✔️          | ⭕️       | method        | lastIndexOf()       | (Object,int)->int
-1.0.2   | ✔️          | ⭕️       | method        | removeAllElements() | ()
-1.0.2   | ✔️          | ⭕️       | method        | removeElement()     | (Object)->boolean
-1.0.2   | ✔️          | ⭕️       | method        | removeElementAt()   | (int)
-1.0.2   | ✔️          | ⭕️       | method        | setElementAt()      | (Object,int)
-1.0.2   | ✔️          | ⭕️       | method        | setSize()           | (int)
-1.0.2   | ✔️          | ⭕️       | method        | size()              | ()->int
-1.0.2   | ✔️          | ⭕️       | method        | toString()          | ()->String
-1.0.2   | ✔️          | ⭕️       | method        | trimToSize()        | ()
+1.0.2   | ✔️          | ✔️       | method        | addElement()        | (Object)
+1.0.2   | ✔️          | ✔️       | method        | capacity()          | ()->int
+1.0.2   | ✔️          | ✔️       | method        | contains()          | (Object)->boolean
+1.0.2   | ✔️          | ✔️       | method        | copyInto()          | (Object[])
+1.0.2   | ✔️          | ✔️       | method        | elementAt()         | (int)->Object
+1.0.2   | ✔️          | ✔️       | method        | elements()          | ()->Enumeration
+1.0.2   | ✔️          | ✔️       | method        | ensureCapacity()    | (int)
+1.0.2   | ✔️          | ✔️       | method        | firstElement()      | ()->Object
+1.0.2   | ✔️          | ✔️       | method        | indexOf()           | (Object)->int
+1.0.2   | ✔️          | ✔️       | method        | indexOf()           | (Object,int)->int
+1.0.2   | ✔️          | ✔️       | method        | insertElementAt()   | (Object,int)
+1.0.2   | ✔️          | ✔️       | method        | isEmpty()           | ()->boolean
+1.0.2   | ✔️          | ✔️       | method        | lastElement()       | ()->Object
+1.0.2   | ✔️          | ✔️       | method        | lastIndexOf()       | (Object)->int
+1.0.2   | ✔️          | ✔️       | method        | lastIndexOf()       | (Object,int)->int
+1.0.2   | ✔️          | ✔️       | method        | removeAllElements() | ()
+1.0.2   | ✔️          | ✔️       | method        | removeElement()     | (Object)->boolean
+1.0.2   | ✔️          | ✔️       | method        | removeElementAt()   | (int)
+1.0.2   | ✔️          | ✔️       | method        | setElementAt()      | (Object,int)
+1.0.2   | ✔️          | ✔️       | method        | setSize()           | (int)
+1.0.2   | ✔️          | ✔️       | method        | size()              | ()->int
+1.0.2   | ✔️          | ✔️       | method        | toString()          | ()->String
+1.0.2   | ✔️          | ✔️       | method        | trimToSize()        | ()
 
 #### java.applet
 

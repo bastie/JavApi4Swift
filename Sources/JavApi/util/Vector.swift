@@ -179,7 +179,8 @@ extension java.util {
       withLock {
         if newSize > elementData.count {
           _growIfNeeded(newSize)
-        } else {
+        }
+        if newSize < elementCount {
           for i in newSize..<elementCount { elementData[i] = nil }
         }
         elementCount = newSize
