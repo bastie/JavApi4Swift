@@ -93,7 +93,7 @@ extension java.util {
     /// the defaults chain.
     /// - Since: JavaApi (Java 1.0)
     public func propertyNames() -> any java.util.Enumeration<String> {
-      var allKeys = Set(storage.keys)
+      var allKeys = Swift.Set(storage.keys)
       if let defaults {
         var defEnum = defaults.propertyNames()
         while defEnum.hasMoreElements() {

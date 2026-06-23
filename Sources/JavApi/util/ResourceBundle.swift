@@ -109,8 +109,8 @@ extension java.util {
     /// Returns a `Set` of all keys visible through the parent chain.
     ///
     /// - Since: Java 6
-    public func keySet() -> Set<String> {
-      var keys = Set<String>()
+    public func keySet() -> Swift.Set<String> {
+      var keys = Swift.Set<String>()
       var bundle: ResourceBundle? = self
       while let b = bundle {
         var e = b.getKeys()

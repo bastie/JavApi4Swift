@@ -137,8 +137,8 @@ extension java.util {
     // MARK: - Available currencies
 
     /// Returns a set of all available currencies.
-    public static func getAvailableCurrencies() -> Set<Currency> {
-      var result = Set<Currency>()
+    public static func getAvailableCurrencies() -> Swift.Set<Currency> {
+      var result = Swift.Set<Currency>()
       for code in Foundation.Locale.Currency.isoCurrencies {
         if let c = try? getInstance(code.identifier) { result.insert(c) }
       }

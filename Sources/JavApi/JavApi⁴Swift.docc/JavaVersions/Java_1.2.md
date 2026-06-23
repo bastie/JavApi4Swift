@@ -1369,42 +1369,59 @@ version | implemented | tested   | type          | name                    | mor
 > a unified hierarchy of interfaces and implementations for ordered and unordered
 > collections, maps, and sets.
 
-### Implemented (partial)
+### Protocols (✔️/🪄)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ✔️          | ⭕️       | protocol      | Collection              | `Collection.swift`
-1.2     | ✔️          | ⭕️       | protocol      | List                    | `List.swift`
-1.2     | ✔️          | ⭕️       | protocol      | Map                     | `Map.swift`
-1.2     | ✔️          | ⭕️       | protocol      | Iterator                | `Iterator.swift`
-1.2     | ✔️          | ⭕️       | protocol      | ListIterator            | `ListIterator.swift`
-1.2     | ✔️          | ⭕️       | protocol      | Queue                   | `Queue.swift`
-1.2     | ✔️          | ⭕️       | open class    | AbstractCollection      | `AbstractCollection.swift`
-1.2     | ✔️          | ⭕️       | open class    | AbstractList            | `AbstractList.swift`
-1.2     | ✔️          | ⭕️       | open class    | ArrayList               | `ArrayList.swift`; backed by Swift Array
-1.2     | ✔️          | ⭕️       | open class    | HashMap                 | `HashMap.swift`; backed by Swift Dictionary (minimal: put/get/containsKey only)
-1.2     | ✔️          | ⭕️       | open class    | Collections             | `Collections.swift`; only `emptySet()` implemented
-1.2     | ✔️          | ⭕️       | open class    | Arrays                  | `Arrays.swift`
+1.2     | ✔️          | 🪄       | protocol      | Collection              | `Collection.swift`
+1.2     | ✔️          | 🪄       | protocol      | List                    | `List.swift`
+1.2     | ✔️          | 🪄       | protocol      | Map                     | `Map.swift`
+1.2     | ✔️          | 🪄       | protocol      | Set                     | `Set.swift`; extends `Collection`; requires `E: Hashable`
+1.2     | ✔️          | 🪄       | protocol      | SortedMap               | `SortedMap.swift`; extends `Map`; requires `K: Comparable`
+1.2     | ✔️          | 🪄       | protocol      | SortedSet               | `SortedSet.swift`; extends `Set`; requires `E: Comparable`
+1.2     | ✔️          | 🪄       | protocol      | Iterator                | `Iterator.swift`
+1.2     | ✔️          | 🪄       | protocol      | ListIterator            | `ListIterator.swift`
+1.2     | ✔️          | 🪄       | protocol      | Queue                   | `Queue.swift`
 
-### Not yet implemented — missing Java 1.2 Collections types
+### Abstract base classes (✔️/🪄)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | SortedMap               | missing
-1.2     | ⭕️          | ⭕️       | protocol      | SortedSet               | missing
-1.2     | ⭕️          | ⭕️       | open class    | AbstractMap             | missing
-1.2     | ⭕️          | ⭕️       | open class    | AbstractSet             | missing
-1.2     | ⭕️          | ⭕️       | open class    | AbstractSequentialList  | missing
-1.2     | ⭕️          | ⭕️       | open class    | LinkedList              | missing (also implements Queue/Deque)
-1.2     | ⭕️          | ⭕️       | open class    | TreeMap                 | missing (implements SortedMap)
-1.2     | ⭕️          | ⭕️       | open class    | TreeSet                 | missing (implements SortedSet)
-1.2     | ⭕️          | ⭕️       | open class    | HashSet                 | missing
-1.2     | ⭕️          | ⭕️       | open class    | WeakHashMap             | missing
-1.2     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | missing (actually Java 1.4, but worth noting)
+1.2     | ✔️          | 🪄       | open class    | AbstractCollection      | `AbstractCollection.swift`
+1.2     | ✔️          | 🪄       | open class    | AbstractList            | `AbstractList.swift`
+1.2     | ✔️          | 🪄       | open class    | AbstractSequentialList  | `AbstractSequentialList.swift`
+1.2     | ✔️          | 🪄       | open class    | AbstractMap             | `AbstractMap.swift`; `entrySet()` abstract; all other methods derived
+1.2     | ✔️          | 🪄       | open class    | AbstractSet             | `AbstractSet.swift`
 
-> **Note:** `java.util.Collections` utility methods (`sort`, `shuffle`, `reverse`,
-> `binarySearch`, `synchronizedList`, `unmodifiableList`, etc.) are also missing
-> beyond the single `emptySet()` stub.
+### Concrete implementations (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | open class    | ArrayList               | `ArrayList.swift`; `ArrayList+Swiftify.swift`: `init(from:[E])`, `toSwiftArray()`, subscript, `Array.toJavaArrayList()`
+1.2     | ✔️          | ✔️       | open class    | HashMap                 | `HashMap.swift`; `HashMap+Swiftify.swift`: `init(from:[K:V])`, `toSwiftDictionary()`, subscript, `Dictionary.toJavaHashMap()`
+1.2     | ✔️          | ✔️       | open class    | HashSet                 | `HashSet.swift`; backed by `HashMap<E,AnyObject>`; ⭕️ `HashSet+Swiftify.swift` fehlt
+1.2     | ✔️          | ✔️       | open class    | LinkedList              | `LinkedList.swift`; implements `List` + `Queue`; bidirectional `ListIterator`; ⭕️ `LinkedList+Swiftify.swift` fehlt
+1.2     | ✔️          | ✔️       | open class    | TreeMap                 | `TreeMap.swift`; implements `SortedMap`; sorted array backing O(log n) lookup; ⭕️ `TreeMap+Swiftify.swift` fehlt
+1.2     | ✔️          | ✔️       | open class    | TreeSet                 | `TreeSet.swift`; implements `SortedSet`; sorted array backing; ⭕️ `TreeSet+Swiftify.swift` fehlt
+1.2     | ✔️          | ✔️       | open class    | Collections             | `Collections.swift`: `sort`, `reverse`, `shuffle`, `min`, `max`, `frequency`, `disjoint`, `fill`, `nCopies`, `singletonList`, `emptyList/Set/Map`, `unmodifiableList`, `synchronizedList`, `binarySearch`, `addAll`
+1.2     | ✔️          | ✔️       | open class    | Arrays                  | `Arrays.swift`; `Arrays+Swiftify.swift`
+
+### Not yet implemented
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | open class    | WeakHashMap             | not in scope — Swift uses ARC; `weak var` is the native equivalent
+1.4     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | Java 1.4, deferred
+
+### Missing Swiftify bridges (⭕️)
+
+The following classes have no `+Swiftify.swift` file yet. Each needs `init(from:)`,
+`toSwiftXxx()`, a subscript where meaningful, and a reverse extension on the Swift type:
+
+- `HashSet+Swiftify.swift` — `init(from: Swift.Set<E>)`, `toSwiftSet()`, `Swift.Set.toJavaHashSet()`
+- `LinkedList+Swiftify.swift` — `init(from: [E])`, `toSwiftArray()`, subscript, `Array.toJavaLinkedList()`
+- `TreeMap+Swiftify.swift` — `init(from: [K:V])`, `toSwiftDictionary()`, subscript, `Dictionary.toJavaTreeMap()`
+- `TreeSet+Swiftify.swift` — `init(from: Swift.Set<E>)`, `init(from: [E])`, `toSwiftArray()`, `toSwiftSet()`, `Array.toJavaTreeSet()`, `Swift.Set.toJavaTreeSet()`
 
 ---
 
