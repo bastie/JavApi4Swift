@@ -18,7 +18,7 @@ extension java.math {
         let i = val.getFirstNonzeroDigit()
         if i == val.numberLength - 1 { highDigit -= 1 }
       }
-      bLength -= Int.numberOfLeadingZeros(highDigit)
+      bLength -= nlz32(highDigit)
       return bLength
     }
 
@@ -71,7 +71,7 @@ extension java.math {
 
     static func inplaceShiftLeft(_ val: BigInteger, _ count: Int) {
       let intCount = count >> 5
-      let leadingZeros = Int.numberOfLeadingZeros(val.digits[val.numberLength - 1])
+      let leadingZeros = nlz32(val.digits[val.numberLength - 1])
       val.numberLength += intCount + (leadingZeros - (count & 31) >= 0 ? 0 : 1)
       shiftLeft(&val.digits, val.digits, intCount, count & 31)
       val.cutOffLeadingZeroes()
@@ -234,6 +234,14 @@ extension java.math {
 }
 
 // MARK: - Int helpers used by BitLevel
+
+/// Count leading zeros of the low 32 bits of a limb value.
+/// BigInteger stores 32-bit limbs in `Int`; using `Int.leadingZeroBitCount`
+/// on a 64-bit platform gives wrong results (e.g. 63 for value 1 instead of 31).
+@inline(__always)
+private func nlz32(_ value: Int) -> Int {
+  return Int32(truncatingIfNeeded: value).leadingZeroBitCount
+}
 
 private extension Int {
   var nonzeroBitCount: Int {

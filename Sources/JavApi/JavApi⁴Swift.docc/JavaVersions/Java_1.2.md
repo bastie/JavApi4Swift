@@ -1259,16 +1259,100 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## Comprehensive Swing Coverage (as of current implementation)
+### javax.swing.JTextField / JTextArea / JPasswordField / JFormattedTextField (✔️/⭕️)
 
-The following were historically marked "not in scope" but are now **fully implemented**:
-- ✅ **`JTextField`**, **`JTextArea`**, **`JPasswordField`**, **`JFormattedTextField`** — complete with `JTextComponent` base and document model
-- ✅ **`JList`** — with `DefaultListModel`, `ListModel`, `ListSelectionModel`
-- ✅ **`JComboBox`** — with `ComboBoxModel`, `DefaultComboBoxModel`, `MutableComboBoxModel`
-- ✅ **`JTree`** — with `DefaultTreeModel`, `TreeModel`, `TreeCellRenderer`, `DefaultTreeCellRenderer`, `TreePath`, `DefaultMutableTreeNode`
-- ✅ **`JTable`** — with cell renderers and editors (Java 1.2)
-- ✅ **`JSpinner`** — with `SpinnerModel`, `SpinnerNumberModel`, `SpinnerListModel`
-- ✅ **`javax.swing.text`** — document hierarchy, formatting, and text components (Java 1.4+)
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JTextComponent          | extends JComponent; base for all text widgets
+1.2     | ✔️          | ⭕️       | class         | JTextField              | single-line text input
+1.2     | ✔️          | ⭕️       | class         | JTextArea               | multi-line text input
+1.2     | ✔️          | ⭕️       | class         | JPasswordField          | masked text input
+1.2     | ✔️          | ⭕️       | class         | JFormattedTextField     | formatted text input
+
+### javax.swing.JList (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JList                   | list widget
+1.2     | ✔️          | ⭕️       | protocol      | ListModel               |
+1.2     | ✔️          | ⭕️       | class         | DefaultListModel        |
+1.2     | ✔️          | ⭕️       | protocol      | ListSelectionModel      |
+
+### javax.swing.JComboBox (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JComboBox               | drop-down selection widget
+1.2     | ✔️          | ⭕️       | protocol      | ComboBoxModel           |
+1.2     | ✔️          | ⭕️       | class         | DefaultComboBoxModel    |
+1.2     | ✔️          | ⭕️       | protocol      | MutableComboBoxModel    |
+
+### javax.swing.JTree (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JTree                   | hierarchical tree widget
+1.2     | ✔️          | ⭕️       | protocol      | TreeModel               |
+1.2     | ✔️          | ⭕️       | class         | DefaultTreeModel        |
+1.2     | ✔️          | ⭕️       | protocol      | TreeCellRenderer        |
+1.2     | ✔️          | ⭕️       | class         | DefaultTreeCellRenderer |
+1.2     | ✔️          | ⭕️       | class         | TreePath                |
+1.2     | ✔️          | ⭕️       | class         | DefaultMutableTreeNode  |
+
+### javax.swing.JTable (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JTable                  | tabular data widget with cell renderers and editors
+
+### javax.swing.JSpinner (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ✔️          | ⭕️       | class         | JSpinner                | spinner widget
+1.4     | ✔️          | ⭕️       | protocol      | SpinnerModel            |
+1.4     | ✔️          | ⭕️       | class         | SpinnerNumberModel      |
+1.4     | ✔️          | ⭕️       | class         | SpinnerListModel        |
+
+### javax.swing.JSplitPane (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JSplitPane              | two-area split container
+
+### javax.swing.JInternalFrame (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | JInternalFrame          | MDI child window
+
+### javax.swing.table — TableColumn infrastructure (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | TableColumn             |
+1.2     | ✔️          | ⭕️       | protocol      | TableColumnModel        |
+1.2     | ✔️          | ⭕️       | class         | DefaultTableColumnModel |
+
+### javax.swing.tree — TreeSelectionModel (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | TreeSelectionModel      |
+1.2     | ✔️          | ⭕️       | class         | DefaultTreeSelectionModel |
+
+### javax.swing.event — Additional events (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | class         | TableColumnModelEvent   |
+1.2     | ✔️          | ⭕️       | protocol      | TableColumnModelListener |
+1.2     | ✔️          | ⭕️       | class         | UndoableEditEvent       | incl. UndoableEdit protocol
+1.2     | ✔️          | ⭕️       | protocol      | UndoableEditListener    |
+1.2     | ✔️          | ⭕️       | class         | HyperlinkEvent          |
+1.2     | ✔️          | ⭕️       | protocol      | HyperlinkListener       |
+1.2     | ✔️          | ⭕️       | class         | AncestorEvent           |
+1.2     | ✔️          | ⭕️       | protocol      | AncestorListener        |
 
 ---
 
@@ -1406,12 +1490,11 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ✔️       | open class    | Collections             | `Collections.swift`: `sort`, `reverse`, `shuffle`, `min`, `max`, `frequency`, `disjoint`, `fill`, `nCopies`, `singletonList`, `emptyList/Set/Map`, `unmodifiableList`, `synchronizedList`, `binarySearch`, `addAll`
 1.2     | ✔️          | ✔️       | open class    | Arrays                  | `Arrays.swift`; `Arrays+Swiftify.swift`
 
-### Not yet implemented
+### java.util.WeakHashMap (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ✔️          | ✔️       | open class    | WeakHashMap             | `Key: AnyObject` — Swift `weak` requires class instances; value types unsupported (see DevelopmentNotes)
-1.4     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | Java 1.4, deferred
 
 ### Swiftify bridges (✔️)
 
@@ -1421,40 +1504,269 @@ on Swift types (`Array`, `Swift.Set`, `Dictionary`).
 
 ---
 
-## Not in scope for Java 1.2
+---
 
-- ✅ **`JSplitPane`** — implemented
-- ✅ **`JInternalFrame`** — implemented
-- ✅ **`JOptionPane`** — implemented (showMessageDialog, showConfirmDialog, showInputDialog with text field, showOptionDialog); UI sized font-relative via FontMetrics, no hardcoded dimensions
-- ✅ **`JFileChooser`** — implemented (showOpenDialog, showSaveDialog, showDialog)
-- ✅ **`JColorChooser`** — implemented (showDialog, getColor/setColor, RGB sliders + swatch grid)
-- ✅ **`JCheckBoxMenuItem`** / **`JRadioButtonMenuItem`** — implemented
-- ✅ **`JApplet`** — implemented
-- ✅ **`JToolTip`** / **`ToolTipManager`** — implemented
-- ✅ **`AbstractListModel`** / **`AbstractSpinnerModel`** / **`FocusManager`** — implemented
-- ✅ **`javax.swing.text`** — full document model implemented; `Document` → `TextDocument.swift`, `Element` → `TextElement.swift` (Swift compiler filename restriction)
-- ✅ **`BasicEditorPaneUI`** — covered by `BasicTextPaneUI` (registered for `"EditorPaneUI"`)
-- ✅ **`BasicDesktopPaneUI`** — implemented, registered for `"DesktopPaneUI"`
-- ✅ **`BasicOptionPaneUI`** — implemented, registered for `"OptionPaneUI"`
-- ✅ **`BasicFileChooserUI`** — implemented, registered for `"FileChooserUI"`
-- ✅ **`BasicColorChooserUI`** — implemented, registered for `"ColorChooserUI"`
-- ✅ **`javax.swing.table.TableColumn`** / **`TableColumnModel`** / **`DefaultTableColumnModel`** — implemented
-- ✅ **`javax.swing.tree.TreeSelectionModel`** / **`DefaultTreeSelectionModel`** — implemented
-- ✅ **`javax.swing.event.TableColumnModelEvent`** / **`TableColumnModelListener`** — implemented
-- ✅ **`javax.swing.event.UndoableEditEvent`** / **`UndoableEditListener`** — implemented (incl. `UndoableEdit` protocol)
-- ✅ **`javax.swing.event.HyperlinkEvent`** / **`HyperlinkListener`** — implemented
-- ✅ **`javax.swing.event.AncestorEvent`** / **`AncestorListener`** — implemented
-- ✅ **`java.awt.GraphicsEnvironment`** / **`GraphicsDevice`** / **`GraphicsConfiguration`** — implemented (headless stubs; `fatalError` for screen queries; platform backends deferred)
-- ✅ **`java.awt.ComponentOrientation`** — implemented; RTL locales (Arabic, Hebrew, Persian, Urdu) resolved by `getOrientation(Locale)`
-- ✅ **`java.awt.AWTEventMulticaster`** — implemented; 10 listener types; `@MainActor` binary-tree chaining
-- ✅ **`java.awt.FontFormatException`** / **`HeadlessException`** — implemented (4-init exception pattern)
-- **java.awt.color** (`ColorSpace`, `ICC_Profile`) — planned for Java 2D Phase 2
-- **java.awt.font** (`GlyphVector`) — stub only (no platform glyph outlines)
-- **java.awt.print** (`Printable`, `PageFormat`, `PrinterJob`) — low priority
-- **java.awt.image.renderable** — not in scope
-- **java.lang.ref** (`WeakReference`, `SoftReference`, `PhantomReference`, `ReferenceQueue`) — not in scope; Swift uses ARC natively (`weak var` / `unowned`)
-- **java.security** additions (`AccessController`, `AccessControlContext`, `PrivilegedAction`, `Policy`, `CodeSource`, `SecureClassLoader`) — not in scope
-- **java.awt.GradientPaint** / **TexturePaint** / **AWTPermission** / **GraphicsConfigTemplate** — not yet implemented (Java 2D Phase 2)
-- **java.awt.event**: `AWTEventListener`, `InputMethodEvent`, `InvocationEvent`, `InputMethodListener` — not yet implemented
-- **java.awt.datatransfer**: `FlavorMap`, `SystemFlavorMap` — not yet implemented
-- **java.awt.image**: Many Java 1.2 additions not yet ported — `AffineTransformOp`, `BandCombineOp`, `BandedSampleModel`, `BufferedImageFilter`, `BufferedImageOp`, `ByteLookupTable`, `ColorConvertOp`, `ComponentColorModel`, `ComponentSampleModel`, `ConvolveOp`, `DataBufferShort`, `DataBufferUShort`, `ImagingOpException`, `Kernel`, `LookupOp`, `LookupTable`, `MultiPixelPackedSampleModel`, `PackedColorModel`, `PixelInterleavedSampleModel`, `RasterFormatException`, `RasterOp`, `RenderedImage`, `RescaleOp`, `ShortLookupTable`, `TileObserver`, `WritableRenderedImage` — tracked separately
+## java.awt — Java 2D Phase 2 (fehlend / ⭕️)
+
+### java.awt.GradientPaint (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | GradientPaint           | implements Paint; linear gradient between two colors
+
+### java.awt.TexturePaint (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | TexturePaint            | implements Paint; tiled BufferedImage
+
+### java.awt.AWTPermission (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | AWTPermission           | extends BasicPermission
+
+### java.awt.GraphicsConfigTemplate (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | abstract class| GraphicsConfigTemplate  | filter for GraphicsConfiguration selection
+
+---
+
+## java.awt.color (fehlend / ⭕️)
+
+### java.awt.color.ColorSpace (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | abstract class| ColorSpace              | color space abstraction (sRGB, Linear, etc.)
+1.2     | ⭕️          | ⭕️       | final field   | TYPE_RGB / TYPE_GRAY / TYPE_CMYK / TYPE_XYZ | int constants
+1.2     | ⭕️          | ⭕️       | final field   | CS_sRGB / CS_LINEAR_RGB / CS_CIEXYZ / CS_GRAY / CS_PYCC | int constants
+1.2     | ⭕️          | ⭕️       | static method | getInstance()           | (int)->ColorSpace
+1.2     | ⭕️          | ⭕️       | method        | toRGB()                 | ([float])->[float]
+1.2     | ⭕️          | ⭕️       | method        | fromRGB()               | ([float])->[float]
+1.2     | ⭕️          | ⭕️       | method        | getNumComponents()      | ()->int
+1.2     | ⭕️          | ⭕️       | method        | getName()               | (int)->String
+1.2     | ⭕️          | ⭕️       | method        | isCS_sRGB()             | ()->bool
+
+### java.awt.color.ICC_Profile (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | ICC_Profile             | wraps an ICC color profile
+1.2     | ⭕️          | ⭕️       | static method | getInstance()           | (int)->ICC_Profile
+1.2     | ⭕️          | ⭕️       | method        | getColorSpaceType()     | ()->int
+
+---
+
+## java.awt.event — fehlende Klassen (⭕️/⭕️)
+
+### java.awt.event.AWTEventListener (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | AWTEventListener        | global listener for all AWT events
+
+### java.awt.event.InputMethodEvent (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | InputMethodEvent        | extends AWTEvent; for IME input
+1.2     | ⭕️          | ⭕️       | protocol      | InputMethodListener     |
+
+### java.awt.event.InvocationEvent (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | InvocationEvent         | extends AWTEvent; wraps a Runnable for EventQueue dispatch
+
+---
+
+## java.awt.datatransfer — fehlende Klassen (⭕️/⭕️)
+
+### java.awt.datatransfer.FlavorMap (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | FlavorMap               | maps native types to DataFlavors
+1.2     | ⭕️          | ⭕️       | class         | SystemFlavorMap         | platform default FlavorMap
+
+---
+
+## java.awt.print (⭕️/⭕️)
+
+### java.awt.print.Printable (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | Printable               | print(Graphics,PageFormat,int)->int
+1.2     | ⭕️          | ⭕️       | final field   | PAGE_EXISTS             | int = 0
+1.2     | ⭕️          | ⭕️       | final field   | NO_SUCH_PAGE            | int = 1
+
+### java.awt.print.PageFormat (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | PageFormat              | paper size and orientation
+1.2     | ⭕️          | ⭕️       | final field   | PORTRAIT / LANDSCAPE / REVERSE_LANDSCAPE | int 0/1/2
+1.2     | ⭕️          | ⭕️       | method        | getWidth() / getHeight() | ()->double
+1.2     | ⭕️          | ⭕️       | method        | getImageableX/Y/Width/Height() | ()->double
+1.2     | ⭕️          | ⭕️       | method        | getOrientation()        | ()->int
+
+### java.awt.print.PrinterJob (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | abstract class| PrinterJob              | controls printing
+1.2     | ⭕️          | ⭕️       | static method | getPrinterJob()         | ()->PrinterJob
+1.2     | ⭕️          | ⭕️       | method        | setPrintable()          | (Printable)
+1.2     | ⭕️          | ⭕️       | method        | print()                 | () throws PrinterException
+1.2     | ⭕️          | ⭕️       | method        | printDialog()           | ()->bool
+
+---
+
+## java.awt.image — fehlende Java 2D Klassen (⭕️/⭕️)
+
+### java.awt.image.BufferedImageOp hierarchy (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | BufferedImageOp         | filter(BufferedImage,BufferedImage?)->BufferedImage
+1.2     | ⭕️          | ⭕️       | class         | AffineTransformOp       | geometric transform op
+1.2     | ⭕️          | ⭕️       | class         | ColorConvertOp          | color space conversion
+1.2     | ⭕️          | ⭕️       | class         | ConvolveOp              | convolution filter (blur, sharpen)
+1.2     | ⭕️          | ⭕️       | class         | LookupOp                | per-channel lookup table op
+1.2     | ⭕️          | ⭕️       | class         | RescaleOp               | per-channel scale+offset op
+1.2     | ⭕️          | ⭕️       | class         | BandCombineOp           | linear combination of bands
+
+### java.awt.image.Kernel (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | Kernel                  | convolution kernel matrix
+1.2     | ⭕️          | ⭕️       | constructor   | Kernel()                | (int width, int height, float[] data)
+1.2     | ⭕️          | ⭕️       | method        | getWidth() / getHeight()| ()->int
+1.2     | ⭕️          | ⭕️       | method        | getXOrigin() / getYOrigin() | ()->int
+1.2     | ⭕️          | ⭕️       | method        | getKernelData()         | (float[]?)->[float]
+
+### java.awt.image.LookupTable / ByteLookupTable / ShortLookupTable (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | abstract class| LookupTable             | per-channel lookup table base
+1.2     | ⭕️          | ⭕️       | class         | ByteLookupTable         | byte[] per channel
+1.2     | ⭕️          | ⭕️       | class         | ShortLookupTable        | short[] per channel
+
+### java.awt.image.RasterOp (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | RasterOp                | filter(Raster,WritableRaster?)->WritableRaster
+
+### java.awt.image.RenderedImage / WritableRenderedImage (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | RenderedImage           | tiled image protocol
+1.2     | ⭕️          | ⭕️       | protocol      | WritableRenderedImage   | extends RenderedImage; writable tiles
+1.2     | ⭕️          | ⭕️       | protocol      | TileObserver            | callback for tile check-out/in
+
+### java.awt.image — Additional SampleModel / ColorModel types (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | ComponentColorModel     | ColorModel for component-based samples
+1.2     | ⭕️          | ⭕️       | class         | PackedColorModel        | abstract packed-pixel ColorModel
+1.2     | ⭕️          | ⭕️       | class         | ComponentSampleModel    | per-component SampleModel
+1.2     | ⭕️          | ⭕️       | class         | BandedSampleModel       | banded (one array per band) SampleModel
+1.2     | ⭕️          | ⭕️       | class         | MultiPixelPackedSampleModel | multiple pixels packed per data element
+1.2     | ⭕️          | ⭕️       | class         | PixelInterleavedSampleModel | pixel-interleaved SampleModel
+1.2     | ⭕️          | ⭕️       | class         | DataBufferShort         | short[] DataBuffer
+1.2     | ⭕️          | ⭕️       | class         | DataBufferUShort        | unsigned short[] DataBuffer
+
+### java.awt.image — Exceptions (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | ImagingOpException      | extends RuntimeException
+1.2     | ⭕️          | ⭕️       | class         | RasterFormatException   | extends RuntimeException
+
+### java.awt.image.BufferedImageFilter (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | BufferedImageFilter     | adapts BufferedImageOp to ImageFilter/ImageProducer pipeline
+
+---
+
+## java.awt.image.renderable (⭕️/⭕️)
+
+> Deferred — renderable image pipeline is rarely needed outside specialized image processing applications.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | RenderableImage         | resolution-independent image
+1.2     | ⭕️          | ⭕️       | protocol      | RenderableImageOp       | extends RenderableImage; filter op
+1.2     | ⭕️          | ⭕️       | protocol      | ContextualRenderedImageFactory | CRIF; parameterized rendering
+1.2     | ⭕️          | ⭕️       | class         | RenderContext           | rendering context (transform + hints)
+1.2     | ⭕️          | ⭕️       | class         | RenderableImageProducer | bridges RenderableImage to ImageProducer
+
+---
+
+## java.text — fehlende Klassen (⭕️/⭕️)
+
+### java.text.Normalizer (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.6     | ⭕️          | ⭕️       | class         | Normalizer              | Unicode normalization forms NFC/NFD/NFKC/NFKD
+1.6     | ⭕️          | ⭕️       | static method | normalize()             | (CharSequence, Form)->String
+1.6     | ⭕️          | ⭕️       | static method | isNormalized()          | (CharSequence, Form)->bool
+1.6     | ⭕️          | ⭕️       | enum          | Normalizer.Form         | NFC, NFD, NFKC, NFKD
+
+### java.text.Bidi (⭕️/⭕️)
+
+> High effort — requires Unicode Bidirectional Algorithm (UAX #9). CoreText bridge on Apple platforms or ICU wrapper needed.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ⭕️          | ⭕️       | class         | Bidi                    | Unicode Bidirectional Algorithm for RTL/mixed-direction text
+1.4     | ⭕️          | ⭕️       | constructor   | Bidi()                  | (String, int flags)
+1.4     | ⭕️          | ⭕️       | method        | isLeftToRight()         | ()->bool
+1.4     | ⭕️          | ⭕️       | method        | isRightToLeft()         | ()->bool
+1.4     | ⭕️          | ⭕️       | method        | isMixed()               | ()->bool
+1.4     | ⭕️          | ⭕️       | method        | getRunCount()           | ()->int
+1.4     | ⭕️          | ⭕️       | method        | getRunLevel()           | (int)->int
+1.4     | ⭕️          | ⭕️       | method        | getRunStart()           | (int)->int
+1.4     | ⭕️          | ⭕️       | method        | getRunLimit()           | (int)->int
+
+---
+
+## java.lang.ref (⭕️/⭕️)
+
+> Swift verwendet ARC (`weak var` / `unowned`). Diese Klassen sind konzeptionell vorhanden, aber ohne direktes Swift-Äquivalent als API.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | abstract class| Reference               | base for all reference types
+1.2     | ⭕️          | ⭕️       | class         | WeakReference           | weak reference (Swift: `weak var`)
+1.2     | ⭕️          | ⭕️       | class         | SoftReference           | soft reference (no Swift equivalent)
+1.2     | ⭕️          | ⭕️       | class         | PhantomReference        | phantom reference (no Swift equivalent)
+1.2     | ⭕️          | ⭕️       | class         | ReferenceQueue          | queue for enqueued reference objects
+
+---
+
+## java.security — Java 1.2 additions (⭕️/⭕️)
+
+> Bereits vorhandene `java.security`-Klassen sind in Java_1.1 geführt. Die folgenden wurden mit Java 1.2 hinzugefügt.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | AccessController        | privilege escalation / doPrivileged
+1.2     | ⭕️          | ⭕️       | class         | AccessControlContext    | snapshot of access control state
+1.2     | ⭕️          | ⭕️       | protocol      | PrivilegedAction        | action run with elevated privileges
+1.2     | ⭕️          | ⭕️       | protocol      | PrivilegedExceptionAction | like PrivilegedAction but throws
+1.2     | ⭕️          | ⭕️       | class         | Policy                  | abstract security policy
+1.2     | ⭕️          | ⭕️       | class         | CodeSource              | URL + certificates for a code origin
+1.2     | ⭕️          | ⭕️       | class         | SecureClassLoader       | ClassLoader with CodeSource awareness

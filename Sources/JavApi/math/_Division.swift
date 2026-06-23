@@ -18,7 +18,7 @@ extension java.math {
       var normA = [Int](repeating: 0, count: aLength + 1)
       var normB = [Int](repeating: 0, count: bLength + 1)
       let normBLength = bLength
-      let divisorShift = Int.numberOfLeadingZeros(b[bLength - 1])
+      let divisorShift = Int32(truncatingIfNeeded: b[bLength - 1]).leadingZeroBitCount
       if divisorShift != 0 {
         _BitLevel.shiftLeft(&normB, b, 0, divisorShift)
         _BitLevel.shiftLeft(&normA, a, 0, divisorShift)

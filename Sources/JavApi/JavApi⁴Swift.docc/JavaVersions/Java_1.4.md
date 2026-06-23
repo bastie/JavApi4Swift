@@ -256,3 +256,13 @@ version | implemented | tested   | type          | name                         
 1.4     | ✔️          | ⭕️       | method        | valueToString(Object)             |
 
 > **Mask characters:** `#` digit, `A` letter/digit, `?` letter, `*` any, `U` upper, `L` lower, `H` hex digit, `'` quote literal.
+
+---
+
+## java.util — Java 1.4 additions
+
+### java.util.IdentityHashMap (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | implements Map; uses reference equality (==) instead of equals()

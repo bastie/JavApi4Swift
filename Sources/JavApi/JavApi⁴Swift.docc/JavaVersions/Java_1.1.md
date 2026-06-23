@@ -1133,38 +1133,38 @@ version | implemented | tested   | type          | name           | more informa
 
 ### java.math — New package in 1.1
 
-##### java.math.BigInteger (14/14/0)
+##### java.math.BigInteger (14/14/14)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | BigInteger()   | (String)
-1.1     | ✔️          | ⭕️       | constructor   | BigInteger()   | (String,int radix)
-1.1     | ✔️          | ⭕️       | static field  | ZERO, ONE, TEN | BigInteger constants
-1.1     | ✔️          | ⭕️       | method        | add()          | (BigInteger)->BigInteger
-1.1     | ✔️          | ⭕️       | method        | subtract()     | (BigInteger)->BigInteger
-1.1     | ✔️          | ⭕️       | method        | multiply()     | (BigInteger)->BigInteger
-1.1     | ✔️          | ⭕️       | method        | divide()       | (BigInteger)->BigInteger
-1.1     | ✔️          | ⭕️       | method        | mod()          | (BigInteger)->BigInteger
-1.1     | ✔️          | ⭕️       | method        | abs()          | ()->BigInteger
-1.1     | ✔️          | ⭕️       | method        | negate()       | ()->BigInteger
-1.1     | ✔️          | ⭕️       | method        | compareTo()    | (BigInteger)->int
-1.1     | ✔️          | ⭕️       | method        | toString()     | ()->String
-1.1     | ✔️          | ⭕️       | method        | intValue()     | ()->int
-1.1     | ✔️          | ⭕️       | method        | longValue()    | ()->long
+1.1     | ✔️          | ✔️       | constructor   | BigInteger()   | (String)
+1.1     | ✔️          | ✔️       | constructor   | BigInteger()   | (String,int radix)
+1.1     | ✔️          | ✔️       | static field  | ZERO, ONE, TEN | BigInteger constants
+1.1     | ✔️          | ✔️       | method        | add()          | (BigInteger)->BigInteger
+1.1     | ✔️          | ✔️       | method        | subtract()     | (BigInteger)->BigInteger
+1.1     | ✔️          | ✔️       | method        | multiply()     | (BigInteger)->BigInteger
+1.1     | ✔️          | ✔️       | method        | divide()       | (BigInteger)->BigInteger
+1.1     | ✔️          | ✔️       | method        | mod()          | (BigInteger)->BigInteger
+1.1     | ✔️          | ✔️       | method        | abs()          | ()->BigInteger
+1.1     | ✔️          | ✔️       | method        | negate()       | ()->BigInteger
+1.1     | ✔️          | ✔️       | method        | compareTo()    | (BigInteger)->int
+1.1     | ✔️          | ✔️       | method        | toString()     | ()->String
+1.1     | ✔️          | ✔️       | method        | intValue()     | ()->int
+1.1     | ✔️          | ✔️       | method        | longValue()    | ()->long
 
-##### java.math.BigDecimal (9/9/0)
+##### java.math.BigDecimal (9/9/9)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.1     | ✔️          | ⭕️       | constructor   | BigDecimal()   | (String)
-1.1     | ✔️          | ⭕️       | constructor   | BigDecimal()   | (double)
-1.1     | ✔️          | ⭕️       | method        | add()          | (BigDecimal)->BigDecimal
-1.1     | ✔️          | ⭕️       | method        | subtract()     | (BigDecimal)->BigDecimal
-1.1     | ✔️          | ⭕️       | method        | multiply()     | (BigDecimal)->BigDecimal
-1.1     | ✔️          | ⭕️       | method        | divide()       | (BigDecimal,int,int)->BigDecimal
-1.1     | ✔️          | ⭕️       | method        | compareTo()    | (BigDecimal)->int
-1.1     | ✔️          | ⭕️       | method        | toString()     | ()->String
-1.1     | ✔️          | ⭕️       | method        | doubleValue()  | ()->double
+1.1     | ✔️          | ✔️       | constructor   | BigDecimal()   | (String)
+1.1     | ✔️          | ✔️       | constructor   | BigDecimal()   | (double)
+1.1     | ✔️          | ✔️       | method        | add()          | (BigDecimal)->BigDecimal
+1.1     | ✔️          | ✔️       | method        | subtract()     | (BigDecimal)->BigDecimal
+1.1     | ✔️          | ✔️       | method        | multiply()     | (BigDecimal)->BigDecimal
+1.1     | ✔️          | ✔️       | method        | divide()       | (BigDecimal,int,int)->BigDecimal
+1.1     | ✔️          | ✔️       | method        | compareTo()    | (BigDecimal)->int
+1.1     | ✔️          | ✔️       | method        | toString()     | ()->String
+1.1     | ✔️          | ✔️       | method        | doubleValue()  | ()->double
 
 ### java.security — New package in 1.1
 

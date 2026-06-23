@@ -8,7 +8,7 @@ import Foundation
 extension java.math {
 
   /// Immutable arbitrary-precision integer.
-  public final class BigInteger : Number, Comparable, @unchecked Sendable, AdditiveArithmetic, ExpressibleByIntegerLiteral {
+  public final class BigInteger : Number, Comparable, Hashable, @unchecked Sendable, AdditiveArithmetic, ExpressibleByIntegerLiteral {
     public convenience init?<T>(exactly source: T) where T : BinaryInteger {
       self.init(Int128(source))
     }
