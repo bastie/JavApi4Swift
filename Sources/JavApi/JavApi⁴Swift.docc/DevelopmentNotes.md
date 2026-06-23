@@ -209,6 +209,49 @@ Annotating the method — not the struct — keeps non-deprecated tests in the s
 
 ---
 
+## `WeakHashMap` — `Key: AnyObject` Constraint (2026-06)
+
+### Why not `Key: Any`?
+
+Java's `WeakHashMap` holds its keys as weak references via `WeakReference<K>`. When the GC
+collects a key, the entry is automatically removed from the map.
+
+In Swift, `weak` is a language keyword that only applies to **class instances** (`AnyObject`).
+Value types (`String`, `Int`, `struct`) are allocated on the stack or inline — they are not
+reference-counted and cannot be held weakly.
+
+`WeakHashMap<Key: AnyObject, Value>` is therefore not an artificial restriction; it is the
+honest mapping of what "weak reference" means in Swift.
+
+### What about wrapping value types in a class box?
+
+```swift
+final class StringBox { let value: String; init(_ v: String) { self.value = v } }
+let map = WeakHashMap<StringBox, Int>()
+let key = StringBox("hello")
+map[key] = 42
+// key goes out of scope → entry vanishes immediately
+```
+
+This compiles but breaks the semantics: the `StringBox` wrapper has no external strong owner
+other than the call site. Once the local variable goes out of scope the entry disappears — not
+"when the GC collects it" as in Java, but **immediately** via ARC. The result is an unreliable
+map that loses entries unpredictably from the caller's perspective.
+
+### Typical use case
+
+`WeakHashMap` is appropriate only for listener registries or caches where the key is a
+**real object with its own lifecycle** (a view, controller, or component). For `String` or
+other value-type keys, use `HashMap`.
+
+### CharSequence note
+
+`java.lang.CharSequence` is a protocol that is conformed to by both class types
+(`StringBuilder`, `StringBuffer`) and value types (`String`, `Substring`). It therefore
+cannot be used as `WeakHashMap` key either.
+
+---
+
 ## `Boolean(String)` Constructor — Swift Built-in Initializer Conflict (2026-06)
 
 ### Problem

@@ -1410,7 +1410,7 @@ version | implemented | tested   | type          | name                    | mor
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | open class    | WeakHashMap             | not in scope — Swift uses ARC; `weak var` is the native equivalent
+1.2     | ✔️          | ✔️       | open class    | WeakHashMap             | `Key: AnyObject` — Swift `weak` requires class instances; value types unsupported (see DevelopmentNotes)
 1.4     | ⭕️          | ⭕️       | open class    | IdentityHashMap         | Java 1.4, deferred
 
 ### Missing Swiftify bridges (⭕️)
