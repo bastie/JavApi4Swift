@@ -90,7 +90,7 @@ public class Math {
     return value * PI / 180
   }
   public static func toDegrees (_ value : Double) -> Double {
-    return value * PI / 180
+    return value * 180 / PI
   }
   @inlinable
   public static func min<T>(_ x: T, _ y: T) -> T where T : Comparable {
@@ -101,8 +101,18 @@ public class Math {
     Swift.max(x, y)
   }
   
+  /// Java spec: round(a) = (long) floor(a + 0.5) — half-up rounding (not banker's rounding).
   public static func round (_ d : Double) -> Int64 {
-    return Foundation.llround(d)
+    if d.isNaN { return 0 }
+    if d >= Double(Int64.max) { return Int64.max }
+    if d < Double(Int64.min) { return Int64.min }
+    return Int64(Foundation.floor(d + 0.5))
+  }
+
+  /// Java spec: round(a) = (int) floor(a + 0.5f) — half-up rounding.
+  public static func round (_ f : Float) -> Int {
+    if f.isNaN { return 0 }
+    return Int(Foundation.floorf(f + 0.5))
   }
 
   /// IEEE remainder: f1 - (round(f1/f2) * f2)

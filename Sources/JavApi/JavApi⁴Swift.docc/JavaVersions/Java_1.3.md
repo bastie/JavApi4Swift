@@ -91,6 +91,83 @@ N/A     | ✔️          | 🪄       | method        | _waitForIdle()         
 
 ---
 
+## java.lang.StrictMath (65/65/65)
+
+> `StrictMath` was introduced in Java 1.3 as a companion to `java.lang.Math`.
+> All methods are required to produce bit-for-bit identical results on every platform
+> (using the `fdlibm` reference implementation). In JavApi4Swift both classes delegate
+> to Foundation's math functions; the distinction is that `StrictMath` uses fixed
+> Javadoc literal constants for PI, E, and TAU instead of Swift's `Double.pi` / `M_E`.
+>
+> **Bug fixed (2026-06):** `toDegrees()` was incorrectly multiplying by `PI/180` instead of
+> `180/PI` — same bug existed in `Math`. Fixed in `StrictMath.swift`.
+>
+> **Not yet implemented:** `powExact`, `unsignedMultiplyExact`, `unsignedMultiplyHigh`,
+> `unsignedPowExact`, `ceilDivExact`, `ceilDivMod` — require unsigned 64-bit semantics
+> or are low-priority. `random()` delegates to Swift's PRNG, not `java.util.Random`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.3     | ✔️          | ✔️       | final field   | PI                      | 3.141592653589793 (fixed Javadoc literal)
+1.3     | ✔️          | ✔️       | final field   | E                       | 2.718281828459045 (fixed Javadoc literal)
+1.3     | ✔️          | ✔️       | final field   | TAU                     | 6.283185307179586 (fixed Javadoc literal)
+1.3     | ✔️          | ✔️       | static method | abs()                   | (double/int/long)->same
+1.3     | ✔️          | ✔️       | static method | acos()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | asin()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | atan()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | atan2()                 | (double,double)->double
+1.3     | ✔️          | ✔️       | static method | cbrt()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | ceil()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | cos()                   | (double)->double
+1.3     | ✔️          | ✔️       | static method | cosh()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | exp()                   | (double)->double
+1.3     | ✔️          | ✔️       | static method | expm1()                 | (double)->double
+1.3     | ✔️          | ✔️       | static method | floor()                 | (double)->double
+1.3     | ✔️          | ✔️       | static method | IEEEremainder()         | (double,double)->double
+1.3     | ✔️          | ✔️       | static method | log()                   | (double)->double
+1.3     | ✔️          | ✔️       | static method | log10()                 | (double)->double
+1.3     | ✔️          | ✔️       | static method | log1p()                 | (double)->double
+1.3     | ✔️          | ✔️       | static method | max() / min()           | (T,T)->T
+1.3     | ✔️          | ✔️       | static method | pow()                   | (double,double)->double
+1.3     | ✔️          | ✔️       | static method | rint()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | round()                 | (double)->long, (float)->int
+1.3     | ✔️          | ✔️       | static method | sin()                   | (double)->double
+1.3     | ✔️          | ✔️       | static method | sinh()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | sqrt()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | tan()                   | (double)->double
+1.3     | ✔️          | ✔️       | static method | tanh()                  | (double)->double
+1.3     | ✔️          | ✔️       | static method | random()                | ()->double in [0.0, 1.0)
+1.3     | ✔️          | ✔️       | static method | toDegrees()             | (double)->double — bug fixed 2026-06
+1.3     | ✔️          | ✔️       | static method | toRadians()             | (double)->double
+5.0     | ✔️          | ✔️       | static method | hypot()                 | (double,double)->double
+9       | ✔️          | ✔️       | static method | fma()                   | (double,double,double)->double, (float,float,float)->float
+9       | ✔️          | ✔️       | static method | multiplyFull()          | (int,int)->long
+9       | ✔️          | ✔️       | static method | multiplyHigh()          | (long,long)->long — high 64 bits of 128-bit product
+6       | ✔️          | ✔️       | static method | copySign()              | (double,double)->double, (float,float)->float
+6       | ✔️          | ✔️       | static method | getExponent()           | (double)->int, (float)->int — unbiased IEEE exponent
+6       | ✔️          | ✔️       | static method | nextAfter()             | (double,double)->double, (float,double)->float
+6       | ✔️          | ✔️       | static method | nextDown()              | (double)->double, (float)->float
+6       | ✔️          | ✔️       | static method | nextUp()                | (double)->double, (float)->float
+6       | ✔️          | ✔️       | static method | scalb()                 | (double,int)->double, (float,int)->float
+6       | ✔️          | ✔️       | static method | signum()                | (double)->double, (float)->float
+6       | ✔️          | ✔️       | static method | ulp()                   | (double)->double, (float)->float
+8       | ✔️          | ✔️       | static method | addExact()              | (int,int)->int, (long,long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | decrementExact()        | (int)->int, (long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | floorDiv()              | (int,int)->int, (long,long)->long — throws ArithmeticException on /0
+8       | ✔️          | ✔️       | static method | floorMod()              | (int,int)->int, (long,long)->long — throws ArithmeticException on /0
+8       | ✔️          | ✔️       | static method | incrementExact()        | (int)->int, (long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | multiplyExact()         | (int,int)->int, (long,long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | negateExact()           | (int)->int, (long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | subtractExact()         | (int,int)->int, (long,long)->long — throws ArithmeticException on overflow
+8       | ✔️          | ✔️       | static method | toIntExact()            | (long)->int — throws ArithmeticException on overflow
+15      | ✔️          | ✔️       | static method | absExact()              | (int)->int, (long)->long — throws ArithmeticException for MIN_VALUE
+18      | ✔️          | ✔️       | static method | ceilDiv()               | (int,int)->int, (long,long)->long — throws ArithmeticException on /0
+18      | ✔️          | ✔️       | static method | ceilMod()               | (int,int)->int, (long,long)->long — throws ArithmeticException on /0
+18      | ✔️          | ✔️       | static method | divideExact()           | (int,int)->int, (long,long)->long — throws on non-exact or /0
+21      | ✔️          | ✔️       | static method | clamp()                 | (double,double,double)->double, (float,float,float)->float, (long,long,long)->long, (int,int,int)->int
+
+---
+
 ## Not in scope for Java 1.3
 
 - **Java Sound** (`javax.sound.sampled`, `javax.sound.midi`) — not in scope

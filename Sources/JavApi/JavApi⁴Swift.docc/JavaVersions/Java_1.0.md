@@ -483,29 +483,35 @@ version | implemented | tested   | type          | name           | more informa
 1.0.2   | ✔️          | ✔️       | static method | toString()     | (long,int)->String
 
 
-##### java.lang.Math (17/17/0)
+##### java.lang.Math (19/19/19)
 
-> **Note:** `abs()` exists in a test file but tests only `Math.abs()` — none of the 17 documented methods below are covered yet. All marked ⭕️ pending dedicated test cases.
+> **Bug fixed (2026-06):** `toDegrees()` was incorrectly multiplying by `PI/180` instead of `180/PI`. Fixed in `Math.swift`.
 
 version | implemented | tested   | type          | name           | more informations     
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.0.2   | ✔️          | ⭕️       | final field   | PI             | double
-1.0.2   | ✔️          | ⭕️       | static method | sin()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | cos()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | tan()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | asin()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | acos()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | atan()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | exp()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | log()          | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | sqrt()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | IEEEremainder() | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | ceil()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | floor()        | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | rint()         | (double)->double
-1.0.2   | ✔️          | ⭕️       | static method | atan2()        | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | pow()          | (double,double)->double
-1.0.2   | ✔️          | ⭕️       | static method | round()        | (float)->int
+1.0.2   | ✔️          | ✔️       | final field   | PI             | double
+1.0.2   | ✔️          | ✔️       | final field   | E              | double
+1.0.2   | ✔️          | ✔️       | static method | sin()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | cos()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | tan()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | asin()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | acos()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | atan()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | exp()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | log()          | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | sqrt()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | IEEEremainder() | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | ceil()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | floor()        | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | rint()         | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | atan2()        | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | pow()          | (double,double)->double
+1.0.2   | ✔️          | ✔️       | static method | round()        | (double)->long
+1.0.2   | ✔️          | ✔️       | static method | round()        | (float)->int
+1.0.2   | ✔️          | ✔️       | static method | abs()          | (double/int/long)->same
+1.0.2   | ✔️          | ✔️       | static method | min() / max()  | (T,T)->T
+1.0.2   | ✔️          | ✔️       | static method | toRadians()    | (double)->double
+1.0.2   | ✔️          | ✔️       | static method | toDegrees()    | (double)->double — bug fixed 2026-06
 
 
 ##### java.lang.Number (4/4/0)
