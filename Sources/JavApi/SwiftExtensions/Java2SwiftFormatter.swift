@@ -364,21 +364,46 @@ struct Java2SwiftFormatter {
   // MARK: Helpers
   // ---------------------------------------------------------------------------
 
-  /// Formats a `Double` locale-sensitively for `%f`.
+  /// Formats a `Double` for `%f`.
   ///
-  /// `String(format: "%f", ...)` always uses the C locale (`.` as decimal
-  /// separator). We use `Foundation.NumberFormatter` instead so that the
-  /// locale set via `java.util.Locale.setDefault()` is respected.
+  /// Rounding always follows C-printf semantics (%.2f of 3.14159 → "3.14"),
+  /// which matches Java's behaviour and is consistent across platforms.
+  /// The decimal separator and grouping separator are then applied from the
+  /// current locale so that e.g. de_DE produces "1.234,50".
   private static func formatDouble(_ value: Double, precision: Int,
                                    grouping: Bool, width: Int,
                                    leftAlign: Bool) -> String {
-    let nf = Foundation.NumberFormatter()
-    nf.locale          = java.util.Locale.getDefault().delegate ?? Foundation.Locale.current
-    nf.numberStyle     = .decimal
-    nf.minimumFractionDigits = precision
-    nf.maximumFractionDigits = precision
-    nf.usesGroupingSeparator = grouping
-    let raw = nf.string(from: NSNumber(value: value)) ?? String(format: "%.\(precision)f", value)
+    // Step 1: round with C-locale printf — cross-platform, matches Java.
+    let cFormatted = String(format: "%.\(precision)f", value)
+
+    // Step 2: replace '.' with the locale decimal separator, and optionally
+    //         insert grouping separators into the integer part.
+    let locale = java.util.Locale.getDefault().delegate ?? Foundation.Locale.current
+    let decSep = String(locale.decimalSeparator ?? ".")
+
+    let raw: String
+    if grouping {
+      let grpSep = String(locale.groupingSeparator ?? ",")
+      // Split C-formatted string at '.'
+      let parts = cFormatted.components(separatedBy: ".")
+      var intPart = parts[0]
+      let fracPart = parts.count > 1 ? decSep + parts[1] : ""
+
+      let negative = intPart.hasPrefix("-")
+      if negative { intPart = String(intPart.dropFirst()) }
+
+      // Insert grouping separators every 3 digits from the right
+      var grouped = ""
+      for (offset, ch) in intPart.reversed().enumerated() {
+        if offset > 0 && offset % 3 == 0 { grouped.insert(contentsOf: grpSep.reversed(), at: grouped.startIndex) }
+        grouped.insert(ch, at: grouped.startIndex)
+      }
+      raw = (negative ? "-" : "") + grouped + fracPart
+    } else {
+      // Just swap the decimal separator
+      raw = decSep == "." ? cFormatted : cFormatted.replacingOccurrences(of: ".", with: decSep)
+    }
+
     return applyWidth(raw, width: width, leftAlign: leftAlign, upper: false)
   }
 
