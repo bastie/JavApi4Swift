@@ -36,7 +36,7 @@ Key additions already implemented:
 
 #### java.io.Reader / Writer (new character-stream hierarchy)
 
-##### java.io.Reader (9/9/0)
+##### java.io.Reader (9/9/9)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
@@ -50,7 +50,7 @@ version | implemented | tested   | type          | name           | more informa
 1.1     | ✔️          | 🪄       | method        | reset()        | ()
 1.1     | ✔️          | 🪄       | method        | close()        | () — abstract
 
-##### java.io.Writer (7/7/0)
+##### java.io.Writer (7/7/7)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
