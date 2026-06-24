@@ -317,13 +317,23 @@ struct JavApi_math_BigInteger_Tests {
     #expect((try a.modInverse(m)) == (try java.math.BigInteger("4")))
   }
 
-  @Test("modPow: 3^4 mod 5 = 1")
-  func testModPow() throws {
+  @Test("modPow: 3^4 mod 5 = 1 (odd modulus)")
+  func testModPowOdd() throws {
     // 5 is odd → oddModPow path; 81 mod 5 = 1
     let base = try java.math.BigInteger("3")
     let exp  = try java.math.BigInteger("4")
     let mod  = try java.math.BigInteger("5")
     #expect((try base.modPow(exp, mod)) == (try java.math.BigInteger("1")))
+  }
+
+  @Test("modPow: 2^10 mod 1000 = 24 (even modulus)")
+  func testModPowEven() throws {
+    // 1000 is even → evenModPow path; 1024 mod 1000 = 24
+    let base = try java.math.BigInteger("2")
+    let exp  = try java.math.BigInteger("10")
+    let mod  = try java.math.BigInteger("1000")
+    let result = try base.modPow(exp, mod)
+    #expect(result.toString() == "24")
   }
 
   // MARK: - compareTo / min / max
