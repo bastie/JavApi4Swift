@@ -189,7 +189,8 @@ extension java.math {
     // MARK: - Factory
 
     public static func valueOf(_ val: Int64) -> BigInteger {
-      if val < 0 { return val != -1 ? BigInteger(-1, -val) : MINUS_ONE }
+      if val < 0 && val != -1 { return BigInteger(Int128(val)) }
+      if val == -1 { return MINUS_ONE }
       if val <= 10 { return SMALL_VALUES[Int(val)] }
       return BigInteger(1, val)
     }
@@ -606,38 +607,39 @@ extension java.math {
     }
 
     private func putBytesNegativeToIntegers(_ byteValues: [UInt8]) {
-      var bytesLen = byteValues.count
-      let highBytes = bytesLen & 3
-      numberLength = (bytesLen >> 2) + (highBytes == 0 ? 0 : 1)
-      digits = [Int](repeating: 0, count: numberLength)
-      digits[numberLength - 1] = -1
-      var i = 0
-      var nonzeroFound = false
-      while bytesLen > highBytes {
-        let d = (Int(byteValues[bytesLen - 1]) & 0xFF)
-              | (Int(byteValues[bytesLen - 2]) & 0xFF) << 8
-              | (Int(byteValues[bytesLen - 3]) & 0xFF) << 16
-              | (Int(byteValues[bytesLen - 4]) & 0xFF) << 24
-        bytesLen -= 4
-        if !nonzeroFound && d != 0 {
-          digits[i] = -d; nonzeroFound = true; _firstNonzeroDigit = i; i += 1
-          while bytesLen > highBytes {
-            let d2 = (Int(byteValues[bytesLen - 1]) & 0xFF)
-                   | (Int(byteValues[bytesLen - 2]) & 0xFF) << 8
-                   | (Int(byteValues[bytesLen - 3]) & 0xFF) << 16
-                   | (Int(byteValues[bytesLen - 4]) & 0xFF) << 24
-            bytesLen -= 4
-            digits[i] = ~d2; i += 1
-          }
-          break
+      // Interpret byteValues as a two's-complement negative number (MSB first).
+      // Compute magnitude = two's-complement negation, then store as 32-bit limbs.
+      let n = byteValues.count
+      // Build the raw unsigned value as a big integer via limbs (avoids overflow)
+      // and compute (~val + 1) mod 2^(8*n) = -val.
+      // Equivalent: invert all bytes, then add 1 (ripple carry).
+      var limbs = [Int]()
+      var carry = 1
+      var pos = n - 1
+      while pos >= 0 {
+        // Read up to 4 bytes little-endian (from the right)
+        var chunk = 0
+        var shift = 0
+        var p = pos
+        while p > pos - 4 && p >= 0 {
+          chunk |= (Int(byteValues[p]) & 0xFF) << shift
+          shift += 8
+          p -= 1
         }
-        digits[i] = d; i += 1
+        pos = p
+        // Invert bits within this chunk (only the bits we actually read)
+        let bitsRead = shift
+        let mask = (1 << bitsRead) - 1
+        let inverted = (~chunk) & mask
+        // Add carry
+        let sum = inverted + carry
+        carry = sum >> bitsRead
+        limbs.append(sum & mask)
       }
-      if highBytes != 0 {
-        var d = 0
-        for j in 0..<highBytes { d = (d << 8) | (Int(byteValues[j]) & 0xFF) }
-        digits[i] = nonzeroFound ? ~d : -d
-      }
+      // Remove leading zero limbs
+      while limbs.count > 1 && limbs.last == 0 { limbs.removeLast() }
+      numberLength = limbs.count
+      digits = limbs
     }
   }
 }

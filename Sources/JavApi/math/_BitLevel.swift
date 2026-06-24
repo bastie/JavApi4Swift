@@ -135,7 +135,10 @@ extension java.math {
         var i = 0
         while i < intCount && source.digits[i] == 0 { i += 1 }
         var resLen = resLength
-        if i < intCount || (bitCount > 0 && (source.digits[i] << (32 - bitCount)) != 0) {
+        // Adjust for floor semantics: if any dropped bit is non-zero, round towards -∞
+        let droppedBitsNonZero = i < intCount ||
+          (bitCount > 0 && (source.digits[intCount] & ((1 << bitCount) &- 1)) != 0)
+        if droppedBitsNonZero {
           var j = 0
           while j < resLen && resDigits[j] == -1 {
             resDigits[j] = 0

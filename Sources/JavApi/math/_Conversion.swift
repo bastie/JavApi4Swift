@@ -74,7 +74,10 @@ extension java.math {
 
     private static func bigInteger2DecimalString(_ val: BigInteger) -> String {
       if val.sign == 0 { return "0" }
-      let resLen = val.numberLength * 10 + 1
+      // Each 32-bit limb contributes at most 10 decimal digits; the billion-division
+      // loop also pads up to 9 zeros per step. So worst case is 19 chars per limb,
+      // plus 1 for the sign.
+      let resLen = val.numberLength * 19 + 1
       var result = [Character](repeating: "0", count: resLen)
       var currentChar = resLen
       var temp = val.digits
@@ -84,8 +87,8 @@ extension java.math {
         for i1 in stride(from: tempLen - 1, through: 0, by: -1) {
           let t1 = (result11 << 32) + (Int64(temp[i1]) & 0xFFFFFFFF)
           let res = divideLongByBillion(t1)
-          temp[i1] = Int(truncatingIfNeeded: res)
-          result11 = res >> 32
+          temp[i1] = Int(res & 0xFFFFFFFF)  // lower 32 bits = quotient digit
+          result11 = res >> 32              // upper 32 bits = remainder
         }
         var resDigit = Int(truncatingIfNeeded: result11)
         repeat {
@@ -93,7 +96,7 @@ extension java.math {
           result[currentChar] = Character(String(resDigit % 10))
           resDigit /= 10
         } while resDigit != 0 && currentChar != 0
-        let delta = 9 - (resLen - currentChar) % 9
+        let delta = (9 - (resLen - currentChar) % 9) % 9
         var i = 0; while i < delta && currentChar > 0 { currentChar -= 1; result[currentChar] = "0"; i += 1 }
         var j = tempLen - 1; while j > 0 && temp[j] == 0 { j -= 1 }
         if j == 0 && temp[0] == 0 { break }

@@ -536,12 +536,12 @@ extension java.math {
     static func inplaceModPow2(_ x: BigInteger, _ n: Int) {
       let fd = n >> 5
       if x.numberLength < fd || x.bitLength() <= n { return }
-      let leadingZeros = 32 - (n & 31)
+      let bitInWord = n & 31
+      // Keep only the lower `bitInWord` bits of the top word.
+      // Use UInt32 arithmetic to avoid 64-bit mask on 64-bit platforms.
+      let mask: Int = bitInWord == 0 ? 0 : Int(UInt32.max >> (32 - bitInWord))
       x.numberLength = fd + 1
-      x.digits[fd] &= leadingZeros < 32 ? (-1 >> leadingZeros) : 0
-      // Swift: -1 >> n is arithmetic right shift (implementation-defined in C but defined in Swift)
-      // We want unsigned mask: (1 << (32-leadingZeros)) - 1 equivalent
-      x.digits[fd] &= leadingZeros < 32 ? Int(bitPattern: UInt(bitPattern: -1) >> leadingZeros) : 0
+      x.digits[fd] &= mask
       x.cutOffLeadingZeroes()
     }
 
