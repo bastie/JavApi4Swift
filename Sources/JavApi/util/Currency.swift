@@ -68,7 +68,11 @@ extension java.util {
 
     /// Returns the symbol for the given locale.
     public func getSymbol(_ locale: java.util.Locale) -> String {
-      locale.delegate.currencySymbol ?? currencyCode
+      let formatter = NumberFormatter()
+      formatter.numberStyle = .currency
+      formatter.locale = locale.delegate
+      formatter.currencyCode = currencyCode
+      return formatter.currencySymbol ?? currencyCode
     }
 
     /// Returns the default number of fraction digits (e.g. 2 for EUR, 0 for JPY).
