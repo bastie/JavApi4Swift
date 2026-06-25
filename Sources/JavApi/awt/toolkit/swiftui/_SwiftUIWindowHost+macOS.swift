@@ -37,11 +37,15 @@ extension _SwiftUIWindowHost {
         .ignoresSafeArea())
     hostingView.autoresizingMask = [.width, .height]
 
+    var frameMask: NSWindow.StyleMask = [.titled, .closable, .miniaturizable]
+    let isResizable = (awtWindow as? java.awt.Frame)?.isResizable() ?? true
+    if isResizable { frameMask.insert(.resizable) }
+
     let nsWindow = NSWindow(
       contentRect: NSRect(
         x: awtWindow.bounds.x, y: awtWindow.bounds.y,
         width: awtWindow.bounds.width, height: awtWindow.bounds.height),
-      styleMask: [.titled, .closable, .resizable, .miniaturizable],
+      styleMask: frameMask,
       backing: .buffered,
       defer: false)
 

@@ -173,9 +173,19 @@ public final class _Win32Canvas {
 
   private func createHWND(title: String, x: Int, y: Int,
                            width: Int, height: Int) {
-    let style: DWORD = isDialog
-      ? DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME)
-      : DWORD(WS_OVERLAPPEDWINDOW)
+    let canResize = (awtWindow as? java.awt.Frame)?.isResizable() ?? true
+    let style: DWORD
+    if isDialog {
+      // Dialog: nur resizable wenn Frame.isResizable()
+      style = canResize
+        ? DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME)
+        : DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU)
+    } else {
+      // Frame/JFrame: WS_OVERLAPPEDWINDOW enthält WS_THICKFRAME — entfernen wenn nötig
+      style = canResize
+        ? DWORD(WS_OVERLAPPEDWINDOW)
+        : DWORD(WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME)
+    }
 
     var rect = RECT(left: LONG(x), top: LONG(y),
                     right: LONG(x + width), bottom: LONG(y + height))

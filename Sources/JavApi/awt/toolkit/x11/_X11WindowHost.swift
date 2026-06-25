@@ -86,6 +86,13 @@ private typealias XCreateFontCursorFunc     = @convention(c) (X11DisplayPtr, UIn
 private typealias XDefineCursorFunc         = @convention(c) (X11DisplayPtr, X11WindowID, UInt) -> Int32
 private typealias XUndefineCursorFunc       = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XFreeCursorFunc           = @convention(c) (X11DisplayPtr, UInt) -> Int32
+// XSizeHints / XSetWMNormalHints — lock window size when Frame.isResizable() == false
+private typealias XAllocSizeHintsFunc       = @convention(c) () -> UnsafeMutableRawPointer?
+private typealias XSetWMNormalHintsFunc     = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutableRawPointer) -> Void
+private typealias XFreeFunc                 = @convention(c) (UnsafeMutableRawPointer) -> Void
+// XSizeHints.flags bits
+private let PMinSize: CLong = 1 << 4
+private let PMaxSize: CLong = 1 << 5
 
 // X11 event type constants (from X.h)
 private let X11_ExposureMask:        CLong = 1 << 15
@@ -207,6 +214,9 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnDefineCursor:      XDefineCursorFunc?
   private var fnUndefineCursor:    XUndefineCursorFunc?
   private var fnFreeCursor:        XFreeCursorFunc?
+  private var fnAllocSizeHints:    XAllocSizeHintsFunc?
+  private var fnSetWMNormalHints:  XSetWMNormalHintsFunc?
+  private var fnXFree:             XFreeFunc?
 
   // Cursor cache: AWT cursor type → X11 Cursor XID
   private var cursorCache: [Int: UInt] = [:]
@@ -320,6 +330,9 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnDefineCursor       = resolve("XDefineCursor",       as: XDefineCursorFunc.self)
     fnUndefineCursor     = resolve("XUndefineCursor",     as: XUndefineCursorFunc.self)
     fnFreeCursor         = resolve("XFreeCursor",         as: XFreeCursorFunc.self)
+    fnAllocSizeHints     = resolve("XAllocSizeHints",     as: XAllocSizeHintsFunc.self)
+    fnSetWMNormalHints   = resolve("XSetWMNormalHints",   as: XSetWMNormalHintsFunc.self)
+    fnXFree              = resolve("XFree",               as: XFreeFunc.self)
   }
 
   // ---------------------------------------------------------------------------
@@ -529,6 +542,30 @@ public final class _X11WindowHost: @unchecked Sendable {
     if let fnProto = fnSetWMProtocols, atomWMDeleteWindow != 0 {
       var atom = atomWMDeleteWindow
       _ = fnProto(dpy, xwin, &atom, 1)
+    }
+
+    // Lock window size when Frame.isResizable() == false by setting
+    // XSizeHints.min_size == XSizeHints.max_size.
+    let canResize = (awtWindow as? java.awt.Frame)?.isResizable() ?? true
+    if !canResize,
+       let fnAlloc  = fnAllocSizeHints,
+       let fnSetHints = fnSetWMNormalHints,
+       let hints = fnAlloc() {
+      // XSizeHints layout (Xlib.h):
+      //   offset 0:  flags  (CLong)
+      //   offset 40: min_width  (Int32)
+      //   offset 44: min_height (Int32)
+      //   offset 48: max_width  (Int32)
+      //   offset 52: max_height (Int32)
+      let iw = Int32(w)
+      let ih = Int32(h)
+      hints.storeBytes(of: PMinSize | PMaxSize, toByteOffset: 0,  as: CLong.self)
+      hints.storeBytes(of: iw,                  toByteOffset: 40, as: Int32.self)
+      hints.storeBytes(of: ih,                  toByteOffset: 44, as: Int32.self)
+      hints.storeBytes(of: iw,                  toByteOffset: 48, as: Int32.self)
+      hints.storeBytes(of: ih,                  toByteOffset: 52, as: Int32.self)
+      fnSetHints(dpy, xwin, hints)
+      fnXFree?(hints)
     }
 
     _ = fnMap(dpy, xwin)
