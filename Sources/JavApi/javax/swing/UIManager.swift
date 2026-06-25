@@ -4,7 +4,7 @@
  */
 
 extension javax.swing {
-
+  
   /// Manages the active Look & Feel and provides `ComponentUI` instances.
   ///
   /// `UIManager` is the central point for L&F management in Swing:
@@ -32,55 +32,69 @@ extension javax.swing {
   /// - Since: Java 1.2
   @MainActor
   public final class UIManager {
-
+    
     // -------------------------------------------------------------------------
     // MARK: Singleton state
     // -------------------------------------------------------------------------
-
-    private static var _laf: javax.swing.LookAndFeel = javax.swing.plaf.basic.BasicLookAndFeel()
+    
+    private static var _laf: javax.swing.LookAndFeel = {
+      let basic = javax.swing.plaf.basic.BasicLookAndFeel()
+      UIManager.installLookAndFeel(lookAndFeel: UIManager.LookAndFeelInfo(basic))
+      UIManager._defaults = basic.getDefaults() // of course second time, but did not mak _default optinal at the moment
+      return basic
+    }()
     private static var _defaults: javax.swing.UIDefaults = javax.swing.plaf.basic.BasicLookAndFeel().getDefaults()
-
+    
     private init() {}
-
+    
     // -------------------------------------------------------------------------
     // MARK: L&F access
     // -------------------------------------------------------------------------
-
+    
     /// Returns the currently active Look & Feel.
     public static func getLookAndFeel() -> javax.swing.LookAndFeel {
       return _laf
     }
-
+    
     /// Installs `laf` as the active Look & Feel.
     ///
     /// Calls `uninitialize()` on the old L&F and `initialize()` on the new one,
     /// then rebuilds the defaults table.
     ///
+    /// - Parameter laf: the LookAndFeel to set.
     /// - Throws: `UnsupportedLookAndFeelException` if `laf.isSupportedLookAndFeel()` is `false`.
     public static func setLookAndFeel(_ laf: javax.swing.LookAndFeel) throws {
       guard laf.isSupportedLookAndFeel() else {
         throw javax.swing.UnsupportedLookAndFeelException(
           "LookAndFeel \(laf.getName()) is not supported on this platform")
       }
+      if !installedLookAndFeels.contains(where: { $0.lafInstance === laf }) {
+        installLookAndFeel(lookAndFeel: LookAndFeelInfo(laf))
+      }
       _laf.uninitialize()
       _laf = laf
       _defaults = laf.getDefaults()
       laf.initialize()
     }
-
+    
     /// Convenience: install a L&F by fully-qualified class name (no-op stub).
     ///
     /// In Java this loads the class dynamically.  In JavApi⁴Swift, pass the
     /// instance directly to `setLookAndFeel(_:)` instead.
     public static func setLookAndFeel(_ className: String) throws {
       // Dynamic class loading is not supported in Swift.
-      // Use setLookAndFeel(_ laf: LookAndFeel) with a concrete instance.
+      for laf in UIManager.getInstalledLookAndFeels() {
+        if laf.getClassName() == className {
+          _ = try? UIManager.setLookAndFeel(laf.lafInstance)
+        }
+      }
+      throw UnsupportedLookAndFeelException("no LookAnFeel with className: \(className) installed")
     }
-
+    
     // -------------------------------------------------------------------------
     // MARK: UI lookup
     // -------------------------------------------------------------------------
-
+    
     /// Returns a new `ComponentUI` for `component` from the active L&F, or `nil`.
     ///
     /// The key is derived by stripping the leading `J` from the last component
@@ -90,14 +104,25 @@ extension javax.swing {
       let key = component.getUIClassID()
       return _defaults.getUI(for: key)
     }
-
+    
     // -------------------------------------------------------------------------
     // MARK: Defaults table
     // -------------------------------------------------------------------------
-
+    
     /// Returns the merged `UIDefaults` of the active L&F.
     public static func getDefaults() -> javax.swing.UIDefaults {
       return _defaults
     }
+    
+    private static var installedLookAndFeels: [UIManager.LookAndFeelInfo] = []
+    
+    public static func getInstalledLookAndFeels() -> [javax.swing.UIManager.LookAndFeelInfo] {
+      return installedLookAndFeels
+    }
+    
+    public static func installLookAndFeel(lookAndFeel: javax.swing.UIManager.LookAndFeelInfo) {
+      installedLookAndFeels.append(lookAndFeel)
+    }
+    
   }
 }
