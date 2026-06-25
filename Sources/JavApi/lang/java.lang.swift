@@ -23,6 +23,7 @@ extension java.lang {
   public typealias IllegalStateException = JavApi.IllegalStateException
   public typealias IllegalThreadStateException = JavApi.IllegalThreadStateException
   public typealias IndexOutOfBoundsException = JavApi.IndexOutOfBoundsException
+  public typealias Integer = JavApi.Integer
   public typealias IO = JavApi.IO
   public typealias MatchException = JavApi.MatchException
   public typealias Math = JavApi.Math
