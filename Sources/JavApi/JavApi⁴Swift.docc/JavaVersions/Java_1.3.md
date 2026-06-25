@@ -168,6 +168,52 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+## java.util — Java 1.3 additions
+
+### java.util.TimerTask (✔️/⭕️)
+
+> Abstract base for tasks submitted to `java.util.Timer`. In Java this is an
+> abstract class; following the Java2Swift convention it is a Swift `protocol`
+> with a default implementation for `scheduledExecutionTime()`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.3     | ✔️          | ⭕️       | protocol      | TimerTask               | AnyObject & Sendable; Sources/JavApi/util/TimerTask.swift
+1.3     | ✔️          | ⭕️       | method        | run()                   | () — implement with task body
+1.3     | ✔️          | ⭕️       | method        | scheduledExecutionTime()| ()->Int64 — default returns -1
+
+### java.util.Timer (✔️/⭕️)
+
+> Schedules `TimerTask` instances for one-shot or repeating execution on a
+> **background actor** — the Swift equivalent of Java's single timer-thread.
+> Unlike `javax.swing.Timer`, callbacks are **not** on the main actor; call
+> `Task { @MainActor in … }` inside `run()` for UI updates.
+>
+> **Swift 6 concurrency:** `Timer` is `@unchecked Sendable`. A private
+> `TimerActor` serialises all task executions (= Java's single timer-thread
+> model). Scheduling uses `Task.sleep` — no Foundation `Timer` or Combine
+> dependency. `scheduleAtFixedRate` tracks the next scheduled instant and
+> catches up missed firings; `schedule` sleeps *after* each execution (fixed
+> delay). Cancellation is cooperative via `Task.isCancelled`.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.3     | ✔️          | ⭕️       | final class   | Timer                   | @unchecked Sendable; Sources/JavApi/util/Timer.swift
+1.3     | ✔️          | ⭕️       | constructor   | Timer()                 | ()
+1.3     | ✔️          | ⭕️       | constructor   | Timer(isDaemon:)        | (Bool) — arg ignored, present for API compat
+1.3     | ✔️          | ⭕️       | constructor   | Timer(String)           | (name) — name unused at runtime
+1.3     | ✔️          | ⭕️       | constructor   | Timer(String,isDaemon:) | (name, Bool)
+1.3     | ✔️          | ⭕️       | method        | schedule()              | (TimerTask, delay:Int64) — one-shot after delay ms
+1.3     | ✔️          | ⭕️       | method        | schedule()              | (TimerTask, time:Int64) — one-shot at epoch-ms
+1.3     | ✔️          | ⭕️       | method        | schedule()              | (TimerTask, delay:Int64, period:Int64) — fixed delay
+1.3     | ✔️          | ⭕️       | method        | schedule()              | (TimerTask, time:Int64, period:Int64) — fixed delay from time
+1.3     | ✔️          | ⭕️       | method        | scheduleAtFixedRate()   | (TimerTask, delay:Int64, period:Int64)
+1.3     | ✔️          | ⭕️       | method        | scheduleAtFixedRate()   | (TimerTask, time:Int64, period:Int64)
+1.3     | ✔️          | ⭕️       | method        | cancel()                | () — cancels timer and all pending tasks
+1.3     | ✔️          | ⭕️       | method        | purge()                 | ()->Int — no-op stub; returns 0
+
+---
+
 ## Not in scope for Java 1.3
 
 - **Java Sound** (`javax.sound.sampled`, `javax.sound.midi`) — not in scope

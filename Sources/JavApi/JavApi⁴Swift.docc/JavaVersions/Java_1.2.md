@@ -1425,6 +1425,33 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | class         | AncestorEvent           |
 1.2     | ✔️          | ⭕️       | protocol      | AncestorListener        |
 
+### javax.swing.Timer (✔️/⭕️)
+
+> Fires `ActionListener` callbacks on the **main actor** at a fixed interval.
+> Unlike `java.util.Timer`, no background thread is involved — callbacks are
+> always delivered on the Swift equivalent of Swing's Event Dispatch Thread.
+>
+> **Swift 6 concurrency:** `Timer` is `@MainActor`. The repeat loop runs in a
+> `Task { @MainActor in … }` driven by `Task.sleep` — no Combine or Foundation
+> `Timer` dependency. A convenience `init(_ delay:_ handler:)` accepting a
+> Swift closure is provided alongside the Java-style `ActionListener` API.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | final class   | Timer                   | @MainActor; Sources/JavApi/javax/swing/Timer.swift
+1.2     | ✔️          | ⭕️       | constructor   | Timer(Int,ActionListener?)| delay in milliseconds
+1.2     | ✔️          | ⭕️       | method        | start()                 | starts the timer; no-op if already running
+1.2     | ✔️          | ⭕️       | method        | stop()                  | cancels the timer
+1.2     | ✔️          | ⭕️       | method        | restart()               | stop + start, honouring initialDelay
+1.2     | ✔️          | ⭕️       | method        | isRunning()             | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | getDelay() / setDelay() | Int — milliseconds between firings
+1.2     | ✔️          | ⭕️       | method        | getInitialDelay() / setInitialDelay() | Int — delay before first firing
+1.2     | ✔️          | ⭕️       | method        | isRepeats() / setRepeats() | Bool — false → fire once then stop
+1.2     | ✔️          | ⭕️       | method        | addActionListener()     | (ActionListener)
+1.2     | ✔️          | ⭕️       | method        | removeActionListener()  | (ActionListener)
+1.2     | ✔️          | ⭕️       | method        | getActionListeners()    | ()->[ActionListener]
+N/A     | ✔️          | 🪄       | constructor   | Timer(Int, closure)     | Swift convenience — Swiftify extension
+
 ---
 
 ## java.text — Java 1.2 additions
