@@ -54,10 +54,30 @@ extension javax.swing {
     // MARK: Alignment constants
     // -------------------------------------------------------------------------
 
-    public static let LEADING   = 0
-    public static let TRAILING  = 1
-    public static let CENTER    = 2
-    public static let BASELINE  = 3
+    public static let LEADING   = Alignment.LEADING.rawValue
+    public static let TRAILING  = Alignment.TRAILING.rawValue
+    public static let CENTER    = Alignment.CENTER.rawValue
+    public static let BASELINE  = Alignment.BASELINE.rawValue
+    
+    public enum Alignment: Int, CaseIterable {
+      public init?(rawValue: Int) {
+        guard rawValue >= 0 && rawValue < 4 else { return nil }
+        switch rawValue {
+        case 0: self = .LEADING
+        case 1: self = .TRAILING
+        case 2: self = .CENTER
+        case 3: self = .BASELINE
+        default: fatalError() // guard save
+        }
+      }
+      
+      public typealias RawValue = Int
+      
+      case LEADING = 0
+      case TRAILING = 1
+      case CENTER = 2
+      case BASELINE = 3
+    }
 
     /// Sentinel for "use component preferred / min / max size".
     public static let DEFAULT_SIZE: Int = -1
