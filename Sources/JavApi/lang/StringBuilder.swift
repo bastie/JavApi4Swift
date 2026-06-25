@@ -60,7 +60,7 @@ public class StringBuilder {
   }
   
   public func length () -> Int {
-    return content.lenght()
+    return content.length()
   }
   
   public func setLength (_ newLength : Int) throws {
