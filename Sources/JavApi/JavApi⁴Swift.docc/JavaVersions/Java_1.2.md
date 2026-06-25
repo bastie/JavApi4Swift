@@ -556,6 +556,77 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+## java.awt.color — New package in 1.2
+
+### java.awt.color.ColorSpace (✔️/⭕️)
+
+> Abstract base class for colour spaces. All four predefined instances are
+> obtained via `getInstance()`. Conversions are pure Swift — no platform SDK
+> dependency, works on Apple, Linux, Windows, Android and WASI.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | final field   | TYPE_XYZ / TYPE_RGB / TYPE_GRAY / … | colour-space type constants
+1.2     | ✔️          | 🪄       | final field   | CS_sRGB                 | int = 1000
+1.2     | ✔️          | 🪄       | final field   | CS_LINEAR_RGB           | int = 1001
+1.2     | ✔️          | 🪄       | final field   | CS_CIEXYZ               | int = 1002
+1.2     | ✔️          | 🪄       | final field   | CS_GRAY                 | int = 1003
+1.2     | ✔️          | 🪄       | final field   | CS_PYCC                 | int = 1004 (stub → sRGB)
+1.2     | ✔️          | ⭕️       | static method | getInstance()           | (int)->ColorSpace; cached singletons
+1.2     | ✔️          | ⭕️       | abstract method | toRGB()               | ([Float])->[Float]
+1.2     | ✔️          | ⭕️       | abstract method | fromRGB()             | ([Float])->[Float]
+1.2     | ✔️          | ⭕️       | abstract method | toCIEXYZ()            | ([Float])->[Float]
+1.2     | ✔️          | ⭕️       | abstract method | fromCIEXYZ()          | ([Float])->[Float]
+1.2     | ✔️          | ⭕️       | method        | getType()               | ()->Int
+1.2     | ✔️          | ⭕️       | method        | getNumComponents()      | ()->Int
+1.2     | ✔️          | ⭕️       | method        | isCS_sRGB()             | ()->Bool
+1.2     | ✔️          | ⭕️       | method        | getName()               | (Int)->String
+1.2     | ✔️          | ⭕️       | method        | getMinValue()           | (Int)->Float
+1.2     | ✔️          | ⭕️       | method        | getMaxValue()           | (Int)->Float
+
+> Internal subclasses (not public): `SRGBColorSpace`, `LinearRGBColorSpace`,
+> `CIEXYZColorSpace`, `GrayColorSpace` — all with correct sRGB↔XYZ D50
+> matrices (Bradford adaptation) and IEC 61966-2-1 gamma.
+
+### java.awt.color.ICC_Profile (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | open class    | ICC_Profile             |
+1.2     | ✔️          | ⭕️       | static method | getInstance()           | (Int)->ICC_Profile — predefined profiles
+1.2     | ✔️          | ⭕️       | static method | getInstance()           | ([UInt8])->ICC_Profile — stub (returns sRGB)
+1.2     | ✔️          | ⭕️       | method        | getColorSpaceType()     | ()->Int
+1.2     | ✔️          | ⭕️       | method        | getNumComponents()      | ()->Int
+1.2     | ✔️          | ⭕️       | method        | getProfileClass()       | ()->Int
+
+### java.awt.color.ICC_ProfileRGB (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | final class   | ICC_ProfileRGB          | extends ICC_Profile
+1.2     | ✔️          | 🪄       | final field   | REDCOMPONENT / GREENCOMPONENT / BLUECOMPONENT | 0/1/2
+1.2     | ✔️          | ⭕️       | method        | getMediaWhitePoint()    | ()->[Float] — D50 (0.9642,1.0,0.8249)
+1.2     | ✔️          | ⭕️       | method        | getMatrix()             | ()-> [[Float]] — 3×3 sRGB→XYZ D50
+1.2     | ✔️          | ⭕️       | method        | getGamma()              | (Int)->Float — 2.2 (sRGB) or 1.0 (linear)
+
+### java.awt.color.ICC_ProfileGray (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | final class   | ICC_ProfileGray         | extends ICC_Profile
+1.2     | ✔️          | ⭕️       | method        | getMediaWhitePoint()    | ()->Float — 1.0
+1.2     | ✔️          | ⭕️       | method        | getGamma()              | ()->Float — 1.0 (linear)
+
+### java.awt.color.ICC_ColorSpace (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | open class    | ICC_ColorSpace          | extends ColorSpace
+1.2     | ✔️          | ⭕️       | constructor   | ICC_ColorSpace()        | (ICC_Profile)
+1.2     | ✔️          | ⭕️       | method        | getProfile()            | ()->ICC_Profile
+1.2     | ✔️          | ⭕️       | method        | toRGB() / fromRGB()     | delegates to internal ColorSpace
+1.2     | ✔️          | ⭕️       | method        | toCIEXYZ() / fromCIEXYZ() | delegates to internal ColorSpace
+
 ---
 
 ## javax.swing
@@ -1533,30 +1604,6 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ⭕️          | ⭕️       | abstract class| GraphicsConfigTemplate  | filter for GraphicsConfiguration selection
 
 ---
-
-## java.awt.color (fehlend / ⭕️)
-
-### java.awt.color.ColorSpace (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | abstract class| ColorSpace              | color space abstraction (sRGB, Linear, etc.)
-1.2     | ⭕️          | ⭕️       | final field   | TYPE_RGB / TYPE_GRAY / TYPE_CMYK / TYPE_XYZ | int constants
-1.2     | ⭕️          | ⭕️       | final field   | CS_sRGB / CS_LINEAR_RGB / CS_CIEXYZ / CS_GRAY / CS_PYCC | int constants
-1.2     | ⭕️          | ⭕️       | static method | getInstance()           | (int)->ColorSpace
-1.2     | ⭕️          | ⭕️       | method        | toRGB()                 | ([float])->[float]
-1.2     | ⭕️          | ⭕️       | method        | fromRGB()               | ([float])->[float]
-1.2     | ⭕️          | ⭕️       | method        | getNumComponents()      | ()->int
-1.2     | ⭕️          | ⭕️       | method        | getName()               | (int)->String
-1.2     | ⭕️          | ⭕️       | method        | isCS_sRGB()             | ()->bool
-
-### java.awt.color.ICC_Profile (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | ICC_Profile             | wraps an ICC color profile
-1.2     | ⭕️          | ⭕️       | static method | getInstance()           | (int)->ICC_Profile
-1.2     | ⭕️          | ⭕️       | method        | getColorSpaceType()     | ()->int
 
 ---
 
