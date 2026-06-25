@@ -445,4 +445,55 @@ struct JavApi_util_LinkedList_Tests {
     #expect(try list.get(0) == 1)
     #expect(try list.get(1) == 2)
   }
+
+  // MARK: - Equatable
+
+  @Test("equal linked lists compare as equal")
+  func testEquatable_equalLists() throws {
+    let a = java.util.LinkedList<String>()
+    let b = java.util.LinkedList<String>()
+    _ = try a.add("x"); _ = try a.add("y")
+    _ = try b.add("x"); _ = try b.add("y")
+    #expect(a == b)
+  }
+
+  @Test("linked lists with different elements compare as not equal")
+  func testEquatable_differentElements() throws {
+    let a = java.util.LinkedList<Int>()
+    let b = java.util.LinkedList<Int>()
+    _ = try a.add(1)
+    _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("linked lists with different sizes compare as not equal")
+  func testEquatable_differentSizes() throws {
+    let a = java.util.LinkedList<Int>()
+    let b = java.util.LinkedList<Int>()
+    _ = try a.add(1)
+    _ = try b.add(1); _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("empty linked lists compare as equal")
+  func testEquatable_emptyLists() {
+    let a = java.util.LinkedList<Int>()
+    let b = java.util.LinkedList<Int>()
+    #expect(a == b)
+  }
+
+  @Test("nested LinkedList<LinkedList<String>> equality works")
+  func testEquatable_nested() throws {
+    let inner1 = java.util.LinkedList<String>()
+    _ = try inner1.add("hello")
+    let inner2 = java.util.LinkedList<String>()
+    _ = try inner2.add("hello")
+
+    let outer1 = java.util.LinkedList<java.util.LinkedList<String>>()
+    _ = try outer1.add(inner1)
+    let outer2 = java.util.LinkedList<java.util.LinkedList<String>>()
+    _ = try outer2.add(inner2)
+
+    #expect(outer1 == outer2)
+  }
 }

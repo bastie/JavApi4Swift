@@ -241,4 +241,70 @@ struct JavApi_util_ArrayList_Tests {
     #expect(array[0] == 1)
     #expect(array[2] == 3)
   }
+
+  // MARK: - Equatable
+
+  @Test("equal lists compare as equal")
+  func testEquatable_equalLists() throws {
+    let a = java.util.ArrayList<String>()
+    let b = java.util.ArrayList<String>()
+    _ = try? a.add("x"); _ = try? a.add("y")
+    _ = try? b.add("x"); _ = try? b.add("y")
+    #expect(a == b)
+  }
+
+  @Test("lists with different elements compare as not equal")
+  func testEquatable_differentElements() throws {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    _ = try? a.add(1)
+    _ = try? b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("lists with different sizes compare as not equal")
+  func testEquatable_differentSizes() throws {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    _ = try? a.add(1)
+    _ = try? b.add(1); _ = try? b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("empty lists compare as equal")
+  func testEquatable_emptyLists() {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    #expect(a == b)
+  }
+
+  @Test("nested ArrayList<ArrayList<String>> equality works")
+  func testEquatable_nested() throws {
+    let inner1 = java.util.ArrayList<String>()
+    _ = try? inner1.add("hello")
+    let inner2 = java.util.ArrayList<String>()
+    _ = try? inner2.add("hello")
+
+    let outer1 = java.util.ArrayList<java.util.ArrayList<String>>()
+    _ = try? outer1.add(inner1)
+    let outer2 = java.util.ArrayList<java.util.ArrayList<String>>()
+    _ = try? outer2.add(inner2)
+
+    #expect(outer1 == outer2)
+  }
+
+  @Test("nested ArrayList with different content compares as not equal")
+  func testEquatable_nestedNotEqual() throws {
+    let inner1 = java.util.ArrayList<String>()
+    _ = try? inner1.add("a")
+    let inner2 = java.util.ArrayList<String>()
+    _ = try? inner2.add("b")
+
+    let outer1 = java.util.ArrayList<java.util.ArrayList<String>>()
+    _ = try? outer1.add(inner1)
+    let outer2 = java.util.ArrayList<java.util.ArrayList<String>>()
+    _ = try? outer2.add(inner2)
+
+    #expect(outer1 != outer2)
+  }
 }
