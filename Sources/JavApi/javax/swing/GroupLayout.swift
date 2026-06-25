@@ -101,6 +101,10 @@ extension javax.swing {
 
       var elements: [Element] = []
 
+      /// Back-reference to the owning `GroupLayout`; set by the factory methods
+      /// so that `addContainerGap` can query `LayoutStyle` with the real host container.
+      weak var owner: GroupLayout?
+
       // -- Fluent API ----------------------------------------------------------
 
       @discardableResult
@@ -144,15 +148,15 @@ extension javax.swing {
       /// Adds a gap representing the distance between the edge of the container
       /// and the first or last component — mirrors `SequentialGroup.addContainerGap()`.
       ///
-      /// The default values mirror Java's `GroupLayout` defaults:
-      /// - preferred: 10 px (Swing `LayoutStyle` inset)
-      /// - maximum:   `Short.MAX_VALUE` → `Int16.max` = 32767 (resizable)
+      /// The preferred size is queried from `LayoutStyle.getInstance()` (default: 10 px).
+      /// The maximum is `Int16.max` (32767), making the gap resizable — identical to
+      /// Java's `GroupLayout` behaviour.
       ///
-      /// Override with `addContainerGap(pref:max:)` for explicit sizes.
+      /// Use `addContainerGap(_:_:)` for explicit sizes.
       @discardableResult
       public func addContainerGap() -> Group {
-        // Java default: pref = 10, max = Short.MAX_VALUE
-        elements.append(.gap(min: 10, pref: 10, max: Int(Int16.max)))
+        let pref = containerGapDefault()
+        elements.append(.gap(min: pref, pref: pref, max: Int(Int16.max)))
         return self
       }
 
@@ -160,16 +164,32 @@ extension javax.swing {
       ///
       /// - Parameters:
       ///   - pref: Preferred gap size in pixels, or `GroupLayout.DEFAULT_SIZE` to
-      ///           use the platform default (10 px).
+      ///           use the value from `LayoutStyle.getInstance()`.
       ///   - max:  Maximum gap size, or `GroupLayout.DEFAULT_SIZE` / `GroupLayout.PREFERRED_SIZE`
       ///           to use `pref` as the maximum (fixed gap).
       @discardableResult
       public func addContainerGap(_ pref: Int, _ max: Int) -> Group {
-        let resolvedPref = (pref == GroupLayout.DEFAULT_SIZE) ? 10 : pref
+        let defaultPref  = containerGapDefault()
+        let resolvedPref = (pref == GroupLayout.DEFAULT_SIZE) ? defaultPref : pref
         let resolvedMax  = (max == GroupLayout.DEFAULT_SIZE || max == GroupLayout.PREFERRED_SIZE)
                            ? resolvedPref : max
         elements.append(.gap(min: resolvedPref, pref: resolvedPref, max: resolvedMax))
         return self
+      }
+
+      /// Queries `LayoutStyle` for the container-gap default, using the host
+      /// container if available, or falling back to the hard-coded 10 px.
+      private func containerGapDefault() -> Int {
+        guard let host = owner?.host else {
+          // No host available — use LayoutStyle fallback without a real container.
+          return 10
+        }
+        // Use the first component in the host as the "adjacent component", which
+        // matches what NetBeans-generated GroupLayout code expects; position WEST
+        // is the conventional query direction for horizontal container insets.
+        let comp = host.getComponents().first ?? java.awt.Component()
+        return javax.swing.LayoutStyle.getInstance().getContainerGap(
+          comp, position: javax.swing.SwingUtilities.WEST, parent: host) //TODO: in result of LayoutManager also is for java.awt, the question is: is SwingConstants using in LayoutManager the correct way?
       }
 
       // -- Size queries (overridden by subclasses) ------------------------------
@@ -339,15 +359,21 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     public func createSequentialGroup() -> SequentialGroup {
-      SequentialGroup()
+      let g = SequentialGroup()
+      g.owner = self
+      return g
     }
 
     public func createParallelGroup() -> ParallelGroup {
-      ParallelGroup(alignment: GroupLayout.LEADING)
+      let g = ParallelGroup(alignment: GroupLayout.LEADING)
+      g.owner = self
+      return g
     }
 
     public func createParallelGroup(_ alignment: Int) -> ParallelGroup {
-      ParallelGroup(alignment: alignment)
+      let g = ParallelGroup(alignment: alignment)
+      g.owner = self
+      return g
     }
 
     // -------------------------------------------------------------------------

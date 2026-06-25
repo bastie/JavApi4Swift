@@ -23,7 +23,7 @@ extension javax.swing {
   /// `invokeLater` therefore delegates to `java.awt.EventQueue.invokeLater`.
   ///
   @MainActor
-  public class SwingUtilities {
+  public class SwingUtilities : SwingConstants{
 
     // -------------------------------------------------------------------------
     // MARK: EDT scheduling
