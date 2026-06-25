@@ -210,4 +210,40 @@ struct JavApi_util_HashSet_Tests {
     #expect(set.size() == 1)
     #expect(set.contains("hello"))
   }
+
+  // MARK: - Equatable
+
+  @Test("equal sets compare as equal")
+  func testEquatable_equal() throws {
+    let a = java.util.HashSet<String>()
+    let b = java.util.HashSet<String>()
+    _ = try a.add("x"); _ = try a.add("y")
+    _ = try b.add("y"); _ = try b.add("x")  // different insertion order
+    #expect(a == b)
+  }
+
+  @Test("sets with different elements compare as not equal")
+  func testEquatable_differentElements() throws {
+    let a = java.util.HashSet<Int>()
+    let b = java.util.HashSet<Int>()
+    _ = try a.add(1)
+    _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("sets with different sizes compare as not equal")
+  func testEquatable_differentSizes() throws {
+    let a = java.util.HashSet<Int>()
+    let b = java.util.HashSet<Int>()
+    _ = try a.add(1)
+    _ = try b.add(1); _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("empty sets compare as equal")
+  func testEquatable_empty() {
+    let a = java.util.HashSet<Int>()
+    let b = java.util.HashSet<Int>()
+    #expect(a == b)
+  }
 }

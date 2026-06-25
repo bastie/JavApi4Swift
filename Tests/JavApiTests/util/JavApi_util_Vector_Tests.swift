@@ -400,4 +400,55 @@ struct JavApi_util_Vector_Tests {
     #expect(!desc.isEmpty)
   }
 
+  // MARK: - Equatable
+
+  @Test("equal vectors compare as equal")
+  func testEquatable_equal() throws {
+    let a = try java.util.Vector<Int>()
+    let b = try java.util.Vector<Int>()
+    a.addElement(1); a.addElement(2)
+    b.addElement(1); b.addElement(2)
+    #expect(a == b)
+  }
+
+  @Test("vectors with different elements compare as not equal")
+  func testEquatable_differentElements() throws {
+    let a = try java.util.Vector<Int>()
+    let b = try java.util.Vector<Int>()
+    a.addElement(1)
+    b.addElement(2)
+    #expect(a != b)
+  }
+
+  @Test("vectors with different sizes compare as not equal")
+  func testEquatable_differentSizes() throws {
+    let a = try java.util.Vector<Int>()
+    let b = try java.util.Vector<Int>()
+    a.addElement(1)
+    b.addElement(1); b.addElement(2)
+    #expect(a != b)
+  }
+
+  @Test("empty vectors compare as equal")
+  func testEquatable_empty() throws {
+    let a = try java.util.Vector<Int>()
+    let b = try java.util.Vector<Int>()
+    #expect(a == b)
+  }
+
+  @Test("nested Vector<Vector<String>> equality works")
+  func testEquatable_nested() throws {
+    let inner1 = try java.util.Vector<String>()
+    inner1.addElement("hello")
+    let inner2 = try java.util.Vector<String>()
+    inner2.addElement("hello")
+
+    let outer1 = try java.util.Vector<java.util.Vector<String>>()
+    outer1.addElement(inner1)
+    let outer2 = try java.util.Vector<java.util.Vector<String>>()
+    outer2.addElement(inner2)
+
+    #expect(outer1 == outer2)
+  }
+
 }

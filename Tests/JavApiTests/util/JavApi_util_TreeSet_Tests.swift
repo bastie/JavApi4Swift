@@ -245,4 +245,40 @@ struct JavApi_util_TreeSet_Tests {
     _ = try javaB.add(4)
     #expect(javaA.size() == 4)   // shared
   }
+
+  // MARK: - Equatable
+
+  @Test("equal tree sets compare as equal")
+  func testEquatable_equal() throws {
+    let a = java.util.TreeSet<Int>()
+    let b = java.util.TreeSet<Int>()
+    _ = try a.add(1); _ = try a.add(2)
+    _ = try b.add(2); _ = try b.add(1)  // different insertion order, same sorted result
+    #expect(a == b)
+  }
+
+  @Test("tree sets with different elements compare as not equal")
+  func testEquatable_differentElements() throws {
+    let a = java.util.TreeSet<Int>()
+    let b = java.util.TreeSet<Int>()
+    _ = try a.add(1)
+    _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("tree sets with different sizes compare as not equal")
+  func testEquatable_differentSizes() throws {
+    let a = java.util.TreeSet<Int>()
+    let b = java.util.TreeSet<Int>()
+    _ = try a.add(1)
+    _ = try b.add(1); _ = try b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("empty tree sets compare as equal")
+  func testEquatable_empty() {
+    let a = java.util.TreeSet<Int>()
+    let b = java.util.TreeSet<Int>()
+    #expect(a == b)
+  }
 }
