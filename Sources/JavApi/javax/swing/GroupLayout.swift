@@ -119,6 +119,39 @@ extension javax.swing {
         return self
       }
 
+      // -- Container gap (SequentialGroup only, but defined on Group for fluent chaining) --
+
+      /// Adds a gap representing the distance between the edge of the container
+      /// and the first or last component — mirrors `SequentialGroup.addContainerGap()`.
+      ///
+      /// The default values mirror Java's `GroupLayout` defaults:
+      /// - preferred: 10 px (Swing `LayoutStyle` inset)
+      /// - maximum:   `Short.MAX_VALUE` → `Int16.max` = 32767 (resizable)
+      ///
+      /// Override with `addContainerGap(pref:max:)` for explicit sizes.
+      @discardableResult
+      public func addContainerGap() -> Group {
+        // Java default: pref = 10, max = Short.MAX_VALUE
+        elements.append(.gap(min: 10, pref: 10, max: Int(Int16.max)))
+        return self
+      }
+
+      /// Adds a container gap with explicit preferred and maximum sizes.
+      ///
+      /// - Parameters:
+      ///   - pref: Preferred gap size in pixels, or `GroupLayout.DEFAULT_SIZE` to
+      ///           use the platform default (10 px).
+      ///   - max:  Maximum gap size, or `GroupLayout.DEFAULT_SIZE` / `GroupLayout.PREFERRED_SIZE`
+      ///           to use `pref` as the maximum (fixed gap).
+      @discardableResult
+      public func addContainerGap(_ pref: Int, _ max: Int) -> Group {
+        let resolvedPref = (pref == GroupLayout.DEFAULT_SIZE) ? 10 : pref
+        let resolvedMax  = (max == GroupLayout.DEFAULT_SIZE || max == GroupLayout.PREFERRED_SIZE)
+                           ? resolvedPref : max
+        elements.append(.gap(min: resolvedPref, pref: resolvedPref, max: resolvedMax))
+        return self
+      }
+
       // -- Size queries (overridden by subclasses) ------------------------------
 
       /// Preferred size along this group's axis given available `space`.
