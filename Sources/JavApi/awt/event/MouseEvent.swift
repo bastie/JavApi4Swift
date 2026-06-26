@@ -5,7 +5,7 @@
 
 extension java.awt.event {
 
-  public class MouseEvent: InputEvent, @unchecked Sendable {
+  open class MouseEvent: InputEvent, @unchecked Sendable {
 
     public static let MOUSE_FIRST    = 500
     public static let MOUSE_LAST     = 507
