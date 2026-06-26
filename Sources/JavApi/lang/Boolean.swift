@@ -8,17 +8,17 @@
 ///
 /// Replace ``Boolean`` type of Java with ``Bool`` of Swift
 ///
-/// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+/// - Since: Java 1.0
 /// - Note: In different to Java implementation of ``Bool`` is as struct a value (like) type
 typealias Boolean = Bool
 
 extension Boolean {
   
   /// true value
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   public static let TRUE = Bool.init (true)
   /// false value
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   public static let FALSE = Bool.init (false)
 
   /// Create a new `true` Boolean value if parameter in lowercase equals to `true` otherwise `false` Boolean value.
@@ -26,7 +26,7 @@ extension Boolean {
   /// Matches Java's `new Boolean(String)` semantics: case-insensitive, `nil` → `false`.
   ///
   /// - Parameter value: `"true"` (any case) → `true`; any other value or `nil` → `false`.
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   ///
   /// > Warning: **Swift/Java interop limitation.**
   /// > Swift's standard library also declares `Bool.init?(_ description: String)` — a failable,
@@ -39,12 +39,13 @@ extension Boolean {
   /// > let b = Boolean(s)   // → true  ✔
   /// > ```
   /// > Use ``valueOf(_:)`` as the preferred Java-style API — it has no such ambiguity.
+  @available(*, deprecated, renamed: "valueOf(_:)", message: "since Java 9, use parseBoolean(_:) or valueOf(_:)")
   public init (_ value : String?) {
     self.init (value?.lowercased () == "true")
   }
   
   /// The value itself
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   public func boolValue () -> Bool {
     return self
   }
@@ -52,7 +53,7 @@ extension Boolean {
   /// Returns if values of self and the other are same if parameter is not `nil`
   /// - Parameter other the value to compare with self
   /// - Returns true if `other` not nil, is ``Bool`` and have same value
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   public func equals (_ other: Any?) -> Bool {
     if let other = other as? Bool {
       return self == other
@@ -89,7 +90,7 @@ extension Boolean {
 
   /// Returns the hashcode value
   /// - Returns hash value
-  /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
+  /// - Since: Java 1.0
   public func hashcode () -> Int {
     return self.hashValue
   }
@@ -105,5 +106,13 @@ extension Boolean {
   /// - Returns `true` if given case insensitive value is not nil and equals to `true` otherwise `false`
   public static func valueOf (_ value: String?) -> Bool {
     return value?.lowercased () == "true"
+  }
+  
+  /// Check parameters is exists and case insensitive equal to `true`.
+  /// - Parameter toBeOrNotToBe: string maybe lowercase equals `true`
+  /// - Returns: `true`if string is lowercase equals `true`
+  /// - Since: Java 5
+  public static func parseBoolean(_ toBeOrNotToBe: String?) -> Bool {
+    return toBeOrNotToBe?.lowercased() == "true"
   }
 }

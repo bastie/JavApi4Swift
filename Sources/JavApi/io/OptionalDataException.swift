@@ -4,6 +4,7 @@
  */
 
 extension java.io {
+  // final since Java 24
   public final class OptionalDataException : ObjectStreamException, @unchecked Sendable {
 
     public var length : Int = -1
