@@ -11,7 +11,7 @@ extension javax.swing {
   ///
   /// ```swift
   /// let toolkit = java.awt.Toolkit.getDefaultToolkit()
-  /// if let img = toolkit.loadImage(named: "MyIcon") {
+  /// if let img = toolkit.loadImage("MyIcon") {
   ///   let icon = javax.swing.ImageIcon(img)
   ///   button.setIcon(icon)
   /// }
@@ -33,13 +33,13 @@ extension javax.swing {
       self.height = height > 0 ? height : image.getHeight()
     }
 
-    /// Convenience: load by asset name via `Toolkit.loadImage(named:)`.
+    /// Convenience: load by asset name via `Toolkit.loadImage()`.
     /// Returns `nil` when the image cannot be found.
     public static func load(named name: String,
                             width: Int = 0,
                             height: Int = 0) -> javax.swing.ImageIcon? {
       let toolkit = java.awt.Toolkit.getDefaultToolkit()
-      guard let img = toolkit.loadImage(named: name) else { return nil }
+      guard let img = toolkit.loadImage(name) else { return nil }
       return ImageIcon(img, width: width, height: height)
     }
 

@@ -21,7 +21,7 @@ final class LogoCanvas: java.awt.Canvas {
     g.fillRect(0, 0, w, h)
 
     let toolkit = java.awt.Toolkit.getDefaultToolkit()
-    if let img = toolkit.loadImage(named: "JavApi4Swift256") {
+    if let img = toolkit.loadImage("JavApi4Swift256") {
       let side = Swift.min(w, h)
       let ox   = (w - side) / 2
       let oy   = (h - side) / 2

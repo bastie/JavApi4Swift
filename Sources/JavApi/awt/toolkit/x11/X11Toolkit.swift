@@ -166,7 +166,7 @@ extension java.awt.toolkit.x11 {
     ///   1. `<exe-dir>/<name>.png`
     ///   2. `<exe-dir>/../../../../Sources/AWTShowcase/Assets.xcassets/AppIcon.appiconset/<name>.png`
     ///      (works when running via `swift run` from the package root)
-    public override func loadImage(named name: String) -> java.awt.Image? {
+    public override func loadImage(_ name: String) -> java.awt.Image? {
       // Resolve executable directory via /proc/self/exe (Linux) or sysctl (FreeBSD)
       var exeDir = "."
       #if os(Linux)

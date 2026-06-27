@@ -226,7 +226,7 @@ extension java.awt.toolkit.swiftui {
     /// backed by a CGImage so that `Graphics.drawImage` can render it.
     ///
     /// - Since: JavaApi > 0.19.1
-    public override func loadImage(named name: String) -> java.awt.Image? {
+    public override func loadImage(_ name: String) -> java.awt.Image? {
 #if os(macOS) && canImport(AppKit)
       let nsImg: NSImage? = {
         // Build the full list of bundles to search:

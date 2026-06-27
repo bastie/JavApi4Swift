@@ -165,7 +165,7 @@ extension java.awt.toolkit.gdi {
     ///
     /// - Returns: A `BufferedImage` ready for `Graphics.drawImage`, or `nil`.
     /// - Since: JavaApi > 0.19.1
-    public override func loadImage(named name: String) -> java.awt.Image? {
+    public override func loadImage(_ name: String) -> java.awt.Image? {
       // Determine the directory that contains the running executable.
       var exePath = [WCHAR](repeating: 0, count: Int(MAX_PATH))
       GetModuleFileNameW(nil, &exePath, DWORD(MAX_PATH))

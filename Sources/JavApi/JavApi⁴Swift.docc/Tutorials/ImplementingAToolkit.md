@@ -172,7 +172,7 @@ extension java.awt.toolkit.myplatform {
         }
 
         /// Loads a named image from the application bundle.
-        public override func loadImage(named name: String) -> java.awt.Image? {
+        public override func loadImage(_ name: String) -> java.awt.Image? {
             // TODO: load image via your platform's image API and convert to
             // java.awt.image.BufferedImage(cgImage:) or build pixel data manually.
             return nil
@@ -678,7 +678,7 @@ if let r = sp.vDecrementButtonRect(), r.contains(x, y) {
 Override `Toolkit.loadImage(named:)` to find and decode PNG files. On Windows, SPM does not deploy `.xcassets` resources automatically — search for the file relative to the running executable:
 
 ```swift
-public override func loadImage(named name: String) -> java.awt.Image? {
+public override func loadImage(_ name: String) -> java.awt.Image? {
     var exePath = [WCHAR](repeating: 0, count: Int(MAX_PATH))
     GetModuleFileNameW(nil, &exePath, DWORD(MAX_PATH))
     let nullIdx  = exePath.firstIndex(of: 0) ?? exePath.endIndex
@@ -1265,7 +1265,7 @@ Before shipping your toolkit, verify these are working:
 - [ ] `EventQueue.invokeLater` runnable executes after `runEventLoop()` is called
 - [ ] `runEventLoop()` calls `EventQueue.drainAndMarkRunning()` before entering the native loop
 - [ ] `Toolkit.terminate()` causes `runEventLoop()` to return
-- [ ] `Toolkit.loadImage(named:)` returns a valid `BufferedImage` for bundled assets
+- [ ] `Toolkit.loadImage()` returns a valid `BufferedImage` for bundled assets
 - [ ] `Graphics.drawImage` renders transparency correctly (premultiplied BGRA + `AlphaBlend`, not `StretchBlt`)
 - [ ] `FontMetrics` uses native text measurements (`GetTextMetricsW` / `GetTextExtentPoint32W`), not the fixed 0.6× fallback — required for correct `Label` centering and caret positioning
 - [ ] `Scrollbar` arrow buttons scroll by `unitIncrement`, not to the clicked position

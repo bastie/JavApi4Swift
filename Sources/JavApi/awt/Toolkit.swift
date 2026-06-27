@@ -49,10 +49,11 @@ extension java.awt {
     /// 2. `os.name` system property — macOS / iOS / tvOS / visionOS → `SwiftUIToolkit`,
     ///    Windows → `GDIToolkit`, Linux / FreeBSD → `X11Toolkit`, everything else → `HeadlessToolkit`
     public static func getDefaultToolkit() -> Toolkit {
-      // 1. Explicit override via system property
+      // 0. Explicit using headless
       if System.getProperty("java.awt.headless", "false") == "true" {
         return java.awt.toolkit.headless.HeadlessToolkit()
       }
+      // 1. Explicit override via system property
       let override : String? = try? System.getProperty("awt.toolkit")
       if override != nil {
         switch override {
@@ -124,7 +125,7 @@ extension java.awt {
     /// Override in platform-specific subclasses for proper modal teardown
     /// (e.g. ending an `NSApp.runModal` loop or an AppKit sheet).
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func closeDialog(_ dialog: Dialog) {
       hide(dialog)
     }
@@ -138,7 +139,7 @@ extension java.awt {
     /// Override in platform-specific subclasses. The base implementation
     /// returns a zero-size `Dimension`.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getScreenSize() -> Dimension {
       return Dimension(0, 0)
     }
@@ -148,7 +149,7 @@ extension java.awt {
     /// Override in platform-specific subclasses. The base implementation
     /// returns 72 (a common default).
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getScreenResolution() -> Int {
       return 72
     }
@@ -158,7 +159,7 @@ extension java.awt {
     /// On most modern platforms this is a no-op. Override in subclasses
     /// that buffer drawing operations.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func sync() {}
 
     // -------------------------------------------------------------------------
@@ -167,7 +168,7 @@ extension java.awt {
 
     /// Returns the `ColorModel` of the screen (default: 24-bit RGB).
     /// Override in platform subclasses for accurate screen color depth.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getColorModel() -> java.awt.image.ColorModel {
       return java.awt.image.ColorModel.getRGBdefault()
     }
@@ -180,13 +181,13 @@ extension java.awt {
     ///
     /// On Apple platforms returns system font family names via AppKit/UIKit;
     /// elsewhere returns the five logical AWT font names.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getFontList() -> [String] {
       return ["Dialog", "DialogInput", "Monospaced", "SansSerif", "Serif"]
     }
 
     /// Returns the `FontMetrics` for the specified font.
-    /// - Since: JavaApi > 0.19.1 (Java 1.0)
+    /// - Since: Java 1.0
     open func getFontMetrics(_ font: java.awt.Font) -> java.awt.FontMetrics {
       return java.awt.FontMetrics(font)
     }
@@ -201,7 +202,7 @@ extension java.awt {
     /// Internally calls `frame.setVisible(true)` and then `runEventLoop()`.
     /// Prefer `EventQueue.invokeLater` (Java 1.1 style) for new code.
     ///
-    /// - Since: JavaApi > 0.19.1
+    /// - Since: Java 1.0
     open func run(frame: Frame) {
       frame.setVisible(true)
       runEventLoop()
@@ -217,7 +218,7 @@ extension java.awt {
     /// Platform toolkits (`SwiftUIToolkit`, `Direct2DToolkit`) override this
     /// to additionally block in their native event loop.
     ///
-    /// - Since: JavaApi > 0.19.1
+    /// - Since: Java 1.0
     open func runEventLoop() {
       java.awt.EventQueue.drainAndMarkRunning()
     }
@@ -232,7 +233,7 @@ extension java.awt {
     /// Call this instead of platform-specific APIs so that application code
     /// stays free of `#if canImport(AppKit)` / `#if os(Windows)` guards.
     ///
-    /// - Since: JavaApi > 0.19.1
+    /// - Since: Java 1.0
     open func terminate() {
       exit(0)
     }
@@ -253,8 +254,8 @@ extension java.awt {
     /// - Returns: A `java.awt.Image` ready for use with `Graphics.drawImage`,
     ///   or `nil` if the image could not be found or loaded.
     ///
-    /// - Since: JavaApi > 0.19.1
-    open func loadImage(named name: String) -> java.awt.Image? {
+    /// - Since: Java 1.0
+    open func loadImage(_ name: String) -> java.awt.Image? {
       return nil
     }
 
@@ -267,7 +268,7 @@ extension java.awt {
     /// The base implementation is a no-op. Override in platform-specific
     /// subclasses to display a native context menu.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func showPopupMenu(_ menu: PopupMenu, origin: Component, x: Int, y: Int) {}
 
     /// Requests a repaint of the window that contains `window`.
@@ -294,7 +295,7 @@ extension java.awt {
     ///   - props: Optional print properties (ignored in base implementation).
     /// - Returns: A `PrintJob` instance, or `nil` if printing was cancelled.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func getPrintJob(_ frame: Frame, _ jobtitle: String, _ props: java.util.Properties?) -> PrintJob? {
       return nil
     }
@@ -348,7 +349,7 @@ extension java.awt {
     /// The base implementation always returns `false` (headless / unknown platform).
     /// Override in platform-specific subclasses to query the native focus system.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func isFocusOwner(_ component: Component) -> Bool {
       return false
     }
