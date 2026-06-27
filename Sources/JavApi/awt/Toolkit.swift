@@ -50,6 +50,9 @@ extension java.awt {
     ///    Windows → `GDIToolkit`, Linux / FreeBSD → `X11Toolkit`, everything else → `HeadlessToolkit`
     public static func getDefaultToolkit() -> Toolkit {
       // 1. Explicit override via system property
+      if System.getProperty("java.awt.headless", "false") == "true" {
+        return java.awt.toolkit.HeadlessToolkit()
+      }
       let override : String? = try? System.getProperty("awt.toolkit")
       if override != nil {
         switch override {

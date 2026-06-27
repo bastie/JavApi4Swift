@@ -103,6 +103,13 @@ extension System {
     if let version = result["java.expected.version"].flatMap(Int.init), version < 17 {
       result["java.locale.useOldISOCodes"] = "true"
     }
+    
+    if let lookForHeadless = System.getenv("java.awt.headless")?.trim().lowercased() {
+      if lookForHeadless == "true" {
+        result["java.awt.headless"] = "true"
+      }
+    }
+    
     return Mutex(result)
   }()
 
