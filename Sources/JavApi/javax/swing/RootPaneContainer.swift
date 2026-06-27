@@ -26,7 +26,7 @@ extension javax.swing {
   /// ```swift
   /// let frame = javax.swing.JFrame("Hello")
   /// frame.getContentPane().add(myButton)
-  /// // or, since Java 1.5:
+  /// // or, since Java 5:
   /// frame.add(myButton)   // JFrame delegates add() to the content pane
   /// ```
   ///

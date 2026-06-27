@@ -17,6 +17,7 @@ extension java.lang {
   public typealias Compiler = JavApi.Compiler
   public typealias Exception = JavApi.Exception
   public typealias Error = JavApi.JError
+  public typealias Enum = JavApi.Enum
   public typealias Float = Swift.Float
   public typealias Iterable = JavApi.Iterable
   public typealias IllegalArgumentException = JavApi.IllegalArgumentException

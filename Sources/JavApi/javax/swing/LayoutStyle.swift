@@ -11,8 +11,7 @@ extension javax.swing {
 
   /// Provides platform-specific gap sizes between components and container edges.
   ///
-  /// Mirrors `javax.swing.LayoutStyle`. The class is abstract in Java; here it
-  /// is a concrete open class with a default implementation that uses hard-coded
+  /// The class is abstract in Java; here it is a concrete open class with a default implementation that uses hard-coded
   /// Swing default values (RELATED = 6 px, UNRELATED = 12 px, INDENT = 10 px,
   /// container gap = 10 px).  A custom subclass can be installed via
   /// `setInstance(_:)`.
@@ -28,7 +27,7 @@ extension javax.swing {
   ///   parent: panel)
   /// ```
   ///
-  /// - Since: JavApi > 0.x (Java 6 / Swing)
+  /// - Since: Java 6
   @MainActor
   open class LayoutStyle {
 
@@ -36,15 +35,30 @@ extension javax.swing {
     // MARK: ComponentPlacement
     // -------------------------------------------------------------------------
 
-    /// Describes the visual relationship between two components —
-    /// mirrors `javax.swing.LayoutStyle.ComponentPlacement`.
-    public enum ComponentPlacement {
+    /// Describes the visual relationship between two components.
+    /// - Since: Java 6
+    public enum ComponentPlacement : Enum {
+      
       /// Components are related (e.g. a label and its field). Default gap: 6 px.
       case RELATED
       /// Components are unrelated (e.g. two independent groups). Default gap: 12 px.
       case UNRELATED
       /// Component is visually indented below a parent label. Default gap: 10 px.
       case INDENT
+      
+      /// - Note: In Java also NullPointerException can be throw, but we in Swift did not accept optional name value.
+      public func valueOf(_ name : String) throws (IllegalArgumentException) -> LayoutStyle.ComponentPlacement {
+        switch name {
+        case "RELATED": return .RELATED
+        case "UNRELATED": return .UNRELATED
+        case "INDENT": return .INDENT
+        default: throw IllegalArgumentException("\(name) is not a valid value for LayoutStyle.ComponentPlacement")
+        }
+      }
+      
+      public func values () -> [LayoutStyle.ComponentPlacement] {
+        [.RELATED, .UNRELATED, .INDENT]
+      }
     }
 
     // -------------------------------------------------------------------------

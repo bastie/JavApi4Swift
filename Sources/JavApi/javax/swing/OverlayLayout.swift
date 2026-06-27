@@ -38,7 +38,7 @@ extension javax.swing {
   /// > **AI hint:** `OverlayLayout` holds a *weak* reference to its target
   /// > container — the same pattern as `BoxLayout` — to avoid retain cycles.
   ///
-  /// - Since: JavApi > 0.x (Java 1.2 / Swing 1.0)
+  /// - Since: Java 1.2
   @MainActor
   public final class OverlayLayout: java.awt.LayoutManager {
 

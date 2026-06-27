@@ -28,7 +28,7 @@ extension javax.swing {
   /// }
   /// ```
   ///
-  /// - Since: Java 1.4 / JFC 1.0
+  /// - Since: Java 1.4
   @MainActor
   open class AbstractSpinnerModel: javax.swing.SpinnerModel {
 
