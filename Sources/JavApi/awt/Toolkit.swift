@@ -51,30 +51,30 @@ extension java.awt {
     public static func getDefaultToolkit() -> Toolkit {
       // 1. Explicit override via system property
       if System.getProperty("java.awt.headless", "false") == "true" {
-        return java.awt.toolkit.HeadlessToolkit()
+        return java.awt.toolkit.headless.HeadlessToolkit()
       }
       let override : String? = try? System.getProperty("awt.toolkit")
       if override != nil {
         switch override {
         case "Headless":
-          return java.awt.toolkit.HeadlessToolkit()
+          return java.awt.toolkit.headless.HeadlessToolkit()
         case "SwiftUI":
 #if canImport(SwiftUI)
           return java.awt.toolkit.swiftui.SwiftUIToolkit.shared
 #else
-          return java.awt.toolkit.HeadlessToolkit()
+          return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
         case "GDI":
 #if os(Windows)
           return java.awt.toolkit.gdi.GDIToolkit.shared
 #else
-          return java.awt.toolkit.HeadlessToolkit()
+          return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
         case "X11":
 #if os(Linux) || os(FreeBSD)
           return java.awt.toolkit.x11.X11Toolkit.shared
 #else
-          return java.awt.toolkit.HeadlessToolkit()
+          return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
         default:
           break   // unknown value → fall through to platform default
@@ -94,16 +94,16 @@ extension java.awt {
 #if os(Windows)
         return java.awt.toolkit.gdi.GDIToolkit.shared
 #else
-        return java.awt.toolkit.HeadlessToolkit()
+        return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
       case "Linux", "FreeBSD":
 #if os(Linux) || os(FreeBSD)
         return java.awt.toolkit.x11.X11Toolkit.shared
 #else
-        return java.awt.toolkit.HeadlessToolkit()
+        return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
       default:
-        return java.awt.toolkit.HeadlessToolkit()
+        return java.awt.toolkit.headless.HeadlessToolkit()
       }
     }
 
@@ -336,7 +336,7 @@ extension java.awt {
     ///
     /// - Since: JavaApi (Java 1.1)
     open func _makeClipboardProvider() -> any java.awt.toolkit.ClipboardProvider {
-      return java.awt.toolkit._HeadlessClipboardProvider()
+      return java.awt.toolkit.headless._HeadlessClipboardProvider()
     }
 
     // -------------------------------------------------------------------------

@@ -8,14 +8,12 @@ extension java.awt {
   /// Describes the collection of `GraphicsDevice` objects and `Font` objects
   /// available on a particular platform.
   ///
-  /// Mirrors `java.awt.GraphicsEnvironment`.
-  ///
   /// ```swift
   /// let env = java.awt.GraphicsEnvironment.getLocalGraphicsEnvironment()
   /// let screen = env.getDefaultScreenDevice()
   /// ```
   ///
-  /// - Since: JavaApi > 0.x (Java 1.2)
+  /// - Since: Java 1.2
   open class GraphicsEnvironment {
 
     // =========================================================================
@@ -30,7 +28,7 @@ extension java.awt {
     /// display available) a minimal stub is returned.
     public static func getLocalGraphicsEnvironment() -> java.awt.GraphicsEnvironment {
       if let env = _localEnvironment { return env }
-      let env = java.awt.HeadlessGraphicsEnvironment()
+      let env = java.awt.toolkit.headless._HeadlessGraphicsEnvironment()
       _localEnvironment = env
       return env
     }
@@ -84,21 +82,4 @@ extension java.awt {
     }
   }
 
-  // ===========================================================================
-  // MARK: - HeadlessGraphicsEnvironment (internal default)
-  // ===========================================================================
-
-  /// A minimal headless `GraphicsEnvironment` used when no display is available.
-  final class HeadlessGraphicsEnvironment: java.awt.GraphicsEnvironment {
-
-    override func isHeadlessInstance() -> Bool { return true }
-
-    override func getScreenDevices() -> [java.awt.GraphicsDevice] { return [] }
-
-    override func getDefaultScreenDevice() -> java.awt.GraphicsDevice {
-      fatalError("HeadlessException: No screen devices available in headless mode")
-    }
-
-    override func getAvailableFontFamilyNames() -> [String] { return [] }
-  }
 }

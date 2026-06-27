@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.awt.toolkit {
+extension java.awt.toolkit.headless {
 
   /// Headless toolkit stub for platforms without a implemented native window system
   ///

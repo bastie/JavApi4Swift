@@ -39,9 +39,9 @@
 /// inside the module; cross-app / cross-tab transfer requires the JS bridge.
 ///
 /// - Since: JavaApi (Java 1.1 datatransfer)
-extension java.awt.toolkit {
+extension java.awt.toolkit.headless {
 
-  public final class _HeadlessClipboardProvider: ClipboardProvider, @unchecked Sendable {
+  public final class _HeadlessClipboardProvider: java.awt.toolkit.ClipboardProvider, @unchecked Sendable {
 
     private var _text: String? = nil
     private let lock = CrossPlatformMutex(0)
