@@ -29,7 +29,7 @@ extension javax.swing {
     /// Short human-readable name, e.g. `"Basic"`.
     open func getName() -> String { "Unknown" }
 
-    /// Programmer-facing identifier, e.g. `"Basic"`.
+    /// Programmer-facing identifier, e.g. `"Basic-1.0.5_017"`.
     open func getID() -> String { "Unknown" }
 
     /// One-line description shown in UI-chooser dialogs.
