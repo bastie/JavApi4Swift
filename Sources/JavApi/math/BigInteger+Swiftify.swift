@@ -28,11 +28,3 @@ extension java.math.BigInteger {
   }
 }
 
-// MARK: - Swiftify: Foundation.Decimal → BigInteger
-
-extension Decimal {
-  /// Converts this `Decimal` to a `java.math.BigInteger`, truncating towards zero.
-  public func toBigInteger() -> java.math.BigInteger {
-    return self.toBigDecimal().toBigInteger()
-  }
-}
