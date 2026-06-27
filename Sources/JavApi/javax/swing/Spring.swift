@@ -29,16 +29,18 @@ extension javax.swing {
   /// > **AI hint:** `Spring` is a value-like object, but it is a *class* in Java
   /// > (and here) so it can be stored by reference in constraint dictionaries.
   ///
-  /// - Since: JavApi > 0.x (Java 1.4)
+  /// Note: In Java `Spring` is an abstract class
+  ///
+  /// - Since: Java 1.4
   @MainActor
-  public class Spring {
+  open class Spring {
 
     // -------------------------------------------------------------------------
     // MARK: Special sentinel
     // -------------------------------------------------------------------------
 
     /// Returned by `getValue()` when the spring's value has not been set.
-    public static let UNSET: Int = Int.min
+    public static let UNSET: Int = -2147483648 // Java constants description has an exact value
 
     // -------------------------------------------------------------------------
     // MARK: Stored extents
@@ -53,7 +55,7 @@ extension javax.swing {
     // MARK: Init (internal — use factory methods)
     // -------------------------------------------------------------------------
 
-    fileprivate init(min: Int, preferred: Int, max: Int) {
+    public init(_ min: Int, _ preferred: Int, _ max: Int) {
       self._min       = min
       self._preferred = preferred
       self._max       = max
@@ -81,50 +83,47 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// A spring with fixed minimum, preferred, and maximum.
-    public static func constant(_ value: Int) -> Spring {
-      Spring(min: value, preferred: value, max: value)
+    public static func constant(_ preferred: Int) -> Spring {
+      Spring(preferred, preferred, preferred)
     }
 
     /// A spring with independent minimum, preferred, and maximum.
     public static func constant(_ min: Int, _ preferred: Int, _ max: Int) -> Spring {
-      Spring(min: min, preferred: preferred, max: max)
+      Spring(min, preferred, max)
     }
 
     /// A spring whose value tracks the preferred width of `comp`.
     public static func width(_ comp: java.awt.Component) -> Spring {
-      let ps = comp.getPreferredSize()
-      let w  = ps.width > 0 ? ps.width : comp.getWidth()
-      return Spring(min: 0, preferred: w, max: w)
+      let preferredSize = comp.getPreferredSize()
+      let width  = preferredSize.width > 0 ? preferredSize.width : comp.getWidth()
+      return Spring(0, width, width)
     }
 
     /// A spring whose value tracks the preferred height of `comp`.
     public static func height(_ comp: java.awt.Component) -> Spring {
-      let ps = comp.getPreferredSize()
-      let h  = ps.height > 0 ? ps.height : comp.getHeight()
-      return Spring(min: 0, preferred: h, max: h)
+      let preferredSize = comp.getPreferredSize()
+      let height  = preferredSize.height > 0 ? preferredSize.height : comp.getHeight()
+      return Spring(0, height, height)
     }
 
     /// Returns a spring whose value is the sum of `s1` and `s2`.
     public static func sum(_ s1: Spring, _ s2: Spring) -> Spring {
-      Spring(
-        min:       s1._min       + s2._min,
-        preferred: s1._preferred + s2._preferred,
-        max:       s1._max       + s2._max
-      )
+      Spring( (s1._min + s2._min), (s1._preferred + s2._preferred), (s1._max + s2._max) )
     }
 
     /// Returns a spring whose value is the maximum of `s1` and `s2`.
     public static func max(_ s1: Spring, _ s2: Spring) -> Spring {
-      Spring(
-        min:       Swift.max(s1._min,       s2._min),
-        preferred: Swift.max(s1._preferred, s2._preferred),
-        max:       Swift.max(s1._max,       s2._max)
-      )
+      Spring ( Swift.max(s1._min, s2._min), Swift.max(s1._preferred, s2._preferred), Swift.max(s1._max, s2._max))
     }
 
     /// Returns a spring whose value is the negation of `s`.
     public static func minus(_ s: Spring) -> Spring {
-      Spring(min: -s._max, preferred: -s._preferred, max: -s._min)
+      Spring(-s._max, -s._preferred, -s._min)
+    }
+    
+    /// - Since: Java 5
+    public static func scale(_ s: Spring, _ factor: Float) -> Spring {
+      Spring( Int(Float(s._min) * factor), Int(Float(s._preferred) * factor), Int(Float(s._max) * factor))
     }
   }
 }

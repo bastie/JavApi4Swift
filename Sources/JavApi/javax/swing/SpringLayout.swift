@@ -40,9 +40,9 @@ extension javax.swing {
   /// > so `putConstraint` may be called before the container has a size.
   /// > Negative `pad` values are valid (e.g. `-8` from the right edge).
   ///
-  /// - Since: JavApi > 0.x (Java 1.4)
+  /// - Since: Java 1.4
   @MainActor
-  public final class SpringLayout: java.awt.LayoutManager2 {
+  open class SpringLayout: java.awt.LayoutManager2 {
 
     public init() {}
 
@@ -50,6 +50,8 @@ extension javax.swing {
     // MARK: Edge name constants
     // -------------------------------------------------------------------------
 
+    // TODO: implements missing constants
+    
     public static let NORTH = "North"
     public static let SOUTH = "South"
     public static let EAST  = "East"

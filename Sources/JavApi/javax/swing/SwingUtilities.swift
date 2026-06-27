@@ -22,8 +22,9 @@ extension javax.swing {
   /// In JavApi4Swift the EDT is the main thread (`@MainActor`).
   /// `invokeLater` therefore delegates to `java.awt.EventQueue.invokeLater`.
   ///
+  /// - Note: In Java SwingUtilities is a non-final class with only static methods. To switch to struct it must be final.
   @MainActor
-  public class SwingUtilities : SwingConstants{
+  open class SwingUtilities : SwingConstants {
 
     // -------------------------------------------------------------------------
     // MARK: EDT scheduling

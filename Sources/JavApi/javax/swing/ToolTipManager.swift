@@ -37,7 +37,8 @@ extension javax.swing {
   ///
   /// - Since: JFC 1.0 / Java 1.2
   @MainActor
-  open class ToolTipManager {
+  public final class ToolTipManager {
+    // FIXME: Java type is final and extends MouseAdapter and implements MouseMotionListener
 
     // -------------------------------------------------------------------------
     // MARK: Singleton

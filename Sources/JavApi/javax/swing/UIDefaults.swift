@@ -23,7 +23,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public final class UIDefaults {
+  public class UIDefaults { // FIXME: Java type is a non final extension of java.util.Hashtable
 
     /// Factory closure type — returns a fresh `ComponentUI` instance.
     public typealias UIFactory = () -> javax.swing.plaf.ComponentUI

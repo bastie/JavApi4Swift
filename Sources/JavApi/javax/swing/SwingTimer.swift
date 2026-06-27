@@ -22,9 +22,9 @@ extension javax.swing {
   /// t.stop()
   /// ```
   ///
-  /// - Since: Java 1.0 (Swing)
+  /// - Since: Java 1.2
   @MainActor
-  public final class Timer {
+  open class Timer {
 
     // -------------------------------------------------------------------------
     // MARK: State
