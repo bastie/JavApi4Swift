@@ -9,8 +9,6 @@ extension java.text {
 
   /// Encapsulates the locale-sensitive symbols used by ``DecimalFormat``.
   ///
-  /// Mirrors `java.text.DecimalFormatSymbols`.
-  ///
   /// Obtain an instance via the factory method ``getInstance(_:)`` or the
   /// initialisers.  All symbols can be overridden individually after creation.
   ///

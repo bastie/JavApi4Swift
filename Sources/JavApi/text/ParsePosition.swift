@@ -11,8 +11,6 @@ extension java.text {
   /// where parsing should start and to report where it ended — or where it
   /// failed.
   ///
-  /// Mirrors `java.text.ParsePosition`.
-  ///
   /// - Since: Java 1.1
   open class ParsePosition {
 

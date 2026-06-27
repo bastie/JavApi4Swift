@@ -5,10 +5,8 @@
 
 #if canImport(CoreGraphics)
 import CoreGraphics
-#endif
 
 extension java.awt.Rectangle {
-#if canImport(CoreGraphics)
   /// Converts to a `CGRect`.
   public var cgRect: CGRect {
     CGRect(x: x, y: y, width: width, height: height)
@@ -19,6 +17,6 @@ extension java.awt.Rectangle {
     self.init(Int(rect.origin.x), Int(rect.origin.y),
               Int(rect.width),    Int(rect.height))
   }
-#endif
 
 }
+#endif

@@ -7,8 +7,6 @@ extension java.text {
 
   /// Iterates over the collation elements of a string.
   ///
-  /// Mirrors `java.text.CollationElementIterator`.
-  ///
   /// A `CollationElementIterator` is used to walk through each collation element
   /// of an international string. Use the iterator to return the ordering priority
   /// of the positioned character. The ordering priority of a character, which we

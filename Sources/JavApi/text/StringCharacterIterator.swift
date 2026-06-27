@@ -7,8 +7,6 @@ extension java.text {
 
   /// Implements ``CharacterIterator`` for a `String`.
   ///
-  /// Mirrors `java.text.StringCharacterIterator`.
-  ///
   /// - Since: Java 1.1
   open class StringCharacterIterator : CharacterIterator {
 

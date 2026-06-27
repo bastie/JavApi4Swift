@@ -9,8 +9,6 @@ extension java.text {
 
   /// A concrete ``Collator`` that uses a rule string to define sort order.
   ///
-  /// Mirrors `java.text.RuleBasedCollator`.
-  ///
   /// ## Rule syntax (simplified Java subset)
   ///
   /// Rules are separated by `<` (less than) or `=` (equal weight):

@@ -9,8 +9,6 @@ extension java.text {
 
   /// Formats and parses dates in a locale-sensitive way.
   ///
-  /// Mirrors `java.text.DateFormat`.
-  ///
   /// Use the factory methods to obtain an instance rather than calling the
   /// initialiser directly.
   ///

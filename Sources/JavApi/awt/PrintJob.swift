@@ -26,7 +26,7 @@ extension java.awt {
   /// }
   /// ```
   ///
-  /// - Since: JavaApi > 0.19.1 (Java 1.1)
+  /// - Since: Java 1.1
   @MainActor
   open class PrintJob {
 
@@ -42,7 +42,7 @@ extension java.awt {
     /// object to finish the page and advance to the next one.
     /// Returns `nil` when no more pages can be printed.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func getGraphics() -> java.awt.Graphics? {
       return nil
     }
@@ -53,21 +53,21 @@ extension java.awt {
 
     /// Returns the dimensions of the page in pixels.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func getPageDimension() -> java.awt.Dimension {
       return java.awt.Dimension(0, 0)
     }
 
     /// Returns the resolution of the page in pixels per inch.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func getPageResolution() -> Int {
       return 72
     }
 
     /// Returns `true` if the last page is printed first.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func lastPageFirst() -> Bool {
       return false
     }
@@ -80,14 +80,14 @@ extension java.awt {
     ///
     /// Must be called after all pages have been rendered.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func end() {}
 
     /// Finalises the print job.
     ///
     /// Calls `end()` if not already done. Mirrors `java.awt.PrintJob.finalize()`.
     ///
-    /// - Since: JavaApi > 0.19.1 (Java 1.1)
+    /// - Since: Java 1.1
     open func finalize() {
       end()
     }

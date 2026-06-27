@@ -9,8 +9,6 @@ extension java.text {
 
   /// Formats and parses decimal numbers using a pattern string.
   ///
-  /// Mirrors `java.text.DecimalFormat`.
-  ///
   /// ## Pattern syntax
   ///
   /// A pattern has the form `positiveSubpattern[;negativeSubpattern]`.

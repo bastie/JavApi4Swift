@@ -8,8 +8,6 @@ extension java.text {
   /// Abstract base class for formatting locale-sensitive information such as
   /// dates, messages, and numbers.
   ///
-  /// Mirrors `java.text.Format`.
-  ///
   /// Subclasses must override:
   /// - ``format(_:toAppendTo:pos:)``
   /// - ``parseObject(_:pos:)``

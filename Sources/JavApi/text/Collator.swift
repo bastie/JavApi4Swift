@@ -9,8 +9,6 @@ extension java.text {
 
   /// Performs locale-sensitive string comparison and collation-key generation.
   ///
-  /// Mirrors `java.text.Collator`.
-  ///
   /// Use the factory methods to obtain an instance:
   /// ```swift
   /// let c = java.text.Collator.getInstance(java.util.Locale.GERMANY)

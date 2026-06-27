@@ -9,8 +9,6 @@ extension java.text {
 
   /// Formats and parses dates using a user-defined pattern.
   ///
-  /// Mirrors `java.text.SimpleDateFormat`.
-  ///
   /// ## Pattern letters
   ///
   /// | Letter | Component         | Example |

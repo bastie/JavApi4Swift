@@ -18,8 +18,6 @@ extension java.text {
 
   /// Defines attribute key constants used in attributed strings.
   ///
-  /// Mirrors `java.text.AttributedCharacterIterator.Attribute`.
-  ///
   /// - Since: Java 1.2
   open class AttributedCharacterIteratorAttribute : Hashable, CustomStringConvertible, @unchecked Sendable {
 

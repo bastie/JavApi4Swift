@@ -9,8 +9,6 @@ extension java.text {
 
   /// Formats messages with positional placeholders.
   ///
-  /// Mirrors `java.text.MessageFormat`.
-  ///
   /// ## Pattern syntax
   ///
   /// ```

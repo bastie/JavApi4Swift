@@ -9,8 +9,6 @@ extension java.text {
 
   /// A `NumberFormat` subclass that selects a string based on numeric ranges.
   ///
-  /// Mirrors `java.text.ChoiceFormat`.
-  ///
   /// `ChoiceFormat` maps a number to a string by finding the range it falls into.
   /// It is typically used with `MessageFormat` for pluralisation:
   /// ```swift

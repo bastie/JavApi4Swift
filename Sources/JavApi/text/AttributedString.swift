@@ -13,7 +13,7 @@ extension java.text {
   /// ``AttributedString/getIterator()``.
   ///
   /// This class is package-internal; callers use the protocol type.
-  final class AttributedStringIterator : AttributedCharacterIterator, @unchecked Sendable {
+  final internal class AttributedStringIterator : AttributedCharacterIterator, @unchecked Sendable {
 
     // Typealias to satisfy the protocol requirement (already set in the protocol,
     // but the concrete type must also see it).

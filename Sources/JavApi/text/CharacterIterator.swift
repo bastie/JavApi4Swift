@@ -7,8 +7,6 @@ extension java.text {
 
   /// Defines a protocol for bidirectional iteration over text.
   ///
-  /// Mirrors `java.text.CharacterIterator`.
-  ///
   /// The iterator provides a cursor that moves from `getBeginIndex()` to
   /// `getEndIndex() - 1` (inclusive). When the cursor moves past either end,
   /// `current()` returns ``CharacterIterator/DONE``.

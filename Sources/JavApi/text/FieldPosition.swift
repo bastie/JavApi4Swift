@@ -10,8 +10,6 @@ extension java.text {
   /// `FieldPosition` is used by `Format` subclasses to track the start and
   /// end index of a particular field in a formatted string.
   ///
-  /// Mirrors `java.text.FieldPosition`.
-  ///
   /// - Since: Java 1.1
   open class FieldPosition {
 

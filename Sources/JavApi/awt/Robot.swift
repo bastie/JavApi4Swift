@@ -23,7 +23,7 @@ extension java.awt {
   /// - Windows: `SendInput` — stub (TODO)
   /// - Headless / WASM / Android / iOS: throws `HeadlessException`
   ///
-  /// - Since: JavaApi > 0.x (Java 1.3)
+  /// - Since: Java 1.3
   @MainActor
   open class Robot: java.awt.toolkit.RobotProvider {
 

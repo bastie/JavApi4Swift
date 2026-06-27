@@ -7,8 +7,6 @@ extension java.text {
 
   /// Signals that an error has been reached unexpectedly while parsing.
   ///
-  /// Mirrors `java.text.ParseException`.
-  ///
   /// - Since: Java 1.1
   open class ParseException: Exception, @unchecked Sendable {
 

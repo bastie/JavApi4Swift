@@ -7,8 +7,6 @@ extension java.text {
 
   /// A pre-computed sort key for a string under a specific ``Collator``.
   ///
-  /// Mirrors `java.text.CollationKey`.
-  ///
   /// `CollationKey` objects are obtained from ``Collator/getCollationKey(_:)``
   /// and can be compared with ``compareTo(_:)`` more efficiently than repeated
   /// calls to ``Collator/compare(_:_:)`` when the same string is compared many

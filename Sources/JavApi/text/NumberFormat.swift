@@ -9,8 +9,6 @@ extension java.text {
 
   /// Formats and parses numbers in a locale-sensitive way.
   ///
-  /// Mirrors `java.text.NumberFormat`.
-  ///
   /// Use the factory methods (`getInstance`, `getIntegerInstance`,
   /// `getCurrencyInstance`, `getPercentInstance`) to obtain an instance
   /// rather than calling the initialiser directly.

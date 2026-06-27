@@ -9,8 +9,6 @@ extension java.text {
 
   /// Locates boundaries in text (characters, words, sentences, lines).
   ///
-  /// Mirrors `java.text.BreakIterator`.
-  ///
   /// Use the factory methods to obtain an instance:
   /// - ``getCharacterInstance()`` / ``getCharacterInstance(_:)``
   /// - ``getWordInstance()`` / ``getWordInstance(_:)``
