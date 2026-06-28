@@ -41,7 +41,7 @@ extension java.awt.toolkit {
     private lazy var session: Session = _detectSession()
 
     /// In-memory fallback used when no display tool is available.
-    private let fallback = _HeadlessClipboardProvider()
+    private let fallback = java.awt.toolkit.headless._HeadlessClipboardProvider()
 
     public init() {}
 
