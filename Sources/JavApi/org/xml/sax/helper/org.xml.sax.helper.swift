@@ -5,5 +5,5 @@
 
 extension org.xml.sax {
   /// The org.xml.sax.helper namespace
-  public enum elper {}
+  public enum helper {}
 }

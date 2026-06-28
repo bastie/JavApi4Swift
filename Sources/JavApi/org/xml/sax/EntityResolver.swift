@@ -7,6 +7,6 @@ extension org.xml.sax {
   
   /// - Since: SAX 1.0
   public protocol EntityResolver {
-    func resolveEntity(publicId: String?, systemId: String?) throws -> InputSource
+    func resolveEntity(publicId: String?, systemId: String?) throws -> InputSource?
   }
 }

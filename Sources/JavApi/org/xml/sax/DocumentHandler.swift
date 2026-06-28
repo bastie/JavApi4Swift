@@ -12,7 +12,7 @@ extension org.xml.sax {
     func endDocument() throws (SAXException)
     func startElement(_ name: String, _ attributes: [String: String]) throws (SAXException)
     func endElement(_ name: String) throws (SAXException)
-    func characters(_ ch: String, _ start : Int, _ length: Int) throws (SAXException)
+    func characters(_ ch: [Character], _ start : Int, _ length: Int) throws (SAXException)
     func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws (SAXException)
     func processingInstruction(_ target: String, _data: String) throws (SAXException)
     func setDocumentLocator(_ locator: Locator) throws (SAXException)
