@@ -4,14 +4,24 @@
  */
 
 /// Java compiler generates some functions
+/// - Since: Java 5
 public protocol Enum<E> : CaseIterable {
   associatedtype E
+  
+  /// Subtypes should be implement, by default throws `IllegalArgumentException`.
+  /// - Throws: `IllegalArgumentException` if no implementation for given `name`
+  /// - Parameter name: name of enum
+  /// - Returns: enum value
   func valueOf(_ name : String) throws (IllegalArgumentException) -> E
+  /// Values of the enum.
+  /// - Note: Swift has `allCases` properties
+  /// - Returns: all cases of enumeration
   func values() -> [E]
 }
 
 extension java.lang.Enum {
 
+  // use Swift enum property `allCases` to provide Java function values
   public func values() -> [E] {
     let all = Self.allCases
     var values : [E] = []

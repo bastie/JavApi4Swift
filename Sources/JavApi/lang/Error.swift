@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-open class JError : Exception, @unchecked Sendable {
+open class JError : Throwable, @unchecked Sendable {
   
   public override init () {
     super.init()
