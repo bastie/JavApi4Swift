@@ -89,7 +89,7 @@ extension java.awt {
 #if canImport(SwiftUI)
         return java.awt.toolkit.swiftui.SwiftUIToolkit.shared
 #else
-        return java.awt.toolkit.HeadlessToolkit()
+        return java.awt.toolkit.headless.HeadlessToolkit()
 #endif
       case "Windows":
 #if os(Windows)
