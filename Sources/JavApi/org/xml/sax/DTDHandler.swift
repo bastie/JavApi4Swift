@@ -6,9 +6,8 @@
 extension org.xml.sax {
   
   /// - Since: SAX 1.0
-  public protocol ErrorHandler {
-    func warning (_ exception : SAXParseException) throws (SAXEception)
-    func error (_ exception : SAXParseException) throws (SAXEception)
-    func fatalError (_ exception : SAXParseException) throws (SAXEception)
+  public protocol DTDHandler {
+    func notationDecl(name: String, publicId: String?, systemId: String?)
+    func unparsedEntityDecl(name: String, publicId: String?, systemId: String?, notationName: String?)
   }
 }

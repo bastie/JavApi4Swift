@@ -6,9 +6,15 @@
 extension org.xml.sax {
   
   /// - Since: SAX 1.0
-  public protocol ErrorHandler {
-    func warning (_ exception : org.xml.sax.SAXParseException) throws (org.xml.sax.SAXException)
-    func error (_ exception : SAXParseException) throws (SAXException)
-    func fatalError (_ exception : SAXParseException) throws (SAXException)
+  @available(*, deprecated, renamed: "ContentHandler", message: "Use ContentHandler instead")
+  public protocol DocumentHandler {
+    func startDocument() throws (SAXException)
+    func endDocument() throws (SAXException)
+    func startElement(_ name: String, _ attributes: [String: String]) throws (SAXException)
+    func endElement(_ name: String) throws (SAXException)
+    func characters(_ ch: String) throws (SAXException)
+    func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws (SAXException)
+    func processingInstruction(_ target: String, _data: String) throws (SAXException)
+    func setDocumentLocator(_ locator: Locator) throws (SAXException)
   }
 }

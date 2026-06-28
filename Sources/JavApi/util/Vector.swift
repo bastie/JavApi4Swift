@@ -34,7 +34,7 @@ extension java.util {
   /// print(try v.elementAt(0))   // → Hello
   /// print(v.size())             // → 2
   /// ```
-  open class Vector<E> {
+  open class Vector<E> { // FIXME: with Java 1.2 Collection Framework this must be extends and syncronized
     
     // -------------------------------------------------------------------------
     // MARK: Internal storage  (Java field names kept for porting fidelity)

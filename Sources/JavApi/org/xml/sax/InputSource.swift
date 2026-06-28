@@ -6,52 +6,59 @@
 extension org.xml.sax {
   
   /// - Since: SAX 1.0
-  public class LocatorImpl : Locator {
+  open class InputSource {
     
-    /// swift constant extension did not break Java API
-    public static let UNKNOWN_LINE_OR_COLUMN = -1
-    
-    private var lineNumber: Int = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
-    private var columnNumber: Int = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
     private var publicId: String?
     private var systemId: String?
+    private var byteStream: java.io.InputStream?
+    private var encoding: String?
+    private var charReader: java.io.Reader?
     
-    public init() {}
-    
-    public func getPublicId() -> String? {
-      return publicId
+    public init () {}
+    public init (_ systemId: String) {
+      self.systemId = systemId
+      do {
+        _ = try java.net.URL(systemId)
+      }
+      catch _ {
+        java.util.logging.Logger.getLogger("JavAPI").log(java.util.logging.LogRecord(.SEVERE, "systemID URL can not be resolved"))
+      }
     }
-    public func getSystemId() -> String? {
-      return systemId
+    public init (_ byteStream : java.io.InputStream) {
+      self.byteStream = byteStream
     }
-    public func getLineNumber() -> Int {
-      return lineNumber
+    public init (_ charReader : java.io.Reader) {
+      self.charReader = charReader
     }
-    public func getColumnNumber() -> Int {
-      return columnNumber
+    public func getSystemId () -> String? {
+      systemId
     }
-    
-    public func setPublicId(_ publicId: String?) {
-      self.publicId = publicId
-    }
-    public func setSystemId(_ systemId: String?) {
+    public func setSystemId (_ systemId: String?) {
       self.systemId = systemId
     }
-    public func setLineNumber(_ lineNumber: Int) {
-      if lineNumber < 1 {
-        self.lineNumber = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
-      }
-      self.lineNumber = lineNumber
+    public func setPublicId (_ publicId: String?) {
+      self.publicId = publicId
     }
-    /// 1-based number of column
-    /// - Parameter columnNumber: column
-    /// - Note: values lesser than 1 would be stored as unknown
-    public func setColumnNumber(_ columnNumber: Int) {
-      if lineNumber < 1 {
-        self.columnNumber = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
-      }
-      self.columnNumber = columnNumber
+    public func getPublicId () -> String? {
+      publicId
     }
-    
+    public func getByteStream () -> java.io.InputStream? {
+      return self.byteStream
+    }
+    public func setByteStream (_ byteStream: java.io.InputStream?) {
+      self.byteStream = byteStream
+    }
+    public func getCharacterStream () -> java.io.Reader? {
+      return self.charReader
+    }
+    public func setCharacterStream (_ charReader: java.io.Reader?) {
+      self.charReader = charReader
+    }
+    public func getEncoding () -> String? {
+      encoding
+    }
+    public func setEncoding (_ encoding: String?) {
+      self.encoding = encoding
+    }
   }
 }

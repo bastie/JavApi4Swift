@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension java.net {
-  open class BindException : SocketException, @unchecked Sendable {
+extension org.xml.sax {
+  open class SAXException : java.lang.Exception, @unchecked Sendable {
     
     public override init () {
       super.init()
@@ -12,6 +12,10 @@ extension java.net {
     
     public override init (_ message: String) {
       super.init(message)
+    }
+
+    public override init (_ message: String, _ cause: Throwable) {
+      super.init(message, cause)
     }
   }
 }

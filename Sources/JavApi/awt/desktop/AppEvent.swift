@@ -12,7 +12,7 @@ extension java.awt.desktop {
           return try Desktop.getDesktop()
         }
         catch _ {
-          var invalidDesktop = Desktop()
+          let invalidDesktop = Desktop()
           invalidDesktop.isValid = false
           return invalidDesktop
         }
