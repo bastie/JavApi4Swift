@@ -46,6 +46,9 @@ extension java.util.logging {
       return handlers
     }
     
+    /// Log a `LogRecord`
+    /// - Parameter record: log record
+    /// - Note: all convenience method should be use this
     open func log (_ record: LogRecord) {
       
     }

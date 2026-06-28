@@ -15,8 +15,11 @@ extension java.util.logging {
     
     private var loggerName : String?
     
-    public init (_ theLevel : Level, _ msg : String?) {
-      self.level = theLevel
+    /// - Parameters:
+    ///    - logLevel: level of log information
+    ///    - msg: log information
+    public init (_ logLevel : Level, _ msg : String?) {
+      self.level = logLevel
       self.message = msg
     }
     
