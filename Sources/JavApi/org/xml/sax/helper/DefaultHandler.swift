@@ -52,7 +52,7 @@ extension org.xml.sax.helper {
     open func endPrefixMapping(_ prefix: String) throws(org.xml.sax.SAXException) {}
     
     /// by default do nothing
-    open func startElement(_ uri: String, _ localName: String, _ qName: String, _ attributes: [String : String]) throws(org.xml.sax.SAXException) {}
+    open func startElement(_ uri: String, _ localName: String, _ qName: String, _ attributes: any org.xml.sax.Attributes) throws(org.xml.sax.SAXException) {}
     
     /// by default do nothing
     open func endElement(_ uri: String, _ localName: String, _ qName: String) throws(org.xml.sax.SAXException) {}

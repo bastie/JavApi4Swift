@@ -6,7 +6,7 @@
 extension org.xml.sax {
   
   /// - Since: Java 1.4
-  /// - Since: SAX 1.0
+  /// - Since: SAX 2.0
   public protocol ContentHandler {
     /// - Since: Java 1.4
     func setDocumentLocator(_ locator: Locator) throws (SAXException)
@@ -22,7 +22,7 @@ extension org.xml.sax {
     /// - Since: Java 1.4
     func endPrefixMapping(_ prefix: String) throws (SAXException)
     /// - Since: Java 1.4
-    func startElement(_ uri: String, _ localName: String, _ qName: String, _ attributes: [String: String]) throws (SAXException)
+    func startElement(_ uri: String, _ localName: String, _ qName: String, _ attributes: any Attributes) throws (SAXException)
     /// - Since: Java 1.4
     func endElement(_ uri: String, _ localName: String, _ qName: String) throws (SAXException)
     /// - Since: Java 1.4
