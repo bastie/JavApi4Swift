@@ -13,7 +13,7 @@ extension org.xml.sax.helper {
     /// Key used to look up (and replace) the built-in default parser.
     ///
     /// The default parser is ``JavApiSax1Parser`` — a Foundation-backed implementation
-    /// on Apple platforms and Linux, and a pure-Swift fallback on other platforms (e.g. WASM).
+    /// on Apple platforms, and a pure-Swift fallback on Linux and other platforms (e.g. WASM).
     /// Replace the entry to swap in your own implementation:
     /// ```swift
     /// await MainActor.run {

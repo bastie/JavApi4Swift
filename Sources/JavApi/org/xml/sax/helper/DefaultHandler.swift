@@ -58,7 +58,7 @@ extension org.xml.sax.helper {
     open func endElement(_ uri: String, _ localName: String, _ qName: String) throws(org.xml.sax.SAXException) {}
     
     /// by default do nothing
-    open func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {}
+    open func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {}
     
     /// by default do nothing
     open func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {}

@@ -46,7 +46,7 @@ public final class JavApiXMLReader : org.xml.sax.XMLReader, @unchecked Sendable 
 
   // MARK: - XMLReader: features
 
-  public func getFeature(_ name: String) throws(org.xml.sax.SAXNotRecognizedException) -> Bool {
+  public func getFeature(_ name: String) throws -> Bool {
     switch name {
     case "http://xml.org/sax/features/namespaces":        return featureNamespaces
     case "http://xml.org/sax/features/namespace-prefixes": return featureNamespacePrefixes
@@ -54,7 +54,7 @@ public final class JavApiXMLReader : org.xml.sax.XMLReader, @unchecked Sendable 
     }
   }
 
-  public func setFeature(_ name: String, _ value: Bool) throws(org.xml.sax.SAXNotRecognizedException) {
+  public func setFeature(_ name: String, _ value: Bool) throws {
     switch name {
     case "http://xml.org/sax/features/namespaces":        featureNamespaces = value
     case "http://xml.org/sax/features/namespace-prefixes": featureNamespacePrefixes = value
@@ -64,11 +64,11 @@ public final class JavApiXMLReader : org.xml.sax.XMLReader, @unchecked Sendable 
 
   // MARK: - XMLReader: properties (none supported)
 
-  public func getProperty(_ name: String) throws(org.xml.sax.SAXException) -> Any? {
+  public func getProperty(_ name: String) throws -> Any? {
     throw org.xml.sax.SAXNotRecognizedException("Unknown property: \(name)")
   }
 
-  public func setProperty(_ name: String, _ value: Any?) throws(org.xml.sax.SAXException) {
+  public func setProperty(_ name: String, _ value: Any?) throws {
     throw org.xml.sax.SAXNotRecognizedException("Unknown property: \(name)")
   }
 
@@ -229,7 +229,7 @@ private final class _SAX2FoundationDelegate : NSObject, XMLParserDelegate, @unch
   func parser(_ parser: XMLParser, foundCharacters string: String) {
     guard thrownError == nil else { return }
     let chars = Array(string)
-    do { try contentHandler?.characters(chars, 0, length: chars.count) }
+    do { try contentHandler?.characters(chars, 0, chars.count) }
     catch { thrownError = error; parser.abortParsing() }
   }
 

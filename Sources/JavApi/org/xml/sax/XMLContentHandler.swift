@@ -26,7 +26,7 @@ extension org.xml.sax {
     /// - Since: Java 1.4
     func endElement(_ uri: String, _ localName: String, _ qName: String) throws (SAXException)
     /// - Since: Java 1.4
-    func characters(_ ch: [Character], _ start : Int, length: Int) throws (SAXException)
+    func characters(_ ch: [Character], _ start: Int, _ length: Int) throws (SAXException)
     /// - Since: Java 1.4
     func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws (SAXException)
     /// - Since: Java 1.4

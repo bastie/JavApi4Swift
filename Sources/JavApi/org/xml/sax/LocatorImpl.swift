@@ -43,18 +43,19 @@ extension org.xml.sax {
     public func setSystemId(_ systemId: String?) {
       self.systemId = systemId
     }
+    /// 1-based line number; values less than 1 are stored as ``UNKNOWN_LINE_OR_COLUMN``.
     public func setLineNumber(_ lineNumber: Int) {
       if lineNumber < 1 {
         self.lineNumber = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
+        return
       }
       self.lineNumber = lineNumber
     }
-    /// 1-based number of column
-    /// - Parameter columnNumber: column
-    /// - Note: values lesser than 1 would be stored as unknown
+    /// 1-based column number; values less than 1 are stored as ``UNKNOWN_LINE_OR_COLUMN``.
     public func setColumnNumber(_ columnNumber: Int) {
-      if lineNumber < 1 {
+      if columnNumber < 1 {
         self.columnNumber = LocatorImpl.UNKNOWN_LINE_OR_COLUMN
+        return
       }
       self.columnNumber = columnNumber
     }

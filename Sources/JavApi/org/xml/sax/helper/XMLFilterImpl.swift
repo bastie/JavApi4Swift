@@ -39,28 +39,28 @@ extension org.xml.sax.helper {
 
     // MARK: - XMLReader: features & properties
 
-    open func getFeature(_ name: String) throws(org.xml.sax.SAXNotRecognizedException) -> Bool {
+    open func getFeature(_ name: String) throws -> Bool {
       guard let p = parent else {
         throw org.xml.sax.SAXNotRecognizedException("No parent reader set")
       }
       return try p.getFeature(name)
     }
 
-    open func setFeature(_ name: String, _ value: Bool) throws(org.xml.sax.SAXNotRecognizedException) {
+    open func setFeature(_ name: String, _ value: Bool) throws {
       guard let p = parent else {
         throw org.xml.sax.SAXNotRecognizedException("No parent reader set")
       }
       try p.setFeature(name, value)
     }
 
-    open func getProperty(_ name: String) throws(org.xml.sax.SAXException) -> Any? {
+    open func getProperty(_ name: String) throws -> Any? {
       guard let p = parent else {
         throw org.xml.sax.SAXNotRecognizedException("No parent reader set")
       }
       return try p.getProperty(name)
     }
 
-    open func setProperty(_ name: String, _ value: Any?) throws(org.xml.sax.SAXException) {
+    open func setProperty(_ name: String, _ value: Any?) throws {
       guard let p = parent else {
         throw org.xml.sax.SAXNotRecognizedException("No parent reader set")
       }
@@ -139,8 +139,8 @@ extension org.xml.sax.helper {
     open func endElement(_ uri: String, _ localName: String, _ qName: String) throws(org.xml.sax.SAXException) {
       try contentHandler?.endElement(uri, localName, qName)
     }
-    open func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {
-      try contentHandler?.characters(ch, start, length: length)
+    open func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
+      try contentHandler?.characters(ch, start, length)
     }
     open func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
       try contentHandler?.ignorableWhitespace(ch, start, length)

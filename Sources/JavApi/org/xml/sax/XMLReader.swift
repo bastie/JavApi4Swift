@@ -25,22 +25,24 @@ extension org.xml.sax {
     /// Returns the value of the named feature.
     /// - Throws: ``SAXNotRecognizedException`` if the feature is unknown.
     /// - Throws: ``SAXNotSupportedException`` if the feature is known but not readable in this state.
-    func getFeature(_ name: String) throws(SAXNotRecognizedException) -> Bool
+    func getFeature(_ name: String) throws -> Bool
 
     /// Sets the value of the named feature.
     /// - Throws: ``SAXNotRecognizedException`` if the feature is unknown.
     /// - Throws: ``SAXNotSupportedException`` if the feature cannot be set in this state.
-    func setFeature(_ name: String, _ value: Bool) throws(SAXNotRecognizedException)
+    func setFeature(_ name: String, _ value: Bool) throws
 
     // MARK: - Properties
 
     /// Returns the value of the named property.
-    /// - Throws: ``SAXException`` (``SAXNotRecognizedException`` or ``SAXNotSupportedException``)
-    func getProperty(_ name: String) throws(SAXException) -> Any?
+    /// - Throws: ``SAXNotRecognizedException`` if the property is unknown.
+    /// - Throws: ``SAXNotSupportedException`` if the property is known but not readable in this state.
+    func getProperty(_ name: String) throws -> Any?
 
     /// Sets the value of the named property.
-    /// - Throws: ``SAXException`` (``SAXNotRecognizedException`` or ``SAXNotSupportedException``)
-    func setProperty(_ name: String, _ value: Any?) throws(SAXException)
+    /// - Throws: ``SAXNotRecognizedException`` if the property is unknown.
+    /// - Throws: ``SAXNotSupportedException`` if the property cannot be set in this state.
+    func setProperty(_ name: String, _ value: Any?) throws
 
     // MARK: - Handlers
 

@@ -32,7 +32,7 @@ struct JavApi_org_xml_sax_XMLFilterImpl_Tests {
     override func endElement(_ uri: String, _ localName: String, _ qName: String) throws(org.xml.sax.SAXException) {
       endElements.append(qName)
     }
-    override func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {
+    override func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
       characters += String(ch[start ..< start + length])
     }
   }
@@ -50,10 +50,10 @@ struct JavApi_org_xml_sax_XMLFilterImpl_Tests {
 
   /// A filter that prepends ">" to every character chunk.
   private class PrefixCharactersFilter : org.xml.sax.helper.XMLFilterImpl {
-    override func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {
+    override func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
       let prefix: [Character] = Array("> ")
       let body = Array(ch[start ..< start + length])
-      try super.characters(prefix + body, 0, length: prefix.count + body.count)
+      try super.characters(prefix + body, 0, prefix.count + body.count)
     }
   }
 

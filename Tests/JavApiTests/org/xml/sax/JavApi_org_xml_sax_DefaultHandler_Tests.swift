@@ -93,7 +93,7 @@ struct JavApi_org_xml_sax_DefaultHandler_Tests {
   @Test("characters does not throw")
   func testCharacters() throws {
     let chars = Array("Hello")
-    try org.xml.sax.helper.DefaultHandler().characters(chars, 0, length: chars.count)
+    try org.xml.sax.helper.DefaultHandler().characters(chars, 0, chars.count)
   }
 
   @Test("ignorableWhitespace does not throw")

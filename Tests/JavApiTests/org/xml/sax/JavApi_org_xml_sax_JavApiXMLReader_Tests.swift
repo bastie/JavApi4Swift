@@ -50,7 +50,7 @@ private class RecordingHandler : org.xml.sax.helper.DefaultHandler {
     endElements.append((uri: uri, localName: localName, qName: qName))
   }
 
-  override func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {
+  override func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
     characters += String(ch[start ..< start + length])
   }
 
@@ -185,10 +185,10 @@ struct JavApi_org_xml_sax_JavApiXMLReader_Tests {
   @Test("XMLReaderFactory default can be replaced")
   @MainActor func testXMLReaderFactoryReplacement() throws {
     class CustomReader : org.xml.sax.helper.DefaultHandler, org.xml.sax.XMLReader {
-      func getFeature(_ name: String) throws(org.xml.sax.SAXNotRecognizedException) -> Bool { false }
-      func setFeature(_ name: String, _ value: Bool) throws(org.xml.sax.SAXNotRecognizedException) {}
-      func getProperty(_ name: String) throws(org.xml.sax.SAXException) -> Any? { nil }
-      func setProperty(_ name: String, _ value: Any?) throws(org.xml.sax.SAXException) {}
+      func getFeature(_ name: String) throws -> Bool { false }
+      func setFeature(_ name: String, _ value: Bool) throws {}
+      func getProperty(_ name: String) throws -> Any? { nil }
+      func setProperty(_ name: String, _ value: Any?) throws {}
       func setEntityResolver(_ r: (any org.xml.sax.EntityResolver)?) {}
       func getEntityResolver() -> (any org.xml.sax.EntityResolver)? { nil }
       func setDTDHandler(_ h: (any org.xml.sax.DTDHandler)?) {}
@@ -301,7 +301,7 @@ struct JavApi_org_xml_sax_JavApiXMLReader_LargeDocument_Tests {
       }
       currentText = ""
     }
-    override func characters(_ ch: [Character], _ start: Int, length: Int) throws(org.xml.sax.SAXException) {
+    override func characters(_ ch: [Character], _ start: Int, _ length: Int) throws(org.xml.sax.SAXException) {
       currentText += String(ch[start ..< start + length])
     }
   }
