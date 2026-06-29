@@ -42,7 +42,7 @@ extension java.io {
 
       // Create file if it doesn't exist
       if !fileManager.fileExists(atPath: path) {
-        fileManager.createFile(atPath: path, contents: Data(), attributes: nil)
+        _ = fileManager.createFile(atPath: path, contents: Data(), attributes: nil)
       }
 
       if append {
