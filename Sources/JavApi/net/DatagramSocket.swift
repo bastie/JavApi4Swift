@@ -89,7 +89,8 @@ extension java.net {
 #elseif canImport(WinSDK)
       let sockFd = platformSocket(AF_INET, Int32(SOCK_DGRAM), 0)
 #else
-      let sockFd = socket(AF_INET, Int32(SOCK_DGRAM), 0)
+      // FreeBSD and others: SOCK_DGRAM is Int32, no .rawValue
+      let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
 #endif
       guard sockFd >= 0 else {
         throw SocketException("Cannot create datagram socket")
@@ -106,7 +107,7 @@ extension java.net {
       addr.sin_family = sa_family_t(AF_INET)
       addr.sin_port = UInt16(port).bigEndian
       if let address {
-        inet_pton(AF_INET, address.getHostAddress(), &addr.sin_addr)
+        _ = inet_pton(AF_INET, address.getHostAddress(), &addr.sin_addr)
       } else {
         addr.sin_addr.s_addr = INADDR_ANY.bigEndian
       }
@@ -145,7 +146,8 @@ extension java.net {
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #else
-      inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+      // Darwin, Glibc, Musl, FreeBSD: inet_ntop is available via libc
+      _ = inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let localIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
       self._localAddress = try? InetAddress.getByName(localIP)
@@ -178,7 +180,7 @@ extension java.net {
       var dest = sockaddr_in()
       dest.sin_family = sa_family_t(AF_INET)
       dest.sin_port = UInt16(port).bigEndian
-      inet_pton(AF_INET, address.getHostAddress(), &dest.sin_addr)
+      _ = inet_pton(AF_INET, address.getHostAddress(), &dest.sin_addr)
 
       let data = packet.getData()
       let offset = packet.getOffset()
@@ -243,7 +245,8 @@ extension java.net {
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #else
-      inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
+      // Darwin, Glibc, Musl, FreeBSD: inet_ntop is available via libc
+      _ = inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
       packet.port = Int(sender.sin_port.bigEndian)
