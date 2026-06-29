@@ -144,7 +144,7 @@ extension java.net {
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#elseif canImport(Darwin) || canImport(Glibc) || canImport(Musl) || os(FreeBSD)
+#else
       _ = inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let localIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
@@ -242,7 +242,7 @@ extension java.net {
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#elseif canImport(Darwin) || canImport(Glibc) || canImport(Musl) || os(FreeBSD)
+#else
       _ = inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
