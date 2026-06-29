@@ -10,7 +10,7 @@ extension org.xml.sax {
   public protocol DocumentHandler {
     func startDocument() throws (SAXException)
     func endDocument() throws (SAXException)
-    func startElement(_ name: String, _ attributes: [String: String]) throws (SAXException)
+    func startElement(_ name: String, _ attributes: any AttributeList) throws (SAXException)
     func endElement(_ name: String) throws (SAXException)
     func characters(_ ch: [Character], _ start : Int, _ length: Int) throws (SAXException)
     func ignorableWhitespace(_ ch: [Character], _ start: Int, _ length: Int) throws (SAXException)

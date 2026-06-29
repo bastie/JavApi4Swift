@@ -501,20 +501,24 @@ version | implemented | tested   | type          | name                    | mor
 
 ## java.awt.image — Java 2D additions
 
-### java.awt.image.BufferedImage (✔️/⭕️)
+### java.awt.image.BufferedImage (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ✔️          | ⭕️       | final field   | TYPE_INT_RGB            | int = 1
-1.2     | ✔️          | ⭕️       | final field   | TYPE_INT_ARGB           | int = 2
-1.2     | ✔️          | ⭕️       | final field   | TYPE_INT_ARGB_PRE       | int = 3
-1.2     | ✔️          | ⭕️       | final field   | TYPE_BYTE_GRAY          | int = 10
-1.2     | ✔️          | ⭕️       | constructor   | BufferedImage()         | (int,int,int)
-1.2     | ✔️          | ⭕️       | method        | getWidth()              | ()->int
-1.2     | ✔️          | ⭕️       | method        | getHeight()             | ()->int
-1.2     | ✔️          | ⭕️       | method        | getRGB()                | (int,int)->int
-1.2     | ✔️          | ⭕️       | method        | setRGB()                | (int,int,int)
+1.2     | ✔️          | 🪄       | final field   | TYPE_INT_RGB            | int = 1
+1.2     | ✔️          | 🪄       | final field   | TYPE_INT_ARGB           | int = 2
+1.2     | ✔️          | 🪄       | final field   | TYPE_INT_ARGB_PRE       | int = 3
+1.2     | ✔️          | 🪄       | final field   | TYPE_BYTE_GRAY          | int = 10
+1.2     | ✔️          | ✔️       | constructor   | BufferedImage()         | (int,int,int)
+1.2     | ✔️          | ✔️       | method        | getWidth()              | ()->int
+1.2     | ✔️          | ✔️       | method        | getHeight()             | ()->int
+1.2     | ✔️          | ✔️       | method        | getRGB()                | (int,int)->int
+1.2     | ✔️          | ✔️       | method        | setRGB()                | (int,int,int)
 1.2     | ✔️          | ⭕️       | method        | createGraphics()        | ()->Graphics2D
+1.2     | ✔️          | ✔️       | method        | getRaster()             | ()->WritableRaster
+1.2     | ✔️          | ✔️       | method        | getData()               | ()->Raster
+1.2     | ✔️          | ✔️       | method        | getColorModel()         | ()->ColorModel
+1.2     | ✔️          | ✔️       | protocol      | WritableRenderedImage   | conformance via BufferedImage+RenderedImage.swift; tile observers supported
 
 ### java.awt.image.ColorModel (✔️/⭕️)
 
@@ -1700,77 +1704,72 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## java.awt.image — fehlende Java 2D Klassen (⭕️/⭕️)
+## java.awt.image — Java 2D Klassen (✔️/✔️)
 
-### java.awt.image.BufferedImageOp hierarchy (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | BufferedImageOp         | filter(BufferedImage,BufferedImage?)->BufferedImage
-1.2     | ⭕️          | ⭕️       | class         | AffineTransformOp       | geometric transform op
-1.2     | ⭕️          | ⭕️       | class         | ColorConvertOp          | color space conversion
-1.2     | ⭕️          | ⭕️       | class         | ConvolveOp              | convolution filter (blur, sharpen)
-1.2     | ⭕️          | ⭕️       | class         | LookupOp                | per-channel lookup table op
-1.2     | ⭕️          | ⭕️       | class         | RescaleOp               | per-channel scale+offset op
-1.2     | ⭕️          | ⭕️       | class         | BandCombineOp           | linear combination of bands
-
-### java.awt.image.Kernel (⭕️/⭕️)
+### java.awt.image.BufferedImageOp / RasterOp (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | Kernel                  | convolution kernel matrix
-1.2     | ⭕️          | ⭕️       | constructor   | Kernel()                | (int width, int height, float[] data)
-1.2     | ⭕️          | ⭕️       | method        | getWidth() / getHeight()| ()->int
-1.2     | ⭕️          | ⭕️       | method        | getXOrigin() / getYOrigin() | ()->int
-1.2     | ⭕️          | ⭕️       | method        | getKernelData()         | (float[]?)->[float]
+1.2     | ✔️          | ✔️       | protocol      | BufferedImageOp         | filter(BufferedImage,BufferedImage?)->BufferedImage; getBounds2D; createCompatibleDestImage; getRenderingHints
+1.2     | ✔️          | ✔️       | protocol      | RasterOp                | filter(Raster,WritableRaster?)->WritableRaster; createCompatibleDestRaster
+1.2     | ✔️          | ✔️       | final class   | RescaleOp               | linear rescale: output = clamp(input * scale + offset); single or per-band; @unchecked Sendable
+1.2     | ✔️          | ✔️       | final class   | LookupOp                | per-channel lookup table; alpha passed through; @unchecked Sendable
+1.2     | ✔️          | ✔️       | final class   | ConvolveOp              | convolution filter; EDGE_ZERO_FILL / EDGE_NO_OP; alpha copied; @unchecked Sendable
+1.2     | ✔️          | ✔️       | final class   | AffineTransformOp       | TYPE_NEAREST_NEIGHBOR / TYPE_BILINEAR / TYPE_BICUBIC; backward mapping; @unchecked Sendable
+1.2     | ✔️          | ✔️       | final class   | ColorConvertOp          | sRGB↔Grayscale (BT.601); stub for other combos; @unchecked Sendable
+1.2     | ✔️          | ⭕️       | final class   | BandCombineOp           | RasterOp only (no BufferedImage variant, per Java API); matrix multiplication on bands; @unchecked Sendable
 
-### java.awt.image.LookupTable / ByteLookupTable / ShortLookupTable (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | abstract class| LookupTable             | per-channel lookup table base
-1.2     | ⭕️          | ⭕️       | class         | ByteLookupTable         | byte[] per channel
-1.2     | ⭕️          | ⭕️       | class         | ShortLookupTable        | short[] per channel
-
-### java.awt.image.RasterOp (⭕️/⭕️)
+### java.awt.image.Kernel (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | RasterOp                | filter(Raster,WritableRaster?)->WritableRaster
+1.2     | ✔️          | ✔️       | class         | Kernel                  | convolution kernel matrix; @unchecked Sendable
+1.2     | ✔️          | ✔️       | constructor   | Kernel()                | (int width, int height, float[] data)
+1.2     | ✔️          | ✔️       | method        | getWidth() / getHeight()| ()->int
+1.2     | ✔️          | ✔️       | method        | getXOrigin() / getYOrigin() | ()->int; defaults to geometric centre
+1.2     | ✔️          | ⭕️       | method        | getKernelData()         | (float[]?)->[float]
 
-### java.awt.image.RenderedImage / WritableRenderedImage (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | RenderedImage           | tiled image protocol
-1.2     | ⭕️          | ⭕️       | protocol      | WritableRenderedImage   | extends RenderedImage; writable tiles
-1.2     | ⭕️          | ⭕️       | protocol      | TileObserver            | callback for tile check-out/in
-
-### java.awt.image — Additional SampleModel / ColorModel types (⭕️/⭕️)
+### java.awt.image.LookupTable / ByteLookupTable / ShortLookupTable (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | ComponentColorModel     | ColorModel for component-based samples
-1.2     | ⭕️          | ⭕️       | class         | PackedColorModel        | abstract packed-pixel ColorModel
-1.2     | ⭕️          | ⭕️       | class         | ComponentSampleModel    | per-component SampleModel
-1.2     | ⭕️          | ⭕️       | class         | BandedSampleModel       | banded (one array per band) SampleModel
-1.2     | ⭕️          | ⭕️       | class         | MultiPixelPackedSampleModel | multiple pixels packed per data element
-1.2     | ⭕️          | ⭕️       | class         | PixelInterleavedSampleModel | pixel-interleaved SampleModel
-1.2     | ⭕️          | ⭕️       | class         | DataBufferShort         | short[] DataBuffer
-1.2     | ⭕️          | ⭕️       | class         | DataBufferUShort        | unsigned short[] DataBuffer
+1.2     | ✔️          | ✔️       | open class    | LookupTable             | per-channel lookup table base; abstract lookupPixel
+1.2     | ✔️          | ✔️       | final class   | ByteLookupTable         | [UInt8] per channel; single or multi-component
+1.2     | ✔️          | ✔️       | final class   | ShortLookupTable        | [UInt16] per channel; single or multi-component
 
-### java.awt.image — Exceptions (⭕️/⭕️)
+### java.awt.image.RenderedImage / WritableRenderedImage / TileObserver (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | ImagingOpException      | extends RuntimeException
-1.2     | ⭕️          | ⭕️       | class         | RasterFormatException   | extends RuntimeException
+1.2     | ✔️          | ✔️       | protocol      | RenderedImage           | tiled image protocol; default impls for single-tile images
+1.2     | ✔️          | ✔️       | protocol      | WritableRenderedImage   | extends RenderedImage; writable tile checkout with reference counting
+1.2     | ✔️          | ✔️       | protocol      | TileObserver            | tileUpdate(source:tileX:tileY:willBeWritable:)
 
-### java.awt.image.BufferedImageFilter (⭕️/⭕️)
+### java.awt.image — SampleModel / ColorModel types (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | BufferedImageFilter     | adapts BufferedImageOp to ImageFilter/ImageProducer pipeline
+1.2     | ✔️          | ✔️       | final class   | ComponentColorModel     | per-component ColorModel; TYPE_BYTE / TYPE_USHORT
+1.2     | ✔️          | ✔️       | open class    | PackedColorModel        | abstract packed-pixel ColorModel base
+1.2     | ✔️          | ✔️       | open class    | ComponentSampleModel    | per-component SampleModel; pixelStride / scanlineStride / bankIndices / bandOffsets
+1.2     | ✔️          | ✔️       | final class   | BandedSampleModel       | separate bank per band; createDataBuffer creates correct typed buffer
+1.2     | ✔️          | ✔️       | final class   | MultiPixelPackedSampleModel | 1/2/4-bit packed pixels; TYPE_BYTE or TYPE_INT
+1.2     | ✔️          | ✔️       | final class   | PixelInterleavedSampleModel | single-bank interleaved bands
+1.2     | ✔️          | ✔️       | final class   | DataBufferShort         | [Int16] DataBuffer; single and multi-bank
+1.2     | ✔️          | ✔️       | final class   | DataBufferUShort        | [UInt16] DataBuffer; single and multi-bank
+
+### java.awt.image — Exceptions (✔️/🪄)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | open class    | ImagingOpException      | extends RuntimeException; 4-init pattern; @unchecked Sendable
+1.2     | ✔️          | 🪄       | open class    | RasterFormatException   | extends RuntimeException; 4-init pattern; @unchecked Sendable
+
+### java.awt.image.BufferedImageFilter (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | final class   | BufferedImageFilter     | adapts BufferedImageOp to ImageFilter/ImageProducer pipeline; accumulates pixels, applies op in imageComplete; @unchecked Sendable
 
 ---
 

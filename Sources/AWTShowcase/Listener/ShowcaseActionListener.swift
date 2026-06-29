@@ -12,7 +12,7 @@ import JavApi
 @MainActor
 final class ShowcaseActionListener: java.awt.event.ActionListener {
   func actionPerformed(_ e: java.awt.event.ActionEvent) {
-    System.out.println("Action: \(e.getActionCommand())")
+    System.out.println("Action: \(String(describing: e.getActionCommand()))")
     if e.getActionCommand() == "Quit" {
       java.awt.Toolkit.getDefaultToolkit().terminate()
     }

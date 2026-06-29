@@ -184,7 +184,7 @@ public final class _Win32Canvas {
       // Frame/JFrame: WS_OVERLAPPEDWINDOW enthält WS_THICKFRAME — entfernen wenn nötig
       style = canResize
         ? DWORD(WS_OVERLAPPEDWINDOW)
-        : DWORD(WS_OVERLAPPEDWINDOW & ~WS_THICKFRAME)
+        : DWORD(WS_OVERLAPPEDWINDOW) & ~DWORD(WS_THICKFRAME)
     }
 
     var rect = RECT(left: LONG(x), top: LONG(y),
