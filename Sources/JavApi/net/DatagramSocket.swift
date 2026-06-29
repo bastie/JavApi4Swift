@@ -82,15 +82,14 @@ extension java.net {
 #if os(WASI)
       throw SocketException("DatagramSocket is unavailable on WASI")
 #else
-#if canImport(Darwin) || os(Android)
+#if canImport(Darwin) || os(Android) || os(FreeBSD)
       let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
 #elseif canImport(Glibc)
       let sockFd = socket(AF_INET, numericCast(SOCK_DGRAM.rawValue), 0)
 #elseif canImport(WinSDK)
       let sockFd = platformSocket(AF_INET, Int32(SOCK_DGRAM), 0)
 #else
-      // FreeBSD and others: SOCK_DGRAM is Int32, no .rawValue
-      let sockFd = socket(AF_INET, SOCK_DGRAM, 0)
+      let sockFd = socket(AF_INET, Int32(SOCK_DGRAM), 0)
 #endif
       guard sockFd >= 0 else {
         throw SocketException("Cannot create datagram socket")
@@ -145,8 +144,7 @@ extension java.net {
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#else
-      // Darwin, Glibc, Musl, FreeBSD: inet_ntop is available via libc
+#elseif canImport(Darwin) || canImport(Glibc) || canImport(Musl) || os(FreeBSD)
       _ = inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let localIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
@@ -244,8 +242,7 @@ extension java.net {
       var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
 #if canImport(WinSDK)
       platformInet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#else
-      // Darwin, Glibc, Musl, FreeBSD: inet_ntop is available via libc
+#elseif canImport(Darwin) || canImport(Glibc) || canImport(Musl) || os(FreeBSD)
       _ = inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
 #endif
       let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
