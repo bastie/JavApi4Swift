@@ -120,11 +120,14 @@ extension java.lang {
         ? Int64(pmc.WorkingSetSize) : -1
 #elseif os(FreeBSD)
       // FreeBSD: use sysctl kern.proc.pid.<pid> → ki_rssize (pages)
-      var mib: [Int32] = [CTL_KERN, KERN_PROC, KERN_PROC_PID, Int32(getpid())]
+      // Constants: CTL_KERN=1, KERN_PROC=14, KERN_PROC_PID=1
+      var mib: [Int32] = [1, 14, 1, Int32(getpid())]
       var kinfo = kinfo_proc()
       var size = MemoryLayout<kinfo_proc>.size
-      let rc = sysctl(&mib, 4, &kinfo, &size, nil, 0)
-      return rc == 0 ? Int64(kinfo.ki_rssize) * Int64(PAGE_SIZE) : -1
+      let rc = sysctl(&mib, 4, &kinfo, &size, UnsafeMutableRawPointer(bitPattern: 0), 0)
+      // PAGE_SIZE on FreeBSD is typically 4096
+      let pageSize: Int64 = 4096
+      return rc == 0 ? Int64(kinfo.ki_rssize) * pageSize : -1
 #elseif os(Linux) || os(Android)
       // Linux/Android: read VmRSS from /proc/self/status
       guard let content = try? String(contentsOfFile: "/proc/self/status", encoding: .utf8) else {
