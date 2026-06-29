@@ -197,7 +197,8 @@ extension java.net {
     private static func resolveAll(_ host: String) -> [String] {
       var results: [String] = []
       var hints = addrinfo()
-#if canImport(Darwin) || os(Android)
+#if canImport(Darwin) || os(Android) || os(FreeBSD)
+      // FreeBSD: SOCK_STREAM is a plain Int32 (no .rawValue), like Darwin
       hints.ai_socktype = SOCK_STREAM
 #elseif canImport(Glibc)
       hints.ai_socktype = numericCast(SOCK_STREAM.rawValue)
@@ -211,7 +212,8 @@ extension java.net {
       while let current = ptr {
         var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
         let gaiResult: Int32
-#if os(Android)
+#if os(Android) || os(FreeBSD)
+        // FreeBSD/Android: getnameinfo's buffer-length params are Int (size_t-like)
         gaiResult = getnameinfo(
           current.pointee.ai_addr,
           current.pointee.ai_addrlen,

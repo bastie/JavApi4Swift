@@ -81,7 +81,7 @@ extension java.net {
 
 #if !os(WASI)
     private func connect(_ address: InetAddress, _ port: Int) throws {
-#if canImport(Darwin) || os(Android)
+#if canImport(Darwin) || os(Android) || os(FreeBSD)
       let sockFd = socket(AF_INET, SOCK_STREAM, 0)
 #elseif canImport(Glibc)
       let sockFd = socket(AF_INET, numericCast(SOCK_STREAM.rawValue), 0)
