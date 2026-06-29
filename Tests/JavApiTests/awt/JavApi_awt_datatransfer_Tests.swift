@@ -111,20 +111,20 @@ struct JavApi_awt_datatransfer_HeadlessProvider_Tests {
 
   @Test("Initially returns nil")
   func initiallyNil() {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     #expect(p._getClipboardText() == nil)
   }
 
   @Test("Round-trip: set then get returns same string")
   func roundTrip() {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     p._setClipboardText("Hallo Welt")
     #expect(p._getClipboardText() == "Hallo Welt")
   }
 
   @Test("Overwrite: last written value wins")
   func overwrite() {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     p._setClipboardText("first")
     p._setClipboardText("second")
     #expect(p._getClipboardText() == "second")
@@ -132,14 +132,14 @@ struct JavApi_awt_datatransfer_HeadlessProvider_Tests {
 
   @Test("Empty string is stored (not nil)")
   func emptyString() {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     p._setClipboardText("")
     #expect(p._getClipboardText() == "")
   }
 
   @Test("Unicode including emoji round-trips correctly")
   func unicodeRoundTrip() {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     let s = "こんにちは 🌸 Ü ñ"
     p._setClipboardText(s)
     #expect(p._getClipboardText() == s)
@@ -155,7 +155,7 @@ struct JavApi_awt_datatransfer_Clipboard_Tests {
 
   /// Helper: builds a Clipboard backed by the in-memory provider.
   private func makeClipboard() -> java.awt.datatransfer.Clipboard {
-    let p = java.awt.toolkit._HeadlessClipboardProvider()
+    let p = java.awt.toolkit.headless._HeadlessClipboardProvider()
     return java.awt.datatransfer.Clipboard(name: "test", provider: p)
   }
 
@@ -205,7 +205,7 @@ struct JavApi_awt_datatransfer_Clipboard_Tests {
 
   @Test("setContents persists text to underlying provider")
   func setContents_persistsToProvider() {
-    let provider = java.awt.toolkit._HeadlessClipboardProvider()
+    let provider = java.awt.toolkit.headless._HeadlessClipboardProvider()
     let c = java.awt.datatransfer.Clipboard(name: "p", provider: provider)
     c.setContents(java.awt.datatransfer.StringSelection("persist"), nil)
     // read directly from the provider to verify persistence
@@ -214,7 +214,7 @@ struct JavApi_awt_datatransfer_Clipboard_Tests {
 
   @Test("getContents falls back to provider text when no in-process Transferable")
   func getContents_fallsBackToProvider() throws {
-    let provider = java.awt.toolkit._HeadlessClipboardProvider()
+    let provider = java.awt.toolkit.headless._HeadlessClipboardProvider()
     provider._setClipboardText("from provider")
     let c = java.awt.datatransfer.Clipboard(name: "p", provider: provider)
     // no setContents called — clipboard has no in-process Transferable

@@ -146,7 +146,9 @@ struct JavApi_lang_Boolean_init_Tests {
   @Test("init(String?) with \"true\" creates true")
   func testInitTrue() {
     let s: String? = "true"
-    #expect(Boolean(s) == true)
+    @available(*,deprecated)
+    let expected = Boolean(s)
+    #expect(expected == true)
   }
 
   @Test("init(String?) with \"TRUE\" creates true (case insensitive)")
@@ -158,24 +160,28 @@ struct JavApi_lang_Boolean_init_Tests {
   @Test("init(String?) with \"True\" creates true (case insensitive)")
   func testInitTrueMixedCase() {
     let s: String? = "True"
+    @available(*,deprecated)
     #expect(Boolean(s) == true)
   }
 
   @Test("init(String?) with \"false\" creates false")
   func testInitFalse() {
     let s: String? = "false"
+    @available(*,deprecated)
     #expect(Boolean(s) == false)
   }
 
   @Test("init(String?) with nil creates false")
   func testInitNil() {
     let s: String? = nil
+    @available(*,deprecated)
     #expect(Boolean(s) == false)
   }
 
   @Test("init(String?) with \"yes\" creates false — only \"true\" is truthy")
   func testInitYes() {
     let s: String? = "yes"
+    @available(*,deprecated)
     #expect(Boolean(s) == false)
   }
 }

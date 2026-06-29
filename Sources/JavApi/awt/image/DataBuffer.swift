@@ -145,6 +145,11 @@ extension java.awt.image {
       super.init(dataType: DataBuffer.TYPE_BYTE, size: size, numBanks: 1)
     }
 
+    public init(dataArrays: [[UInt8]], size: Int) {
+      self.data = dataArrays
+      super.init(dataType: DataBuffer.TYPE_BYTE, size: size, numBanks: dataArrays.count)
+    }
+
     public func getData() -> [UInt8] { data[0] }
     public func getData(bank: Int) -> [UInt8] { data[bank] }
 
@@ -154,6 +159,86 @@ extension java.awt.image {
 
     public override func setElem(_ bank: Int, _ i: Int, _ val: Int) {
       data[bank][i] = UInt8(val & 0xFF)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - DataBufferShort
+  // ---------------------------------------------------------------------------
+
+  /// `DataBuffer` backed by a `[Int16]` array (Java signed `short[]`).
+  ///
+  /// Mirrors `java.awt.image.DataBufferShort`.
+  ///
+  /// - Since: Java 1.2
+  public final class DataBufferShort: DataBuffer {
+
+    private var data: [[Int16]]
+
+    public init(size: Int) {
+      self.data = [[Int16](repeating: 0, count: size)]
+      super.init(dataType: DataBuffer.TYPE_SHORT, size: size, numBanks: 1)
+    }
+
+    public init(dataArray: [Int16], size: Int) {
+      self.data = [dataArray]
+      super.init(dataType: DataBuffer.TYPE_SHORT, size: size, numBanks: 1)
+    }
+
+    public init(dataArrays: [[Int16]], size: Int) {
+      self.data = dataArrays
+      super.init(dataType: DataBuffer.TYPE_SHORT, size: size, numBanks: dataArrays.count)
+    }
+
+    public func getData() -> [Int16] { data[0] }
+    public func getData(bank: Int) -> [Int16] { data[bank] }
+
+    public override func getElem(_ bank: Int, _ i: Int) -> Int {
+      Int(data[bank][i])
+    }
+
+    public override func setElem(_ bank: Int, _ i: Int, _ val: Int) {
+      data[bank][i] = Int16(truncatingIfNeeded: val)
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - DataBufferUShort
+  // ---------------------------------------------------------------------------
+
+  /// `DataBuffer` backed by a `[UInt16]` array (Java unsigned `short[]`).
+  ///
+  /// Mirrors `java.awt.image.DataBufferUShort`.
+  ///
+  /// - Since: Java 1.2
+  public final class DataBufferUShort: DataBuffer {
+
+    private var data: [[UInt16]]
+
+    public init(size: Int) {
+      self.data = [[UInt16](repeating: 0, count: size)]
+      super.init(dataType: DataBuffer.TYPE_USHORT, size: size, numBanks: 1)
+    }
+
+    public init(dataArray: [UInt16], size: Int) {
+      self.data = [dataArray]
+      super.init(dataType: DataBuffer.TYPE_USHORT, size: size, numBanks: 1)
+    }
+
+    public init(dataArrays: [[UInt16]], size: Int) {
+      self.data = dataArrays
+      super.init(dataType: DataBuffer.TYPE_USHORT, size: size, numBanks: dataArrays.count)
+    }
+
+    public func getData() -> [UInt16] { data[0] }
+    public func getData(bank: Int) -> [UInt16] { data[bank] }
+
+    public override func getElem(_ bank: Int, _ i: Int) -> Int {
+      Int(data[bank][i])
+    }
+
+    public override func setElem(_ bank: Int, _ i: Int, _ val: Int) {
+      data[bank][i] = UInt16(val & 0xFFFF)
     }
   }
 }
