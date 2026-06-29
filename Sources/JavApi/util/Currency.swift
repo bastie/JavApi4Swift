@@ -78,15 +78,28 @@ extension java.util {
     /// Returns the default number of fraction digits (e.g. 2 for EUR, 0 for JPY).
     /// Returns -1 for pseudo-currencies (e.g. XAU).
     public func getDefaultFractionDigits() -> Int {
-      // Use NSLocale to get fraction digits for this currency
-      let localeId = "en_US@currency=\(currencyCode)"
-      let locale = Foundation.Locale(identifier: localeId)
-      // NumberFormatter is the reliable way to get fraction digits
-      let formatter = NumberFormatter()
-      formatter.numberStyle = .currency
-      formatter.locale = locale
-      formatter.currencyCode = currencyCode
-      return formatter.maximumFractionDigits
+      // ISO 4217 fraction digits — explicit table for reliable cross-platform behaviour.
+      // swift-corelibs-foundation on Linux does not always return correct values
+      // from NumberFormatter for non-standard fraction counts.
+      // 0 fraction digits
+      let zeroFractionCurrencies: Swift.Set<String> = [
+        "BIF", "CLP", "DJF", "GNF", "ISK", "JPY", "KMF", "KRW",
+        "MGA", "PYG", "RWF", "UGX", "UYI", "VND", "VUV", "XAF",
+        "XOF", "XPF"
+      ]
+      // 3 fraction digits
+      let threeFractionCurrencies: Swift.Set<String> = [
+        "BHD", "IQD", "JOD", "KWD", "LYD", "OMR", "TND"
+      ]
+      // -1 for pseudo-currencies / no minor unit
+      let minusOneCurrencies: Swift.Set<String> = [
+        "XAU", "XAG", "XPD", "XPT", "XDR", "XBA", "XBB", "XBC", "XBD", "XTS", "XXX"
+      ]
+      if zeroFractionCurrencies.contains(currencyCode) { return 0 }
+      if threeFractionCurrencies.contains(currencyCode) { return 3 }
+      if minusOneCurrencies.contains(currencyCode) { return -1 }
+      // Default: 2 (covers EUR, USD, GBP, …)
+      return 2
     }
 
     /// Returns the display name for the default locale.
