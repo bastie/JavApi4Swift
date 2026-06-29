@@ -389,31 +389,121 @@ struct JavApi_util_logging_Tests {
     #expect(handler.published.isEmpty)
   }
 
-  // MARK: - Root-Logger Propagation
+  // MARK: - Parent / Propagation
 
-  @Test("logger without handler does not throw when logging")
-  func testNoHandlerDoesNotThrow() {
-    // Logger without handler silently propagates to internal root — must not crash
-    let logger = java.util.logging.Logger.getAnonymousLogger()
-    logger.setLevel(.ALL)
-    // No handler added — should be silent, no crash
-    logger.info("silent message")
-    logger.severe("silent severe")
-    // If we reach here the propagation path is safe
-    #expect(true)
+  @Test("getParent() of anonymous logger is root logger")
+  func testAnonymousLoggerParentIsRoot() {
+    let anon = java.util.logging.Logger.getAnonymousLogger()
+    #expect(anon.getParent() === java.util.logging.Logger.rootLogger)
   }
 
-  @Test("logger with own handler does not propagate further")
-  func testOwnHandlerStopsPropagation() {
-    let logger = java.util.logging.Logger.getAnonymousLogger()
-    logger.setLevel(.ALL)
+  @Test("getParent() of named logger is root logger")
+  func testNamedLoggerParentIsRoot() {
+    let logger = java.util.logging.Logger.getLogger("com.example.test.parent")
+    #expect(logger.getParent() === java.util.logging.Logger.rootLogger)
+  }
+
+  @Test("root logger has name \"\"")
+  func testRootLoggerName() {
+    #expect(java.util.logging.Logger.rootLogger.getName() == "")
+  }
+
+  @Test("root logger has no parent")
+  func testRootLoggerHasNoParent() {
+    #expect(java.util.logging.Logger.rootLogger.getParent() == nil)
+  }
+
+  @Test("root logger is registered in LogManager under \"\"")
+  func testRootLoggerRegistered() {
+    let mgr = java.util.logging.LogManager.getLogManager()
+    #expect(mgr.getLogger("") === java.util.logging.Logger.rootLogger)
+  }
+
+  @Test("record propagates to root logger handler when child has none")
+  func testPropagationToRoot() {
+    let root = java.util.logging.Logger.rootLogger
+    let rootHandler = CapturingHandler()
+    root.addHandler(rootHandler)
+    root.setLevel(.ALL)
+
+    let child = java.util.logging.Logger.getAnonymousLogger()
+    child.setLevel(.ALL)
+    // child has no own handlers → propagates to root
+    child.info("propagated")
+
+    root.removeHandler(rootHandler)
+    #expect(rootHandler.published.count >= 1)
+  }
+
+  @Test("setUseParentHandlers(false) stops propagation")
+  func testUseParentHandlersFalse() {
+    let root = java.util.logging.Logger.rootLogger
+    let rootHandler = CapturingHandler()
+    root.addHandler(rootHandler)
+    root.setLevel(.ALL)
+
+    let child = java.util.logging.Logger.getAnonymousLogger()
+    child.setLevel(.ALL)
+    child.setUseParentHandlers(false)
+    child.info("not propagated")
+
+    root.removeHandler(rootHandler)
+    #expect(rootHandler.published.isEmpty)
+  }
+
+  @Test("setParent() changes propagation target")
+  func testSetParent() {
+    let intermediate = java.util.logging.Logger.getAnonymousLogger()
+    intermediate.setLevel(.ALL)
     let handler = CapturingHandler()
-    logger.addHandler(handler)
+    intermediate.addHandler(handler)
+    intermediate.setUseParentHandlers(false)
 
-    logger.info("local only")
+    let child = java.util.logging.Logger.getAnonymousLogger()
+    child.setLevel(.ALL)
+    child.setParent(intermediate)
 
-    // Own handler received it
+    child.info("via intermediate")
     #expect(handler.published.count == 1)
+  }
+
+  @Test("effectiveLevel inherits from parent when own level is nil")
+  func testEffectiveLevelInheritance() {
+    let parent = java.util.logging.Logger.getAnonymousLogger()
+    parent.setLevel(.WARNING)
+
+    let child = java.util.logging.Logger.getAnonymousLogger()
+    child.setParent(parent)
+    // child has no own level — should inherit WARNING from parent
+    let handler = CapturingHandler()
+    child.addHandler(handler)
+    child.setUseParentHandlers(false)
+
+    child.info("below inherited WARNING — suppressed")
+    child.warning("at WARNING — passes")
+
+    #expect(handler.published.count == 1)
+    #expect(handler.published[0].getLevel() == .WARNING)
+  }
+
+  @Test("logger with own handler also propagates unless disabled")
+  func testOwnHandlerAndPropagation() {
+    let root = java.util.logging.Logger.rootLogger
+    let rootHandler = CapturingHandler()
+    root.addHandler(rootHandler)
+    root.setLevel(.ALL)
+
+    let child = java.util.logging.Logger.getAnonymousLogger()
+    child.setLevel(.ALL)
+    let childHandler = CapturingHandler()
+    child.addHandler(childHandler)
+    // useParentHandlers defaults to true → both handlers receive record
+
+    child.info("both")
+
+    root.removeHandler(rootHandler)
+    #expect(childHandler.published.count == 1)
+    #expect(rootHandler.published.count >= 1)
   }
 
   // MARK: - Level edge cases
