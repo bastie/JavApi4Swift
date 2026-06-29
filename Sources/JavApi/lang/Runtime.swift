@@ -95,7 +95,7 @@ extension java.lang {
     /// Platform mapping:
     /// - Apple platforms: `task_info` / `phys_footprint`
     /// - Linux / Android: `/proc/self/status` → `VmRSS`
-    /// - FreeBSD: `sysctl` → `ki_rssize`
+    /// - FreeBSD: `getrusage` → `ru_maxrss` (bytes)
     /// - Windows: `GetProcessMemoryInfo` → `WorkingSetSize`
     /// - WASM/WASI: `-1` (not available)
     ///
@@ -119,15 +119,9 @@ extension java.lang {
       return K32GetProcessMemoryInfo(GetCurrentProcess(), &pmc, pmc.cb)
         ? Int64(pmc.WorkingSetSize) : -1
 #elseif os(FreeBSD)
-      // FreeBSD: use sysctl kern.proc.pid.<pid> → ki_rssize (pages)
-      // Constants: CTL_KERN=1, KERN_PROC=14, KERN_PROC_PID=1
-      var mib: [Int32] = [1, 14, 1, Int32(getpid())]
-      var kinfo = kinfo_proc()
-      var size = MemoryLayout<kinfo_proc>.size
-      let rc = sysctl(&mib, 4, &kinfo, &size, UnsafeMutableRawPointer(bitPattern: 0), 0)
-      // PAGE_SIZE on FreeBSD is typically 4096
-      let pageSize: Int64 = 4096
-      return rc == 0 ? Int64(kinfo.ki_rssize) * pageSize : -1
+      // FreeBSD: getrusage(2) is POSIX and available via Glibc; ru_maxrss is in bytes on FreeBSD
+      var usage = rusage()
+      return getrusage(RUSAGE_SELF, &usage) == 0 ? Int64(usage.ru_maxrss) : -1
 #elseif os(Linux) || os(Android)
       // Linux/Android: read VmRSS from /proc/self/status
       guard let content = try? String(contentsOfFile: "/proc/self/status", encoding: .utf8) else {
