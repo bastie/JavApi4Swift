@@ -92,7 +92,7 @@ extension java.net {
 #if !os(WASI)
     private func setMulticastMembership(_ group: InetAddress, join: Bool) throws {
       var mreq = ip_mreq()
-      inet_pton(AF_INET, group.getHostAddress(), &mreq.imr_multiaddr)
+      mreq.imr_multiaddr.s_addr = platformParseIPv4(group.getHostAddress()) ?? INADDR_ANY.bigEndian
       mreq.imr_interface.s_addr = INADDR_ANY.bigEndian
 #if canImport(Darwin)
       let option = join ? IP_ADD_MEMBERSHIP : IP_DROP_MEMBERSHIP

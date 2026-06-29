@@ -97,7 +97,7 @@ extension java.net {
       var addr = sockaddr_in()
       addr.sin_family = sa_family_t(AF_INET)
       addr.sin_port = UInt16(port).bigEndian
-      inet_pton(AF_INET, address.getHostAddress(), &addr.sin_addr)
+      addr.sin_addr.s_addr = platformParseIPv4(address.getHostAddress()) ?? INADDR_ANY.bigEndian
 
       let result = withUnsafePointer(to: &addr) {
         $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {

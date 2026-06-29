@@ -106,7 +106,7 @@ extension java.net {
       addr.sin_family = sa_family_t(AF_INET)
       addr.sin_port = UInt16(port).bigEndian
       if let address {
-        _ = inet_pton(AF_INET, address.getHostAddress(), &addr.sin_addr)
+        addr.sin_addr.s_addr = platformParseIPv4(address.getHostAddress()) ?? INADDR_ANY.bigEndian
       } else {
         addr.sin_addr.s_addr = INADDR_ANY.bigEndian
       }
@@ -141,13 +141,7 @@ extension java.net {
       self.fd = sockFd
       self._localPort = Int(localAddr.sin_port.bigEndian)
       // Capture the local IP address for getLocalAddress()
-      var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
-#if canImport(WinSDK)
-      platformInet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#else
-      _ = inet_ntop(AF_INET, &localAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#endif
-      let localIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
+      let localIP = platformIPv4String(localAddr.sin_addr.s_addr)
       self._localAddress = try? InetAddress.getByName(localIP)
 #endif
     }
@@ -178,7 +172,7 @@ extension java.net {
       var dest = sockaddr_in()
       dest.sin_family = sa_family_t(AF_INET)
       dest.sin_port = UInt16(port).bigEndian
-      _ = inet_pton(AF_INET, address.getHostAddress(), &dest.sin_addr)
+      dest.sin_addr.s_addr = platformParseIPv4(address.getHostAddress()) ?? INADDR_ANY.bigEndian
 
       let data = packet.getData()
       let offset = packet.getOffset()
@@ -239,13 +233,7 @@ extension java.net {
 
       packet.length = received
 
-      var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
-#if canImport(WinSDK)
-      platformInet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#else
-      _ = inet_ntop(AF_INET, &sender.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#endif
-      let senderIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
+      let senderIP = platformIPv4String(sender.sin_addr.s_addr)
       packet.port = Int(sender.sin_port.bigEndian)
       packet.address = try InetAddress.getByName(senderIP)
 #endif

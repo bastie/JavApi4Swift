@@ -3,6 +3,59 @@
  * SPDX-License-Identifier: 0BSD
  */
 
+import Foundation
+
+// MARK: - Pure-Swift IPv4 formatting (platform independent)
+
+/// Formats an IPv4 `in_addr` as a dotted-quad string without using `inet_ntop`.
+///
+/// `inet_ntop` is not reliably exported by the `SwiftGlibc` module overlay on
+/// FreeBSD: it is gated behind `_BSD_VISIBLE` in `<arpa/inet.h>`, so on FreeBSD
+/// the symbol is reported as "cannot find 'inet_ntop' in scope" even though
+/// `socket`, `bind`, and `inet_pton` resolve fine. A manual implementation
+/// behaves identically on every platform (Darwin, Linux, Musl, Android,
+/// Windows, FreeBSD) and avoids the C buffer dance entirely.
+///
+/// - Parameter sAddr: The raw `s_addr` value of an IPv4 `in_addr`, in network
+///   byte order (big endian). Taking `UInt32` rather than `in_addr` keeps this
+///   independent of the platform's address struct (`in_addr` vs. Windows
+///   `IN_ADDR`).
+/// - Returns: The dotted-quad representation, e.g. `"192.168.0.1"`.
+@inline(__always)
+public func platformIPv4String(_ sAddr: UInt32) -> String {
+  // sAddr is in network byte order (big endian); normalise to host order
+  // then extract the four octets most-significant first.
+  let host = UInt32(bigEndian: sAddr)
+  let b0 = (host >> 24) & 0xFF
+  let b1 = (host >> 16) & 0xFF
+  let b2 = (host >> 8) & 0xFF
+  let b3 = host & 0xFF
+  return "\(b0).\(b1).\(b2).\(b3)"
+}
+
+/// Parses a dotted-quad IPv4 string into a network-byte-order `s_addr` value.
+///
+/// Pure-Swift counterpart to `inet_pton(AF_INET, …)`. Used to avoid relying on
+/// `inet_pton`/`inet_ntop` being visible in the `SwiftGlibc` overlay on
+/// FreeBSD. Returns `nil` if the string is not a valid dotted-quad address.
+///
+/// - Parameter text: e.g. `"192.168.0.1"`.
+/// - Returns: The `s_addr` value (network byte order) or `nil` if invalid.
+@inline(__always)
+public func platformParseIPv4(_ text: String) -> UInt32? {
+  let parts = text.split(separator: ".", omittingEmptySubsequences: false)
+  guard parts.count == 4 else { return nil }
+  var octets: [UInt32] = []
+  octets.reserveCapacity(4)
+  for part in parts {
+    guard let value = UInt32(part), value <= 255 else { return nil }
+    octets.append(value)
+  }
+  let host = (octets[0] << 24) | (octets[1] << 16) | (octets[2] << 8) | octets[3]
+  // Return in network byte order, matching in_addr.s_addr.
+  return host.bigEndian
+}
+
 #if os(Android)
 // Android's Bionic libc exposes POSIX symbols via the Android module rather
 // than Foundation. These shims provide platform-agnostic wrappers so the

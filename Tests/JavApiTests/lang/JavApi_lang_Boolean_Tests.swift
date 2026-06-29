@@ -148,41 +148,53 @@ struct JavApi_lang_Boolean_init_Tests {
     let s: String? = "true"
     @available(*,deprecated)
     let expected = Boolean(s)
+    @available(*,deprecated)
     #expect(expected == true)
   }
 
   @Test("init(String?) with \"TRUE\" creates true (case insensitive)")
   func testInitTrueUpperCase() {
     let s: String? = "TRUE"
-    #expect(Boolean(s) == true)
+    @available(*,deprecated)
+    let expected = Boolean(s)
+    @available(*,deprecated)
+    #expect(expected == true)
   }
 
   @Test("init(String?) with \"True\" creates true (case insensitive)")
   func testInitTrueMixedCase() {
     let s: String? = "True"
     @available(*,deprecated)
-    #expect(Boolean(s) == true)
+    let expected = Boolean(s)
+    @available(*,deprecated)
+    #expect(expected == true)
   }
 
   @Test("init(String?) with \"false\" creates false")
   func testInitFalse() {
     let s: String? = "false"
     @available(*,deprecated)
-    #expect(Boolean(s) == false)
+    let expected = Boolean(s)
+    @available(*,deprecated)
+    #expect(expected == false)
   }
 
   @Test("init(String?) with nil creates false")
   func testInitNil() {
     let s: String? = nil
     @available(*,deprecated)
-    #expect(Boolean(s) == false)
+    let expected = Boolean(s)
+    @available(*,deprecated)
+    #expect(expected == false)
   }
 
   @Test("init(String?) with \"yes\" creates false — only \"true\" is truthy")
   func testInitYes() {
     let s: String? = "yes"
     @available(*,deprecated)
-    #expect(Boolean(s) == false)
+    let expected = Boolean(s)
+    @available(*,deprecated)
+    #expect(expected == false)
   }
 }
 

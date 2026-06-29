@@ -108,7 +108,7 @@ extension java.net {
       addr.sin_family = sa_family_t(AF_INET)
       addr.sin_port = UInt16(port).bigEndian
       if let bindAddr {
-        inet_pton(AF_INET, bindAddr.getHostAddress(), &addr.sin_addr)
+        addr.sin_addr.s_addr = platformParseIPv4(bindAddr.getHostAddress()) ?? INADDR_ANY.bigEndian
       } else {
         addr.sin_addr.s_addr = INADDR_ANY.bigEndian
       }
@@ -167,14 +167,8 @@ extension java.net {
         throw SocketException("accept() failed")
       }
 
-      // Remote address string
-      var addrBuf = [CChar](repeating: 0, count: Int(INET_ADDRSTRLEN))
-#if canImport(WinSDK)
-      platformInet_ntop(AF_INET, &clientAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#else
-      inet_ntop(AF_INET, &clientAddr.sin_addr, &addrBuf, socklen_t(INET_ADDRSTRLEN))
-#endif
-      let remoteIP = String(bytes: addrBuf.prefix(while: { $0 != 0 }).map { UInt8(bitPattern: $0) }, encoding: .utf8) ?? "0.0.0.0"
+      // Remote address string (pure-Swift, avoids inet_ntop — see platformIPv4String)
+      let remoteIP = platformIPv4String(clientAddr.sin_addr.s_addr)
       let remotePort = Int(clientAddr.sin_port.bigEndian)
 
       // Local port (may differ from _localPort if bound to 0)
