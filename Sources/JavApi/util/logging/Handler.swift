@@ -20,6 +20,18 @@ extension java.util.logging {
     open func getLevel() -> Level {
       return self.level
     }
-    
+
+    /// Publishes a `LogRecord`. Subclasses must override this.
+    open func publish(_ record: LogRecord) {
+      // default: no-op; concrete handlers (ConsoleHandler etc.) override this
+    }
+
+    /// Flushes any buffered output.
+    open func flush() {}
+
+    /// Closes the handler and frees any associated resources.
+    open func close() {}
+
   }
 }
+

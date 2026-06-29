@@ -20,7 +20,7 @@ extension java.util.Vector where E : AnyObject { // ===
   /// from `index`, or `-1` if not found.
   ///
   /// - Throws: `Java.lang.IndexOutOfBoundsException` when `index >= size()`.
-  public func lastIndexOf(_ elem: E, index: Int) throws -> Int {
+  public func lastIndexOf(_ elem: E, _ index: Int) throws -> Int {
     try withLock {
       guard index < elementCount else {
         throw java.lang.IndexOutOfBoundsException("index \(index) >= size \(elementCount)")
@@ -53,13 +53,13 @@ extension java.util.Vector where E : AnyObject { // ===
   
   /// Returns the index of the first occurrence of `elem` at or after `index`,
   /// or `-1` if not found.
-  public func indexOf(_ elem: E, index: Int) -> Int {
+  public func indexOf(_ elem: E, _ index: Int) -> Int {
     withLock { _indexOfFirst(elem, from: index) ?? -1 }
   }
-  
+
   /// Returns the index of the first occurrence of `elem`, or `-1`.
   public func indexOf(_ elem: E) -> Int {
-    indexOf(elem, index: 0)
+    indexOf(elem, 0)
   }
   
   // MARK: Private search helper (caller must hold `lock`)

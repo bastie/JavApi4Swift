@@ -77,5 +77,11 @@ extension java.util.logging {
       }
     }
   }
-  
+
+}
+
+extension java.util.logging.Level: Equatable {
+  public static func == (_ lhs: java.util.logging.Level, _ rhs: java.util.logging.Level) -> Bool {
+    lhs.intValue() == rhs.intValue()
+  }
 }

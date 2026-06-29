@@ -31,6 +31,6 @@ extension java.util.Vector {
   }
   
   /// Converts this vector to a plain Swift `Array`.
-  public func toSwiftArray() -> [E] { toArray() }
+  public func toSwiftArray() -> [E] { toArray().compactMap { $0 } }
 }
 

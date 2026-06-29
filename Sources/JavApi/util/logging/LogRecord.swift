@@ -7,13 +7,16 @@ extension java.util.logging {
   
   /// - Since: Java 1.4
   open class LogRecord {
-    
-    private var instant : java.time.Instant = java.time.Instant()
-    
-    private let level : Level
-    private var message : String?
-    
-    private var loggerName : String?
+
+    private var instant: java.time.Instant = java.time.Instant()
+
+    private let level: Level
+    private var message: String?
+
+    private var loggerName: String?
+    private var sourceClassName: String?
+    private var sourceMethodName: String?
+    private var thrown: Throwable?
     
     /// - Parameters:
     ///    - logLevel: level of log information
@@ -52,9 +55,19 @@ extension java.util.logging {
       self.message = msg
     }
     
-    open func getMessage () -> String? {
-      return self.message
-    }
+    open func getMessage() -> String? { return self.message }
+
+    open func getLevel() -> Level { return self.level }
+
+    open func getSourceClassName() -> String? { return self.sourceClassName }
+    open func setSourceClassName(_ name: String?) { self.sourceClassName = name }
+
+    open func getSourceMethodName() -> String? { return self.sourceMethodName }
+    open func setSourceMethodName(_ name: String?) { self.sourceMethodName = name }
+
+    open func getThrown() -> Throwable? { return self.thrown }
+    open func setThrown(_ thrown: Throwable?) { self.thrown = thrown }
   }
-  
+
 }
+

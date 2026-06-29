@@ -10,7 +10,10 @@ extension java.util.logging {
     
     nonisolated(unsafe) private static let _instance = java.util.logging.LogManager ()
     
-    internal init() { // FIXME: maybe public visibility
+    // init is intentionally internal: LogManager is a singleton accessed via
+    // getLogManager(). Java's constructor is also protected — internal matches
+    // the intent (subclassable within the module, not publicly instantiable).
+    internal init() {
     }
     
     private var registeredLogger : [String: Logger] = [:]
@@ -20,12 +23,14 @@ extension java.util.logging {
     }
     
     open func addLogger(_ logger: Logger) -> Bool {
-      guard logger.getName() != nil else { return false }
-      if let _ = registeredLogger[logger.getName()!] {
-        return false
-      }
-      self.registeredLogger[logger.getName()!] = logger
+      guard let name = logger.getName() else { return false }
+      if registeredLogger[name] != nil { return false }
+      registeredLogger[name] = logger
       return true
+    }
+
+    open func getLogger(_ name: String) -> Logger? {
+      return registeredLogger[name]
     }
   }
 }

@@ -21,7 +21,7 @@ extension java.util {
   /// print(try stack.pop())     // → b
   /// print(stack.search("a"))   // → 1  (1-based distance from top)
   /// ```
-  public final class Stack<E>: Vector<E> {
+  public final class Stack<E>: Vector<E> where E: Equatable {
     
     /// Creates an empty stack.
     public init() {
@@ -50,7 +50,7 @@ extension java.util {
         guard elementCount > 0 else {
           throw java.util.EmptyStackException()
         }
-        return try _removeAt(elementCount - 1)   // inherited private helper
+        return try _removeAt(elementCount - 1)!   // inherited private helper
       }
     }
     

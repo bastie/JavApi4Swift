@@ -165,7 +165,7 @@ struct JavApi_util_Vector_Tests {
     v.addElement("b")
     v.addElement("a")
     // Search from index 1: first "a" at index 2
-    #expect(v.indexOf("a", index: 1) == 2)
+    #expect(v.indexOf("a", 1) == 2)
   }
 
   // MARK: - insertElementAt()
@@ -175,7 +175,7 @@ struct JavApi_util_Vector_Tests {
     let v = try java.util.Vector<String>()
     v.addElement("a")
     v.addElement("c")
-    try v.insertElementAt("b", at: 1)
+    try v.insertElementAt("b", 1)
     #expect(v.size() == 3)
     #expect(try v.elementAt(0) == "a")
     #expect(try v.elementAt(1) == "b")
@@ -186,7 +186,7 @@ struct JavApi_util_Vector_Tests {
   func testInsertElementAtEnd() throws {
     let v = try java.util.Vector<String>()
     v.addElement("a")
-    try v.insertElementAt("b", at: 1)
+    try v.insertElementAt("b", 1)
     #expect(try v.elementAt(1) == "b")
   }
 
@@ -194,7 +194,7 @@ struct JavApi_util_Vector_Tests {
   func testInsertElementAtInvalid() throws {
     let v = try java.util.Vector<String>()
     #expect(throws: java.lang.ArrayIndexOutOfBoundsException.self) {
-      try v.insertElementAt("x", at: 5)
+      try v.insertElementAt("x", 5)
     }
   }
 
@@ -257,7 +257,7 @@ struct JavApi_util_Vector_Tests {
     v.addElement("a")
     v.addElement("c")
     // Search backward from index 2: last "a" at index 2
-    #expect(try v.lastIndexOf("a", index: 2) == 2)
+    #expect(try v.lastIndexOf("a", 2) == 2)
   }
 
   // MARK: - removeAllElements()
@@ -322,7 +322,7 @@ struct JavApi_util_Vector_Tests {
   func testSetElementAt() throws {
     let v = try java.util.Vector<String>()
     v.addElement("old")
-    _ = try v.setElementAt("new", at: 0)
+    _ = try v.setElementAt("new", 0)
     #expect(try v.elementAt(0) == "new")
   }
 
@@ -330,7 +330,7 @@ struct JavApi_util_Vector_Tests {
   func testSetElementAtReturnsOld() throws {
     let v = try java.util.Vector<String>()
     v.addElement("old")
-    let old = try v.setElementAt("new", at: 0)
+    let old = try v.setElementAt("new", 0)
     #expect(old == "old")
   }
 
@@ -338,7 +338,7 @@ struct JavApi_util_Vector_Tests {
   func testSetElementAtInvalid() throws {
     let v = try java.util.Vector<String>()
     #expect(throws: java.lang.ArrayIndexOutOfBoundsException.self) {
-      _ = try v.setElementAt("x", at: 0)
+      _ = try v.setElementAt("x", 0)
     }
   }
 
@@ -449,6 +449,97 @@ struct JavApi_util_Vector_Tests {
     outer2.addElement(inner2)
 
     #expect(outer1 == outer2)
+  }
+
+  // MARK: - Java 1.2 List API
+
+  @Test("add(element) appends and returns true")
+  func testAdd_returnsTrue() throws {
+    let v = try java.util.Vector<String>()
+    let result = try v.add("hello")
+    #expect(result == true)
+    #expect(v.size() == 1)
+    #expect(try v.elementAt(0) == "hello")
+  }
+
+  @Test("add(element) called multiple times preserves order")
+  func testAdd_order() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("a")
+    _ = try v.add("b")
+    _ = try v.add("c")
+    #expect(v.size() == 3)
+    #expect(try v.elementAt(0) == "a")
+    #expect(try v.elementAt(2) == "c")
+  }
+
+  @Test("add(index, element) inserts at position")
+  func testAdd_atIndex() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("a")
+    _ = try v.add("c")
+    try v.add(1, "b")
+    #expect(v.size() == 3)
+    #expect(try v.elementAt(1) == "b")
+    #expect(try v.elementAt(2) == "c")
+  }
+
+  @Test("add(index, element) throws for out-of-bounds index")
+  func testAdd_atIndex_outOfBounds() throws {
+    let v = try java.util.Vector<String>()
+    #expect(throws: (any Error).self) {
+      try v.add(5, "x")
+    }
+  }
+
+  @Test("set(index, element) replaces and returns old value")
+  func testSet() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("old")
+    let old = try v.set(0, "new")
+    #expect(old == "old")
+    #expect(try v.elementAt(0) == "new")
+  }
+
+  @Test("remove(index) removes element and returns it")
+  func testRemove_atIndex() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("a")
+    _ = try v.add("b")
+    _ = try v.add("c")
+    let removed = try v.remove(1)
+    #expect(removed == "b")
+    #expect(v.size() == 2)
+    #expect(try v.elementAt(1) == "c")
+  }
+
+  @Test("remove(element) removes first occurrence and returns true")
+  func testRemove_element() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("a")
+    _ = try v.add("b")
+    _ = try v.add("a")
+    let removed = v.remove("a")
+    #expect(removed == true)
+    #expect(v.size() == 2)
+    #expect(try v.elementAt(0) == "b")
+  }
+
+  @Test("get(index) returns element at position")
+  func testGet() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("x")
+    _ = try v.add("y")
+    #expect(try v.get(0) == "x")
+    #expect(try v.get(1) == "y")
+  }
+
+  @Test("Vector usable as any java.util.List")
+  func testListProtocolConformance() throws {
+    let v = try java.util.Vector<String>()
+    _ = try v.add("item")
+    let list: any java.util.List = v
+    #expect(list.size() == 1)
   }
 
 }

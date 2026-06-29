@@ -166,29 +166,29 @@ struct JavApi_util_Stack_Tests {
   @Test("search finds element at position 1 in single-element stack")
   func testSearchSingleElement() {
     let stack = java.util.Stack<String>()
-    _ = stack.add("HALLO")
+    stack.addElement("HALLO")
     #expect(stack.search("HALLO") == 1)
   }
 
   @Test("search returns 1-based distance from top")
   func testSearchMultipleElements() {
     let stack = java.util.Stack<String>()
-    _ = stack.add("HALLO")
-    _ = stack.add("Welt")
-    _ = stack.add("!")
-    _ = stack.add("!")
-    _ = stack.add("!")
+    stack.addElement("HALLO")
+    stack.addElement("Welt")
+    stack.addElement("!")
+    stack.addElement("!")
+    stack.addElement("!")
     #expect(stack.search("Welt") == 4)
   }
 
   @Test("search returns -1 for absent element")
   func testSearchMissing() {
     let stack = java.util.Stack<String>()
-    _ = stack.add("HALLO")
-    _ = stack.add("Welt")
-    _ = stack.add("!")
-    _ = stack.add("!")
-    _ = stack.add("!")
+    stack.addElement("HALLO")
+    stack.addElement("Welt")
+    stack.addElement("!")
+    stack.addElement("!")
+    stack.addElement("!")
     #expect(stack.search("Bastie") == -1)
   }
 
@@ -352,7 +352,7 @@ struct JavApi_util_Stack_Tests {
   @Test("stack supports add() method from Vector")
   func testAddFromVector() {
     let stack = java.util.Stack<String>()
-    _ = stack.add("x")
+    stack.addElement("x")
 
     #expect(stack.count == 1)
   }
