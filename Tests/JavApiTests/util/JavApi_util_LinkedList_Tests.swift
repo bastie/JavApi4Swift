@@ -147,7 +147,7 @@ struct JavApi_util_LinkedList_Tests {
   func testAddFirst() throws {
     let list = java.util.LinkedList<Int>()
     _ = try list.add(2)
-    list.addFirst(1)
+    try list.addFirst(1)
     #expect(list.size() == 2)
     #expect(try list.get(0) == 1)
   }
@@ -156,7 +156,7 @@ struct JavApi_util_LinkedList_Tests {
   func testAddLast() throws {
     let list = java.util.LinkedList<Int>()
     _ = try list.add(1)
-    list.addLast(2)
+    try list.addLast(2)
     #expect(try list.get(1) == 2)
   }
 
@@ -438,9 +438,9 @@ struct JavApi_util_LinkedList_Tests {
   @Test("addFirst and addLast on empty list")
   func testAddFirstLastOnEmpty() throws {
     let list = java.util.LinkedList<Int>()
-    list.addFirst(1)
+    try list.addFirst(1)
     #expect(list.size() == 1)
-    list.addLast(2)
+    try list.addLast(2)
     #expect(list.size() == 2)
     #expect(try list.get(0) == 1)
     #expect(try list.get(1) == 2)
@@ -495,5 +495,125 @@ struct JavApi_util_LinkedList_Tests {
     _ = try outer2.add(inner2)
 
     #expect(outer1 == outer2)
+  }
+
+  // MARK: - addAll
+
+  @Test("addAll appends all elements from collection in order")
+  func testAddAll() throws {
+    let src = java.util.ArrayList<Int?>()
+    _ = try src.add(4); _ = try src.add(5); _ = try src.add(6)
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1); _ = try list.add(2); _ = try list.add(3)
+    _ = try list.addAll(src)
+    #expect(list.size() == 6)
+    #expect(try list.get(3) == 4)
+    #expect(try list.get(5) == 6)
+  }
+
+  @Test("addAll on empty list produces copy of source")
+  func testAddAllIntoEmpty() throws {
+    let src = java.util.ArrayList<String?>()
+    _ = try src.add("x"); _ = try src.add("y")
+    let list = java.util.LinkedList<String>()
+    _ = try list.addAll(src)
+    #expect(list.size() == 2)
+    #expect(try list.get(0) == "x")
+    #expect(try list.get(1) == "y")
+  }
+
+  @Test("addAll with empty source leaves list unchanged")
+  func testAddAllEmptySource() throws {
+    let src = java.util.ArrayList<Int?>()
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1)
+    _ = try list.addAll(src)
+    #expect(list.size() == 1)
+  }
+
+  // MARK: - containsAll / removeAll
+
+  @Test("containsAll returns true when all elements present")
+  func testContainsAll() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1); _ = try list.add(2); _ = try list.add(3)
+    let sub = java.util.ArrayList<Int?>()
+    _ = try sub.add(1); _ = try sub.add(3)
+    #expect(list.containsAll(sub))
+  }
+
+  @Test("containsAll returns false when an element is missing")
+  func testContainsAllMissing() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1); _ = try list.add(2)
+    let sub = java.util.ArrayList<Int?>()
+    _ = try sub.add(1); _ = try sub.add(99)
+    #expect(!list.containsAll(sub))
+  }
+
+  @Test("removeAll removes all elements present in given collection")
+  func testRemoveAll() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1); _ = try list.add(2); _ = try list.add(3); _ = try list.add(2)
+    let toRemove = java.util.ArrayList<Int?>()
+    _ = try toRemove.add(2)
+    _ = list.removeAll(toRemove)
+    #expect(list.size() == 2)
+    #expect(!list.contains(2))
+  }
+
+  // MARK: - hashCode
+
+  @Test("equal lists have equal hashCodes")
+  func testHashCodeEqual() throws {
+    let a = java.util.LinkedList<Int>()
+    let b = java.util.LinkedList<Int>()
+    _ = try a.add(1); _ = try a.add(2); _ = try a.add(3)
+    _ = try b.add(1); _ = try b.add(2); _ = try b.add(3)
+    #expect(a.hashCode() == b.hashCode())
+  }
+
+  @Test("different lists have different hashCodes")
+  func testHashCodeDifferent() throws {
+    let a = java.util.LinkedList<Int>()
+    let b = java.util.LinkedList<Int>()
+    _ = try a.add(1); _ = try a.add(2)
+    _ = try b.add(2); _ = try b.add(1)
+    #expect(a.hashCode() != b.hashCode())
+  }
+
+  @Test("empty list has stable hashCode")
+  func testHashCodeEmpty() {
+    let a = java.util.LinkedList<Int>()
+    #expect(a.hashCode() == a.hashCode())
+  }
+
+  // MARK: - Mixed Queue + Deque usage
+
+  @Test("interleaved Queue and Deque operations preserve order")
+  func testMixedQueueDeque() throws {
+    let list = java.util.LinkedList<Int>()
+    // Queue: offer appends to tail
+    _ = list.offer(1)
+    _ = list.offer(2)
+    // Deque: offerFirst prepends
+    _ = list.offerFirst(0)
+    // Queue: poll removes from head
+    #expect(list.poll() == 0)
+    #expect(list.poll() == 1)
+    // Deque: pollLast removes from tail
+    #expect(list.pollLast() == 2)
+    #expect(list.isEmpty())
+  }
+
+  @Test("push/pop (stack) and offer/poll (queue) are compatible on same list")
+  func testStackAndQueueInterop() throws {
+    let list = java.util.LinkedList<String>()
+    try list.push("a")
+    _ = list.offer("b")   // appends to tail
+    try list.push("c")    // prepends to head → [c, a, b]
+    #expect(list.poll() == "c")   // queue: removes head
+    #expect(try list.pop() == "a")  // stack: removes head
+    #expect(list.pollLast() == "b")
   }
 }

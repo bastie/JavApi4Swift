@@ -648,4 +648,359 @@ struct JavApi_util_ArrayList_Tests {
     _ = try? b.add(2)
     #expect(a.hashCode() != b.hashCode())
   }
+
+  // MARK: - Boundary / out-of-bounds exception handling
+
+  @Test("get with negative index throws IndexOutOfBoundsException")
+  func testGet_negativeIndex() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.get(-1)
+    }
+  }
+
+  @Test("get on empty list throws IndexOutOfBoundsException")
+  func testGet_emptyList() {
+    let list = java.util.ArrayList<Int>()
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.get(0)
+    }
+  }
+
+  @Test("get with index == size() throws IndexOutOfBoundsException")
+  func testGet_indexEqualSize() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(10)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.get(1)
+    }
+  }
+
+  @Test("set with negative index throws IndexOutOfBoundsException")
+  func testSet_negativeIndex() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.set(-1, 99)
+    }
+  }
+
+  @Test("set with index == size() throws IndexOutOfBoundsException")
+  func testSet_indexEqualSize() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.set(1, 99)
+    }
+  }
+
+  @Test("remove(Int) with negative index throws IndexOutOfBoundsException")
+  func testRemoveIndex_negative() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.remove(-1)
+    }
+  }
+
+  @Test("remove(Int) on empty list throws IndexOutOfBoundsException")
+  func testRemoveIndex_emptyList() {
+    let list = java.util.ArrayList<Int>()
+    #expect(throws: IndexOutOfBoundsException.self) {
+      _ = try list.remove(0)
+    }
+  }
+
+  @Test("add(location:) with negative index throws IndexOutOfBoundsException")
+  func testAddAtLocation_negativeIndex() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      try list.add(-1, 99)
+    }
+  }
+
+  @Test("add(location:) beyond size throws IndexOutOfBoundsException")
+  func testAddAtLocation_beyondSize() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      try list.add(2, 99)
+    }
+  }
+
+  // MARK: - Constructor with Collection
+
+  @Test("clone() copies all elements from source list")
+  func testInitWithCollection() throws {
+    let source = java.util.ArrayList<Int>()
+    _ = try? source.add(10)
+    _ = try? source.add(20)
+    _ = try? source.add(30)
+
+    let copy = source.clone()
+    #expect(copy.size() == 3 as Int)
+    #expect(try copy.get(0) == 10)
+    #expect(try copy.get(1) == 20)
+    #expect(try copy.get(2) == 30)
+  }
+
+  @Test("clone() produces independent copy — mutations do not propagate")
+  func testInitWithCollection_independent() throws {
+    let source = java.util.ArrayList<Int>()
+    _ = try? source.add(1)
+    _ = try? source.add(2)
+
+    let copy = source.clone()
+    _ = try? source.add(3)
+
+    #expect(copy.size() == 2 as Int)
+    #expect(source.size() == 3 as Int)
+  }
+
+  // MARK: - ensureCapacity / trimToSize
+
+  @Test("ensureCapacity does not remove existing elements")
+  func testEnsureCapacity() throws {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    _ = try? list.add(2)
+    list.ensureCapacity(100)
+    #expect(list.size() == 2 as Int)
+    #expect(try list.get(0) == 1)
+    #expect(try list.get(1) == 2)
+  }
+
+  @Test("trimToSize does not remove or reorder elements")
+  func testTrimToSize() throws {
+    let list = java.util.ArrayList<Int>(initialCapacity: 100)
+    _ = try? list.add(5)
+    _ = try? list.add(6)
+    list.trimToSize()
+    #expect(list.size() == 2 as Int)
+    #expect(try list.get(0) == 5)
+    #expect(try list.get(1) == 6)
+  }
+
+  // MARK: - addAll(location:) — indexed bulk insert
+
+  @Test("addAll(location:) inserts all elements at given position")
+  func testAddAllAtLocation() throws {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    _ = try? list.add(4)
+
+    let insert = java.util.ArrayList<Int?>()
+    _ = try? insert.add(2)
+    _ = try? insert.add(3)
+
+    let changed = list.addAll(1, collection: insert)
+    #expect(changed == true)
+    #expect(list.size() == 4 as Int)
+    #expect(try list.get(0) == 1)
+    #expect(try list.get(1) == 2)
+    #expect(try list.get(2) == 3)
+    #expect(try list.get(3) == 4)
+  }
+
+  @Test("addAll(location:) at index 0 prepends all elements")
+  func testAddAllAtLocation_prepend() throws {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(3)
+    _ = try? list.add(4)
+
+    let prefix = java.util.ArrayList<Int?>()
+    _ = try? prefix.add(1)
+    _ = try? prefix.add(2)
+
+    list.addAll(0, collection: prefix)
+    #expect(list.size() == 4 as Int)
+    #expect(try list.get(0) == 1)
+    #expect(try list.get(1) == 2)
+  }
+
+  @Test("addAll(location:) with empty collection returns false")
+  func testAddAllAtLocation_emptyCollection() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    let empty = java.util.ArrayList<Int?>()
+    let changed = list.addAll(0, collection: empty)
+    #expect(changed == false)
+    #expect(list.size() == 1 as Int)
+  }
+
+  // MARK: - containsAll
+
+  @Test("containsAll returns true when all elements are present")
+  func testContainsAll_allPresent() {
+    let list = java.util.ArrayList<Int>()
+    for i in [1, 2, 3, 4, 5] { _ = try? list.add(i) }
+
+    let sub = java.util.ArrayList<Int?>()
+    _ = try? sub.add(2)
+    _ = try? sub.add(4)
+
+    #expect(list.containsAll(sub))
+  }
+
+  @Test("containsAll returns false when any element is missing")
+  func testContainsAll_someMissing() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    _ = try? list.add(2)
+
+    let query = java.util.ArrayList<Int?>()
+    _ = try? query.add(2)
+    _ = try? query.add(99)
+
+    #expect(!list.containsAll(query))
+  }
+
+  @Test("containsAll with empty collection returns true")
+  func testContainsAll_emptyQuery() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    let empty = java.util.ArrayList<Int?>()
+    #expect(list.containsAll(empty))
+  }
+
+  // MARK: - isEmpty
+
+  @Test("isEmpty is true after clear")
+  func testIsEmpty_afterClear() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    list.clear()
+    #expect(list.isEmpty())
+  }
+
+  @Test("isEmpty is false after add, true on fresh list")
+  func testIsEmpty_lifecycle() throws {
+    let list = java.util.ArrayList<Int>()
+    #expect(list.isEmpty())
+    _ = try? list.add(42)
+    #expect(!list.isEmpty())
+  }
+
+  // MARK: - toString
+
+  @Test("toString on empty list returns []")
+  func testToString_empty() {
+    let list = java.util.ArrayList<Int>()
+    #expect(list.toString() == "[]")
+  }
+
+  @Test("toString on single-element list is enclosed in brackets")
+  func testToString_singleElement() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(42)
+    let s = list.toString()
+    #expect(s.hasPrefix("["))
+    #expect(s.hasSuffix("]"))
+    #expect(s.contains("42"))
+  }
+
+  @Test("toString on multi-element list uses comma-space separator")
+  func testToString_multiElement() {
+    let list = java.util.ArrayList<String>()
+    _ = try? list.add("a")
+    _ = try? list.add("b")
+    _ = try? list.add("c")
+    let s = list.toString()
+    #expect(s.hasPrefix("["))
+    #expect(s.hasSuffix("]"))
+    #expect(s.contains(", "))
+    #expect(s.contains("a"))
+    #expect(s.contains("b"))
+    #expect(s.contains("c"))
+  }
+
+  // MARK: - Iterator via Java API
+
+  @Test("iterator().hasNext() is false on empty list")
+  func testIterator_emptyList() {
+    let list = java.util.ArrayList<Int>()
+    let it = list.iterator()
+    #expect(!it.hasNext())
+  }
+
+  @Test("iterator() traverses all elements via hasNext/next")
+  func testIterator_traversal() throws {
+    let list = java.util.ArrayList<Int>()
+    for i in [10, 20, 30] { _ = try? list.add(i) }
+    let it = list.iterator()
+
+    var collected: [Int] = []
+    while it.hasNext() {
+      let val: Int = try it.next()
+      collected.append(val)
+    }
+    #expect(collected == [10, 20, 30])
+  }
+
+  @Test("iterator().next() beyond end throws NoSuchElementException")
+  func testIterator_nextBeyondEnd() throws {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    let it = list.iterator()
+    _ = try it.next()  // consume only element
+    do {
+      _ = try it.next()
+      Issue.record("Expected NoSuchElementException was not thrown")
+    } catch {
+      // expected: NoSuchElementException
+    }
+  }
+
+  // MARK: - Large list / resize
+
+  @Test("adding 1000 elements and reading them back is correct")
+  func testLargeList() throws {
+    let list = java.util.ArrayList<Int>()
+    for i in 0..<1000 {
+      _ = try? list.add(i)
+    }
+    #expect(list.size() == 1000 as Int)
+    for i in 0..<1000 {
+      #expect(try list.get(i) == i)
+    }
+  }
+
+  // MARK: - equals
+
+  @Test("two ArrayLists with same elements are equal (Equatable)")
+  func testEquals_sameLists() {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    _ = try? a.add(1); _ = try? a.add(2)
+    _ = try? b.add(1); _ = try? b.add(2)
+    #expect(a == b)
+  }
+
+  @Test("two ArrayLists with different elements are not equal")
+  func testEquals_differentLists() {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    _ = try? a.add(1)
+    _ = try? b.add(2)
+    #expect(a != b)
+  }
+
+  @Test("empty ArrayList equals another empty ArrayList")
+  func testEquals_bothEmpty() {
+    let a = java.util.ArrayList<String>()
+    let b = java.util.ArrayList<String>()
+    #expect(a == b)
+  }
+
+  @Test("ArrayList with different size is not equal")
+  func testEquals_differentSize() {
+    let a = java.util.ArrayList<Int>()
+    let b = java.util.ArrayList<Int>()
+    _ = try? a.add(1)
+    _ = try? a.add(2)
+    _ = try? b.add(1)
+    #expect(a != b)
+  }
 }

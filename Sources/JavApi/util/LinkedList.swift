@@ -26,13 +26,13 @@ extension java.util {
 
   /// Swift implementation of ``java.util.LinkedList``.
   ///
-  /// A doubly-linked list that implements both `List` and `Queue`.
+  /// A doubly-linked list that implements `List`, `Deque`, and `Queue`.
   /// - Reference semantics: assigning a `LinkedList` to a second variable
   ///   gives access to the same underlying list (Java behaviour).
   /// - Thread safety: not thread-safe (matches Java).
   ///
   /// - Since: Java 1.2
-  open class LinkedList<E: Equatable>: AbstractSequentialList<E>, Queue {
+  open class LinkedList<E: Equatable>: AbstractSequentialList<E>, Deque {
 
     // MARK: - Storage
 
@@ -227,7 +227,7 @@ extension java.util {
       return sub
     }
 
-    // MARK: - Deque helpers
+    // MARK: - Deque / Queue — first-end operations
 
     /// Returns but does not remove the first element.
     /// - Throws: `NoSuchElementException` if empty.
@@ -243,8 +243,29 @@ extension java.util {
       return t.element
     }
 
-    public func addFirst(_ element: E?) { linkFirst(element) }
-    public func addLast(_ element: E?)  { linkLast(element)  }
+    /// Inserts `elem` at the front (Deque protocol — non-optional).
+    public func addFirst(_ elem: E) throws { linkFirst(elem) }
+
+    /// Inserts `elem` at the tail (Deque protocol — non-optional).
+    public func addLast(_ elem: E) throws { linkLast(elem) }
+
+    /// Inserts `elem` at the front; always returns `true` (unbounded deque).
+    public func offerFirst(_ elem: E) -> Bool { linkFirst(elem); return true }
+
+    /// Inserts `elem` at the tail; always returns `true` (unbounded deque).
+    public func offerLast(_ elem: E) -> Bool { linkLast(elem); return true }
+
+    /// Returns the first element without removal, or `nil` if empty.
+    public func peekFirst() -> E? { head?.element }
+
+    /// Returns the last element without removal, or `nil` if empty.
+    public func peekLast() -> E? { tail?.element }
+
+    /// Removes and returns the first element, or `nil` if empty.
+    public func pollFirst() -> E? { isEmpty() ? nil : unlinkFirst() }
+
+    /// Removes and returns the last element, or `nil` if empty.
+    public func pollLast() -> E? { isEmpty() ? nil : unlinkLast() }
 
     @discardableResult
     public func removeFirst() throws -> E? {
@@ -256,6 +277,32 @@ extension java.util {
     public func removeLast() throws -> E? {
       guard !isEmpty() else { throw NoSuchElementException() }
       return unlinkLast()
+    }
+
+    // MARK: - Deque — occurrence removal
+
+    /// Removes the first occurrence of `elem`; returns `true` if the deque changed.
+    @discardableResult
+    public func removeFirstOccurrence(_ elem: E?) -> Bool {
+      return remove(elem)
+    }
+
+    /// Removes the last occurrence of `elem`; returns `true` if the deque changed.
+    @discardableResult
+    public func removeLastOccurrence(_ elem: E?) -> Bool {
+      var n = tail
+      while let node = n {
+        if node.element == elem { unlink(node); return true }
+        n = node.prev
+      }
+      return false
+    }
+
+    // MARK: - Deque — reverse iterator
+
+    /// Returns an iterator over elements in reverse order (tail → head).
+    public func descendingIterator() -> any java.util.Iterator<E> {
+      return LinkedListDescendingIterator<E>(list: self)
     }
 
     // MARK: - Queue protocol (non-optional Element)
@@ -275,15 +322,13 @@ extension java.util {
     }
 
     /// Inserts `elem` at the tail; always returns `true`.
-    public func offer(_ elem: E) -> Bool {
-      linkLast(elem); return true
-    }
+    public func offer(_ elem: E) -> Bool { linkLast(elem); return true }
 
     /// Returns the head element, or `nil` if empty.
     public func peek() -> E? { head?.element }
 
     /// Removes and returns the head element, or `nil` if empty.
-    public func poll() -> E? { isEmpty() ? nil : unlinkFirst() }
+    public func poll() -> E? { pollFirst() }
 
     /// Removes and returns the head element (non-optional).
     /// - Throws: `NoSuchElementException` if empty.
@@ -335,6 +380,40 @@ extension java.util {
       return copy
     }
   }
+}
+
+// MARK: - LinkedListIterator
+
+// MARK: - LinkedListDescendingIterator
+
+/// Reverse `Iterator` for `java.util.LinkedList` — tail to head.
+public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterator, IteratorProtocol {
+  public typealias Element = E
+
+  private var current: _LinkedListNode<E>?
+
+  internal init(list: java.util.LinkedList<E>) {
+    self.current = list.tail
+  }
+
+  public func hasNext() -> Bool { current != nil }
+
+  public func next() throws(java.util.NoSuchElementException) -> E {
+    guard let node = current, let element = node.element else {
+      throw java.util.NoSuchElementException()
+    }
+    current = node.prev
+    return element
+  }
+
+  /// Swift `IteratorProtocol.next()` — returns `nil` at end.
+  public func next() -> E? {
+    guard let node = current else { return nil }
+    defer { current = node.prev }
+    return node.element
+  }
+
+  public func makeIterator() -> LinkedListDescendingIterator<E> { self }
 }
 
 // MARK: - LinkedListIterator

@@ -211,6 +211,55 @@ extension java.util {
       copy.elements = self.elements
       return copy
     }
+
+    // MARK: - Capacity
+
+    /// Increases the capacity of this list, if necessary, to ensure it can hold
+    /// at least `minimumCapacity` elements without reallocation.
+    ///
+    /// This is a performance hint; it does not affect observable behaviour.
+    public func ensureCapacity(_ minimumCapacity: Int) {
+      if elements.capacity < minimumCapacity {
+        elements.reserveCapacity(minimumCapacity)
+      }
+    }
+
+    /// Trims the capacity of this list to its current size.
+    ///
+    /// This is a performance hint that minimises memory usage when the list
+    /// will not grow further.
+    public func trimToSize() {
+      // Swift arrays do not expose shrink-to-fit directly.
+      // Replace the backing store with a fresh copy that has no spare capacity.
+      var trimmed: [E?] = []
+      trimmed.reserveCapacity(elements.count)
+      trimmed.append(contentsOf: elements)
+      elements = trimmed
+    }
+
+    // MARK: - Indexed bulk insert
+
+    /// Inserts all elements of `collection` into this list, starting at `location`.
+    ///
+    /// - Returns: `true` if this list was modified.
+    /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
+    @discardableResult
+    public override func addAll(_ location: Int, collection: any java.util.Collection<E?>) -> Bool {
+      guard location >= 0 && location <= elements.count else {
+        // Matching Java behaviour: throws IndexOutOfBoundsException at runtime.
+        // Because AbstractList declares this as non-throwing, we crash like
+        // the Harmony reference implementation does on invalid indices.
+        fatalError("IndexOutOfBoundsException: Index: \(location), Size: \(elements.count)")
+      }
+      var newElements: [E?] = []
+      let it = collection.iterator()
+      while it.hasNext() {
+        newElements.append(try? it.next())
+      }
+      guard !newElements.isEmpty else { return false }
+      elements.insert(contentsOf: newElements, at: location)
+      return true
+    }
   }
 }
 
