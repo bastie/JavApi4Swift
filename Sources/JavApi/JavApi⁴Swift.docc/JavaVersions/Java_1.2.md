@@ -1863,6 +1863,137 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
+## java.awt — neue Methoden auf bestehenden Klassen (⭕️/⭕️)
+
+Java 1.2 ergänzte zahlreiche bestehende `java.awt`-Klassen um neue Methoden.
+Die wichtigsten Ergänzungen sind hier erfasst; vollständige Liste siehe javaalmanac.io.
+
+### java.awt.Component — neue Methoden (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | method        | getGraphicsConfiguration() | ()->GraphicsConfiguration
+1.2     | ⭕️          | ⭕️       | method        | setComponentOrientation() | (ComponentOrientation)
+1.2     | ⭕️          | ⭕️       | method        | getComponentOrientation() | ()->ComponentOrientation
+1.2     | ⭕️          | ⭕️       | method        | add(PopupMenu)          | drag-and-drop popup support
+1.2     | ⭕️          | ⭕️       | method        | getMousePosition()      | ()->Point?
+1.2     | ⭕️          | ⭕️       | method        | setFocusable()          | (bool)
+1.2     | ⭕️          | ⭕️       | method        | isFocusable()           | ()->bool
+
+### java.awt.Container — neue Methoden (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | method        | getComponentCount()     | ()->int (alias for countComponents)
+1.2     | ⭕️          | ⭕️       | method        | getComponents()         | ()->[Component]
+1.2     | ⭕️          | ⭕️       | method        | setComponentZOrder()    | (Component, int)
+1.2     | ⭕️          | ⭕️       | method        | getComponentZOrder()    | (Component)->int
+
+### java.awt.Frame — neue Methoden (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | method        | getExtendedState()      | ()->int (NORMAL/ICONIFIED/MAXIMIZED_*)
+1.2     | ⭕️          | ⭕️       | method        | setExtendedState()      | (int)
+1.2     | ⭕️          | ⭕️       | final field   | NORMAL / ICONIFIED / MAXIMIZED_HORIZ / MAXIMIZED_VERT / MAXIMIZED_BOTH | int constants
+
+### java.awt.Cursor — neue Konstanten (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | static method | getSystemCustomCursor() | (String)->Cursor?; named cursor from resources
+1.2     | ⭕️          | ⭕️       | static method | getPredefinedCursor()   | (int)->Cursor
+
+### java.awt.Font — neue Methoden (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | static method | createFont()            | (int,InputStream)->Font throws FontFormatException
+1.2     | ⭕️          | ⭕️       | method        | deriveFont()            | (float)->Font; (int)->Font; (AffineTransform)->Font
+1.2     | ⭕️          | ⭕️       | method        | getAttributes()         | ()->Map<TextAttribute,?>
+1.2     | ⭕️          | ⭕️       | method        | hasUniformLineMetrics() | ()->bool
+1.2     | ⭕️          | ⭕️       | method        | getLineMetrics()        | (String,FontRenderContext)->LineMetrics
+1.2     | ⭕️          | ⭕️       | method        | getStringBounds()       | (String,FontRenderContext)->Rectangle2D
+1.2     | ⭕️          | ⭕️       | final field   | TRUETYPE_FONT / TYPE1_FONT | int constants for createFont
+
+### java.awt.Color — neue Methoden (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | method        | getColorSpace()         | ()->ColorSpace
+1.2     | ⭕️          | ⭕️       | method        | getComponents()         | (float[]?)->[float]
+1.2     | ⭕️          | ⭕️       | method        | getColorComponents()    | (float[]?)->[float]
+1.2     | ⭕️          | ⭕️       | static method | getHSBColor()           | (float,float,float)->Color
+
+### java.awt.Graphics — neue Methoden (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | method        | dispose()               | (); releases native context; page-end signal for PrintJob graphics
+
+---
+
+## java.awt.dnd (⭕️/⭕️)
+
+> Drag-and-drop support. Deferred — requires native event loop integration
+> and platform-specific drop-target registration (NSDropTarget on macOS,
+> XDnD on X11). Not yet implemented.
+
+### java.awt.dnd — core classes (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | DragSource              | initiates drag operations; static getDefaultDragSource()
+1.2     | ⭕️          | ⭕️       | class         | DropTarget              | registers component as drop target
+1.2     | ⭕️          | ⭕️       | class         | DragGestureRecognizer   | abstract; detects drag-initiating gestures
+1.2     | ⭕️          | ⭕️       | class         | MouseDragGestureRecognizer | concrete gesture recognizer for mouse
+1.2     | ⭕️          | ⭕️       | class         | DragGestureEvent        | event fired when drag gesture detected
+1.2     | ⭕️          | ⭕️       | class         | DragSourceContext        | context object during drag
+1.2     | ⭕️          | ⭕️       | class         | DragSourceEvent         | base event from drag source
+1.2     | ⭕️          | ⭕️       | class         | DragSourceDragEvent     | extends DragSourceEvent; mouse-move during drag
+1.2     | ⭕️          | ⭕️       | class         | DragSourceDropEvent     | extends DragSourceEvent; drop occurred
+1.2     | ⭕️          | ⭕️       | class         | DropTargetContext        | context object on drop target side
+1.2     | ⭕️          | ⭕️       | class         | DropTargetEvent         | base event for drop target
+1.2     | ⭕️          | ⭕️       | class         | DropTargetDragEvent     | extends DropTargetEvent; drag over target
+1.2     | ⭕️          | ⭕️       | class         | DropTargetDropEvent     | extends DropTargetEvent; drop on target
+1.2     | ⭕️          | ⭕️       | final class   | DnDConstants            | ACTION_NONE/COPY/MOVE/LINK/REFERENCE/COPY_OR_MOVE int constants
+
+### java.awt.dnd — listeners and interfaces (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | DragSourceListener      | dragEnter/Over/Exit/ActionChanged/DropActionChanged/DropEnd
+1.2     | ⭕️          | ⭕️       | protocol      | DragSourceMotionListener | dragMouseMoved
+1.2     | ⭕️          | ⭕️       | protocol      | DragGestureListener     | dragGestureRecognized
+1.2     | ⭕️          | ⭕️       | protocol      | DropTargetListener      | dragEnter/Over/Exit/Drop
+1.2     | ⭕️          | ⭕️       | protocol      | Autoscroll              | getAutoscrollInsets; autoscroll
+
+---
+
+## java.awt.im (⭕️/⭕️)
+
+> Input Method Framework — enables text input via IMEs (e.g. CJK input on macOS/X11).
+> Deferred — requires platform IME integration (NSTextInputClient on macOS,
+> XIM on X11). Rarely needed outside CJK locales.
+
+### java.awt.im — classes (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | class         | InputContext            | manages input method; per-component context
+1.2     | ⭕️          | ⭕️       | class         | InputMethodHighlight    | describes highlighted text in composition string
+1.2     | ⭕️          | ⭕️       | final class   | InputSubset             | character subsets for input methods (LATIN, CJK_UNIFIED_IDEOGRAPHS, etc.)
+
+### java.awt.im — spi (⭕️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ⭕️          | ⭕️       | protocol      | InputMethod             | SPI for input method engines
+1.2     | ⭕️          | ⭕️       | protocol      | InputMethodContext      | extends InputMethod; access to composition UI
+1.2     | ⭕️          | ⭕️       | protocol      | InputMethodDescriptor   | describes available input methods
+
+---
+
 ## java.text — fehlende Klassen (⭕️/⭕️)
 
 ### java.text.Normalizer (⭕️/⭕️)
