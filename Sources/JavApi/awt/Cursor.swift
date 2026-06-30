@@ -53,6 +53,11 @@ extension java.awt {
       return Cursor(DEFAULT_CURSOR)
     }
 
+    /// Returns the integer type of this cursor.
+    ///
+    /// - Since: Java 1.1
+    public func getType() -> Int { type }
+
     /// Returns the name of this cursor.
     public func getName() -> String {
       switch type {

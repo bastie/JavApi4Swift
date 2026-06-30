@@ -300,7 +300,7 @@ extension java.util {
 
     /// `List.subList` — matches protocol signature.
     public override func subList(_ start: Int, _ end: Int) -> any java.util.List {
-      let sub = (try? java.util.ArrayList<E>()) ?? java.util.ArrayList<E>()
+      let sub = java.util.ArrayList<E>()
       withLock {
         let hi = Swift.min(end, elementCount)
         for i in start..<hi { _ = try? sub.add(elementData[i]) }

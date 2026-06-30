@@ -341,7 +341,7 @@ extension java.net {
 
     /// Removes `.` and `..` segments from `path` (RFC 3986 §5.2.4).
     private func _normalizePath(_ path: String) -> String {
-      var parts = path.components(separatedBy: "/")
+      let parts = path.components(separatedBy: "/")
       var result: [String] = []
       let leadingSlash = path.hasPrefix("/")
       let trailingSlash = path.hasSuffix("/") && path.count > 1
