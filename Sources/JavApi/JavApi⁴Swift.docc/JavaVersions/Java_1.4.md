@@ -80,6 +80,54 @@ version | implemented | tested   | type          | name                       | 
 
 ### java.net — Java 1.4 additions
 
+##### java.net.URI (35/35/41)
+
+> Fully implemented in `net/URI.swift`. Backed by `URLComponents` on Apple platforms.
+> URI parsing, normalization (RFC 2396 dot-segment removal), resolution, relativization,
+> comparison, and conversion to `java.net.URL` are all supported.
+> `URISyntaxException` is thrown for malformed input.
+> `Equatable` and `Comparable` (lexicographic) conformances are provided.
+
+version | implemented | tested   | type          | name                      | more informations
+------- | ----------- | -------- | ------------- | ------------------------- | -----------------
+1.4     | ✔️          | ✔️       | constructor   | URI()                     | (String) throws URISyntaxException
+1.4     | ✔️          | ✔️       | constructor   | URI()                     | (String,String?,String,int,String,String?,String?) throws — component init
+1.4     | ✔️          | ✔️       | static method | create()                  | (String)->URI — fatalError on invalid input
+1.4     | ✔️          | ✔️       | method        | isAbsolute()              | ()->boolean
+1.4     | ✔️          | ✔️       | method        | isOpaque()                | ()->boolean
+1.4     | ✔️          | ✔️       | method        | getScheme()               | ()->String?
+1.4     | ✔️          | ✔️       | method        | getSchemeSpecificPart()   | ()->String
+1.4     | ✔️          | ✔️       | method        | getAuthority()            | ()->String?
+1.4     | ✔️          | ✔️       | method        | getUserInfo()             | ()->String?
+1.4     | ✔️          | ✔️       | method        | getHost()                 | ()->String?
+1.4     | ✔️          | ✔️       | method        | getPort()                 | ()->int — -1 if absent
+1.4     | ✔️          | ✔️       | method        | getPath()                 | ()->String
+1.4     | ✔️          | ✔️       | method        | getQuery()                | ()->String?
+1.4     | ✔️          | ✔️       | method        | getFragment()             | ()->String?
+1.4     | ✔️          | ✔️       | method        | normalize()               | ()->URI — RFC 2396 dot-segment removal
+1.4     | ✔️          | ✔️       | method        | resolve()                 | (URI)->URI
+1.4     | ✔️          | ✔️       | method        | resolve()                 | (String)->URI
+1.4     | ✔️          | ✔️       | method        | relativize()              | (URI)->URI
+1.4     | ✔️          | ✔️       | method        | toURL()                   | ()->URL throws MalformedURLException for relative URIs
+1.4     | ✔️          | ✔️       | method        | toString()                | ()->String
+1.4     | ✔️          | ✔️       | method        | toASCIIString()           | ()->String
+1.4     | ✔️          | ✔️       | method        | compareTo()               | (URI)->int throws
+1.4     | ✔️          | ✔️       | protocol      | Equatable                 | == / != based on toString()
+1.4     | ✔️          | ✔️       | protocol      | Comparable                | < based on compareTo()
+
+##### java.net.URISyntaxException (2/2/🪄)
+
+version | implemented | tested   | type          | name                      | more informations
+------- | ----------- | -------- | ------------- | ------------------------- | -----------------
+1.4     | ✔️          | 🪄       | constructor   | URISyntaxException()      | (String, String)
+1.4     | ✔️          | ✔️       | constructor   | URISyntaxException()      | thrown on malformed URI input in URI.init
+
+##### java.net.MalformedURLException (1/1/✔️)
+
+version | implemented | tested   | type          | name                      | more informations
+------- | ----------- | -------- | ------------- | ------------------------- | -----------------
+1.4     | ✔️          | ✔️       | constructor   | MalformedURLException()   | thrown by URI.toURL() for relative URIs
+
 ##### java.net.URLEncoder — encode(String, String) (1/1/0)
 
 > **Note:** `URLEncoder.encode(String, String)` with explicit charset name was added in Java 1.4.
@@ -128,59 +176,83 @@ version | implemented | tested   | type          | name           | more informa
 1.4     | ✔️          | ⭕️       | method        | setLevel()     | (Level)
 1.4     | ✔️          | ⭕️       | method        | getLevel()     | ()->Level
 
-##### java.util.logging.Level (15/15/0)
+##### java.util.logging.Level (16/16/16)
+
+> `Equatable` conformance added via `extension java.util.logging.Level: Equatable` in `Level.swift`.
+> `parse()` is `@MainActor` due to returning a `nonisolated(unsafe)` static instance — test methods must be `@MainActor`.
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.4     | ✔️          | 🪄       | field         | OFF                     | static
-1.4     | ✔️          | 🪄       | field         | SEVERE                  | static
-1.4     | ✔️          | 🪄       | field         | WARNING                 | static
-1.4     | ✔️          | 🪄       | field         | INFO                    | static
-1.4     | ✔️          | 🪄       | field         | CONFIG                  | static
-1.4     | ✔️          | 🪄       | field         | FINE                    | static
-1.4     | ✔️          | 🪄       | field         | FINER                   | static
-1.4     | ✔️          | 🪄       | field         | FINEST                  | static
-1.4     | ✔️          | 🪄       | field         | ALL                     | static
-1.4     | ✔️          | ⭕️       | constructor   | Level()                 | (String, int)
-1.4     | ✔️          | ⭕️       | constructor   | Level()                 | (String, int, String?)
-1.4     | ✔️          | ⭕️       | method        | intValue()              | ()->int
-1.4     | ✔️          | ⭕️       | method        | getName()               | ()->String
-1.4     | ✔️          | ⭕️       | method        | getResourceBundleName() | ()->String?
-1.4     | ✔️          | ⭕️       | method        | parse()                 | (String)->Level
+1.4     | ✔️          | ✔️       | field         | OFF                     | static; intValue = Int.max
+1.4     | ✔️          | ✔️       | field         | SEVERE                  | static; intValue = 1000
+1.4     | ✔️          | ✔️       | field         | WARNING                 | static; intValue = 900
+1.4     | ✔️          | ✔️       | field         | INFO                    | static; intValue = 800
+1.4     | ✔️          | ✔️       | field         | CONFIG                  | static; intValue = 700
+1.4     | ✔️          | ✔️       | field         | FINE                    | static; intValue = 500
+1.4     | ✔️          | ✔️       | field         | FINER                   | static; intValue = 400
+1.4     | ✔️          | ✔️       | field         | FINEST                  | static; intValue = 300
+1.4     | ✔️          | ✔️       | field         | ALL                     | static; intValue = Int.min
+1.4     | ✔️          | ✔️       | constructor   | Level()                 | (String, int)
+1.4     | ✔️          | ✔️       | constructor   | Level()                 | (String, int, String?)
+1.4     | ✔️          | ✔️       | method        | intValue()              | ()->int
+1.4     | ✔️          | ✔️       | method        | getName()               | ()->String
+1.4     | ✔️          | ✔️       | method        | getResourceBundleName() | ()->String?
+1.4     | ✔️          | ✔️       | method        | parse()                 | (String)->Level — @MainActor; throws IllegalArgumentException for unknown names
+1.4     | ✔️          | ✔️       | protocol      | Equatable               | == based on intValue()
 
-##### java.util.logging.LogManager (2/2/0)
-
-version | implemented | tested   | type          | name           | more informations
-------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.4     | ✔️          | 🪄       | method        | getLogManager()| ()->LogManager — static singleton
-1.4     | ✔️          | ⭕️       | method        | addLogger()    | (Logger)->boolean
-
-##### java.util.logging.LogRecord (9/9/0)
+##### java.util.logging.LogManager (3/3/3)
 
 version | implemented | tested   | type          | name           | more informations
 ------- | ----------- | -------- | ------------- | -------------- | -----------------
-1.4     | ✔️          | 🪄       | constructor   | LogRecord()    | (Level, String?)
-1.4     | ✔️          | ⭕️       | method        | setLoggerName()| (String?)
-1.4     | ✔️          | ⭕️       | method        | getLoggerName()| ()->String?
-1.4     | ✔️          | ⭕️       | method        | setInstant()   | (Instant)
-1.4     | ✔️          | ⭕️       | method        | getInstant()   | ()->Instant
-1.4     | ✔️          | ⭕️       | method        | setMessage()   | (String?)
-1.4     | ✔️          | ⭕️       | method        | getMessage()   | ()->String?
-1.4     | ✔️          | ⭕️       | method        | setMillis()    | (long) — deprecated since Java 9, use setInstant()
-1.4     | ✔️          | ⭕️       | method        | getMillis()    | ()->long — deprecated since Java 9, use getInstant()
+1.4     | ✔️          | ✔️       | method        | getLogManager()| ()->LogManager — static singleton
+1.4     | ✔️          | ✔️       | method        | addLogger()    | (Logger)->boolean — returns false if already registered
+1.4     | ✔️          | ✔️       | method        | getLogger()    | (String)->Logger? — lookup by name
 
-##### java.util.logging.Logger (8/8/0)
+##### java.util.logging.LogRecord (9/9/9)
 
-version | implemented | tested   | type          | name                | more informations
-------- | ----------- | -------- | ------------- | ------------------- | -----------------
-1.4     | ✔️          | 🪄       | field         | GLOBAL_LOGGER_NAME  | static String
-1.4     | ✔️          | ⭕️       | method        | getLogger()         | (String)->Logger — static
-1.4     | ✔️          | ⭕️       | method        | getAnonymousLogger()| ()->Logger — static
-1.4     | ✔️          | ⭕️       | method        | getName()           | ()->String?
-1.4     | ✔️          | ⭕️       | method        | addHandler()        | (Handler)
-1.4     | ✔️          | ⭕️       | method        | removeHandler()     | (Handler)
-1.4     | ✔️          | ⭕️       | method        | getHandlers()       | ()->[Handler]
-1.4     | ✔️          | ⭕️       | method        | log()               | (LogRecord)
+version | implemented | tested   | type          | name           | more informations
+------- | ----------- | -------- | ------------- | -------------- | -----------------
+1.4     | ✔️          | ✔️       | constructor   | LogRecord()    | (Level, String?)
+1.4     | ✔️          | ✔️       | method        | setLoggerName()| (String?)
+1.4     | ✔️          | ✔️       | method        | getLoggerName()| ()->String?
+1.4     | ✔️          | ✔️       | method        | setInstant()   | (Instant)
+1.4     | ✔️          | ✔️       | method        | getInstant()   | ()->Instant
+1.4     | ✔️          | ✔️       | method        | setMessage()   | (String?)
+1.4     | ✔️          | ✔️       | method        | getMessage()   | ()->String?
+1.4     | ✔️          | ✔️       | method        | setMillis()    | (long) — deprecated since Java 9, use setInstant()
+1.4     | ✔️          | ✔️       | method        | getMillis()    | ()->long — deprecated since Java 9, use getInstant()
+
+##### java.util.logging.Logger (22/22/22)
+
+> Full Java-compliant parent-chain implementation. Root logger registered under `""` in `LogManager`.
+> `getLogger()` caches loggers by name; new loggers get `rootLogger` as parent.
+> Log propagation walks the parent chain while `useParentHandlers == true`.
+> `effectiveLevel()` walks the parent chain until a level is set.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ✔️          | ✔️       | field         | GLOBAL_LOGGER_NAME      | static String = "global"
+1.4     | ✔️          | ✔️       | field         | ROOT_LOGGER_NAME        | static String = "" — JavApi4Swift extension
+1.4     | ✔️          | ✔️       | field         | rootLogger              | static Logger — registered under "" in LogManager
+1.4     | ✔️          | ✔️       | method        | getLogger()             | (String)->Logger — static; cached in LogManager
+1.4     | ✔️          | ✔️       | method        | getAnonymousLogger()    | ()->Logger — static; parent = rootLogger, not registered
+1.4     | ✔️          | ✔️       | method        | getName()               | ()->String?
+1.4     | ✔️          | ✔️       | method        | getParent()             | ()->Logger?
+1.4     | ✔️          | ✔️       | method        | setParent()             | (Logger)
+1.4     | ✔️          | ✔️       | method        | getUseParentHandlers()  | ()->boolean
+1.4     | ✔️          | ✔️       | method        | setUseParentHandlers()  | (boolean)
+1.4     | ✔️          | ✔️       | method        | getLevel()              | ()->Level?
+1.4     | ✔️          | ✔️       | method        | setLevel()              | (Level?)
+1.4     | ✔️          | ✔️       | method        | isLoggable()            | (Level)->boolean — uses effectiveLevel()
+1.4     | ✔️          | ✔️       | method        | addHandler()            | (Handler)
+1.4     | ✔️          | ✔️       | method        | removeHandler()         | (Handler)
+1.4     | ✔️          | ✔️       | method        | getHandlers()           | ()->[Handler]
+1.4     | ✔️          | ✔️       | method        | log()                   | (LogRecord)
+1.4     | ✔️          | ✔️       | method        | log()                   | (Level, String?)
+1.4     | ✔️          | ✔️       | method        | log()                   | (Level, ()->String) — lazy supplier
+1.4     | ✔️          | ✔️       | method        | log()                   | (Level, String?, Throwable)
+1.4     | ✔️          | ✔️       | method        | severe/warning/info/config/fine/finer/finest() | (String?) convenience methods
+1.4     | ✔️          | ✔️       | method        | entering/exiting/throwing() | diagnostic convenience methods
 
 
 ### javax.swing.text — Swing Formatter classes (new in 1.4)

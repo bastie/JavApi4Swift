@@ -1579,6 +1579,24 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | 🪄       | open class    | AbstractMap             | `AbstractMap.swift`; `entrySet()` abstract; all other methods derived
 1.2     | ✔️          | 🪄       | open class    | AbstractSet             | `AbstractSet.swift`
 
+### java.util.Vector — Java 1.2 List additions (✔️/✔️)
+
+> `Vector<E>` now extends `AbstractList<E>` (requires `E: Equatable`) and conforms to the `List` protocol.
+> `Equatable` conformance added via `Vector+Equatable.swift` (separate file — Swift requires extensions for `open class` Equatable on generic types).
+> API label fix: `indexOf(E, Int)`, `lastIndexOf(E, Int)`, `setElementAt(E, Int)`, `insertElementAt(E, Int)` use positional parameters (`_`) — no named labels, matching Java semantics.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | superclass    | AbstractList<E>         | `Vector+Struct.swift`, `Vector+AnyObject.swift`; requires `E: Equatable`
+1.2     | ✔️          | ✔️       | protocol      | List<E>                 | conformance via AbstractList
+1.2     | ✔️          | ✔️       | protocol      | Equatable               | `Vector+Equatable.swift`; element-wise comparison
+1.2     | ✔️          | ✔️       | method        | add()                   | (E)->boolean — List protocol; throws
+1.2     | ✔️          | ✔️       | method        | add()                   | (int, E) — List protocol; throws
+1.2     | ✔️          | ✔️       | method        | get()                   | (int)->E — List protocol
+1.2     | ✔️          | ✔️       | method        | set()                   | (int, E)->E — List protocol
+1.2     | ✔️          | ✔️       | method        | remove()                | (int)->E — List protocol
+1.2     | ✔️          | ✔️       | method        | remove()                | (E)->boolean — List protocol
+
 ### Concrete implementations (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
