@@ -1705,35 +1705,78 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## java.awt.print (⭕️/⭕️)
+## java.awt.print (✔️/✔️)
 
-### java.awt.print.Printable (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | Printable               | print(Graphics,PageFormat,int)->int
-1.2     | ⭕️          | ⭕️       | final field   | PAGE_EXISTS             | int = 0
-1.2     | ⭕️          | ⭕️       | final field   | NO_SUCH_PAGE            | int = 1
-
-### java.awt.print.PageFormat (⭕️/⭕️)
+### java.awt.print.Printable (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | PageFormat              | paper size and orientation
-1.2     | ⭕️          | ⭕️       | final field   | PORTRAIT / LANDSCAPE / REVERSE_LANDSCAPE | int 0/1/2
-1.2     | ⭕️          | ⭕️       | method        | getWidth() / getHeight() | ()->double
-1.2     | ⭕️          | ⭕️       | method        | getImageableX/Y/Width/Height() | ()->double
-1.2     | ⭕️          | ⭕️       | method        | getOrientation()        | ()->int
+1.2     | ✔️          | ✔️       | protocol      | Printable               | print(Graphics,PageFormat,int)->int; default constants via extension
+1.2     | ✔️          | ✔️       | final field   | PAGE_EXISTS             | int = 0
+1.2     | ✔️          | ✔️       | final field   | NO_SUCH_PAGE            | int = 1
 
-### java.awt.print.PrinterJob (⭕️/⭕️)
+### java.awt.print.Pageable (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | abstract class| PrinterJob              | controls printing
-1.2     | ⭕️          | ⭕️       | static method | getPrinterJob()         | ()->PrinterJob
-1.2     | ⭕️          | ⭕️       | method        | setPrintable()          | (Printable)
-1.2     | ⭕️          | ⭕️       | method        | print()                 | () throws PrinterException
-1.2     | ⭕️          | ⭕️       | method        | printDialog()           | ()->bool
+1.2     | ✔️          | ✔️       | protocol      | Pageable                | getNumberOfPages(); getPageFormat(int); getPrintable(int)
+1.2     | ✔️          | ✔️       | final field   | UNKNOWN_NUMBER_OF_PAGES | int = -1
+
+### java.awt.print.Paper (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | final class   | Paper                   | physical paper size + imageable area; implements Cloneable
+1.2     | ✔️          | ✔️       | method        | getWidth() / getHeight() | ()->double; default US Letter (612×792 pt)
+1.2     | ✔️          | ✔️       | method        | setSize()               | (double,double)
+1.2     | ✔️          | ✔️       | method        | getImageableX/Y/Width/Height() | ()->double
+1.2     | ✔️          | ✔️       | method        | setImageableArea()      | (double,double,double,double)
+1.2     | ✔️          | ✔️       | method        | clone()                 | ()->Paper
+
+### java.awt.print.PageFormat (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | final class   | PageFormat              | paper size and orientation; implements Cloneable
+1.2     | ✔️          | ✔️       | final field   | PORTRAIT / LANDSCAPE / REVERSE_LANDSCAPE | int 0/1/2
+1.2     | ✔️          | ✔️       | method        | getWidth() / getHeight() | ()->double; orientation-aware
+1.2     | ✔️          | ✔️       | method        | getImageableX/Y/Width/Height() | ()->double; orientation-aware
+1.2     | ✔️          | ✔️       | method        | getOrientation() / setOrientation() | ()->int / (int)
+1.2     | ✔️          | ✔️       | method        | getPaper() / setPaper() | defensive clone on get and set
+1.2     | ✔️          | ✔️       | method        | clone()                 | ()->PageFormat
+
+### java.awt.print.Book (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | final class   | Book                    | implements Pageable; list of (Printable,PageFormat) pairs
+1.2     | ✔️          | ✔️       | method        | append()                | (Printable,PageFormat) and (Printable,PageFormat,int)
+1.2     | ✔️          | ✔️       | method        | setPage()               | (int,Printable,PageFormat) throws IndexOutOfBoundsException
+1.2     | ✔️          | ✔️       | method        | getNumberOfPages()      | ()->int
+1.2     | ✔️          | ✔️       | method        | getPageFormat()         | (int) throws IndexOutOfBoundsException; returns clone
+1.2     | ✔️          | ✔️       | method        | getPrintable()          | (int) throws IndexOutOfBoundsException
+
+### java.awt.print.PrinterJob (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | open class    | PrinterJob              | abstract base; macOS: _CoreGraphicsPrinterJob (PDF via CoreGraphics)
+1.2     | ✔️          | ✔️       | static method | getPrinterJob()         | ()->PrinterJob; platform-specific factory
+1.2     | ✔️          | ✔️       | method        | setPrintable()          | (Printable) and (Printable,PageFormat)
+1.2     | ✔️          | ✔️       | method        | setPageable()           | (Pageable)
+1.2     | ✔️          | ✔️       | method        | print()                 | () throws PrinterException; macOS: renders PDF, opens in Preview
+1.2     | ✔️          | ✔️       | method        | printDialog()           | ()->bool; macOS: NSAlert confirmation
+1.2     | ✔️          | ✔️       | method        | defaultPage()           | ()->PageFormat
+1.2     | ✔️          | ✔️       | method        | validatePage()          | (PageFormat)->PageFormat
+1.2     | ✔️          | 🪄       | method        | cancel() / isCancelled()| headless stubs
+
+### java.awt.print.PrinterException hierarchy (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | class         | PrinterException        | extends java.lang.Exception
+1.2     | ✔️          | ✔️       | final class   | PrinterAbortException   | extends PrinterException
+1.2     | ✔️          | ✔️       | final class   | PrinterIOException      | extends PrinterException; wraps java.io.IOException
 
 ---
 

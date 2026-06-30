@@ -21,14 +21,38 @@ extension java.awt {
       self.cgContext = context
     }
 
-    /// A no-op stub context — used when a `Graphics` is required but no real
-    /// paint cycle is active (e.g. peer API calls).
-    public static var stub: Graphics {
+    /// Creates a no-op `Graphics` backed by a 1×1 offscreen bitmap context.
+    ///
+    /// Mirrors Java's `protected Graphics()` constructor.
+    /// Use when a `Graphics` object is required outside an active paint cycle
+    /// (e.g. headless environments, unit tests, peer API calls).
+    public convenience init() {
       let ctx = CGContext(data: nil, width: 1, height: 1,
                          bitsPerComponent: 8, bytesPerRow: 4,
                          space: CGColorSpaceCreateDeviceRGB(),
                          bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue)!
-      return Graphics(ctx)
+      self.init(ctx)
+    }
+
+    /// A no-op stub context — used when a `Graphics` is required but no real
+    /// paint cycle is active (e.g. peer API calls).
+    @available(*, deprecated, renamed: "init()")
+    public static var stub: Graphics { Graphics() }
+
+    // -------------------------------------------------------------------------
+    // MARK: Lifecycle
+    // -------------------------------------------------------------------------
+
+    /// Releases the native resources held by this `Graphics` context.
+    ///
+    /// Must be called when the `Graphics` object is no longer needed.
+    /// For `PrintJob`-derived contexts, calling `dispose()` also signals
+    /// that the current page is complete and advances to the next page.
+    ///
+    /// Mirrors `java.awt.Graphics.dispose()`.
+    open func dispose() {
+      // CoreGraphics contexts are reference-counted and released automatically.
+      // Subclasses (e.g. PrintJob graphics) override this to flush the page.
     }
 
     // -------------------------------------------------------------------------
@@ -258,8 +282,22 @@ extension java.awt {
       self.cgContext = context
     }
 
-    /// A no-op stub — used when a `Graphics` is required outside a paint cycle.
-    public static var stub: Graphics { Graphics(_StubCGContext()) }
+    /// Creates a no-op `Graphics` instance.
+    ///
+    /// Mirrors the `protected Graphics()` constructor in Java.
+    /// All drawing calls on this instance are no-ops; use this when a
+    /// `Graphics` object is required outside an active paint cycle
+    /// (e.g. headless environments, unit tests).
+    public convenience init() {
+      self.init(_StubCGContext())
+    }
+
+    /// Releases the native resources held by this `Graphics` context.
+    ///
+    /// Mirrors `java.awt.Graphics.dispose()`.
+    open func dispose() {
+      // No native resources to release on non-Apple platforms.
+    }
 
     public func setFont(_ f: java.awt.Font) { font = f }
     public func getFont() -> java.awt.Font  { font     }

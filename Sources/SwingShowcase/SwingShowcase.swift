@@ -54,6 +54,8 @@ struct SwingShowcaseApp {
     // ── Actions (shared between menu items and toolbar buttons) ──────────────
     let openAction       = SwingOpenAction()
     let saveAction       = SwingSaveAction()
+    let print11Action    = SwingPrint11Action(owner: frame)
+    let print12Action    = SwingPrint12Action(owner: frame)
     let quitAction       = SwingQuitAction()
 
     let cutAction        = SwingCutAction()
@@ -83,6 +85,9 @@ struct SwingShowcaseApp {
     let fileMenu = javax.swing.JMenu("File")
     fileMenu.add(openAction)
     fileMenu.add(saveAction)
+    fileMenu.addSeparator()
+    fileMenu.add(print11Action)
+    fileMenu.add(print12Action)
     fileMenu.addSeparator()
     fileMenu.add(quitAction)
     menuBar.add(fileMenu)
