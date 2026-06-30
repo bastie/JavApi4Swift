@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: MIT
  */
 
-extension javax.swing.plaf.basic {
+extension javax.swing.plaf.knight {
 
   /// Das Knight Look & Feel ist ein Beispiel Look & Feel
   ///
@@ -30,34 +30,42 @@ extension javax.swing.plaf.basic {
 
     override open func getDefaults() -> javax.swing.UIDefaults {
       let d = javax.swing.UIDefaults()
-      d["ButtonUI"]       = { javax.swing.plaf.basic.BasicButtonUI()       }
-      d["ColorChooserUI"] = { javax.swing.plaf.basic.BasicColorChooserUI() }
-      d["DesktopPaneUI"]  = { javax.swing.plaf.basic.BasicDesktopPaneUI()  }
-      d["FileChooserUI"]  = { javax.swing.plaf.basic.BasicFileChooserUI()  }
-      d["OptionPaneUI"]   = { javax.swing.plaf.basic.BasicOptionPaneUI()   }
-      d["CheckBoxUI"]     = { javax.swing.plaf.basic.BasicCheckBoxUI()     }
-      d["ComboBoxUI"]     = { javax.swing.plaf.basic.BasicComboBoxUI()     }
-      d["LabelUI"]        = { javax.swing.plaf.basic.BasicLabelUI()        }
-      d["ListUI"]         = { javax.swing.plaf.basic.BasicListUI()         }
-      d["MenuBarUI"]      = { javax.swing.plaf.basic.BasicMenuBarUI()      }
-      d["PopupMenuUI"]    = { javax.swing.plaf.basic.BasicPopupMenuUI()    }
-      d["RadioButtonUI"]  = { javax.swing.plaf.basic.BasicRadioButtonUI()  }
-      d["ScrollBarUI"]    = { javax.swing.plaf.basic.BasicScrollBarUI()    }
-      d["ScrollPaneUI"]   = { javax.swing.plaf.basic.BasicScrollPaneUI()   }
-      d["SpinnerUI"]      = { javax.swing.plaf.basic.BasicSpinnerUI()      }
-      d["FormattedTextFieldUI"] = { javax.swing.plaf.basic.BasicTextFieldUI()    }
-      d["PasswordFieldUI"] = { javax.swing.plaf.basic.BasicPasswordFieldUI() }
-      d["TextAreaUI"]     = { javax.swing.plaf.basic.BasicTextAreaUI()     }
-      d["TextPaneUI"]     = { javax.swing.plaf.basic.BasicTextPaneUI()     }
-      d["EditorPaneUI"]   = { javax.swing.plaf.basic.BasicTextPaneUI()     }
-      d["TextFieldUI"]    = { javax.swing.plaf.basic.BasicTextFieldUI()    }
-      d["SplitPaneUI"]    = { javax.swing.plaf.basic.BasicSplitPaneUI()    }
-      d["ToggleButtonUI"] = { javax.swing.plaf.basic.BasicToggleButtonUI() }
-      d["TreeUI"]         = { javax.swing.plaf.basic.BasicTreeUI()         }
-      d["TableUI"]        = { javax.swing.plaf.basic.BasicTableUI()        }
-      d["TableHeaderUI"]  = { javax.swing.plaf.basic.BasicTableHeaderUI()  }
-      d["ProgressBarUI"]  = { javax.swing.plaf.basic.BasicProgressBarUI()  }
-      d["SliderUI"]       = { javax.swing.plaf.basic.BasicSliderUI()       }
+      d["ButtonUI"]              = { javax.swing.plaf.basic.BasicButtonUI()              }
+      d["CheckBoxMenuItemUI"]    = { javax.swing.plaf.basic.BasicCheckBoxMenuItemUI()    }
+      d["CheckBoxUI"]            = { javax.swing.plaf.basic.BasicCheckBoxUI()            }
+      d["ColorChooserUI"]        = { javax.swing.plaf.basic.BasicColorChooserUI()        }
+      d["ComboBoxUI"]            = { javax.swing.plaf.basic.BasicComboBoxUI()            }
+      d["DesktopPaneUI"]         = { javax.swing.plaf.basic.BasicDesktopPaneUI()         }
+      d["EditorPaneUI"]          = { javax.swing.plaf.basic.BasicTextPaneUI()            }
+      d["FileChooserUI"]         = { javax.swing.plaf.basic.BasicFileChooserUI()         }
+      d["FormattedTextFieldUI"]  = { javax.swing.plaf.basic.BasicTextFieldUI()           }
+      d["InternalFrameUI"]       = { javax.swing.plaf.basic.BasicInternalFrameUI()       }
+      d["LabelUI"]               = { javax.swing.plaf.basic.BasicLabelUI()               }
+      d["ListUI"]                = { javax.swing.plaf.basic.BasicListUI()                }
+      d["MenuBarUI"]             = { javax.swing.plaf.basic.BasicMenuBarUI()             }
+      d["MenuItemUI"]            = { javax.swing.plaf.basic.BasicMenuItemUI()            }
+      d["OptionPaneUI"]          = { javax.swing.plaf.basic.BasicOptionPaneUI()          }
+      d["PasswordFieldUI"]       = { javax.swing.plaf.basic.BasicPasswordFieldUI()       }
+      d["PopupMenuUI"]           = { javax.swing.plaf.basic.BasicPopupMenuUI()           }
+      d["ProgressBarUI"]         = { javax.swing.plaf.basic.BasicProgressBarUI()         }
+      d["RadioButtonMenuItemUI"] = { javax.swing.plaf.knight.KnightRadioButtonMenuItemUI() }
+      d["RadioButtonUI"]         = { javax.swing.plaf.knight.KnightRadioButtonUI()         }
+      d["ScrollBarUI"]           = { javax.swing.plaf.basic.BasicScrollBarUI()           }
+      d["ScrollPaneUI"]          = { javax.swing.plaf.basic.BasicScrollPaneUI()          }
+      d["SeparatorUI"]           = { javax.swing.plaf.basic.BasicSeparatorUI()           }
+      d["SliderUI"]              = { javax.swing.plaf.basic.BasicSliderUI()              }
+      d["SpinnerUI"]             = { javax.swing.plaf.basic.BasicSpinnerUI()             }
+      d["SplitPaneUI"]           = { javax.swing.plaf.basic.BasicSplitPaneUI()           }
+      d["TabbedPaneUI"]          = { javax.swing.plaf.basic.BasicTabbedPaneUI()          }
+      d["TableHeaderUI"]         = { javax.swing.plaf.basic.BasicTableHeaderUI()         }
+      d["TableUI"]               = { javax.swing.plaf.basic.BasicTableUI()               }
+      d["TextAreaUI"]            = { javax.swing.plaf.basic.BasicTextAreaUI()            }
+      d["TextFieldUI"]           = { javax.swing.plaf.basic.BasicTextFieldUI()           }
+      d["TextPaneUI"]            = { javax.swing.plaf.basic.BasicTextPaneUI()            }
+      d["ToggleButtonUI"]        = { javax.swing.plaf.basic.BasicToggleButtonUI()        }
+      d["ToolBarUI"]             = { javax.swing.plaf.basic.BasicToolBarUI()             }
+      d["ToolTipUI"]             = { javax.swing.plaf.basic.BasicToolTipUI()             }
+      d["TreeUI"]                = { javax.swing.plaf.basic.BasicTreeUI()                }
       return d
     }
   }

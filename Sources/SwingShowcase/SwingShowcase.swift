@@ -124,11 +124,11 @@ struct SwingShowcaseApp {
     let lafMenu = javax.swing.JMenu("Look & Feel")
 
     let basicLaf   = javax.swing.plaf.basic.BasicLookAndFeel()
-    let knightLaf  = javax.swing.plaf.basic.KnightLookAndFeel()
+    let knightLaf  = javax.swing.plaf.knight.KnightLookAndFeel()
     let currentID  = javax.swing.UIManager.getLookAndFeel().getID()
 
-    let lafBasic  = javax.swing.JRadioButtonMenuItem("Basic")
-    let lafKnight = javax.swing.JRadioButtonMenuItem("Dark Knight")
+    let lafBasic  = javax.swing.JRadioButtonMenuItem(basicLaf.getName())
+    let lafKnight = javax.swing.JRadioButtonMenuItem(knightLaf.getName())
 
     lafBasic.setSelected(basicLaf.getID()  == currentID)
     lafKnight.setSelected(knightLaf.getID() == currentID)

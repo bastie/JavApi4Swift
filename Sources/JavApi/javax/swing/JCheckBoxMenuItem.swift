@@ -53,8 +53,7 @@ extension javax.swing {
     override open func getUIClassID() -> String { "CheckBoxMenuItemUI" }
 
     override open func updateUI() {
-      setUI(javax.swing.plaf.basic.BasicCheckBoxMenuItemUI.createUI(self)
-            as! javax.swing.plaf.basic.BasicCheckBoxMenuItemUI)
+      super.updateUI()
     }
 
     // -------------------------------------------------------------------------

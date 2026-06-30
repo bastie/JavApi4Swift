@@ -64,8 +64,7 @@ extension javax.swing {
     override open func getUIClassID() -> String { "MenuItemUI" }
 
     override open func updateUI() {
-      setUI(javax.swing.plaf.basic.BasicMenuItemUI.createUI(self)
-            as! javax.swing.plaf.basic.BasicMenuItemUI)
+      super.updateUI()
     }
 
     // -------------------------------------------------------------------------

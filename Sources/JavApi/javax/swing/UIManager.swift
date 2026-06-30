@@ -79,9 +79,10 @@ extension javax.swing {
       _defaults = laf.getDefaults()
       laf.initialize()
       // Update every live window's component tree so all JComponents get
-      // fresh UI delegates from the new L&F.
+      // fresh UI delegates from the new L&F, then repaint to show the changes.
       for window in java.awt.Window.getWindows() {
         javax.swing.SwingUtilities.updateComponentTreeUI(window)
+        window.repaint()
       }
     }
     

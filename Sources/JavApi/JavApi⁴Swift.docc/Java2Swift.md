@@ -1018,6 +1018,44 @@ Java's `Class.forName` trick was always fragile — the wrong classpath entry si
 
 > **AI hint:** Whenever a Java API uses `ServiceLoader`, do not attempt to replicate runtime reflection. Instead, create a static registry (`nonisolated(unsafe) private static var providers: [any ProviderProtocol] = []`) with a `register(_ provider:)` method and a lookup method. Mark the registry storage `nonisolated(unsafe)` because it is write-once at startup and then read-only — matching Java's typical SPI registration lifecycle.
 
+#### Swing Look & Feel registration (SPI variant)
+
+Swing's `UIManager` / `LookAndFeel` system is another SPI that is replaced by the static-registry pattern described above. There are two additional rules specific to Swing:
+
+**1. `UIDefaults` must be complete.**  
+Every `ComponentUI` key that a component can request must be present in `getDefaults()`. A missing entry (e.g. `RadioButtonMenuItemUI`) is silent at registration time but causes the component to fall back to hard-coded Basic UI at paint time — the wrong renderer silently wins. When adding a new `LookAndFeel`, cross-check `getDefaults()` against the full list in `BasicLookAndFeel`.
+
+**2. `updateUI()` must delegate to `UIManager`, not hard-code a class.**  
+Each `JComponent` subclass must implement `updateUI()` by calling `super.updateUI()` (which calls `UIManager.getUI(self)`), not by directly instantiating a specific UI class. Hard-coded calls like `BasicMenuItemUI.createUI(self)` bypass the active L&F entirely and cannot be switched at runtime.
+
+```swift
+// ✅ correct — honours the active L&F
+override open func updateUI() {
+  super.updateUI()
+}
+
+// ❌ wrong — always uses Basic regardless of L&F
+override open func updateUI() {
+  setUI(BasicMenuItemUI.createUI(self))
+}
+```
+
+**3. `Component.visible` default semantics.**  
+In Java, `java.awt.Component.visible` defaults to `true` for all non-window components. Only `Window` and its subclasses (`Frame`, `Dialog`, `JFrame`, …) start invisible. This is critical for `Window._allWindows` registration: `setVisible(true)` on a window only registers it on the *first* call (when `wasVisible` transitions from `false` → `true`). If `visible` starts as `true`, the window is never registered, and `UIManager.setLookAndFeel()` finds zero windows to update.
+
+```swift
+// Component.swift — correct default
+public var visible: Bool = true   // non-window components start visible
+
+// Window.swift — override in init() for Window subclasses
+public override init() {
+  super.init()
+  self.visible = false            // windows start invisible, like Java
+}
+```
+
+> **AI hint:** When porting any `java.awt.Window` subclass, always add an `init()` that sets `self.visible = false`. Do not change the `Component` default. Do not use `override var visible` — stored-property overrides are not allowed in Swift; use `init()` instead.
+
 #### visibility
 
 Swift visiblilities are:

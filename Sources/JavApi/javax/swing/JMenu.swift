@@ -88,6 +88,9 @@ extension javax.swing {
     public init(_ text: String = "") {
       self._text = text
       super.init()
+      // Register swingPopupMenu as a Container child so that
+      // SwingUtilities.updateComponentTreeUI reaches it during L&F switches.
+      super.add(swingPopupMenu as java.awt.Component)
     }
 
     // -------------------------------------------------------------------------
@@ -132,5 +135,6 @@ extension javax.swing {
 
     /// Returns the number of items in the popup.
     public func getItemCount() -> Int { swingPopupMenu.getItemCount() }
+
   }
 }

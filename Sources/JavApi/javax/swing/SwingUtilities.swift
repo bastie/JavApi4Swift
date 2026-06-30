@@ -84,6 +84,32 @@ extension javax.swing {
       if let jc = component as? javax.swing.JComponent {
         jc.updateUI()
       }
+      // Java special-cases JMenu: explicitly visit its popup even if it is not
+      // in the normal Container children list.
+      if let menu = component as? javax.swing.JMenu {
+        updateComponentTreeUI(menu.swingPopupMenu)
+      }
+      // Explicitly visit JMenuBar menus — they may not appear in getComponents().
+      if let menuBar = component as? javax.swing.JMenuBar {
+        for menu in menuBar.getMenus() {
+          updateComponentTreeUI(menu)
+        }
+      }
+      // Explicitly visit JPopupMenu items — they may not appear in getComponents().
+      if let popup = component as? javax.swing.JPopupMenu {
+        for item in popup.getItems() {
+          updateComponentTreeUI(item)
+        }
+      }
+      // JTabbedPane.getComponents() returns only the selected tab for hit-testing.
+      // For L&F updates all tab panels must be visited.
+      if let tabbedPane = component as? javax.swing.JTabbedPane {
+        for i in 0 ..< tabbedPane.getTabCount() {
+          if let tabComp = tabbedPane.getComponentAt(i) {
+            updateComponentTreeUI(tabComp)
+          }
+        }
+      }
       // Recurse into children
       if let container = component as? java.awt.Container {
         for child in container.getComponents() {

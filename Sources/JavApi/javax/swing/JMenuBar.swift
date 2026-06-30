@@ -97,19 +97,21 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// Appends `menu` to the right of the last menu.
+    ///
+    /// Delegates to `Container.add()` so `menu` lands in `children` and is
+    /// visible to `SwingUtilities.updateComponentTreeUI` during L&F switches —
+    /// matching Java's `JMenuBar.add(JMenu)` behaviour.
     @discardableResult
     public func add(_ menu: javax.swing.JMenu) -> javax.swing.JMenu {
       menus.append(menu)
-      menu.parent = self          // wire up AWT parent for layout / repaint
-      invalidate()
+      super.add(menu as java.awt.Component)   // registers in Container.children + sets menu.parent
       return menu
     }
 
     /// Removes `menu` from the bar.
     public func remove(_ menu: javax.swing.JMenu) {
       menus.removeAll { $0 === menu }
-      menu.parent = nil
-      invalidate()
+      super.remove(menu)
     }
 
     /// Returns the menu at `index`.

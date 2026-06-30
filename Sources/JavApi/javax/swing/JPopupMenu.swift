@@ -95,11 +95,14 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// Appends a `JMenuItem` to this popup.
+    ///
+    /// Delegates to `Container.add()` so the item lands in `children` and is
+    /// visible to `SwingUtilities.updateComponentTreeUI` during L&F switches —
+    /// matching Java's `JPopupMenu.add(JMenuItem)` behaviour.
     @discardableResult
     public func add(_ item: javax.swing.JMenuItem) -> javax.swing.JMenuItem {
       items.append(item)
-      item.parent = self
-      invalidate()
+      super.add(item as java.awt.Component)   // registers in Container.children + sets item.parent
       return item
     }
 
@@ -110,9 +113,8 @@ extension javax.swing {
 
     /// Removes all menu items from this popup.
     public func removeAllItems() {
-      items.forEach { $0.parent = nil }
+      items.forEach { super.remove($0 as java.awt.Component) }
       items.removeAll()
-      invalidate()
     }
 
     /// Returns all items (including separators).
