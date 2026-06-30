@@ -13,7 +13,10 @@ extension javax.swing {
   /// - `getUI(_:)` looks up the correct `ComponentUI` for a `JComponent`
   ///   by deriving a key from the component's class name (e.g. `JButton` →
   ///   `"ButtonUI"`) and asking the active L&F's `UIDefaults` table.
-  /// - `setLookAndFeel(_:)` installs a new L&F; `getLookAndFeel()` returns it.
+  /// - `setLookAndFeel(_:)` installs a new L&F, swaps the defaults table,
+  ///   and automatically calls `SwingUtilities.updateComponentTreeUI` on
+  ///   every existing `java.awt.Window` so all live components get fresh
+  ///   UI delegates from the new L&F.
   ///
   /// ## Default L&F
   ///
@@ -22,7 +25,7 @@ extension javax.swing {
   /// ## Usage
   ///
   /// ```swift
-  /// // Install a different L&F:
+  /// // Install a different L&F at runtime — all open windows update automatically:
   /// try UIManager.setLookAndFeel(MyCustomLookAndFeel())
   ///
   /// // Fetch a UI delegate (called internally by JButton.updateUI()):
@@ -75,6 +78,11 @@ extension javax.swing {
       _laf = laf
       _defaults = laf.getDefaults()
       laf.initialize()
+      // Update every live window's component tree so all JComponents get
+      // fresh UI delegates from the new L&F.
+      for window in java.awt.Window.getWindows() {
+        javax.swing.SwingUtilities.updateComponentTreeUI(window)
+      }
     }
     
     /// Convenience: install a L&F by fully-qualified class name (no-op stub).

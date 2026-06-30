@@ -57,5 +57,39 @@ extension javax.swing {
     public static func isEventDispatchThread() -> Bool {
       return true
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: L&F update
+    // -------------------------------------------------------------------------
+
+    /// Recursively calls `updateUI()` on `component` and all of its
+    /// descendants.
+    ///
+    /// Call this after installing a new Look & Feel so that every component
+    /// in the tree gets a fresh `ComponentUI` delegate from the new L&F:
+    ///
+    /// ```swift
+    /// try UIManager.setLookAndFeel(MyLookAndFeel())
+    /// SwingUtilities.updateComponentTreeUI(myFrame)
+    /// ```
+    ///
+    /// Only `JComponent` instances have a `updateUI()` method; plain
+    /// `java.awt.Component` nodes are skipped (their children are still
+    /// visited).
+    ///
+    /// - Parameter component: the root of the component tree to refresh.
+    /// - Since: Java 1.2
+    public static func updateComponentTreeUI(_ component: java.awt.Component) {
+      // Update this node if it is a JComponent
+      if let jc = component as? javax.swing.JComponent {
+        jc.updateUI()
+      }
+      // Recurse into children
+      if let container = component as? java.awt.Container {
+        for child in container.getComponents() {
+          updateComponentTreeUI(child)
+        }
+      }
+    }
   }
 }

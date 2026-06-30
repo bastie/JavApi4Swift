@@ -120,6 +120,34 @@ struct SwingShowcaseApp {
     componentsMenu.add(dialogsAction)
     menuBar.add(componentsMenu)
 
+    // Look & Feel menu — JRadioButtonMenuItems with mutual exclusion
+    let lafMenu = javax.swing.JMenu("Look & Feel")
+
+    let basicLaf   = javax.swing.plaf.basic.BasicLookAndFeel()
+    let knightLaf  = javax.swing.plaf.basic.KnightLookAndFeel()
+    let currentID  = javax.swing.UIManager.getLookAndFeel().getID()
+
+    let lafBasic  = javax.swing.JRadioButtonMenuItem("Basic")
+    let lafKnight = javax.swing.JRadioButtonMenuItem("Dark Knight")
+
+    lafBasic.setSelected(basicLaf.getID()  == currentID)
+    lafKnight.setSelected(knightLaf.getID() == currentID)
+
+    lafBasic.addActionListener { _ in
+      try? javax.swing.UIManager.setLookAndFeel(basicLaf)
+      lafBasic.setSelected(true)
+      lafKnight.setSelected(false)
+    }
+    lafKnight.addActionListener { _ in
+      try? javax.swing.UIManager.setLookAndFeel(knightLaf)
+      lafKnight.setSelected(true)
+      lafBasic.setSelected(false)
+    }
+
+    lafMenu.add(lafBasic)
+    lafMenu.add(lafKnight)
+    menuBar.add(lafMenu)
+
     // Help menu
     let helpMenu = javax.swing.JMenu("Help")
     helpMenu.add(aboutAction)

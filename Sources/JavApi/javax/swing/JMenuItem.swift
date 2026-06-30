@@ -8,9 +8,9 @@ extension javax.swing {
 
   /// A single item inside a `JPopupMenu`.
   ///
-  /// In the full Swing hierarchy `JMenuItem` extends `AbstractButton`.
-  /// This stub provides the label and `ActionListener` support needed
-  /// for `BasicPopupMenuUI` to paint and dispatch clicks.
+  /// Mirrors the Java Swing hierarchy: `JMenuItem` extends `AbstractButton`,
+  /// giving it a `ButtonModel`, `ActionListener`/`ItemListener` support,
+  /// `getText`/`setText`, `isSelected`/`setSelected`, and `doClick()`.
   ///
   /// ## Usage
   ///
@@ -20,42 +20,30 @@ extension javax.swing {
   /// menu.add(item)
   /// ```
   ///
+  /// - Since: Java 1.2 / JFC 1.0
   @MainActor
-  open class JMenuItem: javax.swing.JComponent {
+  open class JMenuItem: javax.swing.AbstractButton {
 
     // -------------------------------------------------------------------------
     // MARK: Properties
     // -------------------------------------------------------------------------
 
-    /// The label displayed in the popup menu.
-    private var _text: String
-
     /// `true` when this item is a visual separator (drawn as a horizontal rule).
     /// Create separators with `JMenuItem.separator()`.
     public private(set) var isSeparator: Bool = false
 
-    // -------------------------------------------------------------------------
-    // MARK: Model
-    // -------------------------------------------------------------------------
-
-    private var _model: javax.swing.ButtonModel = javax.swing.DefaultButtonModel()
-
-    public func getModel() -> javax.swing.ButtonModel { _model }
-    public func setModel(_ model: javax.swing.ButtonModel) { _model = model }
-
     /// Whether the mouse is hovering over this item — delegates to model.
     internal var isArmed: Bool {
-      get { _model.isArmed() }
-      set { _model.setArmed(newValue) }
+      get { getModel().isArmed() }
+      set { getModel().setArmed(newValue) }
     }
 
     // -------------------------------------------------------------------------
     // MARK: Init
     // -------------------------------------------------------------------------
 
-    public init(_ text: String = "") {
-      self._text = text
-      super.init()
+    public override init(_ text: String = "", _ icon: javax.swing.Icon? = nil) {
+      super.init(text, icon)
       updateUI()
     }
 
@@ -63,11 +51,15 @@ extension javax.swing {
     ///
     /// Adopts `Action.NAME` as label and registers the action as listener.
     public init(_ action: javax.swing.Action) {
-      self._text = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
-      super.init()
-      actionListeners.append(action)
+      let name = (action.getValue(javax.swing.AbstractAction.NAME) as? String) ?? ""
+      super.init(name)
+      addActionListener(action)
       updateUI()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: UI
+    // -------------------------------------------------------------------------
 
     override open func getUIClassID() -> String { "MenuItemUI" }
 
@@ -75,6 +67,10 @@ extension javax.swing {
       setUI(javax.swing.plaf.basic.BasicMenuItemUI.createUI(self)
             as! javax.swing.plaf.basic.BasicMenuItemUI)
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: Factory
+    // -------------------------------------------------------------------------
 
     /// Factory for a visual separator line.
     public static func separator() -> JMenuItem {
@@ -84,44 +80,16 @@ extension javax.swing {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Accessors
+    // MARK: Click dispatch
     // -------------------------------------------------------------------------
 
-    public func getText() -> String     { _text }
-    public func setText(_ t: String)    { _text = t; invalidate() }
-
-    /// Returns whether this menu item is in a selected/checked state.
-    ///
-    /// Base implementation returns `false`.  Subclasses (`JCheckBoxMenuItem`,
-    /// `JRadioButtonMenuItem`) override this to return their toggle state.
-    open func isSelected() -> Bool { false }
-
-    // -------------------------------------------------------------------------
-    // MARK: ActionListener
-    // -------------------------------------------------------------------------
-
-    private var actionListeners: [java.awt.event.ActionListener] = []
-
-    /// Registers an `ActionListener` object (Java-style).
-    public func addActionListener(_ listener: java.awt.event.ActionListener) {
-      actionListeners.append(listener)
-    }
-
-    /// Convenience overload: wraps a closure in an `ActionListener`.
-    public func addActionListener(_ handler: @escaping (java.awt.event.ActionEvent) -> Void) {
-      actionListeners.append(_SwingClosureActionListener(handler))
-    }
-
-    /// Removes all action listeners.
-    public func removeActionListeners() {
-      actionListeners.removeAll()
-    }
-
-    /// Fires an `ACTION_PERFORMED` event to all registered listeners.
-    public func doClick() {
+    override open func doClick() {
       guard !isSeparator else { return }
-      let e = java.awt.event.ActionEvent(self, java.awt.event.ActionEvent.ACTION_PERFORMED, _text, 0, 0)
-      actionListeners.forEach { $0.actionPerformed(e) }
+      fireActionPerformed(getText())
+    }
+
+    override open func buttonClicked() {
+      doClick()
     }
   }
 }

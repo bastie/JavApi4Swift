@@ -20,7 +20,30 @@ extension java.awt {
   /// - `toFront()` / `toBack()` — Fensterstapel (Stub, plattformabhängig)
   @MainActor
   open class Window: Container {
-    
+
+    // -------------------------------------------------------------------------
+    // MARK: Global window registry
+    // -------------------------------------------------------------------------
+
+    /// Weak-reference wrapper so the registry does not retain windows.
+    private struct WeakWindow {
+      weak var window: Window?
+    }
+
+    /// All `Window` instances ever created that have not yet been garbage-collected.
+    /// Mirrors `java.awt.Window.getWindows()` (Java 1.6+).
+    nonisolated(unsafe) private static var _allWindows: [WeakWindow] = []
+
+    /// Returns all `Window` instances that are still alive (not disposed /
+    /// deallocated).
+    ///
+    /// - Since: Java 1.6
+    public static func getWindows() -> [Window] {
+      // Prune dead entries while we're here
+      _allWindows.removeAll { $0.window == nil }
+      return _allWindows.compactMap { $0.window }
+    }
+
     /// - Returns: Returns a Window specific locale if set or the system defautl Locale
     /// - Since: Java 1.1
     open override func getLocale() -> java.util.Locale {
@@ -38,6 +61,13 @@ extension java.awt {
     open override func setVisible(_ visible: Bool) {
       let wasVisible = self.visible
       self.visible   = visible
+      // Lazy registration: add to the global window registry on first show.
+      if visible && !wasVisible {
+        let alreadyRegistered = Window._allWindows.contains { $0.window === self }
+        if !alreadyRegistered {
+          Window._allWindows.append(WeakWindow(window: self))
+        }
+      }
       let toolkit    = java.awt.Toolkit.getDefaultToolkit()
       if visible {
         toolkit.show(self)
