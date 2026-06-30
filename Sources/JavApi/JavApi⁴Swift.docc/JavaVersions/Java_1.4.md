@@ -255,6 +255,34 @@ version | implemented | tested   | type          | name                    | mor
 1.4     | ✔️          | ✔️       | method        | entering/exiting/throwing() | diagnostic convenience methods
 
 
+### javax.swing.SpringLayout (✔️/⭕️)
+
+> Constraint-based layout that positions each component's edges using `Spring` values
+> relative to other component edges. Common for form layouts where components must be
+> aligned relative to each other rather than to the container.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.4     | ✔️          | ⭕️       | open class    | SpringLayout            | extends java.awt.LayoutManager2; @MainActor
+1.4     | ✔️          | 🪄       | final field   | NORTH                   | "North"
+1.4     | ✔️          | 🪄       | final field   | SOUTH                   | "South"
+1.4     | ✔️          | 🪄       | final field   | EAST                    | "East"
+1.4     | ✔️          | 🪄       | final field   | WEST                    | "West"
+1.4     | ✔️          | 🪄       | final field   | HORIZONTAL_CENTER       | "HorizontalCenter" — horizontal midpoint
+1.4     | ✔️          | 🪄       | final field   | VERTICAL_CENTER         | "VerticalCenter" — vertical midpoint
+1.4     | ✔️          | 🪄       | final field   | WIDTH                   | "Width" — width spring
+1.4     | ✔️          | 🪄       | final field   | HEIGHT                  | "Height" — height spring
+1.6     | ✔️          | 🪄       | final field   | BASELINE                | "Baseline" — approx. 75 % of component height
+1.6     | ✔️          | 🪄       | final field   | BASELINE_LEADING        | "BaselineLeading"
+1.6     | ✔️          | 🪄       | final field   | BASELINE_TRAILING       | "BaselineTrailing"
+1.4     | ✔️          | ⭕️       | inner class   | SpringLayout.Constraints| holds edge springs for one component
+1.4     | ✔️          | ⭕️       | method        | putConstraint()         | (String,Component,Int,String,Component)
+1.4     | ✔️          | ⭕️       | method        | getConstraints()        | (Component)->Constraints
+1.4     | ✔️          | ⭕️       | method        | layoutContainer()       | resolves lazy anchors to pixel positions
+1.4     | ✔️          | ⭕️       | method        | preferredLayoutSize()   | (Container)->Dimension
+1.4     | ✔️          | ⭕️       | method        | minimumLayoutSize()     | (Container)->Dimension (0×0)
+1.4     | ✔️          | ⭕️       | method        | maximumLayoutSize()     | (Container)->Dimension (Int.max×Int.max)
+
 ### javax.swing.text — Swing Formatter classes (new in 1.4)
 
 ##### javax.swing.JFormattedTextField

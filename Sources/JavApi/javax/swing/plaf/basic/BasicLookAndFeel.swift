@@ -5,8 +5,6 @@
 
 extension javax.swing.plaf.basic {
   
-  // FIXME: Documentation of class not equals with implementation
-
   /// The Basic Look & Feel — the foundation L&F shipped with JavApi⁴Swift.
   ///
   /// `BasicLookAndFeel` registers factory closures for all implemented
@@ -15,24 +13,36 @@ extension javax.swing.plaf.basic {
   ///
   /// ## Registered UIs
   ///
-  /// | Key               | UI class               |
-  /// |-------------------|------------------------|
-  /// | `"ButtonUI"`      | `BasicButtonUI`        |
-  /// | `"CheckBoxUI"`    | `BasicCheckBoxUI`      |
-  /// | `"ColorChooserUI"`| `BasicColorChooserUI`  |
-  /// | `"DesktopPaneUI"` | `BasicDesktopPaneUI`   |
-  /// | `"EditorPaneUI"`  | `BasicTextPaneUI`      |
-  /// | `"FileChooserUI"` | `BasicFileChooserUI`   |
-  /// | `"OptionPaneUI"`  | `BasicOptionPaneUI`    |
-  /// | `"LabelUI"`       | `BasicLabelUI`         |
-  /// | `"MenuBarUI"`     | `BasicMenuBarUI`       |
-  /// | `"PopupMenuUI"`   | `BasicPopupMenuUI`     |
-  /// | `"RadioButtonUI"` | `BasicRadioButtonUI`   |
-  /// | `"TextAreaUI"`    | `BasicTextAreaUI`      |
-  /// | `"TextFieldUI"`   | `BasicTextFieldUI`     |
-  /// | `"TextPaneUI"`    | `BasicTextPaneUI`      |
-  /// | `"SplitPaneUI"`   | `BasicSplitPaneUI`     |
-  /// | `"ToggleButtonUI"`| `BasicToggleButtonUI`  |
+  /// | Key                    | UI class                    |
+  /// |------------------------|-----------------------------|
+  /// | `"ButtonUI"`           | `BasicButtonUI`             |
+  /// | `"CheckBoxUI"`         | `BasicCheckBoxUI`           |
+  /// | `"ColorChooserUI"`     | `BasicColorChooserUI`       |
+  /// | `"ComboBoxUI"`         | `BasicComboBoxUI`           |
+  /// | `"DesktopPaneUI"`      | `BasicDesktopPaneUI`        |
+  /// | `"EditorPaneUI"`       | `BasicTextPaneUI`           |
+  /// | `"FileChooserUI"`      | `BasicFileChooserUI`        |
+  /// | `"FormattedTextFieldUI"`| `BasicTextFieldUI`         |
+  /// | `"LabelUI"`            | `BasicLabelUI`              |
+  /// | `"ListUI"`             | `BasicListUI`               |
+  /// | `"MenuBarUI"`          | `BasicMenuBarUI`            |
+  /// | `"OptionPaneUI"`       | `BasicOptionPaneUI`         |
+  /// | `"PasswordFieldUI"`    | `BasicPasswordFieldUI`      |
+  /// | `"PopupMenuUI"`        | `BasicPopupMenuUI`          |
+  /// | `"ProgressBarUI"`      | `BasicProgressBarUI`        |
+  /// | `"RadioButtonUI"`      | `BasicRadioButtonUI`        |
+  /// | `"ScrollBarUI"`        | `BasicScrollBarUI`          |
+  /// | `"ScrollPaneUI"`       | `BasicScrollPaneUI`         |
+  /// | `"SliderUI"`           | `BasicSliderUI`             |
+  /// | `"SpinnerUI"`          | `BasicSpinnerUI`            |
+  /// | `"SplitPaneUI"`        | `BasicSplitPaneUI`          |
+  /// | `"TableHeaderUI"`      | `BasicTableHeaderUI`        |
+  /// | `"TableUI"`            | `BasicTableUI`              |
+  /// | `"TextAreaUI"`         | `BasicTextAreaUI`           |
+  /// | `"TextFieldUI"`        | `BasicTextFieldUI`          |
+  /// | `"TextPaneUI"`         | `BasicTextPaneUI`           |
+  /// | `"ToggleButtonUI"`     | `BasicToggleButtonUI`       |
+  /// | `"TreeUI"`             | `BasicTreeUI`               |
   ///
   /// - Since: Java 1.2
   @MainActor

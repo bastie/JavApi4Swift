@@ -1117,6 +1117,21 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ✔️          | ⭕️       | method        | paint()                 | (Graphics,JComponent) — no-op, JScrollPane.paint handles all
 1.2     | ✔️          | ⭕️       | method        | getPreferredSize()      | (JComponent)->Dimension
 
+### javax.swing.plaf.basic.BasicLookAndFeel (✔️/⭕️)
+
+> Registers factory closures for all implemented Basic L&F component-UI classes.
+> Serves as the default L&F installed by `UIManager` at startup.
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | 🪄       | open class    | BasicLookAndFeel        | extends javax.swing.LookAndFeel; @MainActor
+1.2     | ✔️          | 🪄       | method        | getName()               | ()->"Basic"
+1.2     | ✔️          | 🪄       | method        | getID()                 | ()->"Basic"
+1.2     | ✔️          | 🪄       | method        | getDescription()        | ()->"The Basic Look and Feel"
+1.2     | ✔️          | 🪄       | method        | isNativeLookAndFeel()   | ()->false
+1.2     | ✔️          | 🪄       | method        | isSupportedLookAndFeel()| ()->true
+1.2     | ✔️          | ⭕️       | method        | getDefaults()           | ()->UIDefaults; registers 27 UI factory closures
+
 ### javax.swing.JOptionPane (✔️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations

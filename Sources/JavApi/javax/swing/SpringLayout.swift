@@ -50,12 +50,31 @@ extension javax.swing {
     // MARK: Edge name constants
     // -------------------------------------------------------------------------
 
-    // TODO: implements missing constants
-    
+    // Cardinal edge constants (all Java versions)
     public static let NORTH = "North"
     public static let SOUTH = "South"
     public static let EAST  = "East"
     public static let WEST  = "West"
+
+    // Centre-axis pseudo-edges (Java 1.4+)
+    /// Horizontal midpoint of the component.
+    public static let HORIZONTAL_CENTER = "HorizontalCenter"
+    /// Vertical midpoint of the component.
+    public static let VERTICAL_CENTER   = "VerticalCenter"
+
+    // Size pseudo-edges (Java 1.4+)
+    /// Width spring of the component.
+    public static let WIDTH  = "Width"
+    /// Height spring of the component.
+    public static let HEIGHT = "Height"
+
+    // Baseline constants (Java 1.6+)
+    /// Baseline of the component's text content.
+    public static let BASELINE          = "Baseline"
+    /// Leading edge of the baseline (usually left in LTR layouts).
+    public static let BASELINE_LEADING  = "BaselineLeading"
+    /// Trailing edge of the baseline (usually right in LTR layouts).
+    public static let BASELINE_TRAILING = "BaselineTrailing"
 
     // -------------------------------------------------------------------------
     // MARK: Lazy anchor record
@@ -77,35 +96,63 @@ extension javax.swing {
     @MainActor
     public final class Constraints {
 
-      public static let NORTH = SpringLayout.NORTH
-      public static let SOUTH = SpringLayout.SOUTH
-      public static let EAST  = SpringLayout.EAST
-      public static let WEST  = SpringLayout.WEST
+      public static let NORTH             = SpringLayout.NORTH
+      public static let SOUTH             = SpringLayout.SOUTH
+      public static let EAST              = SpringLayout.EAST
+      public static let WEST              = SpringLayout.WEST
+      public static let HORIZONTAL_CENTER = SpringLayout.HORIZONTAL_CENTER
+      public static let VERTICAL_CENTER   = SpringLayout.VERTICAL_CENTER
+      public static let WIDTH             = SpringLayout.WIDTH
+      public static let HEIGHT            = SpringLayout.HEIGHT
+      public static let BASELINE          = SpringLayout.BASELINE
+      public static let BASELINE_LEADING  = SpringLayout.BASELINE_LEADING
+      public static let BASELINE_TRAILING = SpringLayout.BASELINE_TRAILING
 
       // Springs for direct API (getConstraint / setConstraint)
-      var north: Spring? = nil
-      var south: Spring? = nil
-      var east:  Spring? = nil
-      var west:  Spring? = nil
+      var north:           Spring? = nil
+      var south:           Spring? = nil
+      var east:            Spring? = nil
+      var west:            Spring? = nil
+      var horizontalCenter:Spring? = nil
+      var verticalCenter:  Spring? = nil
+      var width:           Spring? = nil
+      var height:          Spring? = nil
+      var baseline:        Spring? = nil
+      var baselineLeading: Spring? = nil
+      var baselineTrailing:Spring? = nil
 
       public init() {}
 
       public func setConstraint(_ edgeName: String, _ s: Spring) {
         switch edgeName {
-        case Constraints.NORTH: north = s
-        case Constraints.SOUTH: south = s
-        case Constraints.EAST:  east  = s
-        case Constraints.WEST:  west  = s
+        case Constraints.NORTH:             north            = s
+        case Constraints.SOUTH:             south            = s
+        case Constraints.EAST:              east             = s
+        case Constraints.WEST:              west             = s
+        case Constraints.HORIZONTAL_CENTER: horizontalCenter = s
+        case Constraints.VERTICAL_CENTER:   verticalCenter   = s
+        case Constraints.WIDTH:             width            = s
+        case Constraints.HEIGHT:            height           = s
+        case Constraints.BASELINE:          baseline         = s
+        case Constraints.BASELINE_LEADING:  baselineLeading  = s
+        case Constraints.BASELINE_TRAILING: baselineTrailing = s
         default: break
         }
       }
 
       public func getConstraint(_ edgeName: String) -> Spring? {
         switch edgeName {
-        case Constraints.NORTH: return north
-        case Constraints.SOUTH: return south
-        case Constraints.EAST:  return east
-        case Constraints.WEST:  return west
+        case Constraints.NORTH:             return north
+        case Constraints.SOUTH:             return south
+        case Constraints.EAST:              return east
+        case Constraints.WEST:              return west
+        case Constraints.HORIZONTAL_CENTER: return horizontalCenter
+        case Constraints.VERTICAL_CENTER:   return verticalCenter
+        case Constraints.WIDTH:             return width
+        case Constraints.HEIGHT:            return height
+        case Constraints.BASELINE:          return baseline
+        case Constraints.BASELINE_LEADING:  return baselineLeading
+        case Constraints.BASELINE_TRAILING: return baselineTrailing
         default: return nil
         }
       }
@@ -281,21 +328,38 @@ extension javax.swing {
       // The parent container's edges are always 0 / containerW / containerH.
       if comp === parent {
         switch edge {
-        case SpringLayout.NORTH: return 0
-        case SpringLayout.WEST:  return 0
-        case SpringLayout.SOUTH: return parent.bounds.height
-        case SpringLayout.EAST:  return parent.bounds.width
-        default:                  return 0
+        case SpringLayout.NORTH:             return 0
+        case SpringLayout.WEST:              return 0
+        case SpringLayout.SOUTH:             return parent.bounds.height
+        case SpringLayout.EAST:              return parent.bounds.width
+        case SpringLayout.HORIZONTAL_CENTER: return parent.bounds.width  / 2
+        case SpringLayout.VERTICAL_CENTER:   return parent.bounds.height / 2
+        case SpringLayout.WIDTH:             return parent.bounds.width
+        case SpringLayout.HEIGHT:            return parent.bounds.height
+        // Baseline pseudo-edges are not meaningful for the container itself;
+        // fall back to the top edge so constraints don't crash.
+        case SpringLayout.BASELINE,
+             SpringLayout.BASELINE_LEADING,
+             SpringLayout.BASELINE_TRAILING: return 0
+        default:                             return 0
         }
       }
       // For other components use current bounds (set by a prior layout pass
       // or by the component itself).
       switch edge {
-      case SpringLayout.NORTH: return comp.bounds.y
-      case SpringLayout.SOUTH: return comp.bounds.y + comp.bounds.height
-      case SpringLayout.WEST:  return comp.bounds.x
-      case SpringLayout.EAST:  return comp.bounds.x + comp.bounds.width
-      default:                  return 0
+      case SpringLayout.NORTH:             return comp.bounds.y
+      case SpringLayout.SOUTH:             return comp.bounds.y + comp.bounds.height
+      case SpringLayout.WEST:              return comp.bounds.x
+      case SpringLayout.EAST:              return comp.bounds.x + comp.bounds.width
+      case SpringLayout.HORIZONTAL_CENTER: return comp.bounds.x + comp.bounds.width  / 2
+      case SpringLayout.VERTICAL_CENTER:   return comp.bounds.y + comp.bounds.height / 2
+      case SpringLayout.WIDTH:             return comp.bounds.width
+      case SpringLayout.HEIGHT:            return comp.bounds.height
+      // Baseline: approximate as 75 % of component height (no font metrics available here).
+      case SpringLayout.BASELINE:          return comp.bounds.y + (comp.bounds.height * 3 / 4)
+      case SpringLayout.BASELINE_LEADING:  return comp.bounds.x
+      case SpringLayout.BASELINE_TRAILING: return comp.bounds.x + comp.bounds.width
+      default:                             return 0
       }
     }
   }
