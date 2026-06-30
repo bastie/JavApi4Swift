@@ -37,7 +37,8 @@ extension javax.swing.text {
   ///
   /// - `FORWARD`: the position moves past the inserted text (offset increases).
   /// - `BACKWARD`: the position stays before the inserted text (offset unchanged).
-  public enum Bias {
+  public enum Bias: java.lang.Enum {
+    public typealias E = Bias
     /// The position moves forward past any text inserted at the same offset.
     case FORWARD
     /// The position stays before any text inserted at the same offset.

@@ -8,7 +8,8 @@ import Foundation
 extension java.math {
 
   /// Specifies a rounding policy for numerical operations, mirroring `java.math.RoundingMode`.
-  public enum RoundingMode : Int, CaseIterable, CustomStringConvertible, Sendable {
+  public enum RoundingMode : Int, CaseIterable, CustomStringConvertible, Sendable, java.lang.Enum {
+    public typealias E = RoundingMode
 
     /// Round towards positive infinity.
     case UP = 0

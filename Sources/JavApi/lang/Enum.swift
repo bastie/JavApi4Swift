@@ -32,6 +32,11 @@ extension java.lang.Enum {
   }
   
   public func valueOf(_ name : String) throws (IllegalArgumentException) -> E {
-    throw IllegalArgumentException("Not implemented")
+    for value in values() {
+      if "\(value)" == name {
+        return value
+      }
+    }
+    throw IllegalArgumentException("No enum constant with name '\(name)'")
   }
 }

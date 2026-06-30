@@ -24,6 +24,15 @@ Java 1.5 introduced generics, autoboxing/unboxing, enhanced for-loop, varargs, s
 
 ### java.lang
 
+#### java.lang.Enum — new in 1.5
+
+##### java.lang.Enum (2/2/0)
+
+version | implemented | tested   | type          | name             | more informations
+------- | ----------- | -------- | ------------- | ---------------- | -----------------
+1.5     | ✔️          | ✔️       | method        | values()         | ()->[E] — via CaseIterable default implementation
+1.5     | ✔️          | ✔️       | method        | valueOf(String)  | throws IllegalArgumentException if name not found
+
 #### java.lang.System — Java 1.5 additions
 
 ##### java.lang.System (3/3/0)

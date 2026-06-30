@@ -5,7 +5,8 @@
 
 extension java.nio.file {
   /// The standard open options for working with paths
-  public enum StandardOpenOption : OpenOption {
+  public enum StandardOpenOption : OpenOption, java.lang.Enum {
+    public typealias E = StandardOpenOption
     case APPEND
     case CREATE
     case CREATE_NEW

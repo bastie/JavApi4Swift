@@ -59,7 +59,8 @@ extension javax.swing {
     public static let CENTER    = Alignment.CENTER.rawValue
     public static let BASELINE  = Alignment.BASELINE.rawValue
     
-    public enum Alignment: Int, CaseIterable {
+    public enum Alignment: Int, CaseIterable, java.lang.Enum {
+      public typealias E = Alignment
       public init?(rawValue: Int) {
         guard rawValue >= 0 && rawValue < 4 else { return nil }
         switch rawValue {

@@ -38,27 +38,14 @@ extension javax.swing {
     /// Describes the visual relationship between two components.
     /// - Since: Java 6
     public enum ComponentPlacement : Enum {
-      
+      public typealias E = ComponentPlacement
+
       /// Components are related (e.g. a label and its field). Default gap: 6 px.
       case RELATED
       /// Components are unrelated (e.g. two independent groups). Default gap: 12 px.
       case UNRELATED
       /// Component is visually indented below a parent label. Default gap: 10 px.
       case INDENT
-      
-      /// - Note: In Java also NullPointerException can be throw, but we in Swift did not accept optional name value.
-      public func valueOf(_ name : String) throws (IllegalArgumentException) -> LayoutStyle.ComponentPlacement {
-        switch name {
-        case "RELATED": return .RELATED
-        case "UNRELATED": return .UNRELATED
-        case "INDENT": return .INDENT
-        default: throw IllegalArgumentException("\(name) is not a valid value for LayoutStyle.ComponentPlacement")
-        }
-      }
-      
-      public func values () -> [LayoutStyle.ComponentPlacement] {
-        [.RELATED, .UNRELATED, .INDENT]
-      }
     }
 
     // -------------------------------------------------------------------------

@@ -112,6 +112,36 @@ Instead of `do` use keyword `repeat`.
 
 > **AI hint:** Translate `do { body } while (cond);` literally to `repeat { body } while cond`. Do not add a `catch` clause — `repeat` is not a `do`-`catch` block.
 
+#### enum
+
+Java enumerations (`enum`) are translated as Swift `enum` types that conform to `java.lang.Enum`. Each enum must declare `typealias E = Self` so the protocol's default implementations for `values()` and `valueOf(_:)` work correctly.
+
+```swift
+public enum QuitStrategy : java.lang.Enum {
+  public typealias E = QuitStrategy
+  case CLOSE_ALL_WINDOWS
+  case NORMAL_EXIT
+}
+```
+
+The `java.lang.Enum` protocol provides:
+- `values()` — returns all cases via `CaseIterable.allCases`
+- `valueOf(_:)` — finds a case by name using `"\(value)"` string interpolation, throws `IllegalArgumentException` if not found
+
+If a Java enum has a `RawValue` (e.g. `Int`) add it to the conformance list but keep `java.lang.Enum` in the list:
+
+```swift
+public enum RoundingMode : Int, CaseIterable, java.lang.Enum {
+  public typealias E = RoundingMode
+  case UP = 0
+  // ...
+}
+```
+
+Do **not** add `java.lang.Enum` to Swift-internal helper enums (namespaces, Swiftify adapters, platform-specific helpers) — only to types that directly mirror a Java `enum` type.
+
+> **AI hint:** Every Java `enum Foo { ... }` becomes a Swift `enum Foo : java.lang.Enum { public typealias E = Foo; ... }`. Use UPPER_CASE for case names to match Java convention. Do not implement `values()` or `valueOf(_:)` manually — the protocol default implementations cover the standard cases. Only provide a custom `valueOf` override when the enum has a `RawRepresentable` mapping that differs from the case name.
+
 #### equals method
 
 Java provides an `equals` method on object instances and the `==` operator for test against same object or same primitive value. In Swift the test to check same object is written with `===` operator. Also a `Swift.Equatable` protocol is supported but did not take a unspecific `Any` or `AnyObject` as (second) parameter.

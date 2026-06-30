@@ -19,7 +19,8 @@ extension javax.swing.event {
     // -------------------------------------------------------------------------
 
     /// Describes the kind of hyperlink interaction.
-    public enum EventType: Sendable {
+    public enum EventType: Sendable, java.lang.Enum {
+      public typealias E = EventType
       /// The mouse entered the hyperlink area.
       case ENTERED
       /// The mouse left the hyperlink area.
