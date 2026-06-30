@@ -11,6 +11,9 @@ extension javax.swing.plaf.basic {
   /// (`thumbRect`, `decrementButtonRect`, `incrementButtonRect`) defined on
   /// `JScrollBar` are reused here so that hit-testing and painting stay in sync.
   ///
+  /// The outer border is a `LineBorder(controlDkShadow)` installed in
+  /// `installUI()` and removed in `uninstallUI()`.
+  ///
   /// - Since: Java 1.2
   @MainActor
   open class BasicScrollBarUI: javax.swing.plaf.ComponentUI {
@@ -21,6 +24,20 @@ extension javax.swing.plaf.basic {
 
     open class func createUI(_ c: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI {
       return BasicScrollBarUI()
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: ComponentUI lifecycle
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      component.setBorder(javax.swing.border.LineBorder(java.awt.SystemColor.controlDkShadow))
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
     }
 
     // -------------------------------------------------------------------------
@@ -50,13 +67,6 @@ extension javax.swing.plaf.basic {
       // Arrow buttons
       bar._drawArrow(g, rect: bar.decrementButtonRect(), decrement: true)
       bar._drawArrow(g, rect: bar.incrementButtonRect(), decrement: false)
-
-      // Outer border
-      g.setColor(java.awt.SystemColor.controlDkShadow)
-      g.drawLine(0,     0,     w-1, 0)
-      g.drawLine(0,     0,     0,   h-1)
-      g.drawLine(w-1,   0,     w-1, h-1)
-      g.drawLine(0,     h-1,   w-1, h-1)
     }
 
     // -------------------------------------------------------------------------

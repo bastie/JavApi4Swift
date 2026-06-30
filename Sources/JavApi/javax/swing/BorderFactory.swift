@@ -5,8 +5,6 @@
 
 extension javax.swing {
 
-  // FIXME: BasicButtonUI (and other BasicXxxUI delegates) currently paint their borders directly via hard-coded Graphics calls instead of installing a default Border via setBorder() in installUI() and letting JComponent.paint() call getBorder().paintBorder(...).  As a result, calling setBorder() on a JButton (or other Swing components backed by a BasicXxxUI) has no visible effect — the UI-delegate border always wins.  The fix is to refactor every BasicXxxUI to install its visual border as a real Border object in installUI() and remove the direct drawing from paint().  Until then, setBorder() on those components is essentially a no-op for the visual output.
-
   /// Factory class for creating `Border` objects.
   ///
   /// Use these static factory methods rather than constructing border objects

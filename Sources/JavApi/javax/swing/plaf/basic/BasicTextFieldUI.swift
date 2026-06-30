@@ -9,11 +9,11 @@ extension javax.swing.plaf.basic {
   ///
   /// Renders a single-line text input:
   /// - White / `SystemColor.window` background
-  /// - Sunken 1 px border (shadow + highlight lines)
+  /// - Sunken 1 px border via `TextFieldBorder` (installed in `installUI`)
   /// - Text drawn baseline-correct with 4 px left padding
   ///
   /// Preferred size is derived from the font metrics and the field's
-  /// `columns` hint (falls back to a minimum of 120 px wide).
+  /// `columns` hint (falls back to a minimum of 20 character widths).
   ///
   /// - Since: Java 1.2
   @MainActor
@@ -21,6 +21,20 @@ extension javax.swing.plaf.basic {
 
     private let padX: Int = 4
     private let padY: Int = 2
+
+    // -------------------------------------------------------------------------
+    // MARK: ComponentUI lifecycle
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      component.setBorder(javax.swing.border.TextFieldBorder())
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.TextFieldBorder {
+        component.setBorder(nil)
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Preferred size
@@ -54,22 +68,6 @@ extension javax.swing.plaf.basic {
       g.fillRect(1, 1, w - 2, h - 2)
 
       let isFocused = field.isFocusOwner
-
-      // Border — blue focus ring when focused, sunken otherwise
-      if isFocused {
-        g.setColor(java.awt.Color(59, 130, 246))  // blue focus ring
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      } else {
-        g.setColor(java.awt.SystemColor.controlShadow)
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.setColor(java.awt.SystemColor.controlHighlight)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      }
 
       let text  = field.getText()
       let textY = (h - fm.getHeight()) / 2 + fm.getAscent()

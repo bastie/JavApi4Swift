@@ -9,7 +9,7 @@ extension javax.swing.plaf.basic {
   ///
   /// Renders a multi-line plain-text area:
   /// - White / `SystemColor.window` background
-  /// - Sunken 1 px border
+  /// - Sunken 1 px border via `TextFieldBorder` (installed in `installUI`)
   /// - Each line drawn at correct baseline with 4 px left/top padding
   ///
   /// Preferred size is derived from `rows` × `columns` and the font metrics.
@@ -22,6 +22,20 @@ extension javax.swing.plaf.basic {
 
     private let padX: Int = 4
     private let padY: Int = 3
+
+    // -------------------------------------------------------------------------
+    // MARK: ComponentUI lifecycle
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      component.setBorder(javax.swing.border.TextFieldBorder())
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.TextFieldBorder {
+        component.setBorder(nil)
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Preferred size
@@ -54,22 +68,6 @@ extension javax.swing.plaf.basic {
       g.fillRect(1, 1, w - 2, h - 2)
 
       let isFocused = area.isFocusOwner
-
-      // Border — blue focus ring when focused, sunken otherwise
-      if isFocused {
-        g.setColor(java.awt.Color(59, 130, 246))
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      } else {
-        g.setColor(java.awt.SystemColor.controlShadow)
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.setColor(java.awt.SystemColor.controlHighlight)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      }
 
       let text  = area.getText()
       let lines = text.components(separatedBy: "\n")

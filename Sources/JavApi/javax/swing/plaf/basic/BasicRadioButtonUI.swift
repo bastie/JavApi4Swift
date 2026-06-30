@@ -23,6 +23,10 @@ extension javax.swing.plaf.basic {
       return BasicRadioButtonUI()
     }
 
+    // RadioButton draws its own circle in paint() — no ButtonBorder wanted.
+    override open func installUI(_ component: javax.swing.JComponent) {}
+    override open func uninstallUI(_ component: javax.swing.JComponent) {}
+
     override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let btn = component as? javax.swing.AbstractButton else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)

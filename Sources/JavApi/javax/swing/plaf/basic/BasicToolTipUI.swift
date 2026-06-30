@@ -7,19 +7,34 @@ extension javax.swing.plaf.basic {
 
   /// Default UI delegate for `JToolTip`.
   ///
-  /// Paints a filled rounded rectangle with the tooltip text.
+  /// Paints a filled rectangle with the tooltip text.  The border is a
+  /// `LineBorder(infoText)` installed via `installUI()`.
   ///
   /// ## Colours
   ///
   /// | Role | Source |
   /// |---|---|
   /// | Background | `SystemColor.info` (light yellow) |
-  /// | Border | `SystemColor.infoText` |
+  /// | Border | `SystemColor.infoText` (via `LineBorder`) |
   /// | Text | `SystemColor.infoText` |
   ///
   /// - Since: Java 1.2 / JFC 1.0
   @MainActor
   open class BasicToolTipUI: javax.swing.plaf.ComponentUI {
+
+    // -------------------------------------------------------------------------
+    // MARK: ComponentUI lifecycle
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      component.setBorder(javax.swing.border.LineBorder(java.awt.SystemColor.infoText))
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.LineBorder {
+        component.setBorder(nil)
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Preferred size
@@ -49,12 +64,9 @@ extension javax.swing.plaf.basic {
       g.setColor(java.awt.SystemColor.info)
       g.fillRect(0, 0, w, h)
 
-      // Border
-      g.setColor(java.awt.SystemColor.infoText)
-      g.drawRect(0, 0, w - 1, h - 1)
-
       // Text
       guard !text.isEmpty else { return }
+      g.setColor(java.awt.SystemColor.infoText)
       let fm = java.awt.FontMetrics.make(for: component.font)
       let textY = (h - fm.getHeight()) / 2 + fm.getAscent()
       g.drawString(text, 4, textY)

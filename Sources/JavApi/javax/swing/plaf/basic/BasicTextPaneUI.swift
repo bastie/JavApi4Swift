@@ -19,6 +19,9 @@ extension javax.swing.plaf.basic {
   /// highlighting and mouse hit-testing all use the same cumulative-Y layout so
   /// that clicks in large-font lines map to the correct character offset.
   ///
+  /// The border (sunken bevel / focus ring) is managed via `TextFieldBorder`
+  /// installed in `installUI()`.
+  ///
   /// - Since: Java 1.2
   @MainActor
   open class BasicTextPaneUI: javax.swing.plaf.ComponentUI {
@@ -26,6 +29,20 @@ extension javax.swing.plaf.basic {
     // ── constants ──────────────────────────────────────────────────────────────
     let padX: Int = 4   // accessible by mouseDown hit-test in _SwiftUINativeCanvas
     let padY: Int = 3
+
+    // -------------------------------------------------------------------------
+    // MARK: ComponentUI lifecycle
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ component: javax.swing.JComponent) {
+      component.setBorder(javax.swing.border.TextFieldBorder())
+    }
+
+    override open func uninstallUI(_ component: javax.swing.JComponent) {
+      if component.getBorder() is javax.swing.border.TextFieldBorder {
+        component.setBorder(nil)
+      }
+    }
 
     // -------------------------------------------------------------------------
     // MARK: Preferred size
@@ -55,22 +72,6 @@ extension javax.swing.plaf.basic {
       g.fillRect(1, 1, w - 2, h - 2)
 
       let isFocused = pane.isFocusOwner
-
-      // Border
-      if isFocused {
-        g.setColor(java.awt.Color(59, 130, 246))
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      } else {
-        g.setColor(java.awt.SystemColor.controlShadow)
-        g.drawLine(0,   0,   w-1, 0)
-        g.drawLine(0,   0,   0,   h-1)
-        g.setColor(java.awt.SystemColor.controlHighlight)
-        g.drawLine(w-1, 0,   w-1, h-1)
-        g.drawLine(0,   h-1, w-1, h-1)
-      }
 
       guard let sd = pane.getStyledDocument() else {
         _paintPlain(g, pane, w: w, h: h); return
