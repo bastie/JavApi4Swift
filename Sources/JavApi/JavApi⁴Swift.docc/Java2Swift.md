@@ -29,6 +29,16 @@ Abstract classes are implemented as interface with default methods.
 
 > **AI hint:** Replace `abstract class Foo { abstract void bar(); void baz() {} }` with a Swift `protocol Foo { func bar() }` plus an `extension Foo { func baz() {} }` for the concrete methods. Do not use Swift `class` as a stand-in for Java abstract classes.
 
+When an abstract class pattern requires a base class with unimplemented methods (e.g. `AbstractList`), use `preconditionFailure` — not `fatalError` — and include the concrete type name and method signature in the message:
+
+```swift
+open func get(_ location: Int) throws -> E? {
+  preconditionFailure("\(type(of: self)).get(_:) not implemented")
+}
+```
+
+`preconditionFailure` signals that the *caller* (i.e. the subclass author) violated a contract. The `type(of: self)` interpolation produces the concrete subclass name at runtime, which makes crash reports immediately actionable. Never use the generic string `"Not implemented"` alone — it provides no diagnostic value.
+
 #### arrays
 
 The Java length property of an array is mapped over a readonly computed Swift property with result of Swift count property. If available use Swift `count` directly.
