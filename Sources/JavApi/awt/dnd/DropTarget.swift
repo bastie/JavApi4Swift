@@ -16,8 +16,8 @@ extension java.awt.dnd {
     /// The component this target is registered on.
     private weak var _component: java.awt.Component?
 
-    /// The registered listener.
-    private var listener: (any DropTargetListener)?
+    /// The registered listeners.
+    internal var _listenerArray: [any DropTargetListener] = []
 
     /// The accepted drop actions.
     private var actions: Int
@@ -43,7 +43,7 @@ extension java.awt.dnd {
                 active: Bool = true) {
       self._component = component
       self.actions = actions
-      self.listener = listener
+      if let l = listener { self._listenerArray = [l] }
       self.active = active
     }
 
@@ -69,14 +69,13 @@ extension java.awt.dnd {
 
     /// Adds a drop-target listener.
     public func addDropTargetListener(_ dtl: any DropTargetListener) {
-      listener = dtl
+      _listenerArray.append(dtl)
     }
 
     /// Removes the drop-target listener.
     public func removeDropTargetListener(_ dtl: any DropTargetListener) {
-      if let l = listener, ObjectIdentifier(l) == ObjectIdentifier(dtl) {
-        listener = nil
-      }
+      let id = ObjectIdentifier(dtl)
+      _listenerArray.removeAll { ObjectIdentifier($0) == id }
     }
 
     /// Returns the `DropTargetContext` for this target.

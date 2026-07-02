@@ -27,12 +27,15 @@ extension java.awt.dnd {
 
     // ── Initialisers ──────────────────────────────────────────────────────────
 
+    @MainActor
     public init(dragSource: DragSource,
                 component: java.awt.Component,
                 dragAction: Int) {
       self.dragSource = dragSource
       self.component = component
       self.sourceActions = dragAction
+      // Register with component so _SwiftUINativeCanvas can dispatch mouse events.
+      component._dragGestureRecognizers.append(self)
     }
 
     // ── Listener management ───────────────────────────────────────────────────

@@ -353,6 +353,37 @@ struct JavApi_awt_dnd_DragGestureRecognizer_Tests {
     r.unregisterListeners()
     r.resetRecognizer()
   }
+
+  @Test("Recognizer registers itself in component._dragGestureRecognizers on init")
+  @MainActor
+  func registersInComponent() {
+    let comp = java.awt.Component()
+    #expect(comp._dragGestureRecognizers.isEmpty)
+    let r = java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: java.awt.dnd.DragSource(),
+      component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_COPY
+    )
+    #expect(comp._dragGestureRecognizers.count == 1)
+    #expect(comp._dragGestureRecognizers.first === r)
+  }
+
+  @Test("Multiple recognizers on same component are all registered")
+  @MainActor
+  func multipleRecognizersOnComponent() {
+    let comp = java.awt.Component()
+    let ds   = java.awt.dnd.DragSource()
+    let r1   = java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: ds, component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_COPY
+    )
+    let r2   = java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: ds, component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_MOVE
+    )
+    #expect(comp._dragGestureRecognizers.count == 2)
+    _ = r1; _ = r2  // keep alive
+  }
 }
 
 // =============================================================================

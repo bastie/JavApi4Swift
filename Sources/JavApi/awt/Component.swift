@@ -229,6 +229,28 @@ extension java.awt {
     private var componentListeners:   [java.awt.event.ComponentListener]   = []
     private var windowListeners:      [java.awt.event.WindowListener]      = []
 
+    // ── DnD support (Java 1.2) ────────────────────────────────────────────────
+
+    /// The `DropTarget` registered on this component, if any.
+    internal var _dropTarget: java.awt.dnd.DropTarget? = nil
+
+    /// Drag-gesture recognisers monitoring this component.
+    internal var _dragGestureRecognizers: [java.awt.dnd.DragGestureRecognizer] = []
+
+    /// Returns the `DropTarget` registered on this component.
+    ///
+    /// - Since: Java 1.2
+    public func getDropTarget() -> java.awt.dnd.DropTarget? { _dropTarget }
+
+    /// Registers (or removes) a `DropTarget` on this component.
+    ///
+    /// - Since: Java 1.2
+    public func setDropTarget(_ dt: java.awt.dnd.DropTarget?) {
+      _dropTarget?.setComponent(self)   // detach old target's component ref if needed
+      _dropTarget = dt
+      dt?.setComponent(self)
+    }
+
     public func addMouseListener       (_ l: java.awt.event.MouseListener)       { mouseListeners.append(l) }
     public func removeMouseListener    (_ l: java.awt.event.MouseListener)       { mouseListeners.removeAll { $0 === l } }
     public func getMouseListeners()    -> [java.awt.event.MouseListener]         { mouseListeners }

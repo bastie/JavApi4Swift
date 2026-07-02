@@ -45,15 +45,27 @@ extension java.awt.dnd {
     /// Returns the drag action.
     public func getDragAction() -> Int { dragAction }
 
-    /// Starts the drag operation (no-op in headless mode).
+    /// Starts the drag operation.
+    ///
+    /// On macOS, initiates a native AppKit drag session via
+    /// `_AppKitMouseDragGestureRecognizer._beginDraggingSession`.
+    /// On other platforms / headless, this is a no-op.
     ///
     /// - Parameters:
-    ///   - dragCursor: Ignored in headless mode.
+    ///   - dragCursor: The cursor to show during the drag (ignored headless / macOS uses system cursors).
     ///   - transferable: The data to be transferred.
     ///   - dsl: Optional drag source listener.
-    public func startDrag(dragCursor: java.awt.Cursor?,
+    @MainActor public func startDrag(dragCursor: java.awt.Cursor?,
                           transferable: any java.awt.datatransfer.Transferable,
                           dsl: (any DragSourceListener)? = nil) {
+#if canImport(AppKit) && os(macOS)
+      if let appKitRec = dragGestureRecognizer as? _AppKitMouseDragGestureRecognizer {
+        appKitRec._beginDraggingSession(transferable: transferable,
+                                        cursor: dragCursor,
+                                        dsl: dsl)
+        return
+      }
+#endif
       // headless no-op
     }
   }

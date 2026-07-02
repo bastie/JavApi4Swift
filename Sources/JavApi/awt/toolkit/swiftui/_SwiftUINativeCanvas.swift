@@ -35,6 +35,8 @@ final class _SwiftUINativeCanvas: NSView {
         self.window?.invalidateCursorRects(for: self)
       }
     }
+    // Register drop types for NSDraggingDestination
+    _registerForDnDTypes()
   }
 
   override var acceptsFirstResponder: Bool { true }
@@ -717,6 +719,8 @@ final class _SwiftUINativeCanvas: NSView {
           hit, java.awt.event.MouseEvent.MOUSE_PRESSED, 0, 0, lx, ly, 1, false))
       }
     }
+    // ── DnD gesture recognisers ───────────────────────────────────────────────
+    _dndMouseDown(event: event, pt: pt)
   }
 
   override func mouseDragged(with event: NSEvent) {
@@ -901,9 +905,14 @@ final class _SwiftUINativeCanvas: NSView {
       for l in hit.getMouseMotionListeners() { l.mouseDragged(e) }
       needsDisplay = true
     }
+    // ── DnD gesture recognisers ───────────────────────────────────────────────
+    _dndMouseDragged(event: event, pt: pt)
   }
 
   override func mouseUp(with event: NSEvent) {
+    // ── DnD gesture recognisers ───────────────────────────────────────────────
+    _dndMouseUp(event: event)
+
     // If mouseDown was fully handled by menu-bar or popup logic, do nothing here.
     if _menuDownConsumed {
       _menuDownConsumed = false

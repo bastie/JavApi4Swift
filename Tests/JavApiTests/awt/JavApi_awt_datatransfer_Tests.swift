@@ -55,6 +55,24 @@ struct JavApi_awt_datatransfer_DataFlavor_Tests {
     let f = java.awt.datatransfer.DataFlavor.stringFlavor
     #expect(!f.isMimeTypeEqual("text/plain"))
   }
+
+  @Test("javaFileListFlavor has correct MIME type")
+  func javaFileListFlavor_mimeType() {
+    let f = java.awt.datatransfer.DataFlavor.javaFileListFlavor
+    #expect(f.getMimeType() == "application/x-java-file-list")
+  }
+
+  @Test("javaFileListFlavor is distinct from stringFlavor")
+  func javaFileListFlavor_distinct() {
+    #expect(java.awt.datatransfer.DataFlavor.javaFileListFlavor !=
+            java.awt.datatransfer.DataFlavor.stringFlavor)
+  }
+
+  @Test("javaFileListFlavor human-presentable name is set")
+  func javaFileListFlavor_humanName() {
+    let f = java.awt.datatransfer.DataFlavor.javaFileListFlavor
+    #expect(!f.getHumanPresentableName().isEmpty)
+  }
 }
 
 // =============================================================================

@@ -40,6 +40,18 @@ extension java.awt.datatransfer {
       humanPresentableName: "Plain Text"
     )
 
+    /// The `DataFlavor` representing a list of files (`java.util.List<java.io.File>`).
+    ///
+    /// MIME type: `application/x-java-file-list`
+    ///
+    /// On macOS this maps to `NSPasteboard.PasteboardType.fileURL`.
+    ///
+    /// - Since: Java 1.2
+    public static let javaFileListFlavor = DataFlavor(
+      mimeType: "application/x-java-file-list",
+      humanPresentableName: "File List"
+    )
+
     // MARK: - Stored properties
 
     private let mimeType: String

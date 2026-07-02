@@ -74,6 +74,7 @@ extension java.awt.dnd {
     ///   - actions: The drag actions to recognise.
     ///   - dgl: The listener to notify when a gesture is recognised.
     /// - Returns: A headless `MouseDragGestureRecognizer`.
+    @MainActor
     public func createDragGestureRecognizer(
       _ recognizerAbstractClass: AnyClass,
       _ component: java.awt.Component,

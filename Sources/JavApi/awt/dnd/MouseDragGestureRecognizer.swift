@@ -35,6 +35,7 @@ extension java.awt.dnd {
 
     // ── Initialisers ──────────────────────────────────────────────────────────
 
+    @MainActor
     public override init(dragSource: DragSource,
                          component: java.awt.Component,
                          dragAction: Int) {
