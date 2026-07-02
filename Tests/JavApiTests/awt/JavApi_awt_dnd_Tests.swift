@@ -403,3 +403,234 @@ struct JavApi_awt_dnd_DragSourceContext_Tests {
     #expect(result == nil)
   }
 }
+
+// =============================================================================
+// MARK: - Step 1: DragSource.getDragThreshold (Java 1.4)
+// =============================================================================
+
+@Suite("java.awt.dnd.DragSource — getDragThreshold")
+struct JavApi_awt_dnd_DragThreshold_Tests {
+
+  @Test("getDragThreshold returns positive value")
+  func thresholdPositive() {
+    #expect(java.awt.dnd.DragSource.getDragThreshold() > 0)
+  }
+
+  @Test("getDragThreshold returns 5 (universal default)")
+  func thresholdValue() {
+    #expect(java.awt.dnd.DragSource.getDragThreshold() == 5)
+  }
+}
+
+// =============================================================================
+// MARK: - Step 1: MouseDragGestureRecognizer gesture detection
+// =============================================================================
+
+@Suite("java.awt.dnd.MouseDragGestureRecognizer — gesture detection")
+@MainActor
+struct JavApi_awt_dnd_GestureDetection_Tests {
+
+  private func makeRecognizer(action: Int = java.awt.dnd.DnDConstants.ACTION_COPY)
+    -> java.awt.dnd.MouseDragGestureRecognizer
+  {
+    java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: java.awt.dnd.DragSource(),
+      component:  java.awt.Component(),
+      dragAction: action
+    )
+  }
+
+  @Test("No gesture fired when drag distance is below threshold")
+  func belowThreshold() {
+    let r = makeRecognizer()
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+
+    r.simulateMousePress(100, 100)
+    // Move exactly at threshold — must NOT fire (> not >=)
+    r.simulateMouseDrag(100 + java.awt.dnd.DragSource.getDragThreshold(), 100)
+    #expect(fired == false)
+  }
+
+  @Test("Gesture fires when horizontal distance exceeds threshold")
+  func horizontalExceedsThreshold() {
+    let r = makeRecognizer()
+    var firedCount = 0
+    final class L: java.awt.dnd.DragGestureListener {
+      var count: () -> Void
+      init(_ b: @escaping () -> Void) { count = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { count() }
+    }
+    r.addDragGestureListener(L { firedCount += 1 })
+
+    r.simulateMousePress(50, 50)
+    r.simulateMouseDrag(50 + java.awt.dnd.DragSource.getDragThreshold() + 1, 50)
+    #expect(firedCount == 1)
+  }
+
+  @Test("Gesture fires when vertical distance exceeds threshold")
+  func verticalExceedsThreshold() {
+    let r = makeRecognizer()
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+
+    r.simulateMousePress(50, 50)
+    r.simulateMouseDrag(50, 50 + java.awt.dnd.DragSource.getDragThreshold() + 1)
+    #expect(fired == true)
+  }
+
+  @Test("Gesture fires only once per press–drag sequence")
+  func firesOnlyOnce() {
+    let r = makeRecognizer()
+    var firedCount = 0
+    final class L: java.awt.dnd.DragGestureListener {
+      var count: () -> Void
+      init(_ b: @escaping () -> Void) { count = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { count() }
+    }
+    r.addDragGestureListener(L { firedCount += 1 })
+
+    let t = java.awt.dnd.DragSource.getDragThreshold() + 2
+    r.simulateMousePress(0, 0)
+    r.simulateMouseDrag(t, 0)     // fires
+    r.simulateMouseDrag(t + 10, 0) // must NOT fire again
+    r.simulateMouseDrag(t + 20, 0)
+    #expect(firedCount == 1)
+  }
+
+  @Test("After release, new press–drag sequence can fire again")
+  func refireAfterRelease() {
+    let r = makeRecognizer()
+    var firedCount = 0
+    final class L: java.awt.dnd.DragGestureListener {
+      var count: () -> Void
+      init(_ b: @escaping () -> Void) { count = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { count() }
+    }
+    r.addDragGestureListener(L { firedCount += 1 })
+
+    let t = java.awt.dnd.DragSource.getDragThreshold() + 2
+    r.simulateMousePress(0, 0)
+    r.simulateMouseDrag(t, 0)      // first gesture
+    r.simulateMouseRelease()
+
+    r.simulateMousePress(100, 100)
+    r.simulateMouseDrag(100 + t, 100) // second gesture
+    #expect(firedCount == 2)
+  }
+
+  @Test("DragGestureEvent origin matches press coordinates")
+  func originMatchesPressCoordinates() {
+    let r = makeRecognizer()
+    var origin: java.awt.Point? = nil
+    final class L: java.awt.dnd.DragGestureListener {
+      var capture: (java.awt.Point) -> Void
+      init(_ b: @escaping (java.awt.Point) -> Void) { capture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) {
+        capture(dge.getDragOrigin())
+      }
+    }
+    r.addDragGestureListener(L { origin = $0 })
+
+    r.simulateMousePress(42, 17)
+    r.simulateMouseDrag(42 + java.awt.dnd.DragSource.getDragThreshold() + 1, 17)
+    #expect(origin?.x == 42)
+    #expect(origin?.y == 17)
+  }
+
+  @Test("No gesture fired when not tracking (no prior press)")
+  func noGestureWithoutPress() {
+    let r = makeRecognizer()
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+
+    // Drag without a prior press — must not fire
+    r.simulateMouseDrag(100, 100)
+    #expect(fired == false)
+  }
+}
+
+// =============================================================================
+// MARK: - Step 1: DragSource.startDrag fires dragDropEnd listener
+// =============================================================================
+
+@Suite("java.awt.dnd.DragSource — startDrag")
+@MainActor
+struct JavApi_awt_dnd_StartDrag_Tests {
+
+  private func makeTransferable() -> any java.awt.datatransfer.Transferable {
+    final class Stub: java.awt.datatransfer.Transferable {
+      func getTransferDataFlavors() -> [java.awt.datatransfer.DataFlavor] { [] }
+      func isDataFlavorSupported(_ flavor: java.awt.datatransfer.DataFlavor) -> Bool { false }
+      func getTransferData(_ flavor: java.awt.datatransfer.DataFlavor) throws -> Any {
+        throw java.awt.datatransfer.UnsupportedFlavorException(flavor)
+      }
+    }
+    return Stub()
+  }
+
+  @Test("startDrag notifies DragSourceListener with dragDropEnd (headless: not successful)")
+  func startDragNotifiesListener() {
+    let ds   = java.awt.dnd.DragSource()
+    let comp = java.awt.Component()
+    let recognizer = java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: ds, component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_COPY
+    )
+    let origin = java.awt.Point(10, 20)
+    let trigger = java.awt.dnd.DragGestureEvent(recognizer,
+                                                dragAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                                origin: origin)
+    var dragDropEndCalled = false
+    var successValue: Bool? = nil
+
+    final class Listener: java.awt.dnd.DragSourceListener {
+      var onEnd: (Bool) -> Void
+      init(_ b: @escaping (Bool) -> Void) { onEnd = b }
+      func dragEnter(_ dsde: java.awt.dnd.DragSourceDragEvent) {}
+      func dragOver(_ dsde: java.awt.dnd.DragSourceDragEvent) {}
+      func dropActionChanged(_ dsde: java.awt.dnd.DragSourceDragEvent) {}
+      func dragExit(_ dse: java.awt.dnd.DragSourceEvent) {}
+      func dragDropEnd(_ dsde: java.awt.dnd.DragSourceDropEvent) { onEnd(dsde.getDropSuccess()) }
+    }
+
+    let listener = Listener { success in
+      dragDropEndCalled = true
+      successValue = success
+    }
+
+    ds.startDrag(trigger: trigger, dragCursor: nil, transferable: makeTransferable(), dsl: listener)
+    #expect(dragDropEndCalled == true)
+    #expect(successValue == false)  // headless: drop never succeeds
+  }
+
+  @Test("startDrag does not crash without listener")
+  func startDragWithoutListener() {
+    let ds   = java.awt.dnd.DragSource()
+    let comp = java.awt.Component()
+    let r    = java.awt.dnd.MouseDragGestureRecognizer(
+      dragSource: ds, component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_COPY
+    )
+    let trigger = java.awt.dnd.DragGestureEvent(r,
+                                                dragAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                                origin: java.awt.Point(0, 0))
+    // Must not crash
+    ds.startDrag(trigger: trigger, dragCursor: nil, transferable: makeTransferable())
+  }
+}

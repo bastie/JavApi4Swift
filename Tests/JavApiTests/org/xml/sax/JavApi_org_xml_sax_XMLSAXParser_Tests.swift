@@ -10,6 +10,11 @@ import Testing
 // MARK: - Recording handler for test assertions
 
 /// A HandlerBase subclass that records all SAX 1.0 events.
+///
+/// `HandlerBase` is deprecated in production code (SAX 2.0: use `DefaultHandler`).
+/// The deprecation warning is intentionally suppressed here — the test exists
+/// specifically to verify that the deprecated API still works correctly.
+@available(*, deprecated)
 private class RecordingHandler : org.xml.sax.helper.HandlerBase {
 
   struct ElementEvent: Equatable {
@@ -61,6 +66,15 @@ private class RecordingHandler : org.xml.sax.helper.HandlerBase {
   }
 }
 
+// MARK: - Factory (isolates deprecation warning to one place)
+
+/// Returns a fresh `RecordingHandler`.
+///
+/// Marked deprecated so the compiler suppresses the `HandlerBase`-deprecation
+/// warning inside, without propagating it to the `@Test` methods themselves.
+@available(*, deprecated)
+private func makeRecordingHandler() -> RecordingHandler { RecordingHandler() }
+
 // MARK: - Tests
 
 struct JavApi_org_xml_sax_XMLSAXParser_Tests {
@@ -70,7 +84,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("parse minimal XML calls startDocument and endDocument")
   func testStartEndDocument() throws {
     let xml = "<root/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -86,7 +100,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("parse single element fires startElement and endElement")
   func testSingleElement() throws {
     let xml = "<root/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -100,7 +114,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("parse nested elements fires events in correct order")
   func testNestedElements() throws {
     let xml = "<root><child/></root>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -115,7 +129,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("parse element with attributes delivers attributes via AttributeList")
   func testAttributes() throws {
     let xml = "<link href=\"https://example.com\" rel=\"stylesheet\"/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -136,7 +150,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("element without attributes delivers empty AttributeList")
   func testNoAttributes() throws {
     let xml = "<empty/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -150,7 +164,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("text content is delivered via characters callback")
   func testCharacters() throws {
     let xml = "<note>Hello World</note>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -162,7 +176,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("mixed content delivers characters between elements")
   func testMixedContent() throws {
     let xml = "<p>Hello <b>World</b>!</p>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -178,7 +192,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("processing instruction is delivered to handler")
   func testProcessingInstruction() throws {
     let xml = "<?xml-stylesheet type=\"text/css\" href=\"style.css\"?><root/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 
@@ -192,7 +206,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("parse via systemId String overload works")
   func testParseSystemId() throws {
     let xml = "<ok/>"
-    let handler = RecordingHandler()
+    let handler = makeRecordingHandler()
     let parser = JavApiSax1Parser()
     parser.setDocumentHandler(handler)
 

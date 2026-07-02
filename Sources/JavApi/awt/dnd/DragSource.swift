@@ -44,6 +44,17 @@ extension java.awt.dnd {
     /// Whether drag-and-drop is supported on this platform (headless: false).
     public static func isDragImageSupported() -> Bool { false }
 
+    // ── Drag threshold ────────────────────────────────────────────────────────
+
+    /// The number of pixels a mouse must move before a drag gesture is
+    /// recognised — mirrors `DragSource.getDragThreshold()` (Java 1.4).
+    ///
+    /// The value is platform-dependent in Java; here we use 5 px universally,
+    /// matching the typical Motif/Windows default.
+    ///
+    /// - Since: Java 1.4
+    public static func getDragThreshold() -> Int { 5 }
+
     // ── Listeners ─────────────────────────────────────────────────────────────
 
     private var motionListeners: [(any DragSourceMotionListener)] = []
@@ -74,7 +85,11 @@ extension java.awt.dnd {
       return r
     }
 
-    /// Starts a drag operation (no-op in headless mode).
+    /// Starts a drag operation.
+    ///
+    /// Creates a `DragSourceContext`, optionally registers `dsl`, then
+    /// immediately fires `dragDropEnd` with a failed result (headless: no
+    /// actual data transport occurs).
     ///
     /// - Parameters:
     ///   - trigger:      The gesture event that triggered the drag.
@@ -87,7 +102,19 @@ extension java.awt.dnd {
       transferable: any java.awt.datatransfer.Transferable,
       dsl: (any DragSourceListener)? = nil
     ) {
-      // headless no-op
+      let ctx = DragSourceContext(
+        component: trigger.component,
+        transferable: transferable
+      )
+      if let dsl {
+        ctx.addDragSourceListener(dsl)
+      }
+      // Notify instance-level listeners that the drag ended (headless: no drop)
+      let endEvt = DragSourceDropEvent(ctx)
+      for listener in sourceListeners {
+        listener.dragDropEnd(endEvt)
+      }
+      dsl?.dragDropEnd(endEvt)
     }
 
     /// Adds a `DragSourceListener`.
