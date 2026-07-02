@@ -66,6 +66,14 @@ extension java.awt.dnd {
         return
       }
 #endif
+#if os(Windows)
+      if let win32Rec = dragGestureRecognizer as? _Win32MouseDragGestureRecognizer {
+        win32Rec._startDragOperation(transferable: transferable,
+                                     cursor: dragCursor,
+                                     dsl: dsl)
+        return
+      }
+#endif
       // headless no-op
     }
   }

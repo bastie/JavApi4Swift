@@ -101,7 +101,7 @@ extension java.awt.image {
     ///
     /// On platforms with CoreGraphics a real `CGContext` is created over the
     /// pixel buffer; every drawing call writes directly into the image data.
-    /// On platforms without CoreGraphics `Graphics.stub` (no-op) is returned.
+    /// On platforms without CoreGraphics a no-op `Graphics` instance is returned.
     public override func getGraphics() -> java.awt.Graphics? {
 #if canImport(CoreGraphics)
       guard let ctx = CGContext(
@@ -114,10 +114,10 @@ extension java.awt.image {
         bitmapInfo:       CGBitmapInfo(rawValue:
                             CGImageAlphaInfo.premultipliedFirst.rawValue |
                             CGBitmapInfo.byteOrder32Big.rawValue).rawValue)
-      else { return java.awt.Graphics.stub }
+      else { return java.awt.Graphics() }
       return java.awt.Graphics(ctx)
 #else
-      return java.awt.Graphics.stub
+      return java.awt.Graphics()
 #endif
     }
 

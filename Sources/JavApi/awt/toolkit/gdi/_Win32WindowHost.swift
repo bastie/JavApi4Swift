@@ -488,6 +488,8 @@ public final class _Win32Canvas {
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseDown(x: Int, y: Int) {
+    // ── DnD gesture recognisers ───────────────────────────────────────────────
+    _dndMouseDown(x: x, y: y)
     // ── Swing JMenu popup handling (JFrame/JDialog; must come before Choice) ─
     if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
       if let menu = openSwingMenu {
@@ -694,6 +696,8 @@ public final class _Win32Canvas {
   }
 
   fileprivate func onMouseUp(x: Int, y: Int) {
+    // ── DnD gesture recognisers ───────────────────────────────────────────────
+    _dndMouseUp()
     // End JSplitPane divider drag
     if let sp = draggingSplitPane {
       draggingSplitPane = nil
@@ -838,6 +842,8 @@ public final class _Win32Canvas {
       invalidate()
       return
     }
+    // ── DnD gesture recognisers (generic fallback — no other drag in progress) ─
+    _dndMouseDragged(x: x, y: y)
   }
 
   fileprivate func onMouseWheel(x: Int, y: Int, deltaY: Int, deltaX: Int = 0) {

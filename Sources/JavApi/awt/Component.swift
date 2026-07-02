@@ -400,7 +400,7 @@ extension java.awt {
     /// Real graphics contexts are only available during `paint(_:)` — this stub
     /// satisfies the `java.awt.peer.ComponentPeer` protocol requirement.
     open func getGraphics() -> java.awt.Graphics {
-      java.awt.Graphics.stub
+      java.awt.Graphics()
     }
 
     public func getFontMetrics(_ f: java.awt.Font) -> java.awt.FontMetrics {
