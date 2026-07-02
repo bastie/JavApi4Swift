@@ -140,7 +140,9 @@ public final class _Win32WindowHost {
 public final class _Win32Canvas {
 
   internal let awtWindow: java.awt.Window
-  private var hwnd: HWND?
+  internal var hwnd: HWND?
+  /// Keeps the `_Win32OLEDropTarget` alive for the lifetime of the window.
+  internal var _oleDropTarget: AnyObject? = nil
 
   internal var modalDone:    Bool = false
   private  var didFireClosing = false
@@ -276,6 +278,7 @@ public final class _Win32Canvas {
     }
     ShowWindow(hwnd, SW_SHOWNORMAL)
     UpdateWindow(hwnd)
+    _registerDropTarget()
   }
 
   /// Re-reads the actual client size and re-validates the AWT layout.
@@ -293,6 +296,7 @@ public final class _Win32Canvas {
 
   func destroy() {
     isDestroyed = true
+    _revokeDropTarget()
     if let hwnd { DestroyWindow(hwnd) }
     hwnd = nil
   }

@@ -4,6 +4,7 @@
  */
 
 #if os(Windows)
+import WinSDK
 
 extension java.awt.dnd {
 
@@ -20,12 +21,11 @@ extension java.awt.dnd {
   /// `event.startDrag(…)` → `_startDragOperation(…)`, which fires the Java
   /// `DragSourceListener.dragDropEnd` (intra-app DnD).
   ///
-  /// ### Step 4b note
+  /// ### Step 4b — OLE DnD
   ///
-  /// For systemwide DnD (drag to/from Explorer), `_startDragOperation` would
-  /// call `DoDragDrop` with COM `IDropSource`/`IDataObject`. That is tracked
-  /// as Step 4b and the implementation here intentionally uses the headless
-  /// fallback in `DragSource.startDrag`.
+  /// `_startDragOperation` calls `DoDragDrop` with COM `IDropSource` /
+  /// `IDataObject` so that drags work across application boundaries
+  /// (e.g. dragging text into Windows Explorer or other Win32 apps).
   ///
   /// - Since: Java 1.2 (Windows backend, Step 4a)
   @MainActor
@@ -61,27 +61,55 @@ extension java.awt.dnd {
 
     // ── Called by DragGestureEvent.startDrag (Windows path) ──────────────────
 
-    /// Initiates the DnD operation.
+    /// Initiates the DnD operation via OLE `DoDragDrop`.
     ///
-    /// **Step 4a:** fires `DragSource.startDrag` (headless path — notifies Java
-    /// listeners with a failed drop). Full OLE `DoDragDrop` integration is
-    /// tracked as Step 4b.
+    /// Lazily initialises OLE, wraps the `Transferable` in an `IDataObject`,
+    /// creates an `IDropSource`, and calls `DoDragDrop` — which blocks and
+    /// pumps Win32 messages until the drag ends.  On return, fires
+    /// `DragSourceDropEvent` on the registered listener.
     public func _startDragOperation(
       transferable: any java.awt.datatransfer.Transferable,
       cursor: java.awt.Cursor?,
       dsl: (any DragSourceListener)?
     ) {
-      // Build a synthetic DragGestureEvent so DragSource.startDrag has a trigger.
-      let origin = java.awt.Point(0, 0)
-      let evt    = DragGestureEvent(self,
-                                    dragAction: sourceActions,
-                                    origin: origin)
-      dragSource.startDrag(trigger: evt,
-                           dragCursor: cursor,
-                           transferable: transferable,
-                           dsl: dsl)
+      // ── OLE DoDragDrop ──────────────────────────────────────────────────────
+      _Win32OLE.ensureInitialized()
+
+      let dataObject = _Win32OLEDataObject(transferable: transferable)
+      let dropSource = _Win32OLEDropSource()
+
+      // Allow copy + move + link; the drop target picks the effective action.
+      let allowed: DWORD = _DROPEFFECT_COPY | _DROPEFFECT_MOVE | _DROPEFFECT_LINK
+      var actual:  DWORD = _DROPEFFECT_NONE
+
+      // Blocks until the drag ends (pumps its own Win32 message loop).
+      let hr = DoDragDrop(dataObject.asIDataObject,
+                          dropSource.asIDropSource,
+                          allowed,
+                          &actual)
+
+      // ── Notify DragSourceListener ────────────────────────────────────────
+      let success = hr == _DRAGDROP_S_DROP
+      let action  = _dropEffectToJavaAction(actual)
+      let ctx     = DragSourceContext(component: component,
+                                      transferable: transferable)
+      if let dsl { ctx.addDragSourceListener(dsl) }
+      let endEvt  = DragSourceDropEvent(ctx, dropAction: action, success: success)
+      dsl?.dragDropEnd(endEvt)
     }
   }
+}
+
+// =============================================================================
+// MARK: - Helper
+// =============================================================================
+
+/// Maps a Win32 `DROPEFFECT` bitmask to a Java DnD action constant.
+private func _dropEffectToJavaAction(_ effect: DWORD) -> Int {
+  if effect & _DROPEFFECT_MOVE != 0 { return java.awt.dnd.DnDConstants.ACTION_MOVE }
+  if effect & _DROPEFFECT_COPY != 0 { return java.awt.dnd.DnDConstants.ACTION_COPY }
+  if effect & _DROPEFFECT_LINK != 0 { return java.awt.dnd.DnDConstants.ACTION_LINK }
+  return java.awt.dnd.DnDConstants.ACTION_NONE
 }
 
 #endif // os(Windows)

@@ -15,7 +15,14 @@ var packageProducts: [PackageDescription.Product] = [
 // 2. Basis-Targets definieren (für alle Plattformen)
 var packageTargets: [PackageDescription.Target] = [
   .target(name: "NO"),
-  .target(name: "JavApi"),
+  .target(
+    name: "JavApi",
+    linkerSettings: [
+      // OLE/COM functions (RegisterDragDrop, DoDragDrop, OleInitialize, …)
+      // are in ole32.lib which the WinSDK overlay does not auto-link.
+      .linkedLibrary("ole32", .when(platforms: [.windows])),
+    ]
+  ),
   .testTarget(name: "JavApiTests", dependencies: ["JavApi"]),
   
   // Example AWT Showcase

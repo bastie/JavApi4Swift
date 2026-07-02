@@ -6,6 +6,9 @@
 #if os(Windows)
 import WinSDK
 
+// HRESULT returned by RegisterDragDrop if the window is already registered.
+private let DRAGDROP_E_ALREADYREGISTERED: HRESULT = _hr(0x80040101)
+
 // =============================================================================
 // MARK: - Drag source: mouse-event hooks for DnD gesture recognisers
 // =============================================================================
@@ -61,19 +64,30 @@ extension _Win32Canvas {
 }
 
 // =============================================================================
-// MARK: - Drop target: registration stub (Step 4b: OLE RegisterDragDrop)
+// MARK: - Drop target: OLE RegisterDragDrop / RevokeDragDrop
 // =============================================================================
 
 extension _Win32Canvas {
 
-  /// Registers this window as a drop target.
+  /// Registers this window as an OLE drop target.
   ///
-  /// **Step 4a stub** — a full OLE implementation would call
-  /// `RegisterDragDrop(hwnd, dropTargetComObject)` here. Until Step 4b is
-  /// implemented, this is intentionally a no-op so the rest of the DnD API
-  /// (DragGestureListener, DragSourceListener) works for intra-app DnD.
+  /// Creates a `_Win32OLEDropTarget` COM object and calls `RegisterDragDrop`.
+  /// OLE is initialised lazily (only on first call).
   func _registerDropTarget() {
-    // TODO (Step 4b): OleInitialize() + RegisterDragDrop(hwnd, IDropTarget)
+    guard let hwnd else { return }
+    _Win32OLE.ensureInitialized()
+    let dt = _Win32OLEDropTarget(canvas: self, hwnd: hwnd)
+    let hr = RegisterDragDrop(hwnd, dt.asIDropTarget)
+    if hr == S_OK || hr == DRAGDROP_E_ALREADYREGISTERED {
+      _oleDropTarget = dt   // keep the COM object alive
+    }
+  }
+
+  /// Revokes the OLE drop target registration and releases the COM object.
+  func _revokeDropTarget() {
+    guard let hwnd else { return }
+    RevokeDragDrop(hwnd)
+    _oleDropTarget = nil
   }
 
   /// Dispatches a simulated "drag entered" event to the `DropTarget` under (x,y).
