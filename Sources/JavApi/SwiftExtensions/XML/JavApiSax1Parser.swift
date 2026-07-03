@@ -31,6 +31,7 @@ import Foundation
 /// ``org.xml.sax.helper.ParserFactory`` under ``org.xml.sax.helper.ParserFactory/defaultParserName``.
 ///
 /// - Since: JavApi4Swift (not part of the Java API)
+@available(*, deprecated)
 public final class JavApiSax1Parser : org.xml.sax.Parser, @unchecked Sendable {
 
   private var documentHandler: (any org.xml.sax.DocumentHandler)?
@@ -109,7 +110,7 @@ public final class JavApiSax1Parser : org.xml.sax.Parser, @unchecked Sendable {
 }
 
 // MARK: - Foundation XMLParserDelegate bridge
-
+@available(*, deprecated)
 private final class _SAX1FoundationDelegate : NSObject, XMLParserDelegate, @unchecked Sendable {
 
   private let documentHandler: (any org.xml.sax.DocumentHandler)?

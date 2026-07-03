@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import Foundation
+
 extension java.sql {
 
   /// The basic service for managing a set of JDBC drivers.
@@ -18,26 +20,38 @@ extension java.sql {
   /// ```
   ///
   /// - Since: JavaApi (Java 1.1)
+  ///
+  /// `registeredDrivers` is process-global mutable state. Swift Testing runs
+  /// tests concurrently (especially under Xcode), so all access is funneled
+  /// through an `NSLock` to avoid the same kind of data race that caused
+  /// `EXC_BAD_ACCESS`/`EXC_BREAKPOINT` crashes in ``java/util/logging/LogManager``.
   public enum DriverManager {
 
     /// Registered driver instances (SPI registry — replaces META-INF/services).
     nonisolated(unsafe) private static var registeredDrivers: [any Driver] = []
+    private static let lock = NSLock()
+
+    private static func withLock<T>(_ body: () throws -> T) rethrows -> T {
+      lock.lock()
+      defer { lock.unlock() }
+      return try body()
+    }
 
     // MARK: – Driver registration
 
     /// Registers a driver with the manager.
     public static func registerDriver(_ driver: any Driver) throws {
-      registeredDrivers.append(driver)
+      withLock { registeredDrivers.append(driver) }
     }
 
     /// Deregisters a driver. Drivers are matched by identity (`===`).
     public static func deregisterDriver(_ driver: any Driver) throws {
-      registeredDrivers.removeAll { $0 === driver }
+      withLock { registeredDrivers.removeAll { $0 === driver } }
     }
 
     /// Returns all registered drivers.
     public static func getDrivers() -> [any Driver] {
-      return registeredDrivers
+      withLock { registeredDrivers }
     }
 
     // MARK: – Connection factory
@@ -55,7 +69,8 @@ extension java.sql {
 
     /// Attempts to establish a connection using the given URL and properties.
     public static func getConnection(_ url: String, _ info: [String: String]?) throws -> any Connection {
-      for driver in registeredDrivers {
+      let drivers = withLock { registeredDrivers }
+      for driver in drivers {
         if let conn = try driver.connect(url, info) {
           return conn
         }
@@ -67,7 +82,8 @@ extension java.sql {
 
     /// Returns the first registered driver that accepts the given URL.
     public static func getDriver(_ url: String) throws -> any Driver {
-      for driver in registeredDrivers {
+      let drivers = withLock { registeredDrivers }
+      for driver in drivers {
         if try driver.acceptsURL(url) { return driver }
       }
       throw SQLException("No suitable driver found for \(url)")
