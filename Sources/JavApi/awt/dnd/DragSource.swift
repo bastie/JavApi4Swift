@@ -81,7 +81,32 @@ extension java.awt.dnd {
       _ actions: Int,
       _ dgl: any DragGestureListener
     ) -> DragGestureRecognizer {
-      let r = MouseDragGestureRecognizer(dragSource: self, component: component, dragAction: actions)
+      return createDefaultDragGestureRecognizer(component, actions, dgl)
+    }
+
+    /// Creates the platform-appropriate `MouseDragGestureRecognizer`.
+    ///
+    /// - macOS:   `_AppKitMouseDragGestureRecognizer` (hooks into NSEvent pipeline)
+    /// - Linux/FreeBSD: `_X11MouseDragGestureRecognizer` (hooks into X11 event loop)
+    /// - Other:   `MouseDragGestureRecognizer` (headless / no-op)
+    ///
+    /// Mirrors `DragSource.createDefaultDragGestureRecognizer` from Java 1.2.
+    @MainActor
+    public func createDefaultDragGestureRecognizer(
+      _ component: java.awt.Component,
+      _ actions: Int,
+      _ dgl: any DragGestureListener
+    ) -> DragGestureRecognizer {
+#if canImport(AppKit) && os(macOS)
+      let r = _AppKitMouseDragGestureRecognizer(
+        dragSource: self, component: component, dragAction: actions)
+#elseif os(Linux) || os(FreeBSD)
+      let r = _X11MouseDragGestureRecognizer(
+        dragSource: self, component: component, dragAction: actions)
+#else
+      let r = MouseDragGestureRecognizer(
+        dragSource: self, component: component, dragAction: actions)
+#endif
       r.addDragGestureListener(dgl)
       return r
     }

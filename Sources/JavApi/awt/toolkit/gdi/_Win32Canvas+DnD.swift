@@ -146,8 +146,8 @@ extension _Win32Canvas {
       cursorLocation: java.awt.Point(x - origin.x, y - origin.y),
       dropAction: dropAction,
       srcActions: sourceActions,
-      isLocal: isLocal)
-    _ = transferable  // available for DropTargetListener via event
+      isLocal: isLocal,
+      transferable: transferable)
     var accepted = false
     for l in dt._listenerArray { l.drop(dtde); accepted = true }
     return accepted

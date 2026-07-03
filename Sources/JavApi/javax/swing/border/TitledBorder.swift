@@ -163,9 +163,9 @@ extension javax.swing.border {
       let innerBorder = border ?? EtchedBorder()
       let inner = innerBorder.getBorderInsets(component)
       let font  = titleFont ?? component.font
-      // We need a rough estimate of the font height without a graphics context.
-      // Use the point size as a proxy (close enough for layout purposes).
-      let textH = font.getSize() + TitledBorder.TEXT_SPACING * 2
+      // Use real FontMetrics for an accurate title height instead of point-size.
+      let fm    = java.awt.FontMetrics.make(for: font)
+      let textH = fm.getHeight() + TitledBorder.TEXT_SPACING * 2
       return java.awt.Insets(
         inner.top + textH,
         inner.left   + TitledBorder.TEXT_INSET_H,

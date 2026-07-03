@@ -37,14 +37,20 @@ extension java.awt.dnd {
     }
 
     /// Creates a `DropTarget` attached to a component.
+    ///
+    /// Mirrors Java: the constructor calls `component.setDropTarget(this)` so
+    /// that `component.getDropTarget()` returns this target immediately.
+    @MainActor
     public init(_ component: java.awt.Component,
-                actions: Int = DnDConstants.ACTION_COPY_OR_MOVE,
-                listener: (any DropTargetListener)? = nil,
-                active: Bool = true) {
+                _ actions: Int = DnDConstants.ACTION_COPY_OR_MOVE,
+                _ listener: (any DropTargetListener)? = nil,
+                _ active: Bool = true) {
       self._component = component
       self.actions = actions
       if let l = listener { self._listenerArray = [l] }
       self.active = active
+      // Register this target on the component (Java DropTarget behaviour).
+      component.setDropTarget(self)
     }
 
     // ── API ───────────────────────────────────────────────────────────────────

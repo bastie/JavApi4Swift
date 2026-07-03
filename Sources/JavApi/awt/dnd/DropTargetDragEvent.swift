@@ -20,14 +20,31 @@ extension java.awt.dnd {
     /// The cursor location relative to the drop-target component (headless: 0,0).
     public private(set) var location: java.awt.Point
 
-    /// Creates a `DropTargetDragEvent`.
+    /// The transferable carried by the drag (used for flavor checks).
+    public private(set) var transferable: any java.awt.datatransfer.Transferable
+
+    /// Creates a `DropTargetDragEvent` without transferable (headless / default).
     public init(_ dropTargetContext: DropTargetContext,
                 cursorLocation: java.awt.Point,
                 dropAction: Int,
                 srcActions: Int) {
-      self.location = cursorLocation
-      self.dropAction = dropAction
+      self.location      = cursorLocation
+      self.dropAction    = dropAction
       self.sourceActions = srcActions
+      self.transferable  = _EmptyTransferable()
+      super.init(dropTargetContext)
+    }
+
+    /// Creates a `DropTargetDragEvent` with transferable data.
+    public init(_ dropTargetContext: DropTargetContext,
+                cursorLocation: java.awt.Point,
+                dropAction: Int,
+                srcActions: Int,
+                transferable: any java.awt.datatransfer.Transferable) {
+      self.location      = cursorLocation
+      self.dropAction    = dropAction
+      self.sourceActions = srcActions
+      self.transferable  = transferable
       super.init(dropTargetContext)
     }
 
@@ -39,6 +56,16 @@ extension java.awt.dnd {
 
     /// Returns the source-supported actions.
     public func getSourceActions() -> Int { sourceActions }
+
+    /// Returns whether the given flavor is supported by the drag source.
+    public func isDataFlavorSupported(_ flavor: java.awt.datatransfer.DataFlavor) -> Bool {
+      transferable.isDataFlavorSupported(flavor)
+    }
+
+    /// Returns the available transfer data flavors.
+    public func getCurrentDataFlavors() -> [java.awt.datatransfer.DataFlavor] {
+      transferable.getTransferDataFlavors()
+    }
 
     /// Accepts the drag with the given action (no-op in headless mode).
     public func acceptDrag(_ dragOperation: Int) {}

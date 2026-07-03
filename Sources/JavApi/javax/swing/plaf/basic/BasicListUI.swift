@@ -23,11 +23,14 @@ extension javax.swing.plaf.basic {
       weak var list: (AnyObject & _AnyJList)?
 
       private func rowAt(_ e: java.awt.event.MouseEvent) -> Int? {
-        guard let list else { return nil }
-        let rowH = list._cellHeight()
+        guard let list, let comp = list as? javax.swing.JComponent else { return nil }
+        let rowH     = list._cellHeight()
         guard rowH > 0 else { return nil }
-        let row = e.getY() / rowH
-        guard row >= 0 && row < list._modelSize() else { return nil }
+        let insetTop = comp.getInsets().top
+        let localY   = e.getY() - insetTop
+        guard localY >= 0 else { return nil }
+        let row = localY / rowH
+        guard row < list._modelSize() else { return nil }
         return row
       }
 
@@ -91,14 +94,17 @@ extension javax.swing.plaf.basic {
       let fm   = java.awt.FontMetrics.make(for: component.font)
       let rowH = fm.getHeight() + 4
       let rows = list._modelSize()
-      // Width: widest item text + 8px padding; no hardcoded fallback
+      let ins  = component.getInsets()
+      // Width: widest item text + 8px padding + horizontal insets
       var maxW = 0
-      for i in 0 ..< list._modelSize() {
+      for i in 0 ..< rows {
         if let item = list._modelElementAt(i) {
           maxW = Swift.max(maxW, fm.stringWidth("\(item)"))
         }
       }
-      return java.awt.Dimension(maxW + 8, max(1, rows) * rowH)
+      let totalW = maxW + 8 + ins.left + ins.right
+      let totalH = max(1, rows) * rowH + ins.top + ins.bottom
+      return java.awt.Dimension(totalW, totalH)
     }
 
     // -------------------------------------------------------------------------
@@ -108,38 +114,41 @@ extension javax.swing.plaf.basic {
     override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let list = component as? _AnyJList else { return }
 
-      let w     = component.bounds.width
-      let h     = component.bounds.height
-      let rowH  = list._cellHeight()
+      let w    = component.bounds.width
+      let h    = component.bounds.height
+      let rowH = list._cellHeight()
       let count = list._modelSize()
-      let sel   = list._selModel()
+      let sel  = list._selModel()
       let hover = list._hoverIndex()
-      let fm    = java.awt.FontMetrics.make(for: component.font)
+      let fm   = java.awt.FontMetrics.make(for: component.font)
+      let ins  = component.getInsets()
+      let top  = ins.top
+      let left = ins.left
+      let contentW = w - ins.left - ins.right
 
       // Background
       g.setColor(java.awt.SystemColor.window)
       g.fillRect(0, 0, w, h)
 
-      // Rows
+      // Rows — start below the border insets
       for i in 0 ..< count {
-        let rowY = i * rowH
+        let rowY = top + i * rowH
         guard rowY < h else { break }
 
         if sel.isSelectedIndex(i) {
           g.setColor(java.awt.SystemColor.textHighlight)
-          g.fillRect(0, rowY, w, rowH)
+          g.fillRect(left, rowY, contentW, rowH)
           g.setColor(java.awt.SystemColor.textHighlightText)
         } else if i == hover {
-          // Rollover highlight (lighter than selection)
           g.setColor(java.awt.SystemColor.controlHighlight)
-          g.fillRect(0, rowY, w, rowH)
+          g.fillRect(left, rowY, contentW, rowH)
           g.setColor(java.awt.SystemColor.windowText)
         } else {
           g.setColor(java.awt.SystemColor.windowText)
         }
 
         let label = list._elementLabel(at: i)
-        g.drawString(label, 4, rowY + fm.getAscent() + 2)
+        g.drawString(label, left + 4, rowY + fm.getAscent() + 2)
       }
 
       // Border is painted by JComponent.paint() via getBorder().paintBorder(...)

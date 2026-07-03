@@ -96,7 +96,11 @@ extension java.awt.dnd {
       )
       _activeHelper = helper   // keep alive for the session
 
-      let item = helper.makeDraggingItem()
+      // Screen point of the cursor for centring the drag image
+      let screenPt = nsEvent.locationInWindow.applying(
+        CGAffineTransform(translationX: nsCanvas.window?.frame.origin.x ?? 0,
+                          y: nsCanvas.window?.frame.origin.y ?? 0))
+      let item = helper.makeDraggingItem(sourceComponent: component, atScreenPoint: screenPt)
       nsCanvas.beginDraggingSession(with: [item], event: nsEvent, source: helper)
     }
   }

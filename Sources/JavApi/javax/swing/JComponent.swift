@@ -148,10 +148,11 @@ extension javax.swing {
         g.setColor(background)
         g.fillRect(0, 0, bounds.width, bounds.height)
       }
-      // Paint border on top of background, before content
-      _border?.paintBorder(self, g, 0, 0, bounds.width, bounds.height)
+      // Java Swing paint order: content first, border on top (so the border
+      // line and title text are never overdrawn by content pixels).
       paintComponent(g)
       paintChildren(g)
+      _border?.paintBorder(self, g, 0, 0, bounds.width, bounds.height)
     }
 
     /// Paints all visible child components, translating the graphics context
@@ -165,8 +166,8 @@ extension javax.swing {
         let dx = b.x
         let dy = b.y
         g.save()
-        g.clipRect(dx, dy, b.width, b.height)
         g.translate(dx, dy)
+        g.clipRect(0, 0, b.width, b.height)
         child.paint(g)
         g.restore()
       }

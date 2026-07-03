@@ -4,6 +4,17 @@
  */
 
 // ---------------------------------------------------------------------------
+// MARK: - Internal protocol for type-erased JList click dispatch
+// ---------------------------------------------------------------------------
+
+/// Allows hit-test dispatch code to call into `JList<E>` without knowing `E`.
+@MainActor
+protocol _JListClickTarget: AnyObject {
+  /// Select the row at the given local coordinates.
+  func _selectAtLocalPoint(x: Int, y: Int)
+}
+
+// ---------------------------------------------------------------------------
 // MARK: - JListSelectionMode namespace
 // ---------------------------------------------------------------------------
 
@@ -34,7 +45,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  open class JList<E>: javax.swing.JComponent {
+  open class JList<E>: javax.swing.JComponent, _JListClickTarget {
 
     // -------------------------------------------------------------------------
     // MARK: Selection mode constants (computed — no stored statics in generics)
@@ -200,9 +211,23 @@ extension javax.swing {
     public func getVisibleRowCount() -> Int { _visibleRowCount }
     public func setVisibleRowCount(_ n: Int) { _visibleRowCount = n }
 
+    /// Returns the row index at local coordinates `(px, py)` (JList-relative).
+    ///
+    /// Returns `-1` if the point is above the content area (in the border) or
+    /// below the last row.
     public func locationToIndex(_ px: Int, _ py: Int) -> Int {
-      let row = (py - bounds.y) / getFixedCellHeight()
-      return (row >= 0 && row < _model.getSize()) ? row : -1
+      // py is already in JList-local space (0,0 = top-left of this component).
+      // Subtract insets.top so row 0 starts at the content area, not the border.
+      let localY = py - getInsets().top
+      guard localY >= 0 else { return -1 }
+      let row = localY / max(1, getFixedCellHeight())
+      return (row < _model.getSize()) ? row : -1
+    }
+
+    /// Protocol conformance — select the row at the given JList-local point.
+    public func _selectAtLocalPoint(x: Int, y: Int) {
+      let row = locationToIndex(x, y)
+      if row >= 0 { setSelectedIndex(row) }
     }
 
     // -------------------------------------------------------------------------
@@ -232,23 +257,28 @@ extension javax.swing {
       let w    = bounds.width, h = bounds.height
       let rowH = getFixedCellHeight()
       let fm   = java.awt.FontMetrics.make(for: font)
+      // Respect border insets so content starts below the TitledBorder title.
+      let insets = getInsets()
+      let contentX = insets.left
+      let contentY = insets.top
+      let contentW = w - insets.left - insets.right
 
       g.setColor(java.awt.SystemColor.window)
       g.fillRect(0, 0, w, h)
 
       for i in 0 ..< _model.getSize() {
-        let rowY = i * rowH
+        let rowY = contentY + i * rowH
 
         if _selectionModel.isSelectedIndex(i) {
           g.setColor(java.awt.SystemColor.textHighlight)
-          g.fillRect(0, rowY, w, rowH)
+          g.fillRect(contentX, rowY, contentW, rowH)
           g.setColor(java.awt.SystemColor.textHighlightText)
         } else {
           g.setColor(java.awt.SystemColor.windowText)
         }
 
         let label = "\(_model.getElementAt(i))"
-        g.drawString(label, 4, rowY + fm.getAscent() + 2)
+        g.drawString(label, contentX + 4, rowY + fm.getAscent() + 2)
       }
 
       g.setColor(java.awt.SystemColor.controlShadow)
@@ -266,10 +296,13 @@ extension javax.swing {
 
     override open func getPreferredSize() -> java.awt.Dimension {
       if let d = getUI()?.getPreferredSize(self) { return d }
-      // Fallback: font-driven row height, actual item count
-      let fm   = java.awt.FontMetrics.make(for: font)
-      let rowH = fm.getHeight() + 4
-      return java.awt.Dimension(150, max(1, _model.getSize()) * rowH)
+      // Fallback: font-driven row height × item count, plus border insets.
+      let fm     = java.awt.FontMetrics.make(for: font)
+      let rowH   = fm.getHeight() + 4
+      let ins    = getInsets()
+      let totalH = max(1, _model.getSize()) * rowH + ins.top + ins.bottom
+      let totalW = 150 + ins.left + ins.right
+      return java.awt.Dimension(totalW, totalH)
     }
 
     override open func dispose() {

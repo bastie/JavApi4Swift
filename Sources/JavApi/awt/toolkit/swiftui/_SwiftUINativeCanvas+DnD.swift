@@ -17,33 +17,33 @@ extension _SwiftUINativeCanvas {
   func _dndMouseDown(event: NSEvent, pt: CGPoint) {
     guard let root = component,
           let hit  = _SwiftUIHitTest.find(at: pt, in: root) else { return }
-    for r in hit._dragGestureRecognizers {
-      if let appKitR = r as? java.awt.dnd._AppKitMouseDragGestureRecognizer {
-        appKitR.canvas = self
-        appKitR.mousePressedWithNSEvent(event, x: Int(pt.x), y: Int(pt.y))
-      }
+    // Cache the recognisers found at press time so that mouseDragged can find
+    // them even if the cursor leaves the source component during the drag.
+    _activeAppKitRecognizers = hit._dragGestureRecognizers.compactMap {
+      $0 as? java.awt.dnd._AppKitMouseDragGestureRecognizer
+    }
+    for appKitR in _activeAppKitRecognizers {
+      appKitR.canvas = self
+      appKitR.mousePressedWithNSEvent(event, x: Int(pt.x), y: Int(pt.y))
     }
   }
 
   /// Dispatches mouseDragged to all `_AppKitMouseDragGestureRecognizer`s on the
-  /// hit component. Call from the generic fallback in `mouseDragged(with:)`.
+  /// component that was hit at mouseDown time. Using the cached recognisers
+  /// avoids a re-hit-test that could miss the source when the cursor has moved.
   ///
   /// Returns `true` if a native drag session was initiated (caller should return
   /// early and not process further drag semantics).
   @discardableResult
   func _dndMouseDragged(event: NSEvent, pt: CGPoint) -> Bool {
-    guard let root = component,
-          let hit  = _SwiftUIHitTest.find(at: pt, in: root) else { return false }
-    var initiated = false
-    for r in hit._dragGestureRecognizers {
-      if let appKitR = r as? java.awt.dnd._AppKitMouseDragGestureRecognizer {
-        appKitR.canvas = self
-        // mouseDraggedWithNSEvent may synchronously call beginDraggingSession
-        appKitR.mouseDraggedWithNSEvent(event, x: Int(pt.x), y: Int(pt.y))
-        initiated = true
-      }
+    guard !_activeAppKitRecognizers.isEmpty else { return false }
+    for appKitR in _activeAppKitRecognizers {
+      // canvas is already set from mouseDown, but refresh for safety
+      appKitR.canvas = self
+      // mouseDraggedWithNSEvent may synchronously call beginDraggingSession
+      appKitR.mouseDraggedWithNSEvent(event, x: Int(pt.x), y: Int(pt.y))
     }
-    return initiated
+    return true
   }
 
   /// Dispatches mouseUp to all recognisers across all components.
@@ -53,6 +53,7 @@ extension _SwiftUINativeCanvas {
     _dndVisitRecognizers(in: root) { r in
       r.mouseUpWithNSEvent(event)
     }
+    _activeAppKitRecognizers = []
   }
 
   /// Recursively visits all `_AppKitMouseDragGestureRecognizer`s in the tree.
@@ -189,16 +190,14 @@ extension _SwiftUINativeCanvas {
       from: sender.draggingSourceOperationMask)
     let isLocal = sender.draggingSource is java.awt.dnd._AppKitDraggingSourceHelper
 
+    let transferable = java.awt.dnd._AppKitPasteboardBridge.transferable(from: sender)
     let dtde = java.awt.dnd.DropTargetDropEvent(
       ctx,
       cursorLocation: java.awt.Point(lx, ly),
       dropAction: dropAction,
       srcActions: java.awt.dnd.DnDConstants.ACTION_COPY_OR_MOVE,
-      isLocal: isLocal)
-
-    // Attach the transferable from the pasteboard
-    let transferable = java.awt.dnd._AppKitPasteboardBridge.transferable(from: sender)
-    _ = transferable  // available for DropTargetListener via NSDraggingInfo
+      isLocal: isLocal,
+      transferable: transferable)
 
     var accepted = false
     for l in dt._listenerArray {

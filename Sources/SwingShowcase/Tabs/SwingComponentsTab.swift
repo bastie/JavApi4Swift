@@ -55,7 +55,7 @@ class SwingComponentsTab {
     listModel.addElement("Beta")
     listModel.addElement("Gamma")
     listModel.addElement("Delta")
-    let list = javax.swing.JList(model: listModel)
+    let list = javax.swing.JList(listModel)
     list.setVisibleRowCount(4)
     let scrollPane = javax.swing.JScrollPane(list)
     addComp(scrollPane, row: 2, fill: java.awt.GridBagConstraints.HORIZONTAL)

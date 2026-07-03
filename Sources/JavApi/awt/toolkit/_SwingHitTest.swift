@@ -140,6 +140,10 @@ enum _SwingHitTest {
     case let jsp as javax.swing.JScrollPane:
       _ = jsp  // scroll handled via mouseDown / mouseDragged
 
+    case let list as _JListClickTarget:
+      // x/y are in the JList's local coordinate space (after JScrollPane traversal).
+      list._selectAtLocalPoint(x: x, y: y)
+
     // ── AWT ──────────────────────────────────────────────────────────────────
     default:
       _AWTHitTest.dispatch(click: component, x: x, y: y)

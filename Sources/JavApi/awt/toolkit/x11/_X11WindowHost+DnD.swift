@@ -581,7 +581,8 @@ extension _X11WindowHost {
       cursorLocation: java.awt.Point(x - origin.x, y - origin.y),
       dropAction: dropAction,
       srcActions: sourceActions,
-      isLocal: false)
+      isLocal: false,
+      transferable: transferable)
     var accepted = false
     for l in dt._listenerArray { l.drop(dtde); accepted = true }
     return accepted

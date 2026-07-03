@@ -25,6 +25,11 @@ final class _SwiftUINativeCanvas: NSView {
 
   private var cursorObserver: NSObjectProtocol?
 
+  /// Recognisers that were hit during the most recent mouseDown.
+  /// Kept across mouseDragged calls so we don't re-hit-test during a drag
+  /// (the cursor may have moved off the source component).
+  var _activeAppKitRecognizers: [java.awt.dnd._AppKitMouseDragGestureRecognizer] = []
+
   private func subscribeNotifications() {
     if let obs = cursorObserver { NotificationCenter.default.removeObserver(obs) }
 

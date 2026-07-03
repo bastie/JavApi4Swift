@@ -44,6 +44,9 @@ extension java.awt.dnd {
       super.init(dragSourceContext, x, y)
     }
 
+    /// The user drop action (Java API).
+    public func getDropAction() -> Int { dropAction }
+
     /// The user drop action.
     public func getUserAction() -> Int { dropAction }
 

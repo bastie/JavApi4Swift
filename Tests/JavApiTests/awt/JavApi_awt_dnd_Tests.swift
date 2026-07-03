@@ -221,6 +221,17 @@ struct JavApi_awt_dnd_DragSourceEvent_Tests {
     #expect(evt.getUserAction()    == java.awt.dnd.DnDConstants.ACTION_MOVE)
     #expect(evt.getTargetActions() == java.awt.dnd.DnDConstants.ACTION_COPY_OR_MOVE)
   }
+
+  @Test("DragSourceDragEvent.getDropAction() matches getUserAction()")
+  func getDropActionAlias() {
+    let ctx = makeContext()
+    let evt = java.awt.dnd.DragSourceDragEvent(ctx,
+                                               dropAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               action: java.awt.dnd.DnDConstants.ACTION_COPY_OR_MOVE,
+                                               modifiers: 0)
+    #expect(evt.getDropAction() == evt.getUserAction())
+    #expect(evt.getDropAction() == java.awt.dnd.DnDConstants.ACTION_COPY)
+  }
 }
 
 // =============================================================================
@@ -291,6 +302,75 @@ struct JavApi_awt_dnd_DropTargetEvent_Tests {
     evt.acceptDrop(java.awt.dnd.DnDConstants.ACTION_COPY)
     evt.rejectDrop()
     evt.dropComplete(true)
+  }
+
+  @Test("DropTargetDragEvent.isDataFlavorSupported returns false for empty transferable")
+  func dragEventNoFlavor() {
+    let ctx = makeContext()
+    let evt = java.awt.dnd.DropTargetDragEvent(ctx,
+                                               cursorLocation: java.awt.Point(0, 0),
+                                               dropAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               srcActions: java.awt.dnd.DnDConstants.ACTION_COPY)
+    #expect(evt.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor) == false)
+    #expect(evt.getCurrentDataFlavors().isEmpty)
+  }
+
+  @Test("DropTargetDragEvent.isDataFlavorSupported with string transferable")
+  func dragEventWithFlavor() {
+    final class StrT: java.awt.datatransfer.Transferable {
+      func getTransferDataFlavors() -> [java.awt.datatransfer.DataFlavor] {
+        [java.awt.datatransfer.DataFlavor.stringFlavor]
+      }
+      func isDataFlavorSupported(_ f: java.awt.datatransfer.DataFlavor) -> Bool {
+        f == java.awt.datatransfer.DataFlavor.stringFlavor
+      }
+      func getTransferData(_ f: java.awt.datatransfer.DataFlavor) throws -> Any { "" }
+    }
+    let ctx = makeContext()
+    let evt = java.awt.dnd.DropTargetDragEvent(ctx,
+                                               cursorLocation: java.awt.Point(0, 0),
+                                               dropAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               srcActions: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               transferable: StrT())
+    #expect(evt.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor) == true)
+    #expect(evt.getCurrentDataFlavors().count == 1)
+  }
+
+  @Test("DropTargetDropEvent.getTransferable returns empty transferable by default")
+  func dropEventEmptyTransferable() {
+    let ctx = makeContext()
+    let evt = java.awt.dnd.DropTargetDropEvent(ctx,
+                                               cursorLocation: java.awt.Point(0, 0),
+                                               dropAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               srcActions: java.awt.dnd.DnDConstants.ACTION_COPY)
+    let t = evt.getTransferable()
+    #expect(t.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor) == false)
+    #expect(t.getTransferDataFlavors().isEmpty)
+  }
+
+  @Test("DropTargetDropEvent.getTransferable returns injected transferable")
+  func dropEventWithTransferable() {
+    final class StrT: java.awt.datatransfer.Transferable {
+      let value: String
+      init(_ v: String) { value = v }
+      func getTransferDataFlavors() -> [java.awt.datatransfer.DataFlavor] {
+        [java.awt.datatransfer.DataFlavor.stringFlavor]
+      }
+      func isDataFlavorSupported(_ f: java.awt.datatransfer.DataFlavor) -> Bool {
+        f == java.awt.datatransfer.DataFlavor.stringFlavor
+      }
+      func getTransferData(_ f: java.awt.datatransfer.DataFlavor) throws -> Any { value }
+    }
+    let ctx = makeContext()
+    let t   = StrT("hello")
+    let evt = java.awt.dnd.DropTargetDropEvent(ctx,
+                                               cursorLocation: java.awt.Point(0, 0),
+                                               dropAction: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               srcActions: java.awt.dnd.DnDConstants.ACTION_COPY,
+                                               transferable: t)
+    let got = evt.getTransferable()
+    #expect(got.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor) == true)
+    #expect(try got.getTransferData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String == "hello")
   }
 }
 

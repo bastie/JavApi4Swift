@@ -50,6 +50,7 @@ struct SwingShowcaseApp {
     tabs.addTab("Editor Pane (JEditorPane)", SwingEditorPaneTab.build())
     tabs.addTab("Table & Tree",           SwingTableTreeTab.build())
     tabs.addTab("Dialogs",                SwingDialogsTab.build())
+    tabs.addTab("Drag & Drop",            SwingDnDTab.build())
 
     // ── Actions (shared between menu items and toolbar buttons) ──────────────
     let openAction       = SwingOpenAction()
