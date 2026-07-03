@@ -85,7 +85,7 @@ extension javax.swing {
       _setupBridge()
     }
 
-    public init(model: any javax.swing.ListModel<E>) {
+    public init(_ model: any javax.swing.ListModel<E>) {
       _model = model
       _selectionModel = javax.swing.DefaultListSelectionModel()
       super.init()

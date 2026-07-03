@@ -87,7 +87,7 @@ extension javax.swing.plaf.basic {
 
       // ── File list (CENTER) ─────────────────────────────────────────────────
       let listModel = javax.swing.DefaultListModel<String>()
-      let fileList  = javax.swing.JList(model: listModel)
+      let fileList  = javax.swing.JList(listModel)
 
       func populate(directory: java.io.File?) {
         listModel.removeAllElements()
