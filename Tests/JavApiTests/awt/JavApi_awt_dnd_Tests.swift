@@ -370,7 +370,8 @@ struct JavApi_awt_dnd_DropTargetEvent_Tests {
                                                transferable: t)
     let got = evt.getTransferable()
     #expect(got.isDataFlavorSupported(java.awt.datatransfer.DataFlavor.stringFlavor) == true)
-    #expect(try got.getTransferData(java.awt.datatransfer.DataFlavor.stringFlavor) as? String == "hello")
+    let data = try? got.getTransferData(java.awt.datatransfer.DataFlavor.stringFlavor)
+    #expect(data as? String == "hello")
   }
 }
 
