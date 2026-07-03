@@ -774,3 +774,129 @@ struct JavApi_awt_dnd_Win32GestureRecognizer_Tests {
   }
 }
 #endif // os(Windows)
+
+// =============================================================================
+// MARK: - Step 5: _X11MouseDragGestureRecognizer (Linux / FreeBSD only)
+// =============================================================================
+
+#if os(Linux) || os(FreeBSD)
+@Suite("java.awt.dnd._X11MouseDragGestureRecognizer")
+@MainActor
+struct JavApi_awt_dnd_X11GestureRecognizer_Tests {
+
+  private func makeRecognizer(action: Int = java.awt.dnd.DnDConstants.ACTION_COPY)
+    -> java.awt.dnd._X11MouseDragGestureRecognizer
+  {
+    java.awt.dnd._X11MouseDragGestureRecognizer(
+      dragSource: java.awt.dnd.DragSource(),
+      component:  java.awt.Component(),
+      dragAction: action
+    )
+  }
+
+  @Test("_X11MouseDragGestureRecognizer registers in component on init")
+  func registersInComponent() {
+    let comp = java.awt.Component()
+    let r    = java.awt.dnd._X11MouseDragGestureRecognizer(
+      dragSource: java.awt.dnd.DragSource(),
+      component: comp,
+      dragAction: java.awt.dnd.DnDConstants.ACTION_COPY
+    )
+    #expect(comp._dragGestureRecognizers.count == 1)
+    #expect(comp._dragGestureRecognizers.first === r)
+  }
+
+  @Test("Gesture fires via mousePressedAt / mouseDraggedAt when threshold exceeded")
+  func gestureFiresOverThreshold() {
+    let r    = makeRecognizer()
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+    let t = java.awt.dnd.DragSource.getDragThreshold() + 2
+    r.mousePressedAt(0, 0)
+    r.mouseDraggedAt(t, 0)
+    #expect(fired == true)
+  }
+
+  @Test("No gesture fires when drag distance is at or below threshold")
+  func noGestureBelowThreshold() {
+    let r     = makeRecognizer()
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+    r.mousePressedAt(0, 0)
+    r.mouseDraggedAt(java.awt.dnd.DragSource.getDragThreshold(), 0) // genau an der Schwelle, nicht drüber
+    #expect(fired == false)
+  }
+
+  @Test("mouseReleased resets tracking so next press–drag can fire again")
+  func refireAfterRelease() {
+    let r    = makeRecognizer()
+    var count = 0
+    final class L: java.awt.dnd.DragGestureListener {
+      var inc: () -> Void
+      init(_ b: @escaping () -> Void) { inc = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { inc() }
+    }
+    r.addDragGestureListener(L { count += 1 })
+    let t = java.awt.dnd.DragSource.getDragThreshold() + 2
+    r.mousePressedAt(0, 0)
+    r.mouseDraggedAt(t, 0)
+    r.mouseReleased()
+    r.mousePressedAt(100, 0)
+    r.mouseDraggedAt(100 + t, 0)
+    #expect(count == 2)
+  }
+
+  @Test("ACTION_MOVE recognizer fires only for MOVE action")
+  func actionMoveRecognizerFiresForMove() {
+    let r    = makeRecognizer(action: java.awt.dnd.DnDConstants.ACTION_MOVE)
+    var fired = false
+    final class L: java.awt.dnd.DragGestureListener {
+      var onGesture: () -> Void
+      init(_ b: @escaping () -> Void) { onGesture = b }
+      func dragGestureRecognized(_ dge: java.awt.dnd.DragGestureEvent) { onGesture() }
+    }
+    r.addDragGestureListener(L { fired = true })
+    let t = java.awt.dnd.DragSource.getDragThreshold() + 2
+    r.mousePressedAt(0, 0)
+    r.mouseDraggedAt(t, 0)
+    #expect(fired == true)
+    #expect(r.sourceActions == java.awt.dnd.DnDConstants.ACTION_MOVE)
+  }
+
+  @Test("_startXDNDDrag headless path does not crash")
+  func startXDNDDragHeadless() {
+    // Im Headless-/CI-Betrieb (kein X11-Display) darf _startXDNDDrag
+    // keinen Absturz verursachen. _X11WindowHost.shared läuft dann ohne
+    // Display — der Aufruf ist ein No-op.
+    let r = makeRecognizer()
+    final class StubTransferable: java.awt.datatransfer.Transferable {
+      func getTransferDataFlavors() -> [java.awt.datatransfer.DataFlavor] { [] }
+      func isDataFlavorSupported(_ f: java.awt.datatransfer.DataFlavor) -> Bool { false }
+      func getTransferData(_ f: java.awt.datatransfer.DataFlavor) throws -> Any {
+        throw java.awt.datatransfer.UnsupportedFlavorException(f)
+      }
+    }
+    final class DSL: java.awt.dnd.DragSourceListener {
+      var endCalled = false
+      func dragEnter(_ e: java.awt.dnd.DragSourceDragEvent) {}
+      func dragOver(_ e: java.awt.dnd.DragSourceDragEvent) {}
+      func dropActionChanged(_ e: java.awt.dnd.DragSourceDragEvent) {}
+      func dragExit(_ e: java.awt.dnd.DragSourceEvent) {}
+      func dragDropEnd(_ e: java.awt.dnd.DragSourceDropEvent) { endCalled = true }
+    }
+    // Kein #expect auf endCalled, da kein Display vorhanden — Ziel ist
+    // lediglich, dass kein Absturz / keine Exception auftritt.
+    r._startXDNDDrag(transferable: StubTransferable(), cursor: nil, dsl: DSL())
+  }
+}
+#endif // os(Linux) || os(FreeBSD)

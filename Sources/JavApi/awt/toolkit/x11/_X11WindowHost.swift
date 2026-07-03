@@ -54,21 +54,21 @@ typealias X11WindowID   = UInt   // XID / unsigned long on 64-bit
 
 private typealias XOpenDisplayFunc          = @convention(c) (UnsafePointer<CChar>?) -> X11DisplayPtr?
 private typealias XCloseDisplayFunc         = @convention(c) (X11DisplayPtr) -> Int32
-private typealias XDefaultScreenFunc        = @convention(c) (X11DisplayPtr) -> Int32
-private typealias XDefaultRootWindowFunc    = @convention(c) (X11DisplayPtr) -> X11WindowID
+typealias XDefaultScreenFunc        = @convention(c) (X11DisplayPtr) -> Int32
+typealias XDefaultRootWindowFunc    = @convention(c) (X11DisplayPtr) -> X11WindowID
 private typealias XBlackPixelFunc           = @convention(c) (X11DisplayPtr, Int32) -> UInt
 private typealias XWhitePixelFunc           = @convention(c) (X11DisplayPtr, Int32) -> UInt
 private typealias XCreateSimpleWindowFunc   = @convention(c) (X11DisplayPtr, X11WindowID, Int32, Int32, UInt32, UInt32, UInt32, UInt, UInt) -> X11WindowID
 private typealias XStoreNameFunc            = @convention(c) (X11DisplayPtr, X11WindowID, UnsafePointer<CChar>?) -> Int32
-private typealias XInternAtomFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>?, Int32) -> UInt
-private typealias XChangePropertyFunc       = @convention(c) (X11DisplayPtr, X11WindowID, UInt, UInt, Int32, Int32, UnsafePointer<UInt8>?, Int32) -> Int32
+typealias XInternAtomFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>?, Int32) -> UInt
+typealias XChangePropertyFunc       = @convention(c) (X11DisplayPtr, X11WindowID, UInt, UInt, Int32, Int32, UnsafePointer<UInt8>?, Int32) -> Int32
 private typealias XSetWMProtocolsFunc       = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutablePointer<UInt>?, Int32) -> Int32
 private typealias XSelectInputFunc          = @convention(c) (X11DisplayPtr, X11WindowID, CLong) -> Int32
 private typealias XMapWindowFunc            = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XUnmapWindowFunc          = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XDestroyWindowFunc        = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
 private typealias XClearWindowFunc          = @convention(c) (X11DisplayPtr, X11WindowID) -> Int32
-private typealias XFlushFunc                = @convention(c) (X11DisplayPtr) -> Int32
+typealias XFlushFunc                = @convention(c) (X11DisplayPtr) -> Int32
 private typealias XNextEventFunc            = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer) -> Int32
 private typealias XPendingFunc              = @convention(c) (X11DisplayPtr) -> Int32
 private typealias XFillRectangleFunc        = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
@@ -89,7 +89,46 @@ private typealias XFreeCursorFunc           = @convention(c) (X11DisplayPtr, UIn
 // XSizeHints / XSetWMNormalHints — lock window size when Frame.isResizable() == false
 private typealias XAllocSizeHintsFunc       = @convention(c) () -> UnsafeMutableRawPointer?
 private typealias XSetWMNormalHintsFunc     = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutableRawPointer) -> Void
-private typealias XFreeFunc                 = @convention(c) (UnsafeMutableRawPointer) -> Void
+typealias XFreeFunc                 = @convention(c) (UnsafeMutableRawPointer) -> Void
+// XDND / DnD zusätzliche X11-Funktionen
+// XQueryPointer — Fenster und Koordinaten unter dem Cursor abfragen
+typealias XQueryPointerFunc         = @convention(c) (
+  X11DisplayPtr, X11WindowID,
+  UnsafeMutablePointer<X11WindowID>?,   // root_return
+  UnsafeMutablePointer<X11WindowID>?,   // child_return
+  UnsafeMutablePointer<Int32>?,         // root_x_return
+  UnsafeMutablePointer<Int32>?,         // root_y_return
+  UnsafeMutablePointer<Int32>?,         // win_x_return
+  UnsafeMutablePointer<Int32>?,         // win_y_return
+  UnsafeMutablePointer<UInt32>?         // mask_return
+) -> Int32
+// XGetWindowProperty — Eigenschaft eines Fensters lesen (z.B. XdndAware)
+typealias XGetWindowPropertyFunc    = @convention(c) (
+  X11DisplayPtr, X11WindowID, UInt,     // dpy, window, property
+  Int, Int,                             // long_offset, long_length
+  Int32,                                // delete
+  UInt,                                 // req_type (0 = AnyPropertyType)
+  UnsafeMutablePointer<UInt>?,          // actual_type_return
+  UnsafeMutablePointer<Int32>?,         // actual_format_return
+  UnsafeMutablePointer<UInt>?,          // nitems_return
+  UnsafeMutablePointer<UInt>?,          // bytes_after_return
+  UnsafeMutablePointer<UnsafeMutablePointer<UInt8>?>?  // prop_return
+) -> Int32
+// XSendEvent — ClientMessage an ein Fenster senden
+typealias XSendEventFunc            = @convention(c) (
+  X11DisplayPtr, X11WindowID,           // dpy, window
+  Int32, CLong,                         // propagate, event_mask
+  UnsafeMutableRawPointer              // event_send (XEvent*)
+) -> Int32
+// XSetSelectionOwner — Selection-Eigentümer setzen
+typealias XSetSelectionOwnerFunc    = @convention(c) (
+  X11DisplayPtr, UInt, X11WindowID, UInt // dpy, selection, owner, time
+) -> Int32
+// XConvertSelection — Daten aus Selection anfordern
+typealias XConvertSelectionFunc     = @convention(c) (
+  X11DisplayPtr, UInt, UInt, UInt, X11WindowID, UInt
+  // dpy, selection, target, property, requestor, time
+) -> Int32
 // XSizeHints.flags bits
 private let PMinSize: CLong = 1 << 4
 private let PMaxSize: CLong = 1 << 5
@@ -111,6 +150,8 @@ private let X11_MotionNotify:    Int32 = 6
 private let X11_ConfigureNotify: Int32 = 22
 private let X11_ClientMessage:   Int32 = 33
 private let X11_DestroyNotify:   Int32 = 17
+private let X11_SelectionRequest: Int32 = 30
+private let X11_SelectionNotify:  Int32 = 31
 
 // XK keysym constants (from keysymdef.h) for special keys
 private let XK_BackSpace: UInt = 0xFF08
@@ -218,6 +259,51 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnSetWMNormalHints:  XSetWMNormalHintsFunc?
   private var fnXFree:             XFreeFunc?
 
+  // XDND / DnD — zusätzliche Funktionszeiger (per dlsym geladen)
+  var _fnQueryPointer:       XQueryPointerFunc?
+  var _fnGetWindowProperty:  XGetWindowPropertyFunc?
+  var _fnSendEvent:          XSendEventFunc?
+  var _fnSetSelectionOwner:  XSetSelectionOwnerFunc?
+  var _fnConvertSelection:   XConvertSelectionFunc?
+  // Weiterleitung von bestehenden Funktionen für DnD-Extension-Datei
+  var _fnInternAtom:         XInternAtomFunc?   { get { fnInternAtom } }
+  var _fnChangeProperty:     XChangePropertyFunc? { get { fnChangeProperty } }
+  var _fnDefaultScreen:      XDefaultScreenFunc?  { get { fnDefaultScreen } }
+  var _fnDefaultRootWindow:  XDefaultRootWindowFunc? { get { fnDefaultRootWindow } }
+  var _fnXFreeWrapper:       XFreeFunc?           { get { fnXFree } }
+  var fnFlushX11:            XFlushFunc?          { get { fnFlush } }
+
+  // XDND-Atom-Cache (alle 0 = noch nicht geladen)
+  var _atomXdndAware:       UInt = 0
+  var _atomXdndEnter:       UInt = 0
+  var _atomXdndPosition:    UInt = 0
+  var _atomXdndStatus:      UInt = 0
+  var _atomXdndLeave:       UInt = 0
+  var _atomXdndDrop:        UInt = 0
+  var _atomXdndFinished:    UInt = 0
+  var _atomXdndSelection:   UInt = 0
+  var _atomXdndActionCopy:  UInt = 0
+  var _atomXdndActionMove:  UInt = 0
+  var _atomXdndActionLink:  UInt = 0
+  var _atomXdndActionList:  UInt = 0
+  var _atomXdndTypeList:    UInt = 0
+  var _atomUTF8String:      UInt = 0
+  var _atomText:            UInt = 0
+  var _atomXdndProperty:    UInt = 0
+
+  // XDND-Drag-Zustand (als Quelle) — Typ _XDNDDragState, definiert in _X11WindowHost+DnD.swift
+  @MainActor var _xdndDragState: _XDNDDragState? = nil
+
+  // XDND-Drop-Empfangszustand (als Ziel)
+  @MainActor var _xdndPendingSource:    X11WindowID = 0
+  @MainActor var _xdndPendingTimestamp: UInt        = 0
+  @MainActor var _xdndDropSourceWin:    X11WindowID = 0
+  @MainActor var _xdndDropTargetWin:    X11WindowID = 0
+  @MainActor var _xdndDropTimestamp:    UInt        = 0
+  @MainActor var _xdndDropAwtWindow:    java.awt.Window? = nil
+  @MainActor var _xdndDropLocalX:       Int         = 0
+  @MainActor var _xdndDropLocalY:       Int         = 0
+
   // Cursor cache: AWT cursor type → X11 Cursor XID
   private var cursorCache: [Int: UInt] = [:]
 
@@ -231,8 +317,8 @@ public final class _X11WindowHost: @unchecked Sendable {
   // MARK: Window registry
   // ---------------------------------------------------------------------------
 
-  private var registry: [X11WindowID: java.awt.Window] = [:]
-  private var reverseRegistry: [ObjectIdentifier: X11WindowID] = [:]
+  var _x11Registry: [X11WindowID: java.awt.Window] = [:]
+  var _x11ReverseRegistry: [ObjectIdentifier: X11WindowID] = [:]
   private var gcRegistry: [X11WindowID: UnsafeMutableRawPointer] = [:]
 
   // MenuBar attached to each Frame (keyed by X11 window ID)
@@ -333,6 +419,13 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnAllocSizeHints     = resolve("XAllocSizeHints",     as: XAllocSizeHintsFunc.self)
     fnSetWMNormalHints   = resolve("XSetWMNormalHints",   as: XSetWMNormalHintsFunc.self)
     fnXFree              = resolve("XFree",               as: XFreeFunc.self)
+
+    // XDND-Zusatzfunktionen
+    _fnQueryPointer      = resolve("XQueryPointer",       as: XQueryPointerFunc.self)
+    _fnGetWindowProperty = resolve("XGetWindowProperty",  as: XGetWindowPropertyFunc.self)
+    _fnSendEvent         = resolve("XSendEvent",          as: XSendEventFunc.self)
+    _fnSetSelectionOwner = resolve("XSetSelectionOwner",  as: XSetSelectionOwnerFunc.self)
+    _fnConvertSelection  = resolve("XConvertSelection",   as: XConvertSelectionFunc.self)
   }
 
   // ---------------------------------------------------------------------------
@@ -518,8 +611,8 @@ public final class _X11WindowHost: @unchecked Sendable {
     let gc = fnGC(dpy, xwin, 0, nil)
     gcRegistry[xwin] = gc
 
-    registry[xwin] = awtWindow
-    reverseRegistry[ObjectIdentifier(awtWindow)] = xwin
+    _x11Registry[xwin] = awtWindow
+    _x11ReverseRegistry[ObjectIdentifier(awtWindow)] = xwin
 
     // If a MenuBar was attached before the window was opened (the common case —
     // frame.setMenuBar() is usually called before setVisible()), attach it now.
@@ -571,6 +664,9 @@ public final class _X11WindowHost: @unchecked Sendable {
     _ = fnMap(dpy, xwin)
     _ = fnFlush(dpy)
 
+    // XDND: Fenster als Drop-Ziel registrieren (XdndAware-Eigenschaft setzen)
+    _xdndRegisterWindow(xwin)
+
     // NOTE: X11 modal blocking is not implemented here.
     // openWindow() is called from within a DispatchQueue.main.async block
     // (via btn.doClick → actionPerformed → setVisible → show → openWindow).
@@ -594,7 +690,7 @@ public final class _X11WindowHost: @unchecked Sendable {
   public func attachMenuBar(_ menuBar: java.awt.MenuBar?, to frame: java.awt.Frame) {
     // Window may not be open yet — openWindow() will pick up the menu bar from
     // frame.getMenuBar() once the frame becomes visible.
-    guard let xwin = reverseRegistry[ObjectIdentifier(frame)] else { return }
+    guard let xwin = _x11ReverseRegistry[ObjectIdentifier(frame)] else { return }
     let alreadyAttached = menuBarRegistry[xwin] != nil
     if let mb = menuBar {
       menuBarRegistry[xwin] = _X11MenuBar(mb)
@@ -616,7 +712,7 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor
   public func hide(_ window: java.awt.Window) {
     let id = ObjectIdentifier(window)
-    guard let xwin = reverseRegistry[id], let dpy = display else { return }
+    guard let xwin = _x11ReverseRegistry[id], let dpy = display else { return }
     if let gc = gcRegistry[xwin], let fnFree = fnFreeGC {
       _ = fnFree(dpy, gc)
       gcRegistry.removeValue(forKey: xwin)
@@ -624,8 +720,8 @@ public final class _X11WindowHost: @unchecked Sendable {
     _ = fnUnmapWindow?(dpy, xwin)
     _ = fnDestroyWindow?(dpy, xwin)
     _ = fnFlush?(dpy)
-    registry.removeValue(forKey: xwin)
-    reverseRegistry.removeValue(forKey: id)
+    _x11Registry.removeValue(forKey: xwin)
+    _x11ReverseRegistry.removeValue(forKey: id)
   }
 
   /// Closes a dialog and releases all associated X11 resources.
@@ -641,7 +737,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     // destroys it. _X11MenuBar holds a strong ref to java.awt.MenuBar and
     // its Menu children.
     let dialogId = ObjectIdentifier(dialog)
-    if let xwin = reverseRegistry[dialogId] {
+    if let xwin = _x11ReverseRegistry[dialogId] {
       menuBarRegistry.removeValue(forKey: xwin)
     }
 
@@ -770,7 +866,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     // + display*(8) + window(UInt/8)  → window offset = 4+4+8+4+4+8 = 32
     let xwin = buf.load(fromByteOffset: 32, as: X11WindowID.self)
 
-    guard let awtWindow = registry[xwin] else {
+    guard let awtWindow = _x11Registry[xwin] else {
       return
     }
 
@@ -814,6 +910,13 @@ public final class _X11WindowHost: @unchecked Sendable {
       let clickY = Int((Double(physClickY) / scaleFactor).rounded())
       // XButtonEvent: time field at offset 56 (unsigned long)
       let eventTime = buf.load(fromByteOffset: 56, as: UInt.self)
+
+      // XDND: DragGestureRecognizer über Maus-Druck informieren (Button 1)
+      if buttonNum == 1 {
+        let contentY0 = menuBarRegistry[xwin] != nil
+                      ? clickY - _X11MenuBar.menuBarHeight : clickY
+        _dndVisitX11Recognizers(in: awtWindow) { r in r.mousePressedAt(clickX, contentY0) }
+      }
 
       // ── Button 3 = right-click → PopupMenu ──────────────────────────────────
       if buttonNum == 3 {
@@ -1154,6 +1257,16 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
 
     case X11_ButtonRelease:
+      // XDND: aktiven DnD-Drag beenden (Root-Koordinaten aus XButtonEvent)
+      if _xdndDragState != nil {
+        let physRX = Int(buf.load(fromByteOffset: 72, as: Int32.self))
+        let physRY = Int(buf.load(fromByteOffset: 76, as: Int32.self))
+        let ts     = buf.load(fromByteOffset: 56, as: UInt.self)
+        _xdndHandleRelease(rootX: physRX, rootY: physRY, timestamp: ts)
+      }
+      // XDND: Recognizer über Maus-Loslassen informieren
+      _dndVisitX11Recognizers(in: awtWindow) { r in r.mouseReleased() }
+
       if let sb = draggingScrollbar        { sb.isDragging         = false }
       if let sp = draggingScrollPane       { sp.isDraggingV = false; sp.isDraggingH = false }
       if let list = draggingList           { list.isScrollbarDragging = false }
@@ -1181,6 +1294,16 @@ public final class _X11WindowHost: @unchecked Sendable {
       let my = Int((Double(physMY) / scaleFactor).rounded())
       let contentMY = menuBarRegistry[xwin] != nil ? my - _X11MenuBar.menuBarHeight : my
       var needsRepaint = false
+
+      // XDND: Motion an Drag-Session weiterleiten (Root-Koordinaten benötigt)
+      if _xdndDragState != nil {
+        let physRX  = Int(buf.load(fromByteOffset: 72, as: Int32.self))
+        let physRY  = Int(buf.load(fromByteOffset: 76, as: Int32.self))
+        let ts      = buf.load(fromByteOffset: 56,  as: UInt.self)
+        _xdndHandleMotion(rootX: physRX, rootY: physRY, timestamp: ts)
+      }
+      // XDND: Recognizer über Maus-Bewegung informieren
+      _dndVisitX11Recognizers(in: awtWindow) { r in r.mouseDraggedAt(mx, contentMY) }
 
       // JSplitPane divider drag
       if let sp = draggingSplitPane {
@@ -1388,6 +1511,14 @@ public final class _X11WindowHost: @unchecked Sendable {
         }
       }
 
+    case X11_SelectionRequest:
+      // XDND: Ziel-Fenster fragt unsere XdndSelection-Daten an (wir sind Drag-Quelle)
+      _xdndHandleSelectionRequest(buf: buf)
+
+    case X11_SelectionNotify:
+      // XDND: Daten vom Quell-Fenster empfangen (wir sind Drop-Ziel)
+      _xdndHandleSelectionNotify(buf: buf)
+
     case X11_ClientMessage:
       // XClientMessageEvent layout (64-bit Linux):
       // type(4) + pad(4) + serial(8) + send_event(4) + pad(4)
@@ -1396,6 +1527,10 @@ public final class _X11WindowHost: @unchecked Sendable {
       // window=32, message_type=40, format=48, data[0]=56
       let dataOffset = 56
       let data0 = buf.load(fromByteOffset: dataOffset, as: UInt.self)
+      // XDND-Nachricht prüfen (message_type liegt bei Offset 40)
+      if _xdndHandleClientMessage(buf: buf, xwin: xwin, awtWindow: awtWindow) {
+        break
+      }
       if data0 == atomWMDeleteWindow {
         // Already on main thread via DispatchQueue.main.sync in eventLoopBody
         awtWindow.processWindowEvent(
@@ -1404,8 +1539,8 @@ public final class _X11WindowHost: @unchecked Sendable {
 
     case X11_DestroyNotify:
       // X connection already gone — just clean up registry, do not fire WINDOW_CLOSING again
-      registry.removeValue(forKey: xwin)
-      reverseRegistry.removeValue(forKey: ObjectIdentifier(awtWindow))
+      _x11Registry.removeValue(forKey: xwin)
+      _x11ReverseRegistry.removeValue(forKey: ObjectIdentifier(awtWindow))
 
     default:
       break
@@ -1477,7 +1612,7 @@ public final class _X11WindowHost: @unchecked Sendable {
   /// Public variant called by `_X11PopupWindow` to trigger a repaint.
   @MainActor
   func repaintWindow(_ awtWindow: java.awt.Window) {
-    guard let xwin = reverseRegistry[ObjectIdentifier(awtWindow)] else { return }
+    guard let xwin = _x11ReverseRegistry[ObjectIdentifier(awtWindow)] else { return }
     repaint(awtWindow, xwin: xwin)
   }
 
@@ -1515,6 +1650,28 @@ public final class _X11WindowHost: @unchecked Sendable {
     }
 
     _ = fnFlush?(dpy)
+  }
+  // ---------------------------------------------------------------------------
+  // MARK: DnD-Recognizer-Besucher
+  // ---------------------------------------------------------------------------
+
+  /// Besucht rekursiv alle `_X11MouseDragGestureRecognizer` im Komponentenbaum
+  /// und ruft `block` für jeden auf.
+  @MainActor
+  func _dndVisitX11Recognizers(
+    in comp: java.awt.Component,
+    block: (java.awt.dnd._X11MouseDragGestureRecognizer) -> Void
+  ) {
+    for r in comp._dragGestureRecognizers {
+      if let x11R = r as? java.awt.dnd._X11MouseDragGestureRecognizer {
+        block(x11R)
+      }
+    }
+    if let container = comp as? java.awt.Container {
+      for child in container.getComponents() {
+        _dndVisitX11Recognizers(in: child, block: block)
+      }
+    }
   }
 }
 #endif

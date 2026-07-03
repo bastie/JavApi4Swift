@@ -74,6 +74,14 @@ extension java.awt.dnd {
         return
       }
 #endif
+#if os(Linux) || os(FreeBSD)
+      if let x11Rec = dragGestureRecognizer as? _X11MouseDragGestureRecognizer {
+        x11Rec._startXDNDDrag(transferable: transferable,
+                              cursor: dragCursor,
+                              dsl: dsl)
+        return
+      }
+#endif
       // headless no-op
     }
   }
