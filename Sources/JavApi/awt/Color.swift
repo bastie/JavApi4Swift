@@ -7,7 +7,11 @@ import Foundation
 
 extension java.awt {
   /// Base color class — may be subclassed (e.g. by `SystemColor`).
-  open class Color: @unchecked Sendable {
+  open class Color: @unchecked Sendable, CustomStringConvertible {
+    public var description: String {
+      return "java.awt.Color (red: \(red), green: \(green), blue: \(blue), alpha: \(alpha))"
+    }
+    
 
     // -------------------------------------------------------------------------
     // MARK: Components  (0.0 … 1.0)
@@ -205,6 +209,10 @@ extension java.awt {
     public static func getHSBColor(_ h: Float, _ s: Float,
                                     _ b: Float) -> Color {
       Color(HSBtoRGB(h, s, b) & 0x00_FF_FF_FF)
+    }
+    
+    public func toString() -> String {
+      return self.description
     }
   }
 }
