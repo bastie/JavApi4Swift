@@ -33,16 +33,6 @@ extension javax.swing {
   open class JSeparator: javax.swing.JComponent, javax.swing.SwingConstants {
 
     // -------------------------------------------------------------------------
-    // MARK: Orientation constants (access via JSeparator.HORIZONTAL etc.)
-    // -------------------------------------------------------------------------
-
-    // Inherited from the `javax.swing.SwingConstants` protocol extension
-    // (`HORIZONTAL == 0`, `VERTICAL == 1`).  Must NOT be re-declared as stored
-    // `static let`: that shadows the protocol value and `= JSeparator.HORIZONTAL`
-    // references itself, resolving to 0 for BOTH constants.
-    // See Java2Swift.md, "constants — access via concrete class".
-
-    // -------------------------------------------------------------------------
     // MARK: State
     // -------------------------------------------------------------------------
 
@@ -59,11 +49,8 @@ extension javax.swing {
     // -------------------------------------------------------------------------
 
     /// Creates a horizontal separator.
-    public override init() {
-      _orientation = JSeparator.HORIZONTAL
-      super.init()
-      setOpaque(false)
-      updateUI()
+    public override convenience init() {
+      self.init (JSeparator.HORIZONTAL)
     }
 
     /// Creates a separator with the given orientation.
@@ -77,13 +64,11 @@ extension javax.swing {
     // -------------------------------------------------------------------------
     // MARK: UI delegate
     // -------------------------------------------------------------------------
-
+    
+    override open func getUIClassID() -> String { "SeparatorUI" }
+    
     override open func updateUI() {
-      ui = javax.swing.plaf.basic.BasicSeparatorUI()
+      super.updateUI()
     }
-
-    // KI Fehler behoben: getPreferredSize() is intentionally NOT overridden here.
-    // JComponent.getPreferredSize() already delegates to ui.getPreferredSize(of:),
-    // so BasicSeparatorUI is the single source of truth — exactly as in Java Swing.
   }
 }
