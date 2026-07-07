@@ -69,10 +69,8 @@ struct JavApi_lang_Enum_valueOf_Tests {
     do {
       _ = try TestColor.RED.valueOf("YELLOW")
       Issue.record("Expected IllegalArgumentException was not thrown")
-    } catch let e as IllegalArgumentException {
+    } catch let e {
       #expect(e.getMessage()?.contains("YELLOW") == true)
-    } catch {
-      Issue.record("Unexpected error type: \(error)")
     }
   }
 

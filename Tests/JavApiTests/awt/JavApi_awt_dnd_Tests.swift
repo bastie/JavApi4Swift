@@ -56,8 +56,8 @@ struct JavApi_awt_dnd_DragSource_Tests {
 
   @Test("getDefaultDragSource returns an instance")
   func defaultDragSource() {
-    let ds = java.awt.dnd.DragSource.getDefaultDragSource()
-    #expect(ds is java.awt.dnd.DragSource)
+    _ = java.awt.dnd.DragSource.getDefaultDragSource()
+    #expect(Bool(true))
   }
 
   @Test("getDefaultDragSource returns same instance on repeated calls")

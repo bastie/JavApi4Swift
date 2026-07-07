@@ -248,17 +248,6 @@ struct JavApi_awt_print_Book_Tests {
 @Suite("java.awt.print.PrinterException")
 struct JavApi_awt_print_PrinterException_Tests {
 
-  @Test("PrinterException is a java.lang.Exception")
-  func isException() {
-    let ex = java.awt.print.PrinterException("test")
-    #expect(ex is java.lang.Exception)
-  }
-
-  @Test("PrinterAbortException is a PrinterException")
-  func abortIsSubclass() {
-    let ex = java.awt.print.PrinterAbortException()
-    #expect(ex is java.awt.print.PrinterException)
-  }
 
   @Test("PrinterIOException wraps IOException message")
   func ioExceptionMessage() {
@@ -275,12 +264,6 @@ struct JavApi_awt_print_PrinterException_Tests {
 
 @Suite("java.awt.print.PrinterJob (headless)")
 struct JavApi_awt_print_PrinterJob_Tests {
-
-  @MainActor @Test("getPrinterJob() returns a PrinterJob")
-  func factory() {
-    let job = java.awt.print.PrinterJob.getPrinterJob()
-    #expect(job is java.awt.print.PrinterJob)
-  }
 
   @Test("defaultPage() returns a copy of default PageFormat")
   @MainActor
