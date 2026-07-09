@@ -3,6 +3,45 @@
  * SPDX-License-Identifier: MIT
  */
 
+// MARK: - Scroll pane focus border
+
+/// Focus-sensitive border for `JScrollPane`.
+///
+/// Uses `FocusManager.getCurrentManager().getFocusOwner()` to determine
+/// whether the scroll pane or any of its direct interactive children
+/// (viewport, vertical scrollbar, horizontal scrollbar) currently hold
+/// keyboard focus, and draws a blue focus ring vs. the normal window-border
+/// colour accordingly.
+///
+/// Installed by `BasicScrollPaneUI.installUI(_:)` — do not construct directly.
+@MainActor
+private final class _ScrollPaneBorder: javax.swing.border.AbstractBorder, @unchecked Sendable {
+
+  override func paintBorder(
+    _ component: java.awt.Component,
+    _ g: java.awt.Graphics,
+    _ x: Int, _ y: Int, _ width: Int, _ height: Int
+  ) {
+    guard let sp = component as? javax.swing.JScrollPane else { return }
+    let focusOwner = javax.swing.FocusManager.getCurrentManager().getFocusOwner()
+    let isFocused  = focusOwner === sp
+      || focusOwner === sp.getViewport()
+      || focusOwner === sp.getVerticalScrollBar()
+      || focusOwner === sp.getHorizontalScrollBar()
+    g.setColor(isFocused ? java.awt.Color(59, 130, 246) : java.awt.SystemColor.windowBorder)
+    g.drawLine(x,             y,              x + width - 1, y)
+    g.drawLine(x,             y,              x,             y + height - 1)
+    g.drawLine(x + width - 1, y,              x + width - 1, y + height - 1)
+    g.drawLine(x,             y + height - 1, x + width - 1, y + height - 1)
+  }
+
+  override func getBorderInsets(_ component: java.awt.Component) -> java.awt.Insets {
+    java.awt.Insets(1, 1, 1, 1)
+  }
+
+  override var isBorderOpaque: Bool { false }
+}
+
 extension javax.swing.plaf.basic {
 
   /// The Basic Look-and-Feel UI delegate for `JScrollPane`.
@@ -10,6 +49,12 @@ extension javax.swing.plaf.basic {
   /// Layout and painting are handled directly by `JScrollPane`; this class
   /// exists as the correct Java-API hook so that `UIManager` can install it
   /// and custom L&Fs can override it.
+  ///
+  /// The scroll-pane border (a 1-pixel focus ring) is installed via
+  /// `installUI(_:)` as a proper `Border` object, following the
+  /// `ComponentUI` contract.  Focus detection uses
+  /// `FocusManager.getCurrentManager().getFocusOwner()` so the ring updates
+  /// correctly when focus moves between the viewport and scrollbars.
   ///
   /// - Since: Java 1.2
   @MainActor
@@ -24,6 +69,22 @@ extension javax.swing.plaf.basic {
     }
 
     // -------------------------------------------------------------------------
+    // MARK: Install / uninstall
+    // -------------------------------------------------------------------------
+
+    override open func installUI(_ c: javax.swing.JComponent) {
+      if c.getBorder() == nil {
+        c.setBorder(_ScrollPaneBorder())
+      }
+    }
+
+    override open func uninstallUI(_ c: javax.swing.JComponent) {
+      if c.getBorder() is _ScrollPaneBorder {
+        c.setBorder(nil)
+      }
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Paint
     // -------------------------------------------------------------------------
 
@@ -31,12 +92,10 @@ extension javax.swing.plaf.basic {
       guard let sp = component as? javax.swing.JScrollPane else { return }
       sp.doLayout()
 
-      let w  = sp.bounds.width
-      let h  = sp.bounds.height
       let t  = sp.scrollbarThickness
       let vb = sp.showVBarPublic
       let hb = sp.showHBarPublic
-      let vp  = sp.getViewport()
+      let vp = sp.getViewport()
 
       // Use the bounds already set by doLayout() — they correctly account for
       // the column-header height, scrollbar visibility, etc.
@@ -85,15 +144,6 @@ extension javax.swing.plaf.basic {
         g.setColor(java.awt.SystemColor.control)
         g.fillRect(vpBounds.x + vpBounds.width, vpBounds.y + vpBounds.height, t, t)
       }
-
-      // Border — blue focus ring if the viewport or scrollbars are focused
-      // FIXME: implement KeyboardFocusManager 
-      let viewIsFocused = sp.isFocusOwner || vp.isFocusOwner || sp.getVerticalScrollBar().isFocusOwner || sp.getHorizontalScrollBar().isFocusOwner
-      g.setColor(viewIsFocused ? java.awt.Color(59, 130, 246) : java.awt.SystemColor.windowBorder)
-      g.drawLine(0,   0,   w-1, 0)
-      g.drawLine(0,   0,   0,   h-1)
-      g.drawLine(w-1, 0,   w-1, h-1)
-      g.drawLine(0,   h-1, w-1, h-1)
     }
 
     // -------------------------------------------------------------------------

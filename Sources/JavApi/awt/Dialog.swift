@@ -41,6 +41,15 @@ extension java.awt {
     /// Ob das Dialogfenster in der Größe verändert werden kann.
     public var resizable: Bool = true
 
+    /// Ob das Dialogfenster ohne Titelleiste und Rahmen dargestellt wird.
+    ///
+    /// Muss vor `setVisible(true)` gesetzt werden.  Ob der Toolkit dies
+    /// tatsächlich umsetzt, hängt von der Plattform ab.
+    private var _undecorated: Bool = false
+
+    public func setUndecorated(_ undecorated: Bool) { _undecorated = undecorated }
+    public func isUndecorated() -> Bool { _undecorated }
+
     /// Re-Entrancy-Guard für `dispose()`.
     private var _disposing: Bool = false
 

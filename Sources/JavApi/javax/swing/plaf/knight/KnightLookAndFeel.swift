@@ -11,13 +11,13 @@ extension javax.swing.plaf.knight {
   /// component-UI Klasses in `javax.swing.plaf.knight`.
   ///
   @MainActor
-  open class KnightLookAndFeel: javax.swing.LookAndFeel {
+  final public class KnightLookAndFeel: javax.swing.LookAndFeel {
 
     public override init() {}
 
-    override open func getName()        -> String { "Knight" }
-    override open func getID()          -> String { "DarkKnight" }
-    override open func getDescription() -> String {
+    override public func getName()        -> String { "Knight" }
+    override public func getID()          -> String { "DarkKnight" }
+    override public func getDescription() -> String {
       if java.util.Locale.getDefault().getLanguage().equals("de") == true {
         return "Schwarzer Ritter Look & Feel"
       }
@@ -25,10 +25,10 @@ extension javax.swing.plaf.knight {
         return "Dark Knight Look & Feel"
       }
     }
-    override open func isNativeLookAndFeel()    -> Bool { false }
-    override open func isSupportedLookAndFeel() -> Bool { true  }
+    override public func isNativeLookAndFeel()    -> Bool { false }
+    override public func isSupportedLookAndFeel() -> Bool { true  }
 
-    override open func getDefaults() -> javax.swing.UIDefaults {
+    override public func getDefaults() -> javax.swing.UIDefaults {
       let d = javax.swing.UIDefaults()
       d["ButtonUI"]              = { javax.swing.plaf.basic.BasicButtonUI()              }
       d["CheckBoxMenuItemUI"]    = { javax.swing.plaf.basic.BasicCheckBoxMenuItemUI()    }
@@ -43,7 +43,7 @@ extension javax.swing.plaf.knight {
       d["LabelUI"]               = { javax.swing.plaf.basic.BasicLabelUI()               }
       d["ListUI"]                = { javax.swing.plaf.basic.BasicListUI()                }
       d["MenuBarUI"]             = { javax.swing.plaf.basic.BasicMenuBarUI()             }
-      d["MenuItemUI"]            = { javax.swing.plaf.basic.BasicMenuItemUI()            }
+      d["MenuItemUI"]            = { javax.swing.plaf.knight.KnightMenuItemUI()            }
       d["OptionPaneUI"]          = { javax.swing.plaf.basic.BasicOptionPaneUI()          }
       d["PasswordFieldUI"]       = { javax.swing.plaf.basic.BasicPasswordFieldUI()       }
       d["PopupMenuUI"]           = { javax.swing.plaf.basic.BasicPopupMenuUI()           }
@@ -52,7 +52,7 @@ extension javax.swing.plaf.knight {
       d["RadioButtonUI"]         = { javax.swing.plaf.knight.KnightRadioButtonUI()         }
       d["ScrollBarUI"]           = { javax.swing.plaf.basic.BasicScrollBarUI()           }
       d["ScrollPaneUI"]          = { javax.swing.plaf.basic.BasicScrollPaneUI()          }
-      d["SeparatorUI"]           = { javax.swing.plaf.basic.BasicSeparatorUI()           }
+      d["SeparatorUI"]           = { javax.swing.plaf.knight.KnightSeparatorUI()           }
       d["SliderUI"]              = { javax.swing.plaf.basic.BasicSliderUI()              }
       d["SpinnerUI"]             = { javax.swing.plaf.basic.BasicSpinnerUI()             }
       d["SplitPaneUI"]           = { javax.swing.plaf.basic.BasicSplitPaneUI()           }

@@ -50,9 +50,12 @@ extension javax.swing {
 
     /// Whether the toolbar can be dragged out of its container.
     ///
-    /// - TODO: Implement `BasicToolBarUI` with `MouseMotionListener` drag-tracking,
-    ///   undecorared `JDialog` as floating window, and BorderLayout docking zones.
-    ///   Until then floatable is stored but has no visual effect.
+    /// When `true` (the default), `BasicToolBarUI` detaches the toolbar into
+    /// an undecorated `JDialog` once the drag exceeds 10 px.  The floating
+    /// dialog stays open on mouse-release.
+    ///
+    /// - Note: Re-docking by dropping onto a `BorderLayout` docking zone is
+    ///   not yet implemented.
     private var _floatable: Bool = true
     public func isFloatable() -> Bool { _floatable }
     public func setFloatable(_ b: Bool) { _floatable = b }

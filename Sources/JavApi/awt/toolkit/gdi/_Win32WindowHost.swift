@@ -178,10 +178,15 @@ public final class _Win32Canvas {
     let canResize = (awtWindow as? java.awt.Frame)?.isResizable() ?? true
     let style: DWORD
     if isDialog {
-      // Dialog: nur resizable wenn Frame.isResizable()
-      style = canResize
-        ? DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME)
-        : DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU)
+      // Undecorated dialogs (e.g. floating toolbars): WS_POPUP has no title bar or border.
+      let isUndecorated = (awtWindow as? java.awt.Dialog)?.isUndecorated() ?? false
+      if isUndecorated {
+        style = DWORD(WS_POPUP)
+      } else {
+        style = canResize
+          ? DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME)
+          : DWORD(WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU)
+      }
     } else {
       // Frame/JFrame: WS_OVERLAPPEDWINDOW enthält WS_THICKFRAME — entfernen wenn nötig
       style = canResize

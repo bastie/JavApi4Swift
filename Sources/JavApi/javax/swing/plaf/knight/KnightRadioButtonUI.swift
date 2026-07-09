@@ -12,16 +12,16 @@ extension javax.swing.plaf.knight {
   ///
   /// - Since: JavApi4Swift / Knight L&F
   @MainActor
-  open class KnightRadioButtonUI: javax.swing.plaf.basic.BasicRadioButtonUI {
+  final public class KnightRadioButtonUI: javax.swing.plaf.basic.BasicRadioButtonUI {
 
     private let shieldSize: Int = 13
     private let gap: Int = 4
 
-    override open class func createUI(_ c: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI {
+    override public class func createUI(_ c: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI {
       return KnightRadioButtonUI()
     }
 
-    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override public func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       guard let btn = component as? javax.swing.AbstractButton else { return nil }
       let fm = java.awt.FontMetrics.make(for: component.font)
       let w  = shieldSize + gap + fm.stringWidth(btn.getText()) + 4
@@ -29,7 +29,7 @@ extension javax.swing.plaf.knight {
       return java.awt.Dimension(w, h)
     }
 
-    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
+    override public func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       guard let btn = component as? javax.swing.AbstractButton else { return }
 
       let h  = component.bounds.height
@@ -39,6 +39,11 @@ extension javax.swing.plaf.knight {
       // Background
       g.setColor(component.getBackground())
       g.fillRect(0, 0, component.bounds.width, h)
+      // FIXME: nur nötig bis alle Komponenten umgestellt sind
+      if true {
+        g.setColor(KnightColor.DARK_BLACK)
+        g.fillRect(0, 0, component.bounds.width, h)
+      }
 
       // Shield polygon (5 points):
       //   top-left, top-right, right-waist, bottom-tip, left-waist
@@ -51,16 +56,17 @@ extension javax.swing.plaf.knight {
       let n  = 5
 
       // Fill background
-      g.setColor(java.awt.SystemColor.window)
-      g.fillPolygon(xs, ys, n)
-
+      g.setColor(KnightColor.DARK_BLACK)
       if btn.isSelected() {
-        g.setColor(java.awt.SystemColor.controlText)
+        g.setColor(KnightColor.DARK_RED)
         g.fillPolygon(xs, ys, n)
       }
 
       // Outline
-      g.setColor(java.awt.SystemColor.controlDkShadow)
+      g.setColor(KnightColor.DARK_RED)
+      if btn.isSelected() {
+        g.setColor(KnightColor.DARK_BLACK)
+      }
       g.drawPolygon(xs, ys, n)
 
       // Label
@@ -69,7 +75,12 @@ extension javax.swing.plaf.knight {
         let fm  = java.awt.FontMetrics.make(for: component.font)
         let tx  = shieldSize + gap
         let ty  = (h - fm.getHeight()) / 2 + fm.getAscent()
-        g.setColor(component.getForeground())
+        if btn.isSelected() {
+          g.setColor(KnightColor.ALL_WHITE)
+        }
+        else {
+          g.setColor(KnightColor.MOSTLY_WHITE)
+        }
         g.drawString(text, tx, ty)
       }
     }

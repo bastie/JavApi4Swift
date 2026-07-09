@@ -29,12 +29,12 @@ extension javax.swing.plaf.knight {
   ///
   /// - Since: JavApi4Swift / Knight L&F
   @MainActor
-  open class KnightRadioButtonMenuItemUI: javax.swing.plaf.basic.BasicMenuItemUI {
+  final public class KnightRadioButtonMenuItemUI: javax.swing.plaf.basic.BasicMenuItemUI {
 
     /// Width/height of the shield bounding box (derived from font cap-height).
     private var _shieldSize: Int = 13
 
-    override open class func createUI(_ c: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI {
+    override public class func createUI(_ c: javax.swing.JComponent) -> javax.swing.plaf.ComponentUI {
       return KnightRadioButtonMenuItemUI()
     }
 
@@ -42,7 +42,7 @@ extension javax.swing.plaf.knight {
     // MARK: Indicator geometry
     // -------------------------------------------------------------------------
 
-    override open func indicatorWidth() -> Int { _shieldSize }
+    override public func indicatorWidth() -> Int { _shieldSize }
 
     private func updateShieldSize(for component: javax.swing.JComponent) {
       let fm = java.awt.FontMetrics.make(for: component.font)
@@ -53,7 +53,7 @@ extension javax.swing.plaf.knight {
     // MARK: Preferred size
     // -------------------------------------------------------------------------
 
-    override open func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
+    override public func getPreferredSize(_ component: javax.swing.JComponent) -> java.awt.Dimension? {
       updateShieldSize(for: component)
       return super.getPreferredSize(component)
     }
@@ -62,7 +62,7 @@ extension javax.swing.plaf.knight {
     // MARK: Paint
     // -------------------------------------------------------------------------
 
-    override open func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
+    override public func paint(_ g: java.awt.Graphics, _ component: javax.swing.JComponent) {
       updateShieldSize(for: component)
       super.paint(g, component)
     }
@@ -73,9 +73,7 @@ extension javax.swing.plaf.knight {
     /// - Top edge: full width, flat
     /// - Sides taper inward at ~2/3 height
     /// - Bottom: single point at horizontal centre
-    override open func paintIndicator(_ g: java.awt.Graphics,
-                                      in rect: java.awt.Rectangle,
-                                      selected: Bool) {
+    override public func paintIndicator(_ g: java.awt.Graphics, in rect: java.awt.Rectangle, selected: Bool) {
       let x = rect.x
       let y = rect.y
       let w = rect.width
@@ -96,17 +94,17 @@ extension javax.swing.plaf.knight {
       let n  = 5
 
       // Fill background (always light so selected dot is visible)
-      g.setColor(java.awt.SystemColor.window)
-      g.fillPolygon(xs, ys, n)
-
+      g.setColor(KnightColor.DARK_BLACK)
       if selected {
-        // Fill with accent colour when selected
-        g.setColor(java.awt.SystemColor.controlText)
+        g.setColor(KnightColor.DARK_RED)
         g.fillPolygon(xs, ys, n)
       }
 
       // Outline
-      g.setColor(java.awt.SystemColor.controlDkShadow)
+      g.setColor(KnightColor.DARK_RED)
+      if selected {
+        g.setColor(KnightColor.DARK_BLACK)
+      }
       g.drawPolygon(xs, ys, n)
     }
   }

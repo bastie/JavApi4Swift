@@ -210,8 +210,14 @@ extension _SwiftUIWindowHost {
         .ignoresSafeArea())
     hostingView.autoresizingMask = [.width, .height]
 
-    var styleMask: NSWindow.StyleMask = [.titled, .closable]
-    if dialog.resizable { styleMask.insert(.resizable) }
+    // Undecorated dialogs (e.g. floating toolbars) get no chrome at all.
+    var styleMask: NSWindow.StyleMask
+    if dialog.isUndecorated() {
+      styleMask = []   // NSWindow.StyleMask.borderless
+    } else {
+      styleMask = [.titled, .closable]
+      if dialog.resizable { styleMask.insert(.resizable) }
+    }
 
     let nsPanel = NSPanel(
       contentRect: NSRect(

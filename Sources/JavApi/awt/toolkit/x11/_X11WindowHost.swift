@@ -603,6 +603,24 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
     }
 
+    // Undecorated windows: suppress window-manager decorations via _MOTIF_WM_HINTS.
+    // MwmHints layout (5 × CLong):
+    //   [0] flags       = 2  (MWM_HINTS_DECORATIONS)
+    //   [1] functions   = 0
+    //   [2] decorations = 0  (no decorations)
+    //   [3] inputMode   = 0
+    //   [4] status      = 0
+    // format=32 + CLong data is the standard Xlib convention for this property.
+    if let dialog = awtWindow as? java.awt.Dialog, dialog.isUndecorated(),
+       let fnAtom = fnInternAtom, let fnProp = fnChangeProperty {
+      let motifAtom = fnAtom(dpy, "_MOTIF_WM_HINTS", 0)
+      var hints: [CLong] = [2, 0, 0, 0, 0]  // flags=MWM_HINTS_DECORATIONS, decorations=0
+      hints.withUnsafeBytes { rawBuf in
+        _ = fnProp(dpy, xwin, motifAtom, motifAtom, 32, 0 /*PropModeReplace*/,
+                   rawBuf.baseAddress?.assumingMemoryBound(to: UInt8.self), 5)
+      }
+    }
+
     // Subscribe to events
     let mask = X11_ExposureMask | X11_KeyPressMask | X11_ButtonPressMask | X11_ButtonReleaseMask | X11_PointerMotionMask | X11_StructureNotifyMask
     _ = fnSel(dpy, xwin, mask)
