@@ -12,7 +12,7 @@ extension javax.swing.plaf.knight {
   ///
   /// - Since: JavApi4Swift / Knight L&F
   @MainActor
-  final public class KnightRadioButtonUI: javax.swing.plaf.basic.BasicRadioButtonUI {
+  final public class KnightRadioButtonUI: javax.swing.plaf.basic.BasicToggleButtonUI {
 
     private let shieldSize: Int = 13
     private let gap: Int = 4

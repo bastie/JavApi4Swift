@@ -29,7 +29,7 @@ extension javax.swing.plaf.knight {
   ///
   /// - Since: JavApi4Swift / Knight L&F
   @MainActor
-  final public class KnightRadioButtonMenuItemUI: javax.swing.plaf.basic.BasicMenuItemUI {
+  final public class KnightRadioButtonMenuItemUI : KnightMenuItemUI {
 
     /// Width/height of the shield bounding box (derived from font cap-height).
     private var _shieldSize: Int = 13

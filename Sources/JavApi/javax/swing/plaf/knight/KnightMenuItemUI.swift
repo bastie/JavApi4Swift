@@ -24,7 +24,7 @@ extension javax.swing.plaf.knight {
   ///
   /// - Since: Java 1.2 / JFC 1.0
   @MainActor
-  final public class KnightMenuItemUI: javax.swing.plaf.ComponentUI {
+  open class KnightMenuItemUI: javax.swing.plaf.ComponentUI {
 
     // -------------------------------------------------------------------------
     // MARK: Layout constants
