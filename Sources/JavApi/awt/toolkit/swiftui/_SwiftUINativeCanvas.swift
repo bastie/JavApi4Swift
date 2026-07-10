@@ -134,40 +134,39 @@ final class _SwiftUINativeCanvas: NSView {
     g.restore()
   }
   
-  /// Renders the tooltip bubble at canvas coordinates `pt` (bottom-left of bubble).
+  /// Renders the tooltip bubble at canvas coordinates `pt` using the active L&F.
+  ///
+  /// Creates a `JToolTip` instance, sets the text and bounds, and delegates
+  /// all painting to its UI delegate (`BasicToolTipUI`, `KnightToolTipUI`, …).
+  /// This ensures the active Look & Feel controls the tooltip appearance.
   private func _paintTooltip(_ g: java.awt.Graphics, text: String, at pt: CGPoint) {
-    let font = java.awt.Font("Dialog", java.awt.Font.PLAIN, 11)
-    // Set the font on the Graphics context so drawString uses the same font
-    // as FontMetrics — otherwise size mismatch causes text to overflow the box.
-    g.setFont(font)
-    let fm   = java.awt.FontMetrics.make(for: font)
-    let tw   = fm.stringWidth(text)
-    let th   = fm.getHeight()
-    let padH = 6   // horizontal padding (left + right each)
-    let padV = 3   // vertical padding (top + bottom each)
-    let w    = tw + padH * 2
-    let h    = th + padV * 2
-    // Keep tooltip inside canvas bounds
-    var tx   = Int(pt.x) + 12
-    var ty   = Int(pt.y) + 16
-    let cw   = Int(bounds.width)
-    let ch   = Int(bounds.height)
+    let tip = javax.swing.JToolTip()
+    tip.setTipText(text)
+
+    // Measure preferred size via the UI delegate.
+    let preferred = tip.getUI()?.getPreferredSize(tip)
+    let w = preferred?.width  ?? 0
+    let h = preferred?.height ?? 0
+
+    // Position: 12/16px offset from cursor, clamped to canvas bounds.
+    var tx = Int(pt.x) + 12
+    var ty = Int(pt.y) + 16
+    let cw = Int(bounds.width)
+    let ch = Int(bounds.height)
     if tx + w > cw { tx = max(0, cw - w - 2) }
     if ty + h > ch { ty = max(0, Int(pt.y) - h - 4) }
 
+    tip.setBounds(java.awt.Rectangle(tx, ty, w, h))
+
     g.save()
-    // Shadow (subtle, 1px offset)
+    // Subtle drop shadow (1 px offset, semi-transparent black).
     g.setColor(java.awt.Color(0, 0, 0, 40))
     g.fillRect(tx + 1, ty + 1, w, h)
-    // Background
-    g.setColor(java.awt.SystemColor.info)
-    g.fillRect(tx, ty, w, h)
-    // Border
-    g.setColor(java.awt.SystemColor.infoText)
-    g.drawRect(tx, ty, w - 1, h - 1)
-    // Text — baseline at ascent + top padding
-    let textY = ty + padV + fm.getAscent()
-    g.drawString(text, tx + padH, textY)
+
+    // Translate so the UI delegate can paint at (0, 0).
+    g.translate(tx, ty)
+    tip.getUI()?.paint(g, tip)
+    g.translate(-tx, -ty)
     g.restore()
   }
 

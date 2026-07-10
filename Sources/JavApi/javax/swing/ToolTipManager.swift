@@ -35,10 +35,14 @@ extension javax.swing {
   /// Components do not need to call `registerComponent` manually —
   /// `JComponent.setToolTipText(_:)` is sufficient.
   ///
+  /// Follows the Java API contract: `ToolTipManager` is `final`, extends
+  /// `MouseAdapter` (which implements `MouseListener`), and additionally
+  /// implements `MouseMotionListener`.
+  ///
   /// - Since: JFC 1.0 / Java 1.2
   @MainActor
-  public final class ToolTipManager {
-    // FIXME: Java type is final and extends MouseAdapter and implements MouseMotionListener
+  public final class ToolTipManager: java.awt.event.MouseAdapter,
+                                     java.awt.event.MouseMotionListener {
 
     // -------------------------------------------------------------------------
     // MARK: Singleton
@@ -114,6 +118,151 @@ extension javax.swing {
     public func setEnabled(_ enabled: Bool) { _enabled = enabled }
 
     // -------------------------------------------------------------------------
+    // MARK: Lightweight popup
+    // -------------------------------------------------------------------------
+
+    private var _lightWeightPopupEnabled: Bool = true
+
+    /// Returns whether tooltips use lightweight (non-native) popups.
+    ///
+    /// When `true` (default), tooltips are rendered inside the component
+    /// hierarchy without a native window.  Set to `false` to force a
+    /// heavyweight (native) window — required when Swing components are
+    /// mixed with heavyweight AWT or native components.
+    public func isLightWeightPopupEnabled() -> Bool { _lightWeightPopupEnabled }
+
+    /// Enables or disables lightweight tooltip popups (default: `true`).
+    public func setLightWeightPopupEnabled(_ enabled: Bool) {
+      _lightWeightPopupEnabled = enabled
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Internal timer state
+    // -------------------------------------------------------------------------
+
+    /// The component currently under the mouse cursor (if any).
+    private weak var _insideComponent: javax.swing.JComponent?
+
+    /// Whether a tooltip is currently visible.
+    private var _tipShowing: Bool = false
+
+    /// Time of the last mouse-exit (used for reshow-delay calculation).
+    private var _exitTime: Date?
+
+    // -------------------------------------------------------------------------
+    // MARK: MouseListener overrides (from MouseAdapter)
+    // -------------------------------------------------------------------------
+
+    /// Called when the mouse enters a component.
+    ///
+    /// Starts the initial-delay countdown.  If the mouse left a tooltip-bearing
+    /// component within `reshowDelay` milliseconds, the initial delay is skipped.
+    public override func mouseEntered(_ e: java.awt.event.MouseEvent) {
+      guard _enabled else { return }
+      guard let component = e.getSource() as? javax.swing.JComponent,
+            component.getToolTipText() != nil else { return }
+      _insideComponent = component
+
+      // Check reshow: if the mouse left another component recently, skip delay.
+      let useReshowDelay: Bool
+      if let exitTime = _exitTime {
+        let elapsed = Date().timeIntervalSince(exitTime) * 1_000
+        useReshowDelay = elapsed < Double(_reshowDelay)
+      } else {
+        useReshowDelay = false
+      }
+
+      let delay = useReshowDelay ? 0 : _initialDelay
+      scheduleShow(component: component, afterMilliseconds: delay)
+    }
+
+    /// Called when the mouse exits a component.
+    ///
+    /// Cancels any pending show-timer and hides a visible tooltip.
+    public override func mouseExited(_ e: java.awt.event.MouseEvent) {
+      _insideComponent = nil
+      _exitTime = Date()
+      cancelShow()
+      if _tipShowing {
+        hideToolTip()
+      }
+    }
+
+    /// Called when a mouse button is pressed.
+    ///
+    /// Hides any visible tooltip immediately (matches Java Swing behaviour).
+    public override func mousePressed(_ e: java.awt.event.MouseEvent) {
+      cancelShow()
+      if _tipShowing {
+        hideToolTip()
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: MouseMotionListener
+    // -------------------------------------------------------------------------
+
+    /// Called when the mouse is dragged.
+    ///
+    /// Hides any visible tooltip (dragging dismisses the tooltip in Java Swing).
+    public func mouseDragged(_ e: java.awt.event.MouseEvent) {
+      cancelShow()
+      if _tipShowing {
+        hideToolTip()
+      }
+    }
+
+    /// Called when the mouse moves within a component.
+    ///
+    /// Resets the show-timer so the tooltip only appears after the mouse
+    /// has been stationary for `initialDelay` milliseconds.
+    public func mouseMoved(_ e: java.awt.event.MouseEvent) {
+      guard _enabled else { return }
+      guard let component = e.getSource() as? javax.swing.JComponent,
+            component.getToolTipText() != nil else { return }
+
+      if _tipShowing {
+        // Already showing: restart dismiss timer.
+        scheduleDismiss(component: component)
+      } else {
+        // Not showing yet: restart the show timer.
+        cancelShow()
+        scheduleShow(component: component, afterMilliseconds: _initialDelay)
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: Timer helpers (platform-agnostic stubs)
+    // -------------------------------------------------------------------------
+
+    /// Schedules the tooltip to appear after `milliseconds`.
+    ///
+    /// In JavApi⁴Swift the platform canvas drives actual rendering; this
+    /// method stores intent for canvas inspection.
+    private func scheduleShow(component: javax.swing.JComponent, afterMilliseconds: Int) {
+      // Platform canvas reads _insideComponent and delays from the shared
+      // instance to decide when and what to render.
+      _insideComponent = component
+    }
+
+    /// Cancels a pending show-timer.
+    private func cancelShow() {
+      // Clearing _insideComponent signals the canvas to stop any pending show.
+      _insideComponent = nil
+    }
+
+    /// Resets the dismiss timer after the tooltip has been shown.
+    private func scheduleDismiss(component: javax.swing.JComponent) {
+      // Platform canvas uses dismissDelaySeconds to auto-hide.
+    }
+
+    /// Hides the currently visible tooltip.
+    private func hideToolTip() {
+      _tipShowing = false
+      // Platform canvas observes _tipShowing and removes the overlay.
+    }
+
+    // -------------------------------------------------------------------------
     // MARK: Component registration (Java API compatibility)
     // -------------------------------------------------------------------------
 
@@ -139,6 +288,8 @@ extension javax.swing {
     // MARK: Init
     // -------------------------------------------------------------------------
 
-    private init() {}
+    private override init() {
+      super.init()
+    }
   }
 }

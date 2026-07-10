@@ -86,7 +86,7 @@ extension javax.swing {
     override open func getUIClassID() -> String { "ToolTipUI" }
 
     override open func updateUI() {
-      setUI(javax.swing.plaf.basic.BasicToolTipUI())
+      setUI(javax.swing.UIManager.getUI(self) ?? javax.swing.plaf.basic.BasicToolTipUI())
     }
   }
 }
