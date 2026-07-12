@@ -7,8 +7,11 @@ extension javax.swing {
 
   /// A map from UI-class keys to `ComponentUI` factory closures.
   ///
-  /// `UIDefaults` is the look-up table that `UIManager.getUI(_:)` consults to
-  /// find the correct `ComponentUI` subclass for a given `JComponent`.
+  /// `UIDefaults` extends `java.util.Hashtable<AnyHashable, Any>`, matching
+  /// Java's `UIDefaults extends Hashtable<Object, Object>`.  Any object-typed
+  /// key (typically a `String`) and any object-typed value (typically a
+  /// `UIFactory` closure, but also `Color`, `Font`, `Border`, …) can be
+  /// stored, just as in the Java original.
   ///
   /// Keys follow the Java convention of stripping the `J` prefix and appending
   /// `"UI"`: `JButton` → `"ButtonUI"`, `JLabel` → `"LabelUI"`, etc.
@@ -23,37 +26,44 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public class UIDefaults { // FIXME: Java type is a non final extension of java.util.Hashtable
+  public class UIDefaults: java.util.Hashtable<AnyHashable, Any> {
 
     /// Factory closure type — returns a fresh `ComponentUI` instance.
     public typealias UIFactory = () -> javax.swing.plaf.ComponentUI
 
-    private var table: [String: UIFactory] = [:]
-
-    public init() {}
+    public override init() { super.init() }
 
     // -------------------------------------------------------------------------
-    // MARK: Registration
+    // MARK: Convenience API for UIFactory values
     // -------------------------------------------------------------------------
 
-    /// Registers a factory for the given key.
-    public func put(_ key: String, _ factory: @escaping UIFactory) {
-      table[key] = factory
+    /// Registers a `UIFactory` for the given string key.
+    ///
+    /// Returns the previously registered factory for that key, if any.
+    @discardableResult
+    public func put(_ key: String, _ factory: @escaping UIFactory) -> UIFactory? {
+      return put(key as AnyHashable, factory as Any) as? UIFactory
     }
 
-    /// Subscript shorthand for `put` / `get`.
+    /// Subscript shorthand for `UIFactory` get/set by `String` key.
     public subscript(key: String) -> UIFactory? {
-      get { table[key] }
-      set { table[key] = newValue }
+      get { get(key as AnyHashable) as? UIFactory }
+      set {
+        if let f = newValue {
+          _ = put(key as AnyHashable, f as Any)
+        } else {
+          _ = remove(key as AnyHashable)
+        }
+      }
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Lookup
+    // MARK: UI lookup
     // -------------------------------------------------------------------------
 
     /// Returns a new `ComponentUI` instance for `key`, or `nil` if not found.
     public func getUI(for key: String) -> javax.swing.plaf.ComponentUI? {
-      return table[key]?()
+      return (get(key as AnyHashable) as? UIFactory)?()
     }
   }
 }
