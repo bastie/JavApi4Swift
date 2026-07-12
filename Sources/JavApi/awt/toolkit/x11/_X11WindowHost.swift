@@ -358,6 +358,12 @@ public final class _X11WindowHost: @unchecked Sendable {
   @MainActor private var lastClickY:    Int  = -1
   private let doubleClickIntervalMs: UInt = 400
   private let doubleClickRadius:     Int  = 4
+  // ── Tooltip state ────────────────────────────────────────────────────────────
+  @MainActor private weak var _tooltipComponent: javax.swing.JComponent? = nil
+  @MainActor private var _tooltipPoint:   CGPoint = .zero
+  @MainActor private var _tooltipVisible: Bool    = false
+  @MainActor private var _tooltipTimer:   Timer?  = nil
+  @MainActor private var _tooltipManager: javax.swing.ToolTipManager { .sharedInstance() }
 
   // ---------------------------------------------------------------------------
   // MARK: Library loading
@@ -929,6 +935,11 @@ public final class _X11WindowHost: @unchecked Sendable {
       // XButtonEvent: time field at offset 56 (unsigned long)
       let eventTime = buf.load(fromByteOffset: 56, as: UInt.self)
 
+      // Tooltip: Mausklick versteckt sichtbaren Tooltip sofort.
+      if _tooltipVisible || _tooltipComponent != nil {
+        _hideTooltip(awtWindow: awtWindow, xwin: xwin)
+      }
+
       // XDND: DragGestureRecognizer über Maus-Druck informieren (Button 1)
       if buttonNum == 1 {
         let contentY0 = menuBarRegistry[xwin] != nil
@@ -1476,6 +1487,10 @@ public final class _X11WindowHost: @unchecked Sendable {
       let hitForCursor = _SwingHitTest.find(x: mx, y: contentMY, in: awtWindow)
       updateCursor(for: hitForCursor, xwin: xwin)
 
+      // ── Tooltip hover ────────────────────────────────────────────────────────
+      _updateTooltip(at: CGPoint(x: mx, y: contentMY),
+                     in: awtWindow, xwin: xwin)
+
       if needsRepaint { repaint(awtWindow, xwin: xwin) }
 
     case X11_KeyPress:
@@ -1667,8 +1682,122 @@ public final class _X11WindowHost: @unchecked Sendable {
       }
     }
 
+    // ── Tooltip overlay — drawn last so it always appears on top ────────────
+    if _tooltipVisible,
+       let tipComp = _tooltipComponent,
+       let text = tipComp.getToolTipText(), !text.isEmpty {
+      let overlayG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
+                                                        scaleFactor: scaleFactor)
+      _paintTooltip(overlayG, text: text, at: _tooltipPoint)
+    }
+
     _ = fnFlush?(dpy)
   }
+  // ---------------------------------------------------------------------------
+  // MARK: Tooltip
+  // ---------------------------------------------------------------------------
+
+  /// Aktualisiert den Tooltip-Zustand bei Mausbewegung.
+  ///
+  /// Erkennt die JComponent unter dem Zeiger und startet/stoppt den
+  /// Show-Timer entsprechend — analog zur SwiftUI-Canvas-Implementierung.
+  @MainActor
+  private func _updateTooltip(at pt: CGPoint,
+                               in awtWindow: java.awt.Window,
+                               xwin: X11WindowID) {
+    guard _tooltipManager.isEnabled() else {
+      _hideTooltip(awtWindow: awtWindow, xwin: xwin)
+      return
+    }
+    let hit = _SwingHitTest.find(x: Int(pt.x), y: Int(pt.y), in: awtWindow)
+    let tipComp = (hit as? javax.swing.JComponent).flatMap {
+      $0.getToolTipText() != nil ? $0 : nil
+    }
+
+    if tipComp !== _tooltipComponent {
+      // Komponente gewechselt — laufenden Timer abbrechen, Tooltip verstecken.
+      _tooltipTimer?.invalidate()
+      _tooltipTimer = nil
+      if _tooltipVisible {
+        _tooltipVisible = false
+        repaint(awtWindow, xwin: xwin)
+      }
+      _tooltipComponent = tipComp
+      _tooltipPoint = pt
+
+      guard let comp = tipComp,
+            comp.getToolTipText() != nil else { return }
+
+      // Show-Timer starten — DispatchQueue.main.asyncAfter ist aus jedem
+      // Kontext (sync/async) auf dem Main Actor nutzbar.
+      let delay = _tooltipManager.initialDelaySeconds
+      _tooltipTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) {
+        [weak self] _ in
+        DispatchQueue.main.async {
+          guard let self, self._tooltipManager.isEnabled() else { return }
+          self._tooltipVisible = true
+          self.repaint(awtWindow, xwin: xwin)
+          // Dismiss-Timer
+          let dismiss = self._tooltipManager.dismissDelaySeconds
+          self._tooltipTimer = Timer.scheduledTimer(
+            withTimeInterval: dismiss, repeats: false) { [weak self] _ in
+            DispatchQueue.main.async {
+              self?._hideTooltip(awtWindow: awtWindow, xwin: xwin)
+            }
+          }
+        }
+      }
+    } else {
+      // Gleiche Komponente — Koordinate aktualisieren.
+      _tooltipPoint = pt
+    }
+  }
+
+  /// Versteckt den aktuellen Tooltip und bricht alle Timer ab.
+  @MainActor
+  private func _hideTooltip(awtWindow: java.awt.Window, xwin: X11WindowID) {
+    _tooltipTimer?.invalidate()
+    _tooltipTimer = nil
+    let wasVisible = _tooltipVisible
+    _tooltipVisible = false
+    _tooltipComponent = nil
+    if wasVisible { repaint(awtWindow, xwin: xwin) }
+  }
+
+  /// Zeichnet den Tooltip über dem Fensterinhalt via L&F-Pipeline.
+  ///
+  /// Erstellt eine `JToolTip`-Instanz und delegiert alle Darstellung an
+  /// ihren UI-Delegate (`BasicToolTipUI`, `KnightToolTipUI`, …) —
+  /// identisch zur SwiftUI-Canvas-Implementierung.
+  @MainActor
+  private func _paintTooltip(_ g: java.awt.Graphics, text: String, at pt: CGPoint) {
+    let tip = javax.swing.JToolTip()
+    tip.setTipText(text)
+
+    let preferred = tip.getUI()?.getPreferredSize(tip)
+    let w = preferred?.width  ?? 0
+    let h = preferred?.height ?? 0
+
+    // Position: 12/16 px Versatz vom Zeiger, am Fensterrand clampen.
+    var tx = Int(pt.x) + 12
+    var ty = Int(pt.y) + 16
+    // Grobe Fensterbreite/-höhe aus dem Grafik-Kontext nicht direkt verfügbar —
+    // kein Clamping nötig, X11 schneidet am Fensterrand automatisch ab.
+
+    tip.setBounds(java.awt.Rectangle(tx, ty, w, h))
+
+    g.save()
+    // Subtiler Schatten (1 px versetzt, halbtransparent).
+    g.setColor(java.awt.Color(0, 0, 0, 80))
+    g.fillRect(tx + 1, ty + 1, w, h)
+
+    // UI-Delegate mit verschobenem Ursprung aufrufen.
+    g.translate(tx, ty)
+    tip.getUI()?.paint(g, tip)
+    g.translate(-tx, -ty)
+    g.restore()
+  }
+
   // ---------------------------------------------------------------------------
   // MARK: DnD-Recognizer-Besucher
   // ---------------------------------------------------------------------------

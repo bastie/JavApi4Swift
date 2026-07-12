@@ -377,6 +377,13 @@ public final class _Win32Canvas {
     let g = java.awt.toolkit.gdi._GDIRenderTarget(hdc: memDC)
     awtWindow.paint(g)
 
+    // ── Tooltip overlay — gezeichnet nach allem anderen ──────────────────────
+    if _tooltipVisible,
+       let tipComp = _tooltipComponent,
+       let text = tipComp.getToolTipText(), !text.isEmpty {
+      _paintTooltip(g, text: text, at: _tooltipPoint)
+    }
+
     // Blit buffer to screen (atomic operation, no flicker)
     BitBlt(hdc, 0, 0, INT32(width), INT32(height), memDC, 0, 0, SRCCOPY)
   }
@@ -430,6 +437,12 @@ public final class _Win32Canvas {
   private var splitPaneDragStartPos:   Int  = 0
   // Button whose press started this mouse-down cycle
   private weak var pressedButton:           java.awt.Button?
+  // ── Tooltip state ────────────────────────────────────────────────────────────
+  private weak var _tooltipComponent: javax.swing.JComponent? = nil
+  private var _tooltipPoint:   CGPoint = .zero
+  private var _tooltipVisible: Bool    = false
+  private var _tooltipTimer:   Timer?  = nil
+  private var _tooltipManager: javax.swing.ToolTipManager { .sharedInstance() }
 
   // ---------------------------------------------------------------------------
   // MARK: Swing menu helpers
@@ -497,6 +510,8 @@ public final class _Win32Canvas {
   // ---------------------------------------------------------------------------
 
   fileprivate func onMouseDown(x: Int, y: Int) {
+    // ── Tooltip: Mausklick versteckt sichtbaren Tooltip sofort ───────────────
+    if _tooltipVisible || _tooltipComponent != nil { _hideTooltip() }
     // ── DnD gesture recognisers ───────────────────────────────────────────────
     _dndMouseDown(x: x, y: y)
     // ── Swing JMenu popup handling (JFrame/JDialog; must come before Choice) ─
@@ -928,6 +943,8 @@ public final class _Win32Canvas {
         }
       }
     }
+    // ── Tooltip hover ────────────────────────────────────────────────────────
+    _updateTooltip(at: CGPoint(x: x, y: y))
   }
 
   // MARK: Cursor
@@ -1095,6 +1112,84 @@ public final class _Win32Canvas {
     TrackPopupMenu(hMenu, UINT(TPM_LEFTALIGN | TPM_TOPALIGN),
                    pt.x, pt.y, 0, hwnd, nil)
     DestroyMenu(hMenu)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Tooltip
+  // ---------------------------------------------------------------------------
+
+  private func _updateTooltip(at pt: CGPoint) {
+    guard _tooltipManager.isEnabled() else {
+      _hideTooltip()
+      return
+    }
+    let hit = _SwingHitTest.find(x: Int(pt.x), y: Int(pt.y), in: awtWindow)
+    let tipComp = (hit as? javax.swing.JComponent).flatMap {
+      $0.getToolTipText() != nil ? $0 : nil
+    }
+
+    if tipComp !== _tooltipComponent {
+      _tooltipTimer?.invalidate()
+      _tooltipTimer = nil
+      if _tooltipVisible {
+        _tooltipVisible = false
+        invalidate()
+      }
+      _tooltipComponent = tipComp
+      _tooltipPoint = pt
+
+      guard let comp = tipComp, comp.getToolTipText() != nil else { return }
+
+      let delay = _tooltipManager.initialDelaySeconds
+      _tooltipTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) {
+        [weak self] _ in
+        DispatchQueue.main.async {
+          guard let self, self._tooltipManager.isEnabled() else { return }
+          self._tooltipVisible = true
+          self.invalidate()
+          let dismiss = self._tooltipManager.dismissDelaySeconds
+          self._tooltipTimer = Timer.scheduledTimer(
+            withTimeInterval: dismiss, repeats: false) { [weak self] _ in
+            DispatchQueue.main.async { self?._hideTooltip() }
+          }
+        }
+      }
+    } else {
+      _tooltipPoint = pt
+    }
+  }
+
+  private func _hideTooltip() {
+    _tooltipTimer?.invalidate()
+    _tooltipTimer = nil
+    let wasVisible = _tooltipVisible
+    _tooltipVisible = false
+    _tooltipComponent = nil
+    if wasVisible { invalidate() }
+  }
+
+  private func _paintTooltip(_ g: java.awt.Graphics, text: String, at pt: CGPoint) {
+    let tip = javax.swing.JToolTip()
+    tip.setTipText(text)
+
+    let preferred = tip.getUI()?.getPreferredSize(tip)
+    let w = preferred?.width  ?? 0
+    let h = preferred?.height ?? 0
+
+    var tx = Int(pt.x) + 12
+    var ty = Int(pt.y) + 16
+
+    tip.setBounds(java.awt.Rectangle(tx, ty, w, h))
+
+    g.save()
+    // Subtiler Schatten
+    g.setColor(java.awt.Color(0, 0, 0, 80))
+    g.fillRect(tx + 1, ty + 1, w, h)
+    // UI-Delegate mit verschobenem Ursprung
+    g.translate(tx, ty)
+    tip.getUI()?.paint(g, tip)
+    g.translate(-tx, -ty)
+    g.restore()
   }
 
   // ---------------------------------------------------------------------------
