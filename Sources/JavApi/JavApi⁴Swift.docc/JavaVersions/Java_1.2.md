@@ -1671,26 +1671,41 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## java.awt.event — fehlende Klassen (⭕️/⭕️)
+## java.awt.event — Java 1.2 additions (✔️/✔️)
 
-### java.awt.event.AWTEventListener (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | AWTEventListener        | global listener for all AWT events
-
-### java.awt.event.InputMethodEvent (⭕️/⭕️)
+### java.awt.event.AWTEventListener (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | InputMethodEvent        | extends AWTEvent; for IME input
-1.2     | ⭕️          | ⭕️       | protocol      | InputMethodListener     |
+1.2     | ✔️          | ✔️       | protocol      | AWTEventListener        | global listener for all AWT events; @MainActor
 
-### java.awt.event.InvocationEvent (⭕️/⭕️)
+### java.awt.event.InputMethodEvent (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | InvocationEvent         | extends AWTEvent; wraps a Runnable for EventQueue dispatch
+1.2     | ✔️          | ✔️       | class         | InputMethodEvent        | extends AWTEvent; @unchecked Sendable
+1.2     | ✔️          | 🪄       | final field   | INPUT_METHOD_FIRST / INPUT_METHOD_TEXT_CHANGED / CARET_POSITION_CHANGED / INPUT_METHOD_LAST | int constants
+1.2     | ✔️          | ✔️       | constructor   | InputMethodEvent()      | (Component,int,AttributedCharacterIterator?,int,TextHitInfo?,TextHitInfo?)
+1.2     | ✔️          | ✔️       | constructor   | InputMethodEvent()      | (Component,int,TextHitInfo?,TextHitInfo?) — caret-only convenience init
+1.2     | ✔️          | ⭕️       | method        | getText()               | ()->AttributedCharacterIterator?
+1.2     | ✔️          | ✔️       | method        | getCommittedCharacterCount() | ()->int
+1.2     | ✔️          | ✔️       | method        | getCaret() / getVisiblePosition() | ()->TextHitInfo?
+1.2     | ✔️          | ✔️       | method        | consume() / isConsumed() | ()
+1.2     | ✔️          | ✔️       | protocol      | InputMethodListener     | inputMethodTextChanged() / caretPositionChanged(); @MainActor
+
+### java.awt.event.InvocationEvent (✔️/✔️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ✔️       | class         | InvocationEvent         | extends AWTEvent; @unchecked Sendable
+1.2     | ✔️          | 🪄       | final field   | INVOCATION_FIRST / INVOCATION_DEFAULT / INVOCATION_LAST | int constants (all 1200)
+1.2     | ✔️          | ✔️       | constructor   | InvocationEvent()       | (AnyObject, Runnable) — no notifier
+1.2     | ✔️          | ✔️       | constructor   | InvocationEvent()       | (AnyObject, Runnable, AnyObject?, Bool) — with notifier/catchThrowables
+1.2     | ✔️          | ⭕️       | constructor   | InvocationEvent()       | (AnyObject, Int, Runnable, AnyObject?, Bool) — explicit event id
+1.2     | ✔️          | ✔️       | method        | dispatch()              | (); runs Runnable, sets isDispatched()
+1.2     | ✔️          | ✔️       | method        | getWhen()               | ()->Int64 (epoch millis)
+1.2     | ✔️          | ✔️       | method        | isDispatched()          | ()->Bool
+1.2     | ✔️          | ✔️       | method        | getException() / getThrowable() | ()->java.lang.Exception?; **note:** `Runnable.run()` is non-throwing in this port, so these are always `nil` — present for API compatibility only
 
 ---
 
@@ -1933,40 +1948,44 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## java.awt.dnd (⭕️/⭕️)
+## java.awt.dnd (✔️/⭕️)
 
-> Drag-and-drop support. Deferred — requires native event loop integration
-> and platform-specific drop-target registration (NSDropTarget on macOS,
-> XDnD on X11). Not yet implemented.
+> Drag-and-drop support. Fully implemented with platform-specific backends:
+> `_AppKitDraggingSourceHelper` / `_AppKitPasteboardBridge` (macOS),
+> `_X11WindowHost+DnD` (X11), `_Win32OLEDropSource` / `_Win32OLEDropTarget` /
+> `_Win32OLEDataObject` / `_Win32OLEInit` (Windows GDI), and
+> `_SwiftUINativeCanvas+DnD` (SwiftUI toolkit). See `Sources/JavApi/awt/dnd/`.
 
-### java.awt.dnd — core classes (⭕️/⭕️)
-
-version | implemented | tested   | type          | name                    | more informations
-------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | DragSource              | initiates drag operations; static getDefaultDragSource()
-1.2     | ⭕️          | ⭕️       | class         | DropTarget              | registers component as drop target
-1.2     | ⭕️          | ⭕️       | class         | DragGestureRecognizer   | abstract; detects drag-initiating gestures
-1.2     | ⭕️          | ⭕️       | class         | MouseDragGestureRecognizer | concrete gesture recognizer for mouse
-1.2     | ⭕️          | ⭕️       | class         | DragGestureEvent        | event fired when drag gesture detected
-1.2     | ⭕️          | ⭕️       | class         | DragSourceContext        | context object during drag
-1.2     | ⭕️          | ⭕️       | class         | DragSourceEvent         | base event from drag source
-1.2     | ⭕️          | ⭕️       | class         | DragSourceDragEvent     | extends DragSourceEvent; mouse-move during drag
-1.2     | ⭕️          | ⭕️       | class         | DragSourceDropEvent     | extends DragSourceEvent; drop occurred
-1.2     | ⭕️          | ⭕️       | class         | DropTargetContext        | context object on drop target side
-1.2     | ⭕️          | ⭕️       | class         | DropTargetEvent         | base event for drop target
-1.2     | ⭕️          | ⭕️       | class         | DropTargetDragEvent     | extends DropTargetEvent; drag over target
-1.2     | ⭕️          | ⭕️       | class         | DropTargetDropEvent     | extends DropTargetEvent; drop on target
-1.2     | ⭕️          | ⭕️       | final class   | DnDConstants            | ACTION_NONE/COPY/MOVE/LINK/REFERENCE/COPY_OR_MOVE int constants
-
-### java.awt.dnd — listeners and interfaces (⭕️/⭕️)
+### java.awt.dnd — core classes (✔️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | DragSourceListener      | dragEnter/Over/Exit/ActionChanged/DropActionChanged/DropEnd
-1.2     | ⭕️          | ⭕️       | protocol      | DragSourceMotionListener | dragMouseMoved
-1.2     | ⭕️          | ⭕️       | protocol      | DragGestureListener     | dragGestureRecognized
-1.2     | ⭕️          | ⭕️       | protocol      | DropTargetListener      | dragEnter/Over/Exit/Drop
-1.2     | ⭕️          | ⭕️       | protocol      | Autoscroll              | getAutoscrollInsets; autoscroll
+1.2     | ✔️          | ⭕️       | class         | DragSource              | initiates drag operations; static getDefaultDragSource()
+1.2     | ✔️          | ⭕️       | class         | DropTarget              | registers component as drop target
+1.2     | ✔️          | ⭕️       | class         | DragGestureRecognizer   | abstract; detects drag-initiating gestures
+1.2     | ✔️          | ⭕️       | class         | MouseDragGestureRecognizer | concrete gesture recognizer for mouse
+1.2     | ✔️          | ⭕️       | class         | DragGestureEvent        | event fired when drag gesture detected
+1.2     | ✔️          | ⭕️       | class         | DragSourceContext        | context object during drag
+1.2     | ✔️          | ⭕️       | class         | DragSourceEvent         | base event from drag source
+1.2     | ✔️          | ⭕️       | class         | DragSourceDragEvent     | extends DragSourceEvent; mouse-move during drag
+1.2     | ✔️          | ⭕️       | class         | DragSourceDropEvent     | extends DragSourceEvent; drop occurred
+1.2     | ✔️          | ⭕️       | class         | DropTargetContext        | context object on drop target side
+1.2     | ✔️          | ⭕️       | class         | DropTargetEvent         | base event for drop target
+1.2     | ✔️          | ⭕️       | class         | DropTargetDragEvent     | extends DropTargetEvent; drag over target
+1.2     | ✔️          | ⭕️       | class         | DropTargetDropEvent     | extends DropTargetEvent; drop on target
+1.2     | ✔️          | ⭕️       | final class   | DnDConstants            | ACTION_NONE/COPY/MOVE/LINK/REFERENCE/COPY_OR_MOVE int constants
+N/A     | ✔️          | ⭕️       | class         | DragSourceAdapter       | convenience no-op adapter (JavApi extra, mirrors Java's DragSourceAdapter)
+N/A     | ✔️          | ⭕️       | class         | DropTargetAdapter       | convenience no-op adapter (JavApi extra, mirrors Java's DropTargetAdapter)
+
+### java.awt.dnd — listeners and interfaces (✔️/⭕️)
+
+version | implemented | tested   | type          | name                    | more informations
+------- | ----------- | -------- | ------------- | ----------------------- | -----------------
+1.2     | ✔️          | ⭕️       | protocol      | DragSourceListener      | dragEnter/Over/Exit/ActionChanged/DropActionChanged/DropEnd
+1.2     | ✔️          | ⭕️       | protocol      | DragSourceMotionListener | dragMouseMoved
+1.2     | ✔️          | ⭕️       | protocol      | DragGestureListener     | dragGestureRecognized
+1.2     | ✔️          | ⭕️       | protocol      | DropTargetListener      | dragEnter/Over/Exit/Drop
+1.2     | ✔️          | ⭕️       | protocol      | Autoscroll              | getAutoscrollInsets; autoscroll
 
 ---
 
@@ -2025,12 +2044,20 @@ version | implemented | tested   | type          | name                    | mor
 
 ## java.lang.ref (⭕️/⭕️)
 
-> Swift verwendet ARC (`weak var` / `unowned`). Diese Klassen sind konzeptionell vorhanden, aber ohne direktes Swift-Äquivalent als API.
+> Swift verwendet ARC (`weak var` / `unowned`). Diese Klassen sind konzeptionell vorhanden, aber ohne direktes Swift-Äquivalent als öffentliche API.
+>
+> **Bereits vorhandenes Muster:** `java.util.WeakHashMap` (Sources/JavApi/util/WeakHashMap.swift)
+> enthält intern eine private `WeakBox`-Klasse mit `weak var key: Key?` und
+> `ObjectIdentifier`-basierter Identität — exakt das Muster, das eine öffentliche
+> `WeakReference<T: AnyObject>` bräuchte. Eine öffentliche `WeakReference`-Klasse
+> wäre daher mit geringem Aufwand aus diesem bewährten Pattern extrahierbar.
+> `SoftReference` / `PhantomReference` haben dagegen kein Swift-Äquivalent
+> (kein GC-Druck-Signal, kein Post-Mortem-Hook) und bleiben Stub-Kandidaten.
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ⭕️          | ⭕️       | abstract class| Reference               | base for all reference types
-1.2     | ⭕️          | ⭕️       | class         | WeakReference           | weak reference (Swift: `weak var`)
+1.2     | ⭕️          | ⭕️       | class         | WeakReference           | low effort — extractable from WeakHashMap's internal WeakBox pattern
 1.2     | ⭕️          | ⭕️       | class         | SoftReference           | soft reference (no Swift equivalent)
 1.2     | ⭕️          | ⭕️       | class         | PhantomReference        | phantom reference (no Swift equivalent)
 1.2     | ⭕️          | ⭕️       | class         | ReferenceQueue          | queue for enqueued reference objects

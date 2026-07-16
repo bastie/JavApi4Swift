@@ -49,7 +49,19 @@ extension java.util.logging {
     }
 
     open func getLogger(_ name: String) -> Logger? {
-      withLock { registeredLogger[name] }
+      // Special-case the root logger: `Logger.rootLogger` is a lazily
+      // initialised static that registers itself here on first access.
+      // If nothing has touched `Logger.rootLogger` yet (order of access is
+      // not guaranteed — Swift Testing may run tests concurrently), a plain
+      // dictionary lookup would return nil even though the root logger
+      // conceptually always exists. Forcing the static guarantees
+      // `getLogger("")` is correct regardless of access order, and is safe
+      // to call here because it is *not* called while holding `lock`
+      // (avoids re-entrant lock on non-reentrant NSLock).
+      if name == Logger.ROOT_LOGGER_NAME {
+        return Logger.rootLogger
+      }
+      return withLock { registeredLogger[name] }
     }
   }
 }

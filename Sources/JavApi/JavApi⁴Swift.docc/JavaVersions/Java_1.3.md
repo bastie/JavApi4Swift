@@ -218,5 +218,13 @@ version | implemented | tested   | type          | name                    | mor
 
 - **Java Sound** (`javax.sound.sampled`, `javax.sound.midi`) — not in scope
 - **JNDI** (`javax.naming`) — not in scope
-- **JPDA** (Java Platform Debugger Architecture) — not in scope
-- **`java.awt.print`** (`PrintJob`, `JobAttributes`, `PageAttributes`) — low priority; stubs planned
+- **JPDA** (Java Platform Debugger Architecture) — **will not be implemented.**
+  JPDA is a wire protocol + native-agent API (`jdwp`, `com.sun.jdi`) for
+  attaching external debuggers to a running JVM. There is no Swift runtime
+  equivalent to instrument, and no realistic host process to attach to.
+  This is a permanent exclusion, not a deferral.
+- **`java.awt.JobAttributes` / `java.awt.PageAttributes`** — low priority;
+  attribute-set classes for the legacy `java.awt.PrintJob` (1.1) print/page
+  dialogs. Not yet implemented; stubs possible if needed.
+  (Note: `java.awt.print.PrinterJob` — the Java 1.2 print API — **is**
+  implemented; see `Java_1.2.md`.)
