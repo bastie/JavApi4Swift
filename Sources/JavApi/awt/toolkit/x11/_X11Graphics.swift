@@ -15,8 +15,8 @@ import Glibc
 // Drawable is an XID (unsigned long = UInt on 64-bit), not a pointer.
 private typealias XDrawLineFunc          = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer, Int32, Int32, Int32, Int32) -> Int32
 private typealias XDrawRectangleFunc     = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
-private typealias XFillRectangleFunc     = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
-private typealias XSetForegroundFunc     = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
+internal typealias XFillRectangleFunc    = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
+internal typealias XSetForegroundFunc    = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
 
 // =============================================================================
 // MARK: Xft (X FreeType) type aliases — Unicode text rendering
@@ -58,19 +58,40 @@ private typealias XftColorFreeFunc       = @convention(c) (UnsafeMutableRawPoint
 private typealias XftTextExtentsUtf8Func = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
                                                             UnsafePointer<UInt8>, Int32,
                                                             UnsafeMutableRawPointer) -> Void
-private typealias XDefaultVisualFunc     = @convention(c) (UnsafeMutableRawPointer, Int32) -> UnsafeMutableRawPointer?
+internal typealias XDefaultVisualFunc    = @convention(c) (UnsafeMutableRawPointer, Int32) -> UnsafeMutableRawPointer?
 // XDefaultColormap returns an XID (unsigned long), not a pointer
-private typealias XDefaultColormapFunc   = @convention(c) (UnsafeMutableRawPointer, Int32) -> UInt
-private typealias XDefaultScreenFunc2    = @convention(c) (UnsafeMutableRawPointer) -> Int32
+internal typealias XDefaultColormapFunc  = @convention(c) (UnsafeMutableRawPointer, Int32) -> UInt
+internal typealias XDefaultScreenFunc2   = @convention(c) (UnsafeMutableRawPointer) -> Int32
 // XSetClipRectangles(Display*, GC, clip_x_origin, clip_y_origin, XRectangle[], n, ordering)
 // Sets a clip region on the GC. clip_x_origin/clip_y_origin are always 0 here because
 // we pass absolute physical coordinates in the rectangles themselves.
 // XRectangle: { x: Int16, y: Int16, width: UInt16, height: UInt16 } — 8 bytes
-private typealias XSetClipRectanglesFunc = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
+internal typealias XSetClipRectanglesFunc = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
                                                             Int32, Int32,
                                                             UnsafeRawPointer, Int32, Int32) -> Int32
 // XSetClipMask(Display*, GC, None/0) — removes the clip region (clip = entire drawable)
-private typealias XSetClipMaskFunc       = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
+internal typealias XSetClipMaskFunc      = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
+
+// =============================================================================
+// MARK: X11 Region type aliases — precise (non-rectangular) clip support
+// =============================================================================
+// Used by `java.awt.Graphics2D` (Graphics2D+X11.swift) to clip fills to the
+// exact outline of an arbitrary polygon (needed for `fill(Shape)` /
+// `clip(Shape)`), rather than only the bounding-box clip that
+// `XSetClipRectangles` provides. All three are core Xlib (libX11), not an
+// extension — no extra native library dependency.
+//
+// XPolygonRegion(XPoint*, int n, int fill_rule) -> Region
+// fill_rule: EvenOddRule=0, WindingRule=1
+internal typealias XPolygonRegionFunc = @convention(c) (UnsafeRawPointer, Int32, Int32) -> UnsafeMutableRawPointer?
+// XSetRegion(Display*, GC, Region)
+internal typealias XSetRegionFunc     = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UnsafeMutableRawPointer) -> Int32
+// XDestroyRegion(Region)
+internal typealias XDestroyRegionFunc = @convention(c) (UnsafeMutableRawPointer) -> Int32
+// XSetLineAttributes(Display*, GC, line_width, line_style, cap_style, join_style)
+// Used by Graphics2D+X11.swift to apply BasicStroke's line width/cap/join.
+internal typealias XSetLineAttributesFunc = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer,
+                                                             UInt32, Int32, Int32, Int32) -> Int32
 
 // =============================================================================
 // MARK: X11 oval / arc / polygon type aliases
@@ -83,23 +104,23 @@ private typealias XFillArcFunc           = @convention(c) (UnsafeMutableRawPoint
                                                             Int32, Int32, UInt32, UInt32, Int32, Int32) -> Int32
 // XDrawLines / XFillPolygon use XPoint arrays: { x: Int16, y: Int16 }
 // XDrawLines(Display*, Drawable, GC, XPoint[], npoints, CoordModeOrigin=0)
-private typealias XDrawLinesFunc         = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+internal typealias XDrawLinesFunc        = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
                                                             UnsafeRawPointer, Int32, Int32) -> Int32
 // XFillPolygon(Display*, Drawable, GC, XPoint[], npoints, Complex=0, CoordModeOrigin=0)
-private typealias XFillPolygonFunc       = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
+internal typealias XFillPolygonFunc      = @convention(c) (UnsafeMutableRawPointer, UInt, UnsafeMutableRawPointer,
                                                             UnsafeRawPointer, Int32, Int32, Int32) -> Int32
 // XDefaultDepth(Display*, screen) → int
-private typealias XDefaultDepthFunc      = @convention(c) (UnsafeMutableRawPointer, Int32) -> Int32
+internal typealias XDefaultDepthFunc     = @convention(c) (UnsafeMutableRawPointer, Int32) -> Int32
 // XCreateImage(Display*, Visual*, depth, format, offset, data, w, h, bitmap_pad, bytes_per_line)
 // format: ZPixmap=2; bitmap_pad=32; bytes_per_line=0 (auto)
-private typealias XCreateImageFunc       = @convention(c) (UnsafeMutableRawPointer,
+internal typealias XCreateImageFunc      = @convention(c) (UnsafeMutableRawPointer,
                                                             UnsafeMutableRawPointer?,
                                                             UInt32, Int32, Int32,
                                                             UnsafeMutablePointer<UInt8>?,
                                                             UInt32, UInt32, Int32, Int32)
                                                             -> UnsafeMutableRawPointer?
 // XPutImage(Display*, Drawable, GC, XImage*, src_x, src_y, dst_x, dst_y, w, h)
-private typealias XPutImageFunc          = @convention(c) (UnsafeMutableRawPointer, UInt,
+internal typealias XPutImageFunc         = @convention(c) (UnsafeMutableRawPointer, UInt,
                                                             UnsafeMutableRawPointer,
                                                             UnsafeMutableRawPointer,
                                                             Int32, Int32, Int32, Int32,
@@ -150,18 +171,23 @@ private typealias Xutf8DrawStringFunc    = @convention(c) (UnsafeMutableRawPoint
 /// Extend by adding the remaining `open` methods from `Graphics.swift`.
 extension java.awt.toolkit.x11 {
 
-  public final class _X11Graphics: java.awt.Graphics {
+  /// Note: `open` (not `final`) so `java.awt.Graphics2D` (Graphics2D+X11.swift)
+  /// can subclass it and reuse symbol resolution, coordinate scaling, and the
+  /// existing primitive draw calls instead of duplicating them.
+  open class _X11Graphics: java.awt.Graphics {
 
-    private let display:     UnsafeMutableRawPointer   // X11 Display*
-    private let drawable:    UInt                      // X11 Window (XID)
-    private let gc:          UnsafeMutableRawPointer   // X11 GC
-    private let scaleFactor: Double                    // HiDPI scale (e.g. 2.0)
+    // `internal` (not `private`): java.awt.Graphics2D lives in a different
+    // file and needs these for its own drawing / clipping / coordinate math.
+    internal let display:     UnsafeMutableRawPointer   // X11 Display*
+    internal let drawable:    UInt                      // X11 Window (XID)
+    internal let gc:          UnsafeMutableRawPointer   // X11 GC
+    internal let scaleFactor: Double                    // HiDPI scale (e.g. 2.0)
 
     // Lazily resolved function pointers — loaded from the already-open libX11/libXft
     private var fnDrawLine:          XDrawLineFunc?
     private var fnDrawRect:          XDrawRectangleFunc?
-    private var fnFillRect:          XFillRectangleFunc?
-    private var fnSetForeground:     XSetForegroundFunc?
+    internal var fnFillRect:         XFillRectangleFunc?
+    internal var fnSetForeground:    XSetForegroundFunc?
     // Xft (primary text renderer — full Unicode via FreeType/fontconfig)
     private var fnXftDrawCreate:     XftDrawCreateFunc?
     private var fnXftDrawDestroy:    XftDrawDestroyFunc?
@@ -171,9 +197,9 @@ extension java.awt.toolkit.x11 {
     private var fnXftTextExtentsUtf8: XftTextExtentsUtf8Func?
     private var fnXftColorAllocValue: XftColorAllocValueFunc?
     private var fnXftColorFree:      XftColorFreeFunc?
-    private var fnDefaultVisual:     XDefaultVisualFunc?
-    private var fnDefaultColormap:   XDefaultColormapFunc?
-    private var fnDefaultScreen:     XDefaultScreenFunc2?
+    internal var fnDefaultVisual:    XDefaultVisualFunc?
+    internal var fnDefaultColormap:  XDefaultColormapFunc?
+    internal var fnDefaultScreen:    XDefaultScreenFunc2?
     // XFontSet fallback (kept in case Xft is unavailable)
     private var fnCreateFontSet:     XCreateFontSetFunc?
     private var fnFreeFontSet:       XFreeFontSetFunc?
@@ -185,29 +211,35 @@ extension java.awt.toolkit.x11 {
     nonisolated(unsafe) private static var sharedFontSetCache: [Int: UnsafeMutableRawPointer] = [:]
 
     // Clip functions
-    private var fnSetClipRectangles: XSetClipRectanglesFunc?
-    private var fnSetClipMask:       XSetClipMaskFunc?
+    internal var fnSetClipRectangles: XSetClipRectanglesFunc?
+    internal var fnSetClipMask:       XSetClipMaskFunc?
     // Oval / arc / polygon
     private var fnDrawArc:           XDrawArcFunc?
     private var fnFillArc:           XFillArcFunc?
-    private var fnDrawLines:         XDrawLinesFunc?
-    private var fnFillPolygon:       XFillPolygonFunc?
+    internal var fnDrawLines:        XDrawLinesFunc?
+    internal var fnFillPolygon:      XFillPolygonFunc?
     // Image blit
-    private var fnDefaultDepth:      XDefaultDepthFunc?
-    private var fnCreateImage:       XCreateImageFunc?
-    private var fnPutImage:          XPutImageFunc?
+    internal var fnDefaultDepth:     XDefaultDepthFunc?
+    internal var fnCreateImage:      XCreateImageFunc?
+    internal var fnPutImage:         XPutImageFunc?
+    // Region (precise shape clip) — resolved here, used by Graphics2D+X11.swift
+    internal var fnPolygonRegion:    XPolygonRegionFunc?
+    internal var fnSetRegion:        XSetRegionFunc?
+    internal var fnDestroyRegion:    XDestroyRegionFunc?
+    // Line attributes (width/cap/join) — used by Graphics2D+X11.swift
+    internal var fnSetLineAttributes: XSetLineAttributesFunc?
 
     // Current drawing color (mirrors setColor — base class has no getColor on non-CG)
-    private var currentColor:      java.awt.Color = java.awt.Color.black
-    private var backgroundColor:   java.awt.Color = java.awt.Color.white
+    internal var currentColor:      java.awt.Color = java.awt.Color.black
+    internal var backgroundColor:   java.awt.Color = java.awt.Color.white
 
     // Viewport translation (accumulated via translate())
-    private var originX: Int = 0
-    private var originY: Int = 0
+    internal var originX: Int = 0
+    internal var originY: Int = 0
 
     // Active clip rect in logical coordinates (nil = no clip / clip to everything)
     // Stored as logical coords; converted to physical pixels when applied to the GC.
-    private var clipLogical: java.awt.Rectangle? = nil
+    internal var clipLogical: java.awt.Rectangle? = nil
 
     // Save/restore stack: (originX, originY, currentColor, clipLogical)
     private var saveStack: [(Int, Int, java.awt.Color, java.awt.Rectangle?)] = []
@@ -260,6 +292,12 @@ extension java.awt.toolkit.x11 {
       fnDefaultDepth       = r("XDefaultDepth")
       fnCreateImage        = r("XCreateImage")
       fnPutImage           = r("XPutImage")
+      // Region (precise, non-rectangular clip — used by Graphics2D+X11.swift)
+      fnPolygonRegion      = r("XPolygonRegion")
+      fnSetRegion          = r("XSetRegion")
+      fnDestroyRegion      = r("XDestroyRegion")
+      // Line attributes (used by Graphics2D+X11.swift)
+      fnSetLineAttributes  = r("XSetLineAttributes")
       _ = dlclose(lib)
       // Load Xft from libXft — separate library from libX11
       let xftCandidates = ["libXft.so.2", "libXft.so"]
@@ -289,8 +327,8 @@ extension java.awt.toolkit.x11 {
     // MARK: HiDPI scaling helpers
     // -------------------------------------------------------------------------
 
-    @inline(__always) private func scaled(_ v: Int)         -> Int32  { Int32(Double(v) * scaleFactor) }
-    @inline(__always) private func scaledSize(_ v: Int)     -> UInt32 { UInt32(max(0, Double(v) * scaleFactor)) }
+    @inline(__always) internal func scaled(_ v: Int)         -> Int32  { Int32(Double(v) * scaleFactor) }
+    @inline(__always) internal func scaledSize(_ v: Int)     -> UInt32 { UInt32(max(0, Double(v) * scaleFactor)) }
 
     // -------------------------------------------------------------------------
     // MARK: Color
@@ -300,7 +338,7 @@ extension java.awt.toolkit.x11 {
       currentColor = color
     }
 
-    private func applyColor() {
+    internal func applyColor() {
       guard let fn = fnSetForeground else { return }
       let c = currentColor
       // X11 pixel: pack RGB into unsigned long (24-bit)

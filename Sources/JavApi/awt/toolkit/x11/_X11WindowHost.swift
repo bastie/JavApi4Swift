@@ -71,10 +71,10 @@ private typealias XClearWindowFunc          = @convention(c) (X11DisplayPtr, X11
 typealias XFlushFunc                = @convention(c) (X11DisplayPtr) -> Int32
 private typealias XNextEventFunc            = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer) -> Int32
 private typealias XPendingFunc              = @convention(c) (X11DisplayPtr) -> Int32
-private typealias XFillRectangleFunc        = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
+private typealias _WHFillRectangleFunc      = @convention(c) (X11DisplayPtr, X11WindowID, UnsafeMutableRawPointer, Int32, Int32, UInt32, UInt32) -> Int32
 private typealias XCreateGCFunc             = @convention(c) (X11DisplayPtr, X11WindowID, UInt, UnsafeMutableRawPointer?) -> UnsafeMutableRawPointer?
 private typealias XFreeGCFunc               = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer) -> Int32
-private typealias XSetForegroundFunc        = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer, UInt) -> Int32
+private typealias _WHSetForegroundFunc      = @convention(c) (X11DisplayPtr, UnsafeMutableRawPointer, UInt) -> Int32
 private typealias XResizeWindowFunc         = @convention(c) (X11DisplayPtr, X11WindowID, UInt32, UInt32) -> Int32
 private typealias XMoveResizeWindowFunc     = @convention(c) (X11DisplayPtr, X11WindowID, Int32, Int32, UInt32, UInt32) -> Int32
 private typealias XGetDefaultFunc           = @convention(c) (X11DisplayPtr, UnsafePointer<CChar>, UnsafePointer<CChar>) -> UnsafePointer<CChar>?
@@ -243,7 +243,7 @@ public final class _X11WindowHost: @unchecked Sendable {
   private var fnPending:           XPendingFunc?
   private var fnCreateGC:          XCreateGCFunc?
   private var fnFreeGC:            XFreeGCFunc?
-  private var fnSetForeground:     XSetForegroundFunc?
+  private var fnSetForeground:     _WHSetForegroundFunc?
   private var fnResizeWindow:      XResizeWindowFunc?
   private var fnMoveResizeWindow:  XMoveResizeWindowFunc?
   private var fnInternAtom:        XInternAtomFunc?
@@ -410,7 +410,7 @@ public final class _X11WindowHost: @unchecked Sendable {
     fnPending            = resolve("XPending",            as: XPendingFunc.self)
     fnCreateGC           = resolve("XCreateGC",           as: XCreateGCFunc.self)
     fnFreeGC             = resolve("XFreeGC",             as: XFreeGCFunc.self)
-    fnSetForeground      = resolve("XSetForeground",      as: XSetForegroundFunc.self)
+    fnSetForeground      = resolve("XSetForeground",      as: _WHSetForegroundFunc.self)
     fnResizeWindow       = resolve("XResizeWindow",       as: XResizeWindowFunc.self)
     fnMoveResizeWindow   = resolve("XMoveResizeWindow",   as: XMoveResizeWindowFunc.self)
     fnInternAtom         = resolve("XInternAtom",         as: XInternAtomFunc.self)
@@ -1655,8 +1655,11 @@ public final class _X11WindowHost: @unchecked Sendable {
     // Clear the window before redrawing so stale pixels (e.g. a closed Choice
     // popup that extends below the component bounds) are erased.
     _ = fnClearWindow?(dpy, xwin)
-    let g = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
-                                               scaleFactor: scaleFactor)
+    // Graphics2D (not the plain Graphics-1.0 _X11Graphics base) so that
+    // Component.getGraphics() / paint(Graphics) callers can downcast to
+    // Graphics2D and use setPaint/fill(Shape)/transform/etc.
+    let g = java.awt.Graphics2D(display: dpy, drawable: xwin, gc: gc,
+                                scaleFactor: scaleFactor)
 
     if awtWindow is javax.swing.JFrame || awtWindow is javax.swing.JDialog {
       // Swing window: JFrame/JDialog.paint() → JRootPane → JLayeredPane → JMenuBar +
@@ -1676,8 +1679,8 @@ public final class _X11WindowHost: @unchecked Sendable {
 
       // Draw AWT popup overlay on top (reset origin first)
       if let popup = _X11PopupWindow.activePopup {
-        let savedG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
-                                                        scaleFactor: scaleFactor)
+        let savedG = java.awt.Graphics2D(display: dpy, drawable: xwin, gc: gc,
+                                          scaleFactor: scaleFactor)
         popup.draw(using: savedG)
       }
     }
@@ -1686,8 +1689,8 @@ public final class _X11WindowHost: @unchecked Sendable {
     if _tooltipVisible,
        let tipComp = _tooltipComponent,
        let text = tipComp.getToolTipText(), !text.isEmpty {
-      let overlayG = java.awt.toolkit.x11._X11Graphics(display: dpy, drawable: xwin, gc: gc,
-                                                        scaleFactor: scaleFactor)
+      let overlayG = java.awt.Graphics2D(display: dpy, drawable: xwin, gc: gc,
+                                         scaleFactor: scaleFactor)
       _paintTooltip(overlayG, text: text, at: _tooltipPoint)
     }
 
