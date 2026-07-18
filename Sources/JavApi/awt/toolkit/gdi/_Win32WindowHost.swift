@@ -374,7 +374,7 @@ public final class _Win32Canvas {
     FillRect(memDC, &clientRect, hBrush)
 
     // Paint into buffer
-    let g = java.awt.toolkit.gdi._GDIRenderTarget(hdc: memDC)
+    let g = java.awt.Graphics2D(hdc: memDC)
     awtWindow.paint(g)
 
     // ── Tooltip overlay — gezeichnet nach allem anderen ──────────────────────

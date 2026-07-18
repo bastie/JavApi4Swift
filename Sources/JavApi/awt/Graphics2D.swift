@@ -4,9 +4,10 @@
  */
 
 // Linux/FreeBSD get a real Graphics2D backed by X11 (see Graphics2D+X11.swift);
-// this generic no-op stub covers all other non-CoreGraphics platforms
-// (Windows/GDI, Android, WASM) until they get their own real implementation.
-#if !canImport(CoreGraphics) && !(os(Linux) || os(FreeBSD))
+// Windows gets a real Graphics2D backed by GDI (see Graphics2D+GDI.swift);
+// this generic no-op stub covers all remaining non-CoreGraphics platforms
+// (Android, WASM) until they get their own real implementation.
+#if !canImport(CoreGraphics) && !(os(Linux) || os(FreeBSD)) && !os(Windows)
 
 extension java.awt {
   open class Graphics2D: Graphics {

@@ -23,14 +23,21 @@ extension java.awt.toolkit.gdi {
   ///
   /// On Windows `CGContext` is the stub protocol from `Graphics.swift`;
   /// `_StubCGContext()` satisfies `super.init()` while real drawing uses `hdc`.
-  public final class _GDIRenderTarget: java.awt.Graphics {
+  ///
+  /// Note: `open` (not `final`) so `java.awt.Graphics2D` (Graphics2D+GDI.swift)
+  /// can subclass it and reuse the HDC, color/font handling, and primitive
+  /// draw calls instead of duplicating them.
+  open class _GDIRenderTarget: java.awt.Graphics {
 
-    private let hdc: HDC
+    // `internal` (not `private`): java.awt.Graphics2D lives in a different
+    // file and needs these to manage its own stroke-width pen and clip
+    // region without duplicating the base HDC/pen bookkeeping.
+    internal let hdc: HDC
 
     // Current GDI pen/brush (replaced on setColor)
-    private var hPen:    HPEN?
+    internal var hPen:    HPEN?
     private var hBrush:  HBRUSH?
-    private var oldPen:  HGDIOBJ?
+    internal var oldPen:  HGDIOBJ?
     private var oldBrush: HGDIOBJ?
 
     public init(hdc: HDC) {
