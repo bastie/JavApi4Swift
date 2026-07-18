@@ -1899,7 +1899,7 @@ version | implemented | tested   | type          | name                    | mor
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | method        | getComponentCount()     | ()->int (alias for countComponents)
+1.2     | ✔️          | ⭕️       | method        | getComponentCount()     | ()->int (alias for countComponents); implemented in Container.swift
 1.2     | ⭕️          | ⭕️       | method        | getComponents()         | ()->[Component]
 1.2     | ⭕️          | ⭕️       | method        | setComponentZOrder()    | (Component, int)
 1.2     | ⭕️          | ⭕️       | method        | getComponentZOrder()    | (Component)->int
@@ -1917,17 +1917,17 @@ version | implemented | tested   | type          | name                    | mor
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ⭕️          | ⭕️       | static method | getSystemCustomCursor() | (String)->Cursor?; named cursor from resources
-1.2     | ⭕️          | ⭕️       | static method | getPredefinedCursor()   | (int)->Cursor
+1.2     | ✔️          | ⭕️       | static method | getPredefinedCursor()   | (int)->Cursor; implemented in Cursor.swift
 
 ### java.awt.Font — neue Methoden (⭕️/⭕️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
 1.2     | ⭕️          | ⭕️       | static method | createFont()            | (int,InputStream)->Font throws FontFormatException
-1.2     | ⭕️          | ⭕️       | method        | deriveFont()            | (float)->Font; (int)->Font; (AffineTransform)->Font
+1.2     | ✔️          | ⭕️       | method        | deriveFont()            | (float)->Font; (int)->Font implemented in Font.swift; (int,float)->Font also implemented; (AffineTransform)->Font still missing
 1.2     | ⭕️          | ⭕️       | method        | getAttributes()         | ()->Map<TextAttribute,?>
 1.2     | ⭕️          | ⭕️       | method        | hasUniformLineMetrics() | ()->bool
-1.2     | ⭕️          | ⭕️       | method        | getLineMetrics()        | (String,FontRenderContext)->LineMetrics
+1.2     | ✔️          | ✔️       | method        | getLineMetrics()        | (String,FontRenderContext)->LineMetrics; implemented + tested in JavApi_awt_font_Tests.swift
 1.2     | ⭕️          | ⭕️       | method        | getStringBounds()       | (String,FontRenderContext)->Rectangle2D
 1.2     | ⭕️          | ⭕️       | final field   | TRUETYPE_FONT / TYPE1_FONT | int constants for createFont
 
@@ -1938,7 +1938,7 @@ version | implemented | tested   | type          | name                    | mor
 1.2     | ⭕️          | ⭕️       | method        | getColorSpace()         | ()->ColorSpace
 1.2     | ⭕️          | ⭕️       | method        | getComponents()         | (float[]?)->[float]
 1.2     | ⭕️          | ⭕️       | method        | getColorComponents()    | (float[]?)->[float]
-1.2     | ⭕️          | ⭕️       | static method | getHSBColor()           | (float,float,float)->Color
+1.2     | ✔️          | ⭕️       | static method | getHSBColor()           | (float,float,float)->Color; implemented in Color.swift
 
 ### java.awt.Graphics — neue Methoden (✔️/⭕️)
 
