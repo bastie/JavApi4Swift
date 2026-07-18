@@ -651,6 +651,21 @@ extension java.awt {
           GRADIENT_TRIANGLE(Vertex1: 0, Vertex2: 1, Vertex3: 2),
           GRADIENT_TRIANGLE(Vertex1: 0, Vertex2: 2, Vertex3: 3),
         ]
+        // TODO(msimg32): `GradientFill` is resolved via static linking today
+        // (see the `.linkedLibrary("msimg32", ...)` entry + its long comment
+        // in Package.swift for the full rationale). If that ever needs to
+        // change — e.g. cross-compiling the Windows target from a
+        // non-Windows host where msimg32.lib isn't on the SDK lib path, or
+        // for parity with the dlopen/dlsym-based dynamic resolution already
+        // used for Xlib symbols in _X11Graphics.swift — switch this call to
+        // a dynamically-resolved function pointer obtained via
+        // `LoadLibraryA("msimg32.dll")` + `GetProcAddress(lib, "GradientFill")`,
+        // cached once (mirroring `_X11Graphics.resolveSymbols()`), and treat
+        // a `nil` pointer as "GradientFill unavailable" → fall back to a
+        // solid fill instead of failing at link time. Left as static linking
+        // for now since msimg32.dll ships with every Windows release since
+        // Windows 2000 (including Server Core) — no known real-world case
+        // where it's missing at runtime.
         verts.withUnsafeMutableBufferPointer { vbuf in
           tris.withUnsafeMutableBufferPointer { tbuf in
             _ = GradientFill(hdc, vbuf.baseAddress, UInt32(vbuf.count),
