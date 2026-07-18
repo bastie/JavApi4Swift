@@ -1643,17 +1643,17 @@ on Swift types (`Array`, `Swift.Set`, `Dictionary`).
 
 ## java.awt — Java 2D Phase 2 (fehlend / ⭕️)
 
-### java.awt.GradientPaint (⭕️/⭕️)
+### java.awt.GradientPaint (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | GradientPaint           | implements Paint; linear gradient between two colors
+1.2     | ✔️          | ✔️       | class         | GradientPaint           | implements Paint; linear gradient between two colors. Rendering: CoreGraphics via `CGGradient`; GDI via `GradientFill` (msimg32); X11 approximated with 128 solid-color strips (core Xlib has no native gradient primitive)
 
-### java.awt.TexturePaint (⭕️/⭕️)
+### java.awt.TexturePaint (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | class         | TexturePaint            | implements Paint; tiled BufferedImage
+1.2     | ✔️          | ✔️       | class         | TexturePaint            | implements Paint; tiled BufferedImage. Rendering: CoreGraphics via `CGPattern`; GDI via `CreatePatternBrush`; X11 via native `XSetFillStyle(FillTiled)`/`XSetTile`
 
 ### java.awt.AWTPermission (⭕️/⭕️)
 

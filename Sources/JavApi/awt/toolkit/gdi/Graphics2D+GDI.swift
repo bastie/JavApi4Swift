@@ -22,10 +22,12 @@ extension java.awt {
   /// - `Color` → solid fill, exact (`setColor`/`setPaint` keep each other in
   ///   sync, matching Java's specified behaviour that `setColor` also
   ///   updates the current `Paint`).
-  /// - Any other `Paint` (e.g. a future `GradientPaint`/`TexturePaint`) is
-  ///   stored by `setPaint` but `fill(_:)` currently only special-cases
-  ///   `Color` — extend the type switch in `fill(_:)` once those classes
-  ///   exist.
+  /// - `GradientPaint` → `GradientFill` (msimg32) in triangle mode, built
+  ///   from a series of quads along the gradient axis (see
+  ///   `fillWithGradient(_:_:)`); msimg32.lib is linked explicitly in
+  ///   `Package.swift` since the WinSDK overlay does not auto-link it.
+  /// - `TexturePaint` → `CreatePatternBrush` from a `CreateDIBSection`-backed
+  ///   `HBITMAP` (see `fillWithTexture(_:_:)` / `bufferedImageToHBITMAP(_:)`).
   ///
   /// ### Stroke support
   /// Width/cap/join are applied via a dedicated `ExtCreatePen` "geometric"
@@ -523,13 +525,233 @@ extension java.awt {
 
     /// Fills the interior of `shape` using the current `Paint`.
     ///
-    /// Only solid `Color` paints render today — see type-level docs for
-    /// `GradientPaint`/`TexturePaint` status.
+    /// `GradientPaint`/`TexturePaint` are special-cased below; everything
+    /// else (in practice, `Color`) uses the plain brush-fill path.
     public func fill(_ shape: any java.awt.Shape) {
+      if let gradient = _paint as? java.awt.GradientPaint {
+        fillWithGradient(shape, gradient)
+        return
+      }
+      if let texture = _paint as? java.awt.TexturePaint {
+        fillWithTexture(shape, texture)
+        return
+      }
       guard _paint is java.awt.Color else { return }
       guard let pts = flatten(shape), pts.count >= 3 else { return }
       let (xs, ys) = transformedIntPoints(pts)
       fillPolygon(xs, ys, xs.count)
+    }
+
+    // =========================================================================
+    // MARK: - fill(_:) helpers: GradientPaint / TexturePaint
+    // =========================================================================
+
+    /// Fills `shape` with a linear gradient using `GradientFill` (msimg32),
+    /// in `GRADIENT_FILL_TRIANGLE` mode.
+    ///
+    /// `GradientFill`'s rect mode only supports axis-aligned (horizontal or
+    /// vertical) gradients, so an arbitrary-direction gradient is instead
+    /// built as a series of thin quads (2 triangles each) running along the
+    /// `point1`→`point2` axis, wide enough to cover the shape's bounding box
+    /// in the perpendicular direction. Colors are evaluated per quad edge in
+    /// **logical** (pre-transform) space so the gradient direction rotates
+    /// and scales together with the shape; only the final vertex positions
+    /// are transformed to device coordinates.
+    ///
+    /// Cyclic gradients reuse the same finite-reflection-count approach as
+    /// the CoreGraphics backend (`Graphics2D+CoreGraphics.swift`): enough
+    /// half-cycles are generated to cover the shape's bounding box, which is
+    /// visually exact once clipped to the shape.
+    private func fillWithGradient(_ shape: any java.awt.Shape, _ gradient: java.awt.GradientPaint) {
+      guard let pts = flatten(shape), pts.count >= 3 else { return }
+
+      let p1x = gradient.getPoint1().getX(), p1y = gradient.getPoint1().getY()
+      let p2x = gradient.getPoint2().getX(), p2y = gradient.getPoint2().getY()
+      let dx = p2x - p1x, dy = p2y - p1y
+      let len = (dx * dx + dy * dy).squareRoot()
+      guard len > 0 else { return }
+      let ux = dx / len, uy = dy / len
+      let perpx = -uy, perpy = ux
+
+      // Project the shape's bounding box corners onto the gradient axis (s)
+      // and the perpendicular axis (w), both in logical space.
+      let b = shape.getBounds()
+      let corners: [(Double, Double)] = [
+        (Double(b.x), Double(b.y)), (Double(b.x + b.width), Double(b.y)),
+        (Double(b.x), Double(b.y + b.height)), (Double(b.x + b.width), Double(b.y + b.height)),
+      ]
+      var sMin = Double.greatestFiniteMagnitude, sMax = -Double.greatestFiniteMagnitude
+      var wMin = Double.greatestFiniteMagnitude, wMax = -Double.greatestFiniteMagnitude
+      for (cx, cy) in corners {
+        let relx = cx - p1x, rely = cy - p1y
+        let s = relx * ux + rely * uy
+        let w = relx * perpx + rely * perpy
+        sMin = min(sMin, s); sMax = max(sMax, s)
+        wMin = min(wMin, w); wMax = max(wMax, w)
+      }
+
+      let c1 = gradient.getColor1(), c2 = gradient.getColor2()
+
+      func colorAt(_ s: Double) -> java.awt.Color {
+        let t = s / len
+        if gradient.isCyclic() {
+          let tt = abs(t.truncatingRemainder(dividingBy: 2))
+          let folded = tt <= 1 ? tt : 2 - tt
+          return lerpColor(c1, c2, folded)
+        } else {
+          return lerpColor(c1, c2, min(1, max(0, t)))
+        }
+      }
+
+      var stops: [Double]
+      if gradient.isCyclic() {
+        let tMin = sMin / len, tMax = sMax / len
+        let before = min(64, max(0, Int((-tMin).rounded(.up))))
+        let after  = min(64, max(0, Int((tMax - 1).rounded(.up))))
+        stops = stride(from: -before, through: 1 + after, by: 1).map { Double($0) * len }
+      } else {
+        stops = [sMin, 0, len, sMax].filter { $0 >= sMin && $0 <= sMax }
+        stops = Array(Set(stops)).sorted()
+      }
+      guard stops.count >= 2 else { return }
+
+      // Clip to the exact shape via a temporary GDI region (mirrors
+      // `applyShapeClip`'s approach), restored via SaveDC/RestoreDC.
+      let savedDC = SaveDC(hdc)
+      defer { if savedDC != 0 { RestoreDC(hdc, savedDC) } }
+
+      let winPoints: [POINT] = pts.map { p in
+        let tp = transformedPoint(p)
+        return POINT(x: LONG(tp.0.rounded()), y: LONG(tp.1.rounded()))
+      }
+      if let region = winPoints.withUnsafeBufferPointer({ buf in
+        CreatePolygonRgn(buf.baseAddress, Int32(winPoints.count), WINDING)
+      }) {
+        SelectClipRgn(hdc, region)
+        DeleteObject(region)   // SelectClipRgn copies the region; safe to delete now.
+      }
+
+      for i in 0..<(stops.count - 1) {
+        let s0 = stops[i], s1 = stops[i + 1]
+        let col0 = colorAt(s0), col1 = colorAt(s1)
+
+        let logicalCorners: [(Double, Double)] = [
+          (p1x + s0 * ux + wMin * perpx, p1y + s0 * uy + wMin * perpy),
+          (p1x + s0 * ux + wMax * perpx, p1y + s0 * uy + wMax * perpy),
+          (p1x + s1 * ux + wMax * perpx, p1y + s1 * uy + wMax * perpy),
+          (p1x + s1 * ux + wMin * perpx, p1y + s1 * uy + wMin * perpy),
+        ]
+        let deviceCorners = logicalCorners.map { transformedPoint($0) }
+
+        var verts: [TRIVERTEX] = (0..<4).map { idx in
+          triVertex(x: deviceCorners[idx].0, y: deviceCorners[idx].1,
+                   color: idx < 2 ? col0 : col1)
+        }
+        var tris: [GRADIENT_TRIANGLE] = [
+          GRADIENT_TRIANGLE(Vertex1: 0, Vertex2: 1, Vertex3: 2),
+          GRADIENT_TRIANGLE(Vertex1: 0, Vertex2: 2, Vertex3: 3),
+        ]
+        verts.withUnsafeMutableBufferPointer { vbuf in
+          tris.withUnsafeMutableBufferPointer { tbuf in
+            _ = GradientFill(hdc, vbuf.baseAddress, UInt32(vbuf.count),
+                             UnsafeMutableRawPointer(tbuf.baseAddress), UInt32(tbuf.count),
+                             DWORD(GRADIENT_FILL_TRIANGLE))
+          }
+        }
+      }
+    }
+
+    /// Linearly interpolates between two `Color`s at `t` (0…1).
+    private func lerpColor(_ a: java.awt.Color, _ b: java.awt.Color, _ t: Double) -> java.awt.Color {
+      java.awt.Color(
+        Int((Double(a.getRed())   + (Double(b.getRed())   - Double(a.getRed()))   * t).rounded()),
+        Int((Double(a.getGreen()) + (Double(b.getGreen()) - Double(a.getGreen())) * t).rounded()),
+        Int((Double(a.getBlue())  + (Double(b.getBlue())  - Double(a.getBlue()))  * t).rounded()))
+    }
+
+    /// Builds a `TRIVERTEX` for `GradientFill` at device coordinates `(x, y)`.
+    /// `COLOR16` components are 16-bit, so 8-bit color components are
+    /// shifted left by 8 (classic GDI has no alpha for shape fills, so
+    /// `Alpha` is left at full opacity).
+    private func triVertex(x: Double, y: Double, color: java.awt.Color) -> TRIVERTEX {
+      var v = TRIVERTEX()
+      v.x     = LONG(x.rounded())
+      v.y     = LONG(y.rounded())
+      v.Red   = COLOR16(color.getRed())   << 8
+      v.Green = COLOR16(color.getGreen()) << 8
+      v.Blue  = COLOR16(color.getBlue())  << 8
+      v.Alpha = 0xFFFF
+      return v
+    }
+
+    /// Fills `shape` by tiling the paint's image via `CreatePatternBrush`.
+    ///
+    /// The image is converted to a top-down 32bpp BGR `HBITMAP` (classic GDI
+    /// pattern brushes have no alpha channel — same limitation already
+    /// documented for `Composite` above). `SetBrushOrgEx` aligns the tile
+    /// origin to the paint's anchor rectangle so tiling starts at the
+    /// correct position, matching Java's anchor-rect semantics.
+    private func fillWithTexture(_ shape: any java.awt.Shape, _ texture: java.awt.TexturePaint) {
+      guard let pts = flatten(shape), pts.count >= 3 else { return }
+      guard let hBitmap = Graphics2D.bufferedImageToHBITMAP(texture.getImage()) else { return }
+      defer { DeleteObject(hBitmap) }
+      guard let brush = CreatePatternBrush(hBitmap) else { return }
+      defer { DeleteObject(brush) }
+
+      let savedDC = SaveDC(hdc)
+      defer { if savedDC != 0 { RestoreDC(hdc, savedDC) } }
+
+      let anchor = texture.getAnchorRect()
+      let originDevice = transformedPoint((anchor.getX(), anchor.getY()))
+      var oldOrg = POINT()
+      SetBrushOrgEx(hdc, INT32(originDevice.0.rounded()), INT32(originDevice.1.rounded()), &oldOrg)
+
+      let oldBrush = SelectObject(hdc, brush)
+      let (xs, ys) = transformedIntPoints(pts)
+      fillPolygon(xs, ys, xs.count)
+      SelectObject(hdc, oldBrush)
+    }
+
+    /// Converts a `BufferedImage` to a top-down 32bpp BGR `HBITMAP` via
+    /// `CreateDIBSection`, reading pixels through `getRGB(_:_:)`. Mirrors the
+    /// conversion already used for icon creation in
+    /// `_Win32WindowHost.swift`'s `_makeHIconFromPNG`, minus premultiplication
+    /// (pattern brushes have no alpha channel to premultiply against).
+    private static func bufferedImageToHBITMAP(_ image: java.awt.image.BufferedImage) -> HBITMAP? {
+      let w = image.getWidth(nil), h = image.getHeight(nil)
+      guard w > 0, h > 0 else { return nil }
+
+      var pixels = [UInt8](repeating: 0, count: w * h * 4)
+      for row in 0..<h {
+        for col in 0..<w {
+          let argb = image.getRGB(col, row)
+          let i = (row * w + col) * 4
+          pixels[i + 0] = UInt8((argb >>  0) & 0xFF)   // B
+          pixels[i + 1] = UInt8((argb >>  8) & 0xFF)   // G
+          pixels[i + 2] = UInt8((argb >> 16) & 0xFF)   // R
+          pixels[i + 3] = 0xFF
+        }
+      }
+
+      var bmi = BITMAPINFO()
+      bmi.bmiHeader.biSize        = DWORD(MemoryLayout<BITMAPINFOHEADER>.size)
+      bmi.bmiHeader.biWidth       = LONG(w)
+      bmi.bmiHeader.biHeight      = -LONG(h)   // top-down
+      bmi.bmiHeader.biPlanes      = 1
+      bmi.bmiHeader.biBitCount    = 32
+      bmi.bmiHeader.biCompression = DWORD(BI_RGB)
+
+      let screenDC = GetDC(nil)
+      defer { ReleaseDC(nil, screenDC) }
+
+      var bits: UnsafeMutableRawPointer? = nil
+      guard let hBitmap = CreateDIBSection(screenDC, &bmi, UINT(DIB_RGB_COLORS), &bits, nil, 0),
+            let bits else { return nil }
+
+      pixels.withUnsafeBytes { raw in
+        bits.copyMemory(from: raw.baseAddress!, byteCount: w * h * 4)
+      }
+      return hBitmap
     }
   }
 }

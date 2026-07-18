@@ -24,10 +24,16 @@ extension java.awt {
   /// - `Color` → solid fill, exact (`setColor`/`setPaint` keep each other in
   ///   sync, matching Java's specified behaviour that `setColor` also
   ///   updates the current `Paint`).
-  /// - Any other `Paint` (e.g. a future `GradientPaint`/`TexturePaint`) is
-  ///   stored by `setPaint` but `fill(_:)` currently only special-cases
-  ///   `Color` — extend the type switch in `fill(_:)` once those classes
-  ///   exist.
+  /// - `GradientPaint` → approximated: core Xlib has no native gradient
+  ///   primitive, so the shape is band-filled with 128 thin solid-colour
+  ///   quad strips perpendicular to the gradient axis (cyclic/reflecting
+  ///   gradients are folded into the same fixed strip count rather than
+  ///   generating one native stop per reflection cycle).
+  /// - `TexturePaint` → native: `XSetFillStyle(FillTiled)` + `XSetTile`
+  ///   with a `Pixmap` built via `XCreatePixmap`/`XPutImage` — core Xlib,
+  ///   no extension library required. The tile always repeats at the
+  ///   image's own pixel size (only the anchor's origin, not its
+  ///   width/height, is honoured).
   ///
   /// ### Shape clipping
   /// Rectangular clips (`Rectangle`/`Rectangle2D`) go through the inherited
@@ -457,14 +463,196 @@ extension java.awt {
     }
 
     /// Fills the interior of `shape` using the current `Paint`.
-    ///
-    /// Only solid `Color` paints render today — see type-level docs for
-    /// `GradientPaint`/`TexturePaint` status.
     public func fill(_ shape: any java.awt.Shape) {
+      if let gradient = _paint as? java.awt.GradientPaint {
+        fillWithGradient(shape, gradient)
+        return
+      }
+      if let texture = _paint as? java.awt.TexturePaint {
+        fillWithTexture(shape, texture)
+        return
+      }
       guard _paint is java.awt.Color else { return }
       guard let pts = flatten(shape), pts.count >= 3 else { return }
       let (xs, ys) = transformedIntPoints(pts)
       fillPolygon(xs, ys, xs.count)
+    }
+
+    // =========================================================================
+    // MARK: - GradientPaint / TexturePaint
+    // =========================================================================
+
+    /// Approximates a `GradientPaint` fill on core Xlib (which has no native
+    /// gradient primitive at all) by band-filling the shape with a fixed
+    /// number of thin, solid-colour quad strips perpendicular to the
+    /// gradient axis. 128 strips is a pragmatic middle ground — smooth
+    /// enough for typical UI-sized shapes, and independent of how many
+    /// reflection cycles a `cyclic` gradient spans (unlike the CoreGraphics/
+    /// GDI backends, which build one native stop/vertex per cycle, core
+    /// Xlib strips are capped at a constant count to avoid a combinatorial
+    /// blow-up of `XFillPolygon` calls for highly cyclic gradients).
+    private func fillWithGradient(_ shape: any java.awt.Shape, _ gradient: java.awt.GradientPaint) {
+      let p1x = gradient.getPoint1().getX(), p1y = gradient.getPoint1().getY()
+      let p2x = gradient.getPoint2().getX(), p2y = gradient.getPoint2().getY()
+      let dx = p2x - p1x, dy = p2y - p1y
+      let len = (dx * dx + dy * dy).squareRoot()
+      guard len > 0 else { return }
+      let ux = dx / len, uy = dy / len
+      let perpx = -uy, perpy = ux
+
+      // Project the shape's bounding box onto the gradient axis and its
+      // perpendicular to find the minimal strip range that needs covering —
+      // same technique used by the CoreGraphics/GDI backends.
+      let b = shape.getBounds()
+      let corners: [(Double, Double)] = [
+        (Double(b.x), Double(b.y)), (Double(b.x + b.width), Double(b.y)),
+        (Double(b.x), Double(b.y + b.height)), (Double(b.x + b.width), Double(b.y + b.height)),
+      ]
+      var sMin = Double.greatestFiniteMagnitude, sMax = -Double.greatestFiniteMagnitude
+      var wMin = Double.greatestFiniteMagnitude, wMax = -Double.greatestFiniteMagnitude
+      for (cx, cy) in corners {
+        let relx = cx - p1x, rely = cy - p1y
+        let s = relx * ux + rely * uy
+        let w = relx * perpx + rely * perpy
+        sMin = min(sMin, s); sMax = max(sMax, s)
+        wMin = min(wMin, w); wMax = max(wMax, w)
+      }
+      guard sMax > sMin else { return }
+
+      let c1 = gradient.getColor1(), c2 = gradient.getColor2()
+      func colorAt(_ s: Double) -> java.awt.Color {
+        let t = s / len
+        if gradient.isCyclic() {
+          let folded = abs(t.truncatingRemainder(dividingBy: 2))
+          return lerpColor(c1, c2, folded <= 1 ? folded : 2 - folded)
+        }
+        return lerpColor(c1, c2, min(1, max(0, t)))
+      }
+
+      // Clip precisely to the shape for the duration of the strip fills.
+      let savedClip = _clip
+      setClip(shape)
+      let savedColor = currentColor
+      defer {
+        setClip(savedClip)
+        super.setColor(savedColor)
+      }
+
+      let stripCount = 128
+      for i in 0..<stripCount {
+        let s0 = sMin + (sMax - sMin) * Double(i) / Double(stripCount)
+        let s1 = sMin + (sMax - sMin) * Double(i + 1) / Double(stripCount)
+        let mid = (s0 + s1) / 2
+        // Set the raw fill colour directly (bypassing the `Graphics2D`
+        // `setColor` override, which would overwrite `_paint` with a plain
+        // `Color` and lose the gradient for subsequent strips).
+        super.setColor(colorAt(mid))
+
+        let quad: [(Double, Double)] = [
+          (p1x + s0 * ux + wMin * perpx, p1y + s0 * uy + wMin * perpy),
+          (p1x + s0 * ux + wMax * perpx, p1y + s0 * uy + wMax * perpy),
+          (p1x + s1 * ux + wMax * perpx, p1y + s1 * uy + wMax * perpy),
+          (p1x + s1 * ux + wMin * perpx, p1y + s1 * uy + wMin * perpy),
+        ]
+        let (xs, ys) = transformedIntPoints(quad)
+        fillPolygon(xs, ys, xs.count)
+      }
+    }
+
+    private func lerpColor(_ a: java.awt.Color, _ b: java.awt.Color, _ t: Double) -> java.awt.Color {
+      func mix(_ x: Int, _ y: Int) -> Int { Int((Double(x) + (Double(y) - Double(x)) * t).rounded()) }
+      return java.awt.Color(mix(a.getRed(), b.getRed()),
+                             mix(a.getGreen(), b.getGreen()),
+                             mix(a.getBlue(), b.getBlue()),
+                             mix(a.getAlpha(), b.getAlpha()))
+    }
+
+    /// Fills `shape` by tiling `texture`'s image using core Xlib's native
+    /// `FillTiled` fill style (`XCreatePixmap` + `XPutImage` to build the
+    /// tile, `XSetTile`/`XSetTSOrigin` to install it, `XFillPolygon` to
+    /// paint) — no extension library required.
+    ///
+    /// - Note: Core X11 tiling always repeats at the tile pixmap's own
+    ///   pixel size; there is no native way to stretch the tile to a
+    ///   different anchor size. The anchor rectangle's *origin* is honoured
+    ///   (via `XSetTSOrigin`) but its width/height are not — this matches
+    ///   the common case (`anchor` sized to the image) and is a known
+    ///   simplification versus the CoreGraphics/GDI backends.
+    private func fillWithTexture(_ shape: any java.awt.Shape, _ texture: java.awt.TexturePaint) {
+      guard let pts = flatten(shape), pts.count >= 3 else { return }
+      guard let fnCreatePixmap = fnCreatePixmap,
+            let fnFreePixmap   = fnFreePixmap,
+            let fnSetTile      = fnSetTile,
+            let fnSetFillStyle = fnSetFillStyle,
+            let fnSetTSOrigin  = fnSetTSOrigin,
+            let fnDepth        = fnDefaultDepth,
+            let fnScreen       = fnDefaultScreen,
+            let fnVisual       = fnDefaultVisual,
+            let fnCreateImg    = fnCreateImage,
+            let fnPutImg       = fnPutImage
+      else { return }
+
+      let img = texture.getImage()
+      let tw = img.getWidth(nil), th = img.getHeight(nil)
+      guard tw > 0, th > 0 else { return }
+
+      let screen = fnScreen(display)
+      let depth  = UInt32(fnDepth(display, screen))
+      guard let visual = fnVisual(display, screen) else { return }
+
+      let pixmap = fnCreatePixmap(display, drawable, UInt32(tw), UInt32(th), depth)
+      guard pixmap != 0 else { return }
+      defer { _ = fnFreePixmap(display, pixmap) }
+
+      // Build a 32-bpp BGRX pixel buffer — same layout as the base class's
+      // `blitImage` (no alpha compositing here: pattern-brush/tile fills
+      // have no alpha channel to composite against).
+      let bytesPerPixel = 4
+      let stride = tw * bytesPerPixel
+      var pixels = [UInt8](repeating: 0, count: th * stride)
+      for y in 0..<th {
+        for x in 0..<tw {
+          let argb = img.getRGB(x, y)
+          let r = (argb >> 16) & 0xFF, g = (argb >> 8) & 0xFF, b = argb & 0xFF
+          let idx = y * stride + x * bytesPerPixel
+          pixels[idx + 0] = UInt8(b)
+          pixels[idx + 1] = UInt8(g)
+          pixels[idx + 2] = UInt8(r)
+          pixels[idx + 3] = 0
+        }
+      }
+
+      var wrote = false
+      pixels.withUnsafeMutableBytes { buf in
+        guard let base = buf.baseAddress?.assumingMemoryBound(to: UInt8.self) else { return }
+        guard let ximg = fnCreateImg(display, visual, depth, 2 /* ZPixmap */, 0,
+                                      base, UInt32(tw), UInt32(th), 32, 0)
+        else { return }
+        _ = fnPutImg(display, pixmap, gc, ximg, 0, 0, 0, 0, UInt32(tw), UInt32(th))
+        wrote = true
+      }
+      guard wrote else { return }
+
+      // Align the tile's origin to the anchor rect's top-left corner
+      // (through the current transform + integer origin), so the pattern
+      // stays visually anchored as the shape moves.
+      let anchor = texture.getAnchorRect()
+      let originPt = transformedPoint((anchor.getX(), anchor.getY()))
+      let tsX = Int32(scaled(Int(originPt.0.rounded()) + originX))
+      let tsY = Int32(scaled(Int(originPt.1.rounded()) + originY))
+
+      let savedClip = _clip
+      setClip(shape)
+
+      _ = fnSetTile(display, gc, pixmap)
+      _ = fnSetFillStyle(display, gc, 1 /* FillTiled */)
+      _ = fnSetTSOrigin(display, gc, tsX, tsY)
+
+      let (xs, ys) = transformedIntPoints(pts)
+      fillPolygon(xs, ys, xs.count)
+
+      _ = fnSetFillStyle(display, gc, 0 /* FillSolid */)
+      setClip(savedClip)
     }
   }
 }

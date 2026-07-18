@@ -21,6 +21,9 @@ var packageTargets: [PackageDescription.Target] = [
       // OLE/COM functions (RegisterDragDrop, DoDragDrop, OleInitialize, …)
       // are in ole32.lib which the WinSDK overlay does not auto-link.
       .linkedLibrary("ole32", .when(platforms: [.windows])),
+      // GradientFill (used by Graphics2D+GDI.swift for GradientPaint
+      // rendering) is in msimg32.lib, not auto-linked by the WinSDK overlay.
+      .linkedLibrary("msimg32", .when(platforms: [.windows])),
     ]
   ),
   .testTarget(name: "JavApiTests", dependencies: ["JavApi"]),

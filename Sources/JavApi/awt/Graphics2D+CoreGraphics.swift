@@ -238,10 +238,172 @@ extension java.awt {
     }
     
     /// Fills the interior of `shape` using the current `Paint`.
+    ///
+    /// `Color` fills use CoreGraphics' plain fill color (set via `setPaint`).
+    /// `GradientPaint` and `TexturePaint` are special-cased here since they
+    /// need the shape clipped first, then a gradient/pattern drawn into the
+    /// clipped region.
     public func fill(_ shape: any java.awt.Shape) {
       guard let path = cgPath(from: shape) else { return }
+
+      if let gradient = _paint as? java.awt.GradientPaint {
+        fillWithGradient(path, gradient)
+        return
+      }
+      if let texture = _paint as? java.awt.TexturePaint {
+        fillWithTexture(path, texture)
+        return
+      }
+
       cgContext.addPath(path)
       cgContext.fillPath()
+    }
+
+    // =========================================================================
+    // MARK: - fill(_:) helpers: GradientPaint / TexturePaint
+    // =========================================================================
+
+    /// Fills `path` with a linear gradient between the paint's two points.
+    ///
+    /// Acyclic gradients use `CGGradient` directly with
+    /// `.drawsBeforeStartLocation`/`.drawsAfterEndLocation`, which exactly
+    /// matches Java's "clamp to endpoint color" behaviour.
+    ///
+    /// Cyclic gradients repeat back-and-forth indefinitely in Java. CoreGraphics'
+    /// `CGGradient` has no native reflect/repeat extend mode, so this builds a
+    /// finite series of alternating `color1`/`color2` stops that fully covers
+    /// the shape's bounding box projected onto the gradient axis — since the
+    /// fill is clipped to `path`, anything beyond that range is invisible
+    /// anyway, making the finite approximation visually exact.
+    private func fillWithGradient(_ path: CGPath, _ gradient: java.awt.GradientPaint) {
+      cgContext.saveGState()
+      defer { cgContext.restoreGState() }
+      cgContext.addPath(path)
+      cgContext.clip()
+
+      let p1 = CGPoint(x: gradient.getPoint1().getX(), y: gradient.getPoint1().getY())
+      let p2 = CGPoint(x: gradient.getPoint2().getX(), y: gradient.getPoint2().getY())
+      let c1 = gradient.getColor1()
+      let c2 = gradient.getColor2()
+      let colorSpace = CGColorSpaceCreateDeviceRGB()
+
+      func components(_ c: java.awt.Color) -> [CGFloat] {
+        [CGFloat(c.red), CGFloat(c.green), CGFloat(c.blue), CGFloat(c.alpha)]
+      }
+
+      if !gradient.isCyclic() {
+        let comps = components(c1) + components(c2)
+        guard let cgGradient = CGGradient(colorSpace: colorSpace, colorComponents: comps,
+                                          locations: [0, 1], count: 2) else { return }
+        cgContext.drawLinearGradient(cgGradient, start: p1, end: p2,
+                                     options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+        return
+      }
+
+      // Cyclic: figure out how many unit segments (each one half of a
+      // reflect cycle) are needed to cover the path's bounding box.
+      let dx = p2.x - p1.x, dy = p2.y - p1.y
+      let segLenSq = dx * dx + dy * dy
+      guard segLenSq > 0 else { return }
+
+      let bbox = path.boundingBoxOfPath
+      let corners = [
+        CGPoint(x: bbox.minX, y: bbox.minY), CGPoint(x: bbox.maxX, y: bbox.minY),
+        CGPoint(x: bbox.minX, y: bbox.maxY), CGPoint(x: bbox.maxX, y: bbox.maxY),
+      ]
+      let ts = corners.map { corner in
+        ((corner.x - p1.x) * dx + (corner.y - p1.y) * dy) / segLenSq
+      }
+      let tMin = ts.min() ?? 0, tMax = ts.max() ?? 1
+
+      // Clamp the cycle count to a sane maximum — beyond a few dozen
+      // reflections the visual result is indistinguishable and this avoids
+      // pathological stop counts for near-zero-length gradient vectors.
+      let cyclesBefore = min(64, max(0, Int(CGFloat(-tMin).rounded(.up))))
+      let cyclesAfter  = min(64, max(0, Int((tMax - 1).rounded(.up))))
+      let totalHalfCycles = cyclesBefore + 1 + cyclesAfter
+
+      let extStart = CGPoint(x: p1.x - CGFloat(cyclesBefore) * dx,
+                             y: p1.y - CGFloat(cyclesBefore) * dy)
+      let extEnd = CGPoint(x: p1.x + CGFloat(totalHalfCycles - cyclesBefore) * dx,
+                           y: p1.y + CGFloat(totalHalfCycles - cyclesBefore) * dy)
+
+      var comps: [CGFloat] = []
+      var locations: [CGFloat] = []
+      for i in 0...totalHalfCycles {
+        let t = i - cyclesBefore
+        let atColor1 = (abs(t) % 2 == 0)
+        comps.append(contentsOf: components(atColor1 ? c1 : c2))
+        locations.append(CGFloat(i) / CGFloat(totalHalfCycles))
+      }
+
+      guard let cgGradient = CGGradient(colorSpace: colorSpace, colorComponents: comps,
+                                        locations: locations,
+                                        count: totalHalfCycles + 1) else { return }
+      cgContext.drawLinearGradient(cgGradient, start: extStart, end: extEnd,
+                                   options: [.drawsBeforeStartLocation, .drawsAfterEndLocation])
+    }
+
+    /// Fills `path` by tiling the paint's image via a `CGPattern`.
+    ///
+    /// The `CGImage` is passed to the pattern's draw callback through an
+    /// `Unmanaged` reference (CoreGraphics' C-callback API cannot capture
+    /// Swift context directly); `releaseInfo` balances the retain once the
+    /// pattern is discarded.
+    private func fillWithTexture(_ path: CGPath, _ texture: java.awt.TexturePaint) {
+      guard let cgImage = texture.getImage().toCGImage() else {
+        // No image data available — fall back to a plain path fill using
+        // whatever fill color CoreGraphics currently has set.
+        cgContext.addPath(path)
+        cgContext.fillPath()
+        return
+      }
+
+      cgContext.saveGState()
+      defer { cgContext.restoreGState() }
+      cgContext.addPath(path)
+      cgContext.clip()
+
+      let anchor = texture.getAnchorRect()
+      let tileRect = CGRect(x: anchor.getX(), y: anchor.getY(),
+                            width: anchor.getWidth(), height: anchor.getHeight())
+      guard tileRect.width > 0, tileRect.height > 0 else { return }
+
+      guard let patternSpace = CGColorSpace(patternBaseSpace: nil) else { return }
+      cgContext.setFillColorSpace(patternSpace)
+
+      var callbacks = CGPatternCallbacks(
+        version: 0,
+        drawPattern: { info, ctx in
+          guard let info = info else { return }
+          let img = Unmanaged<CGImage>.fromOpaque(info).takeUnretainedValue()
+          ctx.draw(img, in: CGRect(x: 0, y: 0,
+                                   width: CGFloat(img.width), height: CGFloat(img.height)))
+        },
+        releaseInfo: { info in
+          guard let info = info else { return }
+          Unmanaged<CGImage>.fromOpaque(info).release()
+        })
+
+      let infoPtr = Unmanaged.passRetained(cgImage).toOpaque()
+
+      guard let pattern = CGPattern(
+        info: infoPtr,
+        bounds: CGRect(x: 0, y: 0, width: tileRect.width, height: tileRect.height),
+        matrix: CGAffineTransform(translationX: tileRect.origin.x, y: tileRect.origin.y),
+        xStep: tileRect.width,
+        yStep: tileRect.height,
+        tiling: .constantSpacingMinimalDistortion,
+        isColored: true,
+        callbacks: &callbacks
+      ) else {
+        Unmanaged<CGImage>.fromOpaque(infoPtr).release()
+        return
+      }
+
+      var alpha: CGFloat = 1.0
+      cgContext.setFillPattern(pattern, colorComponents: &alpha)
+      cgContext.fill(path.boundingBoxOfPath)
     }
     
     // =========================================================================

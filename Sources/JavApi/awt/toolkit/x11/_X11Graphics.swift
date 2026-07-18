@@ -94,6 +94,25 @@ internal typealias XSetLineAttributesFunc = @convention(c) (UnsafeMutableRawPoin
                                                              UInt32, Int32, Int32, Int32) -> Int32
 
 // =============================================================================
+// MARK: X11 Pixmap / tiling type aliases — TexturePaint support
+// =============================================================================
+// Used by `java.awt.Graphics2D` (Graphics2D+X11.swift) to render
+// `java.awt.TexturePaint` via core Xlib's native tiled-fill support
+// (FillTiled), no extension library required.
+//
+// XCreatePixmap(Display*, Drawable, width, height, depth) -> Pixmap (XID)
+internal typealias XCreatePixmapFunc  = @convention(c) (UnsafeMutableRawPointer, UInt, UInt32, UInt32, UInt32) -> UInt
+// XFreePixmap(Display*, Pixmap)
+internal typealias XFreePixmapFunc    = @convention(c) (UnsafeMutableRawPointer, UInt) -> Int32
+// XSetTile(Display*, GC, Pixmap) — the tile used when fill_style == FillTiled
+internal typealias XSetTileFunc       = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, UInt) -> Int32
+// XSetFillStyle(Display*, GC, fill_style) — FillSolid=0, FillTiled=1
+internal typealias XSetFillStyleFunc  = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, Int32) -> Int32
+// XSetTSOrigin(Display*, GC, ts_x_origin, ts_y_origin) — aligns the tile's
+// origin to the paint's anchor rectangle.
+internal typealias XSetTSOriginFunc   = @convention(c) (UnsafeMutableRawPointer, UnsafeMutableRawPointer, Int32, Int32) -> Int32
+
+// =============================================================================
 // MARK: X11 oval / arc / polygon type aliases
 // =============================================================================
 // XDrawArc / XFillArc(Display*, Drawable, GC, x, y, w, h, angle1*64, angle2*64)
@@ -228,6 +247,12 @@ extension java.awt.toolkit.x11 {
     internal var fnDestroyRegion:    XDestroyRegionFunc?
     // Line attributes (width/cap/join) — used by Graphics2D+X11.swift
     internal var fnSetLineAttributes: XSetLineAttributesFunc?
+    // Pixmap / tiling (TexturePaint) — used by Graphics2D+X11.swift
+    internal var fnCreatePixmap:     XCreatePixmapFunc?
+    internal var fnFreePixmap:       XFreePixmapFunc?
+    internal var fnSetTile:          XSetTileFunc?
+    internal var fnSetFillStyle:     XSetFillStyleFunc?
+    internal var fnSetTSOrigin:      XSetTSOriginFunc?
 
     // Current drawing color (mirrors setColor — base class has no getColor on non-CG)
     internal var currentColor:      java.awt.Color = java.awt.Color.black
@@ -298,6 +323,12 @@ extension java.awt.toolkit.x11 {
       fnDestroyRegion      = r("XDestroyRegion")
       // Line attributes (used by Graphics2D+X11.swift)
       fnSetLineAttributes  = r("XSetLineAttributes")
+      // Pixmap / tiling (TexturePaint, used by Graphics2D+X11.swift)
+      fnCreatePixmap       = r("XCreatePixmap")
+      fnFreePixmap         = r("XFreePixmap")
+      fnSetTile            = r("XSetTile")
+      fnSetFillStyle       = r("XSetFillStyle")
+      fnSetTSOrigin        = r("XSetTSOrigin")
       _ = dlclose(lib)
       // Load Xft from libXft — separate library from libX11
       let xftCandidates = ["libXft.so.2", "libXft.so"]
