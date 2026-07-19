@@ -76,6 +76,115 @@ struct JavApi_awt_datatransfer_DataFlavor_Tests {
 }
 
 // =============================================================================
+// MARK: - FlavorMap / SystemFlavorMap
+// =============================================================================
+
+@Suite("java.awt.datatransfer.SystemFlavorMap")
+struct JavApi_awt_datatransfer_SystemFlavorMap_Tests {
+
+  /// The native name this platform's `SystemFlavorMap` seeds for
+  /// `stringFlavor` — mirrors the `#if os(...)` table in
+  /// `SystemFlavorMap.init()` so this test verifies the actual value
+  /// rather than just "some non-nil string".
+  private var expectedTextNative: String {
+#if canImport(AppKit) && os(macOS)
+    return "public.utf8-plain-text"
+#elseif os(Windows)
+    return "CF_UNICODETEXT"
+#elseif os(Linux) || os(FreeBSD)
+    return "UTF8_STRING"
+#else
+    return "text/plain;charset=utf-8"
+#endif
+  }
+
+  @Test("getDefaultFlavorMap returns the same singleton instance across calls")
+  func defaultFlavorMap_isSingleton() {
+    // Downcast to the concrete class before comparing identity: casting the
+    // non-class-bound `any FlavorMap` existential to `AnyObject` inside
+    // `#expect(...)` crashes the Swift 6.3.3 compiler while emitting a
+    // reabstraction thunk for the SIL of this test function. Comparing two
+    // concretely-typed `SystemFlavorMap?` values with `===` sidesteps that
+    // thunk entirely.
+    let a = java.awt.datatransfer.SystemFlavorMap.getDefaultFlavorMap()
+      as? java.awt.datatransfer.SystemFlavorMap
+    let b = java.awt.datatransfer.SystemFlavorMap.getDefaultFlavorMap()
+      as? java.awt.datatransfer.SystemFlavorMap
+    #expect(a != nil)
+    #expect(a === b)
+  }
+
+  @Test("stringFlavor resolves to the platform-appropriate native name")
+  func stringFlavor_hasPlatformNative() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    let native = map.getNativesForFlavor(java.awt.datatransfer.DataFlavor.stringFlavor)
+    #expect(native.first == expectedTextNative)
+  }
+
+  @Test("Native name for stringFlavor round-trips back to stringFlavor")
+  func stringFlavor_roundTrip() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    let natives = map.getNativesForFlavor(java.awt.datatransfer.DataFlavor.stringFlavor)
+    #expect(!natives.isEmpty)
+    let flavors = map.getFlavorsForNative(natives[0])
+    #expect(flavors.contains(java.awt.datatransfer.DataFlavor.stringFlavor))
+  }
+
+  @Test("Unknown flavor has no registered native")
+  func unknownFlavor_noNative() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    let custom = java.awt.datatransfer.DataFlavor(mimeType: "application/x-does-not-exist")
+    #expect(map.getNativesForFlavor(custom).isEmpty)
+  }
+
+  @Test("Unknown native has no registered flavor")
+  func unknownNative_noFlavor() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    #expect(map.getFlavorsForNative("no-such-native").isEmpty)
+  }
+
+  @Test("getNativesForFlavors / getFlavorsForNatives (bulk FlavorMap API)")
+  func bulkLookup() {
+    let map: any java.awt.datatransfer.FlavorMap = java.awt.datatransfer.SystemFlavorMap()
+    let stringFlavor = java.awt.datatransfer.DataFlavor.stringFlavor
+    let natives = map.getNativesForFlavors([stringFlavor])
+    #expect(natives[stringFlavor] != nil)
+
+    guard let native = natives[stringFlavor] else { return }
+    let flavors = map.getFlavorsForNatives([native])
+    #expect(flavors[native] == stringFlavor)
+  }
+
+  @Test("addUnencodedNativeForFlavor registers a new native for an existing flavor")
+  func addUnencodedNativeForFlavor_registersNative() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    let custom = java.awt.datatransfer.DataFlavor(mimeType: "application/x-custom-test-flavor")
+    map.addUnencodedNativeForFlavor(custom, "MY_CUSTOM_NATIVE")
+    #expect(map.getNativesForFlavor(custom).contains("MY_CUSTOM_NATIVE"))
+    #expect(map.getFlavorsForNative("MY_CUSTOM_NATIVE").contains(custom))
+  }
+
+  @Test("addFlavorForUnencodedNative registers a new flavor for an existing native")
+  func addFlavorForUnencodedNative_registersFlavor() {
+    let map = java.awt.datatransfer.SystemFlavorMap()
+    let custom = java.awt.datatransfer.DataFlavor(mimeType: "application/x-another-custom-flavor")
+    map.addFlavorForUnencodedNative("ANOTHER_NATIVE", custom)
+    #expect(map.getFlavorsForNative("ANOTHER_NATIVE").contains(custom))
+    #expect(map.getNativesForFlavor(custom).contains("ANOTHER_NATIVE"))
+  }
+
+  @Test("Newly-added instances are independent from the shared default map")
+  func freshInstance_isIndependentFromDefault() {
+    let fresh = java.awt.datatransfer.SystemFlavorMap()
+    let custom = java.awt.datatransfer.DataFlavor(mimeType: "application/x-isolated-test-flavor")
+    fresh.addUnencodedNativeForFlavor(custom, "ISOLATED_NATIVE")
+
+    let shared = java.awt.datatransfer.SystemFlavorMap.getDefaultFlavorMap()
+    #expect(shared.getNativesForFlavors([custom]).isEmpty)
+  }
+}
+
+// =============================================================================
 // MARK: - StringSelection
 // =============================================================================
 

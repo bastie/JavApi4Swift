@@ -1709,14 +1709,14 @@ version | implemented | tested   | type          | name                    | mor
 
 ---
 
-## java.awt.datatransfer — fehlende Klassen (⭕️/⭕️)
+## java.awt.datatransfer — fehlende Klassen (✔️/✔️)
 
-### java.awt.datatransfer.FlavorMap (⭕️/⭕️)
+### java.awt.datatransfer.FlavorMap (✔️/✔️)
 
 version | implemented | tested   | type          | name                    | more informations
 ------- | ----------- | -------- | ------------- | ----------------------- | -----------------
-1.2     | ⭕️          | ⭕️       | protocol      | FlavorMap               | maps native types to DataFlavors
-1.2     | ⭕️          | ⭕️       | class         | SystemFlavorMap         | platform default FlavorMap
+1.2     | ✔️          | ✔️       | protocol      | FlavorMap               | maps native format names to DataFlavors; FlavorMap.swift
+1.2     | ✔️          | ✔️       | class         | SystemFlavorMap         | platform default FlavorMap, pre-seeded per-platform native names (AppKit/Win32/X11); getDefaultFlavorMap()/getNativesForFlavor()/getFlavorsForNative()/addUnencodedNativeForFlavor()/addFlavorForUnencodedNative(); SystemFlavorMap.swift. Not yet wired into Clipboard/DnD internals — see file doc comment.
 
 ---
 
