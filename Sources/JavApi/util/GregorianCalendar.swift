@@ -29,6 +29,10 @@ extension java.util {
   ///
   open class GregorianCalendar : java.util.Calendar {
 
+    // MARK: - Era constants (Java 1.1, defined here — not in Calendar)
+    public static let BC = 0
+    public static let AD = 1
+
     // Constructor to init ``Foundation.DateComponents`` with all fields
     public override init () {
       super.init()
@@ -92,7 +96,7 @@ extension java.util {
       case Calendar.MILLISECOND:
         return (dateComponents.nanosecond ?? 0) / 1_000_000
       case Calendar.ERA:
-        return dateComponents.era ?? Calendar.AD
+        return dateComponents.era ?? GregorianCalendar.AD
       default:
         throw ArrayIndexOutOfBoundsException("the specified field \(field) is out of range or not implemented")
       }

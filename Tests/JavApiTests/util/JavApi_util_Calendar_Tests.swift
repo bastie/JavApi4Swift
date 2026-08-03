@@ -80,12 +80,16 @@ struct JavApi_util_Calendar_Tests {
 
   // MARK: - AM/PM and era constants
 
-  @Test("AM/PM and era constants have correct values")
-  func testAmPmEraConstants() {
+  @Test("AM/PM constants have correct values")
+  func testAmPmConstants() {
     #expect(java.util.Calendar.AM == 0)
     #expect(java.util.Calendar.PM == 1)
-    #expect(java.util.Calendar.BC == 0)
-    #expect(java.util.Calendar.AD == 1)
+  }
+
+  @Test("Era constants BC/AD are defined on GregorianCalendar")
+  func testEraConstants() {
+    #expect(java.util.GregorianCalendar.BC == 0)
+    #expect(java.util.GregorianCalendar.AD == 1)
   }
 
   // MARK: - getInstance

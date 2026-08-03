@@ -76,10 +76,6 @@ extension java.util {
     public static let AM = 0
     public static let PM = 1
 
-    // MARK: - Era constants
-    public static let BC = 0
-    public static let AD = 1
-
     // MARK: - Factory
 
     /// Returns a `GregorianCalendar` for the default locale, initialised to the current time.
