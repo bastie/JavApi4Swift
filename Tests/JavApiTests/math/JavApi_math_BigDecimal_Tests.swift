@@ -883,3 +883,204 @@ struct JavApi_math_BigDecimal_Tests {
     #expect(viaDecimal.scale() != original.scale())  // scale is NOT preserved
   }
 }
+
+// MARK: - divide(BigDecimal, MathContext)
+
+struct JavApi_math_BigDecimal_divideMathContext_Tests {
+
+  @Test("divide(MathContext): 1 / 3 rounded to 5 significant digits (HALF_UP)")
+  func testDivideMathContextHalfUp() {
+    let a  = java.math.BigDecimal.valueOf("1")!
+    let b  = java.math.BigDecimal.valueOf("3")!
+    let mc = java.math.MathContext(5, .HALF_UP)
+    let r  = a.divide(b, mc)
+    // 1/3 = 0.33333... → 5 sig digits HALF_UP = 0.33333
+    #expect(r == java.math.BigDecimal.valueOf("0.33333")!)
+  }
+
+  @Test("divide(MathContext): 10 / 3 rounded to 3 significant digits (HALF_UP)")
+  func testDivideMathContextThreeDigits() {
+    let a  = java.math.BigDecimal.valueOf("10")!
+    let b  = java.math.BigDecimal.valueOf("3")!
+    let mc = java.math.MathContext(3, .HALF_UP)
+    let r  = a.divide(b, mc)
+    // 10/3 = 3.3333... → 3 sig digits = 3.33
+    #expect(r == java.math.BigDecimal.valueOf("3.33")!)
+  }
+
+  @Test("divide(MathContext): exact division is unaffected by rounding")
+  func testDivideMathContextExact() {
+    let a  = java.math.BigDecimal.valueOf("9")!
+    let b  = java.math.BigDecimal.valueOf("3")!
+    let mc = java.math.MathContext(4, .HALF_UP)
+    let r  = a.divide(b, mc)
+    #expect(r == java.math.BigDecimal.valueOf("3")!)
+  }
+
+  @Test("divide(MathContext): HALF_EVEN banker's rounding")
+  func testDivideMathContextHalfEven() {
+    let a  = java.math.BigDecimal.valueOf("1")!
+    let b  = java.math.BigDecimal.valueOf("6")!
+    let mc = java.math.MathContext(3, .HALF_EVEN)
+    let r  = a.divide(b, mc)
+    // 1/6 = 0.16666... → 3 sig digits HALF_EVEN = 0.167
+    #expect(r == java.math.BigDecimal.valueOf("0.167")!)
+  }
+
+  @Test("divide(MathContext UNLIMITED): no rounding applied")
+  func testDivideMathContextUnlimited() {
+    let a  = java.math.BigDecimal.valueOf("6")!
+    let b  = java.math.BigDecimal.valueOf("2")!
+    let r  = a.divide(b, java.math.MathContext.UNLIMITED)
+    #expect(r == java.math.BigDecimal.valueOf("3")!)
+  }
+
+  @Test("divide(MathContext): DECIMAL32 precision (7 significant digits)")
+  func testDivideMathContextDecimal32() {
+    let a  = java.math.BigDecimal.valueOf("22")!
+    let b  = java.math.BigDecimal.valueOf("7")!
+    let r  = a.divide(b, java.math.MathContext.DECIMAL32)
+    // 22/7 = 3.142857142... → 7 sig digits HALF_EVEN = 3.142857
+    #expect(r == java.math.BigDecimal.valueOf("3.142857")!)
+  }
+
+  @Test("divide(MathContext): negative dividend")
+  func testDivideMathContextNegativeDividend() {
+    let a  = java.math.BigDecimal.valueOf("-10")!
+    let b  = java.math.BigDecimal.valueOf("3")!
+    let mc = java.math.MathContext(3, .HALF_UP)
+    let r  = a.divide(b, mc)
+    // -10/3 = -3.3333... → 3 sig digits = -3.33
+    #expect(r == java.math.BigDecimal.valueOf("-3.33")!)
+  }
+}
+
+// MARK: - init(BigInteger, scale:)
+
+struct JavApi_math_BigDecimal_initBigInteger_Tests {
+
+  @Test("init(BigInteger, 2): 314 with scale 2 → 3.14")
+  func testInitBigIntegerScale2() throws {
+    let bi = try java.math.BigInteger("314")
+    let bd = java.math.BigDecimal(bi, 2)
+    #expect(bd == java.math.BigDecimal.valueOf("3.14")!)
+    #expect(bd.scale() == 2)
+  }
+
+  @Test("init(BigInteger, 0): scale 0 preserves integer value")
+  func testInitBigIntegerScale0() throws {
+    let bi = try java.math.BigInteger("42")
+    let bd = java.math.BigDecimal(bi, 0)
+    #expect(bd == java.math.BigDecimal.valueOf("42")!)
+    #expect(bd.scale() == 0)
+  }
+
+  @Test("init(BigInteger, 3): 5 with scale 3 → 0.005")
+  func testInitBigIntegerSmallValue() throws {
+    let bi = try java.math.BigInteger("5")
+    let bd = java.math.BigDecimal(bi, 3)
+    #expect(bd == java.math.BigDecimal.valueOf("0.005")!)
+    #expect(bd.scale() == 3)
+  }
+
+  @Test("init(negative BigInteger, 2): -314 with scale 2 → -3.14")
+  func testInitBigIntegerNegativeScale2() throws {
+    let bi = try java.math.BigInteger("-314")
+    let bd = java.math.BigDecimal(bi, 2)
+    #expect(bd == java.math.BigDecimal.valueOf("-3.14")!)
+    #expect(bd.scale() == 2)
+  }
+
+  @Test("init(BigInteger, scale) where scale > digit count → leading zeros")
+  func testInitBigIntegerScaleLargerThanDigits() throws {
+    // "7" with scale 4 → "0.0007"
+    let bi = try java.math.BigInteger("7")
+    let bd = java.math.BigDecimal(bi, 4)
+    #expect(bd == java.math.BigDecimal.valueOf("0.0007")!)
+    #expect(bd.scale() == 4)
+  }
+
+  @Test("init(BigInteger, ZERO): ZERO with any scale → 0")
+  func testInitBigIntegerZero() throws {
+    let bi = java.math.BigInteger.ZERO
+    let bd = java.math.BigDecimal(bi, 2)
+    #expect(bd == java.math.BigDecimal.ZERO)
+  }
+
+  @Test("init(BigInteger, scale) round-trip: toUnscaledValue matches original BigInteger")
+  func testInitBigIntegerRoundTrip() throws {
+    let original = try java.math.BigInteger("999")
+    let bd = java.math.BigDecimal(original, 3)
+    // 999 * 10^-3 = 0.999; unscaledValue should be 999
+    #expect(bd.unscaledValue() == original)
+    #expect(bd.scale() == 3)
+    #expect(bd == java.math.BigDecimal.valueOf("0.999")!)
+  }
+
+  @Test("init(BigInteger, scale) with large integer")
+  func testInitBigIntegerLarge() throws {
+    let bi = try java.math.BigInteger("123456789")
+    let bd = java.math.BigDecimal(bi, 4)
+    // 123456789 * 10^-4 = 12345.6789
+    #expect(bd == java.math.BigDecimal.valueOf("12345.6789")!)
+    #expect(bd.scale() == 4)
+  }
+}
+
+// MARK: - Parametrisierte setScale-Tests (@Test(arguments:))
+
+struct JavApi_math_BigDecimal_parametrized_Tests {
+
+  // Tabelle: (Eingabe, Rundungsmodus, erwartetes Ergebnis bei scale=0)
+  @Test("setScale(0, mode) — alle 7 nicht-UNNECESSARY Modi auf 2.5",
+        arguments: [
+          (java.math.BigDecimal.ROUND_UP,        "3"),
+          (java.math.BigDecimal.ROUND_DOWN,      "2"),
+          (java.math.BigDecimal.ROUND_CEILING,   "3"),
+          (java.math.BigDecimal.ROUND_FLOOR,     "2"),
+          (java.math.BigDecimal.ROUND_HALF_UP,   "3"),
+          (java.math.BigDecimal.ROUND_HALF_DOWN, "2"),
+          (java.math.BigDecimal.ROUND_HALF_EVEN, "2"),  // 2 is even
+        ])
+  func testSetScaleAllModes(mode: Int, expected: String) {
+    let v = java.math.BigDecimal.valueOf("2.5")!
+    let r = v.setScale(0, mode)
+    #expect(r == java.math.BigDecimal.valueOf(expected)!,
+            "Mode \(mode): expected \(expected), got \(r.toPlainString())")
+  }
+
+  // Negative Werte: -2.5 mit scale=0
+  @Test("setScale(0, mode) — alle 7 nicht-UNNECESSARY Modi auf -2.5",
+        arguments: [
+          (java.math.BigDecimal.ROUND_UP,        "-3"),  // away from zero
+          (java.math.BigDecimal.ROUND_DOWN,      "-2"),  // toward zero
+          (java.math.BigDecimal.ROUND_CEILING,   "-2"),  // toward +∞
+          (java.math.BigDecimal.ROUND_FLOOR,     "-3"),  // toward -∞
+          (java.math.BigDecimal.ROUND_HALF_UP,   "-3"),  // half-up: away from zero
+          (java.math.BigDecimal.ROUND_HALF_DOWN, "-2"),  // half-down: toward zero on tie
+          (java.math.BigDecimal.ROUND_HALF_EVEN, "-2"),  // 2 is even
+        ])
+  func testSetScaleAllModesNegative(mode: Int, expected: String) {
+    let v = java.math.BigDecimal.valueOf("-2.5")!
+    let r = v.setScale(0, mode)
+    #expect(r == java.math.BigDecimal.valueOf(expected)!,
+            "Mode \(mode) on -2.5: expected \(expected), got \(r.toPlainString())")
+  }
+
+  // RoundingMode-Enum-Variante gegen int-Konstante
+  @Test("setScale via RoundingMode enum stimmt mit int-Konstante überein",
+        arguments: [
+          (java.math.RoundingMode.UP,        java.math.BigDecimal.ROUND_UP),
+          (java.math.RoundingMode.DOWN,      java.math.BigDecimal.ROUND_DOWN),
+          (java.math.RoundingMode.CEILING,   java.math.BigDecimal.ROUND_CEILING),
+          (java.math.RoundingMode.FLOOR,     java.math.BigDecimal.ROUND_FLOOR),
+          (java.math.RoundingMode.HALF_UP,   java.math.BigDecimal.ROUND_HALF_UP),
+          (java.math.RoundingMode.HALF_DOWN, java.math.BigDecimal.ROUND_HALF_DOWN),
+          (java.math.RoundingMode.HALF_EVEN, java.math.BigDecimal.ROUND_HALF_EVEN),
+        ])
+  func testRoundingModeEnumVsInt(enumMode: java.math.RoundingMode, intMode: Int) {
+    let v = java.math.BigDecimal.valueOf("3.14159")!
+    #expect(v.setScale(2, enumMode) == v.setScale(2, intMode),
+            "RoundingMode.\(enumMode) vs ROUND_\(intMode) differ at scale 2")
+  }
+}

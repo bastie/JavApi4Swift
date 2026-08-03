@@ -23,6 +23,43 @@ extension java.math.BigDecimal {
   public static let ROUND_HALF_EVEN   = 6
   public static let ROUND_UNNECESSARY = 7
 
+  // MARK: - Constructors (Java API)
+
+  /// Creates a `BigDecimal` whose value is `unscaledVal × 10^(−scale)`.
+  ///
+  /// Mirrors `new BigDecimal(BigInteger unscaledVal, int scale)`.
+  ///
+  /// Examples:
+  /// - `BigDecimal(BigInteger("314"), 2)`  → `3.14`  (scale 2)
+  /// - `BigDecimal(BigInteger("314"), 0)`  → `314`   (scale 0)
+  /// - `BigDecimal(BigInteger("314"), -1)` → `3140`  (scale 0, value shifted left)
+  /// - `BigDecimal(BigInteger("5"), 3)`    → `0.005` (scale 3)
+  public init(_ unscaledVal: java.math.BigInteger, _ scale: Int) {
+    let digits    = unscaledVal.toString()           // e.g. "314" or "-314"
+    let negative  = digits.hasPrefix("-")
+    let absDigits = negative ? String(digits.dropFirst()) : digits
+    let sign      = negative ? "-" : ""
+
+    let (valueStr, effectiveScale): (String, Int)
+    if scale <= 0 {
+      // Multiply by 10^(-scale): append trailing zeros
+      valueStr       = sign + absDigits + String(repeating: "0", count: -scale)
+      effectiveScale = 0
+    } else if scale >= absDigits.count {
+      // Insert leading "0." and pad
+      let padCount   = scale - absDigits.count
+      valueStr       = sign + "0." + String(repeating: "0", count: padCount) + absDigits
+      effectiveScale = scale
+    } else {
+      // Insert decimal point within the digit string
+      let dotPos     = absDigits.count - scale
+      valueStr       = sign + String(absDigits.prefix(dotPos)) + "." + String(absDigits.suffix(scale))
+      effectiveScale = scale
+    }
+    self.init(Decimal(string: valueStr, locale: Locale(identifier: "en_US_POSIX")) ?? .zero,
+              scale: effectiveScale)
+  }
+
   // MARK: - valueOf factory methods
 
   /// NOTE: Same as Java, using a Double to initialise a BigDecimal is a bad idea.
@@ -87,6 +124,13 @@ extension java.math.BigDecimal {
     let raw     = java.math.BigDecimal(self._value / bd._value)
     let rounded = _roundedJava(raw, scale: accuracy, mode: round)
     return java.math.BigDecimal(rounded._value, scale: accuracy)
+  }
+
+  /// Divides by `divisor`, rounding the result to the precision and mode specified by `mc`.
+  /// If `mc.precision == 0` (UNLIMITED) the result is not rounded.
+  public func divide(_ divisor: java.math.BigDecimal, _ mc: java.math.MathContext) -> java.math.BigDecimal {
+    let raw = self / divisor
+    return raw.round(mc)
   }
 
   /// Returns self % divisor (truncated division remainder, same sign as dividend — Java semantics).
