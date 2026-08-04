@@ -97,14 +97,14 @@ struct JavApi_util_AbstractMap_Tests {
     #expect(m.isEmpty())
   }
 
-  @Test("keySet() returns all keys")
+  @Test("keySet() returns all keys as java.util.Set")
   func testKeySet() {
     let m = ConcreteMap<String, Int>()
     m.put("a", 1); m.put("b", 2)
     let keys = m.keySet()
     #expect(keys.contains("a"))
     #expect(keys.contains("b"))
-    #expect(keys.count == 2)
+    #expect(keys.size() == 2)
   }
 
   @Test("values() returns all values")
@@ -205,13 +205,13 @@ struct JavApi_util_HashMap_Tests {
     #expect(map.isEmpty())
   }
 
-  @Test("keySet returns all inserted keys")
+  @Test("keySet returns all inserted keys as java.util.Set")
   func testKeySet() {
     let map = java.util.HashMap<String, Int>()
     _ = map.put("a", 1); _ = map.put("b", 2)
     let keys = map.keySet()
     #expect(keys.contains("a") && keys.contains("b"))
-    #expect(keys.count == 2)
+    #expect(keys.size() == 2)
   }
 
   @Test("values returns all values (order undefined)")

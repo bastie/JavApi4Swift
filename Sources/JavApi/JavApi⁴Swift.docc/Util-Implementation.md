@@ -26,27 +26,33 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 | Interface | Seit | Status | Signaturprobleme / fehlende Methoden |
 |-----------|------|--------|--------------------------------------|
 | `Collection<E>` | 1.2 | ✓ vorhanden | `stream()` ⚠️ `Stream<E>` fehlt · `spliterator()` ⚠️ `Spliterator<E>` fehlt · `forEach()` ⚠️ `Consumer<E>` fehlt |
-| `Comparator<T>` | 1.2 | ✓ vorhanden | `reversed()` fehlt · `thenComparing()` fehlt · `comparing()` static fehlt · `naturalOrder()` fehlt · `reverseOrder()` fehlt — alle ohne externe Typ-Deps |
+| `Comparator<T>` | 1.2 | ✓ vorhanden | ✅ `reversed()` · `thenComparing(comparator)` · `naturalOrder()` · `reverseOrder()` · `nullsFirst()` · `nullsLast()` implementiert · `comparing(keyExtractor)` fehlt ⚠️ `Function<T,R>` · `thenComparing(keyExtractor)` fehlt ⚠️ `Function<T,R>` · `comparingInt/Long/Double()` fehlt ⚠️ |
 | `Deque<E>` | 6 | ✓ vorhanden | Vollständig |
-| `Enumeration<E>` | 1.0 | ✓ vorhanden | `asIterator()` fehlt (Java 9) — `Iterator<E>` ✓ vorhanden, kein Problem |
+| `Enumeration<E>` | 1.0 | ✓ vorhanden | ✅ `asIterator()` implementiert (Java 9, via `_EnumerationIterator`) |
 | `EventListener` | 1.1 | ✓ vorhanden | Marker-Interface, vollständig |
 | `Iterator<E>` | 1.2 | ✓ vorhanden | `forEachRemaining()` fehlt ⚠️ `Consumer<E>` fehlt |
 | `List<E>` | 1.2 | ✓ vorhanden | `sort()` fehlt (Comparator ✓ OK) · `replaceAll()` fehlt ⚠️ `UnaryOperator<E>` fehlt |
 | `ListIterator<E>` | 1.2 | ✓ vorhanden | Vollständig |
-| `Map<K,V>` | 1.2 | ✓ vorhanden | `values()` gibt `[V]` statt `Collection<V>` 🔧 · `keySet()` gibt `Swift.Set<K>` statt `java.util.Set<K>` 🔧 · `entrySet()` fehlt komplett ⚠️ `Map.Entry<K,V>` fehlt · Java-8: `forEach()` ⚠️ `BiConsumer` fehlt · `replaceAll()` ⚠️ `BiFunction` fehlt · `computeIfAbsent()` ⚠️ `Function` fehlt |
+| `Map<K,V>` | 1.2 | ✓ vorhanden | ✅ `keySet()` gibt `any java.util.Set<K>` · `values()` gibt `[V]` statt `Collection<V>` 🔧 blockiert (siehe P0-Checklist) · `entrySet()` fehlt komplett ⚠️ `Map.Entry<K,V>` fehlt · Java-8: `forEach()` ⚠️ `BiConsumer` fehlt · `replaceAll()` ⚠️ `BiFunction` fehlt · `computeIfAbsent()` ⚠️ `Function` fehlt |
 | `Observer` | 1.0 | ✓ vorhanden | Vollständig |
 | `Queue<E>` | 5 | ✓ vorhanden | Vollständig |
 | `Set<E>` | 1.2 | ✓ vorhanden | Vollständig (Marker-Protokoll) |
-| `SortedMap<K,V>` | 1.2 | ✓ vorhanden | `comparator()` fehlt — `Comparator<K>` ✓ vorhanden, kein Problem |
-| `SortedSet<E>` | 1.2 | ✓ vorhanden | `comparator()` fehlt — `Comparator<E>` ✓ vorhanden, kein Problem |
+| `SortedMap<K,V>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<K>)?` implementiert |
+| `SortedSet<E>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<E>)?` implementiert |
 
 **Sofort umsetzbar (keine fehlenden Typ-Deps):**
-- [ ] `Comparator`: `reversed()`, `thenComparing()`, `comparing()`, `naturalOrder()`, `reverseOrder()`
-- [ ] `SortedMap`: `comparator() -> (any java.util.Comparator<K>)?`
-- [ ] `SortedSet`: `comparator() -> (any java.util.Comparator<E>)?`
-- [ ] `Enumeration`: `asIterator() -> any java.util.Iterator<Element>` (Java 9)
-- [ ] `Map`: `values()` auf `any java.util.Collection<V>` umstellen 🔧
-- [ ] `Map`: `keySet()` auf `any java.util.Set<K>` umstellen 🔧
+- [x] `Comparator`: `reversed()`, `thenComparing(comparator)`, `naturalOrder()`, `reverseOrder()` — `comparing(keyExtractor)` folgt mit `Function<T,R>`
+- [x] `SortedMap`: `comparator() -> (any java.util.Comparator<K>)?`
+- [x] `SortedSet`: `comparator() -> (any java.util.Comparator<E>)?`
+- [x] `Enumeration`: `asIterator() -> any java.util.Iterator<Element>` (Java 9)
+- [-] `Map`: `values()` auf `any java.util.Collection<V>` umstellen 🔧 — blockiert: `java.util.Collection<E>` erfordert `E: Equatable`, `V` in `Map<K,V>` ist unkonstrained; benötigt zuerst Refactoring von `Collection`
+- [x] `Map`: `keySet()` auf `any java.util.Set<K>` umstellen 🔧
+
+**Interne Implementierungs-Typen (kein Java-API-Äquivalent):**
+- [x] `NilsFirstComparator` → `_NilsFirstComparator` (explizit `internal`) — Impl-Helper für `Comparator.nullsFirst()`
+- [x] `NilsLastComparator` → `_NilsLastComparator` (explizit `internal`) — Impl-Helper für `Comparator.nullsLast()`
+- [x] `_ReversedComparator`, `_ChainedComparator`, `_NaturalOrderComparator` — korrekt als `private` in `Comparator+Java8.swift`
+- [x] `_EnumerationIterator` — korrekt als `private` in `Enumeration+Swiftify.swift`
 
 ---
 
@@ -104,12 +110,6 @@ Alle ohne externe Typ-Abhängigkeiten — sofort implementierbar.
 ### Naive Konstanten
 
 Reine `static let`-Konstanten ohne Typ-Abhängigkeiten — keine Implementierungsrisiken.
-
-**`Calendar` (✓ vollständig vorhanden)**
-Alle Feld-Konstanten (`ERA`…`FIELD_COUNT`), Wochentage (`SUNDAY`…`SATURDAY`), Monate (`JANUARY`…`UNDECIMBER`), `AM`/`PM` und `BC`/`AD` sind bereits in `Calendar` definiert.
-
-> ⚠️ Java-Abweichung: In Java sind `BC = 0` und `AD = 1` in `GregorianCalendar`, nicht in `Calendar`. Unsere Platzierung in `Calendar` ist praktisch, aber nicht Java-konform.
-- [x] `BC`/`AD` zusätzlich in `GregorianCalendar` anbieten (Alias oder eigene Deklaration)
 
 **`Collections` — fehlende Konstanten**
 - [ ] `EMPTY_LIST` (`static let EMPTY_LIST: any java.util.List`) — benötigt leere List-Implementierung
@@ -222,7 +222,8 @@ Java 1.2 führte das Collections Framework ein. Ziel ist eine vollständige Swif
 #### Interface-Hierarchie vervollständigen
 
 - [ ] `Map.Entry<K, V>` — expliziter Typ für Schlüssel-Wert-Paare (aktuell nur als Tuple)
-- [ ] `Comparator<T>` — `reversed()`, `thenComparing()`, `comparing()`, `naturalOrder()`, `reverseOrder()`, `nullsFirst()`, `nullsLast()` (Java 8 Default-Methoden, aber für vollständige API essenziell)
+- [x] `Comparator<T>` — `reversed()`, `thenComparing(comparator)`, `naturalOrder()`, `reverseOrder()`, `nullsFirst()`, `nullsLast()` implementiert (Java 8 Default-Methoden)
+- [ ] `Comparator<T>` — `comparing(keyExtractor)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` noch offen ⚠️ benötigt `Function<T,R>`
 
 #### `Collections` – fehlende 1.2-Methoden
 - [ ] `reverseOrder<T: Comparable>() -> Comparator<T>`
@@ -370,8 +371,8 @@ Java 21 führte drei neue Interfaces ein, die rückwirkend in die bestehende Typ
 - [ ] `equals(_ o: Any?) -> Bool` — Java 1.2
 - [ ] `hashCode() -> Int` — Java 1.2
 - [ ] `entrySet()` als `Set<Map.Entry>` — Java 1.2 (aktuell nur Enumeration)
-- [ ] `keySet()` als `Set<K>` — Java 1.2 (aktuell `keys()` als Enumeration)
-- [ ] `values()` als `Collection<V>` — Java 1.2
+- [x] `keySet()` als `any java.util.Set<K>` — Java 1.2 ✅
+- [-] `values()` als `Collection<V>` — Java 1.2 · blockiert: `Collection<E>` erfordert `E: Equatable`, `V` unkonstrained
 
 **Tests:** 26 vorhanden, keine Tests für obige Methoden.
 

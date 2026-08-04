@@ -37,5 +37,15 @@ extension java.util {
     /// Returns the last (highest) element in this set.
     /// - Throws: `NoSuchElementException` if the set is empty.
     func last() throws -> E
+
+    /// Returns the comparator used to order the elements in this set,
+    /// or `nil` if it uses the elements' natural ordering.
+    ///
+    /// - Since: Java 1.2
+    func comparator() -> (any java.util.Comparator<E>)?
   }
+}
+
+extension java.util.SortedSet {
+  public func comparator() -> (any java.util.Comparator<E>)? { nil }
 }

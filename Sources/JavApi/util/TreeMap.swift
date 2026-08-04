@@ -109,8 +109,10 @@ extension java.util {
 
     // MARK: - Map — Views
 
-    open override func keySet() -> Swift.Set<K> {
-      Swift.Set(_pairs.map { $0.key })
+    open override func keySet() -> any java.util.Set<K> {
+      let set = HashSet<K>(initialCapacity: Swift.max(16, _pairs.count * 2))
+      for pair in _pairs { _ = try? set.add(pair.key) }
+      return set
     }
 
     open override func values() -> [V] {

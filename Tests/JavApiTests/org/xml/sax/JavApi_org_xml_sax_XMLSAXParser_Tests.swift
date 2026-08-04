@@ -75,6 +75,13 @@ private class RecordingHandler : org.xml.sax.helper.HandlerBase {
 @available(*, deprecated)
 private func makeRecordingHandler() -> RecordingHandler { RecordingHandler() }
 
+/// Returns a fresh `JavApiSax1Parser`.
+///
+/// Marked deprecated so the compiler suppresses the SAX-1 `Parser`-deprecation
+/// warning inside, without propagating it to the `@Test` methods themselves.
+@available(*, deprecated)
+private func makeSax1Parser() -> JavApiSax1Parser { JavApiSax1Parser() }
+
 // MARK: - Tests
 
 struct JavApi_org_xml_sax_XMLSAXParser_Tests {
@@ -85,7 +92,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testStartEndDocument() throws {
     let xml = "<root/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     let source = org.xml.sax.InputSource(java.io.StringReader(xml))
@@ -101,7 +108,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testSingleElement() throws {
     let xml = "<root/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -115,7 +122,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testNestedElements() throws {
     let xml = "<root><child/></root>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -130,7 +137,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testAttributes() throws {
     let xml = "<link href=\"https://example.com\" rel=\"stylesheet\"/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -151,7 +158,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testNoAttributes() throws {
     let xml = "<empty/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -165,7 +172,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testCharacters() throws {
     let xml = "<note>Hello World</note>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -177,7 +184,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testMixedContent() throws {
     let xml = "<p>Hello <b>World</b>!</p>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -193,7 +200,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testProcessingInstruction() throws {
     let xml = "<?xml-stylesheet type=\"text/css\" href=\"style.css\"?><root/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -207,7 +214,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   func testParseSystemId() throws {
     let xml = "<ok/>"
     let handler = makeRecordingHandler()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(handler)
 
     try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -219,7 +226,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   @Test("invalid XML causes parse to throw")
   func testInvalidXML() {
     let xml = "<unclosed>"
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
 
     #expect(throws: (any Error).self) {
       try parser.parse(org.xml.sax.InputSource(java.io.StringReader(xml)))
@@ -237,7 +244,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
     }
     let xml = "<bad"
     let recorder = ErrorRecorder()
-    let parser = JavApiSax1Parser()
+    let parser = makeSax1Parser()
     parser.setDocumentHandler(recorder)
     parser.setErrorHandler(recorder)
 

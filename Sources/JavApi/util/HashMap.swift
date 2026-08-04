@@ -84,8 +84,10 @@ extension java.util {
 
     // MARK: - java.util.Map — Views (O(n) but direct, no intermediate array)
 
-    open override func keySet() -> Swift.Set<K> {
-      Swift.Set(_store.keys)
+    open override func keySet() -> any java.util.Set<K> {
+      let set = HashSet<K>(initialCapacity: Swift.max(16, _store.count * 2))
+      for key in _store.keys { _ = try? set.add(key) }
+      return set
     }
 
     open override func values() -> [V] {
@@ -104,8 +106,9 @@ extension java.util {
     // MARK: - putAll (O(n) direct store copy)
 
     open override func putAll(_ map: any java.util.Map<K, V>) {
-      for key in map.keySet() {
-        if let v = map.get(key) {
+      let it = map.keySet().iterator()
+      while it.hasNext() {
+        if let key = try? it.next(), let v = map.get(key) {
           _store[key] = v
         }
       }

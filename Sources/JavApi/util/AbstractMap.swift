@@ -66,8 +66,9 @@ extension java.util {
     }
 
     open func putAll(_ map: any java.util.Map<K, V>) {
-      for key in map.keySet() {
-        if let v = map.get(key) {
+      let it = map.keySet().iterator()
+      while it.hasNext() {
+        if let key = try? it.next(), let v = map.get(key) {
           _ = put(key, v)
         }
       }
@@ -81,8 +82,12 @@ extension java.util {
 
     // MARK: - java.util.Map — Views
 
-    open func keySet() -> Swift.Set<K> {
-      Swift.Set(entrySet().map { $0.key })
+    open func keySet() -> any java.util.Set<K> {
+      let set = HashSet<K>(initialCapacity: Swift.max(16, size() * 2))
+      for entry in entrySet() {
+        _ = try? set.add(entry.key)
+      }
+      return set
     }
 
     open func values() -> [V] {

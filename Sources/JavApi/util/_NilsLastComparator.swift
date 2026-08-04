@@ -5,7 +5,7 @@
 
 import Foundation
 
-struct NilsLastComparator<T>: java.util.Comparator, SortComparator {
+internal struct _NilsLastComparator<T>: java.util.Comparator, SortComparator {
   var order: SortOrder = .forward
   
   let baseComparator : any java.util.Comparator<T>
@@ -27,7 +27,7 @@ struct NilsLastComparator<T>: java.util.Comparator, SortComparator {
   }
 
   // - MARK: Implements Equatable
-  static func == (lhs: NilsLastComparator<T>, rhs: NilsLastComparator<T>) -> Bool {
+  static func == (lhs: _NilsLastComparator<T>, rhs: _NilsLastComparator<T>) -> Bool {
     // Da wir 'any Comparator' haben, ist ein direkter Vergleich schwierig.
     return ObjectIdentifier(lhs.baseComparator as AnyObject) == ObjectIdentifier(rhs.baseComparator as AnyObject)
   }

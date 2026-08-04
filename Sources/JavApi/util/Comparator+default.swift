@@ -16,9 +16,9 @@ extension java.util.Comparator {
   }
   
   static public func nullsFirst(_ master : any java.util.Comparator<T>) -> any java.util.Comparator<T> {
-    return NilsFirstComparator(master)
+    return _NilsFirstComparator(master)
   }
   static func nullsLast(_ master : any java.util.Comparator<T>) -> any java.util.Comparator<T> {
-    return NilsLastComparator(master)
+    return _NilsLastComparator(master)
   }
 }

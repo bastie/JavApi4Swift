@@ -55,7 +55,7 @@ extension java.util {
     // MARK: Views
 
     /// Returns a `Set` view of the keys.
-    func keySet() -> Swift.Set<K>
+    func keySet() -> any java.util.Set<K>
 
     /// Returns a collection of the values (may contain duplicates).
     func values() -> [V]

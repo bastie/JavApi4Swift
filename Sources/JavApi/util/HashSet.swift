@@ -15,7 +15,7 @@ extension java.util {
   /// elements (matching Java's `HashSet`).
   ///
   /// - Since: Java 1.2
-  open class HashSet<E: Hashable>: AbstractCollection<E> {
+  open class HashSet<E: Hashable>: AbstractSet<E> {
 
     // MARK: - Backing store
 
@@ -59,7 +59,7 @@ extension java.util {
     }
 
     open override func iterator() -> any java.util.Iterator<E> {
-      _HashSetIterator(keys: Array(_map.keySet()))
+      _HashSetIterator(keys: _map.entrySet().map { $0.key })
     }
 
     // MARK: - Mutation
@@ -100,8 +100,8 @@ extension java.util {
     /// Returns a shallow copy of this `HashSet`.
     open func clone() -> HashSet<E> {
       let copy = HashSet<E>(initialCapacity: _map.size() * 2)
-      for key in _map.keySet() {
-        copy._map.put(key, HashSet._PRESENT)
+      for entry in _map.entrySet() {
+        copy._map.put(entry.key, HashSet._PRESENT)
       }
       return copy
     }

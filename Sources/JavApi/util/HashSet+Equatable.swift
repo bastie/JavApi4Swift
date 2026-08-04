@@ -8,6 +8,7 @@ extension java.util.HashSet: Equatable {
   ///
   /// Matches Java's `AbstractSet.equals()` semantics.
   public static func == (lhs: java.util.HashSet<E>, rhs: java.util.HashSet<E>) -> Bool {
-    return lhs._map.keySet() == rhs._map.keySet()
+    guard lhs.size() == rhs.size() else { return false }
+    return lhs.equals(rhs)
   }
 }

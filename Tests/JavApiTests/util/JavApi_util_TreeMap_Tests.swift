@@ -118,11 +118,13 @@ struct JavApi_util_TreeMap_Tests {
 
   // MARK: - keySet / values
 
-  @Test("keySet returns all keys as a Swift Set")
+  @Test("keySet returns all keys as java.util.Set")
   func testKeySet() {
     let map = java.util.TreeMap<Int, String>()
     map.put(3, "c"); map.put(1, "a"); map.put(2, "b")
-    #expect(map.keySet() == Swift.Set([1, 2, 3]))
+    let keys = map.keySet()
+    #expect(keys.size() == 3)
+    #expect(keys.contains(1) && keys.contains(2) && keys.contains(3))
   }
 
   @Test("values returns all values in key order")

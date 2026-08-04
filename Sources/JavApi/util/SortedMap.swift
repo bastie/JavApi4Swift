@@ -37,5 +37,15 @@ extension java.util {
     /// Returns the last (highest) key in this map.
     /// - Throws: `NoSuchElementException` if the map is empty.
     func lastKey() throws -> K
+
+    /// Returns the comparator used to order the keys in this map,
+    /// or `nil` if it uses the keys' natural ordering.
+    ///
+    /// - Since: Java 1.2
+    func comparator() -> (any java.util.Comparator<K>)?
   }
+}
+
+extension java.util.SortedMap {
+  public func comparator() -> (any java.util.Comparator<K>)? { nil }
 }

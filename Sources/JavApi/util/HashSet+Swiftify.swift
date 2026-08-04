@@ -38,7 +38,7 @@ extension Swift.Set {
   /// let swiftSet: Swift.Set<String> = hashSet.toSwiftSet()
   /// ```
   public init (from: java.util.HashSet<Element>) {
-    self.init(from._map.keySet())
+    self.init(from._map.entrySet().map { $0.key })
   }
 
   /// - Returns: return a `java.util.HashSet` copy of this set.

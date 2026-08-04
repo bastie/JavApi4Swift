@@ -30,8 +30,25 @@ final class JavApi_util_Enumeration_Tests {
     // → ["ALPHA", "BETA", "GAMMA"]
     #expect(upper[0]=="ALPHA" && upper[1]=="BETA" && upper[2]=="GAMMA")
   }
-  
-  
+
+  @Test("asIterator() wraps Enumeration as java.util.Iterator (Java 9)")
+  func testAsIterator() throws {
+    let e = ArrayEnumeration(["x", "y", "z"])
+    let it = e.asIterator()
+    var result: [String] = []
+    while it.hasNext() {
+      result.append(try it.next())
+    }
+    #expect(result == ["x", "y", "z"])
+  }
+
+  @Test("asIterator() on empty Enumeration returns exhausted Iterator")
+  func testAsIteratorEmpty() {
+    let e = ArrayEnumeration<String>([])
+    let it = e.asIterator()
+    #expect(!it.hasNext())
+  }
+
 }
 
 struct ArrayEnumeration<Element>: java.util.Enumeration {
