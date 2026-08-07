@@ -7,43 +7,39 @@ extension java.util {
 
   /// Hash-table backed implementation of `java.util.Set`.
   ///
-  /// Backed internally by a `HashMap<E, AnyObject>` — the same design Java uses
-  /// internally. A shared singleton object (`_PRESENT`) acts as the dummy value
-  /// stored for every key. Only the key set is meaningful.
+  /// Backed internally by a `HashMap<E, _SentinelObject>` — the same design Java
+  /// uses internally (a dummy value is stored for every key; only the key set is
+  /// meaningful).
   ///
-  /// Iteration order is undefined (matches Java semantics). Permits `nil`
-  /// elements (matching Java's `HashSet`).
+  /// Iteration order is undefined (matches Java semantics).
   ///
   /// - Since: Java 1.2
   open class HashSet<E: Hashable>: AbstractSet<E> {
 
     // MARK: - Backing store
 
-    /// Shared dummy value stored for every key — mirrors Java's `PRESENT` field.
-    private static var _PRESENT: AnyObject { _SentinelObject.shared }
-
-    internal var _map: HashMap<E, AnyObject>
+    internal var _map: HashMap<E, _SentinelObject>
 
     // MARK: - Init
 
     /// Creates an empty set with default initial capacity (16).
     public override init() {
-      _map = HashMap<E, AnyObject>()
+      _map = HashMap<E, _SentinelObject>()
     }
 
     /// Creates an empty set with the given capacity hint.
     public init(initialCapacity: Int) {
-      _map = HashMap<E, AnyObject>(initialCapacity: initialCapacity)
+      _map = HashMap<E, _SentinelObject>(initialCapacity: initialCapacity)
     }
 
     /// Creates a set containing all elements of `collection`.
     public init(collection: any java.util.Collection<E?>) {
-      _map = HashMap<E, AnyObject>(initialCapacity: Swift.max(16, collection.size() * 2))
+      _map = HashMap<E, _SentinelObject>(initialCapacity: Swift.max(16, collection.size() * 2))
       super.init()
       let it = collection.iterator()
       while it.hasNext() {
         if let e = try? it.next() {
-          _map.put(e, HashSet._PRESENT)
+          _ = _map.put(e, .shared)
         }
       }
     }
@@ -59,7 +55,10 @@ extension java.util {
     }
 
     open override func iterator() -> any java.util.Iterator<E> {
-      _HashSetIterator(keys: _map.entrySet().map { $0.key })
+      // Access backing store directly to avoid infinite recursion:
+      // entrySet() returns HashSet<MapEntry<E,_SentinelObject>>, whose iterator()
+      // would call entrySet() again → infinite recursion.
+      return _HashSetIterator(keys: Array(_map._store.keys))
     }
 
     // MARK: - Mutation
@@ -70,7 +69,7 @@ extension java.util {
     @discardableResult
     open override func add(_ element: E?) throws -> Bool {
       guard let element else { return false }
-      let previous = _map.put(element, HashSet._PRESENT)
+      let previous = _map.put(element, .shared)
       return previous == nil
     }
 
@@ -100,8 +99,9 @@ extension java.util {
     /// Returns a shallow copy of this `HashSet`.
     open func clone() -> HashSet<E> {
       let copy = HashSet<E>(initialCapacity: _map.size() * 2)
-      for entry in _map.entrySet() {
-        copy._map.put(entry.key, HashSet._PRESENT)
+      // Use backing store directly — see iterator() for why entrySet() must be avoided.
+      for key in _map._store.keys {
+        _ = copy._map.put(key, .shared)
       }
       return copy
     }
@@ -110,10 +110,14 @@ extension java.util {
 
 // MARK: - Private helpers
 
-/// Singleton object used as the dummy map value (mirrors Java's `PRESENT`).
-fileprivate final class _SentinelObject: @unchecked Sendable {
+/// Singleton sentinel used as the dummy map value (mirrors Java's `PRESENT`).
+///
+/// Conforms to `Equatable` via reference identity — since there is only one
+/// instance, all comparisons are trivially equal.
+final class _SentinelObject: Equatable, @unchecked Sendable {
   static let shared = _SentinelObject()
   private init() {}
+  static func == (lhs: _SentinelObject, rhs: _SentinelObject) -> Bool { true }
 }
 
 /// Snapshot iterator over a `HashSet`'s key array.

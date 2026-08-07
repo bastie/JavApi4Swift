@@ -16,7 +16,7 @@ extension java.util {
   /// the Swift Dictionary allows O(1) instead of O(n) via `entrySet()`.
   ///
   /// - Since: Java 1.2
-  open class HashMap<K: Hashable, V>: java.util.AbstractMap<K, V> {
+  open class HashMap<K: Hashable, V: Equatable>: java.util.AbstractMap<K, V> {
 
     // MARK: - Backing store
 
@@ -37,13 +37,15 @@ extension java.util {
 
     // MARK: - AbstractMap — required override
 
-    /// Returns a snapshot of all key-value pairs as an array of named tuples.
+    /// Returns a `Set` view of all key-value pairs.
     ///
     /// `AbstractMap` derives `size()`, `keySet()`, `values()`, `containsKey()`,
     /// `get()`, `clear()`, `putAll()`, `equals()`, and `toString()` from this.
     /// `HashMap` overrides the hot paths below for O(1) behaviour.
-    open override func entrySet() -> [(key: K, value: V)] {
-      _store.map { (key: $0.key, value: $0.value) }
+    open override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
+      let set = HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _store.count * 2))
+      for (k, v) in _store { _ = try? set.add(Entry(k, v)) }
+      return set
     }
 
     // MARK: - java.util.Map — Mutation (O(1) overrides)
@@ -90,8 +92,10 @@ extension java.util {
       return set
     }
 
-    open override func values() -> [V] {
-      Array(_store.values)
+    open override func values() -> any java.util.Collection<V> {
+      let list = java.util.ArrayList<V>()
+      for v in _store.values { _ = try? list.add(v) }
+      return list
     }
 
     // MARK: - containsValue
@@ -99,7 +103,7 @@ extension java.util {
     /// Returns `true` if this map maps one or more keys to `value`.
     ///
     /// O(n) — scans all values.
-    open func containsValue(_ value: V) -> Bool where V: Equatable {
+    open override func containsValue(_ value: V) -> Bool {
       _store.values.contains(value)
     }
 

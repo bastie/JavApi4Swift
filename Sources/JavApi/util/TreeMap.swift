@@ -19,7 +19,7 @@ extension java.util {
   /// - `SortedMap` extensions: `firstKey`, `lastKey`, `headMap`, `tailMap`, `subMap`
   ///
   /// - Since: Java 1.2
-  open class TreeMap<K: Hashable & Comparable, V>: java.util.AbstractMap<K, V>,
+  open class TreeMap<K: Hashable & Comparable, V: Equatable>: java.util.AbstractMap<K, V>,
                                                     java.util.SortedMap {
 
     // MARK: - Backing store
@@ -60,8 +60,10 @@ extension java.util {
 
     // MARK: - AbstractMap required override
 
-    open override func entrySet() -> [(key: K, value: V)] {
-      _pairs
+    open override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
+      let set = HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _pairs.count * 2))
+      for pair in _pairs { _ = try? set.add(Entry(pair.key, pair.value)) }
+      return set
     }
 
     // MARK: - Map — Mutation
@@ -115,8 +117,10 @@ extension java.util {
       return set
     }
 
-    open override func values() -> [V] {
-      _pairs.map { $0.value }
+    open override func values() -> any java.util.Collection<V> {
+      let list = java.util.ArrayList<V>()
+      for pair in _pairs { _ = try? list.add(pair.value) }
+      return list
     }
 
     // MARK: - SortedMap
@@ -161,7 +165,7 @@ extension java.util {
   /// Mutations (`put`, `remove`, `clear`) are not supported on views —
   /// they `fatalError`, matching Java's throw-on-structural-modification semantics
   /// (simplified to fatal for this port).
-  final class _SubTreeMap<K: Hashable & Comparable, V>: java.util.AbstractMap<K, V>,
+  final class _SubTreeMap<K: Hashable & Comparable, V: Equatable>: java.util.AbstractMap<K, V>,
                                                          java.util.SortedMap {
 
     private let _pairs: [(key: K, value: V)]
@@ -170,7 +174,11 @@ extension java.util {
       self._pairs = pairs
     }
 
-    override func entrySet() -> [(key: K, value: V)] { _pairs }
+    override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
+      let set = HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _pairs.count * 2))
+      for pair in _pairs { _ = try? set.add(Entry(pair.key, pair.value)) }
+      return set
+    }
 
     override func put(_ key: K, _ value: V) -> V? {
       fatalError("_SubTreeMap is a read-only view")

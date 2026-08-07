@@ -38,7 +38,12 @@ extension Swift.Set {
   /// let swiftSet: Swift.Set<String> = hashSet.toSwiftSet()
   /// ```
   public init (from: java.util.HashSet<Element>) {
-    self.init(from._map.entrySet().map { $0.key })
+    var keys: [Element] = []
+    let it = from._map.entrySet().iterator()
+    while it.hasNext() {
+      if let e = try? it.next() { keys.append(e.key) }
+    }
+    self.init(keys)
   }
 
   /// - Returns: return a `java.util.HashSet` copy of this set.

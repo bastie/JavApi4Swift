@@ -23,9 +23,7 @@ extension org.xml.sax.helper {
   ///
   /// - Since: Java 1.5
   /// - Since: SAX 2.0 ext
-  open class DefaultHandler2 : DefaultHandler,
-                                org.xml.sax.ext.LexicalHandler,
-                                org.xml.sax.ext.DeclHandler {
+  open class DefaultHandler2 : DefaultHandler, org.xml.sax.ext.LexicalHandler, org.xml.sax.ext.DeclHandler {
 
     public override init() {}
 

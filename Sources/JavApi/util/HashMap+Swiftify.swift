@@ -68,7 +68,7 @@ extension Dictionary {
   /// ```swift
   /// let map = ["x": 1, "y": 2].toJavaHashMap()
   /// ```
-  public func toJavaHashMap() -> java.util.HashMap<Key, Value> {
+  public func toJavaHashMap() -> java.util.HashMap<Key, Value> where Value: Equatable {
     java.util.HashMap(from: self)
   }
 }

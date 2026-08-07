@@ -10,18 +10,22 @@ import Testing
 /// Minimal concrete AbstractMap backed by a Swift Dictionary.
 /// Used only in tests — verifies the AbstractMap default implementations.
 private final class ConcreteMap<K: Hashable, V: Equatable>: java.util.AbstractMap<K, V> {
-  private var _entries: [(key: K, value: V)] = []
+  private var _entries: [java.util.MapEntry<K, V>] = []
 
-  override func entrySet() -> [(key: K, value: V)] { _entries }
+  override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
+    let set = java.util.HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _entries.count * 2))
+    for e in _entries { _ = try? set.add(e) }
+    return set
+  }
 
   @discardableResult
   override func put(_ key: K, _ value: V) -> V? {
     if let idx = _entries.firstIndex(where: { $0.key == key }) {
       let old = _entries[idx].value
-      _entries[idx] = (key, value)
+      _entries[idx] = .init(key, value)
       return old
     }
-    _entries.append((key, value))
+    _entries.append(.init(key, value))
     return nil
   }
 
@@ -34,6 +38,14 @@ private final class ConcreteMap<K: Hashable, V: Equatable>: java.util.AbstractMa
     }
     return nil
   }
+}
+
+/// Helper: collect a java.util.Collection into a sorted Swift Array.
+private func sortedArray<V: Comparable>(_ col: any java.util.Collection<V>) -> [V] {
+  var result: [V] = []
+  let it = col.iterator()
+  while it.hasNext() { if let v = try? it.next() { result.append(v) } }
+  return result.sorted()
 }
 
 struct JavApi_util_AbstractMap_Tests {
@@ -111,7 +123,7 @@ struct JavApi_util_AbstractMap_Tests {
   func testValues() {
     let m = ConcreteMap<String, Int>()
     m.put("x", 10); m.put("y", 20)
-    let vals = m.values().sorted()
+    let vals = sortedArray(m.values())
     #expect(vals == [10, 20])
   }
 
@@ -218,7 +230,7 @@ struct JavApi_util_HashMap_Tests {
   func testValues() {
     let map = java.util.HashMap<String, Int>()
     _ = map.put("x", 10); _ = map.put("y", 20)
-    #expect(map.values().sorted() == [10, 20])
+    #expect(sortedArray(map.values()) == [10, 20])
   }
 
   @Test("putAll copies entries from another HashMap")

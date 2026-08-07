@@ -29,7 +29,7 @@ extension java.util {
   /// the full rationale.
   ///
   /// - Since: Java 1.2
-  public final class WeakHashMap<Key: AnyObject & Hashable, Value>: java.util.AbstractMap<Key, Value> {
+  public final class WeakHashMap<Key: AnyObject & Hashable, Value: Equatable>: java.util.AbstractMap<Key, Value> {
 
     // MARK: - Internal storage
 
@@ -45,13 +45,13 @@ extension java.util {
       }
     }
 
-    private struct Entry {
+    private struct _WeakEntry {
       let box: WeakBox
       var value: Value
     }
 
     /// Keyed by `ObjectIdentifier` so the dictionary never holds a strong ref to `Key`.
-    private var storage: [ObjectIdentifier: Entry] = [:]
+    private var storage: [ObjectIdentifier: _WeakEntry] = [:]
 
     // MARK: - Init
 
@@ -78,12 +78,15 @@ extension java.util {
     /// Returns a live snapshot of all entries whose keys are still alive.
     ///
     /// Dead entries are purged before the snapshot is taken.
-    public override func entrySet() -> [(key: Key, value: Value)] {
+    public override func entrySet() -> any java.util.Set<java.util.MapEntry<Key, Value>> {
       purge()
-      return storage.values.compactMap { entry in
-        guard let k = entry.box.key else { return nil }
-        return (key: k, value: entry.value)
+      let set = HashSet<java.util.MapEntry<Key, Value>>(initialCapacity: Swift.max(16, storage.count * 2))
+      for entry in storage.values {
+        if let k = entry.box.key {
+          _ = try? set.add(java.util.MapEntry(k, entry.value))
+        }
       }
+      return set
     }
 
     // MARK: - java.util.Map — Mutation
@@ -97,7 +100,7 @@ extension java.util {
       purge()
       let id = ObjectIdentifier(key)
       let old = storage[id]?.value
-      storage[id] = Entry(box: WeakBox(key), value: value)
+      storage[id] = _WeakEntry(box: WeakBox(key), value: value)
       return old
     }
 
@@ -105,7 +108,7 @@ extension java.util {
     @discardableResult
     public override func remove(_ key: Key) -> Value? {
       purge()
-      return storage.removeValue(forKey: ObjectIdentifier(key))?.value
+      return storage.removeValue(forKey: ObjectIdentifier(key)).map { $0.value }
     }
 
     // MARK: - java.util.Map — Query (O(1) overrides)

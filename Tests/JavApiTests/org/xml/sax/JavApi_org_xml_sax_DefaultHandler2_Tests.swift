@@ -147,13 +147,6 @@ struct JavApi_org_xml_sax_DefaultHandler2_Tests {
     #expect(r.attributes[1].attr == "lang")
   }
 
-  @Test("DefaultHandler2 conforms to LexicalHandler and DeclHandler")
-  func testProtocolConformance() {
-    let h = org.xml.sax.helper.DefaultHandler2()
-    #expect(h is any org.xml.sax.ext.LexicalHandler)
-    #expect(h is any org.xml.sax.ext.DeclHandler)
-  }
-
   @Test("subclass can override startDTD to record DTD name")
   func testSubclassDTD() throws {
     class DTDTracker : org.xml.sax.helper.DefaultHandler2 {

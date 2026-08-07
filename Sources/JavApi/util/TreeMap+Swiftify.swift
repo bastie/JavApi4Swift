@@ -76,7 +76,7 @@ extension Dictionary {
   /// ```swift
   /// let dict = Dictionary(from: treeMap)
   /// ```
-  public init(from map: java.util.TreeMap<Key, Value>) where Key: Comparable {
+  public init(from map: java.util.TreeMap<Key, Value>) where Key: Comparable, Value: Equatable {
     self.init(minimumCapacity: map.size())
     for pair in map._pairs {
       self[pair.key] = pair.value
@@ -85,13 +85,13 @@ extension Dictionary {
 
   /// Returns a `java.util.TreeMap` copy of this dictionary, sorted by key.
   ///
-  /// Requires `Key: Comparable`.
+  /// Requires `Key: Comparable` and `Value: Equatable`.
   ///
   /// ```swift
   /// let map = ["b": 2, "a": 1].toJavaTreeMap()
   /// ```
   public func toJavaTreeMap() -> java.util.TreeMap<Key, Value>
-    where Key: Comparable {
+    where Key: Comparable, Value: Equatable {
     java.util.TreeMap(from: self)
   }
 }

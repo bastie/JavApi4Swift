@@ -133,9 +133,11 @@ struct JavApi_util_WeakHashMap_Tests {
     let k1 = Key("a"); let k2 = Key("b")
     map.put(k1, 1); map.put(k2, 2)
     let entries = map.entrySet()
-    #expect(entries.count == 2)
-    let values = Set(entries.map { $0.value })
-    #expect(values == [1, 2])
+    #expect(entries.size() == 2)
+    var values: Set<Int> = []
+    let it = entries.iterator()
+    while it.hasNext() { if let e = try? it.next() { values.insert(e.value) } }
+    #expect(values == Set([1, 2]))
   }
 
   // MARK: - Weak semantics

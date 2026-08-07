@@ -33,7 +33,7 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 | `Iterator<E>` | 1.2 | ✓ vorhanden | `forEachRemaining()` fehlt ⚠️ `Consumer<E>` fehlt |
 | `List<E>` | 1.2 | ✓ vorhanden | `sort()` fehlt (Comparator ✓ OK) · `replaceAll()` fehlt ⚠️ `UnaryOperator<E>` fehlt |
 | `ListIterator<E>` | 1.2 | ✓ vorhanden | Vollständig |
-| `Map<K,V>` | 1.2 | ✓ vorhanden | ✅ `keySet()` gibt `any java.util.Set<K>` · `values()` gibt `[V]` statt `Collection<V>` 🔧 blockiert (siehe P0-Checklist) · `entrySet()` fehlt komplett ⚠️ `Map.Entry<K,V>` fehlt · Java-8: `forEach()` ⚠️ `BiConsumer` fehlt · `replaceAll()` ⚠️ `BiFunction` fehlt · `computeIfAbsent()` ⚠️ `Function` fehlt |
+| `Map<K,V>` | 1.2 | ✓ vorhanden | ✅ `V: Equatable` (Breaking Change, analog zu Java's implizitem `Object.equals`) · ✅ `keySet()` → `any java.util.Set<K>` · ✅ `values()` → `any java.util.Collection<V>` · ✅ `entrySet()` → `any java.util.Set<Entry<K,V>>` · ✅ `Map.Entry<K,V>` als `struct Entry` · Java-8: `forEach()` ⚠️ `BiConsumer` fehlt · `replaceAll()` ⚠️ `BiFunction` fehlt · `computeIfAbsent()` ⚠️ `Function` fehlt |
 | `Observer` | 1.0 | ✓ vorhanden | Vollständig |
 | `Queue<E>` | 5 | ✓ vorhanden | Vollständig |
 | `Set<E>` | 1.2 | ✓ vorhanden | Vollständig (Marker-Protokoll) |
@@ -46,18 +46,32 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 
 | Interface | Seit | Erweitert | Signatur-Abhängigkeiten | Problem? |
 |-----------|------|-----------|------------------------|---------|
-| `NavigableSet<E>` | 6 | `SortedSet<E>` ✓ | nur eigene Typen | — |
-| `NavigableMap<K,V>` | 6 | `SortedMap<K,V>` ✓ | `Map.Entry<K,V>` in einigen Methoden | ⚠️ `Map.Entry` fehlt |
-| `SequencedCollection<E>` | 21 | `Collection<E>` ✓ | nur eigene Typen | — |
-| `SequencedSet<E>` | 21 | `SequencedCollection` + `Set` ✓ | nur eigene Typen | — |
-| `SequencedMap<K,V>` | 21 | `Map<K,V>` ✓ | `Map.Entry<K,V>` | ⚠️ `Map.Entry` fehlt |
+| `NavigableSet<E>` | 6 | `SortedSet<E>` ✓ | nur eigene Typen | ✅ implementiert |
+| `NavigableMap<K,V>` | 6 | `SortedMap<K,V>` ✓ | `Map.Entry<K,V>` ✓ | ✅ implementiert |
+| `SequencedCollection<E>` | 21 | `Collection<E>` ✓ | nur eigene Typen | ✅ implementiert |
+| `SequencedSet<E>` | 21 | `SequencedCollection` + `Set` ✓ | nur eigene Typen | ✅ implementiert |
+| `SequencedMap<K,V>` | 21 | `Map<K,V>` ✓ | `Map.Entry<K,V>` ✓ | ✅ implementiert |
 
 **Umsetzungsreihenfolge:**
-- [ ] `NavigableSet<E>` — nur Typ-eigene Abhängigkeiten, sofort möglich
-- [ ] `SequencedCollection<E>` — sofort möglich
-- [ ] `SequencedSet<E>` — nach `SequencedCollection`
-- [ ] `NavigableMap<K,V>` — Grundgerüst ohne `Map.Entry`-Methoden möglich; `pollFirstEntry()`/`pollLastEntry()` etc. erst nach `Map.Entry`
-- [ ] `SequencedMap<K,V>` — Grundgerüst ohne `Map.Entry`-Methoden möglich
+- [x] `Map.Entry<K,V>` als `struct Entry` in `extension java.util.Map` · `V: Equatable` Constraint auf `Map<K,V>` (Breaking Change)
+- [x] `NavigableSet<E>` — `NavigableSet.swift`
+- [x] `SequencedCollection<E>` — `SequencedCollection.swift`
+- [x] `SequencedSet<E>` — `SequencedSet.swift`
+- [x] `NavigableMap<K,V>` — `NavigableMap.swift` (inkl. Default-Impl für Key-Navigations-Methoden)
+- [x] `SequencedMap<K,V>` — `SequencedMap.swift`
+
+**Interne Implementierungs-Typen (kein Java-API-Äquivalent):**
+- [x] `_NilsFirstComparator` / `_NilsLastComparator` — Impl-Helper für `nullsFirst()` / `nullsLast()`; explizit `internal`, Underscore-Konvention
+- [x] `_ReversedComparator`, `_ChainedComparator`, `_NaturalOrderComparator` — `private` in `Comparator+Java8.swift`
+- [x] `_EnumerationIterator` — `private` in `Enumeration+Swiftify.swift`
+- [x] `_SentinelObject` — `HashSet`-Dummy-Wert; jetzt `Equatable` via Referenz-Identität; `HashMap<E, AnyObject>` → `HashMap<E, _SentinelObject>`
+
+**Map-Refactoring (V: Equatable + Map.Entry):**
+- [x] `V: Equatable` auf `Map<K,V>` — Breaking Change; nötig da Swift kein universelles `Object.equals` kennt (DocC NOTE in `Map.swift`)
+- [x] `struct Entry<K,V>: Equatable & Hashable` in `extension java.util.Map` — `Map+Entry.swift`
+- [x] `entrySet()` → `any java.util.Set<Entry<K,V>>` in `Map`, `AbstractMap`, `HashMap`, `TreeMap`, `WeakHashMap`
+- [x] `values()` → `any java.util.Collection<V>` in `Map`, `AbstractMap`, `HashMap`, `TreeMap`
+- [x] `containsValue()` jetzt ohne bedingten `where V: Equatable` — Constraint ist im Protokoll garantiert
 
 ---
 
@@ -358,7 +372,7 @@ Java 21 führte drei neue Interfaces ein, die rückwirkend in die bestehende Typ
 - [ ] `hashCode() -> Int` — Java 1.2
 - [ ] `entrySet()` als `Set<Map.Entry>` — Java 1.2 (aktuell nur Enumeration)
 - [x] `keySet()` als `any java.util.Set<K>` — Java 1.2 ✅
-- [-] `values()` als `Collection<V>` — Java 1.2 · blockiert: `Collection<E>` erfordert `E: Equatable`, `V` unkonstrained
+- [ ] `values()` als `any java.util.Collection<V>` — Java 1.2 · `Hashtable` konformiert noch nicht zu `java.util.Map` (eigenständige Klasse) → separates Refactoring nötig
 
 **Tests:** 26 vorhanden, keine Tests für obige Methoden.
 
