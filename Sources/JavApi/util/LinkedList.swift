@@ -347,7 +347,7 @@ extension java.util {
       let result = LinkedList<E>()
       let it = descendingIterator()
       while it.hasNext() {
-        if let e = try? it.next() { try? result.add(e) }
+        if let e = try? it.next() { _ = try? result.add(e) }
       }
       return result
     }

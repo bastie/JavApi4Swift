@@ -247,9 +247,8 @@ Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, o
 1. **`LinkedHashSet<E>`** (Java 1.4) — komplettiert die Set-Hierarchie; oft als geordnetes `HashSet` benötigt
 2. **`ArrayDeque<E>`** (Java 6) — Standard-`Deque`-Implementierung; `Deque`-Interface ohne Implementierung ist unbrauchbar
 3. **`PriorityQueue<E>`** (Java 5) — einzige Heap-basierte Collection; fehlt komplett
-4. **`Objects`** (Java 7) — `requireNonNull`, `equals`, `hash` werden in portiertem Code überall genutzt
-5. **`Optional<T>`** (Java 8) — modern Java ohne Optional nicht denkbar
-6. **`NavigableMap` / `NavigableSet`** (Java 6) — vervollständigt `TreeMap`/`TreeSet`-API
+4. **`Optional<T>`** (Java 8) — modern Java ohne Optional nicht denkbar
+5. **`NavigableMap` / `NavigableSet`** (Java 6) — vervollständigt `TreeMap`/`TreeSet`-API
 
 #### `Map.Entry<K, V>` als eigenständiger Typ
 - [ ] Interface/Struct `Map.Entry<K, V>` mit `getKey() -> K`, `getValue() -> V`, `setValue(_ value: V) -> V`
@@ -269,33 +268,13 @@ Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, o
 
 Java 21 führte drei neue Interfaces ein, die rückwirkend in die bestehende Typhierarchie eingebettet wurden. Ohne sie ist die Collections-Hierarchie strukturell unvollständig.
 
-#### Neue Interfaces
-
-- [x] **`SequencedCollection<E>`** — erweitert `Collection<E>`
-  - [x] `reversed() -> any SequencedCollection<E>`
-  - [x] `getFirst() -> E`, `getLast() -> E`
-  - [x] `addFirst(_ e: E)`, `addLast(_ e: E)` (optional ops mit Default-throw)
-  - [x] `removeFirst() -> E`, `removeLast() -> E` (optional ops mit Default-throw)
-
-- [x] **`SequencedSet<E>`** — erweitert `SequencedCollection<E>` und `Set<E>`
-  - [x] `reversedSet() -> any SequencedSet<E>` (kovariante Überschreibung)
-
-- [x] **`SequencedMap<K, V>`** — erweitert `Map<K, V>`
-  - [x] `reversedMap() -> any SequencedMap<K, V>`
-  - [x] `firstEntry() -> MapEntry<K, V>?`, `lastEntry() -> MapEntry<K, V>?`
-  - [x] `pollFirstEntry() -> MapEntry<K, V>?`, `pollLastEntry() -> MapEntry<K, V>?`
-  - [x] `putFirst(_ k: K, _ v: V) throws -> V?`, `putLast(_ k: K, _ v: V) throws -> V?` (Default: UnsupportedOperationException)
-  - [x] `sequencedEntrySet() -> any SequencedSet<MapEntry<K, V>>`
-  - [x] `sequencedKeySet() -> any SequencedSet<K>`
-  - [x] `sequencedValues() -> any SequencedCollection<V>`
-
 #### Bestehende Typen anpassen (Interface-Conformance)
 
 | Typ | Interface(s) | Status |
 |-----|--------------|--------|
 | `List<E>` | `SequencedCollection<E>` | ✅ erledigt |
 | `Deque<E>` | `SequencedCollection<E>` | ✅ erledigt |
-| `LinkedHashSet<E>` | `SequencedSet<E>` | ⏳ ausstehend (LinkedHashSet existiert noch nicht) |
+| `LinkedHashSet<E>` | `SequencedSet<E>` | ✅ erledigt — `addFirst/addLast` verschieben existierende Elemente |
 | `SortedSet<E>` | `SequencedSet<E>` | ✅ erledigt |
 | `SortedMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
 | `LinkedHashMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
@@ -1244,7 +1223,7 @@ Erweitert `SequencedCollection<E>` und `Set<E>`.
 
 Zu retrofitten auf:
 - [x] `SortedSet` — Default-Impl `reversedSet()` (fatalError; TreeSet überschreibt mit `descendingSet()`)
-- [ ] `LinkedHashSet` — ausstehend (LinkedHashSet existiert noch nicht)
+- [x] `LinkedHashSet` — `reversedSet()` liefert neues `LinkedHashSet` in umgekehrter Reihenfolge
 - [x] `TreeSet` — `reversedSet()` delegiert an `descendingSet()` → `_DescendingTreeSet`
 
 ---

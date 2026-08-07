@@ -68,7 +68,7 @@ extension java.util.List {
     let arr = toArray()
     let result = java.util.ArrayList<E>()
     for e in arr.reversed() {
-      if let e { try? result.add(e) }
+      if let e { _ = try? result.add(e) }
     }
     return result
   }
