@@ -193,7 +193,7 @@ Java 1.2 führte das Collections Framework ein. Ziel ist eine vollständige Swif
 
 #### Interface-Hierarchie vervollständigen
 
-- [ ] `Map.Entry<K, V>` — expliziter Typ für Schlüssel-Wert-Paare (aktuell nur als Tuple)
+- [x] `Map.Entry<K, V>` — implementiert als `struct MapEntry<K,V>` in `Map+Entry.swift` mit `getKey()`, `getValue()`, `setValue()` ✅
 - [x] `Comparator<T>` — `reversed()`, `thenComparing(comparator)`, `naturalOrder()`, `reverseOrder()`, `nullsFirst()`, `nullsLast()` implementiert (Java 8 Default-Methoden)
 - [ ] `Comparator<T>` — `comparing(keyExtractor)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` noch offen ⚠️ benötigt `Function<T,R>`
 
@@ -241,10 +241,6 @@ Java 1.2 führte das Collections Framework ein. Ziel ist eine vollständige Swif
 ### P4 – Vollständige Java Collections API in Swift
 
 Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, ohne auf Workarounds zurückgreifen zu müssen.
-
-#### Fehlende Kerntypen (nach Priorität)
-
-1. **[x] `Optional<T>`** (Java 8) — erledigt; `java.util.Optional` als Klasse in `Optional.swift`
 
 #### `Map.Entry<K, V>` als eigenständiger Typ
 - [ ] Interface/Struct `Map.Entry<K, V>` mit `getKey() -> K`, `getValue() -> V`, `setValue(_ value: V) -> V`
@@ -571,12 +567,12 @@ Vorhanden: Basisoperationen, `firstKey`, `lastKey`, `headMap`, `tailMap`, `subMa
 - `NavigableMap`-Interface implementieren (Java 6): ✅ vollständig erledigt
   - [x] `ceilingKey(_ key: K) -> K?`
   - [x] `ceilingEntry(_ key: K) -> MapEntry<K, V>?`
-  - [ ] `floorKey(_ key: K) -> K?`
-  - [ ] `floorEntry(_ key: K) -> (key: K, value: V)?`
-  - [ ] `higherKey(_ key: K) -> K?`
-  - [ ] `higherEntry(_ key: K) -> (key: K, value: V)?`
-  - [ ] `lowerKey(_ key: K) -> K?`
-  - [ ] `lowerEntry(_ key: K) -> (key: K, value: V)?`
+  - [ ] `floorKey(_ key: K) -> K?` — fehlt noch
+  - [x] `floorEntry(_ key: K) -> MapEntry<K, V>?`
+  - [ ] `higherKey(_ key: K) -> K?` — fehlt noch
+  - [x] `higherEntry(_ key: K) -> MapEntry<K, V>?`
+  - [ ] `lowerKey(_ key: K) -> K?` — fehlt noch
+  - [x] `lowerEntry(_ key: K) -> MapEntry<K, V>?`
   - [x] `pollFirstEntry() -> MapEntry<K, V>?`
   - [x] `pollLastEntry() -> MapEntry<K, V>?`
   - [x] `descendingMap() -> any NavigableMap<K, V>`
@@ -599,8 +595,8 @@ Vorhanden: Basisoperationen, `first`, `last`, `headSet`, `tailSet`, `subSet`. **
 - `NavigableSet`-Interface implementieren (Java 6): ✅ vollständig erledigt
   - [x] `ceiling(_ e: E) -> E?`
   - [x] `floor(_ e: E) -> E?`
-  - [ ] `higher(_ e: E) -> E?`
-  - [ ] `lower(_ e: E) -> E?`
+  - [x] `higher(_ e: E) -> E?`
+  - [x] `lower(_ e: E) -> E?`
   - [x] `pollFirst() -> E?`
   - [x] `pollLast() -> E?`
   - [x] `descendingSet() -> any NavigableSet<E>`
@@ -639,12 +635,15 @@ Vorhanden: Basisoperationen. **4 Tests** (sehr dünn).
 
 ## Java 1.4 – Fehlende Typen
 
-### `LinkedHashSet<E>` (komplett fehlend)
+### `LinkedHashSet<E>` ✅ ERLEDIGT
 
-- [ ] Klasse anlegen als `HashSet`-Subklasse mit `LinkedHashMap`-Backing
-- [ ] Konstruktoren: `()`, `(int)`, `(int, float)`, `(Collection<E>)`
-- [ ] `clone() -> LinkedHashSet<E>`
-- [ ] Tests
+- [x] Klasse als `HashSet`-Subklasse mit insertionsgeordnetem `_order: [E]`-Array
+- [x] Konstruktoren: `()`, `(collection:)`
+- [x] `addFirst/addLast` mit move-to-front/back-Semantik (Java 21)
+- [x] `removeFirst/removeLast`, `reversed()`, `reversedSet()` (SequencedSet)
+- [x] `clone() -> LinkedHashSet<E>`
+- [x] 22 Tests in `JavApi_util_LinkedHashSet_Tests.swift`
+- [ ] Konstruktoren `(initialCapacity: Int)`, `(initialCapacity: Int, loadFactor: Float)` noch offen
 
 ### `java.util.regex` (komplett fehlend)
 
@@ -679,23 +678,26 @@ Vorhanden: Basisoperationen. **4 Tests** (sehr dünn).
 
 ## Java 5 – Fehlende Typen
 
-### `PriorityQueue<E>` (komplett fehlend)
+### `PriorityQueue<E>` ✅ ERLEDIGT
 
-- [ ] Min-Heap-Implementierung
-- [ ] Konstruktoren: `()`, `(int)`, `(int, Comparator<E>)`, `(Collection<E>)`
-- [ ] `offer`, `poll`, `peek`, `add`, `remove`, `contains`, `size`, `clear`, `iterator`
-- [ ] `comparator() -> Comparator<E>?`
-- [ ] `toArray()`
-- [ ] Tests
+- [x] Binärer Min-Heap über Swift-Array (`_heap: [E]`)
+- [x] Konstruktoren: `()`, `(initialCapacity:)`, `(comparator:)` (Closure + Comparator-Objekt), `(collection:)`, `(_ other:)` Copy
+- [x] `offer`, `poll`, `peek`, `add`, `remove()`, `remove(_ element:)`, `contains`, `size`, `clear`, `iterator`
+- [x] `comparator() -> ((E, E) -> Int)?`
+- [x] 26 Tests in `JavApi_util_PriorityQueue_Tests.swift` inkl. Randwert- und Stress-Tests
+- [ ] `toArray()` noch offen
 
-### `ArrayDeque<E>` (komplett fehlend)
+### `ArrayDeque<E>` ✅ ERLEDIGT
 
-- [ ] Ring-Buffer-Implementierung des `Deque`-Interface
-- [ ] Alle `Deque`-Methoden: `addFirst/Last`, `offerFirst/Last`, `peekFirst/Last`, `pollFirst/Last`, `removeFirst/Last`
-- [ ] Queue-Methoden: `add`, `offer`, `peek`, `poll`, `remove`, `element`
-- [ ] `push`, `pop` (Stack-Methoden)
-- [ ] `clone()`, `toArray()`, `size()`, `isEmpty()`, `clear()`, `contains()`, `iterator()`, `descendingIterator()`
-- [ ] Tests
+- [x] Array-basierte `Deque`-Implementierung (kein Ring-Buffer; head=index 0)
+- [x] Alle `Deque`-Methoden: `addFirst/addLast`, `offerFirst/offerLast`, `peekFirst/peekLast`, `pollFirst/pollLast`, `removeFirst/removeLast`, `getFirst/getLast`
+- [x] Queue-Methoden: `add`, `offer`, `peek`, `poll`, `remove`, `element`
+- [x] `push`, `pop` (Stack-Methoden)
+- [x] `removeFirstOccurrence`, `removeLastOccurrence`, `descendingIterator()`
+- [x] `clone()`, `size()`, `isEmpty()`, `clear()`, `contains()`, `iterator()`
+- [x] Konformität zu `SequencedCollection` (Java 21)
+- [x] 35 Tests in `JavApi_util_ArrayDeque_Tests.swift` inkl. Randwert- und Stress-Tests
+- [ ] `toArray()` noch offen
 
 ### `EnumMap<K extends Enum<K>, V>` (komplett fehlend)
 
@@ -788,22 +790,28 @@ Vorhanden: Basisoperationen. **4 Tests** (sehr dünn).
 
 ## Java 8 – Fehlende Typen
 
-### `Optional<T>` (komplett fehlend)
+### `Optional<T>` ✅ ERLEDIGT
 
-- [ ] `static empty<T>() -> Optional<T>`
-- [ ] `static of<T>(_ value: T) -> Optional<T>`
-- [ ] `static ofNullable<T>(_ value: T?) -> Optional<T>`
-- [ ] `isPresent() -> Bool`
-- [ ] `isEmpty() -> Bool` — Java 11 (ggf. vorziehen)
-- [ ] `get() -> T` (throws NoSuchElementException wenn leer)
-- [ ] `orElse(_ other: T) -> T`
-- [ ] `orElseGet(_ supplier: () -> T) -> T`
-- [ ] `orElseThrow<X>(_ exceptionSupplier: () -> X) throws -> T`
-- [ ] `map<U>(_ mapper: (T) -> U?) -> Optional<U>`
-- [ ] `flatMap<U>(_ mapper: (T) -> Optional<U>) -> Optional<U>`
-- [ ] `filter(_ predicate: (T) -> Bool) -> Optional<T>`
-- [ ] `ifPresent(_ consumer: (T) -> Void)`
-- [ ] Tests
+- [x] `static empty() -> Optional<T>`
+- [x] `static of(_ value: T) -> Optional<T>`
+- [x] `static ofNullable(_ value: T?) -> Optional<T>`
+- [x] `isPresent() -> Bool`
+- [x] `isEmpty() -> Bool` (Java 11, vorgezogen)
+- [x] `get() -> T` (throws NoSuchElementException wenn leer)
+- [x] `orElse(_ other: T) -> T`
+- [x] `orElseGet(_ supplier: () -> T) -> T`
+- [x] `orElseThrow<X>(_ exceptionSupplier: () -> X) throws -> T`
+- [x] `orElseThrow() throws -> T` (Java 10, vorgezogen)
+- [x] `map<U>(_ mapper: (T) -> U?) -> Optional<U>`
+- [x] `flatMap<U>(_ mapper: (T) -> Optional<U>) -> Optional<U>`
+- [x] `filter(_ predicate: (T) -> Bool) -> Optional<T>`
+- [x] `ifPresent(_ consumer: (T) -> Void)`
+- [x] `ifPresentOrElse(_:_:)` (Java 9, vorgezogen)
+- [x] `or(_ supplier: () -> Optional<T>) -> Optional<T>` (Java 9, vorgezogen)
+- [x] `Equatable`-Konformität wenn `T: Equatable`
+- [x] `CustomStringConvertible`, `swiftOptional() -> T?` (Swift-Brücke)
+- [x] 30 Tests in `JavApi_util_Optional_Tests.swift`
+- [ ] `stream() -> Stream<T>` (Java 9) — abhängig von Stream-Implementierung
 
 ### `java.util.function` (nur `Supplier` vorhanden)
 
@@ -895,8 +903,8 @@ Die wichtigste Neuerung in Java 9 für `java.util` sind die `of()`-Factory-Metho
 
 ### `Optional<T>` – Erweiterungen (Java 9)
 
-- [ ] `ifPresentOrElse(_ action: (T) -> Void, _ emptyAction: () -> Void)`
-- [ ] `or(_ supplier: () -> Optional<T>) -> Optional<T>` (Alternative falls leer)
+- [x] `ifPresentOrElse(_ action: (T) -> Void, _ emptyAction: () -> Void)` — bereits in Java-8-Implementierung enthalten
+- [x] `or(_ supplier: () -> Optional<T>) -> Optional<T>` — bereits in Java-8-Implementierung enthalten
 - [ ] `stream() -> Stream<T>` (0- oder 1-elementiger Stream — abhängig von Stream-Implementierung)
 
 ---
@@ -968,7 +976,7 @@ Java 10 bringt primär `var` (lokale Typinferenz) und eine Erweiterung der unver
 
 ### `Optional<T>` – Erweiterungen (Java 10)
 
-- [ ] `orElseThrow() -> T` (NoSuchElementException ohne Parameter — Kurzform von get() mit besserer Semantik)
+- [x] `orElseThrow() -> T` — bereits in Java-8-Implementierung enthalten
 
 ---
 
@@ -983,7 +991,7 @@ Keine neuen Methoden in `java.util.Collection` selbst, aber `toArray(IntFunction
 
 ### `Optional<T>` – Erweiterungen (Java 11)
 
-- [ ] `isEmpty() -> Bool` (Gegenstück zu `isPresent()` — bereits in Java-8-Abschnitt vermerkt, offiziell Java 11)
+- [x] `isEmpty() -> Bool` — bereits in Java-8-Implementierung enthalten
 
 ---
 
@@ -1183,19 +1191,20 @@ Java 21 ist ein **LTS-Release** und bringt die wichtigste strukturelle Änderung
 
 Neues Interface in der Collection-Hierarchie zwischen `Iterable` und `Collection`. Alle geordneten Collections (`List`, `Deque`, `LinkedHashSet`, `SortedSet`) implementieren es.
 
-- [ ] `getFirst() -> E` (throws NoSuchElementException)
-- [ ] `getLast() -> E` (throws NoSuchElementException)
-- [ ] `addFirst(_ e: E)` (optional; throws UnsupportedOperationException wenn nicht unterstützt)
-- [ ] `addLast(_ e: E)` (optional)
+- [x] `getFirst() -> E` (throws NoSuchElementException) — Protocol-Default implementiert
+- [x] `getLast() -> E` (throws NoSuchElementException) — Protocol-Default implementiert
+- [x] `addFirst(_ e: E)` (optional; throws UnsupportedOperationException wenn nicht unterstützt)
+- [x] `addLast(_ e: E)` (optional)
 - [x] `removeFirst() -> E` (optional, Default: UnsupportedOperationException)
 - [x] `removeLast() -> E` (optional, Default: UnsupportedOperationException)
 - [x] `reversed() -> any SequencedCollection<E>` — Snapshot-Kopie (nicht live)
 
 Zu retrofitten auf:
-- [ ] `List` — getFirst/getLast/addFirst/addLast/removeFirst/removeLast/reversed
-- [ ] `LinkedList` — bereits teilweise vorhanden (getFirst/getLast etc.), `reversed()` fehlt
-- [ ] `Deque` — getFirst/getLast/reversed
-- [ ] `ArrayList` — getFirst/getLast als Kurzform
+- [x] `List` — Defaults implementiert
+- [x] `LinkedList` — vollständig
+- [x] `Deque` — vollständig
+- [x] `ArrayList` — vollständig
+- [x] `ArrayDeque` — vollständig (Java 6)
 
 ---
 
@@ -1216,10 +1225,10 @@ Zu retrofitten auf:
 
 Erweitert `Map<K, V>` für alle geordneten Maps.
 
-- [ ] `firstEntry() -> Map.Entry<K, V>?`
-- [ ] `lastEntry() -> Map.Entry<K, V>?`
-- [ ] `pollFirstEntry() -> Map.Entry<K, V>?`
-- [ ] `pollLastEntry() -> Map.Entry<K, V>?`
+- [x] `firstEntry() -> Map.Entry<K, V>?`
+- [x] `lastEntry() -> Map.Entry<K, V>?`
+- [x] `pollFirstEntry() -> Map.Entry<K, V>?`
+- [x] `pollLastEntry() -> Map.Entry<K, V>?`
 - [x] `putFirst(_ key: K, _ value: V) throws -> V?` (optional, Default: UnsupportedOperationException)
 - [x] `putLast(_ key: K, _ value: V) throws -> V?` (optional, Default: UnsupportedOperationException)
 - [x] `reversedMap() -> any SequencedMap<K, V>`
@@ -1451,4 +1460,4 @@ Die wichtigste `java.util`-Änderung in Java 26: Im Zuge von JEP 526 wurden Fact
 
 ---
 
-*Stand: 2026-08-03 · Basis: Java 1.1–26 public API*
+*Stand: 2026-08-07 · Basis: Java 1.1–26 public API*
