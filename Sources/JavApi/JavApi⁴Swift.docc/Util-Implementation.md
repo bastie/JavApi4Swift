@@ -40,20 +40,6 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 | `SortedMap<K,V>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<K>)?` implementiert |
 | `SortedSet<E>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<E>)?` implementiert |
 
-**Sofort umsetzbar (keine fehlenden Typ-Deps):**
-- [x] `Comparator`: `reversed()`, `thenComparing(comparator)`, `naturalOrder()`, `reverseOrder()` — `comparing(keyExtractor)` folgt mit `Function<T,R>`
-- [x] `SortedMap`: `comparator() -> (any java.util.Comparator<K>)?`
-- [x] `SortedSet`: `comparator() -> (any java.util.Comparator<E>)?`
-- [x] `Enumeration`: `asIterator() -> any java.util.Iterator<Element>` (Java 9)
-- [-] `Map`: `values()` auf `any java.util.Collection<V>` umstellen 🔧 — blockiert: `java.util.Collection<E>` erfordert `E: Equatable`, `V` in `Map<K,V>` ist unkonstrained; benötigt zuerst Refactoring von `Collection`
-- [x] `Map`: `keySet()` auf `any java.util.Set<K>` umstellen 🔧
-
-**Interne Implementierungs-Typen (kein Java-API-Äquivalent):**
-- [x] `NilsFirstComparator` → `_NilsFirstComparator` (explizit `internal`) — Impl-Helper für `Comparator.nullsFirst()`
-- [x] `NilsLastComparator` → `_NilsLastComparator` (explizit `internal`) — Impl-Helper für `Comparator.nullsLast()`
-- [x] `_ReversedComparator`, `_ChainedComparator`, `_NaturalOrderComparator` — korrekt als `private` in `Comparator+Java8.swift`
-- [x] `_EnumerationIterator` — korrekt als `private` in `Enumeration+Swiftify.swift`
-
 ---
 
 ### Fehlende java.util-Interfaces

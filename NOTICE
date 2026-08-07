@@ -1,0 +1,14 @@
+JavApi⁴Swift
+Copyright 2023-2026 Sebastian Ritter <bastie@users.noreply.github.com> and contributors
+
+This product includes software developed by Sebastian Ritter
+and contributors at https://github.com/bastie/JavApi4Swift.
+
+This project uses permissive open-source licenses. Parts of the source
+code are licensed under the Apache License, Version 2.0; others under
+the MIT License or BSD Licenses. See the individual source file headers
+(SPDX-License-Identifier) for details.
+
+This project provides a Java-like API in pure Swift without bridging to
+a Java Virtual Machine, enabling step-by-step migration of Java code to
+Swift.
