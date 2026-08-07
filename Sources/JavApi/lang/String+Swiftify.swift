@@ -4,14 +4,23 @@
  */
 
 extension String {
-  
-  // overwrite Foundation.String hashValue with Java like hashCode
-  var hashValue : Int {
-    var hash = 0
-    for character in self.reversed() {
-      hash = 31 * hash + Int(character.asciiValue!)
+
+  // Java's String.hashCode() algorithm: s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1]
+  // Uses UTF-16 code units (matching Java's char type) and wrapping arithmetic (Java int semantics).
+  internal func _javaHashCode() -> Int {
+    var h: Int = 0
+    for unit in self.utf16 {
+      h = 31 &* h &+ Int(unit)
     }
-    return hash
+    return h
+  }
+
+  // Override hash(into:) — the single Hashable protocol requirement Swift dispatches through.
+  // Feeding the Java hash into the Hasher ensures that both direct .hashValue access
+  // and generic T: Hashable dispatch (e.g. Objects.hashCode, HashMap keys) produce
+  // a consistent result.
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(_javaHashCode())
   }
   
   /// Returns the bytes of String in given encoding

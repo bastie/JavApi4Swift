@@ -271,8 +271,11 @@ extension String {
   }
 
   /// Hashcode of ``String``
+  ///
+  /// Returns Java's deterministic hash: s[0]*31^(n-1) + … + s[n-1] over UTF-16 code units.
+  /// Unlike `hashValue`, this value is stable across process runs.
   public func hashCode () -> Int {
-    return self.hashValue
+    return self._javaHashCode()
   }
 }
 
