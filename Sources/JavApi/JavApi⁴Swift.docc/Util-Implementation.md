@@ -244,11 +244,7 @@ Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, o
 
 #### Fehlende Kerntypen (nach Priorität)
 
-1. **`LinkedHashSet<E>`** (Java 1.4) — komplettiert die Set-Hierarchie; oft als geordnetes `HashSet` benötigt
-2. **`ArrayDeque<E>`** (Java 6) — Standard-`Deque`-Implementierung; `Deque`-Interface ohne Implementierung ist unbrauchbar
-3. **`PriorityQueue<E>`** (Java 5) — einzige Heap-basierte Collection; fehlt komplett
-4. **`Optional<T>`** (Java 8) — modern Java ohne Optional nicht denkbar
-5. **`NavigableMap` / `NavigableSet`** (Java 6) — vervollständigt `TreeMap`/`TreeSet`-API
+1. **[x] `Optional<T>`** (Java 8) — erledigt; `java.util.Optional` als Klasse in `Optional.swift`
 
 #### `Map.Entry<K, V>` als eigenständiger Typ
 - [ ] Interface/Struct `Map.Entry<K, V>` mit `getKey() -> K`, `getValue() -> V`, `setValue(_ value: V) -> V`
@@ -268,18 +264,6 @@ Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, o
 
 Java 21 führte drei neue Interfaces ein, die rückwirkend in die bestehende Typhierarchie eingebettet wurden. Ohne sie ist die Collections-Hierarchie strukturell unvollständig.
 
-#### Bestehende Typen anpassen (Interface-Conformance)
-
-| Typ | Interface(s) | Status |
-|-----|--------------|--------|
-| `List<E>` | `SequencedCollection<E>` | ✅ erledigt |
-| `Deque<E>` | `SequencedCollection<E>` | ✅ erledigt |
-| `LinkedHashSet<E>` | `SequencedSet<E>` | ✅ erledigt — `addFirst/addLast` verschieben existierende Elemente |
-| `SortedSet<E>` | `SequencedSet<E>` | ✅ erledigt |
-| `SortedMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
-| `LinkedHashMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
-| `TreeSet<E>` | `NavigableSet<E>` (→ `SequencedSet`) | ✅ erledigt |
-| `TreeMap<K,V>` | `NavigableMap<K,V>` (→ `SequencedMap`) | ✅ erledigt |
 
 #### Konkrete Implementierungsdetails
 
