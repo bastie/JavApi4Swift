@@ -43,7 +43,7 @@ extension java.awt.datatransfer {
     // MARK: - Singleton
     // -------------------------------------------------------------------------
 
-    nonisolated(unsafe) private static let _instance = SystemFlavorMap()
+    private static let _instance = SystemFlavorMap()
 
     /// Returns the platform default flavor map (a shared singleton).
     public static func getDefaultFlavorMap() -> any FlavorMap {
