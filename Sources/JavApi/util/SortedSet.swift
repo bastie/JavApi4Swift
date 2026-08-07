@@ -12,7 +12,7 @@ extension java.util {
   /// concrete implementation provides this contract.
   ///
   /// - Since: Java 1.2
-  public protocol SortedSet<E>: java.util.Collection where E: Comparable {
+  public protocol SortedSet<E>: java.util.SequencedSet where E: Comparable {
 
     // MARK: - Range views
 
@@ -47,5 +47,54 @@ extension java.util {
 }
 
 extension java.util.SortedSet {
+
   public func comparator() -> (any java.util.Comparator<E>)? { nil }
+
+  // MARK: - SequencedCollection defaults for SortedSet
+
+  /// Default: returns the first element in natural order.
+  /// - Throws: `NoSuchElementException` if empty.
+  public func getFirst() throws -> E { try first() }
+
+  /// Default: returns the last element in natural order.
+  /// - Throws: `NoSuchElementException` if empty.
+  public func getLast() throws -> E { try last() }
+
+  /// Default: removes and returns the first element.
+  /// - Throws: `NoSuchElementException` if empty.
+  public func removeFirst() throws -> E {
+    let e = try first()
+    _ = remove(e)
+    return e
+  }
+
+  /// Default: removes and returns the last element.
+  /// - Throws: `NoSuchElementException` if empty.
+  public func removeLast() throws -> E {
+    let e = try last()
+    _ = remove(e)
+    return e
+  }
+
+  /// Default: returns elements in descending order as an `ArrayList`.
+  ///
+  /// Concrete subclasses (e.g. `TreeSet`) should override this with a proper
+  /// descending-order view.
+  public func reversed() -> any java.util.SequencedCollection<E> {
+    let arr = toArray()
+    let result = java.util.ArrayList<E>()
+    for e in arr.reversed() {
+      if let e { try? result.add(e) }
+    }
+    return result
+  }
+
+  // MARK: - SequencedSet default
+
+  /// Default: not supported — concrete types must override.
+  ///
+  /// `TreeSet` provides a proper descending view in Phase 2.
+  public func reversedSet() -> any java.util.SequencedSet<E> {
+    fatalError("reversedSet() not implemented for \(type(of: self))")
+  }
 }

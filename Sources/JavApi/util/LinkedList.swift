@@ -231,16 +231,16 @@ extension java.util {
 
     /// Returns but does not remove the first element.
     /// - Throws: `NoSuchElementException` if empty.
-    public func getFirst() throws -> E? {
-      guard let h = head else { throw NoSuchElementException() }
-      return h.element
+    public func getFirst() throws -> E {
+      guard let h = head, let e = h.element else { throw NoSuchElementException() }
+      return e
     }
 
     /// Returns but does not remove the last element.
     /// - Throws: `NoSuchElementException` if empty.
-    public func getLast() throws -> E? {
-      guard let t = tail else { throw NoSuchElementException() }
-      return t.element
+    public func getLast() throws -> E {
+      guard let t = tail, let e = t.element else { throw NoSuchElementException() }
+      return e
     }
 
     /// Inserts `elem` at the front (Deque protocol — non-optional).
@@ -268,15 +268,17 @@ extension java.util {
     public func pollLast() -> E? { isEmpty() ? nil : unlinkLast() }
 
     @discardableResult
-    public func removeFirst() throws -> E? {
+    public func removeFirst() throws -> E {
       guard !isEmpty() else { throw NoSuchElementException() }
-      return unlinkFirst()
+      guard let e = unlinkFirst() else { throw NoSuchElementException() }
+      return e
     }
 
     @discardableResult
-    public func removeLast() throws -> E? {
+    public func removeLast() throws -> E {
       guard !isEmpty() else { throw NoSuchElementException() }
-      return unlinkLast()
+      guard let e = unlinkLast() else { throw NoSuchElementException() }
+      return e
     }
 
     // MARK: - Deque — occurrence removal
@@ -336,6 +338,18 @@ extension java.util {
       guard !isEmpty() else { throw NoSuchElementException() }
       guard let e = unlinkFirst() else { throw NoSuchElementException() }
       return e
+    }
+
+    // MARK: - SequencedCollection
+
+    /// Returns elements in reverse order (tail → head) as a new `LinkedList`.
+    public func reversed() -> any java.util.SequencedCollection<E> {
+      let result = LinkedList<E>()
+      let it = descendingIterator()
+      while it.hasNext() {
+        if let e = try? it.next() { try? result.add(e) }
+      }
+      return result
     }
 
     // MARK: - ListIterator

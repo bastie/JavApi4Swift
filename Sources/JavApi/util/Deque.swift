@@ -12,7 +12,7 @@ extension java.util {
   /// `LinkedList` implements this interface since Java 6.
   ///
   /// - Since: Java 6
-  public protocol Deque<E>: Queue {
+  public protocol Deque<E>: Queue, java.util.SequencedCollection {
     // E is inherited from Queue/Collection.
 
     // MARK: - First-end operations
@@ -30,10 +30,10 @@ extension java.util {
     func offerLast(_ elem: E) -> Bool
 
     /// Retrieves, but does not remove, the first element; throws if empty.
-    func getFirst() throws -> E?
+    func getFirst() throws -> E
 
     /// Retrieves, but does not remove, the last element; throws if empty.
-    func getLast() throws -> E?
+    func getLast() throws -> E
 
     /// Retrieves, but does not remove, the first element; returns `nil` if empty.
     func peekFirst() -> E?
@@ -42,10 +42,10 @@ extension java.util {
     func peekLast() -> E?
 
     /// Retrieves and removes the first element; throws if empty.
-    func removeFirst() throws -> E?
+    func removeFirst() throws -> E
 
     /// Retrieves and removes the last element; throws if empty.
-    func removeLast() throws -> E?
+    func removeLast() throws -> E
 
     /// Retrieves and removes the first element; returns `nil` if empty.
     func pollFirst() -> E?
@@ -61,7 +61,7 @@ extension java.util {
 
     /// Pops an element from the stack represented by this deque (removes from front).
     /// Equivalent to `removeFirst`.
-    func pop() throws -> E?
+    func pop() throws -> E
 
     // MARK: - Occurrence removal
 
@@ -97,7 +97,17 @@ extension java.util.Deque {
   public func push(_ elem: E) throws { try addFirst(elem) }
 
   /// Default: `pop` = `removeFirst`.
-  public func pop() throws -> E? { try removeFirst() }
+  public func pop() throws -> E { try removeFirst() }
+
+  /// Default: returns elements in reverse order via `descendingIterator()`.
+  public func reversed() -> any java.util.SequencedCollection<E> {
+    let result = java.util.ArrayList<E>()
+    let it = descendingIterator()
+    while it.hasNext() {
+      if let e = try? it.next() { try? result.add(e) }
+    }
+    return result
+  }
 
   // Queue defaults that map to Deque first-end operations:
 

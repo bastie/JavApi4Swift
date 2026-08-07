@@ -27,8 +27,10 @@ extension java.util.LinkedHashMap {
     }
   }
   
-  /// The values of this collection
-  var values: Array<ValueType> {
+  /// The values of this collection as a Swift `Array`, in insertion order.
+  ///
+  /// Use `values()` (the `Map` protocol method) for a Java-compatible `Collection` view.
+  var valuesArray: Array<ValueType> {
     get {
       sortedKeyCollection.map { delegateDictionary[$0]! }
     }

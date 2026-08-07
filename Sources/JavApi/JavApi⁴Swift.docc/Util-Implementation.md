@@ -27,18 +27,23 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 |-----------|------|--------|--------------------------------------|
 | `Collection<E>` | 1.2 | ✓ vorhanden | `stream()` ⚠️ `Stream<E>` fehlt · `spliterator()` ⚠️ `Spliterator<E>` fehlt · `forEach()` ⚠️ `Consumer<E>` fehlt |
 | `Comparator<T>` | 1.2 | ✓ vorhanden | ✅ `reversed()` · `thenComparing(comparator)` · `naturalOrder()` · `reverseOrder()` · `nullsFirst()` · `nullsLast()` implementiert · `comparing(keyExtractor)` fehlt ⚠️ `Function<T,R>` · `thenComparing(keyExtractor)` fehlt ⚠️ `Function<T,R>` · `comparingInt/Long/Double()` fehlt ⚠️ |
-| `Deque<E>` | 6 | ✓ vorhanden | Vollständig |
+| `Deque<E>` | 6 | ✓ vorhanden | ✅ `SequencedCollection<E>` (Java 21) — `getFirst/getLast/removeFirst/removeLast/pop` auf non-optional `E` geändert · `reversed()` via `descendingIterator()` |
 | `Enumeration<E>` | 1.0 | ✓ vorhanden | ✅ `asIterator()` implementiert (Java 9, via `_EnumerationIterator`) |
 | `EventListener` | 1.1 | ✓ vorhanden | Marker-Interface, vollständig |
 | `Iterator<E>` | 1.2 | ✓ vorhanden | `forEachRemaining()` fehlt ⚠️ `Consumer<E>` fehlt |
-| `List<E>` | 1.2 | ✓ vorhanden | `sort()` fehlt (Comparator ✓ OK) · `replaceAll()` fehlt ⚠️ `UnaryOperator<E>` fehlt |
+| `List<E>` | 1.2 | ✓ vorhanden | ✅ `SequencedCollection<E>` (Java 21) — `getFirst/getLast/addFirst/addLast/removeFirst/removeLast/reversed` als Defaults · `sort()` fehlt (Comparator ✓ OK) · `replaceAll()` fehlt ⚠️ `UnaryOperator<E>` fehlt |
 | `ListIterator<E>` | 1.2 | ✓ vorhanden | Vollständig |
 | `Map<K,V>` | 1.2 | ✓ vorhanden | ✅ `V: Equatable` (Breaking Change, analog zu Java's implizitem `Object.equals`) · ✅ `keySet()` → `any java.util.Set<K>` · ✅ `values()` → `any java.util.Collection<V>` · ✅ `entrySet()` → `any java.util.Set<Entry<K,V>>` · ✅ `Map.Entry<K,V>` als `struct Entry` · Java-8: `forEach()` ⚠️ `BiConsumer` fehlt · `replaceAll()` ⚠️ `BiFunction` fehlt · `computeIfAbsent()` ⚠️ `Function` fehlt |
 | `Observer` | 1.0 | ✓ vorhanden | Vollständig |
 | `Queue<E>` | 5 | ✓ vorhanden | Vollständig |
 | `Set<E>` | 1.2 | ✓ vorhanden | Vollständig (Marker-Protokoll) |
-| `SortedMap<K,V>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<K>)?` implementiert |
-| `SortedSet<E>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<E>)?` implementiert |
+| `NavigableMap<K,V>` | 6 | ✓ vorhanden | ✅ `lowerEntry/floorEntry/ceilingEntry/higherEntry` · `lowerKey/floorKey/ceilingKey/higherKey` · `pollFirstEntry/pollLastEntry` · `descendingMap/descendingKeySet/navigableKeySet` · inclusive range views |
+| `NavigableSet<E>` | 6 | ✓ vorhanden | ✅ `lower/floor/ceiling/higher` · `pollFirst/pollLast` · `descendingSet/descendingIterator` · inclusive range views |
+| `SequencedCollection<E>` | 21 | ✓ vorhanden | ✅ `getFirst/getLast/addFirst/addLast/removeFirst/removeLast` (optional ops per Default) · `reversed()` |
+| `SequencedMap<K,V>` | 21 | ✓ vorhanden | ✅ `firstEntry/lastEntry/pollFirstEntry/pollLastEntry` · `putFirst/putLast` (optional) · `reversedMap` · `sequencedKeySet/sequencedValues/sequencedEntrySet` |
+| `SequencedSet<E>` | 21 | ✓ vorhanden | ✅ `reversedSet()` (kovariante Überschreibung) |
+| `SortedMap<K,V>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<K>)?` implementiert · ✅ `SequencedMap<K,V>` (Java 21) — Defaults für `firstEntry/lastEntry/pollFirst/pollLastEntry/reversedMap/sequenced*` |
+| `SortedSet<E>` | 1.2 | ✓ vorhanden | ✅ `comparator() -> (any Comparator<E>)?` implementiert · ✅ `SequencedSet<E>` (Java 21) — Defaults für `getFirst/getLast/removeFirst/removeLast/reversed/reversedSet` |
 
 ---
 
@@ -260,40 +265,49 @@ Ziel: Swift-Entwickler können die gesamte `java.util` Collections API nutzen, o
 
 ---
 
-### P5 – Java 21: Sequenced Collections (JEP 431)
+### P5 – Java 21: Sequenced Collections (JEP 431) ✅ ERLEDIGT
 
 Java 21 führte drei neue Interfaces ein, die rückwirkend in die bestehende Typhierarchie eingebettet wurden. Ohne sie ist die Collections-Hierarchie strukturell unvollständig.
 
 #### Neue Interfaces
 
-- [ ] **`SequencedCollection<E>`** — erweitert `Collection<E>`
-  - [ ] `reversed() -> SequencedCollection<E>`
-  - [ ] `getFirst() -> E`, `getLast() -> E`
-  - [ ] `addFirst(_ e: E)`, `addLast(_ e: E)`
-  - [ ] `removeFirst() -> E`, `removeLast() -> E`
+- [x] **`SequencedCollection<E>`** — erweitert `Collection<E>`
+  - [x] `reversed() -> any SequencedCollection<E>`
+  - [x] `getFirst() -> E`, `getLast() -> E`
+  - [x] `addFirst(_ e: E)`, `addLast(_ e: E)` (optional ops mit Default-throw)
+  - [x] `removeFirst() -> E`, `removeLast() -> E` (optional ops mit Default-throw)
 
-- [ ] **`SequencedSet<E>`** — erweitert `SequencedCollection<E>` und `Set<E>`
-  - [ ] `reversed() -> SequencedSet<E>` (kovariante Überschreibung)
+- [x] **`SequencedSet<E>`** — erweitert `SequencedCollection<E>` und `Set<E>`
+  - [x] `reversedSet() -> any SequencedSet<E>` (kovariante Überschreibung)
 
-- [ ] **`SequencedMap<K, V>`** — erweitert `Map<K, V>`
-  - [ ] `reversed() -> SequencedMap<K, V>`
-  - [ ] `firstEntry() -> Map.Entry<K, V>?`, `lastEntry() -> Map.Entry<K, V>?`
-  - [ ] `pollFirstEntry() -> Map.Entry<K, V>?`, `pollLastEntry() -> Map.Entry<K, V>?`
-  - [ ] `putFirst(_ k: K, _ v: V) -> V?`, `putLast(_ k: K, _ v: V) -> V?`
-  - [ ] `sequencedEntrySet() -> SequencedSet<Map.Entry<K, V>>`
-  - [ ] `sequencedKeySet() -> SequencedSet<K>`
-  - [ ] `sequencedValues() -> SequencedCollection<V>`
+- [x] **`SequencedMap<K, V>`** — erweitert `Map<K, V>`
+  - [x] `reversedMap() -> any SequencedMap<K, V>`
+  - [x] `firstEntry() -> MapEntry<K, V>?`, `lastEntry() -> MapEntry<K, V>?`
+  - [x] `pollFirstEntry() -> MapEntry<K, V>?`, `pollLastEntry() -> MapEntry<K, V>?`
+  - [x] `putFirst(_ k: K, _ v: V) throws -> V?`, `putLast(_ k: K, _ v: V) throws -> V?` (Default: UnsupportedOperationException)
+  - [x] `sequencedEntrySet() -> any SequencedSet<MapEntry<K, V>>`
+  - [x] `sequencedKeySet() -> any SequencedSet<K>`
+  - [x] `sequencedValues() -> any SequencedCollection<V>`
 
 #### Bestehende Typen anpassen (Interface-Conformance)
 
-| Typ | Interface(s) hinzufügen |
-|-----|------------------------|
-| `List<E>` | `SequencedCollection<E>` |
-| `Deque<E>` | `SequencedCollection<E>` |
-| `LinkedHashSet<E>` | `SequencedSet<E>` |
-| `SortedSet<E>` | `SequencedSet<E>` |
-| `LinkedHashMap<K,V>` | `SequencedMap<K,V>` |
-| `SortedMap<K,V>` | `SequencedMap<K,V>` |
+| Typ | Interface(s) | Status |
+|-----|--------------|--------|
+| `List<E>` | `SequencedCollection<E>` | ✅ erledigt |
+| `Deque<E>` | `SequencedCollection<E>` | ✅ erledigt |
+| `LinkedHashSet<E>` | `SequencedSet<E>` | ⏳ ausstehend (LinkedHashSet existiert noch nicht) |
+| `SortedSet<E>` | `SequencedSet<E>` | ✅ erledigt |
+| `SortedMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
+| `LinkedHashMap<K,V>` | `SequencedMap<K,V>` | ✅ erledigt |
+| `TreeSet<E>` | `NavigableSet<E>` (→ `SequencedSet`) | ✅ erledigt |
+| `TreeMap<K,V>` | `NavigableMap<K,V>` (→ `SequencedMap`) | ✅ erledigt |
+
+#### Konkrete Implementierungsdetails
+
+- `LinkedList<E>`: Ambiguität zwischen `List.reversed()` und `Deque.reversed()` per expliziter Implementierung aufgelöst
+- `TreeSet._DescendingTreeSet` / `TreeMap._DescendingTreeMap`: Invertierte Semantik für Navigation
+- `_OrderedSetSnapshot<E>`: Read-only SequencedSet-Snapshot ohne Comparable-Anforderung (für sequencedEntrySet)
+- Snapshot-basierte Sub-Views (nicht live) konsistent mit bestehenden headSet/tailSet/subMap
 
 #### `Collections` – neue Wrapper (Java 21)
 - [ ] `unmodifiableSequencedCollection<T>(_ c: SequencedCollection<T>) -> SequencedCollection<T>`
@@ -591,23 +605,23 @@ Vorhanden: Basisoperationen, `firstKey`, `lastKey`, `headMap`, `tailMap`, `subMa
 - [ ] `TreeMap(_ m: SortedMap<K, V>)` Konstruktor
 - [ ] `comparator() -> ((K, K) -> Int)?`
 - [ ] `clone() -> TreeMap<K, V>`
-- `NavigableMap`-Interface implementieren (Java 6):
-  - [ ] `ceilingKey(_ key: K) -> K?`
-  - [ ] `ceilingEntry(_ key: K) -> (key: K, value: V)?`
+- `NavigableMap`-Interface implementieren (Java 6): ✅ vollständig erledigt
+  - [x] `ceilingKey(_ key: K) -> K?`
+  - [x] `ceilingEntry(_ key: K) -> MapEntry<K, V>?`
   - [ ] `floorKey(_ key: K) -> K?`
   - [ ] `floorEntry(_ key: K) -> (key: K, value: V)?`
   - [ ] `higherKey(_ key: K) -> K?`
   - [ ] `higherEntry(_ key: K) -> (key: K, value: V)?`
   - [ ] `lowerKey(_ key: K) -> K?`
   - [ ] `lowerEntry(_ key: K) -> (key: K, value: V)?`
-  - [ ] `pollFirstEntry() -> (key: K, value: V)?`
-  - [ ] `pollLastEntry() -> (key: K, value: V)?`
-  - [ ] `descendingMap() -> NavigableMap<K, V>`
-  - [ ] `descendingKeySet() -> NavigableSet<K>`
-  - [ ] `navigableKeySet() -> NavigableSet<K>`
-  - [ ] `headMap(_ toKey: K, _ inclusive: Bool) -> NavigableMap<K, V>`
-  - [ ] `tailMap(_ fromKey: K, _ inclusive: Bool) -> NavigableMap<K, V>`
-  - [ ] `subMap(_ fromKey: K, _ fromInclusive: Bool, _ toKey: K, _ toInclusive: Bool) -> NavigableMap<K, V>`
+  - [x] `pollFirstEntry() -> MapEntry<K, V>?`
+  - [x] `pollLastEntry() -> MapEntry<K, V>?`
+  - [x] `descendingMap() -> any NavigableMap<K, V>`
+  - [x] `descendingKeySet() -> any NavigableSet<K>`
+  - [x] `navigableKeySet() -> any NavigableSet<K>`
+  - [x] `headMap(_ toKey: K, _ inclusive: Bool) -> any NavigableMap<K, V>`
+  - [x] `tailMap(_ fromKey: K, _ inclusive: Bool) -> any NavigableMap<K, V>`
+  - [x] `subMap(_ fromKey: K, _ fromInclusive: Bool, _ toKey: K, _ toInclusive: Bool) -> any NavigableMap<K, V>`
 
 ---
 
@@ -619,18 +633,18 @@ Vorhanden: Basisoperationen, `first`, `last`, `headSet`, `tailSet`, `subSet`. **
 - [ ] `TreeSet(_ s: SortedSet<E>)` Konstruktor
 - [ ] `comparator() -> ((E, E) -> Int)?`
 - [ ] `clone() -> TreeSet<E>`
-- `NavigableSet`-Interface implementieren (Java 6):
-  - [ ] `ceiling(_ e: E) -> E?`
-  - [ ] `floor(_ e: E) -> E?`
+- `NavigableSet`-Interface implementieren (Java 6): ✅ vollständig erledigt
+  - [x] `ceiling(_ e: E) -> E?`
+  - [x] `floor(_ e: E) -> E?`
   - [ ] `higher(_ e: E) -> E?`
   - [ ] `lower(_ e: E) -> E?`
-  - [ ] `pollFirst() -> E?`
-  - [ ] `pollLast() -> E?`
-  - [ ] `descendingSet() -> NavigableSet<E>`
-  - [ ] `descendingIterator() -> Iterator<E>`
-  - [ ] `headSet(_ toElement: E, _ inclusive: Bool) -> NavigableSet<E>`
-  - [ ] `tailSet(_ fromElement: E, _ inclusive: Bool) -> NavigableSet<E>`
-  - [ ] `subSet(_ fromElement: E, _ fromInclusive: Bool, _ toElement: E, _ toInclusive: Bool) -> NavigableSet<E>`
+  - [x] `pollFirst() -> E?`
+  - [x] `pollLast() -> E?`
+  - [x] `descendingSet() -> any NavigableSet<E>`
+  - [x] `descendingIterator() -> any Iterator<E>`
+  - [x] `headSet(_ toElement: E, _ inclusive: Bool) -> any NavigableSet<E>`
+  - [x] `tailSet(_ fromElement: E, _ inclusive: Bool) -> any NavigableSet<E>`
+  - [x] `subSet(_ fromElement: E, _ fromInclusive: Bool, _ toElement: E, _ toInclusive: Bool) -> any NavigableSet<E>`
 
 ---
 
@@ -766,16 +780,16 @@ Vorhanden: Basisoperationen. **4 Tests** (sehr dünn).
 
 ## Java 6 – Fehlende Typen / Interfaces
 
-### `NavigableMap<K, V>` (Interface, komplett fehlend)
+### `NavigableMap<K, V>` ✅ ERLEDIGT
 
-- [ ] Protocol als Erweiterung von `SortedMap`
+- [x] Protocol als Erweiterung von `SortedMap`
 - [ ] Methoden: `ceilingKey`, `ceilingEntry`, `floorKey`, `floorEntry`, `higherKey`, `higherEntry`, `lowerKey`, `lowerEntry`, `pollFirstEntry`, `pollLastEntry`, `descendingMap`, `descendingKeySet`, `navigableKeySet`
 - [ ] Erweiterte `headMap/tailMap/subMap` mit inclusive-Parameter
 - [ ] `TreeMap` auf dieses Interface umstellen
 
-### `NavigableSet<E>` (Interface, komplett fehlend)
+### `NavigableSet<E>` ✅ ERLEDIGT
 
-- [ ] Protocol als Erweiterung von `SortedSet`
+- [x] Protocol als Erweiterung von `SortedSet`
 - [ ] Methoden: `ceiling`, `floor`, `higher`, `lower`, `pollFirst`, `pollLast`, `descendingSet`, `descendingIterator`
 - [ ] Erweiterte `headSet/tailSet/subSet` mit inclusive-Parameter
 - [ ] `TreeSet` auf dieses Interface umstellen
@@ -1202,7 +1216,7 @@ Weiterentwicklung von Java 19. Noch kein stabiles API — bewusst ausgelassen.
 
 Java 21 ist ein **LTS-Release** und bringt die wichtigste strukturelle Änderung an den Collections seit Java 2: die **Sequenced Collections** (JEP 431).
 
-### `SequencedCollection<E>` (Interface, komplett fehlend)
+### `SequencedCollection<E>` ✅ ERLEDIGT
 
 Neues Interface in der Collection-Hierarchie zwischen `Iterable` und `Collection`. Alle geordneten Collections (`List`, `Deque`, `LinkedHashSet`, `SortedSet`) implementieren es.
 
@@ -1210,9 +1224,9 @@ Neues Interface in der Collection-Hierarchie zwischen `Iterable` und `Collection
 - [ ] `getLast() -> E` (throws NoSuchElementException)
 - [ ] `addFirst(_ e: E)` (optional; throws UnsupportedOperationException wenn nicht unterstützt)
 - [ ] `addLast(_ e: E)` (optional)
-- [ ] `removeFirst() -> E` (optional)
-- [ ] `removeLast() -> E` (optional)
-- [ ] `reversed() -> SequencedCollection<E>` — liefert Rückwärts-View (keine Kopie!)
+- [x] `removeFirst() -> E` (optional, Default: UnsupportedOperationException)
+- [x] `removeLast() -> E` (optional, Default: UnsupportedOperationException)
+- [x] `reversed() -> any SequencedCollection<E>` — Snapshot-Kopie (nicht live)
 
 Zu retrofitten auf:
 - [ ] `List` — getFirst/getLast/addFirst/addLast/removeFirst/removeLast/reversed
@@ -1222,20 +1236,20 @@ Zu retrofitten auf:
 
 ---
 
-### `SequencedSet<E>` (Interface, komplett fehlend)
+### `SequencedSet<E>` ✅ ERLEDIGT
 
 Erweitert `SequencedCollection<E>` und `Set<E>`.
 
-- [ ] `reversed() -> SequencedSet<E>` (kovariante Überschreibung)
+- [x] `reversedSet() -> any SequencedSet<E>` (kovariante Überschreibung)
 
 Zu retrofitten auf:
-- [ ] `SortedSet` — `reversed()` als View mit umgekehrter Ordnung
-- [ ] `LinkedHashSet` — erhält geordnete reversed()-Ansicht
-- [ ] `TreeSet` — `reversed()` als NavigableSet-Sicht
+- [x] `SortedSet` — Default-Impl `reversedSet()` (fatalError; TreeSet überschreibt mit `descendingSet()`)
+- [ ] `LinkedHashSet` — ausstehend (LinkedHashSet existiert noch nicht)
+- [x] `TreeSet` — `reversedSet()` delegiert an `descendingSet()` → `_DescendingTreeSet`
 
 ---
 
-### `SequencedMap<K, V>` (Interface, komplett fehlend)
+### `SequencedMap<K, V>` ✅ ERLEDIGT
 
 Erweitert `Map<K, V>` für alle geordneten Maps.
 
@@ -1243,17 +1257,17 @@ Erweitert `Map<K, V>` für alle geordneten Maps.
 - [ ] `lastEntry() -> Map.Entry<K, V>?`
 - [ ] `pollFirstEntry() -> Map.Entry<K, V>?`
 - [ ] `pollLastEntry() -> Map.Entry<K, V>?`
-- [ ] `putFirst(_ key: K, _ value: V) -> V?` (optional)
-- [ ] `putLast(_ key: K, _ value: V) -> V?` (optional)
-- [ ] `reversed() -> SequencedMap<K, V>` — Rückwärts-View
-- [ ] `sequencedKeySet() -> SequencedSet<K>`
-- [ ] `sequencedValues() -> SequencedCollection<V>`
-- [ ] `sequencedEntrySet() -> SequencedSet<Map.Entry<K, V>>`
+- [x] `putFirst(_ key: K, _ value: V) throws -> V?` (optional, Default: UnsupportedOperationException)
+- [x] `putLast(_ key: K, _ value: V) throws -> V?` (optional, Default: UnsupportedOperationException)
+- [x] `reversedMap() -> any SequencedMap<K, V>`
+- [x] `sequencedKeySet() -> any SequencedSet<K>`
+- [x] `sequencedValues() -> any SequencedCollection<V>`
+- [x] `sequencedEntrySet() -> any SequencedSet<MapEntry<K, V>>`
 
 Zu retrofitten auf:
-- [ ] `SortedMap` — erweitert `SequencedMap`
-- [ ] `LinkedHashMap` — firstEntry/lastEntry/putFirst/putLast/reversed
-- [ ] `TreeMap` — firstEntry/lastEntry bereits teilweise vorhanden; reversed() und sequenced*-Views fehlen
+- [x] `SortedMap` — erweitert `SequencedMap`; Defaults via SortedMap-Extension
+- [x] `LinkedHashMap` — vollständig: `firstEntry/lastEntry/pollFirst/pollLastEntry/putFirst/putLast/reversedMap/sequenced*`
+- [x] `TreeMap` — vollständig via NavigableMap; `_OrderedSetSnapshot` für `sequencedEntrySet`
 
 ---
 
