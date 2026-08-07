@@ -897,15 +897,31 @@ Vorhanden: Basisoperationen. **4 Tests** (sehr dünn).
 - [ ] Konstanten: `ORDERED`, `DISTINCT`, `SORTED`, `SIZED`, `NONNULL`, `IMMUTABLE`, `CONCURRENT`, `SUBSIZED`
 - [ ] Primitive Varianten: `Spliterator.OfInt`, `OfLong`, `OfDouble`
 
-### `java.util.stream` (komplett fehlend — Designentscheidung erforderlich)
+### `java.util.stream` (komplett fehlend)
 
-> **Hinweis:** `java.util.stream` ist tief in Java-8-Lambdas und lazy-Evaluation eingebettet.
-> Swift bietet `Sequence`, `LazySequence` und `AsyncSequence` als natürliche Entsprechungen.
-> Empfehlung: Schnittstellen definieren, Implementierung auf Swift-Sequenzen delegieren.
+#### Architektur-Entscheidungen
 
-- [ ] `Stream<T>` Interface (zumindest als Protocol-Stub)
-- [ ] `Collectors` (statische Factory-Klasse, zumindest `toList`, `toSet`, `joining`, `groupingBy`, `counting`)
-- [ ] `StreamSupport` (low-level Bridge)
+| Thema | Entscheidung | Status |
+|---|---|---|
+| Backing-Typ für `Stream<T>` | `AnySequence<T>` / `LazySequence` als interne Grundlage; `Stream<T>` ist ein Swift-`class`-Wrapper der Java-API-Namen exponiert | ✅ festgelegt |
+| Intermediäre Operationen (`filter`, `map`, `flatMap`, `limit`, `skip`, `distinct`, `sorted`, `peek`) | Delegation an Swift `lazy`-Ketten; jede Operation gibt einen neuen `Stream<T>`-Wrapper zurück | ✅ festgelegt |
+| Terminale Operationen (`forEach`, `count`, `reduce`, `findFirst`, `anyMatch`, `allMatch`, `noneMatch`, `min`, `max`, `toArray`) | Materialisieren die lazy-Kette; zurückgegebene `Optional<T>` entsprechen Java-`Optional` | ✅ festgelegt |
+| `collect(Collector)` | `Collector<T, A, R>`-Protocol mit `supplier`, `accumulator`, `combiner`, `finisher`; häufige Collector als statische Methoden in `Collectors` (`toList`, `toSet`, `joining`, `groupingBy`, `counting`, `toMap`) | ✅ festgelegt |
+| Primitive Streams (`IntStream`, `LongStream`, `DoubleStream`) | Kein separater Typ nötig — Swift hat kein Boxing-Problem; `Stream<Int>`, `Stream<Int64>`, `Stream<Double>` genügen | ✅ festgelegt |
+| `stream.parallel()` | Noch offen: entweder No-Op mit Dokumentations-Hinweis **oder** Delegation an Swift `AsyncSequence` / `withTaskGroup` | ⚠️ offen |
+| `Stream.generate()`, `Stream.iterate()` | Implementierung über Swift `sequence(state:next:)` | ✅ festgelegt |
+
+#### Aufgaben
+
+- [ ] `Stream<T>` Klasse (Wrapper über `AnySequence<T>`)
+- [ ] Intermediäre Operationen: `filter`, `map`, `flatMap`, `distinct`, `sorted`, `limit`, `skip`, `peek`
+- [ ] Terminale Operationen: `forEach`, `count`, `reduce`, `findFirst`, `findAny`, `anyMatch`, `allMatch`, `noneMatch`, `min`, `max`, `toArray`
+- [ ] `collect(_ collector:)` terminale Operation
+- [ ] `Collector<T, A, R>` Protocol
+- [ ] `Collectors` Utility-Klasse: `toList`, `toSet`, `joining`, `groupingBy`, `counting`, `toMap`, `partitioningBy`
+- [ ] `Stream.of(_ elements:)`, `Stream.empty()`, `Stream.generate(_ supplier:)`, `Stream.iterate(_ seed:, _ f:)`
+- [ ] `StreamSupport` (low-level Bridge für `Spliterator`-Integration)
+- [ ] `parallel()` — Implementierung nach Architektur-Entscheidung
 
 ## Java 9 – Neue Typen und Methoden in java.util
 

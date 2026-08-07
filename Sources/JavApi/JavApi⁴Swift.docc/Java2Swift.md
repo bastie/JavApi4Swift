@@ -670,6 +670,14 @@ while (count != -1) {
 
 > **AI hint:** Never translate a Java `while` with a side-effectful condition (e.g. `while ((n = stream.read(buf)) != -1)`) directly. Extract the call before the loop and repeat it at the end of the loop body.
 
+#### streams and sequences
+
+Java's `Stream` API (Java 8+) processes collections lazily through filter-map-reduce pipelines. Swift provides the same capability through `Sequence` and `LazySequence`.
+
+For a side-by-side comparison of Java Stream operations and their Swift equivalents — including `filter`, `map`, `flatMap`, `collect`, `groupingBy`, and infinite streams — see <doc:Streams>.
+
+> **Porting rule:** Replace `list.stream().filter(…).map(…).collect(Collectors.toList())` with `Array(list.lazy.filter { … }.map { … })`. For `Collectors.groupingBy` use `Dictionary(grouping:by:)`. See <doc:Streams> for the full mapping table.
+
 #### Map
 
 Java Map is similar to dictionary type in Swift

@@ -25,6 +25,7 @@ Work through the articles in order, or jump to a topic that interests you.
 
 - <doc:BasicTypes> — Strings, numbers, booleans, and characters. How Java primitives map to Swift value types.
 - <doc:Collections> — Lists, maps, stacks, and sets. Storing and retrieving groups of objects.
+- <doc:Streams> — Processing collections lazily with Java Streams, Swift Sequences, and JavApi⁴Swift.
 
 ### Working With Time
 
