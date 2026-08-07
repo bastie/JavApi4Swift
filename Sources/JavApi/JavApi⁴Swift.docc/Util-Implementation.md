@@ -42,39 +42,6 @@ Interfaces haben minimale Seiteneffekte und können meist ohne Abhängigkeiten z
 
 ---
 
-### Fehlende java.util-Interfaces
-
-| Interface | Seit | Erweitert | Signatur-Abhängigkeiten | Problem? |
-|-----------|------|-----------|------------------------|---------|
-| `NavigableSet<E>` | 6 | `SortedSet<E>` ✓ | nur eigene Typen | ✅ implementiert |
-| `NavigableMap<K,V>` | 6 | `SortedMap<K,V>` ✓ | `Map.Entry<K,V>` ✓ | ✅ implementiert |
-| `SequencedCollection<E>` | 21 | `Collection<E>` ✓ | nur eigene Typen | ✅ implementiert |
-| `SequencedSet<E>` | 21 | `SequencedCollection` + `Set` ✓ | nur eigene Typen | ✅ implementiert |
-| `SequencedMap<K,V>` | 21 | `Map<K,V>` ✓ | `Map.Entry<K,V>` ✓ | ✅ implementiert |
-
-**Umsetzungsreihenfolge:**
-- [x] `Map.Entry<K,V>` als `struct Entry` in `extension java.util.Map` · `V: Equatable` Constraint auf `Map<K,V>` (Breaking Change)
-- [x] `NavigableSet<E>` — `NavigableSet.swift`
-- [x] `SequencedCollection<E>` — `SequencedCollection.swift`
-- [x] `SequencedSet<E>` — `SequencedSet.swift`
-- [x] `NavigableMap<K,V>` — `NavigableMap.swift` (inkl. Default-Impl für Key-Navigations-Methoden)
-- [x] `SequencedMap<K,V>` — `SequencedMap.swift`
-
-**Interne Implementierungs-Typen (kein Java-API-Äquivalent):**
-- [x] `_NilsFirstComparator` / `_NilsLastComparator` — Impl-Helper für `nullsFirst()` / `nullsLast()`; explizit `internal`, Underscore-Konvention
-- [x] `_ReversedComparator`, `_ChainedComparator`, `_NaturalOrderComparator` — `private` in `Comparator+Java8.swift`
-- [x] `_EnumerationIterator` — `private` in `Enumeration+Swiftify.swift`
-- [x] `_SentinelObject` — `HashSet`-Dummy-Wert; jetzt `Equatable` via Referenz-Identität; `HashMap<E, AnyObject>` → `HashMap<E, _SentinelObject>`
-
-**Map-Refactoring (V: Equatable + Map.Entry):**
-- [x] `V: Equatable` auf `Map<K,V>` — Breaking Change; nötig da Swift kein universelles `Object.equals` kennt (DocC NOTE in `Map.swift`)
-- [x] `struct Entry<K,V>: Equatable & Hashable` in `extension java.util.Map` — `Map+Entry.swift`
-- [x] `entrySet()` → `any java.util.Set<Entry<K,V>>` in `Map`, `AbstractMap`, `HashMap`, `TreeMap`, `WeakHashMap`
-- [x] `values()` → `any java.util.Collection<V>` in `Map`, `AbstractMap`, `HashMap`, `TreeMap`
-- [x] `containsValue()` jetzt ohne bedingten `where V: Equatable` — Constraint ist im Protokoll garantiert
-
----
-
 ### Fehlende java.util.function-Interfaces (Java 8)
 
 Alle ohne externe Typ-Abhängigkeiten — sofort implementierbar.
