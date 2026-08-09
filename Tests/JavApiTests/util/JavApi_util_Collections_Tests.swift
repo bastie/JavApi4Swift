@@ -319,6 +319,35 @@ struct JavApi_util_Collections_Tests {
     #expect(try l.get(2) == 3)
   }
 
+  // MARK: - reverseOrder()
+
+  @Test("reverseOrder() sorts integers descending")
+  func testReverseOrderInts() {
+    let l = list(3, 1, 4, 1, 5, 9)
+    let cmp = C.reverseOrder() as any java.util.Comparator<Int>
+    C.sort(l) { cmp.compare($0, $1) }
+    #expect(l.toArray().compactMap { $0 } == [9, 5, 4, 3, 1, 1])
+  }
+
+  @Test("reverseOrder() sorts strings descending")
+  func testReverseOrderStrings() throws {
+    let l = list("banana", "apple", "cherry")
+    let cmp = C.reverseOrder() as any java.util.Comparator<String>
+    C.sort(l) { cmp.compare($0, $1) }
+    #expect(try l.get(0) == "cherry")
+    #expect(try l.get(2) == "apple")
+  }
+
+  @Test("reverseOrder(_ cmp:) double-reversal yields ascending order")
+  func testReverseOrderWrapsComparator() {
+    let l = list(3, 1, 4, 1, 5)
+    // reverseOrder() → descending; reverseOrder(descending) → ascending again
+    let descCmp: any java.util.Comparator<Int> = C.reverseOrder()
+    let ascCmp = C.reverseOrder(descCmp)
+    C.sort(l) { ascCmp.compare($0, $1) }
+    #expect(l.toArray().compactMap { $0 } == [1, 1, 3, 4, 5])
+  }
+
   // MARK: - EMPTY_LIST / EMPTY_SET / EMPTY_MAP constants
 
   @Test("EMPTY_LIST is empty and is an ArrayList")

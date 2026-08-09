@@ -423,6 +423,23 @@ extension java.util {
       return SynchronizedLinkedHashMap(m)
     }
 
+    // MARK: - Ordering factories (Java 1.2)
+
+    /// Returns a comparator that imposes the reverse of the natural ordering
+    /// on a collection of `Comparable` objects.
+    ///
+    /// Matches `java.util.Collections.reverseOrder()` (Java 1.2).
+    public static func reverseOrder<T: Comparable & Equatable>() -> any java.util.Comparator<T> {
+      _ReverseNaturalComparator<T>()
+    }
+
+    /// Returns a comparator that imposes the reverse ordering of `cmp`.
+    ///
+    /// Matches `java.util.Collections.reverseOrder(Comparator<T>)` (Java 1.2).
+    public static func reverseOrder<T>(_ cmp: any java.util.Comparator<T>) -> any java.util.Comparator<T> {
+      cmp.reversed()
+    }
+
     // MARK: - Sorting
 
     /// Sorts `list` in ascending natural order.
@@ -564,4 +581,38 @@ extension java.util {
       return changed
     }
   }
+}
+
+// MARK: - Private helpers for Collections.reverseOrder()
+
+/// Reverse-natural-order comparator used by `Collections.reverseOrder()`.
+///
+/// Mirrors the behaviour of `Comparator.reverseOrder()` (Java 8) but is
+/// accessible as a concrete type from within `Collections`.
+private final class _ReverseNaturalComparator<T: Comparable>:
+  java.util.Comparator, SortComparator, @unchecked Sendable
+{
+  var order: SortOrder = .forward
+
+  func compare(_ lhs: T, _ rhs: T) -> Int {
+    lhs < rhs ? 1 : lhs > rhs ? -1 : 0
+  }
+
+  func compare(_ lhs: T?, _ rhs: T?) -> Int {
+    switch (lhs, rhs) {
+    case (nil, nil): return 0
+    case (nil, _):   return 1   // nil sorts last in reverse order
+    case (_, nil):   return -1
+    default:         return compare(lhs!, rhs!)
+    }
+  }
+
+  func compare(_ lhs: T, _ rhs: T) -> ComparisonResult {
+    let r: Int = compare(lhs, rhs)
+    return r < 0 ? .orderedAscending : r > 0 ? .orderedDescending : .orderedSame
+  }
+
+  // Two reverse-natural-order comparators for the same T are logically equal.
+  static func == (lhs: _ReverseNaturalComparator<T>, rhs: _ReverseNaturalComparator<T>) -> Bool { true }
+  func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(T.self)) }
 }
