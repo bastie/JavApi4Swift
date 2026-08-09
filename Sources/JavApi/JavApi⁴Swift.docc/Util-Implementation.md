@@ -25,18 +25,19 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 | Interface | Signatur | Benötigt |
 |-----------|----------|----------|
-| [ ] `Predicate<T>` | `test(_ t: T) -> Bool` + `and/or/negate()` | — |
-| [ ] `Function<T,R>` | `apply(_ t: T) -> R` + `andThen/compose()` | — |
-| [ ] `Consumer<T>` | `accept(_ t: T)` + `andThen()` | — |
-| [ ] `BiConsumer<T,U>` | `accept(_ t: T, _ u: U)` + `andThen()` | — |
-| [ ] `BiFunction<T,U,R>` | `apply(_ t: T, _ u: U) -> R` + `andThen()` | — |
-| [ ] `UnaryOperator<T>` | extends `Function<T,T>` + `identity()` | `Function<T,T>` |
-| [ ] `BinaryOperator<T>` | extends `BiFunction<T,T,T>` + `minBy/maxBy()` | `BiFunction` + `Comparator` |
+| [x] `Predicate<T>` | `test(_ t: T) -> Bool` + `and/or/negate/not()` + `AnyPredicate<T>` | — |
+| [x] `Function<T,R>` | `apply(_ t: T) -> R` + `andThen/compose/identity()` + `AnyFunction<T,R>` | — |
+| [x] `Consumer<T>` | `accept(_ t: T)` + `andThen()` + `AnyConsumer<T>` | — |
+| [x] `BiConsumer<T,U>` | `accept(_ t: T, _ u: U)` + `andThen()` + `AnyBiConsumer<T,U>` | — |
+| [x] `BiFunction<T,U,R>` | `apply(_ t: T, _ u: U) -> R` + `andThen()` + `AnyBiFunction<T,U,R>` | — |
+| [x] `UnaryOperator<T>` | extends `Function<T,T>` + `AnyUnaryOperator<T>` | `Function<T,T>` |
+| [x] `BinaryOperator<T>` | extends `BiFunction<T,T,T>` + `minBy/maxBy()` + `AnyBinaryOperator<T>` | `BiFunction` + `Comparator` |
 | [ ] `BooleanSupplier` | `getAsBoolean() -> Bool` | — |
 | [ ] `IntConsumer` / `LongConsumer` / `DoubleConsumer` | Spezialisierungen | — |
 | [ ] `IntPredicate` / `LongPredicate` / `DoublePredicate` | Spezialisierungen | — |
 
-> Priorität: `Predicate`, `Function`, `Consumer`, `BiConsumer`, `BiFunction` — werden von Java-8-Methoden in `Collection`, `Map`, `Iterator` direkt benötigt.
+> Kern-Interfaces vollständig implementiert (Java 8). Primitive Spezialisierungen ausstehend.
+> P0-Signaturlücken in `Collection`, `Map`, `Iterator` (forEach, replaceAll, computeIfAbsent) sind damit unblocked.
 
 ---
 
@@ -278,10 +279,11 @@ Vorhanden (Java 8): `getOrDefault`, `putIfAbsent`, `replace` (2 Überladungen), 
 - [ ] `ToIntFunction<T>`, `ToLongFunction<T>`, `ToDoubleFunction<T>`
 - [ ] Tests
 
-### `StringJoiner` (komplett fehlend)
-- [ ] `StringJoiner(_ delimiter: String)` und `(_, prefix:, suffix:)`
-- [ ] `add`, `merge`, `setEmptyValue`, `length`, `toString`
-- [ ] Tests
+### `StringJoiner` (vollständig implementiert)
+- [x] `StringJoiner(_ delimiter: String)` und `(_ delimiter:, prefix:, suffix:)`
+- [x] `add`, `merge`, `setEmptyValue`, `length`, `toString`
+- [x] `CustomStringConvertible` (`description`)
+- [x] Tests (20 Tests in `JavApi_util_StringJoiner_Tests.swift`)
 
 ### `Spliterator<T>` (komplett fehlend)
 - [ ] Protocol mit `tryAdvance`, `forEachRemaining`, `trySplit`, `estimateSize`, `characteristics`
