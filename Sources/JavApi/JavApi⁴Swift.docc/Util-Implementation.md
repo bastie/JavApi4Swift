@@ -29,9 +29,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 | [ ] `IntConsumer` / `LongConsumer` / `DoubleConsumer` | Spezialisierungen | — |
 | [ ] `IntPredicate` / `LongPredicate` / `DoublePredicate` | Spezialisierungen | — |
 
-> Kern-Interfaces vollständig implementiert (Java 8). Primitive Spezialisierungen ausstehend.
-> P0-Signaturlücken in `Collection`, `Map`, `Iterator` (forEach, replaceAll, computeIfAbsent) sind damit unblocked.
-
 ---
 
 ## P0 – Fehlende java.util.concurrent-Interfaces
@@ -47,13 +44,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 ## P1 – Java 1.0 Kompatibilität
 
 ### `Date`
-- [x] `getTime() -> Int64`
-- [x] `setTime(_ time: Int64)`
-- [x] `before(_ when: Date) -> Bool`
-- [x] `after(_ when: Date) -> Bool`
-- [x] `getYear()`, `setYear()`, `getMonth()`, `setMonth()`, `getDate()`, `setDate()` (deprecated, aber public API)
-- [x] `getDay()`, `getHours()`, `setHours()`, `getMinutes()`, `setMinutes()`, `getSeconds()`, `setSeconds()`
-- [x] `toLocaleString() -> String`, `toGMTString() -> String`
 - [ ] `clone() -> Date`
 
 **Tests:** 43 vorhanden.
@@ -69,7 +59,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] `lastIndexOf(_ elem: E, _ index: Int) -> Int`
 
 ### `Hashtable`
-- [x] `clone() -> Hashtable<K,V>`
 - [ ] `putAll(_ t: Map<K, V>)`
 - [ ] `equals(_ o: Any?) -> Bool`
 - [ ] `hashCode() -> Int`
@@ -255,19 +244,10 @@ Java 8:
 ### `Optional<T>` – Restarbeiten
 - [ ] `stream() -> Stream<T>` (abhängig von Stream-Implementierung)
 
-### `java.util.function` — Kern vollständig implementiert (Java 8)
+### `java.util.function` — primitive Spezialisierungen (niedrige Priorität)
 
-Vorhanden (je Protokoll + `Any*`-Closure-Wrapper + 21 Tests):
-- [x] `Supplier<T>` — `get() -> T`
-- [x] `Predicate<T>` + `and/or/negate/not()` → `AnyPredicate<T>`
-- [x] `Function<T,R>` + `andThen/compose/identity()` → `AnyFunction<T,R>`
-- [x] `Consumer<T>` + `andThen()` → `AnyConsumer<T>`
-- [x] `BiConsumer<T,U>` + `andThen()` → `AnyBiConsumer<T,U>`
-- [x] `BiFunction<T,U,R>` + `andThen()` → `AnyBiFunction<T,U,R>`
-- [x] `UnaryOperator<T>` (extends `Function<T,T>`) → `AnyUnaryOperator<T>`
-- [x] `BinaryOperator<T>` + `minBy/maxBy()` (extends `BiFunction<T,T,T>`) → `AnyBinaryOperator<T>`
+Kern vollständig implementiert (`Supplier`, `Predicate`, `Function`, `Consumer`, `BiConsumer`, `BiFunction`, `UnaryOperator`, `BinaryOperator` + je `Any*`-Wrapper, 21 Tests). Noch offen:
 
-Noch ausstehend (primitive Spezialisierungen, niedrige Priorität):
 - [ ] `BiPredicate<T,U>`
 - [ ] `BooleanSupplier`, `IntSupplier`, `LongSupplier`, `DoubleSupplier`
 - [ ] `IntConsumer`, `LongConsumer`, `DoubleConsumer`
@@ -276,16 +256,6 @@ Noch ausstehend (primitive Spezialisierungen, niedrige Priorität):
 - [ ] `IntBinaryOperator`, `LongBinaryOperator`, `DoubleBinaryOperator`
 - [ ] `IntPredicate`, `LongPredicate`, `DoublePredicate`
 - [ ] `ToIntFunction<T>`, `ToLongFunction<T>`, `ToDoubleFunction<T>`
-
-### `StringJoiner` (vollständig implementiert)
-- [x] `StringJoiner(_ delimiter: String)` und `(_ delimiter:, _ prefix:, _ suffix:)`
-- [x] `add(_ newElement: String) -> StringJoiner`
-- [x] `merge(_ other: StringJoiner) -> StringJoiner`
-- [x] `setEmptyValue(_ emptyValue: String) -> StringJoiner`
-- [x] `length() -> Int`
-- [x] `toString() -> String`
-- [x] `CustomStringConvertible` (`description`)
-- [x] Tests: 20 Tests in `JavApi_util_StringJoiner_Tests.swift`
 
 ### `Spliterator<T>` (komplett fehlend)
 - [ ] Protocol mit `tryAdvance`, `forEachRemaining`, `trySplit`, `estimateSize`, `characteristics`
@@ -415,7 +385,7 @@ Aufgaben:
 | `ServiceLoader` | 0 | ≥ 5 |
 | `LinkedHashMap` | 4 | ≥ 15 |
 | `UUID` | 3 | ≥ 15 |
-| `Enumeration` | 1 | ≥ 5 |
+| `Enumeration` | 3 | ≥ 5 |
 | `TimeZone` | 8 | ≥ 12 |
 | `SimpleTimeZone` | 5 | ≥ 10 |
 | `Random` | 12 | ≥ 20 |
@@ -423,4 +393,4 @@ Aufgaben:
 
 ---
 
-*Stand: 2026-08-09 · Basis: Java 1.1–26 public API*
+*Stand: 2026-08-09 · Basis: Java 1.0–26 public API*
