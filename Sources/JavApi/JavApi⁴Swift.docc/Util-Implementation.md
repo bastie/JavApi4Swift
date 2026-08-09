@@ -13,11 +13,11 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 | Interface | Fehlende Methoden / Probleme |
 |-----------|------------------------------|
-| `Collection<E>` | `stream()` ⚠️ `Stream<E>` fehlt · `spliterator()` ⚠️ `Spliterator<E>` fehlt · `forEach()` ⚠️ `Consumer<E>` fehlt |
-| `Comparator<T>` | `comparing(keyExtractor)` ⚠️ `Function<T,R>` · `thenComparing(keyExtractor)` ⚠️ · `comparingInt/Long/Double()` ⚠️ |
-| `Iterator<E>` | `forEachRemaining()` ⚠️ `Consumer<E>` fehlt |
-| `List<E>` | `sort()` · `replaceAll()` ⚠️ `UnaryOperator<E>` fehlt |
-| `Map<K,V>` | `forEach()` ⚠️ `BiConsumer` · `replaceAll()` ⚠️ `BiFunction` · `computeIfAbsent()` ⚠️ `Function` |
+| `Collection<E>` | `stream()` ⚠️ `Stream<E>` fehlt · `spliterator()` ⚠️ `Spliterator<E>` fehlt · `forEach(_ action: Consumer<E>)` noch nicht verdrahtet |
+| `Comparator<T>` | `comparing(keyExtractor: Function<T,R>)` · `thenComparing(keyExtractor)` · `comparingInt/Long/Double()` — Typen vorhanden, Methoden noch offen |
+| `Iterator<E>` | `forEachRemaining(_ action: Consumer<E>)` noch nicht verdrahtet |
+| `List<E>` | `sort()` · `replaceAll(_ operator: UnaryOperator<E>)` noch nicht verdrahtet |
+| `Map<K,V>` | `forEach(_ action: BiConsumer<K,V>)` · `replaceAll(_ function: BiFunction<K,V,V>)` · `computeIfAbsent(_ key: K, _ f: Function<K,V>)` — Typen vorhanden, Methoden noch offen |
 
 ---
 
@@ -25,13 +25,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 | Interface | Signatur | Benötigt |
 |-----------|----------|----------|
-| [x] `Predicate<T>` | `test(_ t: T) -> Bool` + `and/or/negate/not()` + `AnyPredicate<T>` | — |
-| [x] `Function<T,R>` | `apply(_ t: T) -> R` + `andThen/compose/identity()` + `AnyFunction<T,R>` | — |
-| [x] `Consumer<T>` | `accept(_ t: T)` + `andThen()` + `AnyConsumer<T>` | — |
-| [x] `BiConsumer<T,U>` | `accept(_ t: T, _ u: U)` + `andThen()` + `AnyBiConsumer<T,U>` | — |
-| [x] `BiFunction<T,U,R>` | `apply(_ t: T, _ u: U) -> R` + `andThen()` + `AnyBiFunction<T,U,R>` | — |
-| [x] `UnaryOperator<T>` | extends `Function<T,T>` + `AnyUnaryOperator<T>` | `Function<T,T>` |
-| [x] `BinaryOperator<T>` | extends `BiFunction<T,T,T>` + `minBy/maxBy()` + `AnyBinaryOperator<T>` | `BiFunction` + `Comparator` |
 | [ ] `BooleanSupplier` | `getAsBoolean() -> Bool` | — |
 | [ ] `IntConsumer` / `LongConsumer` / `DoubleConsumer` | Spezialisierungen | — |
 | [ ] `IntPredicate` / `LongPredicate` / `DoublePredicate` | Spezialisierungen | — |
@@ -54,16 +47,16 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 ## P1 – Java 1.0 Kompatibilität
 
 ### `Date`
-- [ ] `getTime() -> Int64`
-- [ ] `setTime(_ time: Int64)`
-- [ ] `before(_ when: Date) -> Bool`
-- [ ] `after(_ when: Date) -> Bool`
+- [x] `getTime() -> Int64`
+- [x] `setTime(_ time: Int64)`
+- [x] `before(_ when: Date) -> Bool`
+- [x] `after(_ when: Date) -> Bool`
+- [x] `getYear()`, `setYear()`, `getMonth()`, `setMonth()`, `getDate()`, `setDate()` (deprecated, aber public API)
+- [x] `getDay()`, `getHours()`, `setHours()`, `getMinutes()`, `setMinutes()`, `getSeconds()`, `setSeconds()`
+- [x] `toLocaleString() -> String`, `toGMTString() -> String`
 - [ ] `clone() -> Date`
-- [ ] `getYear()`, `setYear()`, `getMonth()`, `setMonth()`, `getDate()`, `setDate()` (deprecated, aber public API)
-- [ ] `getDay()`, `getHours()`, `setHours()`, `getMinutes()`, `setMinutes()`, `getSeconds()`, `setSeconds()`
-- [ ] `toLocaleString() -> String`, `toGMTString() -> String`
 
-**Tests:** 43 vorhanden, decken `getTime`/`setTime`, `before`/`after`, `clone` nicht ab.
+**Tests:** 43 vorhanden.
 
 ### `Vector`
 - [ ] `clone() -> Vector<E>`
@@ -76,6 +69,7 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] `lastIndexOf(_ elem: E, _ index: Int) -> Int`
 
 ### `Hashtable`
+- [x] `clone() -> Hashtable<K,V>`
 - [ ] `putAll(_ t: Map<K, V>)`
 - [ ] `equals(_ o: Any?) -> Bool`
 - [ ] `hashCode() -> Int`
@@ -146,7 +140,7 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ## P3 – Java 1.2 Kompatibilität
 
 ### `Comparator<T>`
-- [ ] `comparing(keyExtractor)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` ⚠️ benötigt `Function<T,R>`
+- [ ] `comparing(keyExtractor: Function<T,R>)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` — `Function<T,R>` jetzt vorhanden, Implementierung unblocked
 
 ### `Collections` – Implementierungsstand
 
@@ -175,8 +169,6 @@ Java 8:
 
 
 ### `HashMap`
-
-Vorhanden (Java 8): `getOrDefault`, `putIfAbsent`, `replace` (2 Überladungen), `remove(key, value)`. **Tests:** 49 vorhanden.
 
 - [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
 - [ ] `clone() -> HashMap<K, V>`
@@ -263,27 +255,37 @@ Vorhanden (Java 8): `getOrDefault`, `putIfAbsent`, `replace` (2 Überladungen), 
 ### `Optional<T>` – Restarbeiten
 - [ ] `stream() -> Stream<T>` (abhängig von Stream-Implementierung)
 
-### `java.util.function` (nur `Supplier<T>` vorhanden)
-- [ ] `Consumer<T>`, `BiConsumer<T, U>`
-- [ ] `Function<T, R>` + `compose`, `andThen`, `identity`
-- [ ] `BiFunction<T, U, R>` + `andThen`
-- [ ] `Predicate<T>` + `and`, `or`, `negate`, `not`
-- [ ] `BiPredicate<T, U>`
-- [ ] `UnaryOperator<T>`, `BinaryOperator<T>`
-- [ ] Primitive Varianten: `IntSupplier`, `LongSupplier`, `DoubleSupplier`, `BooleanSupplier`
+### `java.util.function` — Kern vollständig implementiert (Java 8)
+
+Vorhanden (je Protokoll + `Any*`-Closure-Wrapper + 21 Tests):
+- [x] `Supplier<T>` — `get() -> T`
+- [x] `Predicate<T>` + `and/or/negate/not()` → `AnyPredicate<T>`
+- [x] `Function<T,R>` + `andThen/compose/identity()` → `AnyFunction<T,R>`
+- [x] `Consumer<T>` + `andThen()` → `AnyConsumer<T>`
+- [x] `BiConsumer<T,U>` + `andThen()` → `AnyBiConsumer<T,U>`
+- [x] `BiFunction<T,U,R>` + `andThen()` → `AnyBiFunction<T,U,R>`
+- [x] `UnaryOperator<T>` (extends `Function<T,T>`) → `AnyUnaryOperator<T>`
+- [x] `BinaryOperator<T>` + `minBy/maxBy()` (extends `BiFunction<T,T,T>`) → `AnyBinaryOperator<T>`
+
+Noch ausstehend (primitive Spezialisierungen, niedrige Priorität):
+- [ ] `BiPredicate<T,U>`
+- [ ] `BooleanSupplier`, `IntSupplier`, `LongSupplier`, `DoubleSupplier`
 - [ ] `IntConsumer`, `LongConsumer`, `DoubleConsumer`
 - [ ] `IntFunction<R>`, `LongFunction<R>`, `DoubleFunction<R>`
 - [ ] `IntUnaryOperator`, `LongUnaryOperator`, `DoubleUnaryOperator`
 - [ ] `IntBinaryOperator`, `LongBinaryOperator`, `DoubleBinaryOperator`
 - [ ] `IntPredicate`, `LongPredicate`, `DoublePredicate`
 - [ ] `ToIntFunction<T>`, `ToLongFunction<T>`, `ToDoubleFunction<T>`
-- [ ] Tests
 
 ### `StringJoiner` (vollständig implementiert)
-- [x] `StringJoiner(_ delimiter: String)` und `(_ delimiter:, prefix:, suffix:)`
-- [x] `add`, `merge`, `setEmptyValue`, `length`, `toString`
+- [x] `StringJoiner(_ delimiter: String)` und `(_ delimiter:, _ prefix:, _ suffix:)`
+- [x] `add(_ newElement: String) -> StringJoiner`
+- [x] `merge(_ other: StringJoiner) -> StringJoiner`
+- [x] `setEmptyValue(_ emptyValue: String) -> StringJoiner`
+- [x] `length() -> Int`
+- [x] `toString() -> String`
 - [x] `CustomStringConvertible` (`description`)
-- [x] Tests (20 Tests in `JavApi_util_StringJoiner_Tests.swift`)
+- [x] Tests: 20 Tests in `JavApi_util_StringJoiner_Tests.swift`
 
 ### `Spliterator<T>` (komplett fehlend)
 - [ ] Protocol mit `tryAdvance`, `forEachRemaining`, `trySplit`, `estimateSize`, `characteristics`
