@@ -580,6 +580,94 @@ extension java.util {
       }
       return changed
     }
+
+    // MARK: - Java 1.4 additions
+
+    /// Swaps the elements at positions `i` and `j` in `list`.
+    ///
+    /// Matches `java.util.Collections.swap(List<?>, int, int)` (Java 1.4).
+    /// - Throws: `IndexOutOfBoundsException` if either index is out of range.
+    public static func swap<E: Equatable>(_ list: java.util.ArrayList<E>, _ i: Int, _ j: Int) throws {
+      let tmp = try list.get(i)
+      _ = try list.set(i, list.get(j))
+      _ = try list.set(j, tmp)
+    }
+
+    /// Rotates the elements in `list` by `distance`.
+    ///
+    /// After the call, element at index `k` will be the element formerly at
+    /// `(k - distance) mod size`. Positive `distance` rotates towards higher
+    /// indices (last elements move to the front); negative rotates the other way.
+    ///
+    /// Matches `java.util.Collections.rotate(List<?>, int)` (Java 1.4).
+    public static func rotate<E: Equatable>(_ list: java.util.ArrayList<E>, _ distance: Int) {
+      let n = list.size()
+      guard n > 1 else { return }
+      var arr = list.toArray()
+      // Normalize distance to [0, n) so we always rotate "right" by d positions
+      let d = ((distance % n) + n) % n
+      guard d != 0 else { return }
+      // Take last d elements and prepend them
+      let tail = Array(arr[(n - d)...])
+      let head = Array(arr[..<(n - d)])
+      arr = tail + head
+      list.clear()
+      for e in arr { _ = try? list.add(e) }
+    }
+
+    /// Replaces all occurrences of `oldVal` with `newVal` in `list`.
+    ///
+    /// Returns `true` if the list was modified.
+    /// Matches `java.util.Collections.replaceAll(List<T>, T, T)` (Java 1.4).
+    @discardableResult
+    public static func replaceAll<E: Equatable>(
+      _ list: java.util.ArrayList<E>, _ oldVal: E?, _ newVal: E?
+    ) -> Bool {
+      var changed = false
+      for i in 0..<list.size() {
+        if (try? list.get(i)) == oldVal {
+          _ = try? list.set(i, newVal)
+          changed = true
+        }
+      }
+      return changed
+    }
+
+    /// Returns the starting index of the first occurrence of `target` as a
+    /// contiguous subsequence of `source`, or `-1` if not found.
+    ///
+    /// Returns `0` if `target` is empty (consistent with Java behaviour).
+    /// Matches `java.util.Collections.indexOfSubList(List<?>, List<?>)` (Java 1.4).
+    public static func indexOfSubList<E: Equatable>(
+      _ source: java.util.ArrayList<E>, _ target: java.util.ArrayList<E>
+    ) -> Int {
+      let s = source.toArray()
+      let t = target.toArray()
+      guard !t.isEmpty else { return 0 }
+      guard s.count >= t.count else { return -1 }
+      for i in 0...(s.count - t.count) {
+        if s[i..<(i + t.count)].elementsEqual(t, by: { $0 == $1 }) { return i }
+      }
+      return -1
+    }
+
+    /// Returns the starting index of the last occurrence of `target` as a
+    /// contiguous subsequence of `source`, or `-1` if not found.
+    ///
+    /// Returns `source.size()` if `target` is empty (consistent with Java behaviour).
+    /// Matches `java.util.Collections.lastIndexOfSubList(List<?>, List<?>)` (Java 1.4).
+    public static func lastIndexOfSubList<E: Equatable>(
+      _ source: java.util.ArrayList<E>, _ target: java.util.ArrayList<E>
+    ) -> Int {
+      let s = source.toArray()
+      let t = target.toArray()
+      guard !t.isEmpty else { return s.count }
+      guard s.count >= t.count else { return -1 }
+      for i in stride(from: s.count - t.count, through: 0, by: -1) {
+        if s[i..<(i + t.count)].elementsEqual(t, by: { $0 == $1 }) { return i }
+      }
+      return -1
+    }
   }
 }
 

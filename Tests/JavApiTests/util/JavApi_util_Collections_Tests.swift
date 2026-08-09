@@ -560,4 +560,108 @@ struct JavApi_util_Collections_Tests {
     #expect(result.count == 3)
     #expect(Set(result) == Set(["x", "y", "z"]))
   }
+
+  // MARK: - Java 1.4: swap / rotate / replaceAll / indexOfSubList
+
+  @Test("swap exchanges two elements")
+  func testSwap() throws {
+    let l = list(1, 2, 3, 4, 5)
+    try C.swap(l, 1, 3)
+    #expect(l.toArray().compactMap { $0 } == [1, 4, 3, 2, 5])
+  }
+
+  @Test("swap same index is no-op")
+  func testSwapSameIndex() throws {
+    let l = list(10, 20, 30)
+    try C.swap(l, 1, 1)
+    #expect(l.toArray().compactMap { $0 } == [10, 20, 30])
+  }
+
+  @Test("rotate positive distance moves tail to front")
+  func testRotatePositive() {
+    let l = list(1, 2, 3, 4, 5)
+    C.rotate(l, 2)
+    // [4,5] prepended: [4,5,1,2,3]
+    #expect(l.toArray().compactMap { $0 } == [4, 5, 1, 2, 3])
+  }
+
+  @Test("rotate negative distance moves head to back")
+  func testRotateNegative() {
+    let l = list(1, 2, 3, 4, 5)
+    C.rotate(l, -2)
+    // Equivalent to rotate by +3: [3,4,5] prepended: [3,4,5,1,2]
+    #expect(l.toArray().compactMap { $0 } == [3, 4, 5, 1, 2])
+  }
+
+  @Test("rotate by 0 is no-op")
+  func testRotateZero() {
+    let l = list(1, 2, 3)
+    C.rotate(l, 0)
+    #expect(l.toArray().compactMap { $0 } == [1, 2, 3])
+  }
+
+  @Test("rotate by list size is no-op")
+  func testRotateFullCycle() {
+    let l = list(1, 2, 3)
+    C.rotate(l, 3)
+    #expect(l.toArray().compactMap { $0 } == [1, 2, 3])
+  }
+
+  @Test("replaceAll replaces matching elements and returns true")
+  func testReplaceAll() {
+    let l = list(1, 2, 3, 2, 4)
+    let changed = C.replaceAll(l, 2, 99)
+    #expect(changed == true)
+    #expect(l.toArray().compactMap { $0 } == [1, 99, 3, 99, 4])
+  }
+
+  @Test("replaceAll with no match returns false and leaves list unchanged")
+  func testReplaceAllNoMatch() {
+    let l = list(1, 2, 3)
+    let changed = C.replaceAll(l, 9, 99)
+    #expect(changed == false)
+    #expect(l.toArray().compactMap { $0 } == [1, 2, 3])
+  }
+
+  @Test("indexOfSubList finds first occurrence")
+  func testIndexOfSubList() {
+    let src = list(1, 2, 3, 4, 3, 4, 5)
+    let tgt = list(3, 4)
+    #expect(C.indexOfSubList(src, tgt) == 2)
+  }
+
+  @Test("indexOfSubList returns -1 when not found")
+  func testIndexOfSubListNotFound() {
+    let src = list(1, 2, 3)
+    let tgt = list(4, 5)
+    #expect(C.indexOfSubList(src, tgt) == -1)
+  }
+
+  @Test("indexOfSubList with empty target returns 0")
+  func testIndexOfSubListEmptyTarget() {
+    let src = list(1, 2, 3)
+    let tgt = java.util.ArrayList<Int>()
+    #expect(C.indexOfSubList(src, tgt) == 0)
+  }
+
+  @Test("lastIndexOfSubList finds last occurrence")
+  func testLastIndexOfSubList() {
+    let src = list(1, 2, 3, 4, 3, 4, 5)
+    let tgt = list(3, 4)
+    #expect(C.lastIndexOfSubList(src, tgt) == 4)
+  }
+
+  @Test("lastIndexOfSubList returns -1 when not found")
+  func testLastIndexOfSubListNotFound() {
+    let src = list(1, 2, 3)
+    let tgt = list(4, 5)
+    #expect(C.lastIndexOfSubList(src, tgt) == -1)
+  }
+
+  @Test("lastIndexOfSubList with empty target returns source.size()")
+  func testLastIndexOfSubListEmptyTarget() {
+    let src = list(1, 2, 3)
+    let tgt = java.util.ArrayList<Int>()
+    #expect(C.lastIndexOfSubList(src, tgt) == 3)
+  }
 }

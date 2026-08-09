@@ -186,8 +186,6 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ### `Collections` – fehlende Methoden
 
 Java 1.2:
-- [ ] `static reverseOrder<T: Comparable>() -> Comparator<T>`
-- [ ] `static reverseOrder<T>(_ cmp: Comparator<T>) -> Comparator<T>`
 - [ ] `static singleton<T>(_ o: T) -> Set<T>`
 - [ ] `static singletonMap<K, V>(_ key: K, _ value: V) -> Map<K, V>`
 - [ ] `static enumeration<T>(_ c: Collection<T>) -> Enumeration<T>`
@@ -195,11 +193,6 @@ Java 1.2:
 - [ ] `static unmodifiableCollection/Set/SortedSet/Map/SortedMap`
 - [ ] `static synchronizedCollection/Set/SortedSet/Map/SortedMap`
 
-Java 1.4:
-- [ ] `static swap<T>(_ list: List<T>, _ i: Int, _ j: Int)`
-- [ ] `static replaceAll<T>(_ list: List<T>, _ oldVal: T, _ newVal: T) -> Bool`
-- [ ] `static rotate<T>(_ list: List<T>, _ distance: Int)`
-- [ ] `static indexOfSubList / lastIndexOfSubList`
 
 Java 5:
 - [ ] `static checked*` (checkedCollection, checkedList, checkedSet, …)
@@ -214,23 +207,12 @@ Java 8:
 - [ ] `static checkedNavigableMap/NavigableSet/Queue`
 - [ ] `static emptyNavigableMap/NavigableSet`
 
-**Vorhanden:** `sort`, `binarySearch`, `reverse`, `shuffle`, `min`, `max`, `fill`, `copy`, `frequency`, `disjoint`, `addAll`, `unmodifiableList/SequencedCollection/SequencedSet/SequencedMap`, `synchronizedList/SequencedCollection/SequencedSet/SequencedMap`, `emptySet/List/Map`, `EMPTY_LIST/SET/MAP`, `singletonList`, `nCopies`. 42 Tests.
 
 ### `HashMap`
-
-**Vorhanden:** Basisoperationen. 33 Tests.
 
 - [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
 - [ ] `clone() -> HashMap<K, V>`
 - Java 8: [ ] `getOrDefault`, `putIfAbsent`, `replace`, `remove(key,value)`, `compute`, `computeIfAbsent`, `computeIfPresent`, `merge`, `forEach`, `replaceAll`
-
-### `TreeMap`
-
-**Vorhanden:** Basisoperationen, NavigableMap vollständig, `init(comparator:)`, `init(sortedMap:)`, `comparator()`, `clone()`, `floorKey`, `higherKey`, `lowerKey`, `ceilingKey`. 38 Tests.
-
-### `TreeSet`
-
-**Vorhanden:** Basisoperationen, NavigableSet vollständig, `init(comparator:)`, `init(sortedSet:)`, `comparator()`, `clone()`. 38 Tests.
 
 ### `Arrays`
 
@@ -420,8 +402,6 @@ Aufgaben:
 
 ---
 
----
-
 ## Java 16
 
 ### `Stream<T>` – Java 16
@@ -504,4 +484,4 @@ Aufgaben:
 
 ---
 
-*Stand: 2026-08-07 · Basis: Java 1.1–26 public API*
+*Stand: 2026-08-09 · Basis: Java 1.1–26 public API*
