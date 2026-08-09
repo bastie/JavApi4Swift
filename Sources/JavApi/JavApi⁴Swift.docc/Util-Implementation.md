@@ -212,7 +212,7 @@ Java 8:
 
 - [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
 - [ ] `clone() -> HashMap<K, V>`
-- Java 8: [ ] `getOrDefault`, `putIfAbsent`, `replace`, `remove(key,value)`, `compute`, `computeIfAbsent`, `computeIfPresent`, `merge`, `forEach`, `replaceAll`
+- Java 8 (offen): [ ] `compute`, `computeIfAbsent`, `computeIfPresent`, `merge`, `forEach`, `replaceAll`
 
 ### `Arrays`
 
@@ -233,8 +233,6 @@ Java 8:
 - [ ] `HashMap`, `TreeMap` auf `entrySet() -> Set<MapEntry<K,V>>` umstellen (aktuell nur LinkedHashMap vollständig)
 
 ### `LinkedHashMap` – Testabdeckung und LRU-Support
-
-**Vorhanden:** Vollständige Map + SequencedMap-Implementierung. 4 Tests (sehr dünn).
 
 - [ ] Tests auf ≥ 15 erweitern (Einfügungsreihenfolge, Iterationsreihenfolge, putFirst/putLast)
 - [ ] `LinkedHashMap(_ initialCapacity: Int, _ loadFactor: Float, _ accessOrder: Bool)` Konstruktor
@@ -427,8 +425,6 @@ Aufgaben:
 
 ---
 
----
-
 ## Java 22–24 – Stream Gatherers (finalisiert in Java 24)
 
 ### `Gatherer<T, A, R>` Interface
@@ -454,7 +450,7 @@ Aufgaben:
 
 ---
 
-## Bewusst ausgelassen (`[-]`)
+## Derzeit Bewusst ausgelassen (`[-]`) mit Prüfung im Nachgang
 
 | Feature | Begründung |
 |---------|------------|

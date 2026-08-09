@@ -76,6 +76,36 @@ extension java.util {
     ///
     /// - Since: Java 1.2
     func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>>
+
+    // MARK: Java 8 — conditional-mutation (protocol requirements for dynamic dispatch)
+
+    /// Returns the value for `key`, or `defaultValue` if the key is absent.
+    /// - Since: Java 8
+    func getOrDefault(_ key: K, _ defaultValue: V) -> V
+
+    /// Associates `key` with `value` only if `key` is not already present.
+    /// Returns the existing value, or `nil` after inserting.
+    /// - Since: Java 8
+    @discardableResult
+    func putIfAbsent(_ key: K, _ value: V) -> V?
+
+    /// Replaces the value for `key` if present. Returns the previous value,
+    /// or `nil` if the key was absent.
+    /// - Since: Java 8
+    @discardableResult
+    func replace(_ key: K, _ value: V) -> V?
+
+    /// Replaces the value for `key` only when it currently equals `oldValue`.
+    /// Returns `true` on success.
+    /// - Since: Java 8
+    @discardableResult
+    func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool
+
+    /// Removes the mapping for `key` only when it currently maps to `value`.
+    /// Returns `true` if the mapping was removed.
+    /// - Since: Java 8
+    @discardableResult
+    func remove(_ key: K, _ value: V) -> Bool
   }
 }
 
@@ -83,4 +113,56 @@ extension java.util {
 
 extension java.util.Map {
   public func isEmpty() -> Bool { size() == 0 }
+
+  // MARK: Java 8 default methods
+
+  /// Returns the value for `key`, or `defaultValue` if the key is absent.
+  ///
+  /// Matches `java.util.Map.getOrDefault(Object, V)` (Java 8).
+  public func getOrDefault(_ key: K, _ defaultValue: V) -> V {
+    get(key) ?? defaultValue
+  }
+
+  /// If `key` is not already present (or maps to `nil`), associates it with
+  /// `value` and returns `nil`; otherwise returns the existing value.
+  ///
+  /// Matches `java.util.Map.putIfAbsent(K, V)` (Java 8).
+  @discardableResult
+  public func putIfAbsent(_ key: K, _ value: V) -> V? {
+    if let existing = get(key) { return existing }
+    _ = put(key, value)
+    return nil
+  }
+
+  /// If `key` is present, replaces its value with `value` and returns the
+  /// old value; otherwise returns `nil` without modifying the map.
+  ///
+  /// Matches `java.util.Map.replace(K, V)` (Java 8).
+  @discardableResult
+  public func replace(_ key: K, _ value: V) -> V? {
+    guard containsKey(key) else { return nil }
+    return put(key, value)
+  }
+
+  /// If `key` currently maps to `oldValue`, replaces it with `newValue` and
+  /// returns `true`; otherwise returns `false`.
+  ///
+  /// Matches `java.util.Map.replace(K, V, V)` (Java 8).
+  @discardableResult
+  public func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool {
+    guard get(key) == oldValue else { return false }
+    _ = put(key, newValue)
+    return true
+  }
+
+  /// If `key` currently maps to `value`, removes the mapping and returns
+  /// `true`; otherwise returns `false`.
+  ///
+  /// Matches `java.util.Map.remove(Object, Object)` (Java 8).
+  @discardableResult
+  public func remove(_ key: K, _ value: V) -> Bool {
+    guard get(key) == value else { return false }
+    _ = remove(key)
+    return true
+  }
 }

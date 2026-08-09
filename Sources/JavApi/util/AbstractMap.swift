@@ -115,6 +115,45 @@ extension java.util {
       return list
     }
 
+    // MARK: - java.util.Map — Java 8 conditional-mutation (default implementations)
+
+    /// Returns the value for `key`, or `defaultValue` if the key is absent.
+    open func getOrDefault(_ key: K, _ defaultValue: V) -> V {
+      get(key) ?? defaultValue
+    }
+
+    /// Associates `key` with `value` only if `key` is not already mapped.
+    /// Returns the existing value, or `nil` after inserting.
+    @discardableResult
+    open func putIfAbsent(_ key: K, _ value: V) -> V? {
+      if let existing = get(key) { return existing }
+      _ = put(key, value)
+      return nil
+    }
+
+    /// Replaces the value for `key` if present; returns the old value or `nil`.
+    @discardableResult
+    open func replace(_ key: K, _ value: V) -> V? {
+      guard containsKey(key) else { return nil }
+      return put(key, value)
+    }
+
+    /// Replaces the value for `key` only when it currently equals `oldValue`.
+    @discardableResult
+    open func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool {
+      guard get(key) == oldValue else { return false }
+      _ = put(key, newValue)
+      return true
+    }
+
+    /// Removes the mapping for `key` only when it currently maps to `value`.
+    @discardableResult
+    open func remove(_ key: K, _ value: V) -> Bool {
+      guard get(key) == value else { return false }
+      _ = remove(key)
+      return true
+    }
+
     // MARK: - equals / hashCode / toString
 
     /// Two maps are equal when they contain the same key→value mappings.

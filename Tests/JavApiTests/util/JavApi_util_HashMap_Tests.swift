@@ -402,3 +402,150 @@ struct JavApi_util_AbstractSet_Tests {
     #expect(s.size() == 1)
   }
 }
+
+// MARK: - HashMap Java-8 methods
+
+struct JavApi_util_HashMap_Java8_Tests {
+
+  // MARK: getOrDefault
+
+  @Test("getOrDefault returns value when key present")
+  func testGetOrDefaultPresent() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("a", 1)
+    #expect(m.getOrDefault("a", 99) == 1)
+  }
+
+  @Test("getOrDefault returns defaultValue when key absent")
+  func testGetOrDefaultAbsent() {
+    let m = java.util.HashMap<String, Int>()
+    #expect(m.getOrDefault("missing", 42) == 42)
+  }
+
+  // MARK: putIfAbsent
+
+  @Test("putIfAbsent inserts when key absent and returns nil")
+  func testPutIfAbsentInsertsNew() {
+    let m = java.util.HashMap<String, Int>()
+    let prev = m.putIfAbsent("x", 10)
+    #expect(prev == nil)
+    #expect(m.get("x") == 10)
+  }
+
+  @Test("putIfAbsent does not overwrite existing value and returns it")
+  func testPutIfAbsentKeepsExisting() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("x", 10)
+    let prev = m.putIfAbsent("x", 99)
+    #expect(prev == 10)
+    #expect(m.get("x") == 10)   // unchanged
+  }
+
+  // MARK: replace(key, value)
+
+  @Test("replace replaces value when key present and returns old value")
+  func testReplacePresent() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("k", 1)
+    let old = m.replace("k", 2)
+    #expect(old == 1)
+    #expect(m.get("k") == 2)
+  }
+
+  @Test("replace returns nil and does not insert when key absent")
+  func testReplaceAbsent() {
+    let m = java.util.HashMap<String, Int>()
+    let old = m.replace("missing", 5)
+    #expect(old == nil)
+    #expect(m.containsKey("missing") == false)
+  }
+
+  // MARK: replace(key, oldValue, newValue)
+
+  @Test("replace(key,old,new) replaces when old value matches")
+  func testReplaceConditionalMatch() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("k", 10)
+    let replaced = m.replace("k", 10, 20)
+    #expect(replaced == true)
+    #expect(m.get("k") == 20)
+  }
+
+  @Test("replace(key,old,new) does nothing when old value does not match")
+  func testReplaceConditionalNoMatch() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("k", 10)
+    let replaced = m.replace("k", 99, 20)
+    #expect(replaced == false)
+    #expect(m.get("k") == 10)   // unchanged
+  }
+
+  @Test("replace(key,old,new) returns false when key absent")
+  func testReplaceConditionalAbsentKey() {
+    let m = java.util.HashMap<String, Int>()
+    #expect(m.replace("missing", 1, 2) == false)
+  }
+
+  // MARK: remove(key, value)
+
+  @Test("remove(key,value) removes when value matches")
+  func testRemoveConditionalMatch() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("k", 42)
+    let removed = m.remove("k", 42)
+    #expect(removed == true)
+    #expect(m.containsKey("k") == false)
+  }
+
+  @Test("remove(key,value) does nothing when value does not match")
+  func testRemoveConditionalNoMatch() {
+    let m = java.util.HashMap<String, Int>()
+    m.put("k", 42)
+    let removed = m.remove("k", 99)
+    #expect(removed == false)
+    #expect(m.get("k") == 42)   // still present
+  }
+
+  @Test("remove(key,value) returns false when key absent")
+  func testRemoveConditionalAbsentKey() {
+    let m = java.util.HashMap<String, Int>()
+    #expect(m.remove("missing", 1) == false)
+  }
+
+  // MARK: AbstractMap default implementations (via ConcreteMap)
+
+  @Test("AbstractMap.getOrDefault uses Map extension default")
+  func testAbstractMapGetOrDefault() {
+    let m = ConcreteMap<String, Int>()
+    m.put("a", 7)
+    #expect(m.getOrDefault("a", 0) == 7)
+    #expect(m.getOrDefault("b", 99) == 99)
+  }
+
+  @Test("AbstractMap.putIfAbsent via default implementation")
+  func testAbstractMapPutIfAbsent() {
+    let m = ConcreteMap<String, Int>()
+    m.put("a", 1)
+    #expect(m.putIfAbsent("a", 99) == 1)   // existing returned, no change
+    #expect(m.putIfAbsent("b", 2) == nil)   // inserted
+    #expect(m.get("b") == 2)
+  }
+
+  @Test("AbstractMap.replace via default implementation")
+  func testAbstractMapReplace() {
+    let m = ConcreteMap<String, Int>()
+    m.put("a", 1)
+    #expect(m.replace("a", 5) == 1)
+    #expect(m.get("a") == 5)
+    #expect(m.replace("missing", 5) == nil)
+  }
+
+  @Test("AbstractMap.remove(key,value) via default implementation")
+  func testAbstractMapRemoveConditional() {
+    let m = ConcreteMap<String, Int>()
+    m.put("a", 10)
+    #expect(m.remove("a", 99) == false)
+    #expect(m.remove("a", 10) == true)
+    #expect(m.containsKey("a") == false)
+  }
+}
