@@ -147,7 +147,9 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ### `Comparator<T>`
 - [ ] `comparing(keyExtractor)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` ⚠️ benötigt `Function<T,R>`
 
-### `Collections` – fehlende Methoden
+### `Collections` – Implementierungsstand
+
+Noch fehlend:
 
 Java 1.2:
 - [ ] `static singleton<T>(_ o: T) -> Set<T>`
@@ -156,7 +158,6 @@ Java 1.2:
 - [ ] `static list<T>(_ e: Enumeration<T>) -> ArrayList<T>`
 - [ ] `static unmodifiableCollection/Set/SortedSet/Map/SortedMap`
 - [ ] `static synchronizedCollection/Set/SortedSet/Map/SortedMap`
-
 
 Java 5:
 - [ ] `static checked*` (checkedCollection, checkedList, checkedSet, …)
@@ -173,6 +174,8 @@ Java 8:
 
 
 ### `HashMap`
+
+Vorhanden (Java 8): `getOrDefault`, `putIfAbsent`, `replace` (2 Überladungen), `remove(key, value)`. **Tests:** 49 vorhanden.
 
 - [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
 - [ ] `clone() -> HashMap<K, V>`
@@ -317,13 +320,6 @@ Aufgaben:
 ### `Optional<T>` – Java 9
 - [ ] `stream() -> Stream<T>` (abhängig von Stream-Implementierung)
 
-### `Objects` – Java 9
-- [ ] `static requireNonNullElse<T>(_:_:) -> T`
-- [ ] `static requireNonNullElseGet<T>(_:_:) -> T`
-- [ ] `static checkIndex(_:_:) -> Int`
-- [ ] `static checkFromToIndex(_:_:_:) -> Int`
-- [ ] `static checkFromIndexSize(_:_:_:) -> Int`
-
 ### `ServiceLoader` – Java 9
 - [ ] `findFirst() -> Optional<S>`
 - [ ] `stream() -> Stream<ServiceLoader.Provider<S>>`
@@ -411,7 +407,6 @@ Aufgaben:
 | Typ | Ist | Bedarf |
 |-----|-----|--------|
 | `GregorianCalendar` | 0 | ≥ 10 |
-| `Properties` | 21 | ≥ 15 | ✅ |
 | `Timer` / `TimerTask` | 0 | ≥ 8 |
 | `ServiceLoader` | 0 | ≥ 5 |
 | `LinkedHashMap` | 4 | ≥ 15 |
