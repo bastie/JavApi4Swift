@@ -25,7 +25,7 @@ extension java.util {
   /// print(props.getProperty("timeout", "30")) // 30  (default)
   /// ```
   ///
-  /// - Since: JavaApi (Java 1.0)
+  /// - Since: Java 1.0
   public class Properties : Hashtable<String, String> {
 
     // MARK: - Defaults
@@ -37,7 +37,7 @@ extension java.util {
     // MARK: - Initialisers
 
     /// Creates an empty property list with no defaults.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public override init() {
       self.defaults = nil
       super.init()
@@ -47,7 +47,7 @@ extension java.util {
     ///
     /// - Parameter defaults: Fallback property list consulted by
     ///   ``getProperty(_:)`` when a key is absent.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public init(_ defaults: Properties) {
       self.defaults = defaults
       super.init()
@@ -60,7 +60,7 @@ extension java.util {
     ///
     /// - Parameter key: The property key.
     /// - Returns: The property value, or `nil`.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func getProperty(_ key: String) -> String? {
       if let value = get(key) { return value }
       return defaults?.getProperty(key)
@@ -72,7 +72,7 @@ extension java.util {
     ///   - key: The property key.
     ///   - defaultValue: Value returned when `key` is absent.
     /// - Returns: The property value, or `defaultValue`.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func getProperty(_ key: String, _ defaultValue: String) -> String {
       return getProperty(key) ?? defaultValue
     }
@@ -83,7 +83,7 @@ extension java.util {
     ///   - key: The property key.
     ///   - value: The new value.
     /// - Returns: The previous value, or `nil`.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     @discardableResult
     public func setProperty(_ key: String, _ value: String) -> String? {
       return put(key, value)
@@ -91,7 +91,7 @@ extension java.util {
 
     /// Returns an `Enumeration` over all property names, including those from
     /// the defaults chain.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func propertyNames() -> any java.util.Enumeration<String> {
       var allKeys = Swift.Set(storage.keys)
       if let defaults {
@@ -113,7 +113,7 @@ extension java.util {
     ///
     /// - Parameter inStream: The input stream to read from.
     /// - Throws: `java.io.IOException` on read errors.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func load(_ inStream: java.io.InputStream) throws {
       var bytes: [UInt8] = []
       var b = try inStream.read()
@@ -133,7 +133,7 @@ extension java.util {
     ///   - out: The output stream to write to.
     ///   - comments: Optional header comment written as the first line.
     /// - Throws: `java.io.IOException` on write errors.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func store(_ out: java.io.OutputStream, _ comments: String?) throws {
       var lines = ""
       if let comments {
@@ -156,7 +156,7 @@ extension java.util {
     /// - Parameters:
     ///   - out: The output stream to write to.
     ///   - comments: Optional header comment written as the first line.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     @available(*, deprecated, message: "as of Java 1.2, use store(OutputStream, String?) instead")
     public func save(_ out: java.io.OutputStream, _ comments: String?) {
       try? store(out, comments)
@@ -166,7 +166,7 @@ extension java.util {
     ///
     /// - Parameters:
     ///   - out: The `PrintStream` to write to.
-    /// - Since: JavaApi (Java 1.0)
+    /// - Since: Java 1.0
     public func list(_ out: java.io.PrintStream) {
       out.println("-- listing properties --")
       withLock {
@@ -177,6 +177,119 @@ extension java.util {
       if let defaults {
         defaults.list(out)
       }
+    }
+
+    /// Prints all properties to `out`.
+    ///
+    /// - Parameters:
+    ///   - out: The `PrintWriter` to write to.
+    /// - Since: Java 1.0
+    public func list(_ out: java.io.PrintWriter) {
+      out.println("-- listing properties --")
+      withLock {
+        for (key, value) in storage {
+          out.println("\(key)=\(value)")
+        }
+      }
+      if let defaults {
+        defaults.list(out)
+      }
+    }
+
+    // MARK: - Java 6 API
+
+    /// Returns a `Set` of all property keys, including those from the defaults
+    /// chain. Unlike ``propertyNames()``, only `String` keys are included
+    /// (which is always the case for `Properties`).
+    ///
+    /// - Returns: A Swift `Set<String>` of all property names.
+    /// - Since: Java 6
+    public func stringPropertyNames() -> Swift.Set<String> {
+      var allKeys = Swift.Set(storage.keys)
+      if let defaults {
+        allKeys.formUnion(defaults.stringPropertyNames())
+      }
+      return allKeys
+    }
+
+    // MARK: - Java 5 XML API
+
+    /// Loads properties from an XML-format `InputStream`.
+    ///
+    /// The XML format is:
+    /// ```xml
+    /// <?xml version="1.0" encoding="UTF-8"?>
+    /// <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+    /// <properties>
+    ///   <comment>optional comment</comment>
+    ///   <entry key="key">value</entry>
+    /// </properties>
+    /// ```
+    ///
+    /// - Parameter inStream: The input stream to read from.
+    /// - Throws: `java.io.IOException` on read or parse errors.
+    /// - Since: Java 5
+    public func loadFromXML(_ inStream: java.io.InputStream) throws {
+      var bytes: [UInt8] = []
+      var b = try inStream.read()
+      while b != -1 {
+        bytes.append(UInt8(b))
+        b = try inStream.read()
+      }
+      let data = Foundation.Data(bytes)
+      let handler = _PropertiesXMLHandler()
+      let parser = Foundation.XMLParser(data: data)
+      parser.delegate = handler
+      guard parser.parse() else {
+        throw java.io.IOException(
+          "Failed to parse XML properties: \(parser.parserError?.localizedDescription ?? "unknown error")"
+        )
+      }
+      withLock {
+        for (key, value) in handler.entries {
+          storage[key] = value
+        }
+      }
+    }
+
+    /// Saves properties to an `OutputStream` in XML format.
+    ///
+    /// Encoding defaults to UTF-8. The output is compatible with Java's
+    /// `Properties.storeToXML` format.
+    ///
+    /// - Parameters:
+    ///   - os: The output stream to write to.
+    ///   - comment: Optional comment written inside a `<comment>` element.
+    /// - Throws: `java.io.IOException` on write errors.
+    /// - Since: Java 5
+    public func storeToXML(_ os: java.io.OutputStream, _ comment: String?) throws {
+      try storeToXML(os, comment, "UTF-8")
+    }
+
+    /// Saves properties to an `OutputStream` in XML format with the given encoding.
+    ///
+    /// - Parameters:
+    ///   - os: The output stream to write to.
+    ///   - comment: Optional comment written inside a `<comment>` element.
+    ///   - encoding: Character encoding name (e.g. `"UTF-8"`, `"ISO-8859-1"`).
+    /// - Throws: `java.io.IOException` on write errors.
+    /// - Since: Java 5
+    public func storeToXML(_ os: java.io.OutputStream, _ comment: String?, _ encoding: String) throws {
+      var xml = "<?xml version=\"1.0\" encoding=\"\(encoding)\"?>\n"
+      xml += "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n"
+      xml += "<properties>\n"
+      if let comment {
+        xml += "<comment>\(_xmlEscape(comment))</comment>\n"
+      }
+      withLock {
+        for (key, value) in storage {
+          xml += "<entry key=\"\(_xmlEscape(key))\">\(_xmlEscape(value))</entry>\n"
+        }
+      }
+      xml += "</properties>\n"
+      let swiftEncoding: String.Encoding = encoding.uppercased() == "UTF-8" ? .utf8 : .isoLatin1
+      let data = [UInt8](xml.data(using: swiftEncoding) ?? Foundation.Data(xml.utf8))
+      try os.write(data)
     }
 
     // MARK: - Private helpers
@@ -232,5 +345,16 @@ extension java.util {
       }
       return result
     }
+
+    /// Escapes characters that are special in XML attribute values and text content.
+    private func _xmlEscape(_ s: String) -> String {
+      s
+        .replacingOccurrences(of: "&",  with: "&amp;")
+        .replacingOccurrences(of: "<",  with: "&lt;")
+        .replacingOccurrences(of: ">",  with: "&gt;")
+        .replacingOccurrences(of: "\"", with: "&quot;")
+    }
+
   }
 }
+

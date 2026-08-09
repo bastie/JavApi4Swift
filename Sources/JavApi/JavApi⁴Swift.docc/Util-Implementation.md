@@ -74,11 +74,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] `indexOf(_ elem: E, _ index: Int) -> Int`
 - [ ] `lastIndexOf(_ elem: E, _ index: Int) -> Int`
 
-### `Stack`
-- [ ] `search(_ o: Any?) -> Int` (1-basiert, von oben)
-
-**Tests:** 31 vorhanden. `search()` fehlt komplett.
-
 ### `Hashtable`
 - [ ] `putAll(_ t: Map<K, V>)`
 - [ ] `equals(_ o: Any?) -> Bool`
@@ -89,13 +84,16 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 **Tests:** 26 vorhanden.
 
 ### `Properties`
-- [ ] Tests für alle vorhandenen Methoden (`getProperty`, `setProperty`, `propertyNames`, `load`, `store`, `save`, `list`)
-- [ ] `list(_ out: PrintWriter)`
-- [ ] `loadFromXML(_ in: InputStream)` — Java 5
-- [ ] `storeToXML(_ os: OutputStream, _ comment: String?)` — Java 5
-- [ ] `stringPropertyNames() -> Set<String>` — Java 6
 
-**Tests:** 0 vorhanden.
+Vorhanden: `getProperty`, `getProperty(default)`, `setProperty`, `propertyNames`, `load(InputStream)`, `store(OutputStream, String?)`, `save` (deprecated), `list(PrintStream)`, `list(PrintWriter)`, `stringPropertyNames()`, `loadFromXML(InputStream)`, `storeToXML(OutputStream, String?)`, `storeToXML(OutputStream, String?, String)`.
+
+- [x] Tests für alle vorhandenen Methoden (`getProperty`, `setProperty`, `propertyNames`, `load`, `store`, `save`, `list`)
+- [x] `list(_ out: PrintWriter)`
+- [x] `loadFromXML(_ in: InputStream)` — Java 5
+- [x] `storeToXML(_ os: OutputStream, _ comment: String?)` — Java 5
+- [x] `stringPropertyNames() -> Set<String>` — Java 6
+
+**Tests:** 21 vorhanden.
 
 ### `BitSet`
 
@@ -216,8 +214,6 @@ Java 8:
 
 ### `Arrays`
 
-**Vorhanden:** `sort`, `fill`, `copyOf`, `copyOfRange`, `equals`, `binarySearch`, `toString`, `deepToString`, `asList`. 45 Tests.
-
 - [ ] `deepEquals(_ a1: [Any?], _ a2: [Any?]) -> Bool` (Java 5)
 - [ ] `deepHashCode(_ a: [Any?]) -> Int` (Java 5)
 - [ ] `hashCode` für primitive Typen `[Int]`, `[Bool]` etc. (Java 5)
@@ -273,8 +269,6 @@ Java 8:
 
 ### `UUID`
 
-**Vorhanden:** Basisoperationen. 3 Tests.
-
 - [ ] `getLeastSignificantBits() -> Int64`
 - [ ] `getMostSignificantBits() -> Int64`
 - [ ] `version() -> Int`, `variant() -> Int`
@@ -291,22 +285,6 @@ Java 8:
 
 ### `Timer` / `TimerTask` (0 Tests)
 - [ ] Tests schreiben
-
----
-
-## Java 7
-
-### `Objects` (komplett fehlend)
-- [ ] `static equals(_ a: Any?, _ b: Any?) -> Bool`
-- [ ] `static deepEquals(_ a: Any?, _ b: Any?) -> Bool`
-- [ ] `static hashCode(_ o: Any?) -> Int`
-- [ ] `static hash(_ values: Any?...) -> Int`
-- [ ] `static toString(_ o: Any?) -> String` (und `(_, nullDefault:)`)
-- [ ] `static requireNonNull<T>(_ obj: T?) throws -> T` (und `(_, message:)`)
-- [ ] `static isNull(_ obj: Any?) -> Bool` (Java 8)
-- [ ] `static nonNull(_ obj: Any?) -> Bool` (Java 8)
-- [ ] `static requireNonNullElse<T>(_:_:) -> T` (Java 9)
-- [ ] Tests
 
 ---
 
@@ -467,7 +445,7 @@ Aufgaben:
 | Typ | Ist | Bedarf |
 |-----|-----|--------|
 | `GregorianCalendar` | 0 | ≥ 10 |
-| `Properties` | 0 | ≥ 15 |
+| `Properties` | 21 | ≥ 15 | ✅ |
 | `Timer` / `TimerTask` | 0 | ≥ 8 |
 | `ServiceLoader` | 0 | ≥ 5 |
 | `LinkedHashMap` | 4 | ≥ 15 |
