@@ -226,24 +226,11 @@ Java 8:
 
 ### `TreeMap`
 
-**Vorhanden:** Basisoperationen, NavigableMap vollständig außer `*Key`-Methoden. 24 Tests.
-
-- [ ] `TreeMap(_ comparator: (K, K) -> Int)` Konstruktor
-- [ ] `TreeMap(_ m: SortedMap<K, V>)` Konstruktor
-- [ ] `comparator() -> ((K, K) -> Int)?`
-- [ ] `clone() -> TreeMap<K, V>`
-- [ ] `floorKey(_ key: K) -> K?`
-- [ ] `higherKey(_ key: K) -> K?`
-- [ ] `lowerKey(_ key: K) -> K?`
+**Vorhanden:** Basisoperationen, NavigableMap vollständig, `init(comparator:)`, `init(sortedMap:)`, `comparator()`, `clone()`, `floorKey`, `higherKey`, `lowerKey`, `ceilingKey`. 38 Tests.
 
 ### `TreeSet`
 
-**Vorhanden:** Basisoperationen, NavigableSet vollständig. 28 Tests.
-
-- [ ] `TreeSet(_ comparator: (E, E) -> Int)` Konstruktor
-- [ ] `TreeSet(_ s: SortedSet<E>)` Konstruktor
-- [ ] `comparator() -> ((E, E) -> Int)?`
-- [ ] `clone() -> TreeSet<E>`
+**Vorhanden:** Basisoperationen, NavigableSet vollständig, `init(comparator:)`, `init(sortedSet:)`, `comparator()`, `clone()`. 38 Tests.
 
 ### `Arrays`
 

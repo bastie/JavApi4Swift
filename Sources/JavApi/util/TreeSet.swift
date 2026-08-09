@@ -28,9 +28,24 @@ extension java.util {
     /// Sorted, deduplicated element array — ascending order.
     internal var _elements: [E] = []
 
+    /// Optional custom comparator; `nil` means natural ordering.
+    private var _comparator: (any java.util.Comparator<E>)? = nil
+
     // MARK: - Init
 
     public override init() {}
+
+    /// Creates a `TreeSet` ordered by a custom comparator.
+    ///
+    /// Elements are kept in the order defined by `comparator` rather than their
+    /// natural `Comparable` ordering.
+    ///
+    /// - Parameter comparator: A `java.util.Comparator` defining the element order.
+    /// - Since: Java 1.2
+    public init(comparator: any java.util.Comparator<E>) {
+      _comparator = comparator
+      super.init()
+    }
 
     /// Creates a `TreeSet` pre-populated from any `java.util.Collection`.
     public init(_ collection: any java.util.Collection<E?>) {
@@ -43,7 +58,35 @@ extension java.util {
       }
     }
 
+    /// Creates a `TreeSet` containing the same elements and using the same
+    /// ordering as the given `SortedSet`.
+    ///
+    /// - Since: Java 1.2
+    public init(sortedSet: any java.util.SortedSet<E>) {
+      _comparator = sortedSet.comparator()   // Java-konform: Ordering der Quelle übernehmen
+      super.init()
+      let it = sortedSet.iterator()
+      while it.hasNext() {
+        if let element = try? it.next() {
+          _ = try? add(element)   // add() maintains correct order via _indexOf
+        }
+      }
+    }
+
     // MARK: - Internal helpers
+
+    /// Compares two elements using the custom comparator or natural ordering.
+    internal func _compare(_ a: E, _ b: E) -> Int {
+      if let cmp = _comparator { return cmp.compare(a, b) }
+      return a < b ? -1 : a > b ? 1 : 0
+    }
+
+    /// Returns the effective comparison closure for passing to subview constructors.
+    /// Captures the comparator by value — no retain cycle with `self`.
+    private func _cmpFn() -> (E, E) -> Int {
+      if let c = _comparator { return { a, b in c.compare(a, b) } }
+      return { a, b in a < b ? -1 : a > b ? 1 : 0 }
+    }
 
     /// Binary search: returns the index of `element` if present, or
     /// `-(insertionPoint + 1)` if absent.
@@ -52,9 +95,10 @@ extension java.util {
       var hi = _elements.count - 1
       while lo <= hi {
         let mid = (lo + hi) >> 1
-        if _elements[mid] < element {
+        let c = _compare(_elements[mid], element)
+        if c < 0 {
           lo = mid + 1
-        } else if _elements[mid] > element {
+        } else if c > 0 {
           hi = mid - 1
         } else {
           return mid
@@ -116,16 +160,38 @@ extension java.util {
       return last
     }
 
+    /// Returns the comparator used to order elements, or `nil` if natural ordering.
+    ///
+    /// - Since: Java 1.2
+    open func comparator() -> (any java.util.Comparator<E>)? { _comparator }
+
+    /// Returns a shallow copy of this `TreeSet` with the same comparator.
+    ///
+    /// - Since: Java 1.2
+    open func clone() -> TreeSet<E> {
+      let copy: TreeSet<E>
+      if let cmp = _comparator {
+        copy = TreeSet<E>(comparator: cmp)
+      } else {
+        copy = TreeSet<E>()
+      }
+      copy._elements = self._elements
+      return copy
+    }
+
     open func headSet(_ toElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 < toElement })
+      _SubTreeSet(elements: _elements.filter { _compare($0, toElement) < 0 }, cmp: _cmpFn())
     }
 
     open func tailSet(_ fromElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 >= fromElement })
+      _SubTreeSet(elements: _elements.filter { _compare($0, fromElement) >= 0 }, cmp: _cmpFn())
     }
 
     open func subSet(_ fromElement: E, _ toElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 >= fromElement && $0 < toElement })
+      _SubTreeSet(
+        elements: _elements.filter { _compare($0, fromElement) >= 0 && _compare($0, toElement) < 0 },
+        cmp: _cmpFn()
+      )
     }
 
     // MARK: - NavigableSet — closest-match navigation
@@ -176,7 +242,7 @@ extension java.util {
     // MARK: - NavigableSet — descending views
 
     open func descendingSet() -> any java.util.NavigableSet<E> {
-      _DescendingTreeSet(ascending: _elements)
+      _DescendingTreeSet(ascending: _elements, cmp: _cmpFn())
     }
 
     open func descendingIterator() -> any java.util.Iterator<E> {
@@ -187,20 +253,29 @@ extension java.util {
 
     open func subSet(_ fromElement: E, _ fromInclusive: Bool,
                      _ toElement: E, _ toInclusive: Bool) -> any java.util.NavigableSet<E> {
+      let cmp = _cmpFn()
       let filtered = _elements.filter { e in
-        let lo = fromInclusive ? e >= fromElement : e > fromElement
-        let hi = toInclusive   ? e <= toElement   : e < toElement
+        let lo = fromInclusive ? _compare(e, fromElement) >= 0 : _compare(e, fromElement) > 0
+        let hi = toInclusive   ? _compare(e, toElement) <= 0   : _compare(e, toElement) < 0
         return lo && hi
       }
-      return _SubTreeSet(elements: filtered)
+      return _SubTreeSet(elements: filtered, cmp: cmp)
     }
 
     open func headSet(_ toElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      _SubTreeSet(elements: _elements.filter { inclusive ? $0 <= toElement : $0 < toElement })
+      let cmp = _cmpFn()
+      return _SubTreeSet(
+        elements: _elements.filter { inclusive ? _compare($0, toElement) <= 0 : _compare($0, toElement) < 0 },
+        cmp: cmp
+      )
     }
 
     open func tailSet(_ fromElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      _SubTreeSet(elements: _elements.filter { inclusive ? $0 >= fromElement : $0 > fromElement })
+      let cmp = _cmpFn()
+      return _SubTreeSet(
+        elements: _elements.filter { inclusive ? _compare($0, fromElement) >= 0 : _compare($0, fromElement) > 0 },
+        cmp: cmp
+      )
     }
 
     // MARK: - SequencedSet
@@ -254,10 +329,14 @@ extension java.util {
   final class _SubTreeSet<E: Hashable & Comparable & Equatable>: java.util.AbstractCollection<E>,
                                                                    java.util.NavigableSet {
 
-    internal let _elements: [E]   // ascending order
+    internal let _elements: [E]   // ascending order (relative to _cmp)
 
-    init(elements: [E]) {
+    /// Effective comparison function — matches the parent TreeSet's ordering.
+    private let _cmp: (E, E) -> Int
+
+    init(elements: [E], cmp: @escaping (E, E) -> Int = { a, b in a < b ? -1 : a > b ? 1 : 0 }) {
       self._elements = elements
+      self._cmp = cmp
       super.init()
     }
 
@@ -295,23 +374,23 @@ extension java.util {
     }
 
     func headSet(_ toElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 < toElement })
+      _SubTreeSet(elements: _elements.filter { _cmp($0, toElement) < 0 }, cmp: _cmp)
     }
 
     func tailSet(_ fromElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 >= fromElement })
+      _SubTreeSet(elements: _elements.filter { _cmp($0, fromElement) >= 0 }, cmp: _cmp)
     }
 
     func subSet(_ fromElement: E, _ toElement: E) -> any java.util.SortedSet<E> {
-      _SubTreeSet(elements: _elements.filter { $0 >= fromElement && $0 < toElement })
+      _SubTreeSet(elements: _elements.filter { _cmp($0, fromElement) >= 0 && _cmp($0, toElement) < 0 }, cmp: _cmp)
     }
 
     // MARK: NavigableSet — closest-match navigation (linear search — snapshot is small)
 
-    func lower(_ e: E) -> E? { _elements.last { $0 < e } }
-    func floor(_ e: E) -> E? { _elements.last { $0 <= e } }
-    func ceiling(_ e: E) -> E? { _elements.first { $0 >= e } }
-    func higher(_ e: E) -> E? { _elements.first { $0 > e } }
+    func lower(_ e: E) -> E?   { _elements.last  { _cmp($0, e) < 0  } }
+    func floor(_ e: E) -> E?   { _elements.last  { _cmp($0, e) <= 0 } }
+    func ceiling(_ e: E) -> E? { _elements.first { _cmp($0, e) >= 0 } }
+    func higher(_ e: E) -> E?  { _elements.first { _cmp($0, e) > 0  } }
 
     // MARK: NavigableSet — polling (read-only: not supported)
 
@@ -321,7 +400,7 @@ extension java.util {
     // MARK: NavigableSet — descending views
 
     func descendingSet() -> any java.util.NavigableSet<E> {
-      _DescendingTreeSet(ascending: _elements)
+      _DescendingTreeSet(ascending: _elements, cmp: _cmp)
     }
 
     func descendingIterator() -> any java.util.Iterator<E> {
@@ -333,19 +412,25 @@ extension java.util {
     func subSet(_ fromElement: E, _ fromInclusive: Bool,
                 _ toElement: E, _ toInclusive: Bool) -> any java.util.NavigableSet<E> {
       let filtered = _elements.filter { e in
-        let lo = fromInclusive ? e >= fromElement : e > fromElement
-        let hi = toInclusive   ? e <= toElement   : e < toElement
+        let lo = fromInclusive ? _cmp(e, fromElement) >= 0 : _cmp(e, fromElement) > 0
+        let hi = toInclusive   ? _cmp(e, toElement) <= 0   : _cmp(e, toElement) < 0
         return lo && hi
       }
-      return _SubTreeSet(elements: filtered)
+      return _SubTreeSet(elements: filtered, cmp: _cmp)
     }
 
     func headSet(_ toElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      _SubTreeSet(elements: _elements.filter { inclusive ? $0 <= toElement : $0 < toElement })
+      _SubTreeSet(
+        elements: _elements.filter { inclusive ? _cmp($0, toElement) <= 0 : _cmp($0, toElement) < 0 },
+        cmp: _cmp
+      )
     }
 
     func tailSet(_ fromElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      _SubTreeSet(elements: _elements.filter { inclusive ? $0 >= fromElement : $0 > fromElement })
+      _SubTreeSet(
+        elements: _elements.filter { inclusive ? _cmp($0, fromElement) >= 0 : _cmp($0, fromElement) > 0 },
+        cmp: _cmp
+      )
     }
 
     // MARK: SequencedSet
@@ -362,15 +447,21 @@ extension java.util {
   ///
   /// Returned by `TreeSet.descendingSet()` and `_SubTreeSet.descendingSet()`.
   /// `first()` / `last()` and navigation methods use inverted semantics (the
-  /// largest natural-order element appears first).
+  /// element that sorts largest according to the original comparator appears first).
   final class _DescendingTreeSet<E: Hashable & Comparable & Equatable>: java.util.AbstractCollection<E>,
                                                                           java.util.NavigableSet {
 
-    internal let _elements: [E]   // descending order
+    internal let _elements: [E]   // descending order (relative to _ascCmp)
 
-    /// Accepts the caller's ascending array and reverses it internally.
-    init(ascending: [E]) {
-      self._elements = ascending.reversed()
+    /// The **ascending** comparator from the parent TreeSet (or natural ordering).
+    /// All navigation logic inverts this: greater-in-asc = "lower"-in-desc.
+    private let _ascCmp: (E, E) -> Int
+
+    /// Accepts the caller's ascending array (and the ascending comparator) and
+    /// reverses the array internally so iteration is descending.
+    init(ascending: [E], cmp: @escaping (E, E) -> Int = { a, b in a < b ? -1 : a > b ? 1 : 0 }) {
+      self._elements = Array(ascending.reversed())
+      self._ascCmp = cmp
       super.init()
     }
 
@@ -389,41 +480,59 @@ extension java.util {
 
     override func add(_ e: E?) throws -> Bool { fatalError("_DescendingTreeSet is a read-only snapshot") }
 
-    // MARK: SortedSet — inverted semantics (largest is "first")
+    // MARK: SortedSet — inverted semantics (largest in asc-order is "first")
 
     func first() throws -> E {
       guard let f = _elements.first else { throw java.util.NoSuchElementException() }
-      return f  // largest element
+      return f  // largest element in ascending ordering
     }
 
     func last() throws -> E {
       guard let l = _elements.last else { throw java.util.NoSuchElementException() }
-      return l  // smallest element
+      return l  // smallest element in ascending ordering
     }
 
     /// headSet in a descending view: elements before `toElement` in descending traversal
-    /// = elements strictly greater than `toElement` in natural order.
+    /// = elements strictly greater than `toElement` in the ascending ordering.
     func headSet(_ toElement: E) -> any java.util.SortedSet<E> {
-      _DescendingTreeSet(ascending: _elements.filter { $0 > toElement })
+      // _elements is descending; filter preserves descending order.
+      // Must reverse before passing to init(ascending:) which reverses again.
+      let filtered = _elements.filter { _ascCmp($0, toElement) > 0 }
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     /// tailSet in a descending view: elements from `fromElement` onward in descending traversal
-    /// = elements ≤ `fromElement` in natural order.
+    /// = elements ≤ `fromElement` in the ascending ordering.
     func tailSet(_ fromElement: E) -> any java.util.SortedSet<E> {
-      _DescendingTreeSet(ascending: _elements.filter { $0 <= fromElement })
+      let filtered = _elements.filter { _ascCmp($0, fromElement) <= 0 }
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     func subSet(_ fromElement: E, _ toElement: E) -> any java.util.SortedSet<E> {
-      // fromElement > toElement in a descending set
-      _DescendingTreeSet(ascending: _elements.filter { $0 > toElement && $0 <= fromElement })
+      // fromElement > toElement in descending ordering;
+      // ascending range: (toElement, fromElement] → _ascCmp > 0 and _ascCmp <= 0
+      let filtered = _elements.filter { _ascCmp($0, toElement) > 0 && _ascCmp($0, fromElement) <= 0 }
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     // MARK: NavigableSet — inverted navigation
+    //
+    // _elements is stored in descending _ascCmp order (largest-in-asc first).
+    // The descending set's own ordering is the INVERSE of _ascCmp.
+    //
+    // lower(e) = greatest element strictly less than e IN THE DESCENDING SET'S ORDERING
+    //          = elements where _ascCmp(el, e) > 0  (they are "greater than e" in asc = "less than e" in desc)
+    //          = LAST of those in _elements (last in desc array = smallest asc value = greatest in desc)
+    //
+    //   lower   → last  { _ascCmp > 0  }
+    //   floor   → last  { _ascCmp >= 0 }
+    //   ceiling → first { _ascCmp <= 0 }
+    //   higher  → first { _ascCmp < 0  }
 
-    func lower(_ e: E) -> E?   { _elements.first { $0 > e } }   // next-larger in descending
-    func floor(_ e: E) -> E?   { _elements.first { $0 >= e } }
-    func ceiling(_ e: E) -> E? { _elements.first { $0 <= e } }
-    func higher(_ e: E) -> E?  { _elements.first { $0 < e } }   // next-smaller in descending
+    func lower(_ e: E) -> E?   { _elements.last  { _ascCmp($0, e) > 0  } }
+    func floor(_ e: E) -> E?   { _elements.last  { _ascCmp($0, e) >= 0 } }
+    func ceiling(_ e: E) -> E? { _elements.first { _ascCmp($0, e) <= 0 } }
+    func higher(_ e: E) -> E?  { _elements.first { _ascCmp($0, e) < 0  } }
 
     // MARK: NavigableSet — polling (read-only snapshot)
 
@@ -433,7 +542,8 @@ extension java.util {
     // MARK: NavigableSet — descending of descending = ascending
 
     func descendingSet() -> any java.util.NavigableSet<E> {
-      _SubTreeSet(elements: _elements.reversed())   // back to ascending
+      // _elements is descending; reversed gives ascending.
+      _SubTreeSet(elements: Array(_elements.reversed()), cmp: _ascCmp)
     }
 
     func descendingIterator() -> any java.util.Iterator<E> {
@@ -441,26 +551,27 @@ extension java.util {
     }
 
     // MARK: NavigableSet — inclusive range views (inverted semantics)
+    // In the descending set fromElement >= toElement (in descending ordering).
+    // Ascending range: (toElement, fromElement] or variations thereof.
 
     func subSet(_ fromElement: E, _ fromInclusive: Bool,
                 _ toElement: E, _ toInclusive: Bool) -> any java.util.NavigableSet<E> {
-      // In descending set: fromElement >= toElement; iterate in [toElement, fromElement]
       let filtered = _elements.filter { e in
-        let lo = fromInclusive ? e <= fromElement : e < fromElement
-        let hi = toInclusive   ? e >= toElement   : e > toElement
+        let lo = fromInclusive ? _ascCmp(e, fromElement) <= 0 : _ascCmp(e, fromElement) < 0
+        let hi = toInclusive   ? _ascCmp(e, toElement) >= 0   : _ascCmp(e, toElement) > 0
         return lo && hi
       }
-      return _DescendingTreeSet(ascending: filtered)
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     func headSet(_ toElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      // headSet in descending: elements > toElement (or >= if inclusive)
-      _DescendingTreeSet(ascending: _elements.filter { inclusive ? $0 >= toElement : $0 > toElement })
+      let filtered = _elements.filter { inclusive ? _ascCmp($0, toElement) >= 0 : _ascCmp($0, toElement) > 0 }
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     func tailSet(_ fromElement: E, _ inclusive: Bool) -> any java.util.NavigableSet<E> {
-      // tailSet in descending: elements < fromElement (or <= if inclusive)
-      _DescendingTreeSet(ascending: _elements.filter { inclusive ? $0 <= fromElement : $0 < fromElement })
+      let filtered = _elements.filter { inclusive ? _ascCmp($0, fromElement) <= 0 : _ascCmp($0, fromElement) < 0 }
+      return _DescendingTreeSet(ascending: Array(filtered.reversed()), cmp: _ascCmp)
     }
 
     // MARK: SequencedSet
