@@ -315,6 +315,126 @@ Until `java.util.stream` is available, replace Java Stream pipelines with the Sw
 
 ---
 
+## java.util.function: Functional Interfaces as a Migration Layer
+
+Java 8 introduced `java.util.function` — a set of standard functional interfaces such as
+`Predicate<T>`, `Function<T,R>`, `Consumer<T>`, and `BiFunction<T,U,R>`. These interfaces
+appear throughout the Java standard library wherever lambdas are used (e.g., `Collection.removeIf`,
+`Map.forEach`, `Comparator.comparing`).
+
+JavApi⁴Swift implements these as Swift protocols so that Java code that references them
+can be ported mechanically, without rewriting every call site.
+
+### Recommendation: Prefer Swift closures for new code
+
+For new Swift code, **always prefer closures** over the `java.util.function` protocols.
+Swift closures are concise, integrate natively with the language, and work directly with
+`Sequence`, `Array`, `Dictionary`, and all Swift collection APIs:
+
+```swift
+// ✅ Idiomatic Swift — use this for new code
+let names = ["Alice", "Bob", "Anna", "Carol"]
+let aNames = names.filter { $0.hasPrefix("A") }         // ["Alice", "Anna"]
+let lengths = names.map { $0.count }                     // [5, 3, 4, 5]
+names.forEach { print($0) }
+```
+
+### When to use java.util.function
+
+Use the `java.util.function` protocols when:
+
+- Porting existing Java code that passes `Predicate`, `Function`, or `Consumer` objects explicitly
+- Writing library code that must expose a Java-compatible API
+- Working with JavApi⁴Swift collection methods that accept these functional interfaces
+  (e.g., a future `Collection.removeIf(Predicate)`)
+
+### Available types
+
+| Java type | JavApi⁴Swift protocol | Concrete wrapper | Main method |
+|---|---|---|---|
+| `Predicate<T>` | `java.util.function.Predicate<T>` | `AnyPredicate<T>` | `test(_ t: T) -> Bool` |
+| `Function<T,R>` | `java.util.function.Function<T,R>` | `AnyFunction<T,R>` | `apply(_ t: T) -> R` |
+| `Consumer<T>` | `java.util.function.Consumer<T>` | `AnyConsumer<T>` | `accept(_ t: T)` |
+| `BiConsumer<T,U>` | `java.util.function.BiConsumer<T,U>` | `AnyBiConsumer<T,U>` | `accept(_ t: T, _ u: U)` |
+| `BiFunction<T,U,R>` | `java.util.function.BiFunction<T,U,R>` | `AnyBiFunction<T,U,R>` | `apply(_ t: T, _ u: U) -> R` |
+| `UnaryOperator<T>` | `java.util.function.UnaryOperator<T>` | `AnyUnaryOperator<T>` | `apply(_ t: T) -> T` |
+| `BinaryOperator<T>` | `java.util.function.BinaryOperator<T>` | `AnyBinaryOperator<T>` | `apply(_ t: T, _ u: T) -> T` |
+| `Supplier<T>` | `java.util.function.Supplier<T>` | *(implement your own)* | `get() -> T` |
+
+### Usage: wrapping a closure
+
+Each protocol has a corresponding `Any*` concrete wrapper that takes a Swift closure.
+This is the bridge between Swift closures and the Java-compatible protocols:
+
+```swift
+// Java: Predicate<String> startsWithA = s -> s.startsWith("A");
+let startsWithA = java.util.function.AnyPredicate<String> { $0.hasPrefix("A") }
+startsWithA.test("Alice")   // true
+startsWithA.test("Bob")     // false
+```
+
+### Default methods: composition
+
+All types support the same default-method composition as their Java counterparts:
+
+```swift
+let isPositive = java.util.function.AnyPredicate<Int> { $0 > 0 }
+let isEven     = java.util.function.AnyPredicate<Int> { $0 % 2 == 0 }
+
+// Predicate.and / or / negate
+let isPositiveEven = isPositive.and(isEven)
+let isPositiveOrEven = isPositive.or(isEven)
+let isNonPositive = isPositive.negate()
+let isNotEven = java.util.function.AnyPredicate<Int>.not(isEven)
+
+// Function.andThen / compose
+let toLength  = java.util.function.AnyFunction<String, Int> { $0.count }
+let isLong    = toLength.andThen(java.util.function.AnyFunction<Int, Bool> { $0 > 3 })
+isLong.apply("hi")      // false
+isLong.apply("hello")   // true
+
+// Consumer.andThen — chains side effects
+var log: [String] = []
+let logger = java.util.function.AnyConsumer<String> { log.append($0) }
+let printer = java.util.function.AnyConsumer<String> { print($0) }
+let both = logger.andThen(printer)
+both.accept("event")   // appends to log AND prints
+```
+
+### Implementing your own conforming type
+
+You can conform any Swift type to a `java.util.function` protocol directly:
+
+```swift
+struct StartsWithPredicate: java.util.function.Predicate {
+  typealias T = String
+  let prefix: String
+  func test(_ t: String) -> Bool { t.hasPrefix(prefix) }
+}
+
+let check = StartsWithPredicate(prefix: "A")
+check.test("Alice")   // true
+```
+
+### Side-by-side comparison: Migration step by step
+
+The table below shows a typical migration from Java through the JavApi⁴Swift compatibility
+layer to idiomatic Swift.
+
+| Step | Code |
+|---|---|
+| **Java** | `list.removeIf(s -> s.isEmpty());` |
+| **JavApi⁴Swift (compatibility)** | `list.removeIf(AnyPredicate { $0.isEmpty })` |
+| **Idiomatic Swift** | `list.removeAll { $0.isEmpty }` |
+
+| Step | Code |
+|---|---|
+| **Java** | `map.forEach((k, v) -> System.out.println(k + "=" + v));` |
+| **JavApi⁴Swift (compatibility)** | `map.forEach(AnyBiConsumer { k, v in print("\(k)=\(v)") })` |
+| **Idiomatic Swift** | `map.forEach { k, v in print("\(k)=\(v)") }` |
+
+---
+
 ## See Also
 
 - <doc:Collections> — Lists, maps, stacks, and sets.
