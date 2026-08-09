@@ -72,6 +72,27 @@ extension java.util {
     public func empty() -> Bool {
       isEmpty()
     }
-    
+
+    /// Returns the 1-based distance from the top of the stack to the first
+    /// occurrence of `o`, or `-1` if the object is not present.
+    ///
+    /// The topmost item is at distance 1, the item beneath it at distance 2,
+    /// and so on. Equality is tested with `==` (requires `E: Equatable`).
+    ///
+    /// Matches `java.util.Stack.search(Object o)` exactly.
+    public func search(_ o: Any?) -> Int {
+      withLock { () -> Int in
+        for i in stride(from: elementCount - 1, through: 0, by: -1) {
+          let elem = elementData[i]
+          if let target = o as? E, let elem {
+            if elem == target { return elementCount - i }
+          } else if o == nil && elem == nil {
+            return elementCount - i
+          }
+        }
+        return -1
+      }
+    }
+
   }
 }
