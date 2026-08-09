@@ -36,6 +36,16 @@ extension java.util {
 
     public override init(initialCapacity: Int) { super.init(initialCapacity: initialCapacity) }
 
+    /// Creates an empty `LinkedHashSet` with the given initial capacity.
+    ///
+    /// - Parameters:
+    ///   - initialCapacity: Hint for the initial backing-map capacity.
+    ///   - loadFactor: Ignored in this implementation (Swift `Dictionary` manages
+    ///     its own load factor automatically).
+    public init(initialCapacity: Int, loadFactor: Float) {
+      super.init(initialCapacity: initialCapacity)
+    }
+
     /// Creates a `LinkedHashSet` pre-populated from any `java.util.Collection`,
     /// preserving the collection's iteration order.
     public override init(collection: any java.util.Collection<E?>) {

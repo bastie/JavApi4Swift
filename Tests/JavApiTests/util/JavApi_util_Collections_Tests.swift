@@ -318,4 +318,217 @@ struct JavApi_util_Collections_Tests {
     #expect(l.size() == 3)
     #expect(try l.get(2) == 3)
   }
+
+  // MARK: - EMPTY_LIST / EMPTY_SET / EMPTY_MAP constants
+
+  @Test("EMPTY_LIST is empty and is an ArrayList")
+  func testEmptyListConstant() {
+    let l = C.EMPTY_LIST
+    #expect(l.isEmpty())
+    #expect(l.size() == 0)
+  }
+
+  @Test("EMPTY_SET constant is empty")
+  func testEmptySetConstant() {
+    let s = C.EMPTY_SET
+    #expect(s.isEmpty())
+    #expect(s.size() == 0)
+  }
+
+  @Test("EMPTY_MAP constant is empty")
+  func testEmptyMapConstant() {
+    let m = C.EMPTY_MAP
+    #expect(m.isEmpty())
+    #expect(m.size() == 0)
+  }
+
+  // MARK: - unmodifiableSequencedCollection
+
+  @Test("unmodifiableSequencedCollection returns UnmodifiableList")
+  func testUnmodifiableSequencedCollection() {
+    let l = list(1, 2, 3)
+    let wrapped = C.unmodifiableSequencedCollection(l)
+    #expect(wrapped is java.util.Collections.UnmodifiableList<Int>)
+    #expect(wrapped.size() == 3)
+    #expect(throws: (any Error).self) { try wrapped.add(4) }
+  }
+
+  // MARK: - unmodifiableSequencedSet
+
+  @Test("unmodifiableSequencedSet returns UnmodifiableLinkedHashSet")
+  func testUnmodifiableSequencedSet() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    for v in [10, 20, 30] { _ = try s.add(v) }
+    let wrapped = C.unmodifiableSequencedSet(s)
+    #expect(wrapped is java.util.Collections.UnmodifiableLinkedHashSet<Int>)
+    #expect(wrapped.size() == 3)
+    #expect(wrapped.contains(20))
+  }
+
+  @Test("unmodifiableSequencedSet blocks add")
+  func testUnmodifiableSequencedSetBlocksAdd() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    _ = try s.add(1)
+    let wrapped = C.unmodifiableSequencedSet(s)
+    #expect(throws: (any Error).self) { try wrapped.add(2) }
+  }
+
+  @Test("unmodifiableSequencedSet blocks addFirst")
+  func testUnmodifiableSequencedSetBlocksAddFirst() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    _ = try s.add(1)
+    let wrapped = C.unmodifiableSequencedSet(s)
+    #expect(throws: (any Error).self) { try wrapped.addFirst(0) }
+  }
+
+  @Test("unmodifiableSequencedSet blocks removeFirst")
+  func testUnmodifiableSequencedSetBlocksRemoveFirst() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    _ = try s.add(1)
+    let wrapped = C.unmodifiableSequencedSet(s)
+    #expect(throws: (any Error).self) { try wrapped.removeFirst() }
+  }
+
+  @Test("unmodifiableSequencedSet read-through: getFirst / getLast")
+  func testUnmodifiableSequencedSetReadThrough() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    for v in [5, 3, 7] { _ = try s.add(v) }
+    let wrapped = C.unmodifiableSequencedSet(s)
+    #expect(try wrapped.getFirst() == 5)
+    #expect(try wrapped.getLast() == 7)
+  }
+
+  // MARK: - unmodifiableSequencedMap
+
+  @Test("unmodifiableSequencedMap returns UnmodifiableLinkedHashMap")
+  func testUnmodifiableSequencedMap() {
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("a", 1); _ = m.put("b", 2)
+    let wrapped = C.unmodifiableSequencedMap(m)
+    #expect(wrapped is java.util.Collections.UnmodifiableLinkedHashMap<String, Int>)
+    #expect(wrapped.size() == 2)
+    #expect(wrapped.get("a") == 1)
+  }
+
+  @Test("unmodifiableSequencedMap read-through after wrap: get works")
+  func testUnmodifiableSequencedMapGetWorks() {
+    // put/remove/clear/pollFirst/pollLastEntry call fatalError (untestable without crashing),
+    // so we verify that read operations work correctly on the wrapped map.
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("x", 1); _ = m.put("y", 2)
+    let wrapped = C.unmodifiableSequencedMap(m)
+    #expect(wrapped.get("x") == 1)
+    #expect(wrapped.get("y") == 2)
+    #expect(wrapped.containsKey("x"))
+    #expect(!wrapped.containsKey("z"))
+  }
+
+  @Test("unmodifiableSequencedMap blocks putFirst/putLast via throws")
+  func testUnmodifiableSequencedMapBlocksPutFirst() {
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("a", 1)
+    let wrapped = C.unmodifiableSequencedMap(m)
+    #expect(throws: (any Error).self) { try wrapped.putFirst("z", 99) }
+    #expect(throws: (any Error).self) { try wrapped.putLast("z", 99) }
+  }
+
+  @Test("unmodifiableSequencedMap read-through: firstEntry / lastEntry")
+  func testUnmodifiableSequencedMapReadThrough() {
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("first", 1); _ = m.put("last", 2)
+    let wrapped = C.unmodifiableSequencedMap(m)
+    #expect(wrapped.firstEntry()?.key == "first")
+    #expect(wrapped.lastEntry()?.key == "last")
+  }
+
+  // MARK: - synchronizedSequencedCollection
+
+  @Test("synchronizedSequencedCollection returns SynchronizedList")
+  func testSynchronizedSequencedCollection() throws {
+    let l = list(1, 2, 3)
+    let wrapped = C.synchronizedSequencedCollection(l)
+    #expect(wrapped is java.util.Collections.SynchronizedList<Int>)
+    _ = try wrapped.add(4)
+    #expect(wrapped.size() == 4)
+  }
+
+  // MARK: - synchronizedSequencedSet
+
+  @Test("synchronizedSequencedSet returns SynchronizedLinkedHashSet")
+  func testSynchronizedSequencedSet() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    for v in [1, 2, 3] { _ = try s.add(v) }
+    let wrapped = C.synchronizedSequencedSet(s)
+    #expect(wrapped is java.util.Collections.SynchronizedLinkedHashSet<Int>)
+    _ = try wrapped.add(4)
+    #expect(wrapped.size() == 4)
+    #expect(wrapped.contains(4))
+  }
+
+  @Test("synchronizedSequencedSet getFirst / getLast delegate correctly")
+  func testSynchronizedSequencedSetFirstLast() throws {
+    let s = java.util.LinkedHashSet<Int>()
+    for v in [10, 20, 30] { _ = try s.add(v) }
+    let wrapped = C.synchronizedSequencedSet(s)
+    #expect(try wrapped.getFirst() == 10)
+    #expect(try wrapped.getLast() == 30)
+  }
+
+  // MARK: - synchronizedSequencedMap
+
+  @Test("synchronizedSequencedMap returns SynchronizedLinkedHashMap")
+  func testSynchronizedSequencedMap() {
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("a", 1)
+    let wrapped = C.synchronizedSequencedMap(m)
+    #expect(wrapped is java.util.Collections.SynchronizedLinkedHashMap<String, Int>)
+    _ = wrapped.put("b", 2)
+    #expect(wrapped.size() == 2)
+    #expect(wrapped.get("b") == 2)
+  }
+
+  @Test("synchronizedSequencedMap firstEntry / lastEntry work correctly")
+  func testSynchronizedSequencedMapFirstLast() {
+    let m = java.util.LinkedHashMap<String, Int>()
+    _ = m.put("first", 1); _ = m.put("last", 2)
+    let wrapped = C.synchronizedSequencedMap(m)
+    #expect(wrapped.firstEntry()?.key == "first")
+    #expect(wrapped.lastEntry()?.key == "last")
+  }
+
+  // MARK: - Collection.toArray(_ generator:) — Java 11
+
+  @Test("toArray(generator:) returns all elements via ArrayList")
+  func testToArrayGenerator() {
+    let l = list(10, 20, 30)
+    let result = l.toArray { _ in [Int]() }
+    #expect(result == [10, 20, 30])
+  }
+
+  @Test("toArray(generator:) on empty collection returns empty array")
+  func testToArrayGeneratorEmpty() {
+    let l: java.util.ArrayList<Int> = java.util.ArrayList()
+    let result = l.toArray { _ in [Int]() }
+    #expect(result.isEmpty)
+  }
+
+  @Test("toArray(generator:) generator closure receives collection size")
+  func testToArrayGeneratorReceivesSize() {
+    let l = list(1, 2, 3, 4, 5)
+    var capturedSize = -1
+    _ = l.toArray { size in
+      capturedSize = size
+      return [Int]()
+    }
+    #expect(capturedSize == 5)
+  }
+
+  @Test("toArray(generator:) works on LinkedHashSet")
+  func testToArrayGeneratorLinkedHashSet() throws {
+    let s = java.util.LinkedHashSet<String>()
+    for v in ["x", "y", "z"] { _ = try s.add(v) }
+    let result = s.toArray { _ in [String]() }
+    #expect(result.count == 3)
+    #expect(Set(result) == Set(["x", "y", "z"]))
+  }
 }

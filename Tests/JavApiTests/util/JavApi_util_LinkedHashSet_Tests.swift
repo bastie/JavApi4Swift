@@ -234,6 +234,27 @@ struct JavApi_util_LinkedHashSet_Tests {
     #expect(set.isEmpty() == true)
   }
 
+  // MARK: - init(initialCapacity:loadFactor:)
+
+  @Test("init(initialCapacity:loadFactor:) creates an empty set")
+  func testInitCapacityLoadFactor() throws {
+    let set = java.util.LinkedHashSet<Int>(initialCapacity: 16, loadFactor: 0.75)
+    #expect(set.isEmpty() == true)
+    _ = try set.add(42)
+    #expect(set.size() == 1)
+    #expect(set.contains(42))
+  }
+
+  @Test("init(initialCapacity:loadFactor:) maintains insertion order")
+  func testInitCapacityLoadFactorOrder() throws {
+    let set = java.util.LinkedHashSet<String>(initialCapacity: 8, loadFactor: 0.5)
+    for v in ["c", "a", "b"] { _ = try set.add(v) }
+    let it = set.iterator()
+    var result: [String] = []
+    while it.hasNext() { if let e = try? it.next() { result.append(e) } }
+    #expect(result == ["c", "a", "b"])
+  }
+
   // MARK: - Clone
 
   @Test("clone() produces independent copy with same insertion order")

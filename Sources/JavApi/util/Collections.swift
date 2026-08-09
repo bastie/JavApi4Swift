@@ -109,6 +109,208 @@ extension java.util {
       }
     }
 
+    // MARK: - Inner: UnmodifiableLinkedHashSet
+
+    /// Wrapper around `LinkedHashSet` that throws `UnsupportedOperationException`
+    /// on any mutating call (Java 21 `Collections.unmodifiableSequencedSet`).
+    public final class UnmodifiableLinkedHashSet<E: Hashable>: java.util.LinkedHashSet<E> {
+
+      private let delegate: java.util.LinkedHashSet<E>
+
+      public init(_ delegate: java.util.LinkedHashSet<E>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func contains(_ element: E?) -> Bool { delegate.contains(element) }
+      public override func iterator() -> any java.util.Iterator<E> { delegate.iterator() }
+      public override func toArray() -> [E?] { delegate.toArray() }
+      public override func getFirst() throws -> E { try delegate.getFirst() }
+      public override func getLast() throws -> E { try delegate.getLast() }
+      public override func reversed() -> any java.util.SequencedCollection<E> { delegate.reversed() }
+      public override func reversedSet() -> any java.util.SequencedSet<E> { delegate.reversedSet() }
+
+      // Mutation — blocked
+      public override func add(_ element: E?) throws -> Bool {
+        throw UnsupportedOperationException("unmodifiable sequenced set")
+      }
+      @discardableResult
+      public override func remove(_ element: E?) -> Bool {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced set")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced set")
+      }
+      public override func addFirst(_ e: E) throws {
+        throw UnsupportedOperationException("unmodifiable sequenced set")
+      }
+      public override func addLast(_ e: E) throws {
+        throw UnsupportedOperationException("unmodifiable sequenced set")
+      }
+      public override func removeFirst() throws -> E {
+        throw UnsupportedOperationException("unmodifiable sequenced set")
+      }
+      public override func removeLast() throws -> E {
+        throw UnsupportedOperationException("unmodifiable sequenced set")
+      }
+    }
+
+    // MARK: - Inner: SynchronizedLinkedHashSet
+
+    /// Wrapper around `LinkedHashSet` that serialises every access with an
+    /// `NSLock` (Java 21 `Collections.synchronizedSequencedSet`).
+    public final class SynchronizedLinkedHashSet<E: Hashable>: java.util.LinkedHashSet<E> {
+
+      private let delegate: java.util.LinkedHashSet<E>
+      private let lock = NSLock()
+
+      public init(_ delegate: java.util.LinkedHashSet<E>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      private func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock.lock()
+        defer { lock.unlock() }
+        return try body()
+      }
+
+      public override func size() -> Int { withLock { delegate.size() } }
+      public override func isEmpty() -> Bool { withLock { delegate.isEmpty() } }
+      public override func contains(_ element: E?) -> Bool { withLock { delegate.contains(element) } }
+      public override func iterator() -> any java.util.Iterator<E> { withLock { delegate.iterator() } }
+      public override func toArray() -> [E?] { withLock { delegate.toArray() } }
+      public override func getFirst() throws -> E { try withLock { try delegate.getFirst() } }
+      public override func getLast() throws -> E { try withLock { try delegate.getLast() } }
+      public override func add(_ element: E?) throws -> Bool { try withLock { try delegate.add(element) } }
+      @discardableResult
+      public override func remove(_ element: E?) -> Bool { withLock { delegate.remove(element) } }
+      public override func clear() { withLock { delegate.clear() } }
+      public override func addFirst(_ e: E) throws { try withLock { try delegate.addFirst(e) } }
+      public override func addLast(_ e: E) throws { try withLock { try delegate.addLast(e) } }
+      public override func removeFirst() throws -> E { try withLock { try delegate.removeFirst() } }
+      public override func removeLast() throws -> E { try withLock { try delegate.removeLast() } }
+    }
+
+    // MARK: - Inner: UnmodifiableLinkedHashMap
+
+    /// Wrapper around `LinkedHashMap` that throws `UnsupportedOperationException`
+    /// on any mutating call (Java 21 `Collections.unmodifiableSequencedMap`).
+    public final class UnmodifiableLinkedHashMap<K: Hashable, V: Equatable>: java.util.LinkedHashMap<K, V> {
+
+      private let delegate: java.util.LinkedHashMap<K, V>
+
+      public override init(_ delegate: java.util.LinkedHashMap<K, V>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Satisfies `required init()` inherited from LinkedHashMap; not for direct use.
+      public required init() {
+        self.delegate = java.util.LinkedHashMap<K, V>()
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func containsKey(_ key: K) -> Bool { delegate.containsKey(key) }
+      public override func containsValue(_ value: V) -> Bool { delegate.containsValue(value) }
+      public override func get(_ key: K) -> V? { delegate.get(key) }
+      public override func keySet() -> any java.util.Set<K> { delegate.keySet() }
+      public override func values() -> any java.util.Collection<V> { delegate.values() }
+      public override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> { delegate.entrySet() }
+      public override func firstEntry() -> java.util.MapEntry<K, V>? { delegate.firstEntry() }
+      public override func lastEntry() -> java.util.MapEntry<K, V>? { delegate.lastEntry() }
+      public override func sequencedKeySet() -> any java.util.SequencedSet<K> { delegate.sequencedKeySet() }
+      public override func sequencedValues() -> any java.util.SequencedCollection<V> { delegate.sequencedValues() }
+      public override func sequencedEntrySet() -> any java.util.SequencedSet<java.util.MapEntry<K, V>> { delegate.sequencedEntrySet() }
+      public override func reversedMap() -> any java.util.SequencedMap<K, V> { delegate.reversedMap() }
+
+      // Mutation — blocked (non-throwing overrides use fatalError; throwing ones throw)
+      @discardableResult
+      public override func put(_ key: K, _ newValue: V) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      @discardableResult
+      public override func remove(_ key: K) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      public override func putAll(_ map: any java.util.Map<K, V>) {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      public override func pollFirstEntry() -> java.util.MapEntry<K, V>? {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      public override func pollLastEntry() -> java.util.MapEntry<K, V>? {
+        fatalError("UnsupportedOperationException: unmodifiable sequenced map")
+      }
+      @discardableResult
+      public override func putFirst(_ key: K, _ value: V) throws -> V? {
+        throw UnsupportedOperationException("unmodifiable sequenced map")
+      }
+      @discardableResult
+      public override func putLast(_ key: K, _ value: V) throws -> V? {
+        throw UnsupportedOperationException("unmodifiable sequenced map")
+      }
+    }
+
+    // MARK: - Inner: SynchronizedLinkedHashMap
+
+    /// Wrapper around `LinkedHashMap` that serialises every access with an
+    /// `NSLock` (Java 21 `Collections.synchronizedSequencedMap`).
+    public final class SynchronizedLinkedHashMap<K: Hashable, V: Equatable>: java.util.LinkedHashMap<K, V> {
+
+      private let delegate: java.util.LinkedHashMap<K, V>
+      private let lock = NSLock()
+
+      public override init(_ delegate: java.util.LinkedHashMap<K, V>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Satisfies `required init()` inherited from LinkedHashMap; not for direct use.
+      public required init() {
+        self.delegate = java.util.LinkedHashMap<K, V>()
+        super.init()
+      }
+
+      private func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock.lock()
+        defer { lock.unlock() }
+        return try body()
+      }
+
+      public override func size() -> Int { withLock { delegate.size() } }
+      public override func isEmpty() -> Bool { withLock { delegate.isEmpty() } }
+      public override func containsKey(_ key: K) -> Bool { withLock { delegate.containsKey(key) } }
+      public override func containsValue(_ value: V) -> Bool { withLock { delegate.containsValue(value) } }
+      public override func get(_ key: K) -> V? { withLock { delegate.get(key) } }
+      public override func keySet() -> any java.util.Set<K> { withLock { delegate.keySet() } }
+      public override func values() -> any java.util.Collection<V> { withLock { delegate.values() } }
+      public override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> { withLock { delegate.entrySet() } }
+      public override func firstEntry() -> java.util.MapEntry<K, V>? { withLock { delegate.firstEntry() } }
+      public override func lastEntry() -> java.util.MapEntry<K, V>? { withLock { delegate.lastEntry() } }
+      @discardableResult
+      public override func put(_ key: K, _ newValue: V) -> V? { withLock { delegate.put(key, newValue) } }
+      @discardableResult
+      public override func remove(_ key: K) -> V? { withLock { delegate.remove(key) } }
+      public override func clear() { withLock { delegate.clear() } }
+      public override func putAll(_ map: any java.util.Map<K, V>) { withLock { delegate.putAll(map) } }
+      public override func pollFirstEntry() -> java.util.MapEntry<K, V>? { withLock { delegate.pollFirstEntry() } }
+      public override func pollLastEntry() -> java.util.MapEntry<K, V>? { withLock { delegate.pollLastEntry() } }
+      @discardableResult
+      public override func putFirst(_ key: K, _ value: V) throws -> V? { try withLock { try delegate.putFirst(key, value) } }
+      @discardableResult
+      public override func putLast(_ key: K, _ value: V) throws -> V? { try withLock { try delegate.putLast(key, value) } }
+    }
+
     // MARK: - Empty / Singleton factories
 
     /// Returns an empty, immutable Swift `Set`.
@@ -125,6 +327,27 @@ extension java.util {
     public static func emptyMap<K: Hashable, V>() -> java.util.HashMap<K, V> {
       return java.util.HashMap<K, V>()
     }
+
+    // MARK: - Empty constants (Java 1.2)
+
+    /// An immutable empty list (matches Java's `Collections.EMPTY_LIST`).
+    ///
+    /// Prefer the type-safe `emptyList()` method in generic code.
+    /// Uses `AnyHashable` as element type since Java's version used raw types.
+    public nonisolated(unsafe) static let EMPTY_LIST: java.util.ArrayList<AnyHashable> =
+      java.util.ArrayList<AnyHashable>()
+
+    /// An immutable empty set (matches Java's `Collections.EMPTY_SET`).
+    ///
+    /// Prefer the type-safe `emptySet()` method in generic code.
+    public nonisolated(unsafe) static let EMPTY_SET: java.util.HashSet<AnyHashable> =
+      java.util.HashSet<AnyHashable>()
+
+    /// An immutable empty map (matches Java's `Collections.EMPTY_MAP`).
+    ///
+    /// Prefer the type-safe `emptyMap()` method in generic code.
+    public nonisolated(unsafe) static let EMPTY_MAP: java.util.HashMap<AnyHashable, AnyHashable> =
+      java.util.HashMap<AnyHashable, AnyHashable>()
 
     /// Returns an `ArrayList` containing only `element`.
     public static func singletonList<E: Equatable>(_ element: E) -> java.util.ArrayList<E> {
@@ -150,6 +373,54 @@ extension java.util {
     /// Returns a wrapper that serialises all access with an `NSLock`.
     public static func synchronizedList<E: Equatable>(_ list: java.util.ArrayList<E>) -> java.util.ArrayList<E> {
       return SynchronizedList(list)
+    }
+
+    /// Returns an unmodifiable view of a `SequencedCollection` (Java 21).
+    ///
+    /// Delegates to `unmodifiableList` since `ArrayList` is the standard
+    /// `SequencedCollection` implementation in this library.
+    public static func unmodifiableSequencedCollection<E: Equatable>(
+      _ c: java.util.ArrayList<E>
+    ) -> java.util.ArrayList<E> {
+      return UnmodifiableList(c)
+    }
+
+    /// Returns an unmodifiable view of a `SequencedSet` (Java 21).
+    public static func unmodifiableSequencedSet<E: Hashable>(
+      _ s: java.util.LinkedHashSet<E>
+    ) -> java.util.LinkedHashSet<E> {
+      return UnmodifiableLinkedHashSet(s)
+    }
+
+    /// Returns an unmodifiable view of a `SequencedMap` (Java 21).
+    public static func unmodifiableSequencedMap<K: Hashable, V: Equatable>(
+      _ m: java.util.LinkedHashMap<K, V>
+    ) -> java.util.LinkedHashMap<K, V> {
+      return UnmodifiableLinkedHashMap(m)
+    }
+
+    /// Returns a synchronised (thread-safe) view of a `SequencedCollection` (Java 21).
+    ///
+    /// Delegates to `synchronizedList` since `ArrayList` is the standard
+    /// `SequencedCollection` implementation in this library.
+    public static func synchronizedSequencedCollection<E: Equatable>(
+      _ c: java.util.ArrayList<E>
+    ) -> java.util.ArrayList<E> {
+      return SynchronizedList(c)
+    }
+
+    /// Returns a synchronised (thread-safe) view of a `SequencedSet` (Java 21).
+    public static func synchronizedSequencedSet<E: Hashable>(
+      _ s: java.util.LinkedHashSet<E>
+    ) -> java.util.LinkedHashSet<E> {
+      return SynchronizedLinkedHashSet(s)
+    }
+
+    /// Returns a synchronised (thread-safe) view of a `SequencedMap` (Java 21).
+    public static func synchronizedSequencedMap<K: Hashable, V: Equatable>(
+      _ m: java.util.LinkedHashMap<K, V>
+    ) -> java.util.LinkedHashMap<K, V> {
+      return SynchronizedLinkedHashMap(m)
     }
 
     // MARK: - Sorting

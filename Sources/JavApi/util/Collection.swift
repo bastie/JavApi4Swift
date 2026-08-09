@@ -37,5 +37,24 @@ extension java.util.Collection {
     }
     return false
   }
+
+  /// Returns a non-optional array containing all elements of this collection.
+  ///
+  /// The `generator` is called with the desired size and must return a
+  /// pre-allocated (or empty) Swift array; elements are then appended to it.
+  /// This matches Java 11's `Collection.toArray(IntFunction<T[]> generator)`.
+  ///
+  /// - Parameter generator: Closure that receives the collection size and
+  ///   returns the backing array to use (may be pre-sized or empty).
+  /// - Returns: An array of all elements in iteration order.
+  public func toArray(_ generator: (Int) -> [E]) -> [E] {
+    var result = generator(size())
+    result.removeAll(keepingCapacity: true)
+    let it = iterator()
+    while it.hasNext() {
+      if let e = try? it.next() { result.append(e) }
+    }
+    return result
+  }
 }
 

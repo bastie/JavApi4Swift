@@ -49,11 +49,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## P0 – Naive Konstanten
-
-- [ ] `Collections.EMPTY_LIST` / `EMPTY_SET` / `EMPTY_MAP` als `static let` (benötigen typisierte leere Wrapper)
-
----
 
 ## P1 – Java 1.0 Kompatibilität
 
@@ -219,12 +214,7 @@ Java 8:
 - [ ] `static checkedNavigableMap/NavigableSet/Queue`
 - [ ] `static emptyNavigableMap/NavigableSet`
 
-**Vorhanden:** `sort`, `binarySearch`, `reverse`, `shuffle`, `min`, `max`, `fill`, `copy`, `frequency`, `disjoint`, `addAll`, `unmodifiableList`, `synchronizedList`, `emptySet/List/Map`, `singletonList`, `nCopies`. 42 Tests.
-
-Fehlende Konstanten:
-- [ ] `static let EMPTY_SET: Set`
-- [ ] `static let EMPTY_LIST: List`
-- [ ] `static let EMPTY_MAP: Map`
+**Vorhanden:** `sort`, `binarySearch`, `reverse`, `shuffle`, `min`, `max`, `fill`, `copy`, `frequency`, `disjoint`, `addAll`, `unmodifiableList/SequencedCollection/SequencedSet/SequencedMap`, `synchronizedList/SequencedCollection/SequencedSet/SequencedMap`, `emptySet/List/Map`, `EMPTY_LIST/SET/MAP`, `singletonList`, `nCopies`. 42 Tests.
 
 ### `HashMap`
 
@@ -285,9 +275,6 @@ Fehlende Konstanten:
 
 ## Java 1.4 – Fehlende Typen
 
-### `LinkedHashSet<E>` – Restarbeiten
-- [ ] Konstruktoren `(initialCapacity: Int)`, `(initialCapacity: Int, loadFactor: Float)`
-
 ### `java.util.regex` (komplett fehlend)
 
 - [ ] `PatternSyntaxException`
@@ -298,12 +285,6 @@ Fehlende Konstanten:
 ---
 
 ## Java 5 – Restarbeiten
-
-### `PriorityQueue<E>` – Restarbeiten
-- [ ] `toArray()` / `toArray(_ a: [E]) -> [E]`
-
-### `ArrayDeque<E>` – Restarbeiten
-- [ ] `toArray()` / `toArray(_ a: [E]) -> [E]`
 
 ### `EnumMap<K, V>` (komplett fehlend)
 - [ ] Implementierung (Swift-Enums als Key — Designfrage)
@@ -452,11 +433,6 @@ Aufgaben:
 
 ---
 
-## Java 11
-
-### `Collection` – Java 11
-- [ ] `toArray(_ generator: (Int) -> [E]) -> [E]`
-
 ---
 
 ## Java 16
@@ -483,12 +459,6 @@ Aufgaben:
 - [ ] Neue Methoden mit `origin`/`bound`-Parametern ergänzen
 
 ---
-
-## Java 21 – Restarbeiten
-
-### `Collections` – Sequenced-Collection-Wrapper
-- [ ] `static unmodifiableSequencedCollection/SequencedSet/SequencedMap`
-- [ ] `static synchronizedSequencedCollection/SequencedSet/SequencedMap`
 
 ---
 

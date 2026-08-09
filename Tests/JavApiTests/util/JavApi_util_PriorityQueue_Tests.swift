@@ -309,4 +309,41 @@ struct JavApi_util_PriorityQueue_Tests {
     #expect(pq.poll() == 2)
     #expect(pq.poll() == nil)
   }
+
+  // MARK: - toArray() / toArray(_ a:)
+
+  @Test("toArray() returns all elements in heap-storage order")
+  func testToArray() {
+    let pq = java.util.PriorityQueue<Int>()
+    pq.offer(3); pq.offer(1); pq.offer(2)
+    let arr = pq.toArray()
+    // heap-storage order: compactMap to strip optionals
+    #expect(arr.count == 3)
+    let sorted = arr.compactMap { $0 }.sorted()
+    #expect(sorted == [1, 2, 3])
+  }
+
+  @Test("toArray() on empty queue returns empty array")
+  func testToArrayEmpty() {
+    let pq = java.util.PriorityQueue<Int>()
+    #expect(pq.toArray().isEmpty)
+  }
+
+  @Test("toArray(_ a:) fills pre-sized array in heap-storage order")
+  func testToArrayWithPreSizedArray() {
+    let pq = java.util.PriorityQueue<Int>()
+    pq.offer(5); pq.offer(2); pq.offer(8)
+    let result = pq.toArray([0, 0, 0])
+    #expect(result.count == 3)
+    #expect(Set(result) == Set([5, 2, 8]))
+  }
+
+  @Test("toArray(_ a:) with undersized array returns heap array directly")
+  func testToArrayWithUndersizedArray() {
+    let pq = java.util.PriorityQueue<Int>()
+    pq.offer(1); pq.offer(2); pq.offer(3)
+    let result = pq.toArray([0])   // too small → returns _heap
+    #expect(result.count == 3)
+    #expect(Set(result) == Set([1, 2, 3]))
+  }
 }

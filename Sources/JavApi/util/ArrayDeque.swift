@@ -48,6 +48,22 @@ extension java.util {
 
     open override func size() -> Int { _elements.count }
 
+    /// Returns an array of all elements in head-to-tail order.
+    open override func toArray() -> [E?] { _elements.map { $0 } }
+
+    /// Stores all elements into `a` in head-to-tail order and returns it.
+    ///
+    /// If `a` is large enough the elements are written in-place; otherwise a
+    /// new array of the correct size is returned.
+    open func toArray(_ a: [E]) -> [E] {
+      if a.count >= _elements.count {
+        var result = a
+        for (i, e) in _elements.enumerated() { result[i] = e }
+        return Array(result[0..<_elements.count])
+      }
+      return _elements
+    }
+
     open override func iterator() -> any java.util.Iterator<E> {
       _ArrayDequeIterator(_elements)
     }

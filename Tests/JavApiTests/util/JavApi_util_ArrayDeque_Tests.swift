@@ -391,4 +391,37 @@ struct JavApi_util_ArrayDeque_Tests {
     }
     #expect(dq.isEmpty() == true)
   }
+
+  // MARK: - toArray() / toArray(_ a:)
+
+  @Test("toArray() returns all elements in head-to-tail order")
+  func testToArray() {
+    let dq = java.util.ArrayDeque<Int>()
+    dq.offer(1); dq.offer(2); dq.offer(3)
+    let arr = dq.toArray()
+    #expect(arr.count == 3)
+    #expect(arr.compactMap { $0 } == [1, 2, 3])
+  }
+
+  @Test("toArray() on empty deque returns empty array")
+  func testToArrayEmpty() {
+    let dq = java.util.ArrayDeque<Int>()
+    #expect(dq.toArray().isEmpty)
+  }
+
+  @Test("toArray(_ a:) fills pre-sized array preserving order")
+  func testToArrayWithPreSizedArray() {
+    let dq = java.util.ArrayDeque<Int>()
+    dq.offer(10); dq.offer(20); dq.offer(30)
+    let result = dq.toArray([0, 0, 0])
+    #expect(result == [10, 20, 30])
+  }
+
+  @Test("toArray(_ a:) with undersized array returns internal array directly")
+  func testToArrayWithUndersizedArray() {
+    let dq = java.util.ArrayDeque<Int>()
+    dq.offer(7); dq.offer(8); dq.offer(9)
+    let result = dq.toArray([0])   // too small → returns _elements
+    #expect(result == [7, 8, 9])
+  }
 }

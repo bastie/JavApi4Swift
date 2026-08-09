@@ -142,6 +142,23 @@ extension java.util {
 
     open override func size() -> Int { _heap.count }
 
+    /// Returns an array containing all elements in this queue in **heap-storage
+    /// order** (not priority order) — matches Java's `PriorityQueue.toArray()` contract.
+    open override func toArray() -> [E?] { _heap.map { $0 } }
+
+    /// Stores all elements into `a` and returns it.
+    ///
+    /// If `a` is large enough the elements are written in-place (heap-storage
+    /// order); otherwise a new array of the correct size is returned.
+    open func toArray(_ a: [E]) -> [E] {
+      if a.count >= _heap.count {
+        var result = a
+        for (i, e) in _heap.enumerated() { result[i] = e }
+        return Array(result[0..<_heap.count])
+      }
+      return _heap
+    }
+
     /// Returns a snapshot iterator in **heap-storage order** (not priority order).
     ///
     /// This matches Java's `PriorityQueue.iterator()` contract: "The iterator
