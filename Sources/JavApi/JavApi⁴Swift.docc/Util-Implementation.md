@@ -1,7 +1,7 @@
 # java.util – Implementierungs-Arbeitsplan
 
 Temporäres Arbeitsdokument zur schrittweisen Schließung der API-Lücken in `java.util`.
-Priorisierung: Java 1.0 → 1.1 → 1.2 → 1.4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 16 → 17 → 21.
+Priorisierung: Java 1.0 → 1.1 → 1.2 → 1.4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 16 → 17 → 21 -> 26.
 
 Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
@@ -82,40 +82,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] `values()` als `any java.util.Collection<V>` — `Hashtable` konformiert noch nicht zu `java.util.Map`
 
 **Tests:** 26 vorhanden.
-
-### `Properties`
-
-Vorhanden: `getProperty`, `getProperty(default)`, `setProperty`, `propertyNames`, `load(InputStream)`, `store(OutputStream, String?)`, `save` (deprecated), `list(PrintStream)`, `list(PrintWriter)`, `stringPropertyNames()`, `loadFromXML(InputStream)`, `storeToXML(OutputStream, String?)`, `storeToXML(OutputStream, String?, String)`.
-
-- [x] Tests für alle vorhandenen Methoden (`getProperty`, `setProperty`, `propertyNames`, `load`, `store`, `save`, `list`)
-- [x] `list(_ out: PrintWriter)`
-- [x] `loadFromXML(_ in: InputStream)` — Java 5
-- [x] `storeToXML(_ os: OutputStream, _ comment: String?)` — Java 5
-- [x] `stringPropertyNames() -> Set<String>` — Java 6
-
-**Tests:** 21 vorhanden.
-
-### `BitSet`
-
-Vorhanden: `set(int)`, `clear(int)`, `get(int)`, `and`, `or`, `xor`, `size`, `clone`, `equals`, `hashCode`, `toString`. 28 Tests.
-
-- [ ] `andNot(_ set: BitSet)` (Java 1.2)
-- [ ] `length() -> Int` (Java 1.4)
-- [ ] `isEmpty() -> Bool` (Java 1.4)
-- [ ] `cardinality() -> Int` (Java 1.4)
-- [ ] `intersects(_ set: BitSet) -> Bool` (Java 1.4)
-- [ ] `flip(_ bitIndex: Int)`, `flip(_ from: Int, _ to: Int)` (Java 1.4)
-- [ ] `set(_ bitIndex: Int, _ value: Bool)`, `set(_ from: Int, _ to: Int)`, `set(_ from: Int, _ to: Int, _ value: Bool)` (Java 1.4)
-- [ ] `clear(_ from: Int, _ to: Int)` (Java 1.4)
-- [ ] `get(_ from: Int, _ to: Int) -> BitSet` (Java 1.4)
-- [ ] `nextSetBit(_ from: Int) -> Int` (Java 1.4)
-- [ ] `nextClearBit(_ from: Int) -> Int` (Java 1.4)
-- [ ] `previousSetBit(_ from: Int) -> Int` (Java 7)
-- [ ] `previousClearBit(_ from: Int) -> Int` (Java 7)
-- [ ] `toLongArray() -> [Int64]` (Java 7)
-- [ ] `toByteArray() -> [UInt8]` (Java 7)
-- [ ] `static valueOf(_ bytes: [UInt8]) -> BitSet` (Java 7)
-- [ ] `static valueOf(_ longs: [Int64]) -> BitSet` (Java 7)
 
 ---
 

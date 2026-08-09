@@ -165,6 +165,21 @@ extension java.util {
       }
     }
 
+    // MARK: - Java 1.2 additions
+
+    /// Clears all bits in this `BitSet` whose corresponding bit is set in `set`.
+    ///
+    /// Equivalent to Java's `BitSet.andNot(BitSet)`.
+    ///
+    /// - Parameter set: The `BitSet` whose set bits are cleared in this set.
+    /// - Since: JavaApi (Java 1.2)
+    public func andNot(_ set: BitSet) {
+      let minLen = Swift.min(words.count, set.words.count)
+      for i in 0..<minLen {
+        words[i] &= ~set.words[i]
+      }
+    }
+
     // MARK: - Size / cardinality
 
     /// Returns the number of bits in this `BitSet` (always a multiple of 64).
@@ -173,6 +188,312 @@ extension java.util {
     /// - Since: JavaApi (Java 1.0)
     public func size() -> Int {
       return words.count * 64
+    }
+
+    /// Returns the index of the highest set bit plus one.
+    ///
+    /// Returns `0` if no bit is set.
+    ///
+    /// - Returns: Logical length of this `BitSet`.
+    /// - Since: JavaApi (Java 1.4)
+    public func length() -> Int {
+      var i = words.count - 1
+      while i >= 0 && words[i] == 0 { i -= 1 }
+      guard i >= 0 else { return 0 }
+      return i * 64 + (64 - words[i].leadingZeroBitCount)
+    }
+
+    /// Returns `true` if no bit is currently set.
+    ///
+    /// - Since: JavaApi (Java 1.4)
+    public func isEmpty() -> Bool {
+      return words.allSatisfy { $0 == 0 }
+    }
+
+    /// Returns the number of bits currently set to `true`.
+    ///
+    /// - Since: JavaApi (Java 1.4)
+    public func cardinality() -> Int {
+      return words.reduce(0) { $0 + $1.nonzeroBitCount }
+    }
+
+    /// Returns `true` if this `BitSet` has any bits set that are also set in `set`.
+    ///
+    /// - Parameter set: The `BitSet` to compare.
+    /// - Since: JavaApi (Java 1.4)
+    public func intersects(_ set: BitSet) -> Bool {
+      let minLen = Swift.min(words.count, set.words.count)
+      return (0..<minLen).contains { (words[$0] & set.words[$0]) != 0 }
+    }
+
+    // MARK: - Java 1.4 additions (flip, set/clear ranges, get range, nextBit)
+
+    /// Flips the bit at `bitIndex`.
+    ///
+    /// - Parameter bitIndex: Index of the bit to flip. Must be ≥ 0.
+    /// - Since: JavaApi (Java 1.4)
+    public func flip(_ bitIndex: Int) {
+      precondition(bitIndex >= 0, "bitIndex < 0: \(bitIndex)")
+      ensureCapacity(for: bitIndex)
+      words[BitSet.wordIndex(bitIndex)] ^= BitSet.mask(bitIndex)
+    }
+
+    /// Flips each bit in the range `[fromIndex, toIndex)`.
+    ///
+    /// - Parameters:
+    ///   - fromIndex: First index to flip (inclusive). Must be ≥ 0.
+    ///   - toIndex: Last index to flip (exclusive). Must be ≥ `fromIndex`.
+    /// - Since: JavaApi (Java 1.4)
+    public func flip(_ fromIndex: Int, _ toIndex: Int) {
+      precondition(fromIndex >= 0 && fromIndex <= toIndex,
+                   "fromIndex: \(fromIndex), toIndex: \(toIndex)")
+      if fromIndex == toIndex { return }
+      ensureCapacity(for: toIndex - 1)
+      _applyRangeMask(from: fromIndex, to: toIndex) { words[$0] ^= $1 }
+    }
+
+    /// Sets the bit at `bitIndex` to `value`.
+    ///
+    /// - Parameters:
+    ///   - bitIndex: Index of the bit. Must be ≥ 0.
+    ///   - value: `true` to set; `false` to clear.
+    /// - Since: JavaApi (Java 1.4)
+    public func set(_ bitIndex: Int, _ value: Bool) {
+      if value { set(bitIndex) } else { clear(bitIndex) }
+    }
+
+    /// Sets each bit in the range `[fromIndex, toIndex)` to `true`.
+    ///
+    /// - Parameters:
+    ///   - fromIndex: First index to set (inclusive). Must be ≥ 0.
+    ///   - toIndex: Last index to set (exclusive). Must be ≥ `fromIndex`.
+    /// - Since: JavaApi (Java 1.4)
+    public func set(_ fromIndex: Int, _ toIndex: Int) {
+      precondition(fromIndex >= 0 && fromIndex <= toIndex,
+                   "fromIndex: \(fromIndex), toIndex: \(toIndex)")
+      if fromIndex == toIndex { return }
+      ensureCapacity(for: toIndex - 1)
+      _applyRangeMask(from: fromIndex, to: toIndex) { words[$0] |= $1 }
+    }
+
+    /// Sets each bit in the range `[fromIndex, toIndex)` to `value`.
+    ///
+    /// - Parameters:
+    ///   - fromIndex: First index (inclusive). Must be ≥ 0.
+    ///   - toIndex: Last index (exclusive). Must be ≥ `fromIndex`.
+    ///   - value: `true` to set; `false` to clear.
+    /// - Since: JavaApi (Java 1.4)
+    public func set(_ fromIndex: Int, _ toIndex: Int, _ value: Bool) {
+      if value { set(fromIndex, toIndex) } else { clear(fromIndex, toIndex) }
+    }
+
+    /// Clears each bit in the range `[fromIndex, toIndex)`.
+    ///
+    /// - Parameters:
+    ///   - fromIndex: First index to clear (inclusive). Must be ≥ 0.
+    ///   - toIndex: Last index to clear (exclusive). Must be ≥ `fromIndex`.
+    /// - Since: JavaApi (Java 1.4)
+    public func clear(_ fromIndex: Int, _ toIndex: Int) {
+      precondition(fromIndex >= 0 && fromIndex <= toIndex,
+                   "fromIndex: \(fromIndex), toIndex: \(toIndex)")
+      if fromIndex == toIndex { return }
+      _applyRangeMask(from: fromIndex, to: toIndex) { words[$0] &= ~$1 }
+    }
+
+    /// Returns a new `BitSet` composed of bits `[fromIndex, toIndex)` from this set.
+    ///
+    /// The bit at `fromIndex` becomes bit 0 in the result.
+    ///
+    /// - Parameters:
+    ///   - fromIndex: First index (inclusive). Must be ≥ 0.
+    ///   - toIndex: Last index (exclusive). Must be ≥ `fromIndex`.
+    /// - Returns: A new `BitSet` with the selected bits.
+    /// - Since: JavaApi (Java 1.4)
+    public func get(_ fromIndex: Int, _ toIndex: Int) -> BitSet {
+      precondition(fromIndex >= 0 && fromIndex <= toIndex,
+                   "fromIndex: \(fromIndex), toIndex: \(toIndex)")
+      let result = BitSet(toIndex - fromIndex)
+      for i in fromIndex..<toIndex {
+        if get(i) { result.set(i - fromIndex) }
+      }
+      return result
+    }
+
+    /// Returns the index of the first set bit at or after `fromIndex`, or `-1`.
+    ///
+    /// - Parameter fromIndex: The start index. Must be ≥ 0.
+    /// - Returns: Index of the next set bit, or `-1` if none exists.
+    /// - Since: JavaApi (Java 1.4)
+    public func nextSetBit(_ fromIndex: Int) -> Int {
+      precondition(fromIndex >= 0, "fromIndex < 0: \(fromIndex)")
+      var wi = BitSet.wordIndex(fromIndex)
+      guard wi < words.count else { return -1 }
+      var word = words[wi] & (~UInt64(0) << (fromIndex & 63))
+      while true {
+        if word != 0 { return wi * 64 + word.trailingZeroBitCount }
+        wi += 1
+        guard wi < words.count else { return -1 }
+        word = words[wi]
+      }
+    }
+
+    /// Returns the index of the first clear bit at or after `fromIndex`.
+    ///
+    /// Always returns a valid index (the logical extent of the set is infinite
+    /// clear bits beyond the stored range).
+    ///
+    /// - Parameter fromIndex: The start index. Must be ≥ 0.
+    /// - Returns: Index of the next clear bit.
+    /// - Since: JavaApi (Java 1.4)
+    public func nextClearBit(_ fromIndex: Int) -> Int {
+      precondition(fromIndex >= 0, "fromIndex < 0: \(fromIndex)")
+      var wi = BitSet.wordIndex(fromIndex)
+      if wi >= words.count { return fromIndex }
+      var word = ~words[wi] & (~UInt64(0) << (fromIndex & 63))
+      while true {
+        if word != 0 { return wi * 64 + word.trailingZeroBitCount }
+        wi += 1
+        if wi >= words.count { return wi * 64 }
+        word = ~words[wi]
+      }
+    }
+
+    // MARK: - Java 7 additions
+
+    /// Returns the index of the nearest set bit at or before `fromIndex`, or `-1`.
+    ///
+    /// - Parameter fromIndex: The start index. Pass `Int.max` to start from the end.
+    ///   A value of `-1` always returns `-1`.
+    /// - Returns: Index of the previous set bit, or `-1` if none.
+    /// - Since: JavaApi (Java 7)
+    public func previousSetBit(_ fromIndex: Int) -> Int {
+      if fromIndex < 0 { return -1 }
+      var wi = Swift.min(BitSet.wordIndex(fromIndex), words.count - 1)
+      // Mask: only bits up to (fromIndex & 63) within the first word
+      let bitPos = fromIndex < (words.count * 64) ? (fromIndex & 63) : 63
+      var word = words[wi] & (~UInt64(0) >> (63 - bitPos))
+      while true {
+        if word != 0 { return wi * 64 + (63 - word.leadingZeroBitCount) }
+        if wi == 0 { return -1 }
+        wi -= 1
+        word = words[wi]
+      }
+    }
+
+    /// Returns the index of the nearest clear bit at or before `fromIndex`, or `-1`.
+    ///
+    /// - Parameter fromIndex: The start index. A value of `-1` always returns `-1`.
+    /// - Returns: Index of the previous clear bit, or `-1` if none.
+    /// - Since: JavaApi (Java 7)
+    public func previousClearBit(_ fromIndex: Int) -> Int {
+      if fromIndex < 0 { return -1 }
+      // Bits beyond the stored range are all clear
+      if BitSet.wordIndex(fromIndex) >= words.count { return fromIndex }
+      var wi = BitSet.wordIndex(fromIndex)
+      let bitPos = fromIndex & 63
+      var word = ~words[wi] & (~UInt64(0) >> (63 - bitPos))
+      while true {
+        if word != 0 { return wi * 64 + (63 - word.leadingZeroBitCount) }
+        if wi == 0 { return -1 }
+        wi -= 1
+        word = ~words[wi]
+      }
+    }
+
+    /// Returns a `[Int64]` containing all bits in this set (little-endian word order).
+    ///
+    /// Trailing zero words are omitted. If no bits are set, returns `[]`.
+    ///
+    /// - Since: JavaApi (Java 7)
+    public func toLongArray() -> [Int64] {
+      var last = words.count - 1
+      while last >= 0 && words[last] == 0 { last -= 1 }
+      guard last >= 0 else { return [] }
+      return Array(words[0...last]).map { Int64(bitPattern: $0) }
+    }
+
+    /// Returns a `[UInt8]` containing all bits in this set (little-endian byte order).
+    ///
+    /// Trailing zero bytes are omitted. If no bits are set, returns `[]`.
+    ///
+    /// - Since: JavaApi (Java 7)
+    public func toByteArray() -> [UInt8] {
+      let longs = toLongArray()
+      guard !longs.isEmpty else { return [] }
+      var bytes: [UInt8] = []
+      bytes.reserveCapacity(longs.count * 8)
+      for long in longs {
+        let u = UInt64(bitPattern: long)
+        bytes.append(UInt8( u        & 0xFF))
+        bytes.append(UInt8((u >>  8) & 0xFF))
+        bytes.append(UInt8((u >> 16) & 0xFF))
+        bytes.append(UInt8((u >> 24) & 0xFF))
+        bytes.append(UInt8((u >> 32) & 0xFF))
+        bytes.append(UInt8((u >> 40) & 0xFF))
+        bytes.append(UInt8((u >> 48) & 0xFF))
+        bytes.append(UInt8((u >> 56) & 0xFF))
+      }
+      while bytes.last == 0 { bytes.removeLast() }
+      return bytes
+    }
+
+    /// Creates a `BitSet` from a byte array in little-endian order.
+    ///
+    /// - Parameter bytes: The source bytes (little-endian).
+    /// - Returns: A new `BitSet` with bits set according to `bytes`.
+    /// - Since: JavaApi (Java 7)
+    public static func valueOf(_ bytes: [UInt8]) -> BitSet {
+      let bs = BitSet()
+      for (i, byte) in bytes.enumerated() {
+        let wi = i / 8
+        let shift = (i % 8) * 8
+        if wi >= bs.words.count {
+          bs.words.append(contentsOf: [UInt64](repeating: 0, count: wi - bs.words.count + 1))
+        }
+        bs.words[wi] |= UInt64(byte) << shift
+      }
+      return bs
+    }
+
+    /// Creates a `BitSet` from an array of `Int64` values in little-endian word order.
+    ///
+    /// - Parameter longs: The source words.
+    /// - Returns: A new `BitSet` with bits set according to `longs`.
+    /// - Since: JavaApi (Java 7)
+    public static func valueOf(_ longs: [Int64]) -> BitSet {
+      let bs = BitSet()
+      bs.words = longs.isEmpty ? [0] : longs.map { UInt64(bitPattern: $0) }
+      return bs
+    }
+
+    // MARK: - Private range helper
+
+    /// Applies `operation(wordIndex, mask)` to every word covered by
+    /// `[fromIndex, toIndex)`. The caller is responsible for calling
+    /// `ensureCapacity` beforehand when needed.
+    private func _applyRangeMask(
+      from fromIndex: Int,
+      to toIndex: Int,
+      _ operation: (Int, UInt64) -> Void
+    ) {
+      let firstWI = BitSet.wordIndex(fromIndex)
+      let lastWI  = BitSet.wordIndex(toIndex - 1)
+
+      if firstWI == lastWI {
+        let lo = fromIndex & 63
+        let hi = (toIndex - 1) & 63
+        let mask = (~UInt64(0) << lo) & (~UInt64(0) >> (63 - hi))
+        operation(firstWI, mask)
+      } else {
+        // First partial word
+        operation(firstWI, ~UInt64(0) << (fromIndex & 63))
+        // Full middle words
+        for wi in (firstWI + 1)..<lastWI {
+          operation(wi, ~UInt64(0))
+        }
+        // Last partial word
+        operation(lastWI, ~UInt64(0) >> (63 - ((toIndex - 1) & 63)))
+      }
     }
 
     // MARK: - Object methods

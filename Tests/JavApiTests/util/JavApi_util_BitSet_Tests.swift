@@ -284,4 +284,252 @@ struct JavApi_util_BitSet_Tests {
     let h2 = bs.hashCode()
     #expect(h1 == h2)
   }
+
+  // MARK: - andNot (Java 1.2)
+
+  @Test("andNot clears bits that are set in the argument")
+  func testAndNot() {
+    let a = java.util.BitSet()
+    a.set(0); a.set(1); a.set(2)
+    let b = java.util.BitSet()
+    b.set(1); b.set(2); b.set(3)
+    a.andNot(b)
+    #expect(a.get(0) == true)   // kept: not in b
+    #expect(a.get(1) == false)  // cleared: in both
+    #expect(a.get(2) == false)  // cleared: in both
+    #expect(a.get(3) == false)  // never in a
+  }
+
+  @Test("andNot with empty argument is a no-op")
+  func testAndNotEmpty() {
+    let a = java.util.BitSet()
+    a.set(5)
+    a.andNot(java.util.BitSet())
+    #expect(a.get(5) == true)
+  }
+
+  // MARK: - length / isEmpty / cardinality (Java 1.4)
+
+  @Test("length returns highest-set-bit+1, or 0 if empty")
+  func testLength() {
+    let bs = java.util.BitSet()
+    #expect(bs.length() == 0)
+    bs.set(0)
+    #expect(bs.length() == 1)
+    bs.set(63)
+    #expect(bs.length() == 64)
+    bs.set(64)
+    #expect(bs.length() == 65)
+  }
+
+  @Test("isEmpty returns true on fresh BitSet")
+  func testIsEmpty() {
+    let bs = java.util.BitSet()
+    #expect(bs.isEmpty() == true)
+    bs.set(7)
+    #expect(bs.isEmpty() == false)
+    bs.clear(7)
+    #expect(bs.isEmpty() == true)
+  }
+
+  @Test("cardinality counts set bits")
+  func testCardinality() {
+    let bs = java.util.BitSet()
+    #expect(bs.cardinality() == 0)
+    bs.set(0); bs.set(1); bs.set(63)
+    #expect(bs.cardinality() == 3)
+    bs.set(64)
+    #expect(bs.cardinality() == 4)
+    bs.clear(1)
+    #expect(bs.cardinality() == 3)
+  }
+
+  // MARK: - intersects (Java 1.4)
+
+  @Test("intersects: common bit → true")
+  func testIntersectsTrue() {
+    let a = java.util.BitSet()
+    a.set(5)
+    let b = java.util.BitSet()
+    b.set(5); b.set(10)
+    #expect(a.intersects(b) == true)
+  }
+
+  @Test("intersects: no common bits → false")
+  func testIntersectsFalse() {
+    let a = java.util.BitSet()
+    a.set(3)
+    let b = java.util.BitSet()
+    b.set(4)
+    #expect(a.intersects(b) == false)
+  }
+
+  // MARK: - flip (Java 1.4)
+
+  @Test("flip single bit toggles it")
+  func testFlipSingle() {
+    let bs = java.util.BitSet()
+    bs.flip(5)
+    #expect(bs.get(5) == true)
+    bs.flip(5)
+    #expect(bs.get(5) == false)
+  }
+
+  @Test("flip range sets all bits in [from, to)")
+  func testFlipRange() {
+    let bs = java.util.BitSet()
+    bs.flip(2, 5)  // bits 2, 3, 4
+    #expect(bs.get(1) == false)
+    #expect(bs.get(2) == true)
+    #expect(bs.get(3) == true)
+    #expect(bs.get(4) == true)
+    #expect(bs.get(5) == false)
+    // Flip again → clears
+    bs.flip(2, 5)
+    #expect(bs.isEmpty() == true)
+  }
+
+  // MARK: - set(value) and set(range) (Java 1.4)
+
+  @Test("set(bitIndex, false) clears the bit")
+  func testSetWithBoolFalse() {
+    let bs = java.util.BitSet()
+    bs.set(3)
+    bs.set(3, false)
+    #expect(bs.get(3) == false)
+  }
+
+  @Test("set(fromIndex, toIndex) sets a range of bits")
+  func testSetRange() {
+    let bs = java.util.BitSet()
+    bs.set(10, 15)  // bits 10..14
+    #expect(bs.get(9)  == false)
+    #expect(bs.get(10) == true)
+    #expect(bs.get(14) == true)
+    #expect(bs.get(15) == false)
+    #expect(bs.cardinality() == 5)
+  }
+
+  @Test("set(fromIndex, toIndex, value:false) clears a range")
+  func testSetRangeFalse() {
+    let bs = java.util.BitSet()
+    bs.set(0, 64)
+    #expect(bs.cardinality() == 64)
+    bs.set(10, 20, false)
+    #expect(bs.cardinality() == 54)
+    #expect(bs.get(10) == false)
+    #expect(bs.get(19) == false)
+    #expect(bs.get(9)  == true)
+    #expect(bs.get(20) == true)
+  }
+
+  // MARK: - clear(range) (Java 1.4)
+
+  @Test("clear range clears all bits in [from, to)")
+  func testClearRange() {
+    let bs = java.util.BitSet()
+    bs.set(0, 64)
+    bs.clear(5, 10)
+    #expect(bs.get(4)  == true)
+    #expect(bs.get(5)  == false)
+    #expect(bs.get(9)  == false)
+    #expect(bs.get(10) == true)
+  }
+
+  // MARK: - get(range) (Java 1.4)
+
+  @Test("get(from, to) returns a sub-BitSet")
+  func testGetRange() {
+    let bs = java.util.BitSet()
+    bs.set(3); bs.set(5); bs.set(7)
+    let sub = bs.get(3, 6)  // bits 3, 4, 5 → sub indices 0, 1, 2
+    #expect(sub.get(0) == true)   // was bit 3
+    #expect(sub.get(1) == false)  // was bit 4
+    #expect(sub.get(2) == true)   // was bit 5
+  }
+
+  // MARK: - nextSetBit / nextClearBit (Java 1.4)
+
+  @Test("nextSetBit finds the first set bit at or after fromIndex")
+  func testNextSetBit() {
+    let bs = java.util.BitSet()
+    bs.set(3); bs.set(7); bs.set(70)
+    #expect(bs.nextSetBit(0)  == 3)
+    #expect(bs.nextSetBit(4)  == 7)
+    #expect(bs.nextSetBit(7)  == 7)
+    #expect(bs.nextSetBit(8)  == 70)
+    #expect(bs.nextSetBit(71) == -1)
+  }
+
+  @Test("nextClearBit finds the first clear bit at or after fromIndex")
+  func testNextClearBit() {
+    let bs = java.util.BitSet()
+    bs.set(0, 5)  // bits 0..4 set
+    #expect(bs.nextClearBit(0) == 5)
+    #expect(bs.nextClearBit(3) == 5)
+    #expect(bs.nextClearBit(5) == 5)
+  }
+
+  // MARK: - previousSetBit / previousClearBit (Java 7)
+
+  @Test("previousSetBit finds nearest set bit at or before fromIndex")
+  func testPreviousSetBit() {
+    let bs = java.util.BitSet()
+    bs.set(3); bs.set(7)
+    #expect(bs.previousSetBit(10) == 7)
+    #expect(bs.previousSetBit(7)  == 7)
+    #expect(bs.previousSetBit(6)  == 3)
+    #expect(bs.previousSetBit(2)  == -1)
+    #expect(bs.previousSetBit(-1) == -1)
+  }
+
+  @Test("previousClearBit finds nearest clear bit at or before fromIndex")
+  func testPreviousClearBit() {
+    let bs = java.util.BitSet()
+    bs.set(0, 8)  // bits 0..7 set
+    #expect(bs.previousClearBit(7)  == -1)  // all set below 8
+    #expect(bs.previousClearBit(8)  == 8)   // bit 8 is clear
+    #expect(bs.previousClearBit(-1) == -1)
+  }
+
+  // MARK: - toLongArray / toByteArray / valueOf (Java 7)
+
+  @Test("toLongArray returns empty for empty set")
+  func testToLongArrayEmpty() {
+    #expect(java.util.BitSet().toLongArray().isEmpty)
+  }
+
+  @Test("toLongArray / valueOf([Int64]) round-trip")
+  func testToLongArrayRoundTrip() {
+    let bs = java.util.BitSet()
+    bs.set(0); bs.set(63); bs.set(64)
+    let longs = bs.toLongArray()
+    let restored = java.util.BitSet.valueOf(longs)
+    #expect(restored.equals(bs))
+  }
+
+  @Test("toByteArray returns empty for empty set")
+  func testToByteArrayEmpty() {
+    #expect(java.util.BitSet().toByteArray().isEmpty)
+  }
+
+  @Test("toByteArray / valueOf([UInt8]) round-trip")
+  func testToByteArrayRoundTrip() {
+    let bs = java.util.BitSet()
+    bs.set(0); bs.set(7); bs.set(8); bs.set(15)
+    let bytes = bs.toByteArray()
+    #expect(bytes.count == 2)  // two bytes needed
+    let restored = java.util.BitSet.valueOf(bytes)
+    #expect(restored.equals(bs))
+  }
+
+  @Test("valueOf([UInt8]) sets correct bits from byte array")
+  func testValueOfBytes() {
+    // 0b00000001 → bit 0 set; 0b00000010 → bit 9 set
+    let input: [UInt8] = [0x01, 0x02]
+    let bs = java.util.BitSet.valueOf(input)
+    #expect(bs.get(0) == true)
+    #expect(bs.get(9) == true)
+    #expect(bs.cardinality() == 2)
+  }
 }
