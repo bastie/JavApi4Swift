@@ -179,6 +179,72 @@ struct ScannerStringTests {
   }
 }
 
+// MARK: - Scanner.findAll + Matcher.toMatchResult tests
+
+@Suite("Scanner.findAll + Matcher.toMatchResult")
+struct ScannerFindAllTests {
+
+  @Test("findAll(Pattern) returns all matches")
+  func findAllPattern() throws {
+    let sc = java.util.Scanner("foo 42 bar 7 baz 100")
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let matches = sc.findAll(p).toArray()
+    #expect(matches.count == 3)
+    #expect(matches[0].group() == "42")
+    #expect(matches[1].group() == "7")
+    #expect(matches[2].group() == "100")
+  }
+
+  @Test("findAll(String) returns all matches via pattern string")
+  func findAllString() throws {
+    let sc = java.util.Scanner("alpha beta gamma")
+    let matches = try sc.findAll("[a-z]+").toArray()
+    #expect(matches.count == 3)
+    #expect(matches[0].group() == "alpha")
+    #expect(matches[1].group() == "beta")
+    #expect(matches[2].group() == "gamma")
+  }
+
+  @Test("findAll advances scanner to end")
+  func findAllAdvancesScanner() throws {
+    let sc = java.util.Scanner("1 2 3")
+    let p = try java.util.regex.Pattern.compile("\\d")
+    _ = sc.findAll(p)
+    // Scanner is now exhausted.
+    #expect(sc.hasNext() == false)
+  }
+
+  @Test("findAll on empty input returns empty stream")
+  func findAllEmpty() throws {
+    let sc = java.util.Scanner("")
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let matches = sc.findAll(p).toArray()
+    #expect(matches.isEmpty)
+  }
+
+  @Test("findAll: start() and end() on MatchResult are correct")
+  func findAllStartEnd() throws {
+    let sc = java.util.Scanner("abc 42 def")
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let matches = sc.findAll(p).toArray()
+    #expect(matches.count == 1)
+    #expect(matches[0].start() == 4)
+    #expect(matches[0].end() == 6)
+  }
+
+  @Test("toMatchResult() is a frozen snapshot")
+  func toMatchResultSnapshot() throws {
+    let m = try java.util.regex.Pattern.compile("(\\w+)").matcher("hello world")
+    #expect(m.find() == true)
+    let snap = m.toMatchResult()
+    // Advance to next match.
+    #expect(m.find() == true)
+    // Snapshot still reflects first match.
+    #expect(snap.group() == "hello")
+    #expect(snap.group(1) == "hello")
+  }
+}
+
 // MARK: - Map.entry + Map.ofEntries tests
 
 @Suite("HashMap — Map.entry + Map.ofEntries (Java 9)")

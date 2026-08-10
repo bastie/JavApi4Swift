@@ -419,5 +419,42 @@ extension java.util {
       _remaining = remaining
       return java.util.stream.Stream<String>(tokens)
     }
+
+    // MARK: - Java 9: findAll
+
+    /// Returns a stream of match results for each subsequence of the remaining
+    /// input that matches the given `Pattern`.
+    ///
+    /// Matches are produced in order, without overlapping.  The scanner is
+    /// advanced past all matched regions when the returned stream is consumed
+    /// (our implementation materialises eagerly on call).
+    ///
+    /// Mirrors `java.util.Scanner.findAll(Pattern)` (Java 9).
+    ///
+    /// - Since: Java 9
+    public func findAll(
+      _ pattern: java.util.regex.Pattern
+    ) -> java.util.stream.Stream<any java.util.regex.MatchResult> {
+      guard !_closed else { return java.util.stream.Stream([] as [any java.util.regex.MatchResult]) }
+      var results: [any java.util.regex.MatchResult] = []
+      let matcher = pattern.matcher(_remaining)
+      while matcher.find() {
+        results.append(matcher.toMatchResult())
+      }
+      // Advance scanner past the searched region.
+      _remaining = ""
+      return java.util.stream.Stream<any java.util.regex.MatchResult>(results)
+    }
+
+    /// Returns a stream of match results for each subsequence of the remaining
+    /// input that matches the given regex pattern string.
+    ///
+    /// - Throws: `PatternSyntaxException` if the pattern string is invalid.
+    /// - Since: Java 9
+    public func findAll(
+      _ pattern: String
+    ) throws(java.util.regex.PatternSyntaxException) -> java.util.stream.Stream<any java.util.regex.MatchResult> {
+      findAll(try java.util.regex.Pattern.compile(pattern))
+    }
   }
 }

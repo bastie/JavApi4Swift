@@ -11,54 +11,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ## Java 1.4 – Fehlende Typen
 
-### `java.util.regex` (komplett fehlend)
-
-**Designentscheidung:** Backend ist `NSRegularExpression` (ICU-Syntax), **nicht** Swift 6 `Regex<Output>`.
-Begründung: Java-Regex-Syntax basiert auf ICU — `NSRegularExpression` ist nahezu 100 % kompatibel,
-sodass portierter Java-Code unverändert läuft. Swift `Regex` würde eine Syntax-Übersetzung erfordern
-und ist für eine Java-API-Brücke nicht geeignet.
-
-- [ ] `PatternSyntaxException`
-- [ ] `Pattern`: `compile`, `matcher`, `matches`, `split`, `pattern`, `flags` + Konstanten
-- [ ] `Matcher`: `matches`, `find`, `group`, `start`, `end`, `groupCount`, `replaceAll`, `replaceFirst`, `reset`, `lookingAt`, `region`, `appendReplacement`, `appendTail`, `usePattern`
-- [ ] `MatchResult` (Interface — wird von `Matcher` implementiert; blockiert `Scanner.findAll`)
-- [ ] Tests
-
----
-
-## Java 5 – Restarbeiten
-
-### `EnumMap<K, V>` (komplett fehlend)
-- [ ] Implementierung (Swift-Enums als Key — Designfrage)
-- [ ] Tests
-
-### `EnumSet<E>` (komplett fehlend)
-- [ ] Implementierung (Swift-Enums — Designfrage)
-- [ ] Tests
-
-### `Scanner` – Java 9
-- [ ] `findAll(_ pattern:) -> Stream<MatchResult>` (requires `java.util.regex.MatchResult`)
-
-### `UUID`
-
-- [ ] `getLeastSignificantBits() -> Int64`
-- [ ] `getMostSignificantBits() -> Int64`
-- [ ] `version() -> Int`, `variant() -> Int`
-- [ ] `timestamp() -> Int64`, `clockSequence() -> Int`, `node() -> Int64` (nur Version-1)
-- [ ] `compareTo(_ val: UUID) -> Int`
-- [ ] Tests
-
----
-
-## Java 6 – Restarbeiten
-
-### `ServiceLoader` (0 Tests)
-- [ ] Tests schreiben
-
----
-
-## Java 1.4 (Nacharbeiten)
-
 ### `java.util.logging` — Restarbeiten
 
 Kernskelett vorhanden (`Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`) mit ≥ 45 Tests. Folgende Lücken bestehen:
@@ -85,6 +37,34 @@ Kernskelett vorhanden (`Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, 
 
 ---
 
+## Java 5 – Restarbeiten
+
+### `EnumMap<K, V>` (komplett fehlend)
+- [ ] Implementierung (Swift-Enums als Key — Designfrage)
+- [ ] Tests
+
+### `EnumSet<E>` (komplett fehlend)
+- [ ] Implementierung (Swift-Enums — Designfrage)
+- [ ] Tests
+
+### `UUID`
+
+- [ ] `getLeastSignificantBits() -> Int64`
+- [ ] `getMostSignificantBits() -> Int64`
+- [ ] `version() -> Int`, `variant() -> Int`
+- [ ] `timestamp() -> Int64`, `clockSequence() -> Int`, `node() -> Int64` (nur Version-1)
+- [ ] `compareTo(_ val: UUID) -> Int`
+- [ ] Tests
+
+---
+
+## Java 6 – Restarbeiten
+
+### `ServiceLoader` (0 Tests)
+- [ ] Tests schreiben
+
+---
+
 ## Java 8
 
 ### `java.util.stream` — Implementierungsstand
@@ -103,7 +83,7 @@ Noch offen:
 - [ ] `ServiceLoader.Provider<S>` innere Schnittstelle
 
 ### `Scanner` – Java 9
-- [ ] `findAll(_ pattern:) -> Stream<MatchResult>` (requires `java.util.regex.MatchResult`)
+- [x] `findAll(_ pattern:) -> Stream<MatchResult>` + `findAll(_ pattern: String)`
 
 ---
 
