@@ -9,18 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
----
-
-## P0 – Fehlende java.util.function-Interfaces (Java 8)
-
-| Interface | Signatur | Benötigt |
-|-----------|----------|----------|
-| [ ] `BooleanSupplier` | `getAsBoolean() -> Bool` | — |
-| [ ] `IntConsumer` / `LongConsumer` / `DoubleConsumer` | Spezialisierungen | — |
-| [ ] `IntPredicate` / `LongPredicate` / `DoublePredicate` | Spezialisierungen | — |
-
----
-
 ## P0 – Fehlende java.util.concurrent-Interfaces
 
 | Interface | Seit | Problem |
@@ -225,17 +213,6 @@ Java 8:
 ---
 
 ## Java 8
-
-### `java.util.function` — primitive Spezialisierungen (niedrige Priorität)
-
-- [ ] `BiPredicate<T,U>`
-- [ ] `BooleanSupplier`, `IntSupplier`, `LongSupplier`, `DoubleSupplier`
-- [ ] `IntConsumer`, `LongConsumer`, `DoubleConsumer`
-- [ ] `IntFunction<R>`, `LongFunction<R>`, `DoubleFunction<R>`
-- [ ] `IntUnaryOperator`, `LongUnaryOperator`, `DoubleUnaryOperator`
-- [ ] `IntBinaryOperator`, `LongBinaryOperator`, `DoubleBinaryOperator`
-- [ ] `IntPredicate`, `LongPredicate`, `DoublePredicate`
-- [ ] `ToIntFunction<T>`, `ToLongFunction<T>`, `ToDoubleFunction<T>`
 
 ### `java.util.stream` — Implementierungsstand
 
