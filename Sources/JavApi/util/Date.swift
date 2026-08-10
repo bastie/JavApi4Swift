@@ -259,7 +259,10 @@ extension java.util {
     /// Constructor to create a Date instance with GregorianCalendar to implement GregorianCalendar.getTime
     internal init (_ gregorianCalendar : java.util.GregorianCalendar) {
       let userCalendar = Foundation.Calendar(identifier: .gregorian)
-      self.delegate = userCalendar.date(from: gregorianCalendar.dateComponents)!
+      // Foundation returns nil when DateComponents contain extreme values (e.g. minute = Int.max).
+      // Fall back to the distant future rather than trapping.
+      self.delegate = userCalendar.date(from: gregorianCalendar.dateComponents)
+                   ?? Foundation.Date.distantFuture
     }
     
   }

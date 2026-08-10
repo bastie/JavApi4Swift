@@ -156,6 +156,20 @@ extension java.util {
       date.getTime() >= _gregorianChange.getTime()
     }
 
+    // MARK: - equals (Java 1.1)
+
+    /// Returns `true` if this `GregorianCalendar` equals `obj`.
+    ///
+    /// In addition to the base `Calendar` equality (same instant + settings),
+    /// the Gregorian change date must also match.
+    ///
+    /// - Since: Java 1.1
+    open override func equals(_ obj: Any?) -> Bool {
+      guard super.equals(obj) else { return false }
+      guard let other = obj as? java.util.GregorianCalendar else { return false }
+      return getGregorianChange().getTime() == other.getGregorianChange().getTime()
+    }
+
     // MARK: - toZonedDateTime (Java 8)
 
     /// Converts this `GregorianCalendar` to a `java.time.ZonedDateTime`.

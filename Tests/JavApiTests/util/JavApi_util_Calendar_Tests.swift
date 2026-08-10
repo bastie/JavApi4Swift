@@ -589,6 +589,82 @@ struct JavApi_util_Calendar_Tests {
     #expect(cal.toInstant().epochMilli == knownMillis)
   }
 
+  // MARK: - getMinimum / getMaximum: full 17-field coverage — Harmony CalendarTest
+
+  @Test("getMinimum/getMaximum for all 17 Calendar fields match Java spec")
+  func testAllFieldRanges() {
+    let cal = java.util.GregorianCalendar()
+    // ERA: 0 … 1
+    #expect(cal.getMinimum(java.util.Calendar.ERA) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.ERA) == 1)
+    // YEAR: 1 … 292278994
+    #expect(cal.getMinimum(java.util.Calendar.YEAR) == 1)
+    #expect(cal.getMaximum(java.util.Calendar.YEAR) == 292_278_994)
+    // MONTH: 0 … 11
+    #expect(cal.getMinimum(java.util.Calendar.MONTH) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.MONTH) == 11)
+    // WEEK_OF_YEAR: 1 … 53
+    #expect(cal.getMinimum(java.util.Calendar.WEEK_OF_YEAR) == 1)
+    #expect(cal.getMaximum(java.util.Calendar.WEEK_OF_YEAR) == 53)
+    // WEEK_OF_MONTH: 0 … 6
+    #expect(cal.getMinimum(java.util.Calendar.WEEK_OF_MONTH) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.WEEK_OF_MONTH) == 6)
+    // DAY_OF_MONTH: 1 … 31
+    #expect(cal.getMinimum(java.util.Calendar.DAY_OF_MONTH) == 1)
+    #expect(cal.getMaximum(java.util.Calendar.DAY_OF_MONTH) == 31)
+    // DAY_OF_YEAR: 1 … 366
+    #expect(cal.getMinimum(java.util.Calendar.DAY_OF_YEAR) == 1)
+    #expect(cal.getMaximum(java.util.Calendar.DAY_OF_YEAR) == 366)
+    // DAY_OF_WEEK: 1 … 7
+    #expect(cal.getMinimum(java.util.Calendar.DAY_OF_WEEK) == 1)
+    #expect(cal.getMaximum(java.util.Calendar.DAY_OF_WEEK) == 7)
+    // DAY_OF_WEEK_IN_MONTH: -1 … 5
+    #expect(cal.getMinimum(java.util.Calendar.DAY_OF_WEEK_IN_MONTH) == -1)
+    #expect(cal.getMaximum(java.util.Calendar.DAY_OF_WEEK_IN_MONTH) == 5)
+    // AM_PM: 0 … 1
+    #expect(cal.getMinimum(java.util.Calendar.AM_PM) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.AM_PM) == 1)
+    // HOUR: 0 … 11
+    #expect(cal.getMinimum(java.util.Calendar.HOUR) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.HOUR) == 11)
+    // HOUR_OF_DAY: 0 … 23
+    #expect(cal.getMinimum(java.util.Calendar.HOUR_OF_DAY) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.HOUR_OF_DAY) == 23)
+    // MINUTE: 0 … 59
+    #expect(cal.getMinimum(java.util.Calendar.MINUTE) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.MINUTE) == 59)
+    // SECOND: 0 … 59
+    #expect(cal.getMinimum(java.util.Calendar.SECOND) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.SECOND) == 59)
+    // MILLISECOND: 0 … 999
+    #expect(cal.getMinimum(java.util.Calendar.MILLISECOND) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.MILLISECOND) == 999)
+    // ZONE_OFFSET: -43200000 … 50400000 (−12h … +14h in ms)
+    #expect(cal.getMinimum(java.util.Calendar.ZONE_OFFSET) == -12 * 3_600_000)
+    #expect(cal.getMaximum(java.util.Calendar.ZONE_OFFSET) == 14 * 3_600_000)
+    // DST_OFFSET: 0 … 7200000 (0 … 2h in ms)
+    #expect(cal.getMinimum(java.util.Calendar.DST_OFFSET) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.DST_OFFSET) == 2 * 3_600_000)
+  }
+
+  @Test("getGreatestMinimum() == getMinimum() for all Gregorian Calendar fields")
+  func testGreatestMinimumEqualsMinimum() {
+    let cal = java.util.GregorianCalendar()
+    for field in 0..<java.util.Calendar.FIELD_COUNT {
+      #expect(cal.getGreatestMinimum(field) == cal.getMinimum(field))
+    }
+  }
+
+  @Test("getLeastMaximum(DAY_OF_MONTH) == 28 and getLeastMaximum(DAY_OF_YEAR) == 365")
+  func testLeastMaximumDayCounts() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getLeastMaximum(java.util.Calendar.DAY_OF_MONTH) == 28)
+    #expect(cal.getLeastMaximum(java.util.Calendar.DAY_OF_YEAR)  == 365)
+    #expect(cal.getLeastMaximum(java.util.Calendar.WEEK_OF_YEAR) == 52)
+    #expect(cal.getLeastMaximum(java.util.Calendar.WEEK_OF_MONTH) == 4)
+    #expect(cal.getLeastMaximum(java.util.Calendar.DAY_OF_WEEK_IN_MONTH) == 4)
+  }
+
   // MARK: - Swiftify DateComponents enum
 
   @Test("Calendar.DateComponents enum values match Java field constants")

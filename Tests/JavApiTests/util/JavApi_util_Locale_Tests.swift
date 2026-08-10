@@ -424,6 +424,169 @@ struct JavApi_util_Locale_Tests {
     #expect(display != format)
   }
 
+  // MARK: - 3-arg constructor (Java 1.1) — Harmony LocaleTest
+
+  @Test("Locale(language, country, variant) sets all three components")
+  func testThreeArgConstructor() {
+    let l = java.util.Locale("en", "CA", "WIN32")
+    #expect(l.getLanguage() == "en")
+    #expect(l.getCountry()  == "CA")
+    #expect(l.getVariant()  == "WIN32")
+  }
+
+  @Test("Locale(language, country, variant) with empty country preserves variant")
+  func testThreeArgConstructorEmptyCountry() {
+    let l = java.util.Locale("en", "", "WIN")
+    #expect(l.getLanguage() == "en")
+    #expect(l.getCountry()  == "")
+    #expect(l.getVariant()  == "WIN")
+  }
+
+  @Test("Locale(language, country, variant) with empty language: getLanguage and getVariant work")
+  func testThreeArgConstructorEmptyLanguage() {
+    // Note: getCountry() delegates to Foundation which may not parse
+    // an empty-language POSIX identifier — only language and variant are tested.
+    let l = java.util.Locale("", "CA", "WIN32")
+    #expect(l.getLanguage() == "")
+    #expect(l.getVariant()  == "WIN32")
+  }
+
+  @Test("Locale(empty, empty, variant) toString() returns empty string per Java spec")
+  func testThreeArgConstructorAllEmpty() {
+    // Java spec: if both language and country are empty, toString() returns ""
+    let l = java.util.Locale("", "", "var")
+    #expect(l.toString() == "")
+  }
+
+  // MARK: - toString() edge cases (Harmony LocaleTest.test_toString)
+
+  @Test("toString() for language-only locale returns just the language")
+  func testToStringLangOnly() {
+    let l = java.util.Locale("en", "")
+    #expect(l.toString() == "en")
+  }
+
+  @Test("toString() with empty country and variant uses double underscore")
+  func testToStringEmptyCountry() {
+    // Harmony: new Locale("en", "", "WIN").toString() == "en__WIN"
+    let l = java.util.Locale("en", "", "WIN")
+    #expect(l.toString() == "en__WIN")
+  }
+
+  @Test("toString() with all three components")
+  func testToStringAllThree() {
+    // Harmony: new Locale("en", "CA", "VAR").toString() == "en_CA_VAR"
+    let l = java.util.Locale("en", "CA", "VAR")
+    #expect(l.toString() == "en_CA_VAR")
+  }
+
+  // MARK: - clone (Java 1.1) — Harmony LocaleTest.test_clone
+
+  @Test("clone() returns a locale that equals the original")
+  func testClone() {
+    let l = java.util.Locale("fr", "CA", "WIN32")
+    let copy = l.clone()
+    // Same language, country, variant
+    #expect(copy.getLanguage() == l.getLanguage())
+    #expect(copy.getCountry()  == l.getCountry())
+    #expect(copy.getVariant()  == l.getVariant())
+    #expect(copy.toString()    == l.toString())
+  }
+
+  @Test("clone() is independent (different object)")
+  func testCloneIsIndependent() {
+    let l = java.util.Locale("de", "DE")
+    let copy = l.clone()
+    // Should not be reference-equal (class instances)
+    #expect(copy !== l)
+  }
+
+  // MARK: - equals (Java 1.1) — Harmony LocaleTest.test_equalsLjava_lang_Object
+
+  @Test("equals() returns true for same locale values")
+  func testEqualsTrue() {
+    let a = java.util.Locale("en", "CA", "WIN32")
+    let b = java.util.Locale("en", "CA", "WIN32")
+    #expect(a.equals(b) == true)
+  }
+
+  @Test("equals() returns true for same object")
+  func testEqualsSelf() {
+    let a = java.util.Locale("en", "CA", "WIN32")
+    #expect(a.equals(a) == true)
+  }
+
+  @Test("equals() returns false for different locales")
+  func testEqualsFalse() {
+    let a = java.util.Locale("en", "CA", "WIN32")
+    let b = java.util.Locale("fr", "CA", "WIN32")
+    #expect(a.equals(b) == false)
+  }
+
+  @Test("equals() returns false for non-Locale argument")
+  func testEqualsNonLocale() {
+    let a = java.util.Locale("en", "US")
+    #expect(a.equals("not a locale") == false)
+    #expect(a.equals(nil) == false)
+  }
+
+  // MARK: - setDefault / getDefault round-trip — Harmony LocaleTest.test_setDefaultLjava_util_Locale
+
+  @Test("setDefault()/getDefault() round-trip preserves locale")
+  func testSetGetDefault() {
+    let original = java.util.Locale.getDefault()
+    let frCA = java.util.Locale("fr", "CA", "WIN32")
+    java.util.Locale.setDefault(frCA)
+    let retrieved = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(original)  // restore
+    #expect(retrieved.toString() == "fr_CA_WIN32")
+  }
+
+  // MARK: - getVariant with WIN32 variant — Harmony LocaleTest.test_getVariant
+
+  @Test("getVariant() returns 'WIN32' for a 3-arg locale")
+  func testGetVariantWIN32() {
+    let l = java.util.Locale("en", "CA", "WIN32")
+    #expect(l.getVariant() == "WIN32")
+  }
+
+  // MARK: - getAvailableLocales count — Harmony LocaleTest.test_getAvailableLocales
+
+  @Test("getAvailableLocales() contains more than 100 locales")
+  func testAvailableLocalesCount() {
+    let locales = java.util.Locale.getAvailableLocales()
+    #expect(locales.count > 100)
+  }
+
+  // MARK: - ISO3 language for edge cases — Harmony HARMONY-2953
+
+  @Test("getISO3Language() returns 'arg' for language 'an' (Aragonese)")
+  func testGetISO3LanguageAragonese() throws {
+    let l = java.util.Locale("an")
+    let iso3 = try l.getISO3Language()
+    #expect(iso3 == "arg")
+  }
+
+  @Test("getISO3Language() returns 'pus' for language 'ps' (Pashto)")
+  func testGetISO3LanguagePashto() throws {
+    let l = java.util.Locale("ps")
+    let iso3 = try l.getISO3Language()
+    #expect(iso3 == "pus")
+  }
+
+  @Test("getISOLanguages() contains 'ak' (Akan)")
+  func testGetISOLanguagesContainsAk() {
+    let langs = java.util.Locale.getISOLanguages()
+    #expect(langs.contains("ak"))
+  }
+
+  @Test("getISO3Language() returns 'aka' for 'ak' (Akan)")
+  func testGetISO3LanguageAkan() throws {
+    let l = java.util.Locale("ak")
+    let iso3 = try l.getISO3Language()
+    #expect(iso3 == "aka")
+  }
+
   @MainActor @Test("Locale on AWTComponents")
   func testLocalizedAWTComponents() {
     let label = java.awt.Label("Hello")

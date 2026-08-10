@@ -87,6 +87,28 @@ extension java.util {
       _originalIdentifier = id
       delegate = Foundation.Locale(identifier: id)
     }
+
+    /// Creates a Locale from a language code, country/region code, and variant.
+    ///
+    /// - Parameters:
+    ///   - language: ISO 639 language code, e.g. `"en"`
+    ///   - country: ISO 3166-1 alpha-2 country code, e.g. `"CA"` (may be empty)
+    ///   - variant: Variant code, e.g. `"WIN32"` (may be empty)
+    /// - Since: Java 1.1
+    public init (_ language: String, _ country: String, _ variant: String) {
+      // Build a POSIX-style identifier: language[_COUNTRY[_VARIANT]]
+      // Empty components are preserved in _originalIdentifier so that
+      // getLanguage/getCountry/getVariant/toString can parse them correctly.
+      var id = language
+      if !country.isEmpty || !variant.isEmpty {
+        id += "_\(country)"
+      }
+      if !variant.isEmpty {
+        id += "_\(variant)"
+      }
+      _originalIdentifier = id
+      delegate = Foundation.Locale(identifier: id)
+    }
     
     /// The country (region) code of this Locale, uppercase.
     /// - Returns The ISO 3166-2 country code, or the empty string if none is defined.
@@ -153,14 +175,29 @@ extension java.util {
     /// Format: `language_COUNTRY_VARIANT`, with trailing components omitted when
     /// empty. For example: `"en"`, `"en_US"`, `"no_NO_NY"`.
     ///
+    /// Per Java spec: if both language and country are empty, returns `""` even
+    /// when a variant is present. A country-only locale uses `"_COUNTRY"` format.
+    ///
     /// - Since: Java 1.1
     open func toString() -> String {
       let lang    = getLanguage()
       let country = getCountry()
       let variant = getVariant()
+      // Java spec: empty language AND empty country → always ""
+      if lang.isEmpty && country.isEmpty { return "" }
       if !variant.isEmpty { return "\(lang)_\(country)_\(variant)" }
       if !country.isEmpty { return "\(lang)_\(country)" }
       return lang
+    }
+
+    // MARK: - clone (Java 1.1)
+
+    /// Returns a copy of this Locale.
+    ///
+    /// - Since: Java 1.1
+    open func clone() -> java.util.Locale {
+      // _originalIdentifier carries all components; delegate is Foundation-backed
+      return java.util.Locale(_originalIdentifier)
     }
 
     // MARK: - Display methods (Java 1.1)

@@ -527,6 +527,24 @@ extension java.util {
       return t1 < t2 ? -1 : t1 > t2 ? 1 : 0
     }
 
+    // MARK: - equals (Java 1.1)
+
+    /// Returns `true` if this calendar is equivalent to `obj`.
+    ///
+    /// Two calendars are equal when they represent the same millisecond instant
+    /// **and** share the same settings: lenient mode, first day of week, minimal
+    /// days in first week, and time zone.
+    ///
+    /// - Since: Java 1.1
+    open func equals(_ obj: Any?) -> Bool {
+      guard let other = obj as? java.util.Calendar else { return false }
+      return getTimeInMillis()            == other.getTimeInMillis()
+          && isLenient()                 == other.isLenient()
+          && getFirstDayOfWeek()         == other.getFirstDayOfWeek()
+          && getMinimalDaysInFirstWeek() == other.getMinimalDaysInFirstWeek()
+          && getTimeZone().getID()       == other.getTimeZone().getID()
+    }
+
     // MARK: - Clone (Java 1.1)
 
     /// Returns a copy of this calendar with identical field values.
