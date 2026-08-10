@@ -89,6 +89,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Basic lifecycle
 
   @Test("parse minimal XML calls startDocument and endDocument")
+  @available(*, deprecated)
   func testStartEndDocument() throws {
     let xml = "<root/>"
     let handler = makeRecordingHandler()
@@ -105,6 +106,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Elements
 
   @Test("parse single element fires startElement and endElement")
+  @available(*, deprecated)
   func testSingleElement() throws {
     let xml = "<root/>"
     let handler = makeRecordingHandler()
@@ -119,6 +121,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   }
 
   @Test("parse nested elements fires events in correct order")
+  @available(*, deprecated)
   func testNestedElements() throws {
     let xml = "<root><child/></root>"
     let handler = makeRecordingHandler()
@@ -134,6 +137,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Attributes
 
   @Test("parse element with attributes delivers attributes via AttributeList")
+  @available(*, deprecated)
   func testAttributes() throws {
     let xml = "<link href=\"https://example.com\" rel=\"stylesheet\"/>"
     let handler = makeRecordingHandler()
@@ -155,6 +159,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   }
 
   @Test("element without attributes delivers empty AttributeList")
+  @available(*, deprecated)
   func testNoAttributes() throws {
     let xml = "<empty/>"
     let handler = makeRecordingHandler()
@@ -169,6 +174,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Characters
 
   @Test("text content is delivered via characters callback")
+  @available(*, deprecated)
   func testCharacters() throws {
     let xml = "<note>Hello World</note>"
     let handler = makeRecordingHandler()
@@ -181,6 +187,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   }
 
   @Test("mixed content delivers characters between elements")
+  @available(*, deprecated)
   func testMixedContent() throws {
     let xml = "<p>Hello <b>World</b>!</p>"
     let handler = makeRecordingHandler()
@@ -197,6 +204,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Processing instructions
 
   @Test("processing instruction is delivered to handler")
+  @available(*, deprecated)
   func testProcessingInstruction() throws {
     let xml = "<?xml-stylesheet type=\"text/css\" href=\"style.css\"?><root/>"
     let handler = makeRecordingHandler()
@@ -211,6 +219,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - parse(String systemId)
 
   @Test("parse via systemId String overload works")
+  @available(*, deprecated)
   func testParseSystemId() throws {
     let xml = "<ok/>"
     let handler = makeRecordingHandler()
@@ -224,6 +233,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - Error handling
 
   @Test("invalid XML causes parse to throw")
+  @available(*, deprecated)
   func testInvalidXML() {
     let xml = "<unclosed>"
     let parser = makeSax1Parser()
@@ -234,6 +244,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   }
 
   @Test("ErrorHandler receives fatalError on invalid XML")
+  @available(*, deprecated)
   func testErrorHandlerFatalError() {
     class ErrorRecorder : org.xml.sax.helper.HandlerBase {
       var fatalMessages: [String] = []
@@ -257,12 +268,14 @@ struct JavApi_org_xml_sax_XMLSAXParser_Tests {
   // MARK: - ParserFactory registration
 
   @Test("JavApiSax1Parser is registered as default parser in ParserFactory")
+  @available(*, deprecated)
   @MainActor func testParserFactoryDefaultRegistration() throws {
     let retrieved = try org.xml.sax.helper.ParserFactory.makeParser()
     #expect(retrieved is JavApiSax1Parser)
   }
 
   @Test("ParserFactory default parser can be replaced with custom implementation")
+  @available(*, deprecated)
   @MainActor func testParserFactoryReplacement() throws {
     class CustomParser : org.xml.sax.helper.HandlerBase, org.xml.sax.Parser {
       func parse(_ source: org.xml.sax.InputSource) throws {}
@@ -338,6 +351,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
 
   // MARK: - Handler that builds a structured model from SAX events
 
+  @available(*, deprecated)
   private class CatalogHandler : org.xml.sax.helper.HandlerBase {
 
     struct Book {
@@ -430,6 +444,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
 
   // MARK: - Helper
 
+  @available(*, deprecated)
   private func parsedCatalog() throws -> CatalogHandler {
     let handler = CatalogHandler()
     let parser  = JavApiSax1Parser()
@@ -442,6 +457,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Root element attributes
 
   @Test("catalog root element attributes are parsed correctly")
+  @available(*, deprecated)
   func testRootAttributes() throws {
     let h = try parsedCatalog()
     #expect(h.catalogVersion == "2.0")
@@ -451,6 +467,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Processing instruction
 
   @Test("processing instruction before root is delivered")
+  @available(*, deprecated)
   func testProcessingInstruction() throws {
     let h = try parsedCatalog()
     #expect(h.processingInstructions.contains(where: { $0.target == "display-hint" }))
@@ -461,6 +478,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Metadata sub-elements
 
   @Test("metadata sub-elements are parsed correctly")
+  @available(*, deprecated)
   func testMetadata() throws {
     let h = try parsedCatalog()
     #expect(h.metadataCreated == "2026-06-29")
@@ -470,6 +488,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Book count
 
   @Test("three books are parsed from catalog")
+  @available(*, deprecated)
   func testBookCount() throws {
     let h = try parsedCatalog()
     #expect(h.books.count == 3)
@@ -478,6 +497,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: attributes
 
   @Test("first book id and genre attributes are correct")
+  @available(*, deprecated)
   func testFirstBookAttributes() throws {
     let h = try parsedCatalog()
     let b = h.books[0]
@@ -489,6 +509,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: simple text elements
 
   @Test("first book title and year are correct")
+  @available(*, deprecated)
   func testFirstBookTextElements() throws {
     let h = try parsedCatalog()
     let b = h.books[0]
@@ -499,6 +520,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: element with attribute (price + currency)
 
   @Test("first book price text and currency attribute are correct")
+  @available(*, deprecated)
   func testFirstBookPrice() throws {
     let h = try parsedCatalog()
     let b = h.books[0]
@@ -509,6 +531,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: multiple same-name child elements (authors)
 
   @Test("first book has two authors with correct roles")
+  @available(*, deprecated)
   func testFirstBookMultipleAuthors() throws {
     let h = try parsedCatalog()
     let b = h.books[0]
@@ -522,6 +545,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: nested list of tags
 
   @Test("first book tags sub-elements are all parsed")
+  @available(*, deprecated)
   func testFirstBookTags() throws {
     let h = try parsedCatalog()
     let b = h.books[0]
@@ -534,6 +558,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - First book: longer description text
 
   @Test("first book description text is correct")
+  @available(*, deprecated)
   func testFirstBookDescription() throws {
     let h = try parsedCatalog()
     #expect(h.books[0].description == "Official guide to the Swift language.")
@@ -542,6 +567,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Second book: inStock false, EUR currency
 
   @Test("second book inStock false and EUR currency")
+  @available(*, deprecated)
   func testSecondBook() throws {
     let h = try parsedCatalog()
     let b = h.books[1]
@@ -556,6 +582,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Third book
 
   @Test("third book title and tags are correct")
+  @available(*, deprecated)
   func testThirdBook() throws {
     let h = try parsedCatalog()
     let b = h.books[2]
@@ -567,6 +594,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   // MARK: - Cross-book checks
 
   @Test("tag 'programming' appears in two books")
+  @available(*, deprecated)
   func testCrossBookTags() throws {
     let h = try parsedCatalog()
     let count = h.books.filter { $0.tags.contains("programming") }.count
@@ -574,6 +602,7 @@ struct JavApi_org_xml_sax_XMLSAXParser_LargeDocument_Tests {
   }
 
   @Test("all book ids are unique")
+  @available(*, deprecated)
   func testUniqueIds() throws {
     let h = try parsedCatalog()
     let ids = h.books.map(\.id)

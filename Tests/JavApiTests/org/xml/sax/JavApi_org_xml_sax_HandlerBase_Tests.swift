@@ -10,6 +10,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   // MARK: - EntityResolver
 
   @Test("resolveEntity always returns nil")
+  @available(*, deprecated)
   func testResolveEntity() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let result = try handler.resolveEntity(publicId: "-//W3C//DTD HTML 4.01//EN", systemId: "http://www.w3.org/TR/html4/strict.dtd")
@@ -17,6 +18,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("resolveEntity with nil IDs returns nil")
+  @available(*, deprecated)
   func testResolveEntityNilIds() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let result = try handler.resolveEntity(publicId: nil, systemId: nil)
@@ -26,12 +28,14 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   // MARK: - DTDHandler (no-ops, must not throw)
 
   @Test("notationDecl does not throw")
+  @available(*, deprecated)
   func testNotationDecl() {
     let handler = org.xml.sax.helper.HandlerBase()
     handler.notationDecl(name: "myNotation", publicId: nil, systemId: "notation.dtd")
   }
 
   @Test("unparsedEntityDecl does not throw")
+  @available(*, deprecated)
   func testUnparsedEntityDecl() {
     let handler = org.xml.sax.helper.HandlerBase()
     handler.unparsedEntityDecl(name: "logo", publicId: nil, systemId: "logo.gif", notationName: "gif")
@@ -40,18 +44,21 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   // MARK: - DocumentHandler (no-ops, must not throw)
 
   @Test("startDocument does not throw")
+  @available(*, deprecated)
   func testStartDocument() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     try handler.startDocument()
   }
 
   @Test("endDocument does not throw")
+  @available(*, deprecated)
   func testEndDocument() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     try handler.endDocument()
   }
 
   @Test("startElement does not throw")
+  @available(*, deprecated)
   func testStartElement() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let atts = org.xml.sax.helper.AttributeListImpl()
@@ -60,12 +67,14 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("endElement does not throw")
+  @available(*, deprecated)
   func testEndElement() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     try handler.endElement("div")
   }
 
   @Test("characters does not throw")
+  @available(*, deprecated)
   func testCharacters() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let chars = Array("Hello")
@@ -73,6 +82,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("ignorableWhitespace does not throw")
+  @available(*, deprecated)
   func testIgnorableWhitespace() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let chars = Array("   ")
@@ -80,12 +90,14 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("processingInstruction does not throw")
+  @available(*, deprecated)
   func testProcessingInstruction() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     try handler.processingInstruction("xml-stylesheet", _data: "type=\"text/css\" href=\"style.css\"")
   }
 
   @Test("setDocumentLocator does not throw")
+  @available(*, deprecated)
   func testSetDocumentLocator() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let locator = org.xml.sax.LocatorImpl()
@@ -95,6 +107,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   // MARK: - ErrorHandler
 
   @Test("warning does not throw")
+  @available(*, deprecated)
   func testWarning() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let locator = org.xml.sax.LocatorImpl()
@@ -103,6 +116,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("error does not throw")
+  @available(*, deprecated)
   func testError() throws {
     let handler = org.xml.sax.helper.HandlerBase()
     let locator = org.xml.sax.LocatorImpl()
@@ -111,6 +125,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   }
 
   @Test("fatalError re-throws the exception")
+  @available(*, deprecated)
   func testFatalError() {
     let handler = org.xml.sax.helper.HandlerBase()
     let locator = org.xml.sax.LocatorImpl()
@@ -123,6 +138,7 @@ struct JavApi_org_xml_sax_HandlerBase_Tests {
   // MARK: - Subclass override
 
   @Test("subclass can override startElement")
+  @available(*, deprecated)
   func testSubclassOverride() throws {
     class RecordingHandler : org.xml.sax.helper.HandlerBase {
       var recordedElements: [String] = []

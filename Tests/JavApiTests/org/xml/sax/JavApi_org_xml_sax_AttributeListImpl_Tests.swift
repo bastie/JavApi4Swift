@@ -10,12 +10,14 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - empty list
 
   @Test("empty AttributeListImpl has length 0")
+  @available(*, deprecated)
   func testEmptyLength() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     #expect(atts.getLength() == 0)
   }
 
   @Test("empty list returns nil for index access")
+  @available(*, deprecated)
   func testEmptyIndexAccess() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     #expect(atts.getName(0) == nil)
@@ -24,6 +26,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("empty list returns nil for name access")
+  @available(*, deprecated)
   func testEmptyNameAccess() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     #expect(atts.getType("missing") == nil)
@@ -33,6 +36,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - addAttribute / getLength
 
   @Test("addAttribute increases length")
+  @available(*, deprecated)
   func testAddLength() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -44,6 +48,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - getName / getType / getValue by index
 
   @Test("getName returns correct name by index")
+  @available(*, deprecated)
   func testGetNameByIndex() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -55,6 +60,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("getType returns correct type by index")
+  @available(*, deprecated)
   func testGetTypeByIndex() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -65,6 +71,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("getValue returns correct value by index")
+  @available(*, deprecated)
   func testGetValueByIndex() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -77,6 +84,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - getType / getValue by name
 
   @Test("getType returns correct type by name")
+  @available(*, deprecated)
   func testGetTypeByName() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -87,6 +95,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("getValue returns correct value by name")
+  @available(*, deprecated)
   func testGetValueByName() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -99,6 +108,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - removeAttribute
 
   @Test("removeAttribute removes first occurrence by name")
+  @available(*, deprecated)
   func testRemoveAttribute() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("href", "CDATA", "https://example.com")
@@ -110,6 +120,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("removeAttribute on missing name is a no-op")
+  @available(*, deprecated)
   func testRemoveMissing() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("id", "ID", "main")
@@ -120,6 +131,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - clear
 
   @Test("clear removes all attributes")
+  @available(*, deprecated)
   func testClear() {
     let atts = org.xml.sax.helper.AttributeListImpl()
     atts.addAttribute("a", "CDATA", "1")
@@ -132,6 +144,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   // MARK: - copy constructor
 
   @Test("copy constructor duplicates all attributes")
+  @available(*, deprecated)
   func testCopyConstructor() {
     let original = org.xml.sax.helper.AttributeListImpl()
     original.addAttribute("href", "CDATA", "https://example.com")
@@ -144,6 +157,7 @@ struct JavApi_org_xml_sax_AttributeListImpl_Tests {
   }
 
   @Test("copy is independent from original")
+  @available(*, deprecated)
   func testCopyIndependent() {
     let original = org.xml.sax.helper.AttributeListImpl()
     original.addAttribute("href", "CDATA", "https://example.com")
