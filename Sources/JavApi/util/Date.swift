@@ -16,7 +16,7 @@ extension java.util {
     
     /// Create a new `java.util.Date` instance at 1. Januar 1970
     /// - Parameter millisecondsSince1970: milliseconds since 1970
-    /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
+    /// - Since: Java 1.0
     public convenience init(_ millisecondsSince1970: Int64) {
       self.init()
       // Preserve sub-second precision by converting via TimeInterval (Double).
@@ -26,14 +26,20 @@ extension java.util {
 
     /// time in milliseconds since 1. January 1970
     /// - Returns: milliseconds since 1. January 1970
-    /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
+    /// - Since: Java 1.0
     open func getTime() -> Int64 {
-      return Int64((self.delegate.timeIntervalSince1970 * 1000).rounded())
+      let ms = self.delegate.timeIntervalSince1970 * 1000
+      // Clamp before Int64 conversion: Double has limited precision for very
+      // large values, so Int64.max/min round-trip through Double can exceed the
+      // Int64 range and cause a fatal trap.
+      if ms >= Double(Int64.max) { return Int64.max }
+      if ms <= Double(Int64.min) { return Int64.min }
+      return Int64(ms.rounded())
     }
 
     /// set the ``Date`` object with the new seconds relative to 1. January 1970
     /// - Parameter millisecondsSince1970: milliseconds since 1970
-    /// - Since: JavaApi &gt; 0.17.0 (Java 1.0)
+    /// - Since: Java 1.0
     open func setTime(_ millisecondsSince1970: Int64) {
       let interval = TimeInterval(millisecondsSince1970) / 1000.0
       self.delegate = Foundation.Date(timeIntervalSince1970: interval)

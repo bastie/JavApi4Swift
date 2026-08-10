@@ -13,55 +13,14 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ### `Calendar`
 
-Vorhanden: alle Konstanten, `getInstance()`, `get(int)`, `set(int, int)`, `setTime(Date)`, `getTime()`. 23 Tests.
-
-- [ ] `add(_ field: Int, _ amount: Int)` ← höchste Priorität
-- [ ] `roll(_ field: Int, _ up: Bool)`, `roll(_ field: Int, _ amount: Int)`
-- [ ] `before(_ when: Any?) -> Bool`, `after(_ when: Any?) -> Bool`
-- [ ] `compareTo(_ anotherCalendar: Calendar) -> Int` (Java 5)
-- [ ] `clone() -> Calendar`
-- [ ] `isSet(_ field: Int) -> Bool`
-- [ ] `clear()`, `clear(_ field: Int)`
-- [ ] `getTimeInMillis() -> Int64`, `setTimeInMillis(_ millis: Int64)` (Java 1.2)
-- [ ] `getActualMinimum(_ field: Int) -> Int`, `getActualMaximum(_ field: Int) -> Int` (Java 1.2)
-- [ ] `getMinimum(_ field: Int) -> Int`, `getMaximum(_ field: Int) -> Int`
-- [ ] `getGreatestMinimum(_ field: Int) -> Int`, `getLeastMaximum(_ field: Int) -> Int`
-- [ ] `getTimeZone() -> TimeZone`, `setTimeZone(_ value: TimeZone)`
-- [ ] `getFirstDayOfWeek() -> Int`, `setFirstDayOfWeek(_ value: Int)`
-- [ ] `isLenient() -> Bool`, `setLenient(_ lenient: Bool)`
-- [ ] `getMinimalDaysInFirstWeek() -> Int`, `setMinimalDaysInFirstWeek(_ value: Int)`
-- [ ] `static getInstance(_ zone: TimeZone) -> Calendar`
 - [ ] `static getInstance(_ zone: TimeZone, _ locale: Locale) -> Calendar`
-- [ ] `static getAvailableLocales() -> [Locale]`
 - [ ] `toInstant()` (Java 8)
 
 ### `GregorianCalendar`
 
-**Tests:** Enthalten in `JavApi_util_Calendar_Tests.swift` (BC/AD-Konstanten, Konstruktoren, isLeapYear).
-
-- [ ] `getGregorianChange() -> Date`, `setGregorianChange(_ date: Date)`
-- [ ] Konstruktoren: `(TimeZone)`, `(Locale)`, `(TimeZone, Locale)`
-- [ ] Alle noch fehlenden `Calendar`-Methoden von oben implementieren
 - [ ] `toZonedDateTime()` (Java 8)
 
 ### `Locale`
-
-Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `getDefault()`, `setDefault()`, `getCountry()`, `getLanguage()`. 18 Tests.
-
-- [ ] `SIMPLIFIED_CHINESE`, `TRADITIONAL_CHINESE`, `PRC`, `TAIWAN`, `ROOT` (Java 6)
-- [ ] `getVariant() -> String`
-- [ ] `toString() -> String` (format: language_COUNTRY_variant)
-- [ ] `getDisplayLanguage() -> String` (und `(_ inLocale:)`)
-- [ ] `getDisplayCountry() -> String` (und `(_ inLocale:)`)
-- [ ] `getDisplayVariant() -> String` (und `(_ inLocale:)`)
-- [ ] `getDisplayName() -> String` (und `(_ inLocale:)`)
-- [ ] `getISO3Country() -> String`, `getISO3Language() -> String`
-- [ ] `static getAvailableLocales() -> [Locale]`
-- [ ] `static getISOCountries() -> [String]`, `static getISOLanguages() -> [String]`
-- [ ] `getScript() -> String`, `toLanguageTag() -> String`, `static forLanguageTag(_:) -> Locale` (Java 7)
-- [ ] `Locale.Builder`, `Locale.Category` (Java 7)
-
----
 
 ## P3 – Java 1.2 Kompatibilität
 
@@ -258,9 +217,7 @@ Noch offen:
 
 | Typ | Ist | Bedarf | Anmerkung |
 |-----|-----|--------|-----------|
-| `GregorianCalendar` | ~5 (in Calendar-Tests) | ≥ 10 | Tests im Calendar-File; eigene Suite anlegen |
 | `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
-| `LinkedHashMap` | 25 | ≥ 15 | ✓ erledigt |
 | `UUID` | 3 | ≥ 15 | |
 | `Enumeration` | 3 | ≥ 5 | |
 | `TimeZone` | 8 | ≥ 12 | |
@@ -272,4 +229,4 @@ Noch offen:
 
 ---
 
-*Stand: 2026-08-10 · Basis: Java 1.0–26 public API · `java.util.concurrent`: Callable, ExecutionException, Future/TaskFuture implementiert · P4 vollständig: Map.Entry.comparingByKey/Value, LinkedHashMap accessOrder + removeEldestEntry, ≥25 LinkedHashMap-Tests*
+*Stand: 2026-08-10 · Basis: Java 1.0–26 public API

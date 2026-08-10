@@ -33,9 +33,68 @@ extension java.util {
     public static let BC = 0
     public static let AD = 1
 
+    // MARK: - Gregorian change date
+    // The date when the Gregorian calendar reform took effect.
+    // Default: October 15, 1582 (as in Java's GregorianCalendar).
+    // Set to Date(Long.MIN_VALUE) to use a pure Gregorian calendar
+    // retroactively, or to Date(Long.MAX_VALUE) for a pure Julian calendar.
+    private var _gregorianChange: java.util.Date = {
+      // October 15, 1582, 00:00:00 UTC
+      var dc = Foundation.DateComponents()
+      dc.year = 1582; dc.month = 10; dc.day = 15
+      dc.hour = 0; dc.minute = 0; dc.second = 0
+      dc.timeZone = Foundation.TimeZone(identifier: "UTC")
+      let cal = Foundation.Calendar(identifier: .gregorian)
+      let foundationDate = cal.date(from: dc) ?? Foundation.Date(timeIntervalSince1970: -12219292800)
+      return java.util.Date(Int64(foundationDate.timeIntervalSince1970) * 1000)
+    }()
+
+    // MARK: - Constructors
+
     // Constructor to init ``Foundation.DateComponents`` with all fields
     public override init () {
       super.init()
+    }
+
+    /// Creates a `GregorianCalendar` based on the current time in the given time zone.
+    ///
+    /// - Since: Java 1.1
+    public convenience init(_ zone: any java.util.TimeZone) {
+      self.init()
+      let cal = Foundation.Calendar(identifier: .gregorian)
+      dateComponents = cal.dateComponents(in: zone.delegate, from: Foundation.Date())
+    }
+
+    /// Creates a `GregorianCalendar` based on the current time in the given locale.
+    ///
+    /// The locale affects the first day of the week and minimal days in first week.
+    /// In this Foundation-backed implementation, the locale is stored but the
+    /// timezone defaults to the system timezone.
+    ///
+    /// - Since: Java 1.1
+    public convenience init(_ locale: java.util.Locale) {
+      self.init()
+      // Apply locale-specific week settings
+      var foundationCal = Foundation.Calendar(identifier: .gregorian)
+      foundationCal.locale = locale.delegate
+      let now = Foundation.Date()
+      dateComponents = foundationCal.dateComponents(
+        [.era, .year, .month, .day, .hour, .minute, .second,
+         .nanosecond, .weekday, .weekdayOrdinal, .weekOfYear,
+         .weekOfMonth, .timeZone, .quarter], from: now)
+    }
+
+    /// Creates a `GregorianCalendar` based on the current time in the given time zone and locale.
+    ///
+    /// - Since: Java 1.1
+    public convenience init(_ zone: any java.util.TimeZone, _ locale: java.util.Locale) {
+      self.init(zone)
+      // locale mainly affects week numbering — we apply it via Foundation
+      var foundationCal = Foundation.Calendar(identifier: .gregorian)
+      foundationCal.locale = locale.delegate
+      let now = Foundation.Date()
+      dateComponents = foundationCal.dateComponents(
+        in: zone.delegate, from: now)
     }
 
     public convenience init (_ happyNewYear : Int, _ newMonth : Int, _ newDayOfMonth : Int) {
@@ -62,6 +121,39 @@ extension java.util {
 
     open func isLeapYear(_ year: Int) -> Bool {
       return (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)
+    }
+
+    // MARK: - Gregorian change date (Java 1.1)
+
+    /// Returns the date when the Gregorian calendar change took effect.
+    ///
+    /// The default is October 15, 1582 — the first day of the Gregorian
+    /// calendar in the original Catholic countries.
+    ///
+    /// - Returns: A `java.util.Date` representing the Gregorian change date.
+    /// - Since: Java 1.1
+    open func getGregorianChange() -> java.util.Date {
+      _gregorianChange
+    }
+
+    /// Sets the date when the Gregorian calendar change takes effect.
+    ///
+    /// Pass `java.util.Date(Int64.min)` to use a pure Gregorian calendar
+    /// retroactively (no Julian period), or `java.util.Date(Int64.max)` for
+    /// a pure Julian calendar.
+    ///
+    /// - Parameter date: The Gregorian change date.
+    /// - Since: Java 1.1
+    open func setGregorianChange(_ date: java.util.Date) {
+      _gregorianChange = date
+    }
+
+    /// Returns `true` if the given `java.util.Date` is after the Gregorian
+    /// change date, meaning the Gregorian calendar applies to it.
+    ///
+    /// - Since: Java 1.1
+    open func isGregorianDate(_ date: java.util.Date) -> Bool {
+      date.getTime() >= _gregorianChange.getTime()
     }
 
     /// Returns the value of the given `java.util.Calendar` field.

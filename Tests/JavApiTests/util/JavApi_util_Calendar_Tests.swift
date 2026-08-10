@@ -5,13 +5,12 @@
 import Testing
 @testable import JavApi
 
-// Regression tests for bugs fixed in June 2026:
-//   - DAY_OF_MONTH was wrongly 8 (should be 5)
-//   - get(SECOND) returned minute value (copy-paste bug)
-//   - GregorianCalendar.get(DAY_OF_MONTH) returned month instead of day
-//   - GregorianCalendar constructor did not convert 0-based Java month to 1-based Foundation month
-//   - Calendar.getInstance() and set() were missing entirely
+// Regression note: The DAY_OF_MONTH constant was wrongly 8 (should be 5) and
+// Calendar.getInstance() / set() were missing entirely — both fixed June 2026.
+// GregorianCalendar-specific regressions and constructor tests live in
+// JavApi_util_GregorianCalendar_Tests.swift.
 
+@Suite("java.util.Calendar")
 struct JavApi_util_Calendar_Tests {
 
   // MARK: - Field constant values (Java 1.1 spec)
@@ -86,12 +85,6 @@ struct JavApi_util_Calendar_Tests {
     #expect(java.util.Calendar.PM == 1)
   }
 
-  @Test("Era constants BC/AD are defined on GregorianCalendar")
-  func testEraConstants() {
-    #expect(java.util.GregorianCalendar.BC == 0)
-    #expect(java.util.GregorianCalendar.AD == 1)
-  }
-
   // MARK: - getInstance
 
   @Test("Calendar.getInstance() returns a non-nil Calendar")
@@ -114,63 +107,6 @@ struct JavApi_util_Calendar_Tests {
     let cal = java.util.Calendar.getInstance(locale)
     let year = try cal.get(java.util.Calendar.YEAR)
     #expect(year >= 2026)
-  }
-
-  // MARK: - GregorianCalendar constructor — month 0-based conversion
-
-  @Test("GregorianCalendar(year, month, day) uses 0-based month like Java")
-  func testGregorianCalendarMonthConversion() throws {
-    // Java: NOVEMBER = 10, Foundation month 11
-    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.NOVEMBER, 15)
-    let month = try cal.get(java.util.Calendar.MONTH)
-    let day   = try cal.get(java.util.Calendar.DAY_OF_MONTH)
-    let year  = try cal.get(java.util.Calendar.YEAR)
-    #expect(year  == 2026)
-    #expect(month == java.util.Calendar.NOVEMBER)  // must be 10
-    #expect(day   == 15)
-  }
-
-  @Test("GregorianCalendar(year, JANUARY, day) gives month == 0")
-  func testGregorianCalendarJanuary() throws {
-    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.JANUARY, 1)
-    #expect(try cal.get(java.util.Calendar.MONTH) == 0)
-  }
-
-  // MARK: - GregorianCalendar.get — Regression: DAY_OF_MONTH returned month
-
-  @Test("GregorianCalendar.get(DAY_OF_MONTH) returns the day, not the month")
-  func testGregorianGetDayOfMonth() throws {
-    // Regression: previously returned dateComponents.month instead of .day
-    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.JUNE, 22)
-    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 22)
-    // Sanity: month must be JUNE (5), not 22
-    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.JUNE)
-  }
-
-  @Test("GregorianCalendar.get(DAY_OF_MONTH) and get(MONTH) are independent")
-  func testGregorianDayAndMonthIndependent() throws {
-    let cal = java.util.GregorianCalendar(2025, java.util.Calendar.MARCH, 7)
-    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 7)
-    #expect(try cal.get(java.util.Calendar.MONTH)        == java.util.Calendar.MARCH)
-  }
-
-  // MARK: - get(SECOND) — Regression: returned minute instead of second
-
-  @Test("GregorianCalendar.get(SECOND) returns seconds, not minutes")
-  func testGetSecondNotMinute() throws {
-    // Regression: get(SECOND) returned dateComponents.minute (copy-paste bug)
-    let cal = java.util.GregorianCalendar(2026, 0, 1, 10, 30, 45)
-    #expect(try cal.get(java.util.Calendar.SECOND) == 45)
-    #expect(try cal.get(java.util.Calendar.MINUTE) == 30)
-    // Crucially: SECOND != MINUTE
-    #expect(try cal.get(java.util.Calendar.SECOND) != cal.get(java.util.Calendar.MINUTE))
-  }
-
-  @Test("GregorianCalendar.get(SECOND) == 0 when second is zero")
-  func testGetSecondZero() throws {
-    let cal = java.util.GregorianCalendar(2026, 0, 1, 10, 30, 0)
-    #expect(try cal.get(java.util.Calendar.SECOND) == 0)
-    #expect(try cal.get(java.util.Calendar.MINUTE) == 30)
   }
 
   // MARK: - set(field, value)
@@ -217,15 +153,412 @@ struct JavApi_util_Calendar_Tests {
     #expect(try cal.get(java.util.Calendar.SECOND) == 59)
   }
 
-  // MARK: - isLeapYear
+  // MARK: - before / after / compareTo (Java 1.1 / Java 5)
 
-  @Test("GregorianCalendar.isLeapYear identifies leap years correctly")
-  func testIsLeapYear() {
+  @Test("before() returns true when this calendar is earlier")
+  func testBefore() {
+    let earlier = java.util.GregorianCalendar(2000, java.util.Calendar.JANUARY, 1)
+    let later   = java.util.GregorianCalendar(2010, java.util.Calendar.JANUARY, 1)
+    #expect(earlier.before(later)  == true)
+    #expect(later.before(earlier)  == false)
+    #expect(earlier.before(earlier) == false)
+  }
+
+  @Test("after() returns true when this calendar is later")
+  func testAfter() {
+    let earlier = java.util.GregorianCalendar(2000, java.util.Calendar.JUNE, 15)
+    let later   = java.util.GregorianCalendar(2025, java.util.Calendar.JUNE, 15)
+    #expect(later.after(earlier)  == true)
+    #expect(earlier.after(later)  == false)
+    #expect(later.after(later)    == false)
+  }
+
+  @Test("before() and after() return false for non-Calendar argument")
+  func testBeforeAfterNonCalendar() {
+    let cal = java.util.GregorianCalendar(2026, 0, 1)
+    #expect(cal.before("not a calendar") == false)
+    #expect(cal.after(42)               == false)
+    #expect(cal.before(nil)             == false)
+  }
+
+  @Test("compareTo() returns negative, zero, positive")
+  func testCompareTo() {
+    let a = java.util.GregorianCalendar(2020, 0, 1)
+    let b = java.util.GregorianCalendar(2025, 0, 1)
+    let c = java.util.GregorianCalendar(2020, 0, 1)
+    #expect(a.compareTo(b) < 0)
+    #expect(b.compareTo(a) > 0)
+    #expect(a.compareTo(c) == 0)
+  }
+
+  // MARK: - clone (Java 1.1)
+
+  @Test("clone() returns a calendar with identical field values")
+  func testClone() throws {
+    let original = java.util.GregorianCalendar(2026, java.util.Calendar.MARCH, 15, 10, 30, 0)
+    let copy = original.clone()
+    #expect(try copy.get(java.util.Calendar.YEAR)         == 2026)
+    #expect(try copy.get(java.util.Calendar.MONTH)        == java.util.Calendar.MARCH)
+    #expect(try copy.get(java.util.Calendar.DAY_OF_MONTH) == 15)
+    #expect(try copy.get(java.util.Calendar.HOUR_OF_DAY)  == 10)
+    #expect(try copy.get(java.util.Calendar.MINUTE)       == 30)
+  }
+
+  @Test("clone() produces an independent copy (mutation does not affect original)")
+  func testCloneIndependence() throws {
+    let original = java.util.GregorianCalendar(2026, 0, 1)
+    let copy = original.clone()
+    copy.set(java.util.Calendar.YEAR, 1999)
+    #expect(try original.get(java.util.Calendar.YEAR) == 2026)
+    #expect(try copy.get(java.util.Calendar.YEAR)     == 1999)
+  }
+
+  // MARK: - isSet / clear (Java 1.1)
+
+  @Test("isSet() returns true for all fields after construction")
+  func testIsSetAfterInit() {
+    let cal = java.util.GregorianCalendar(2026, 0, 1)
+    #expect(cal.isSet(java.util.Calendar.YEAR)         == true)
+    #expect(cal.isSet(java.util.Calendar.MONTH)        == true)
+    #expect(cal.isSet(java.util.Calendar.DAY_OF_MONTH) == true)
+    #expect(cal.isSet(java.util.Calendar.HOUR_OF_DAY)  == true)
+  }
+
+  @Test("isSet() returns false for invalid field index")
+  func testIsSetInvalidField() {
     let cal = java.util.GregorianCalendar()
-    #expect(cal.isLeapYear(2000) == true)   // divisible by 400
-    #expect(cal.isLeapYear(1900) == false)  // divisible by 100 but not 400
-    #expect(cal.isLeapYear(2024) == true)   // divisible by 4
-    #expect(cal.isLeapYear(2023) == false)  // not divisible by 4
+    #expect(cal.isSet(999) == false)
+    #expect(cal.isSet(-1)  == false)
+  }
+
+  @Test("clear(field) marks field as unset, set() marks it set again")
+  func testClearSingleField() {
+    let cal = java.util.GregorianCalendar(2026, 0, 1)
+    cal.clear(java.util.Calendar.HOUR_OF_DAY)
+    #expect(cal.isSet(java.util.Calendar.HOUR_OF_DAY)  == false)
+    #expect(cal.isSet(java.util.Calendar.YEAR)         == true)  // unaffected
+    cal.set(java.util.Calendar.HOUR_OF_DAY, 12)
+    #expect(cal.isSet(java.util.Calendar.HOUR_OF_DAY)  == true)
+  }
+
+  @Test("clear() resets all fields and calendar to epoch")
+  func testClearAll() throws {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.AUGUST, 10)
+    cal.clear()
+    #expect(cal.isSet(java.util.Calendar.YEAR)         == false)
+    #expect(cal.isSet(java.util.Calendar.MONTH)        == false)
+    #expect(cal.isSet(java.util.Calendar.DAY_OF_MONTH) == false)
+    // After clear(), dateComponents are reset to epoch (1970-01-01)
+    #expect(try cal.get(java.util.Calendar.YEAR)         == 1970)
+    #expect(try cal.get(java.util.Calendar.MONTH)        == java.util.Calendar.JANUARY)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 1)
+  }
+
+  // MARK: - add (Java 1.1)
+
+  @Test("add(YEAR, 1) increments the year")
+  func testAddYear() throws {
+    let cal = java.util.GregorianCalendar(2020, java.util.Calendar.JUNE, 15)
+    cal.add(java.util.Calendar.YEAR, 5)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 2025)
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.JUNE)  // month unchanged
+  }
+
+  @Test("add(MONTH, 1) on December wraps to January of next year")
+  func testAddMonthOverflow() throws {
+    let cal = java.util.GregorianCalendar(2023, java.util.Calendar.DECEMBER, 15)
+    cal.add(java.util.Calendar.MONTH, 1)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 2024)
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.JANUARY)
+  }
+
+  @Test("add(MONTH, -1) on January wraps to December of previous year")
+  func testAddMonthUnderflow() throws {
+    let cal = java.util.GregorianCalendar(2024, java.util.Calendar.JANUARY, 10)
+    cal.add(java.util.Calendar.MONTH, -1)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 2023)
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.DECEMBER)
+  }
+
+  @Test("add(DAY_OF_MONTH, 1) on last day of month wraps to first of next month")
+  func testAddDayMonthBoundary() throws {
+    let cal = java.util.GregorianCalendar(2023, java.util.Calendar.JANUARY, 31)
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 1)
+    #expect(try cal.get(java.util.Calendar.MONTH)        == java.util.Calendar.FEBRUARY)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 1)
+  }
+
+  @Test("add(HOUR_OF_DAY, 25) carries over to the next day")
+  func testAddHourCarry() throws {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.MARCH, 10, 10, 0, 0)
+    cal.add(java.util.Calendar.HOUR_OF_DAY, 25)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 11)
+    #expect(try cal.get(java.util.Calendar.HOUR_OF_DAY)  == 11)
+  }
+
+  @Test("add(SECOND, 90) carries over to minutes")
+  func testAddSecondCarry() throws {
+    let cal = java.util.GregorianCalendar(2026, 0, 1, 0, 0, 30)
+    cal.add(java.util.Calendar.SECOND, 90)
+    #expect(try cal.get(java.util.Calendar.MINUTE) == 2)
+    #expect(try cal.get(java.util.Calendar.SECOND) == 0)
+  }
+
+  @Test("add(field, 0) is a no-op")
+  func testAddZero() throws {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.AUGUST, 10)
+    cal.add(java.util.Calendar.DAY_OF_MONTH, 0)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 10)
+  }
+
+  // MARK: - roll (Java 1.1)
+
+  @Test("roll(MONTH, true) on December wraps to January without changing year")
+  func testRollMonthWrap() throws {
+    let cal = java.util.GregorianCalendar(2023, java.util.Calendar.DECEMBER, 15)
+    cal.roll(java.util.Calendar.MONTH, true)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 2023)   // year must NOT change
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.JANUARY)
+  }
+
+  @Test("roll(MONTH, false) on January wraps to December without changing year")
+  func testRollMonthWrapBack() throws {
+    let cal = java.util.GregorianCalendar(2024, java.util.Calendar.JANUARY, 10)
+    cal.roll(java.util.Calendar.MONTH, false)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 2024)
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.DECEMBER)
+  }
+
+  @Test("roll(HOUR_OF_DAY, 3) does not change day")
+  func testRollHourNoCarry() throws {
+    let cal = java.util.GregorianCalendar(2026, 0, 1, 22, 0, 0)
+    cal.roll(java.util.Calendar.HOUR_OF_DAY, 3)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 1)   // day unchanged
+    #expect(try cal.get(java.util.Calendar.HOUR_OF_DAY)  == 1)   // 22+3 mod 24
+  }
+
+  @Test("roll(SECOND, amount) wraps within 0–59 without changing minute")
+  func testRollSecondNoCarry() throws {
+    let cal = java.util.GregorianCalendar(2026, 0, 1, 10, 30, 50)
+    cal.roll(java.util.Calendar.SECOND, 20)
+    #expect(try cal.get(java.util.Calendar.MINUTE) == 30)   // minute unchanged
+    #expect(try cal.get(java.util.Calendar.SECOND) == 10)   // (50+20) mod 60
+  }
+
+  // MARK: - getTimeZone / setTimeZone (Java 1.1)
+
+  @Test("getTimeZone() returns a non-nil TimeZone")
+  func testGetTimeZone() {
+    let cal = java.util.GregorianCalendar()
+    let tz = cal.getTimeZone()
+    // The ID should be a valid non-empty string
+    #expect(!tz.getID().isEmpty)
+  }
+
+  @Test("setTimeZone() changes the timezone; instant is preserved")
+  func testSetTimeZone() {
+    let cal = java.util.GregorianCalendar(2000, java.util.Calendar.JANUARY, 1, 12, 0, 0)
+    let millisBefore = cal.getTimeInMillis()
+    let utc = java.util.SimpleTimeZone(0, "UTC")
+    cal.setTimeZone(utc)
+    // The underlying instant must not change
+    #expect(cal.getTimeInMillis() == millisBefore)
+    // The timezone must have been updated
+    #expect(cal.getTimeZone().getID() == "UTC")
+  }
+
+  // MARK: - getActualMinimum / getActualMaximum (Java 1.2)
+
+  @Test("getActualMaximum(DAY_OF_MONTH) is 28 for February in non-leap year")
+  func testActualMaxDayFeb() {
+    let cal = java.util.GregorianCalendar(2023, java.util.Calendar.FEBRUARY, 1)
+    #expect(cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) == 28)
+  }
+
+  @Test("getActualMaximum(DAY_OF_MONTH) is 29 for February in leap year")
+  func testActualMaxDayFebLeap() {
+    let cal = java.util.GregorianCalendar(2024, java.util.Calendar.FEBRUARY, 1)
+    #expect(cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) == 29)
+  }
+
+  @Test("getActualMaximum(DAY_OF_MONTH) is 31 for January")
+  func testActualMaxDayJan() {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.JANUARY, 1)
+    #expect(cal.getActualMaximum(java.util.Calendar.DAY_OF_MONTH) == 31)
+  }
+
+  @Test("getActualMaximum(DAY_OF_YEAR) is 366 for leap year")
+  func testActualMaxDayOfYearLeap() {
+    let cal = java.util.GregorianCalendar(2024, 0, 1)
+    #expect(cal.getActualMaximum(java.util.Calendar.DAY_OF_YEAR) == 366)
+  }
+
+  @Test("getActualMaximum(DAY_OF_YEAR) is 365 for non-leap year")
+  func testActualMaxDayOfYearNonLeap() {
+    let cal = java.util.GregorianCalendar(2023, 0, 1)
+    #expect(cal.getActualMaximum(java.util.Calendar.DAY_OF_YEAR) == 365)
+  }
+
+  @Test("getActualMinimum(DAY_OF_MONTH) is always 1")
+  func testActualMinDay() {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.FEBRUARY, 15)
+    #expect(cal.getActualMinimum(java.util.Calendar.DAY_OF_MONTH) == 1)
+  }
+
+  @Test("getActualMinimum(HOUR_OF_DAY) is 0")
+  func testActualMinHour() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getActualMinimum(java.util.Calendar.HOUR_OF_DAY) == 0)
+  }
+
+  // MARK: - getInstance(TimeZone) (Java 1.1)
+
+  @Test("getInstance(TimeZone) returns a Calendar with the correct timezone")
+  func testGetInstanceTimeZone() throws {
+    let tz = java.util.SimpleTimeZone(0, "UTC")
+    let cal = java.util.Calendar.getInstance(tz)
+    let year = try cal.get(java.util.Calendar.YEAR)
+    #expect(year >= 2026)
+  }
+
+  @Test("getInstance(TimeZone, Locale) returns a Calendar")
+  func testGetInstanceTimeZoneLocale() throws {
+    let tz = java.util.SimpleTimeZone(0, "UTC")
+    let locale = java.util.Locale("de", "DE")
+    let cal = java.util.Calendar.getInstance(tz, locale)
+    let year = try cal.get(java.util.Calendar.YEAR)
+    #expect(year >= 2026)
+  }
+
+  @Test("getAvailableLocales() returns a non-empty array")
+  func testGetAvailableLocales() {
+    let locales = java.util.Calendar.getAvailableLocales()
+    #expect(locales.count > 0)
+  }
+
+  // MARK: - getTimeInMillis / setTimeInMillis (Java 1.2)
+
+  @Test("getTimeInMillis() matches getTime().getTime()")
+  func testGetTimeInMillis() {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.JANUARY, 1, 0, 0, 0)
+    let millis = cal.getTimeInMillis()
+    let expected = cal.getTime().getTime()
+    #expect(millis == expected)
+  }
+
+  @Test("setTimeInMillis() round-trips with getTimeInMillis()")
+  func testSetTimeInMillisRoundTrip() {
+    let original = java.util.GregorianCalendar(2000, java.util.Calendar.JUNE, 15)
+    let millis = original.getTimeInMillis()
+    let restored = java.util.GregorianCalendar()
+    restored.setTimeInMillis(millis)
+    #expect(restored.getTimeInMillis() == millis)
+  }
+
+  @Test("setTimeInMillis(0) sets calendar to epoch (1970-01-01)")
+  func testSetTimeInMillisEpoch() throws {
+    let cal = java.util.GregorianCalendar()
+    cal.setTimeInMillis(0)
+    #expect(try cal.get(java.util.Calendar.YEAR)  == 1970)
+    #expect(try cal.get(java.util.Calendar.MONTH) == java.util.Calendar.JANUARY)
+    #expect(try cal.get(java.util.Calendar.DAY_OF_MONTH) == 1)
+  }
+
+  // MARK: - getMinimum / getMaximum / getGreatestMinimum / getLeastMaximum (Java 1.2)
+
+  @Test("getMinimum(MONTH) == 0, getMaximum(MONTH) == 11")
+  func testMonthBounds() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getMinimum(java.util.Calendar.MONTH)        == 0)
+    #expect(cal.getMaximum(java.util.Calendar.MONTH)        == 11)
+    #expect(cal.getGreatestMinimum(java.util.Calendar.MONTH) == 0)
+    #expect(cal.getLeastMaximum(java.util.Calendar.MONTH)    == 11)
+  }
+
+  @Test("getMaximum(DAY_OF_MONTH) == 31, getLeastMaximum == 28")
+  func testDayOfMonthBounds() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getMaximum(java.util.Calendar.DAY_OF_MONTH)      == 31)
+    #expect(cal.getLeastMaximum(java.util.Calendar.DAY_OF_MONTH) == 28)
+  }
+
+  @Test("getMinimum/Maximum(HOUR_OF_DAY) are 0 and 23")
+  func testHourOfDayBounds() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getMinimum(java.util.Calendar.HOUR_OF_DAY) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.HOUR_OF_DAY) == 23)
+  }
+
+  @Test("getMinimum/Maximum(MINUTE) are 0 and 59")
+  func testMinuteBounds() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getMinimum(java.util.Calendar.MINUTE) == 0)
+    #expect(cal.getMaximum(java.util.Calendar.MINUTE) == 59)
+  }
+
+  // MARK: - firstDayOfWeek (Java 1.1)
+
+  @Test("getFirstDayOfWeek() default is SUNDAY")
+  func testGetFirstDayOfWeekDefault() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getFirstDayOfWeek() == java.util.Calendar.SUNDAY)
+  }
+
+  @Test("setFirstDayOfWeek() / getFirstDayOfWeek() round-trip")
+  func testSetGetFirstDayOfWeek() {
+    let cal = java.util.GregorianCalendar()
+    cal.setFirstDayOfWeek(java.util.Calendar.MONDAY)
+    #expect(cal.getFirstDayOfWeek() == java.util.Calendar.MONDAY)
+  }
+
+  @Test("clone() copies firstDayOfWeek")
+  func testCloneCopiesFirstDayOfWeek() {
+    let cal = java.util.GregorianCalendar()
+    cal.setFirstDayOfWeek(java.util.Calendar.FRIDAY)
+    let copy = cal.clone()
+    #expect(copy.getFirstDayOfWeek() == java.util.Calendar.FRIDAY)
+  }
+
+  // MARK: - isLenient / setLenient (Java 1.1)
+
+  @Test("isLenient() default is true")
+  func testIsLenientDefault() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.isLenient() == true)
+  }
+
+  @Test("setLenient(false) / isLenient() round-trip")
+  func testSetLenient() {
+    let cal = java.util.GregorianCalendar()
+    cal.setLenient(false)
+    #expect(cal.isLenient() == false)
+    cal.setLenient(true)
+    #expect(cal.isLenient() == true)
+  }
+
+  // MARK: - minimalDaysInFirstWeek (Java 1.1)
+
+  @Test("getMinimalDaysInFirstWeek() default is 1")
+  func testGetMinimalDaysDefault() {
+    let cal = java.util.GregorianCalendar()
+    #expect(cal.getMinimalDaysInFirstWeek() == 1)
+  }
+
+  @Test("setMinimalDaysInFirstWeek() / getMinimalDaysInFirstWeek() round-trip")
+  func testSetMinimalDays() {
+    let cal = java.util.GregorianCalendar()
+    cal.setMinimalDaysInFirstWeek(4)  // ISO 8601
+    #expect(cal.getMinimalDaysInFirstWeek() == 4)
+  }
+
+  @Test("clone() copies lenient and minimalDaysInFirstWeek")
+  func testCloneCopiesProperties() {
+    let cal = java.util.GregorianCalendar()
+    cal.setLenient(false)
+    cal.setMinimalDaysInFirstWeek(4)
+    let copy = cal.clone()
+    #expect(copy.isLenient()                 == false)
+    #expect(copy.getMinimalDaysInFirstWeek() == 4)
   }
 
   // MARK: - Swiftify DateComponents enum
@@ -241,14 +574,4 @@ struct JavApi_util_Calendar_Tests {
     #expect(java.util.Calendar.DateComponents.SECOND.rawValue       == java.util.Calendar.SECOND)
   }
 
-  @Test("Calendar.get(DateComponents.SECOND) returns seconds not minutes")
-  func testSwiftifyGetSecond() throws {
-    let cal = java.util.GregorianCalendar(2026, 0, 1, 10, 30, 45)
-    // Regression: Swiftify extension also had the copy-paste bug
-    let sec = cal.get(what: .SECOND)
-    let min = cal.get(what: .MINUTE)
-    #expect(sec == 45)
-    #expect(min == 30)
-    #expect(sec != min)
-  }
 }
