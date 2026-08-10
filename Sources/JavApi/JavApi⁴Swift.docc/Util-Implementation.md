@@ -63,7 +63,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 ### `java.util.stream` — Implementierungsstand
 
 Noch offen:
-- [ ] `Collectors`: `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
 - [ ] `gather<R>(_ gatherer:)` (Java 24, finalisiert)
 - [ ] `Gatherer<T, A, R>` + `Gatherers` Utility-Klasse (Java 24)
 
@@ -72,13 +71,7 @@ Noch offen:
 ## Java 9
 
 ### `List`, `Set`, `Map` – immutable Factory-Methoden
-- [ ] `List.of(…)` (leer + bis 10 Elemente + vararg) — null-feindlich, unveränderlich
-- [ ] `Set.of(…)` — zusätzlich: `IllegalArgumentException` bei Duplikaten
-- [ ] `Map.of(…)` (bis 10 Paare) + `Map.entry(_:_:)` + `Map.ofEntries(…)`
-
-### `Optional<T>` – Java 9
-- [ ] `or(_ supplier: () -> Optional<T>)` — gibt `self` zurück wenn present, sonst Ergebnis des Suppliers
-- [ ] `ifPresentOrElse(_ action: (T) -> Void, _ emptyAction: () -> Void)`
+- [ ] `Map.entry(_:_:)` + `Map.ofEntries(…)` (Hilfsmethoden für Map.of)
 
 ### `ServiceLoader` – Java 9
 - [ ] `findFirst() -> Optional<S>`
@@ -88,22 +81,6 @@ Noch offen:
 ### `Scanner` – Java 9
 - [ ] `tokens() -> Stream<String>`
 - [ ] `findAll(_ pattern:) -> Stream<MatchResult>`
-
----
-
-## Java 10
-
-### `List`, `Set`, `Map` – `copyOf(…)`
-- [ ] `static copyOf<E>(_ coll: Collection<E>) -> List<E>` (unveränderlich, null-feindlich)
-- [ ] `static copyOf<E: Hashable>(_ coll: Collection<E>) -> Set<E>`
-- [ ] `static copyOf<K, V>(_ map: Map<K, V>) -> Map<K, V>`
-
----
-
-## Java 16
-
-### `Stream<T>` – Java 16
-- [ ] `mapMulti<R>(_ mapper: (T, (R) -> Void) -> Void) -> Stream<R>`
 
 ---
 

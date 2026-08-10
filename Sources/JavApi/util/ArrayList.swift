@@ -237,6 +237,47 @@ extension java.util {
       elements = trimmed
     }
 
+    // MARK: - Java 9 factory: List.of(…)
+
+    /// Returns an unmodifiable list containing the given elements.
+    ///
+    /// The returned list is null-hostile (passing `nil` is a compile-time
+    /// error because `E` is non-optional) and immutable.
+    ///
+    /// Mirrors `java.util.List.of(E...)` (Java 9).
+    ///
+    /// - Parameter elements: The elements to include.
+    /// - Returns: An unmodifiable `List` containing `elements` in order.
+    /// - Since: Java 9
+    public static func of(_ elements: E...) -> any java.util.List<E> {
+      let list = ArrayList<E>()
+      for e in elements { _ = try? list.add(e) }
+      return java.util.Collections.unmodifiableList(list)
+    }
+
+    // MARK: - Java 10 factory: List.copyOf(…)
+
+    /// Returns an unmodifiable list containing the elements of `collection`,
+    /// in iteration order.
+    ///
+    /// Null elements cause a `NullPointerException` (null-hostile).
+    ///
+    /// Mirrors `java.util.List.copyOf(Collection)` (Java 10).
+    ///
+    /// - Parameter collection: The collection whose elements to copy.
+    /// - Returns: An unmodifiable `List` containing the same elements.
+    /// - Since: Java 10
+    public static func copyOf(_ collection: any java.util.Collection<E>) -> any java.util.List<E> {
+      let list = ArrayList<E>()
+      let it = collection.iterator()
+      while it.hasNext() {
+        if let element = try? it.next() {
+          _ = try? list.add(element)
+        }
+      }
+      return java.util.Collections.unmodifiableList(list)
+    }
+
     // MARK: - Indexed bulk insert
 
     /// Inserts all elements of `collection` into this list, starting at `location`.

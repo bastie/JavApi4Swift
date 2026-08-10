@@ -167,6 +167,40 @@ extension java.util.stream {
       }
     }
 
+    /// Returns a stream by replacing each element with zero or more elements
+    /// produced by `mapper` via a `Consumer` push callback.
+    ///
+    /// Mirrors `java.util.stream.Stream.mapMulti(BiConsumer<T,Consumer<R>>)` (Java 16).
+    ///
+    /// Unlike `flatMap`, no intermediate stream is created — the mapper pushes
+    /// results directly into a buffer by calling `push.accept(r)`.
+    ///
+    /// ```swift
+    /// let doubled = stream.mapMulti(
+    ///   java.util.function.AnyBiConsumer { (x: Int, push: java.util.function.AnyConsumer<Int>) in
+    ///     push.accept(x)
+    ///     push.accept(x * 2)
+    ///   }
+    /// )
+    /// ```
+    ///
+    /// - Parameter mapper: A `BiConsumer` that receives each source element and
+    ///   a `Consumer<R>` push callback; every value passed to `push.accept(_:)`
+    ///   appears in the resulting stream.
+    /// - Since: Java 16
+    public func mapMulti<R>(
+      _ mapper: some java.util.function.BiConsumer<T, java.util.function.AnyConsumer<R>>
+    ) -> Stream<R> {
+      Stream<R> { [_makeSequence] in
+        var results: [R] = []
+        let push = java.util.function.AnyConsumer<R> { r in results.append(r) }
+        for element in _makeSequence() {
+          mapper.accept(element, push)
+        }
+        return AnySequence(results)
+      }
+    }
+
     /// Returns a no-op that signals intent to parallelize — currently a no-op.
     ///
     /// All execution in JavApi⁴Swift streams is sequential.

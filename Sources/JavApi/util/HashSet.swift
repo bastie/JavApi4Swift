@@ -105,6 +105,53 @@ extension java.util {
       }
       return copy
     }
+
+    // MARK: - Java 9 factory: Set.of(…)
+
+    /// Returns an unmodifiable set containing the given elements.
+    ///
+    /// Null-hostile: `E` is non-optional so `nil` is a compile-time error.
+    /// Throws `java.lang.IllegalArgumentException` if duplicate elements are provided.
+    ///
+    /// Mirrors `java.util.Set.of(E...)` (Java 9).
+    ///
+    /// - Parameter elements: The elements to include (must be distinct).
+    /// - Returns: An unmodifiable `Set` containing `elements`.
+    /// - Throws: `IllegalArgumentException` if any two elements are equal.
+    /// - Since: Java 9
+    public static func of(_ elements: E...) throws(java.lang.IllegalArgumentException) -> any java.util.Set<E> {
+      let set = HashSet<E>(initialCapacity: Swift.max(16, elements.count * 2))
+      for e in elements {
+        let wasNew = (try? set.add(e)) ?? false
+        if !wasNew {
+          throw java.lang.IllegalArgumentException("duplicate element: \(e)")
+        }
+      }
+      return java.util.Collections.unmodifiableSet(set)
+    }
+
+    // MARK: - Java 10 factory: Set.copyOf(…)
+
+    /// Returns an unmodifiable set containing the elements of `collection`.
+    ///
+    /// Null elements cause a `NullPointerException` (null-hostile).
+    /// Duplicate elements are silently de-duplicated (set semantics).
+    ///
+    /// Mirrors `java.util.Set.copyOf(Collection)` (Java 10).
+    ///
+    /// - Parameter collection: The collection whose elements to copy.
+    /// - Returns: An unmodifiable `Set` containing the same distinct elements.
+    /// - Since: Java 10
+    public static func copyOf(_ collection: any java.util.Collection<E>) -> any java.util.Set<E> {
+      let set = HashSet<E>(initialCapacity: Swift.max(16, collection.size() * 2))
+      let it = collection.iterator()
+      while it.hasNext() {
+        if let element = try? it.next() {
+          _ = try? set.add(element)
+        }
+      }
+      return java.util.Collections.unmodifiableSet(set)
+    }
   }
 }
 

@@ -242,5 +242,215 @@ extension java.util {
         return value
       }
     }
+
+    // MARK: - Java 9 factory: Map.of(…)
+    //
+    // Mirrors the 11 Java overloads (0–10 key-value pairs) with identical
+    // alternating-parameter call syntax: HashMap.of("a", 1, "b", 2).
+    // Each public overload delegates to the private helper _ofPairs.
+
+    private static func _ofPairs(
+      _ pairs: [(K, V)]
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      let map = HashMap<K, V>(initialCapacity: Swift.max(16, pairs.count * 2))
+      for (k, v) in pairs {
+        if map.containsKey(k) {
+          throw java.lang.IllegalArgumentException("duplicate key: \(k)")
+        }
+        _ = map.put(k, v)
+      }
+      return java.util.Collections.unmodifiableMap(map)
+    }
+
+    /// Returns an empty unmodifiable map.
+    ///
+    /// Mirrors `java.util.Map.of()` (Java 9).
+    /// - Since: Java 9
+    public static func of() -> any java.util.Map<K, V> {
+      java.util.Collections.unmodifiableMap(HashMap<K, V>())
+    }
+
+    /// Returns an unmodifiable map containing 1 mapping.
+    ///
+    /// Mirrors `java.util.Map.of(K,V)` (Java 9).
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V
+    ) -> any java.util.Map<K, V> {
+      // No duplicates possible with a single pair.
+      let map = HashMap<K, V>(initialCapacity: 16)
+      _ = map.put(k1, v1)
+      return java.util.Collections.unmodifiableMap(map)
+    }
+
+    /// Returns an unmodifiable map containing 2 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,K,V)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2)])
+    }
+
+    /// Returns an unmodifiable map containing 3 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,K,V,K,V)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3)])
+    }
+
+    /// Returns an unmodifiable map containing 4 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4)])
+    }
+
+    /// Returns an unmodifiable map containing 5 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V,
+      _ k5: K, _ v5: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5)])
+    }
+
+    /// Returns an unmodifiable map containing 6 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V,
+      _ k5: K, _ v5: V,
+      _ k6: K, _ v6: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5),(k6,v6)])
+    }
+
+    /// Returns an unmodifiable map containing 7 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V,
+      _ k5: K, _ v5: V,
+      _ k6: K, _ v6: V,
+      _ k7: K, _ v7: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5),(k6,v6),(k7,v7)])
+    }
+
+    /// Returns an unmodifiable map containing 8 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V,
+      _ k5: K, _ v5: V,
+      _ k6: K, _ v6: V,
+      _ k7: K, _ v7: V,
+      _ k8: K, _ v8: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5),(k6,v6),(k7,v7),(k8,v8)])
+    }
+
+    /// Returns an unmodifiable map containing 9 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K, _ v1: V,
+      _ k2: K, _ v2: V,
+      _ k3: K, _ v3: V,
+      _ k4: K, _ v4: V,
+      _ k5: K, _ v5: V,
+      _ k6: K, _ v6: V,
+      _ k7: K, _ v7: V,
+      _ k8: K, _ v8: V,
+      _ k9: K, _ v9: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5),(k6,v6),(k7,v7),(k8,v8),(k9,v9)])
+    }
+
+    /// Returns an unmodifiable map containing 10 mappings.
+    ///
+    /// Mirrors `java.util.Map.of(K,V,…)` (Java 9).
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func of(
+      _ k1: K,  _ v1: V,
+      _ k2: K,  _ v2: V,
+      _ k3: K,  _ v3: V,
+      _ k4: K,  _ v4: V,
+      _ k5: K,  _ v5: V,
+      _ k6: K,  _ v6: V,
+      _ k7: K,  _ v7: V,
+      _ k8: K,  _ v8: V,
+      _ k9: K,  _ v9: V,
+      _ k10: K, _ v10: V
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs([(k1,v1),(k2,v2),(k3,v3),(k4,v4),(k5,v5),(k6,v6),(k7,v7),(k8,v8),(k9,v9),(k10,v10)])
+    }
+
+    // MARK: - Java 10 factory: Map.copyOf(…)
+
+    /// Returns an unmodifiable map containing the same mappings as `map`.
+    ///
+    /// Null keys and values cause a `NullPointerException` (null-hostile).
+    ///
+    /// Mirrors `java.util.Map.copyOf(Map)` (Java 10).
+    ///
+    /// - Parameter source: The map whose mappings to copy.
+    /// - Returns: An unmodifiable `Map` containing the same mappings.
+    /// - Since: Java 10
+    public static func copyOf(_ source: any java.util.Map<K, V>) -> any java.util.Map<K, V> {
+      let copy = HashMap<K, V>(initialCapacity: Swift.max(16, source.size() * 2))
+      let it = source.keySet().iterator()
+      while it.hasNext() {
+        guard let key = try? it.next() else {
+          fatalError("NullPointerException: Map.copyOf does not allow null keys")
+        }
+        guard let value = source.get(key) else {
+          fatalError("NullPointerException: Map.copyOf does not allow null values")
+        }
+        _ = copy.put(key, value)
+      }
+      return java.util.Collections.unmodifiableMap(copy)
+    }
   }
 }

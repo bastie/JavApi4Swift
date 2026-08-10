@@ -198,5 +198,115 @@ extension java.util.stream {
         return map
       }
     }
+
+    // MARK: partitioningBy
+
+    /// Returns a `Collector` that partitions elements according to a `Predicate`,
+    /// producing a `HashMap<Bool, ArrayList<T>>` with exactly two entries:
+    /// `true` → elements matching the predicate, `false` → all others.
+    ///
+    /// Mirrors `java.util.stream.Collectors.partitioningBy(Predicate)` (Java 8).
+    ///
+    /// - Parameter predicate: The predicate used to partition elements.
+    /// - Since: Java 8
+    public static func partitioningBy<T: Equatable>(
+      _ predicate: some java.util.function.Predicate<T>
+    ) -> some java.util.stream.Collector<T, any java.util.Map<Bool, java.util.ArrayList<T>>> {
+      AnyCollector<T, any java.util.Map<Bool, java.util.ArrayList<T>>> { sequence in
+        let trueList  = java.util.ArrayList<T>()
+        let falseList = java.util.ArrayList<T>()
+        let map = java.util.HashMap<Bool, java.util.ArrayList<T>>()
+        _ = map.put(true,  trueList)
+        _ = map.put(false, falseList)
+        for element in sequence {
+          if predicate.test(element) { _ = try? trueList.add(element)  }
+          else                       { _ = try? falseList.add(element) }
+        }
+        return map
+      }
+    }
+
+    // MARK: toUnmodifiableList
+
+    /// Returns a `Collector` that accumulates elements into an unmodifiable `List`.
+    ///
+    /// Mirrors `java.util.stream.Collectors.toUnmodifiableList()` (Java 10).
+    ///
+    /// - Since: Java 10
+    public static func toUnmodifiableList<T: Equatable>()
+      -> some java.util.stream.Collector<T, any java.util.List<T>>
+    {
+      AnyCollector<T, any java.util.List<T>> { sequence in
+        let list = java.util.ArrayList<T>()
+        for element in sequence { _ = try? list.add(element) }
+        return java.util.Collections.unmodifiableList(list)
+      }
+    }
+
+    // MARK: toUnmodifiableSet
+
+    /// Returns a `Collector` that accumulates elements into an unmodifiable `Set`.
+    ///
+    /// Mirrors `java.util.stream.Collectors.toUnmodifiableSet()` (Java 10).
+    ///
+    /// - Since: Java 10
+    public static func toUnmodifiableSet<T: Hashable>()
+      -> some java.util.stream.Collector<T, any java.util.Set<T>>
+    {
+      AnyCollector<T, any java.util.Set<T>> { sequence in
+        let set = java.util.HashSet<T>()
+        for element in sequence { _ = try? set.add(element) }
+        return java.util.Collections.unmodifiableSet(set)
+      }
+    }
+
+    // MARK: toUnmodifiableMap
+
+    /// Returns a `Collector` that accumulates elements into an unmodifiable `Map`.
+    ///
+    /// Mirrors `java.util.stream.Collectors.toUnmodifiableMap(Function, Function)` (Java 10).
+    ///
+    /// - Parameters:
+    ///   - keyMapper: Function producing the map key from an element.
+    ///   - valueMapper: Function producing the map value from an element.
+    /// - Since: Java 10
+    public static func toUnmodifiableMap<T, K: Hashable, V: Equatable>(
+      _ keyMapper: some java.util.function.Function<T, K>,
+      _ valueMapper: some java.util.function.Function<T, V>
+    ) -> some java.util.stream.Collector<T, any java.util.Map<K, V>> {
+      AnyCollector<T, any java.util.Map<K, V>> { sequence in
+        let map = java.util.HashMap<K, V>()
+        for element in sequence {
+          _ = map.put(keyMapper.apply(element), valueMapper.apply(element))
+        }
+        return java.util.Collections.unmodifiableMap(map)
+      }
+    }
+
+    // MARK: teeing
+
+    /// Returns a `Collector` that passes each element to two downstream collectors,
+    /// then merges their results with `merger`.
+    ///
+    /// Mirrors `java.util.stream.Collectors.teeing(Collector, Collector, BiFunction)` (Java 12).
+    ///
+    /// - Parameters:
+    ///   - downstream1: First collector.
+    ///   - downstream2: Second collector.
+    ///   - merger: Merges the two results into the final result.
+    /// - Since: Java 12
+    public static func teeing<T, R1, R2, R>(
+      _ downstream1: some java.util.stream.Collector<T, R1>,
+      _ downstream2: some java.util.stream.Collector<T, R2>,
+      _ merger: some java.util.function.BiFunction<R1, R2, R>
+    ) -> some java.util.stream.Collector<T, R> {
+      AnyCollector<T, R> { sequence in
+        // Materialise once so both downstreams see the same elements.
+        let elements = Array(sequence)
+        let r1 = downstream1.collect(AnySequence(elements))
+        let r2 = downstream2.collect(AnySequence(elements))
+        return merger.apply(r1, r2)
+      }
+    }
   }
 }

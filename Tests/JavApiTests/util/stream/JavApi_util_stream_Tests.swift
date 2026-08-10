@@ -370,6 +370,143 @@ struct ExtendedCollectorTests {
   }
 }
 
+// MARK: - mapMulti (Java 16)
+
+@Suite("Stream.mapMulti (Java 16)")
+struct StreamMapMultiTests {
+
+  @Test("mapMulti can expand each element into multiple results")
+  func testMapMultiExpands() {
+    let result = java.util.stream.Stream.of(1, 2, 3)
+      .mapMulti(java.util.function.AnyBiConsumer { (x: Int, push: java.util.function.AnyConsumer<Int>) in
+        push.accept(x)
+        push.accept(x * 10)
+      })
+      .toArray()
+    #expect(result == [1, 10, 2, 20, 3, 30])
+  }
+
+  @Test("mapMulti can filter by emitting nothing for some elements")
+  func testMapMultiFilter() {
+    let result = java.util.stream.Stream.of(1, 2, 3, 4, 5)
+      .mapMulti(java.util.function.AnyBiConsumer { (x: Int, push: java.util.function.AnyConsumer<String>) in
+        if x % 2 == 0 { push.accept("even:\(x)") }
+      })
+      .toArray()
+    #expect(result == ["even:2", "even:4"])
+  }
+
+  @Test("mapMulti on empty stream returns empty stream")
+  func testMapMultiEmpty() {
+    let result = java.util.stream.Stream<Int>.empty()
+      .mapMulti(java.util.function.AnyBiConsumer { (x: Int, push: java.util.function.AnyConsumer<Int>) in
+        push.accept(x)
+      })
+      .toArray()
+    #expect(result.isEmpty)
+  }
+}
+
+// MARK: - New Collectors (Java 8/10/12)
+
+@Suite("New Collectors: partitioningBy, toUnmodifiable*, teeing")
+struct NewCollectorTests {
+
+  @Test("Collectors.partitioningBy splits into true/false groups")
+  func testPartitioningBy() {
+    let map = java.util.stream.Stream.of(1, 2, 3, 4, 5, 6)
+      .collect(java.util.stream.Collectors.partitioningBy(
+        java.util.function.AnyPredicate { $0 % 2 == 0 }
+      ))
+    let evens = map.get(true)!
+    let odds  = map.get(false)!
+    #expect(evens.size() == 3)
+    #expect(odds.size()  == 3)
+    #expect(evens.contains(2))
+    #expect(evens.contains(4))
+    #expect(evens.contains(6))
+    #expect(odds.contains(1))
+    #expect(odds.contains(3))
+    #expect(odds.contains(5))
+  }
+
+  @Test("Collectors.partitioningBy on empty stream returns two empty lists")
+  func testPartitioningByEmpty() {
+    let map = java.util.stream.Stream<Int>.empty()
+      .collect(java.util.stream.Collectors.partitioningBy(
+        java.util.function.AnyPredicate { $0 > 0 }
+      ))
+    #expect(map.get(true)?.isEmpty()  == true)
+    #expect(map.get(false)?.isEmpty() == true)
+  }
+
+  @Test("Collectors.toUnmodifiableList returns unmodifiable list")
+  func testToUnmodifiableList() {
+    var list = java.util.stream.Stream.of(1, 2, 3)
+      .collect(java.util.stream.Collectors.toUnmodifiableList())
+    #expect(list.size() == 3)
+    #expect(list.contains(1))
+    // Unmodifiable: add should throw
+    #expect(throws: (any Error).self) { try list.add(99) }
+  }
+
+  @Test("Collectors.toUnmodifiableSet returns unmodifiable set")
+  func testToUnmodifiableSet() {
+    var set = java.util.stream.Stream.of(1, 2, 2, 3)
+      .collect(java.util.stream.Collectors.toUnmodifiableSet())
+    #expect(set.size() == 3)
+    // Unmodifiable: add should throw
+    #expect(throws: (any Error).self) { try set.add(99) }
+  }
+
+  @Test("Collectors.toUnmodifiableMap returns unmodifiable map")
+  func testToUnmodifiableMap() {
+    let map = java.util.stream.Stream.of("a", "bb", "ccc")
+      .collect(java.util.stream.Collectors.toUnmodifiableMap(
+        java.util.function.AnyFunction { $0 },
+        java.util.function.AnyFunction { $0.count }
+      ))
+    #expect(map.get("a")   == 1)
+    #expect(map.get("bb")  == 2)
+    #expect(map.get("ccc") == 3)
+    // Map.put on UnmodifiableHashMap fatalErrors in production (non-throwing override).
+    // Just verify read operations work correctly.
+    #expect(map.size() == 3)
+  }
+
+  @Test("Collectors.teeing combines two collectors with merger")
+  func testTeeing() {
+    // list size and element count collected simultaneously
+    let result = java.util.stream.Stream.of(1, 2, 3, 4, 5)
+      .collect(java.util.stream.Collectors.teeing(
+        java.util.stream.Collectors.toList(),
+        java.util.stream.Collectors.counting(),
+        java.util.function.AnyBiFunction { (list: any java.util.List<Int>, count: Int64) in
+          (list.size(), count)
+        }
+      ))
+    #expect(result.0 == 5)
+    #expect(result.1 == 5)
+  }
+
+  @Test("Collectors.teeing min+max")
+  func testTeeingMinMax() {
+    let minC = java.util.stream.AnyCollector<Int, Int> { seq in
+      seq.min() ?? Int.max
+    }
+    let maxC = java.util.stream.AnyCollector<Int, Int> { seq in
+      seq.max() ?? Int.min
+    }
+    let result = java.util.stream.Stream.of(3, 1, 4, 1, 5, 9)
+      .collect(java.util.stream.Collectors.teeing(
+        minC,
+        maxC,
+        java.util.function.AnyBiFunction { mn, mx in mx - mn }
+      ))
+    #expect(result == 8) // 9 - 1
+  }
+}
+
 // MARK: - Collection.stream() integration
 
 @Suite("Collection.stream() integration")
