@@ -8,10 +8,15 @@ import Foundation
 
 // MARK: - Hilfstask-Typen
 
-/// Einfacher Task der jeden Aufruf in einem Array protokolliert.
+/// Einfacher Task der jeden Aufruf zählt.
+///
+/// Verwendet NSLock damit Schreibzugriffe vom Timer-Task für den Test-Task
+/// sichtbar sind (Speicher-Ordnungsgarantie über Task-Grenzen).
 final class CountingTask: java.util.TimerTask, @unchecked Sendable {
-  nonisolated(unsafe) var callCount = 0
-  func run() { callCount += 1 }
+  private let _lock = NSLock()
+  private var _count = 0
+  var callCount: Int { _lock.withLock { _count } }
+  func run() { _lock.withLock { _count += 1 } }
 }
 
 /// Task der einen Wert in eine Continuation liefert (für async-Synchronisation).
@@ -56,7 +61,6 @@ struct TimerOneShotTests {
 
   @Test("schedule(task:delay:) mit delay 0 läuft sofort")
   func testOneShotDelay0() async {
-    let task = CountingTask()
     let timer = java.util.Timer()
     // Über Continuation sicherstellen dass run() vor der Assertion aufgerufen wurde
     await withCheckedContinuation { (cont: CheckedContinuation<Void, Never>) in
@@ -102,8 +106,11 @@ struct TimerRepeatingTests {
   func testFixedDelayRepeats() async {
     let task = CountingTask()
     let timer = java.util.Timer()
-    timer.schedule(task, delay: 0, period: 30)
-    try? await Task.sleep(nanoseconds: 200_000_000)  // 200 ms
+    // 50 ms Periode, 500 ms Wartezeit → erwartet ≥ 3 (ca. 10 Aufrufe möglich).
+    // Großzügige Toleranz damit parallele Tests den kooperativen Thread-Pool
+    // nicht zu sehr belasten.
+    timer.schedule(task, delay: 0, period: 50)
+    try? await Task.sleep(nanoseconds: 500_000_000)  // 500 ms
     timer.cancel()
     #expect(task.callCount >= 3)
   }
@@ -112,8 +119,8 @@ struct TimerRepeatingTests {
   func testFixedRateRepeats() async {
     let task = CountingTask()
     let timer = java.util.Timer()
-    timer.scheduleAtFixedRate(task, delay: 0, period: 30)
-    try? await Task.sleep(nanoseconds: 200_000_000)  // 200 ms
+    timer.scheduleAtFixedRate(task, delay: 0, period: 50)
+    try? await Task.sleep(nanoseconds: 500_000_000)  // 500 ms
     timer.cancel()
     #expect(task.callCount >= 3)
   }
@@ -122,11 +129,11 @@ struct TimerRepeatingTests {
   func testCancelStopsRepeating() async {
     let task = CountingTask()
     let timer = java.util.Timer()
-    timer.schedule(task, delay: 0, period: 20)
-    try? await Task.sleep(nanoseconds: 100_000_000)  // 100 ms laufen lassen
+    timer.schedule(task, delay: 0, period: 50)
+    try? await Task.sleep(nanoseconds: 300_000_000)  // 300 ms laufen lassen
     timer.cancel()
     let countAtCancel = task.callCount
-    try? await Task.sleep(nanoseconds: 100_000_000)  // weitere 100 ms warten
+    try? await Task.sleep(nanoseconds: 200_000_000)  // weitere 200 ms warten
     #expect(task.callCount == countAtCancel)         // kein weiterer Aufruf
   }
 

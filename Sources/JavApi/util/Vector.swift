@@ -290,6 +290,123 @@ extension java.util {
     // MARK: - Bulk operations  (List / Collection)
     // =========================================================================
 
+    /// Returns a shallow copy of this vector.
+    ///
+    /// - Since: Java 1.0
+    open func clone() -> java.util.Vector<E> {
+      withLock {
+        let copy = java.util.Vector<E>()
+        copy.elementData = self.elementData
+        copy.elementCount = self.elementCount
+        copy.capacityIncrement = self.capacityIncrement
+        return copy
+      }
+    }
+
+    /// Returns `true` if this vector contains all elements of `collection`.
+    ///
+    /// - Since: Java 1.2
+    open override func containsAll(_ collection: any java.util.Collection<E?>) -> Bool {
+      // Iterating an `any Collection<E?>` existential yields `Any`; cast explicitly.
+      for element in collection {
+        if !contains(element as? E) { return false }
+      }
+      return true
+    }
+
+    /// Appends all elements of `collection` to the end of this vector.
+    ///
+    /// Returns `true` if the vector was modified.
+    ///
+    /// - Since: Java 1.2
+    @discardableResult
+    open override func addAll(_ collection: any java.util.Collection<E?>) -> Bool {
+      var modified = false
+      for element in collection {
+        _ = try? add(element as? E)
+        modified = true
+      }
+      return modified
+    }
+
+    /// Inserts all elements of `collection` at position `index`.
+    ///
+    /// Elements at and after `index` are shifted right. Returns `true` if the
+    /// vector was modified.
+    ///
+    /// - Throws: `ArrayIndexOutOfBoundsException` if `index` is out of range.
+    /// - Since: Java 1.2
+    @discardableResult
+    open func addAll(_ index: Int, _ collection: any java.util.Collection<E?>) throws -> Bool {
+      // Cast each element from the existential to E? before storing.
+      let elements: [E?] = collection.map { $0 as? E }
+      guard !elements.isEmpty else { return false }
+      try withLock {
+        guard index >= 0, index <= elementCount else {
+          throw java.lang.ArrayIndexOutOfBoundsException(index)
+        }
+        let count = elements.count
+        _growIfNeeded(elementCount + count)
+        var i = elementCount - 1
+        while i >= index {
+          elementData[i + count] = elementData[i]
+          i -= 1
+        }
+        for (offset, elem) in elements.enumerated() {
+          elementData[index + offset] = elem
+        }
+        elementCount += count
+      }
+      return true
+    }
+
+    /// Removes from this vector all elements that are contained in `collection`.
+    ///
+    /// Returns `true` if the vector was modified.
+    ///
+    /// - Since: Java 1.2
+    @discardableResult
+    open override func removeAll(_ collection: any java.util.Collection<E?>) -> Bool {
+      let toRemove: [E?] = collection.map { $0 as? E }
+      var modified = false
+      withLock {
+        var i = 0
+        while i < elementCount {
+          if toRemove.contains(elementData[i]) {
+            _ = try? _removeAt(i)
+            modified = true
+          } else {
+            i += 1
+          }
+        }
+      }
+      return modified
+    }
+
+    /// Retains only the elements in this vector that are contained in
+    /// `collection`; all other elements are removed.
+    ///
+    /// Returns `true` if the vector was modified.
+    ///
+    /// - Since: Java 1.2
+    @discardableResult
+    open override func retainAll(_ collection: any java.util.Collection<E?>) -> Bool {
+      let toKeep: [E?] = collection.map { $0 as? E }
+      var modified = false
+      withLock {
+        var i = 0
+        while i < elementCount {
+          if !toKeep.contains(elementData[i]) {
+            _ = try? _removeAt(i)
+            modified = true
+          } else {
+            i += 1
+          }
+        }
+      }
+      return modified
+    }
+
     open func copyInto(_ anArray: inout [E]) {
       withLock { for i in 0..<elementCount { anArray[i] = elementData[i]! } }
     }

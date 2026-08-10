@@ -18,13 +18,16 @@ extension java.util.Vector where E : Equatable { // ==
   /// Returns the index of the last occurrence of `elem` searching backwards
   /// from `index`, or `-1` if not found.
   ///
-  /// - Throws: `Java.lang.IndexOutOfBoundsException` when `index >= size()`.
+  /// - Throws: `java.lang.IndexOutOfBoundsException` when `index >= size()`.
   public func lastIndexOf(_ elem: E, _ index: Int) throws -> Int {
-    try withLock {
-      guard index < elementCount else {
-        throw java.lang.IndexOutOfBoundsException("index \(index) >= size \(elementCount)")
-      }
-      for i in stride(from: index, through: 0, by: -1) {
+    // Read size under lock, then throw outside — avoids `throw` inside `withLock`
+    // closure which conflicts with Swift 6.3 typed-throws inference.
+    let sz = withLock { elementCount }
+    guard index < sz else {
+      throw java.lang.IndexOutOfBoundsException("index \(index) >= size \(sz)")
+    }
+    return withLock {
+      for i in stride(from: Swift.min(index, elementCount - 1), through: 0, by: -1) {
         if elementData[i] == elem { return i }
       }
       return -1
@@ -71,6 +74,7 @@ extension java.util.Vector where E : Equatable { // ==
   
   @inline(__always)
   private func _indexOfFirst(_ elem: E, from start: Int) -> Int? {
+    guard start >= 0, start < elementCount else { return nil }
     for i in start..<elementCount {
       if elementData[i] == elem { return i }
     }

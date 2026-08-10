@@ -29,18 +29,6 @@ extension java.util {
   public final class Timer: @unchecked Sendable {
 
     // -------------------------------------------------------------------------
-    // MARK: Internal actor for serial task execution
-    // -------------------------------------------------------------------------
-
-    /// Serialises all task executions — equivalent to Java's single
-    /// timer-thread model.
-    private actor TimerActor {
-      func run(_ block: @Sendable () -> Void) { block() }
-    }
-
-    private let _actor = TimerActor()
-
-    // -------------------------------------------------------------------------
     // MARK: State (protected by _mutex)
     // -------------------------------------------------------------------------
 
@@ -153,8 +141,6 @@ extension java.util {
       _mutex.withLock { _ in alreadyCancelled = _cancelled }
       guard !alreadyCancelled else { return }
 
-      let actor = _actor
-
       let swiftTask = Task<Void, Never> {
         // Initial delay
         if delay > 0 {
@@ -162,8 +148,8 @@ extension java.util {
         }
         guard !Task.isCancelled else { return }
 
-        // First execution
-        await actor.run { task.run() }
+        // First execution — direct call, TimerTask is Sendable
+        task.run()
 
         guard let period, period > 0 else { return }
 
@@ -177,7 +163,7 @@ extension java.util {
               try? await Task.sleep(nanoseconds: UInt64(wait) * 1_000_000)
             }
             guard !Task.isCancelled else { break }
-            await actor.run { task.run() }
+            task.run()
             next += period
           }
         } else {
@@ -185,7 +171,7 @@ extension java.util {
           while !Task.isCancelled {
             try? await Task.sleep(nanoseconds: UInt64(period) * 1_000_000)
             guard !Task.isCancelled else { break }
-            await actor.run { task.run() }
+            task.run()
           }
         }
       }

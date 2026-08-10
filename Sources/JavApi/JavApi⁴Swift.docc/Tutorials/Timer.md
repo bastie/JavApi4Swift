@@ -266,6 +266,138 @@ for await tick in metronome(period: .seconds(1)) {
 
 ---
 
+---
+
+## Representing Deferred Results: `Callable` and `Future`
+
+`Timer` and `TimerTask` answer the question *when* to run code. A related but distinct question is: *what do you do with the result once it's ready?* Java 5 introduced `java.util.concurrent.Callable` and `java.util.concurrent.Future` to give that answer a type.
+
+### The conceptual link
+
+A `Timer` fires and forgets — `run()` has no return value and the caller has no handle to the result. `Callable` and `Future` fill that gap:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                      your application                   │
+│                                                         │
+│  val future = TaskFuture { expensiveComputation() }     │
+│           │                           ▲                 │
+│           │ submit                    │ result          │
+│           ▼                           │                 │
+│  ┌──────────────────┐      ┌──────────────────┐        │
+│  │  Callable<V>     │─────▶│  Future<V>       │        │
+│  │  (the work)      │      │  (the handle)    │        │
+│  └──────────────────┘      └──────────────────┘        │
+│                                                         │
+│  val result = try future.get()  ← blocks until done    │
+└─────────────────────────────────────────────────────────┘
+```
+
+Think of `Future<V>` as a *time-shifted container*: you ask for the value now, but the value itself arrives in the future.
+
+### Callable — the throwable Supplier
+
+`java.util.concurrent.Callable<V>` is identical to `java.util.function.Supplier<V>` except that `call()` may throw a checked exception. It represents a unit of work that produces a value.
+
+**Java:**
+```java
+Callable<Integer> task = () -> {
+    Thread.sleep(100);
+    return 42;
+};
+```
+
+**JavApi⁴Swift:**
+```swift
+import JavApi
+
+let task = java.util.concurrent.AnyCallable<Int> {
+    try await Task.sleep(for: .milliseconds(100))
+    return 42
+}
+```
+
+### Future — the result handle
+
+`java.util.concurrent.Future<V>` is a handle to a computation that may not have finished yet. You can:
+
+- poll its status with `isDone()` and `isCancelled()`
+- cancel it with `cancel(_:)`
+- retrieve its value by blocking with `get()`, which throws `ExecutionException` if the computation failed
+
+**Java:**
+```java
+ExecutorService exec = Executors.newSingleThreadExecutor();
+Future<Integer> future = exec.submit(() -> heavyWork());
+
+// ... do other things ...
+
+try {
+    int result = future.get();   // blocks until done
+} catch (ExecutionException e) {
+    System.err.println("Task failed: " + e.getCause().getMessage());
+}
+exec.shutdown();
+```
+
+**JavApi⁴Swift:**
+```swift
+import JavApi
+
+let future = java.util.concurrent.TaskFuture<Int> {
+    try await heavyWork()
+}
+
+// ... do other things ...
+
+do {
+    let result = try future.get()   // blocks until done
+    print("Result: \(result)")
+} catch let e as java.util.concurrent.ExecutionException {
+    print("Task failed: \(e.getCause()?.getMessage() ?? "unknown")")
+}
+```
+
+`TaskFuture` wraps a Swift `Task` internally. On non-WASI platforms `get()` blocks the calling thread using a condition variable, exactly matching Java's semantics. On WASI (single-threaded) `get()` throws `ExecutionException` if the result is not yet available.
+
+### Fixed-delay polling with a Future
+
+`Future` and `Timer` can work together: a `Timer` fires periodically, and each firing submits a `Callable` and stores the `Future` for the next cycle to inspect:
+
+```swift
+class PollTask: java.util.TimerTask {
+    nonisolated(unsafe) private var lastFuture: java.util.concurrent.TaskFuture<String>? = nil
+
+    func run() {
+        // Check previous result if available
+        if let f = lastFuture, f.isDone() {
+            print("Previous result: \(try? f.get() ?? "error")")
+        }
+        // Submit new work
+        lastFuture = java.util.concurrent.TaskFuture<String> {
+            try await fetchLatestData()
+        }
+    }
+}
+
+let timer = java.util.Timer()
+timer.schedule(PollTask(), delay: 0, period: 5_000)
+```
+
+### Comparison: Timer + Future vs. structured concurrency
+
+| Concern | Timer + Callable/Future | Swift structured concurrency |
+|---------|------------------------|------------------------------|
+| Schedule recurrence | `timer.schedule(task, delay:period:)` | `while !Task.isCancelled { … sleep … }` |
+| Capture the result | `future.get()` (blocking) | `try await task.value` (suspending) |
+| Handle failure | `catch ExecutionException` | `catch` in the async scope |
+| Cancel | `future.cancel(true)` | `task.cancel()` |
+| Block calling thread | Yes (`get()`) | No (suspends, not blocks) |
+
+For new Swift code, prefer structured concurrency — `async`/`await` with `Task` gives you non-blocking suspension, automatic cancellation propagation, and compile-time data-race safety without the overhead of condition variables. Use `Callable`/`Future` when porting existing Java code that already uses `ExecutorService.submit`.
+
+---
+
 ## Comparison at a Glance
 
 | Requirement | Java | JavApi⁴Swift | Swift native |

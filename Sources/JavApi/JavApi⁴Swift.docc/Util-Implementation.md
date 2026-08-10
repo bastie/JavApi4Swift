@@ -9,43 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## P0 – Fehlende java.util.concurrent-Interfaces
-
-| Interface | Seit | Problem |
-|-----------|------|---------|
-| [ ] `Callable<V>` | 5 | — |
-| [ ] `Future<V>` | 5 | `ExecutionException` fehlt ⚠️ |
-
----
-
-
-## P1 – Java 1.0 Kompatibilität
-
-### `Date`
-
-**Tests:** 43 vorhanden.
-
-### `Vector`
-- [ ] `clone() -> Vector<E>`
-- [ ] `containsAll(_ c: Collection) -> Bool`
-- [ ] `addAll(_ c: Collection<E>) -> Bool`
-- [ ] `addAll(_ index: Int, _ c: Collection<E>) -> Bool`
-- [ ] `removeAll(_ c: Collection) -> Bool`
-- [ ] `retainAll(_ c: Collection) -> Bool`
-- [ ] `indexOf(_ elem: E, _ index: Int) -> Int`
-- [ ] `lastIndexOf(_ elem: E, _ index: Int) -> Int`
-
-### `Hashtable`
-- [ ] `putAll(_ t: Map<K, V>)`
-- [ ] `equals(_ o: Any?) -> Bool`
-- [ ] `hashCode() -> Int`
-- [ ] `entrySet()` als `Set<Map.Entry>`
-- [ ] `values()` als `any java.util.Collection<V>` — `Hashtable` konformiert noch nicht zu `java.util.Map`
-
-**Tests:** 26 vorhanden.
-
----
-
 ## P2 – Java 1.1 Kompatibilität
 
 ### `Calendar`
@@ -103,10 +66,6 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ## P3 – Java 1.2 Kompatibilität
 
 ### `Collections` – Implementierungsstand
-
-Implementiert: `emptyList/Set/Map`, `singletonList`, `nCopies`, `unmodifiableList`, `synchronizedList`, `unmodifiableSequencedCollection/Set/Map`, `synchronizedSequencedCollection/Set/Map`, `reverseOrder`, `sort`, `reverse`, `shuffle`, `binarySearch`, `min`, `max`, `frequency`, `disjoint`, `fill`, `copy`, `addAll`, `swap`, `rotate`, `replaceAll`, `indexOfSubList`, `lastIndexOfSubList`.
-
-Noch fehlend:
 
 Java 1.2:
 - [ ] `static singleton<T>(_ o: T) -> Set<T>`
@@ -206,8 +165,6 @@ Java 8:
 
 ### `ServiceLoader` (0 Tests)
 - [ ] Tests schreiben
-
-### `Timer` / `TimerTask` (12 Tests vorhanden)
 
 ---
 
@@ -319,7 +276,6 @@ Noch offen:
 | Typ | Ist | Bedarf | Anmerkung |
 |-----|-----|--------|-----------|
 | `GregorianCalendar` | ~5 (in Calendar-Tests) | ≥ 10 | Tests im Calendar-File; eigene Suite anlegen |
-| `Timer` / `TimerTask` | 12 | ≥ 8 | ✅ ausreichend abgedeckt |
 | `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
 | `LinkedHashMap` | 4 | ≥ 15 | |
 | `UUID` | 3 | ≥ 15 | |
@@ -333,4 +289,4 @@ Noch offen:
 
 ---
 
-*Stand: 2026-08-10 · Basis: Java 1.0–26 public API*
+*Stand: 2026-08-10 · Basis: Java 1.0–26 public API · `java.util.concurrent`: Callable, ExecutionException, Future/TaskFuture implementiert*
