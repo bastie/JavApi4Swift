@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: MIT
  */
 
+import Foundation
+
 // MARK: - java.util.MapEntry<K,V>
 
 extension java.util {
@@ -95,6 +97,86 @@ extension java.util {
       lhs.key == rhs.key && lhs.value == rhs.value
     }
   }
+}
+
+// MARK: - Map.Entry comparators (Java 8)
+
+extension java.util.MapEntry where K: Comparable {
+
+  /// Returns a comparator that compares `Map.Entry` objects by key in natural order.
+  ///
+  /// Mirrors `java.util.Map.Entry.comparingByKey()` (Java 8).
+  ///
+  /// - Since: Java 8
+  public static func comparingByKey() -> any java.util.Comparator<java.util.MapEntry<K, V>> {
+    _EntryByKeyComparator<K, V>()
+  }
+}
+
+extension java.util.MapEntry where V: Comparable {
+
+  /// Returns a comparator that compares `Map.Entry` objects by value in natural order.
+  ///
+  /// Mirrors `java.util.Map.Entry.comparingByValue()` (Java 8).
+  ///
+  /// - Since: Java 8
+  public static func comparingByValue() -> any java.util.Comparator<java.util.MapEntry<K, V>> {
+    _EntryByValueComparator<K, V>()
+  }
+}
+
+// MARK: - Private concrete comparator implementations
+
+/// Compares `MapEntry` pairs by key in natural (ascending) order.
+private final class _EntryByKeyComparator<K: Hashable & Comparable, V: Equatable>:
+    java.util.Comparator, SortComparator, @unchecked Sendable {
+
+  typealias T = java.util.MapEntry<K, V>
+  var order: SortOrder = .forward
+
+  func compare(_ lhs: T, _ rhs: T) -> Int {
+    lhs.key < rhs.key ? -1 : lhs.key > rhs.key ? 1 : 0
+  }
+  func compare(_ lhs: T?, _ rhs: T?) -> Int {
+    switch (lhs, rhs) {
+    case (nil, nil): return 0
+    case (nil, _):   return -1
+    case (_, nil):   return  1
+    default:         return compare(lhs!, rhs!)
+    }
+  }
+  func compare(_ lhs: T, _ rhs: T) -> ComparisonResult {
+    let r: Int = compare(lhs, rhs)
+    return r < 0 ? .orderedAscending : r > 0 ? .orderedDescending : .orderedSame
+  }
+  static func == (lhs: _EntryByKeyComparator, rhs: _EntryByKeyComparator) -> Bool { lhs === rhs }
+  func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+}
+
+/// Compares `MapEntry` pairs by value in natural (ascending) order.
+private final class _EntryByValueComparator<K: Hashable, V: Equatable & Comparable>:
+    java.util.Comparator, SortComparator, @unchecked Sendable {
+
+  typealias T = java.util.MapEntry<K, V>
+  var order: SortOrder = .forward
+
+  func compare(_ lhs: T, _ rhs: T) -> Int {
+    lhs.value < rhs.value ? -1 : lhs.value > rhs.value ? 1 : 0
+  }
+  func compare(_ lhs: T?, _ rhs: T?) -> Int {
+    switch (lhs, rhs) {
+    case (nil, nil): return 0
+    case (nil, _):   return -1
+    case (_, nil):   return  1
+    default:         return compare(lhs!, rhs!)
+    }
+  }
+  func compare(_ lhs: T, _ rhs: T) -> ComparisonResult {
+    let r: Int = compare(lhs, rhs)
+    return r < 0 ? .orderedAscending : r > 0 ? .orderedDescending : .orderedSame
+  }
+  static func == (lhs: _EntryByValueComparator, rhs: _EntryByValueComparator) -> Bool { lhs === rhs }
+  func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
 }
 
 // MARK: - typealias Entry in Map protocol

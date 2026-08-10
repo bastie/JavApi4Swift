@@ -102,23 +102,6 @@ Java 8:
 - [ ] `hashCode` für primitive Typen `[Int]`, `[Bool]` etc. (Java 5)
 - Java 8: [ ] `parallelSort`, `setAll`, `parallelSetAll`, `parallelPrefix`
 
----
-
-## P4 – Ergänzungen
-
-### `Map.Entry<K,V>` – noch offen
-- [ ] `Map.Entry.comparingByKey() -> Comparator` (Java 8)
-- [ ] `Map.Entry.comparingByValue() -> Comparator` (Java 8)
-- [ ] `HashMap`, `TreeMap` auf `entrySet() -> Set<MapEntry<K,V>>` umstellen (aktuell nur LinkedHashMap vollständig)
-
-### `LinkedHashMap` – Testabdeckung und LRU-Support
-
-- [ ] Tests auf ≥ 15 erweitern (Einfügungsreihenfolge, Iterationsreihenfolge, putFirst/putLast)
-- [ ] `LinkedHashMap(_ initialCapacity: Int, _ loadFactor: Float, _ accessOrder: Bool)` Konstruktor
-- [ ] `removeEldestEntry(_ eldest: Map.Entry<K, V>) -> Bool` (protected, für LRU-Subklassen)
-
----
-
 ## Java 1.4 – Fehlende Typen
 
 ### `java.util.regex` (komplett fehlend)
@@ -277,7 +260,7 @@ Noch offen:
 |-----|-----|--------|-----------|
 | `GregorianCalendar` | ~5 (in Calendar-Tests) | ≥ 10 | Tests im Calendar-File; eigene Suite anlegen |
 | `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
-| `LinkedHashMap` | 4 | ≥ 15 | |
+| `LinkedHashMap` | 25 | ≥ 15 | ✓ erledigt |
 | `UUID` | 3 | ≥ 15 | |
 | `Enumeration` | 3 | ≥ 5 | |
 | `TimeZone` | 8 | ≥ 12 | |
@@ -289,4 +272,4 @@ Noch offen:
 
 ---
 
-*Stand: 2026-08-10 · Basis: Java 1.0–26 public API · `java.util.concurrent`: Callable, ExecutionException, Future/TaskFuture implementiert*
+*Stand: 2026-08-10 · Basis: Java 1.0–26 public API · `java.util.concurrent`: Callable, ExecutionException, Future/TaskFuture implementiert · P4 vollständig: Map.Entry.comparingByKey/Value, LinkedHashMap accessOrder + removeEldestEntry, ≥25 LinkedHashMap-Tests*

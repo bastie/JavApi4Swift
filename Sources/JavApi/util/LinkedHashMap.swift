@@ -32,24 +32,56 @@ extension java.util {
     /// O(1) key → value lookup.
     internal var delegateDictionary: Dictionary<KeyType, ValueType>
 
-    /// Insertion-order key list — the single source of truth for iteration order.
+    /// Insertion-order (or access-order) key list — the single source of truth for iteration order.
     internal var sortedKeyCollection: Array<KeyType>
+
+    /// When `true`, every `get()` and `put()` on an existing key moves the key
+    /// to the **end** of `sortedKeyCollection` (LRU / access-order mode).
+    ///
+    /// Mirrors the Java `accessOrder` constructor parameter.
+    private let _accessOrder: Bool
 
     // MARK: - Constructors
 
     public required init() {
       delegateDictionary = [:]
       sortedKeyCollection = []
+      _accessOrder = false
     }
 
     public init(_ initialCapacity: Int) {
       delegateDictionary = Dictionary<KeyType, ValueType>(minimumCapacity: initialCapacity)
       sortedKeyCollection = Array<KeyType>()
+      _accessOrder = false
     }
 
     public init(_ m: LinkedHashMap<KeyType, ValueType>) {
       self.delegateDictionary = m.delegateDictionary
       self.sortedKeyCollection = m.sortedKeyCollection
+      self._accessOrder = m._accessOrder
+    }
+
+    /// Creates a `LinkedHashMap` with the given initial capacity, load factor,
+    /// and ordering mode.
+    ///
+    /// When `accessOrder` is `true`, the map uses **access order**: each
+    /// `get()` or `put()` on an existing key moves that entry to the *end* of
+    /// the encounter order (most-recently-used last).  This makes the map
+    /// suitable as a basis for LRU caches by overriding `removeEldestEntry`.
+    ///
+    /// When `accessOrder` is `false` (the default), the map uses **insertion
+    /// order** — the same as all other constructors.
+    ///
+    /// - Parameters:
+    ///   - initialCapacity: Capacity hint passed to the backing `Dictionary`.
+    ///   - loadFactor: Ignored in this Swift implementation (no rehashing);
+    ///     present for Java API compatibility.
+    ///   - accessOrder: `true` for access-order, `false` for insertion-order.
+    /// - Since: Java 1.4
+    public init(_ initialCapacity: Int, _ loadFactor: Float, _ accessOrder: Bool) {
+      delegateDictionary = Dictionary<KeyType, ValueType>(minimumCapacity: initialCapacity)
+      sortedKeyCollection = Array<KeyType>()
+      self._accessOrder = accessOrder
     }
 
     // MARK: - Map — Query
@@ -64,15 +96,59 @@ extension java.util {
       delegateDictionary.values.contains(value)
     }
 
-    open func get(_ key: KeyType) -> ValueType? { delegateDictionary[key] }
+    open func get(_ key: KeyType) -> ValueType? {
+      guard let value = delegateDictionary[key] else { return nil }
+      if _accessOrder {
+        sortedKeyCollection.removeAll { $0 == key }
+        sortedKeyCollection.append(key)
+      }
+      return value
+    }
 
     // MARK: - Map — Mutation
 
     @discardableResult
     open func put(_ key: KeyType, _ newValue: ValueType) -> ValueType? {
       let oldValue = delegateDictionary.updateValue(newValue, forKey: key)
-      if oldValue == nil { sortedKeyCollection.append(key) }
+      if oldValue == nil {
+        sortedKeyCollection.append(key)
+      } else if _accessOrder {
+        // Move updated key to end (most-recently-used)
+        sortedKeyCollection.removeAll { $0 == key }
+        sortedKeyCollection.append(key)
+      }
+      // LRU eviction hook: subclasses may override removeEldestEntry to
+      // trigger eviction after each insertion.
+      if let eldest = firstEntry(), removeEldestEntry(eldest) {
+        _ = remove(eldest.key)
+      }
       return oldValue
+    }
+
+    /// Returns `true` if this map should remove its eldest entry after a `put`.
+    ///
+    /// The default implementation returns `false` (no automatic eviction).
+    /// Override this method in a subclass to implement LRU caches:
+    ///
+    /// ```swift
+    /// class LRUCache<K: Hashable, V: Equatable>: java.util.LinkedHashMap<K, V> {
+    ///   let maxSize: Int
+    ///   init(maxSize: Int) {
+    ///     self.maxSize = maxSize
+    ///     super.init(maxSize, 0.75, true)
+    ///   }
+    ///   override func removeEldestEntry(_ eldest: java.util.MapEntry<K, V>) -> Bool {
+    ///     size() > maxSize
+    ///   }
+    /// }
+    /// ```
+    ///
+    /// - Parameter eldest: The least-recently inserted (or least-recently used,
+    ///   in access-order mode) entry.
+    /// - Returns: `true` if `eldest` should be removed; `false` otherwise.
+    /// - Since: Java 1.4
+    open func removeEldestEntry(_ eldest: java.util.MapEntry<KeyType, ValueType>) -> Bool {
+      false
     }
 
     @discardableResult
