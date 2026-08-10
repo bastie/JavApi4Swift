@@ -1104,6 +1104,76 @@ public override init() {
 
 > **AI hint:** When porting any `java.awt.Window` subclass, always add an `init()` that sets `self.visible = false`. Do not change the `Component` default. Do not use `override var visible` — stored-property overrides are not allowed in Swift; use `init()` instead.
 
+#### Timer and scheduled execution
+
+Java's `java.util.Timer` / `java.util.TimerTask` pair schedules work on a private background thread. Swift has three distinct mechanisms for the same purpose. Choose based on context:
+
+| Java | JavApi⁴Swift | Swift native (new code) |
+|------|--------------|-------------------------|
+| `timer.schedule(task, delay)` | `timer.schedule(task, delay:)` | `Task { try await Task.sleep(for: .milliseconds(n)) }` |
+| `timer.schedule(task, delay, period)` | `timer.schedule(task, delay:period:)` | `Task { while !Task.isCancelled { … sleep … } }` |
+| `timer.scheduleAtFixedRate(task, delay, period)` | `timer.scheduleAtFixedRate(task, delay:period:)` | `AsyncStream` with tracked next-fire time |
+| `timer.cancel()` | `timer.cancel()` | `task.cancel()` |
+
+**TimerTask → protocol, not abstract class**
+
+Java `TimerTask` is an abstract class; JavApi⁴Swift maps it to a `Sendable` protocol:
+
+```swift
+class PrintTask: java.util.TimerTask {
+    func run() {
+        print("tick: \(java.lang.System.currentTimeMillis())")
+    }
+}
+
+let timer = java.util.Timer()
+timer.schedule(PrintTask(), delay: 500)   // once after 500 ms
+timer.schedule(PrintTask(), delay: 0, period: 1000) // repeat every 1 s
+timer.cancel()  // frees the underlying Swift Task
+```
+
+**Always cancel in `deinit`**
+
+An uncancelled `Timer` with a repeating task holds a live Swift `Task` indefinitely:
+
+```swift
+class Poller {
+    private let timer = java.util.Timer()
+    init() { timer.schedule(PollTask(), delay: 0, period: 5000) }
+    deinit { timer.cancel() }   // mandatory
+}
+```
+
+**UI updates from a timer callback**
+
+`TimerTask.run()` executes on a background actor — never on the main actor. Dispatch explicitly when updating the UI:
+
+```swift
+class UpdateTask: java.util.TimerTask {
+    func run() {
+        Task { @MainActor in label.text = "updated" }  // ✅
+        // label.text = "updated"                      // ❌ data race
+    }
+}
+```
+
+**New code: prefer `Task.sleep`**
+
+For new Swift code that is not a direct Java port, `Task.sleep` with structured concurrency is the idiomatic choice — cancellation is automatic and no explicit `cancel()` call is needed:
+
+```swift
+// one-shot
+Task { try await Task.sleep(for: .seconds(1)); doWork() }
+
+// repeating with cancellation
+let t = Task { while !Task.isCancelled { doWork(); try await Task.sleep(for: .seconds(1)) } }
+t.cancel()  // stops the loop cooperatively
+```
+
+For a detailed side-by-side comparison including `Foundation.Timer`, `DispatchQueue.asyncAfter`, fixed-delay vs. fixed-rate semantics, and pitfalls, see <doc:Timer>.
+
+> **AI hint:** When porting Java code that uses `new Timer()` + `TimerTask`, translate `TimerTask` subclasses to `class Foo: java.util.TimerTask` and keep all four `schedule`/`scheduleAtFixedRate` call sites unchanged. Always add `timer.cancel()` in the enclosing class's `deinit`. For new Swift code, use `Task { while !Task.isCancelled { … } }` instead.
+
 #### utility classes (non-instantiable, static methods only)
 
 Java utility classes have a `private` constructor and contain only `static` methods. Examples: `java.util.Collections`, `java.util.Arrays`, `java.util.Objects`, `java.lang.Math`.

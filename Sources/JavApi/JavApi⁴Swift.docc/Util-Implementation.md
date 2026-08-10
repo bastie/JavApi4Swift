@@ -207,8 +207,7 @@ Java 8:
 ### `ServiceLoader` (0 Tests)
 - [ ] Tests schreiben
 
-### `Timer` / `TimerTask` (0 Tests)
-- [ ] Tests schreiben
+### `Timer` / `TimerTask` (12 Tests vorhanden)
 
 ---
 
@@ -320,7 +319,7 @@ Noch offen:
 | Typ | Ist | Bedarf | Anmerkung |
 |-----|-----|--------|-----------|
 | `GregorianCalendar` | ~5 (in Calendar-Tests) | ≥ 10 | Tests im Calendar-File; eigene Suite anlegen |
-| `Timer` / `TimerTask` | 0 | ≥ 8 | Implementiert, keine Tests |
+| `Timer` / `TimerTask` | 12 | ≥ 8 | ✅ ausreichend abgedeckt |
 | `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
 | `LinkedHashMap` | 4 | ≥ 15 | |
 | `UUID` | 3 | ≥ 15 | |

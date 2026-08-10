@@ -30,6 +30,7 @@ Work through the articles in order, or jump to a topic that interests you.
 ### Working With Time
 
 - <doc:DateTime> — Dates, times, and time zones using the `java.time` API.
+- <doc:Timer> — Scheduling code to run later or repeatedly: `java.util.Timer`, Swift Tasks, and Foundation.Timer compared.
 
 ### Input and Output
 
