@@ -9,45 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## P3 – Java 1.2 Kompatibilität
-
-### `Collections` – Implementierungsstand
-
-Java 1.2:
-- [ ] `static singleton<T>(_ o: T) -> Set<T>`
-- [ ] `static singletonMap<K, V>(_ key: K, _ value: V) -> Map<K, V>`
-- [ ] `static enumeration<T>(_ c: Collection<T>) -> Enumeration<T>`
-- [ ] `static list<T>(_ e: Enumeration<T>) -> ArrayList<T>`
-- [ ] `static unmodifiableSet/SortedSet/Map/SortedMap` (reine Varianten ohne Sequenced)
-- [ ] `static synchronizedSet/SortedSet/Map/SortedMap` (reine Varianten ohne Sequenced)
-
-Java 5:
-- [ ] `static checked*` (checkedCollection, checkedList, checkedSet, …)
-
-Java 7:
-- [ ] `static emptyIterator<T>() -> Iterator<T>`
-- [ ] `static emptyListIterator<T>() -> ListIterator<T>`
-- [ ] `static emptyEnumeration<T>() -> Enumeration<T>`
-
-Java 8:
-- [ ] `static unmodifiableNavigableMap/NavigableSet`
-- [ ] `static checkedNavigableMap/NavigableSet/Queue`
-- [ ] `static emptyNavigableMap/NavigableSet`
-
-
-### `HashMap`
-
-- [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
-- [ ] `clone() -> HashMap<K, V>`
-- Java 8 (offen): [ ] `compute`, `computeIfPresent`, `merge`
-
-### `Arrays`
-
-- [ ] `deepEquals(_ a1: [Any?], _ a2: [Any?]) -> Bool` (Java 5)
-- [ ] `deepHashCode(_ a: [Any?]) -> Int` (Java 5)
-- [ ] `hashCode` für primitive Typen `[Int]`, `[Bool]` etc. (Java 5)
-- Java 8: [ ] `parallelSort`, `setAll`, `parallelSetAll`, `parallelPrefix`
-
 ## Java 1.4 – Fehlende Typen
 
 ### `java.util.regex` (komplett fehlend)

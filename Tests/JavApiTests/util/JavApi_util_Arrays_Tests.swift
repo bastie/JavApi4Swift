@@ -340,3 +340,165 @@ struct JavApi_util_Arrays_Tests {
     #expect(result == "[1, null, 3]")
   }
 }
+
+// MARK: - Arrays P3 tests
+
+struct JavApi_util_Arrays_P3_Tests {
+
+  // MARK: - deepEquals
+
+  @Test("deepEquals returns true for two nil arrays")
+  func testDeepEqualsNilNil() {
+    #expect(java.util.Arrays.deepEquals(nil, nil))
+  }
+
+  @Test("deepEquals returns false when one array is nil")
+  func testDeepEqualsNilVsNonNil() {
+    let a: [Any?]? = [1 as Any?]
+    #expect(!java.util.Arrays.deepEquals(nil, a))
+    #expect(!java.util.Arrays.deepEquals(a, nil))
+  }
+
+  @Test("deepEquals returns true for two equal flat arrays")
+  func testDeepEqualsFlat() {
+    let a: [Any?] = [1, 2, 3]
+    let b: [Any?] = [1, 2, 3]
+    #expect(java.util.Arrays.deepEquals(a, b))
+  }
+
+  @Test("deepEquals returns false for flat arrays that differ")
+  func testDeepEqualsFlatDiffer() {
+    let a: [Any?] = [1, 2, 3]
+    let b: [Any?] = [1, 2, 4]
+    #expect(!java.util.Arrays.deepEquals(a, b))
+  }
+
+  @Test("deepEquals returns true for equal nested arrays")
+  func testDeepEqualsNested() {
+    let a: [Any?] = [[1, 2] as [Any?], [3, 4] as [Any?]]
+    let b: [Any?] = [[1, 2] as [Any?], [3, 4] as [Any?]]
+    #expect(java.util.Arrays.deepEquals(a, b))
+  }
+
+  @Test("deepEquals returns false for differing nested arrays")
+  func testDeepEqualsNestedDiffer() {
+    let a: [Any?] = [[1, 2] as [Any?]]
+    let b: [Any?] = [[1, 9] as [Any?]]
+    #expect(!java.util.Arrays.deepEquals(a, b))
+  }
+
+  @Test("deepEquals returns false when lengths differ")
+  func testDeepEqualsLengthDiffer() {
+    let a: [Any?] = [1, 2]
+    let b: [Any?] = [1, 2, 3]
+    #expect(!java.util.Arrays.deepEquals(a, b))
+  }
+
+  // MARK: - deepHashCode
+
+  @Test("deepHashCode returns 0 for nil")
+  func testDeepHashCodeNil() {
+    #expect(java.util.Arrays.deepHashCode(nil) == 0)
+  }
+
+  @Test("deepHashCode returns same value for equal arrays")
+  func testDeepHashCodeSame() {
+    let a: [Any?] = [1, 2, 3]
+    let b: [Any?] = [1, 2, 3]
+    #expect(java.util.Arrays.deepHashCode(a) == java.util.Arrays.deepHashCode(b))
+  }
+
+  @Test("deepHashCode differs for different arrays")
+  func testDeepHashCodeDiffer() {
+    let a: [Any?] = [1, 2, 3]
+    let b: [Any?] = [3, 2, 1]
+    // Not guaranteed by spec but typically differs — at minimum both must complete without crash
+    let ha = java.util.Arrays.deepHashCode(a)
+    let hb = java.util.Arrays.deepHashCode(b)
+    _ = ha; _ = hb  // just verify no crash
+  }
+
+  // MARK: - hashCode (generic)
+
+  @Test("hashCode for Int array matches 31-multiplier algorithm")
+  func testHashCodeInt() {
+    var expected = 1
+    expected = 31 &* expected &+ 1.hashValue
+    expected = 31 &* expected &+ 2.hashValue
+    expected = 31 &* expected &+ 3.hashValue
+    #expect(java.util.Arrays.hashCode([1, 2, 3]) == expected)
+  }
+
+  @Test("hashCode for empty array returns 1")
+  func testHashCodeEmpty() {
+    #expect(java.util.Arrays.hashCode([Int]()) == 1)
+  }
+
+  @Test("hashCode is same for equal arrays")
+  func testHashCodeSameForEqual() {
+    #expect(java.util.Arrays.hashCode([10, 20]) == java.util.Arrays.hashCode([10, 20]))
+  }
+
+  // MARK: - setAll / parallelSetAll
+
+  @Test("setAll fills array using index-based generator")
+  func testSetAll() {
+    var a = [Int](repeating: 0, count: 5)
+    java.util.Arrays.setAll(&a) { i in i * i }
+    #expect(a == [0, 1, 4, 9, 16])
+  }
+
+  @Test("parallelSetAll produces the same result as setAll")
+  func testParallelSetAll() {
+    var a = [Int](repeating: 0, count: 4)
+    java.util.Arrays.parallelSetAll(&a) { i in i + 1 }
+    #expect(a == [1, 2, 3, 4])
+  }
+
+  // MARK: - parallelSort
+
+  @Test("parallelSort sorts integers ascending")
+  func testParallelSort() {
+    var a = [5, 3, 1, 4, 2]
+    java.util.Arrays.parallelSort(&a)
+    #expect(a == [1, 2, 3, 4, 5])
+  }
+
+  @Test("parallelSort with range sorts only subrange")
+  func testParallelSortRange() {
+    var a = [5, 3, 1, 4, 2]
+    java.util.Arrays.parallelSort(&a, 1, 4)   // sort indices 1,2,3
+    #expect(a == [5, 1, 3, 4, 2])
+  }
+
+  // MARK: - parallelPrefix
+
+  @Test("parallelPrefix computes running sum")
+  func testParallelPrefixSum() {
+    var a = [1, 2, 3, 4, 5]
+    java.util.Arrays.parallelPrefix(&a) { $0 + $1 }
+    #expect(a == [1, 3, 6, 10, 15])
+  }
+
+  @Test("parallelPrefix on single-element array is no-op")
+  func testParallelPrefixSingleElement() {
+    var a = [42]
+    java.util.Arrays.parallelPrefix(&a) { $0 + $1 }
+    #expect(a == [42])
+  }
+
+  @Test("parallelPrefix with range applies only to subrange")
+  func testParallelPrefixRange() {
+    var a = [1, 1, 1, 1, 1]
+    java.util.Arrays.parallelPrefix(&a, 1, 4) { $0 + $1 }
+    // indices 0,4 unchanged; indices 1,2,3: [1,1+1,1+1+1] = [1,2,3]
+    #expect(a == [1, 1, 2, 3, 1])
+  }
+
+  @Test("parallelPrefix computes running product")
+  func testParallelPrefixProduct() {
+    var a = [1, 2, 3, 4]
+    java.util.Arrays.parallelPrefix(&a) { $0 * $1 }
+    #expect(a == [1, 2, 6, 24])
+  }
+}

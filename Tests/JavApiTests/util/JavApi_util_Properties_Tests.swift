@@ -252,6 +252,7 @@ final class JavApi_util_Properties_Tests: XCTestCase {
 
   // MARK: - deprecated save
 
+  @available(*, deprecated)
   func testSaveDeprecated() {
     let props = java.util.Properties()
     props.setProperty("dep", "val")

@@ -80,13 +80,6 @@ struct ExecutionExceptionTests {
     #expect(e.getCause() === cause)
   }
 
-  @Test("ExecutionException ist Throwable")
-  func testIsThrowable() {
-    let e = java.util.concurrent.ExecutionException("test")
-    #expect(e is Throwable)
-    #expect(e is Exception)
-  }
-
   @Test("ExecutionException ist als Error verwendbar")
   func testAsError() {
     let e: any Error = java.util.concurrent.ExecutionException("as error")

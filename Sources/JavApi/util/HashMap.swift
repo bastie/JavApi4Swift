@@ -35,6 +35,20 @@ extension java.util {
       _store = Dictionary(minimumCapacity: initialCapacity)
     }
 
+    /// Copy constructor — creates a new map containing all entries of `map`.
+    ///
+    /// Matches `java.util.HashMap(Map<? extends K, ? extends V>)` (Java 1.2).
+    public init(_ map: any java.util.Map<K, V>) {
+      _store = Dictionary(minimumCapacity: Swift.max(16, map.size() * 2))
+      super.init()
+      let it = map.keySet().iterator()
+      while it.hasNext() {
+        if let key = try? it.next(), let value = map.get(key) {
+          _store[key] = value
+        }
+      }
+    }
+
     // MARK: - AbstractMap — required override
 
     /// Returns a `Set` view of all key-value pairs.
@@ -160,6 +174,73 @@ extension java.util {
       guard _store[key] == value else { return false }
       _store.removeValue(forKey: key)
       return true
+    }
+
+    // MARK: - Java 8 compute / merge
+
+    /// Returns a shallow copy of this map.
+    ///
+    /// Matches `java.util.HashMap.clone()` (Java 1.2).
+    open func clone() -> HashMap<K, V> {
+      let copy = HashMap<K, V>(initialCapacity: Swift.max(16, _store.count * 2))
+      copy._store = _store
+      return copy
+    }
+
+    /// Computes a new value for `key` using `remappingFunction(key, oldValue)`.
+    ///
+    /// If the function returns `nil`, the key is removed; otherwise the result
+    /// is stored and returned.
+    ///
+    /// Matches `java.util.Map.compute(K, BiFunction)` (Java 8).
+    @discardableResult
+    open func compute(_ key: K, _ remappingFunction: (K, V?) -> V?) -> V? {
+      let oldValue = _store[key]
+      if let newValue = remappingFunction(key, oldValue) {
+        _store[key] = newValue
+        return newValue
+      } else {
+        _store.removeValue(forKey: key)
+        return nil
+      }
+    }
+
+    /// If `key` is already present, recomputes its value using
+    /// `remappingFunction(key, oldValue)`. If the function returns `nil`, the
+    /// key is removed; otherwise the result is stored and returned.
+    ///
+    /// Matches `java.util.Map.computeIfPresent(K, BiFunction)` (Java 8).
+    @discardableResult
+    open func computeIfPresent(_ key: K, _ remappingFunction: (K, V) -> V?) -> V? {
+      guard let oldValue = _store[key] else { return nil }
+      if let newValue = remappingFunction(key, oldValue) {
+        _store[key] = newValue
+        return newValue
+      } else {
+        _store.removeValue(forKey: key)
+        return nil
+      }
+    }
+
+    /// If `key` is absent (or maps to `nil`), stores `value` and returns it.
+    /// Otherwise merges old and new values using `remappingFunction(oldValue, value)`.
+    /// If the function returns `nil`, the key is removed.
+    ///
+    /// Matches `java.util.Map.merge(K, V, BiFunction)` (Java 8).
+    @discardableResult
+    open func merge(_ key: K, _ value: V, _ remappingFunction: (V, V) -> V?) -> V? {
+      if let oldValue = _store[key] {
+        if let newValue = remappingFunction(oldValue, value) {
+          _store[key] = newValue
+          return newValue
+        } else {
+          _store.removeValue(forKey: key)
+          return nil
+        }
+      } else {
+        _store[key] = value
+        return value
+      }
     }
   }
 }

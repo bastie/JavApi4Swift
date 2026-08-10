@@ -221,6 +221,121 @@ extension java.util {
       return list
     }
 
+    // MARK: - deepEquals
+
+    /// Returns `true` when both arrays are deeply equal, recursively comparing
+    /// nested arrays. Mirrors `java.util.Arrays.deepEquals(Object[], Object[])` (Java 5).
+    public static func deepEquals(_ a1: [Any?]?, _ a2: [Any?]?) -> Bool {
+      switch (a1, a2) {
+      case (nil, nil): return true
+      case (nil, _), (_, nil): return false
+      default: break
+      }
+      let a = a1!, b = a2!
+      guard a.count == b.count else { return false }
+      for i in 0..<a.count {
+        if !_deepElementEquals(a[i], b[i]) { return false }
+      }
+      return true
+    }
+
+    private static func _deepElementEquals(_ a: Any?, _ b: Any?) -> Bool {
+      switch (a, b) {
+      case (nil, nil): return true
+      case (nil, _), (_, nil): return false
+      case (let x as [Any?], let y as [Any?]): return deepEquals(x, y)
+      case (let x as AnyHashable, let y as AnyHashable): return x == y
+      default: return false
+      }
+    }
+
+    // MARK: - deepHashCode
+
+    /// Returns a hash code based on the deep contents of `a`.
+    /// Mirrors `java.util.Arrays.deepHashCode(Object[])` (Java 5).
+    public static func deepHashCode(_ a: [Any?]?) -> Int {
+      guard let a else { return 0 }
+      var result = 1
+      for element in a {
+        let h = _deepElementHash(element)
+        result = 31 &* result &+ h
+      }
+      return result
+    }
+
+    private static func _deepElementHash(_ element: Any?) -> Int {
+      guard let element else { return 0 }
+      switch element {
+      case let sub as [Any?]: return deepHashCode(sub)
+      case let h as AnyHashable: return h.hashValue
+      default: return 0
+      }
+    }
+
+    // MARK: - hashCode (generic)
+
+    /// Returns a hash code for the given array of `Hashable` elements.
+    /// Uses the same 31-multiplier algorithm as `java.util.Arrays.hashCode`.
+    public static func hashCode<T: Hashable>(_ a: [T]) -> Int {
+      var result = 1
+      for element in a {
+        result = 31 &* result &+ element.hashValue
+      }
+      return result
+    }
+
+    // MARK: - setAll / parallelSetAll
+
+    /// Sets each element using the provided generator function.
+    ///
+    /// Matches `java.util.Arrays.setAll(T[], IntUnaryOperator)` (Java 8).
+    public static func setAll<T>(_ array: inout [T], _ generator: (Int) -> T) {
+      for i in array.indices { array[i] = generator(i) }
+    }
+
+    /// Sets each element using the provided generator — same as `setAll` (no
+    /// real parallelism on Swift's single-threaded value-type arrays).
+    ///
+    /// Matches `java.util.Arrays.parallelSetAll(T[], IntUnaryOperator)` (Java 8).
+    public static func parallelSetAll<T>(_ array: inout [T], _ generator: (Int) -> T) {
+      setAll(&array, generator)
+    }
+
+    // FIXME: - parallelSort is not really parallel but it works today
+
+    /// Sorts the entire array. Delegates to `sort` (no real parallelism needed
+    /// for Swift arrays; API parity with `java.util.Arrays.parallelSort`).
+    public static func parallelSort<T: Comparable>(_ a: inout [T]) {
+      a.sort()
+    }
+
+    /// Sorts the subrange `[fromIndex, toIndex)`. Delegates to `sort`.
+    public static func parallelSort<T: Comparable>(
+      _ a: inout [T], _ fromIndex: Int, _ toIndex: Int
+    ) {
+      sort(&a, fromIndex, toIndex)
+    }
+
+    // MARK: - parallelPrefix
+
+    /// Applies `op` cumulatively so that `a[i] = op(a[i-1], a[i])` for each `i > 0`.
+    ///
+    /// Matches `java.util.Arrays.parallelPrefix(T[], BinaryOperator<T>)` (Java 8).
+    public static func parallelPrefix<T>(_ array: inout [T], _ op: (T, T) -> T) {
+      guard array.count > 1 else { return }
+      for i in 1..<array.count { array[i] = op(array[i - 1], array[i]) }
+    }
+
+    /// Applies `op` cumulatively over `[fromIndex, toIndex)`.
+    ///
+    /// Matches `java.util.Arrays.parallelPrefix(T[], int, int, BinaryOperator<T>)` (Java 8).
+    public static func parallelPrefix<T>(
+      _ array: inout [T], _ fromIndex: Int, _ toIndex: Int, _ op: (T, T) -> T
+    ) {
+      guard fromIndex < toIndex, toIndex <= array.count, fromIndex + 1 < toIndex else { return }
+      for i in (fromIndex + 1)..<toIndex { array[i] = op(array[i - 1], array[i]) }
+    }
+
     // MARK: - deepToString
 
     /// Recursive string representation for nested arrays.

@@ -23,9 +23,7 @@ extension java.util.Arrays {
   /// Sorts the subrange `[fromIndex, toIndex)` using a Swift closure.
   ///
   /// - Note: **Not part of the Java API.**
-  public static func sort<T>(
-    _ a: inout [T], _ fromIndex: Int, _ toIndex: Int, by comparator: (T, T) -> Int
-  ) {
+  public static func sort<T>(_ a: inout [T], _ fromIndex: Int, _ toIndex: Int, by comparator: (T, T) -> Int) {
     let sub = a[fromIndex..<toIndex].sorted { comparator($0, $1) < 0 }
     for (i, v) in sub.enumerated() { a[fromIndex + i] = v }
   }

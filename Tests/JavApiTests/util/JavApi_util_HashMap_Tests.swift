@@ -549,3 +549,144 @@ struct JavApi_util_HashMap_Java8_Tests {
     #expect(m.containsKey("a") == false)
   }
 }
+
+// MARK: - HashMap P3: copy constructor, clone, compute, computeIfPresent, merge
+
+struct JavApi_util_HashMap_P3_Tests {
+
+  // MARK: copy constructor
+
+  @Test("copy constructor copies all entries")
+  func testCopyConstructor() {
+    let src = java.util.HashMap<String, Int>()
+    _ = src.put("a", 1); _ = src.put("b", 2); _ = src.put("c", 3)
+    let copy = java.util.HashMap<String, Int>(src)
+    #expect(copy.size() == 3)
+    #expect(copy.get("a") == 1)
+    #expect(copy.get("b") == 2)
+    #expect(copy.get("c") == 3)
+  }
+
+  @Test("copy constructor is independent — mutation does not affect original")
+  func testCopyConstructorIndependence() {
+    let src = java.util.HashMap<String, Int>()
+    _ = src.put("x", 10)
+    let copy = java.util.HashMap<String, Int>(src)
+    _ = copy.put("y", 20)
+    #expect(src.containsKey("y") == false)
+    #expect(copy.containsKey("y") == true)
+  }
+
+  @Test("copy constructor from empty map produces empty map")
+  func testCopyConstructorEmpty() {
+    let src = java.util.HashMap<String, Int>()
+    let copy = java.util.HashMap<String, Int>(src)
+    #expect(copy.isEmpty())
+  }
+
+  // MARK: clone
+
+  @Test("clone produces equal map with same entries")
+  func testClone() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("a", 1); _ = m.put("b", 2)
+    let clone = m.clone()
+    #expect(clone.size() == 2)
+    #expect(clone.get("a") == 1)
+    #expect(clone.get("b") == 2)
+  }
+
+  @Test("clone is independent — changes do not propagate")
+  func testCloneIndependence() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("k", 1)
+    let clone = m.clone()
+    _ = clone.put("k", 99)
+    #expect(m.get("k") == 1)   // original unchanged
+    #expect(clone.get("k") == 99)
+  }
+
+  // MARK: compute
+
+  @Test("compute inserts new value when key absent")
+  func testComputeInsert() {
+    let m = java.util.HashMap<String, Int>()
+    let result = m.compute("a") { _, _ in 42 }
+    #expect(result == 42)
+    #expect(m.get("a") == 42)
+  }
+
+  @Test("compute replaces existing value")
+  func testComputeReplace() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("a", 1)
+    let result = m.compute("a") { _, old in (old ?? 0) + 10 }
+    #expect(result == 11)
+    #expect(m.get("a") == 11)
+  }
+
+  @Test("compute removes key when function returns nil")
+  func testComputeRemove() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("a", 1)
+    let result = m.compute("a") { _, _ in nil }
+    #expect(result == nil)
+    #expect(m.containsKey("a") == false)
+  }
+
+  // MARK: computeIfPresent
+
+  @Test("computeIfPresent does nothing when key absent")
+  func testComputeIfPresentAbsent() {
+    let m = java.util.HashMap<String, Int>()
+    let result = m.computeIfPresent("missing") { _, v in v + 1 }
+    #expect(result == nil)
+    #expect(m.containsKey("missing") == false)
+  }
+
+  @Test("computeIfPresent updates value when key present")
+  func testComputeIfPresentPresent() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("k", 5)
+    let result = m.computeIfPresent("k") { _, v in v * 2 }
+    #expect(result == 10)
+    #expect(m.get("k") == 10)
+  }
+
+  @Test("computeIfPresent removes key when function returns nil")
+  func testComputeIfPresentNilRemoves() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("k", 5)
+    let result = m.computeIfPresent("k") { _, _ in nil }
+    #expect(result == nil)
+    #expect(m.containsKey("k") == false)
+  }
+
+  // MARK: merge
+
+  @Test("merge inserts value when key absent")
+  func testMergeInsert() {
+    let m = java.util.HashMap<String, Int>()
+    let result = m.merge("a", 7) { old, new in old + new }
+    #expect(result == 7)
+    #expect(m.get("a") == 7)
+  }
+
+  @Test("merge combines old and new values when key present")
+  func testMergeCombine() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("a", 3)
+    let result = m.merge("a", 4) { old, new in old + new }
+    #expect(result == 7)
+    #expect(m.get("a") == 7)
+  }
+
+  @Test("merge removes key when function returns nil")
+  func testMergeRemove() {
+    let m = java.util.HashMap<String, Int>()
+    _ = m.put("a", 1)
+    let result = m.merge("a", 99) { _, _ in nil }
+    #expect(result == nil)
+    #expect(m.containsKey("a") == false)
+  }
+}

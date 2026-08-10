@@ -311,6 +311,144 @@ extension java.util {
       public override func putLast(_ key: K, _ value: V) throws -> V? { try withLock { try delegate.putLast(key, value) } }
     }
 
+    // MARK: - Inner: UnmodifiableHashSet
+
+    /// Wrapper around `HashSet` that blocks all mutating calls.
+    public final class UnmodifiableHashSet<E: Hashable>: java.util.HashSet<E> {
+      private let delegate: java.util.HashSet<E>
+
+      public init(_ delegate: java.util.HashSet<E>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func contains(_ element: E?) -> Bool { delegate.contains(element) }
+      public override func iterator() -> any java.util.Iterator<E> { delegate.iterator() }
+
+      // Cloning — delegates to backing set
+      public override func clone() -> java.util.HashSet<E> { delegate.clone() }
+
+      // Mutation — blocked
+      @discardableResult
+      public override func add(_ element: E?) throws -> Bool {
+        throw UnsupportedOperationException("unmodifiable set")
+      }
+      @discardableResult
+      public override func remove(_ element: E?) -> Bool {
+        fatalError("UnsupportedOperationException: unmodifiable set")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable set")
+      }
+    }
+
+    // MARK: - Inner: UnmodifiableHashMap
+
+    /// Wrapper around `HashMap` that blocks all mutating calls.
+    public final class UnmodifiableHashMap<K: Hashable, V: Equatable>: java.util.HashMap<K, V> {
+      private let delegate: java.util.HashMap<K, V>
+
+      public init(_ delegate: java.util.HashMap<K, V>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func containsKey(_ key: K) -> Bool { delegate.containsKey(key) }
+      public override func containsValue(_ value: V) -> Bool { delegate.containsValue(value) }
+      public override func get(_ key: K) -> V? { delegate.get(key) }
+      public override func keySet() -> any java.util.Set<K> { delegate.keySet() }
+      public override func values() -> any java.util.Collection<V> { delegate.values() }
+      public override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> { delegate.entrySet() }
+
+      // Cloning — delegates to backing map
+      public override func clone() -> java.util.HashMap<K, V> { delegate.clone() }
+
+      // Mutation — blocked
+      @discardableResult
+      public override func put(_ key: K, _ value: V) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable map")
+      }
+      @discardableResult
+      public override func remove(_ key: K) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable map")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable map")
+      }
+      public override func putAll(_ map: any java.util.Map<K, V>) {
+        fatalError("UnsupportedOperationException: unmodifiable map")
+      }
+    }
+
+    // MARK: - Inner: SynchronizedHashSet
+
+    /// Wrapper around `HashSet` that serialises every access with an `NSLock`.
+    public final class SynchronizedHashSet<E: Hashable>: java.util.HashSet<E> {
+      private let delegate: java.util.HashSet<E>
+      private let lock = NSLock()
+
+      public init(_ delegate: java.util.HashSet<E>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      private func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock.lock(); defer { lock.unlock() }
+        return try body()
+      }
+
+      public override func size() -> Int { withLock { delegate.size() } }
+      public override func isEmpty() -> Bool { withLock { delegate.isEmpty() } }
+      public override func contains(_ element: E?) -> Bool { withLock { delegate.contains(element) } }
+      public override func iterator() -> any java.util.Iterator<E> { withLock { delegate.iterator() } }
+      public override func clone() -> java.util.HashSet<E> { withLock { delegate.clone() } }
+      @discardableResult
+      public override func add(_ element: E?) throws -> Bool { try withLock { try delegate.add(element) } }
+      @discardableResult
+      public override func remove(_ element: E?) -> Bool { withLock { delegate.remove(element) } }
+      public override func clear() { withLock { delegate.clear() } }
+    }
+
+    // MARK: - Inner: SynchronizedHashMap
+
+    /// Wrapper around `HashMap` that serialises every access with an `NSLock`.
+    public final class SynchronizedHashMap<K: Hashable, V: Equatable>: java.util.HashMap<K, V> {
+      private let delegate: java.util.HashMap<K, V>
+      private let lock = NSLock()
+
+      public init(_ delegate: java.util.HashMap<K, V>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      private func withLock<R>(_ body: () throws -> R) rethrows -> R {
+        lock.lock(); defer { lock.unlock() }
+        return try body()
+      }
+
+      public override func size() -> Int { withLock { delegate.size() } }
+      public override func isEmpty() -> Bool { withLock { delegate.isEmpty() } }
+      public override func containsKey(_ key: K) -> Bool { withLock { delegate.containsKey(key) } }
+      public override func containsValue(_ value: V) -> Bool { withLock { delegate.containsValue(value) } }
+      public override func get(_ key: K) -> V? { withLock { delegate.get(key) } }
+      public override func keySet() -> any java.util.Set<K> { withLock { delegate.keySet() } }
+      public override func values() -> any java.util.Collection<V> { withLock { delegate.values() } }
+      public override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> { withLock { delegate.entrySet() } }
+      public override func clone() -> java.util.HashMap<K, V> { withLock { delegate.clone() } }
+      @discardableResult
+      public override func put(_ key: K, _ value: V) -> V? { withLock { delegate.put(key, value) } }
+      @discardableResult
+      public override func remove(_ key: K) -> V? { withLock { delegate.remove(key) } }
+      public override func clear() { withLock { delegate.clear() } }
+      public override func putAll(_ map: any java.util.Map<K, V>) { withLock { delegate.putAll(map) } }
+    }
+
     // MARK: - Empty / Singleton factories
 
     /// Returns an empty, immutable Swift `Set`.
@@ -354,6 +492,20 @@ extension java.util {
       let list = java.util.ArrayList<E>()
       _ = try? list.add(element)
       return list
+    }
+
+    /// Returns an unmodifiable `HashSet` containing only `element`.
+    public static func singleton<E: Hashable>(_ element: E) -> java.util.HashSet<E> {
+      let set = java.util.HashSet<E>()
+      _ = try? set.add(element)
+      return UnmodifiableHashSet(set)
+    }
+
+    /// Returns an unmodifiable `HashMap` containing only `key → value`.
+    public static func singletonMap<K: Hashable, V: Equatable>(_ key: K, _ value: V) -> java.util.HashMap<K, V> {
+      let map = java.util.HashMap<K, V>()
+      _ = map.put(key, value)
+      return UnmodifiableHashMap(map)
     }
 
     /// Returns an `ArrayList` containing `count` copies of `element`.
@@ -422,6 +574,229 @@ extension java.util {
     ) -> java.util.LinkedHashMap<K, V> {
       return SynchronizedLinkedHashMap(m)
     }
+
+    // MARK: - Inner: UnmodifiableTreeSet
+
+    /// Read-only wrapper around `TreeSet` — blocks all mutations.
+    ///
+    /// Returned by `Collections.unmodifiableNavigableSet`.
+    public final class UnmodifiableTreeSet<E: Hashable & Comparable & Equatable>: java.util.TreeSet<E> {
+      private let delegate: java.util.TreeSet<E>
+
+      public init(_ delegate: java.util.TreeSet<E>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func contains(_ element: E?) -> Bool { delegate.contains(element) }
+      public override func iterator() -> any java.util.Iterator<E> { delegate.iterator() }
+      public override func first() throws -> E { try delegate.first() }
+      public override func last() throws -> E { try delegate.last() }
+      public override func lower(_ e: E) -> E? { delegate.lower(e) }
+      public override func floor(_ e: E) -> E? { delegate.floor(e) }
+      public override func ceiling(_ e: E) -> E? { delegate.ceiling(e) }
+      public override func higher(_ e: E) -> E? { delegate.higher(e) }
+      public override func comparator() -> (any java.util.Comparator<E>)? { delegate.comparator() }
+
+      // Mutation — blocked
+      @discardableResult
+      public override func add(_ element: E?) throws -> Bool {
+        throw UnsupportedOperationException("unmodifiable navigable set")
+      }
+      @discardableResult
+      public override func remove(_ element: E?) -> Bool {
+        fatalError("UnsupportedOperationException: unmodifiable navigable set")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable navigable set")
+      }
+      public override func pollFirst() -> E? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable set")
+      }
+      public override func pollLast() -> E? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable set")
+      }
+    }
+
+    // MARK: - Inner: UnmodifiableTreeMap
+
+    /// Read-only wrapper around `TreeMap` — blocks all mutations.
+    ///
+    /// Returned by `Collections.unmodifiableNavigableMap`.
+    public final class UnmodifiableTreeMap<K: Hashable & Comparable, V: Equatable>: java.util.TreeMap<K, V> {
+      private let delegate: java.util.TreeMap<K, V>
+
+      public init(_ delegate: java.util.TreeMap<K, V>) {
+        self.delegate = delegate
+        super.init()
+      }
+
+      // Read-through
+      public override func size() -> Int { delegate.size() }
+      public override func isEmpty() -> Bool { delegate.isEmpty() }
+      public override func containsKey(_ key: K) -> Bool { delegate.containsKey(key) }
+      public override func containsValue(_ value: V) -> Bool { delegate.containsValue(value) }
+      public override func get(_ key: K) -> V? { delegate.get(key) }
+      public override func keySet() -> any java.util.Set<K> { delegate.keySet() }
+      public override func values() -> any java.util.Collection<V> { delegate.values() }
+      public override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> { delegate.entrySet() }
+      public override func firstKey() throws -> K { try delegate.firstKey() }
+      public override func lastKey() throws -> K { try delegate.lastKey() }
+      public override func firstEntry() -> java.util.MapEntry<K, V>? { delegate.firstEntry() }
+      public override func lastEntry() -> java.util.MapEntry<K, V>? { delegate.lastEntry() }
+      public override func lowerEntry(_ key: K) -> java.util.MapEntry<K, V>? { delegate.lowerEntry(key) }
+      public override func floorEntry(_ key: K) -> java.util.MapEntry<K, V>? { delegate.floorEntry(key) }
+      public override func ceilingEntry(_ key: K) -> java.util.MapEntry<K, V>? { delegate.ceilingEntry(key) }
+      public override func higherEntry(_ key: K) -> java.util.MapEntry<K, V>? { delegate.higherEntry(key) }
+      public override func comparator() -> (any java.util.Comparator<K>)? { delegate.comparator() }
+
+      // Mutation — blocked
+      @discardableResult
+      public override func put(_ key: K, _ value: V) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+      @discardableResult
+      public override func remove(_ key: K) -> V? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+      public override func clear() {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+      public override func putAll(_ map: any java.util.Map<K, V>) {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+      public override func pollFirstEntry() -> java.util.MapEntry<K, V>? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+      public override func pollLastEntry() -> java.util.MapEntry<K, V>? {
+        fatalError("UnsupportedOperationException: unmodifiable navigable map")
+      }
+    }
+
+    // MARK: - Unmodifiable / Synchronized for plain HashSet and HashMap (Java 1.2)
+
+    /// Returns an unmodifiable view of `set`.
+    public static func unmodifiableSet<E: Hashable>(_ set: java.util.HashSet<E>) -> java.util.HashSet<E> {
+      return UnmodifiableHashSet(set)
+    }
+
+    /// Returns an unmodifiable view of `map`.
+    public static func unmodifiableMap<K: Hashable, V: Equatable>(
+      _ map: java.util.HashMap<K, V>
+    ) -> java.util.HashMap<K, V> {
+      return UnmodifiableHashMap(map)
+    }
+
+    /// Returns a synchronised (thread-safe) view of `set`.
+    public static func synchronizedSet<E: Hashable>(_ set: java.util.HashSet<E>) -> java.util.HashSet<E> {
+      return SynchronizedHashSet(set)
+    }
+
+    /// Returns a synchronised (thread-safe) view of `map`.
+    public static func synchronizedMap<K: Hashable, V: Equatable>(
+      _ map: java.util.HashMap<K, V>
+    ) -> java.util.HashMap<K, V> {
+      return SynchronizedHashMap(map)
+    }
+
+    // MARK: - Enumeration conversion (Java 1.2)
+
+    /// Returns an `Enumeration` over a snapshot of `list`.
+    public static func enumeration<T: Equatable>(_ list: java.util.ArrayList<T>) -> any java.util.Enumeration<T> {
+      return _ArrayListEnumeration(list)
+    }
+
+    /// Returns an `ArrayList` containing all elements produced by `enumeration`.
+    public static func list<T: Equatable, E: java.util.Enumeration>(
+      _ enumeration: E
+    ) -> java.util.ArrayList<T> where E.Element == T {
+      var e = enumeration
+      let result = java.util.ArrayList<T>()
+      while e.hasMoreElements() {
+        if let element = try? e.nextElement() { _ = try? result.add(element) }
+      }
+      return result
+    }
+
+    // MARK: - Empty Iterator / Enumeration (Java 7)
+
+    /// Returns an empty, immutable `Iterator`.
+    public static func emptyIterator<T>() -> any java.util.Iterator<T> {
+      return _EmptyIterator<T>()
+    }
+
+    /// Returns an empty, immutable `ListIterator`.
+    public static func emptyListIterator<T>() -> any java.util.ListIterator<T> {
+      return _EmptyListIterator<T>()
+    }
+
+    /// Returns an empty, immutable `Enumeration`.
+    public static func emptyEnumeration<T>() -> any java.util.Enumeration<T> {
+      return _EmptyEnumeration<T>()
+    }
+
+    // MARK: - Checked views (Java 5)
+    // Swift generics enforce type safety at compile time; these are identity
+    // wrappers for API compatibility only.
+
+    /// Returns a dynamically type-safe view of `list` (identity in Swift).
+    public static func checkedList<E: Equatable>(
+      _ list: java.util.ArrayList<E>, _: E.Type
+    ) -> java.util.ArrayList<E> { list }
+
+    /// Returns a dynamically type-safe view of `set` (identity in Swift).
+    public static func checkedSet<E: Hashable>(
+      _ set: java.util.HashSet<E>, _: E.Type
+    ) -> java.util.HashSet<E> { set }
+
+    /// Returns a dynamically type-safe view of `map` (identity in Swift).
+    public static func checkedMap<K: Hashable, V: Equatable>(
+      _ map: java.util.HashMap<K, V>, _: K.Type, _: V.Type
+    ) -> java.util.HashMap<K, V> { map }
+
+    // MARK: - Navigable wrappers (Java 8)
+
+    /// Returns an unmodifiable view of a `NavigableSet` (Java 8).
+    public static func unmodifiableNavigableSet<E: Hashable & Comparable & Equatable>(
+      _ set: java.util.TreeSet<E>
+    ) -> java.util.TreeSet<E> {
+      return UnmodifiableTreeSet(set)
+    }
+
+    /// Returns an unmodifiable view of a `NavigableMap` (Java 8).
+    public static func unmodifiableNavigableMap<K: Hashable & Comparable, V: Equatable>(
+      _ map: java.util.TreeMap<K, V>
+    ) -> java.util.TreeMap<K, V> {
+      return UnmodifiableTreeMap(map)
+    }
+
+    /// Returns an empty, immutable `NavigableSet` (Java 8).
+    public static func emptyNavigableSet<E: Hashable & Comparable & Equatable>() -> java.util.TreeSet<E> {
+      return UnmodifiableTreeSet(java.util.TreeSet<E>())
+    }
+
+    /// Returns an empty, immutable `NavigableMap` (Java 8).
+    public static func emptyNavigableMap<K: Hashable & Comparable, V: Equatable>() -> java.util.TreeMap<K, V> {
+      return UnmodifiableTreeMap(java.util.TreeMap<K, V>())
+    }
+
+    /// Returns a dynamically type-safe view of a `NavigableSet` (identity in Swift).
+    public static func checkedNavigableSet<E: Hashable & Comparable & Equatable>(
+      _ set: java.util.TreeSet<E>, _: E.Type
+    ) -> java.util.TreeSet<E> { set }
+
+    /// Returns a dynamically type-safe view of a `NavigableMap` (identity in Swift).
+    public static func checkedNavigableMap<K: Hashable & Comparable, V: Equatable>(
+      _ map: java.util.TreeMap<K, V>, _: K.Type, _: V.Type
+    ) -> java.util.TreeMap<K, V> { map }
+
+    /// Returns a dynamically type-safe view of a `PriorityQueue` (identity in Swift).
+    public static func checkedQueue<E: Comparable & Equatable>(
+      _ queue: java.util.PriorityQueue<E>, _: E.Type
+    ) -> java.util.PriorityQueue<E> { queue }
 
     // MARK: - Ordering factories (Java 1.2)
 
@@ -669,6 +1044,77 @@ extension java.util {
       return -1
     }
   }
+}
+
+// MARK: - Empty Iterator / ListIterator / Enumeration helpers
+
+/// Empty, immutable Iterator — returned by `Collections.emptyIterator()`.
+final class _EmptyIterator<T>: java.util.Iterator, IteratorProtocol {
+  typealias Element = T
+  func hasNext() -> Bool { false }
+  func next() throws(java.util.NoSuchElementException) -> T {
+    throw java.util.NoSuchElementException()
+  }
+  /// `IteratorProtocol` — non-throwing, returns `nil` when exhausted.
+  func next() -> T? { nil }
+  func remove() throws(java.lang.IllegalStateException) {
+    throw java.lang.IllegalStateException("empty iterator")
+  }
+  func makeIterator() -> _EmptyIterator<T> { self }
+}
+
+/// Empty, immutable ListIterator — returned by `Collections.emptyListIterator()`.
+final class _EmptyListIterator<T>: java.util.ListIterator, IteratorProtocol {
+  typealias Element = T
+  func hasNext() -> Bool { false }
+  func next() throws(java.util.NoSuchElementException) -> T {
+    throw java.util.NoSuchElementException()
+  }
+  /// `IteratorProtocol` — non-throwing, returns `nil` when exhausted.
+  func next() -> T? { nil }
+  func remove() throws(java.lang.IllegalStateException) {
+    throw java.lang.IllegalStateException("empty iterator")
+  }
+  func add(_ element: T?) {}
+  func hasPrevious() -> Bool { false }
+  func nextIndex() -> Int { 0 }
+  func previous() throws -> T? { throw java.util.NoSuchElementException() }
+  func previousIndex() -> Int { -1 }
+  func set(_ element: T?) {}
+  func makeIterator() -> _EmptyListIterator<T> { self }
+}
+
+/// Empty, immutable Enumeration — returned by `Collections.emptyEnumeration()`.
+final class _EmptyEnumeration<T>: java.util.Enumeration {
+  typealias Element = T
+  func hasMoreElements() -> Bool { false }
+  func nextElement() throws -> T { throw java.util.NoSuchElementException() }
+  func next() -> T? { nil }
+  func makeIterator() -> _EmptyEnumeration<T> { self }
+}
+
+/// Snapshot enumeration over an `ArrayList` — returned by `Collections.enumeration()`.
+final class _ArrayListEnumeration<T: Equatable>: java.util.Enumeration {
+  typealias Element = T
+  private let elements: [T]
+  private var index: Int = 0
+
+  init(_ list: java.util.ArrayList<T>) {
+    self.elements = list.toArray().compactMap { $0 }
+  }
+
+  func hasMoreElements() -> Bool { index < elements.count }
+  func nextElement() throws -> T {
+    guard index < elements.count else { throw java.util.NoSuchElementException() }
+    defer { index += 1 }
+    return elements[index]
+  }
+  func next() -> T? {
+    guard index < elements.count else { return nil }
+    defer { index += 1 }
+    return elements[index]
+  }
+  func makeIterator() -> _ArrayListEnumeration<T> { self }
 }
 
 // MARK: - Private helpers for Collections.reverseOrder()
