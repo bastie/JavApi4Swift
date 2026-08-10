@@ -17,7 +17,13 @@ extension java.util.Calendar {
   }
 
   public func setTime (from newDate: Foundation.Date) {
-    let calendar = Foundation.Calendar(identifier: .gregorian)
+    // Preserve the timezone already stored in dateComponents.
+    // Without this, Foundation.Calendar defaults to the system timezone and
+    // discards whatever timezone was set (e.g. UTC after GregorianCalendar(utcTZ)).
+    var calendar = Foundation.Calendar(identifier: .gregorian)
+    if let existingTZ = self.dateComponents.timeZone {
+      calendar.timeZone = existingTZ
+    }
     var components : Foundation.DateComponents
     if #available(macOS 14, *) /* .isLeapMonth */{
       components = calendar.dateComponents([.year, .month, .day, .hour, .minute, .second, .weekdayOrdinal, .weekday, .weekOfYear, .weekOfMonth, .timeZone, .quarter, .nanosecond, .isLeapMonth, .era], from: newDate )

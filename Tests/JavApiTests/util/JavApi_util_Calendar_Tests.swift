@@ -561,6 +561,34 @@ struct JavApi_util_Calendar_Tests {
     #expect(copy.getMinimalDaysInFirstWeek() == 4)
   }
 
+  // MARK: - toInstant (Java 8)
+
+  @Test("toInstant() epochMilli matches getTimeInMillis()")
+  func testToInstantMatchesGetTimeInMillis() {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.AUGUST, 10, 12, 0, 0)
+    #expect(cal.toInstant().epochMilli == cal.getTimeInMillis())
+  }
+
+  @Test("toInstant() returns positive epochMilli for dates after 1970")
+  func testToInstantPositiveForModernDate() {
+    let cal = java.util.GregorianCalendar(2000, java.util.Calendar.JANUARY, 1)
+    #expect(cal.toInstant().epochMilli > 0)
+  }
+
+  @Test("toInstant() returns negative epochMilli for dates before 1970")
+  func testToInstantNegativeForHistoricalDate() {
+    let cal = java.util.GregorianCalendar(1969, java.util.Calendar.DECEMBER, 31)
+    #expect(cal.toInstant().epochMilli < 0)
+  }
+
+  @Test("toInstant() is consistent with setTimeInMillis")
+  func testToInstantConsistentWithSetTimeInMillis() {
+    let cal = java.util.GregorianCalendar()
+    let knownMillis: Int64 = 1_000_000_000_000  // 2001-09-08T21:46:40Z
+    cal.setTimeInMillis(knownMillis)
+    #expect(cal.toInstant().epochMilli == knownMillis)
+  }
+
   // MARK: - Swiftify DateComponents enum
 
   @Test("Calendar.DateComponents enum values match Java field constants")

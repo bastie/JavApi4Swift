@@ -9,19 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## P2 – Java 1.1 Kompatibilität
-
-### `Calendar`
-
-- [ ] `static getInstance(_ zone: TimeZone, _ locale: Locale) -> Calendar`
-- [ ] `toInstant()` (Java 8)
-
-### `GregorianCalendar`
-
-- [ ] `toZonedDateTime()` (Java 8)
-
-### `Locale`
-
 ## P3 – Java 1.2 Kompatibilität
 
 ### `Collections` – Implementierungsstand

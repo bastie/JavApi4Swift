@@ -156,6 +156,22 @@ extension java.util {
       date.getTime() >= _gregorianChange.getTime()
     }
 
+    // MARK: - toZonedDateTime (Java 8)
+
+    /// Converts this `GregorianCalendar` to a `java.time.ZonedDateTime`.
+    ///
+    /// The returned `ZonedDateTime` represents the same point in time and uses
+    /// the same time zone as this calendar.
+    ///
+    /// - Since: Java 8
+    open func toZonedDateTime() -> java.time.ZonedDateTime {
+      let millis = getTimeInMillis()
+      let instant = Foundation.Date(timeIntervalSince1970: Double(millis) / 1000.0)
+      let foundationTZ = dateComponents.timeZone ?? Foundation.TimeZone.current
+      let clock = java.time.Clock(foundationTZ)
+      return java.time.ZonedDateTime(instant, clock: clock)
+    }
+
     /// Returns the value of the given `java.util.Calendar` field.
     /// - Note: Delegates to the base class implementation which covers all Java 1.1 fields.
     open override func get (_ field : Int) throws -> Int {

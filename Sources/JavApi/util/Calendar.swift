@@ -421,6 +421,18 @@ extension java.util {
       _javaTimeZoneID = value.getID()
     }
 
+    // MARK: - toInstant (Java 8)
+
+    /// Converts this `Calendar` to a `java.time.Instant`.
+    ///
+    /// The returned `Instant` represents the same point in time as this calendar,
+    /// with millisecond precision.
+    ///
+    /// - Since: Java 8
+    open func toInstant() -> java.time.Instant {
+      return java.time.Instant.ofEpochMilli(getTimeInMillis())
+    }
+
     // MARK: - getActualMinimum / getActualMaximum (Java 1.2)
 
     /// Returns the minimum value that the given field can take for the

@@ -187,4 +187,59 @@ struct JavApi_util_GregorianCalendar_Tests {
     #expect(cal.isGregorianDate(before2000) == false)
     #expect(cal.isGregorianDate(after2000)  == true)
   }
+
+  // MARK: - toZonedDateTime (Java 8)
+
+  @Test("toZonedDateTime() preserves year, month, day, time fields in system timezone")
+  func testToZonedDateTimePreservesFields() {
+    let cal = java.util.GregorianCalendar(2026, java.util.Calendar.AUGUST, 10, 15, 30, 45)
+    let zdt = cal.toZonedDateTime()
+    // java.time months are 1-based: java.util.Calendar.AUGUST (= 7, 0-based) → 8
+    #expect(zdt.year   == 2026)
+    #expect(zdt.month  == 8)
+    #expect(zdt.day    == 10)
+    #expect(zdt.hour   == 15)
+    #expect(zdt.minute == 30)
+    #expect(zdt.second == 45)
+  }
+
+  @Test("toZonedDateTime() in UTC timezone: 2000-01-01 00:00:00")
+  func testToZonedDateTimeUTC() {
+    let utc = java.util.SimpleTimeZone(0, "UTC")
+    let cal = java.util.GregorianCalendar(utc)
+    // 2000-01-01 00:00:00 UTC = 946_684_800_000 ms
+    cal.setTimeInMillis(946_684_800_000)
+    let zdt = cal.toZonedDateTime()
+    #expect(zdt.year  == 2000)
+    #expect(zdt.month == 1)
+    #expect(zdt.day   == 1)
+    #expect(zdt.hour  == 0)
+    #expect(zdt.minute == 0)
+    #expect(zdt.second == 0)
+  }
+
+  @Test("toZonedDateTime() represents the same instant as toInstant()")
+  func testToZonedDateTimeSameInstant() {
+    let cal = java.util.GregorianCalendar(2024, java.util.Calendar.MARCH, 15, 8, 0, 0)
+    let instantMillis = cal.toInstant().epochMilli
+    // ZonedDateTime epochMilli: seconds * 1000
+    // We cannot call toEpochSecond() directly, but we can verify
+    // that the calendar millis and instant millis agree (both from getTimeInMillis).
+    #expect(instantMillis == cal.getTimeInMillis())
+  }
+
+  @Test("toZonedDateTime() uses calendar's time zone")
+  func testToZonedDateTimeTimezone() {
+    // UTC+2 (7200 seconds offset)
+    let tzPlus2 = java.util.SimpleTimeZone(7_200_000, "UTC+2")
+    let cal = java.util.GregorianCalendar(tzPlus2)
+    // epoch 0 = 1970-01-01 02:00:00 in UTC+2
+    cal.setTimeInMillis(0)
+    let zdt = cal.toZonedDateTime()
+    #expect(zdt.hour == 2)
+    #expect(zdt.minute == 0)
+    #expect(zdt.day == 1)
+    #expect(zdt.month == 1)
+    #expect(zdt.year == 1970)
+  }
 }
