@@ -452,5 +452,40 @@ extension java.util {
       }
       return java.util.Collections.unmodifiableMap(copy)
     }
+
+    // MARK: - Java 9 factory: Map.entry + Map.ofEntries
+
+    /// Returns an unmodifiable map entry containing the given key and value.
+    ///
+    /// The returned entry is null-hostile: both key and value must be non-nil.
+    /// Because `MapEntry` is a Swift value type, the entry is inherently immutable
+    /// once stored in a `let` binding.
+    ///
+    /// Mirrors `java.util.Map.entry(K, V)` (Java 9).
+    ///
+    /// - Parameters:
+    ///   - key: The key (non-nil).
+    ///   - value: The value (non-nil).
+    /// - Returns: A `MapEntry<K, V>` holding the given key-value pair.
+    /// - Since: Java 9
+    public static func entry(_ key: K, _ value: V) -> java.util.MapEntry<K, V> {
+      java.util.MapEntry<K, V>(key, value)
+    }
+
+    /// Returns an unmodifiable map containing the given entries.
+    ///
+    /// Throws `IllegalArgumentException` if any two entries share an equal key.
+    ///
+    /// Mirrors `java.util.Map.ofEntries(Map.Entry...)` (Java 9).
+    ///
+    /// - Parameter entries: Zero or more `MapEntry<K, V>` values.
+    /// - Returns: An unmodifiable `Map` containing all given entries.
+    /// - Throws: `IllegalArgumentException` on duplicate keys.
+    /// - Since: Java 9
+    public static func ofEntries(
+      _ entries: java.util.MapEntry<K, V>...
+    ) throws(java.lang.IllegalArgumentException) -> any java.util.Map<K, V> {
+      try _ofPairs(entries.map { ($0.getKey(), $0.getValue()) })
+    }
   }
 }

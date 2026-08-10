@@ -30,15 +30,9 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] Implementierung (Swift-Enums — Designfrage)
 - [ ] Tests
 
-### `Scanner` (komplett fehlend)
-- [ ] Konstruktoren: `Scanner(InputStream)`, `Scanner(String)`, `Scanner(File)`
-- [ ] `hasNext/next`, `hasNextLine/nextLine`, `hasNextInt/nextInt`, `hasNextLong/nextLong`, `hasNextDouble/nextDouble`, `hasNextBoolean/nextBoolean`
-- [ ] `useDelimiter`, `useRadix`, `close`
-- [ ] Tests
-
-### `AbstractQueue<E>` (komplett fehlend)
-- [ ] Abstrakte Basisklasse (`add`, `remove`, `element` als Wrapper um `offer`/`poll`/`peek`)
-- [ ] Tests
+### `Scanner` – Java 9
+- [ ] `tokens() -> Stream<String>`
+- [ ] `findAll(_ pattern:) -> Stream<MatchResult>`
 
 ### `UUID`
 
@@ -69,9 +63,6 @@ Noch offen:
 ---
 
 ## Java 9
-
-### `List`, `Set`, `Map` – immutable Factory-Methoden
-- [ ] `Map.entry(_:_:)` + `Map.ofEntries(…)` (Hilfsmethoden für Map.of)
 
 ### `ServiceLoader` – Java 9
 - [ ] `findFirst() -> Optional<S>`
