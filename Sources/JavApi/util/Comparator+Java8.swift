@@ -25,6 +25,38 @@ extension java.util.Comparator {
   }
 }
 
+// MARK: - Key-extractor factories (Java 8)
+
+extension java.util.Comparator {
+
+  /// Returns a comparator that compares objects by extracting a `Comparable` key.
+  ///
+  /// Mirrors `java.util.Comparator.comparing(Function<? super T, ? extends U>)` (Java 8).
+  ///
+  /// - Parameter keyExtractor: The function used to extract the `Comparable` sort key.
+  /// - Returns: A comparator that compares by the extracted key.
+  /// - Since: Java 8
+  public static func comparing<R: Comparable>(
+    _ keyExtractor: some java.util.function.Function<T, R>
+  ) -> any java.util.Comparator<T> {
+    _KeyExtractorComparator<T, R>(keyExtractor)
+  }
+
+  /// Returns a lexicographic-order comparator with another comparator derived
+  /// from a key-extractor function.
+  ///
+  /// Equivalent to `thenComparing(Comparator.comparing(keyExtractor))`.
+  ///
+  /// - Parameter keyExtractor: The function used to extract the `Comparable` sort key.
+  /// - Returns: A chained comparator.
+  /// - Since: Java 8
+  public func thenComparing<R: Comparable>(
+    _ keyExtractor: some java.util.function.Function<T, R>
+  ) -> any java.util.Comparator<T> {
+    thenComparing(_KeyExtractorComparator<T, R>(keyExtractor))
+  }
+}
+
 // MARK: - Natural / reverse order factories (require T: Comparable)
 
 extension java.util.Comparator where T: Comparable {
@@ -91,6 +123,38 @@ private final class _ChainedComparator<T>: java.util.Comparator, SortComparator,
   }
 
   static func == (lhs: _ChainedComparator<T>, rhs: _ChainedComparator<T>) -> Bool {
+    lhs === rhs
+  }
+  func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+}
+
+/// Compares by applying a key-extractor function and comparing the resulting `Comparable` keys.
+private final class _KeyExtractorComparator<T, R: Comparable>: java.util.Comparator, SortComparator, @unchecked Sendable {
+  var order: SortOrder = .forward
+  private let keyExtractor: any java.util.function.Function<T, R>
+
+  init(_ keyExtractor: any java.util.function.Function<T, R>) {
+    self.keyExtractor = keyExtractor
+  }
+
+  func compare(_ lhs: T, _ rhs: T) -> Int {
+    let l = keyExtractor.apply(lhs), r = keyExtractor.apply(rhs)
+    return l < r ? -1 : l > r ? 1 : 0
+  }
+  func compare(_ lhs: T?, _ rhs: T?) -> Int {
+    switch (lhs, rhs) {
+    case (nil, nil): return 0
+    case (nil, _):   return -1
+    case (_, nil):   return  1
+    default:         return compare(lhs!, rhs!)
+    }
+  }
+  func compare(_ lhs: T, _ rhs: T) -> ComparisonResult {
+    let r: Int = compare(lhs, rhs)
+    return r < 0 ? .orderedAscending : r > 0 ? .orderedDescending : .orderedSame
+  }
+
+  static func == (lhs: _KeyExtractorComparator<T, R>, rhs: _KeyExtractorComparator<T, R>) -> Bool {
     lhs === rhs
   }
   func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }

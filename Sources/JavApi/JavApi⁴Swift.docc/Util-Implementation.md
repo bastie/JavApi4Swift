@@ -13,11 +13,7 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 | Interface | Fehlende Methoden / Probleme |
 |-----------|------------------------------|
-| `Collection<E>` | `stream()` ⚠️ `Stream<E>` fehlt · `spliterator()` ⚠️ `Spliterator<E>` fehlt · `forEach(_ action: Consumer<E>)` noch nicht verdrahtet |
-| `Comparator<T>` | `comparing(keyExtractor: Function<T,R>)` · `thenComparing(keyExtractor)` · `comparingInt/Long/Double()` — Typen vorhanden, Methoden noch offen |
-| `Iterator<E>` | `forEachRemaining(_ action: Consumer<E>)` noch nicht verdrahtet |
-| `List<E>` | `sort()` · `replaceAll(_ operator: UnaryOperator<E>)` noch nicht verdrahtet |
-| `Map<K,V>` | `forEach(_ action: BiConsumer<K,V>)` · `replaceAll(_ function: BiFunction<K,V,V>)` · `computeIfAbsent(_ key: K, _ f: Function<K,V>)` — Typen vorhanden, Methoden noch offen |
+| `Comparator<T>` | `comparingInt/Long/Double()` — primitive Spezialisierungen noch offen |
 
 ---
 
@@ -129,7 +125,7 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ## P3 – Java 1.2 Kompatibilität
 
 ### `Comparator<T>`
-- [ ] `comparing(keyExtractor: Function<T,R>)`, `thenComparing(keyExtractor)`, `comparingInt/Long/Double()` — `Function<T,R>` jetzt vorhanden, Implementierung unblocked
+- [ ] `comparingInt/Long/Double()` — primitive Spezialisierungen
 
 ### `Collections` – Implementierungsstand
 
@@ -161,7 +157,7 @@ Java 8:
 
 - [ ] `HashMap(_ map: Map<K, V>)` Copy-Konstruktor
 - [ ] `clone() -> HashMap<K, V>`
-- Java 8 (offen): [ ] `compute`, `computeIfAbsent`, `computeIfPresent`, `merge`, `forEach`, `replaceAll`
+- Java 8 (offen): [ ] `compute`, `computeIfPresent`, `merge`
 
 ### `Arrays`
 
@@ -257,28 +253,23 @@ Kern vollständig implementiert (`Supplier`, `Predicate`, `Function`, `Consumer`
 - [ ] `IntPredicate`, `LongPredicate`, `DoublePredicate`
 - [ ] `ToIntFunction<T>`, `ToLongFunction<T>`, `ToDoubleFunction<T>`
 
-### `Spliterator<T>` (komplett fehlend)
-- [ ] Protocol mit `tryAdvance`, `forEachRemaining`, `trySplit`, `estimateSize`, `characteristics`
-- [ ] Konstanten: `ORDERED`, `DISTINCT`, `SORTED`, `SIZED`, `NONNULL`, `IMMUTABLE`, `CONCURRENT`, `SUBSIZED`
+### `java.util.stream` — Implementierungsstand
 
-### `java.util.stream` (komplett fehlend)
+Kern implementiert (`Stream<T>`, `Collector<T,A,R>`, `AnyCollector`, `Collectors`, `Spliterator<T>`, `_ArraySpliterator`).
 
-Architektur-Entscheidungen (festgelegt):
-- `Stream<T>` als class-Wrapper über `AnySequence<T>`/`LazySequence`
-- Intermediate ops delegieren an Swift `lazy`-Ketten
-- `collect(Collector)` mit `Collector<T, A, R>`-Protocol
-- Primitive Streams: `Stream<Int>`, `Stream<Int64>`, `Stream<Double>` (kein Separattyp nötig)
-- `stream.parallel()`: No-Op oder Swift `AsyncSequence` / `withTaskGroup` (noch offen ⚠️)
-- `Stream.generate()` / `iterate()` via Swift `sequence(state:next:)`
+Implementiert:
+- `Stream<T>` class-Wrapper über `AnySequence<T>`
+- Intermediate ops: `filter`, `map`, `flatMap`, `distinct` (T: Hashable), `sorted` (T: Comparable + mit Comparator), `limit`, `skip`, `peek`, `parallel` (No-Op), `sequential`
+- Terminal ops: `forEach`, `count`, `reduce` (mit + ohne Identity), `findFirst`, `findAny`, `anyMatch`, `allMatch`, `noneMatch`, `min`, `max`, `toArray`, `toList`
+- `collect(_ collector:)` + `Collector<T, A, R>`-Protokoll + `AnyCollector`
+- `Collectors`: `toList`, `counting`, `joining`
+- `Stream.of(…)`, `Stream.empty()`, `Stream.generate(_:)`, `Stream.iterate(_:_:)`
+- `Spliterator<T>` Protokoll mit allen Charakteristik-Konstanten + `_ArraySpliterator`
+- `Collection.stream()` + `Collection.spliterator()` Defaults
+- `Optional<T>.stream()` — noch offen (abhängig von Stream ✓, Implementierung fehlt)
 
-Aufgaben:
-- [ ] `Stream<T>` Klasse
-- [ ] Intermediate ops: `filter`, `map`, `flatMap`, `distinct`, `sorted`, `limit`, `skip`, `peek`
-- [ ] Terminal ops: `forEach`, `count`, `reduce`, `findFirst`, `findAny`, `anyMatch`, `allMatch`, `noneMatch`, `min`, `max`, `toArray`, `toList` (Java 16)
-- [ ] `collect(_ collector:)`
-- [ ] `Collector<T, A, R>` Protocol
-- [ ] `Collectors`: `toList`, `toSet`, `joining`, `groupingBy`, `counting`, `toMap`, `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
-- [ ] `Stream.of(…)`, `Stream.empty()`, `Stream.generate(_:)`, `Stream.iterate(_:_:)`
+Noch offen:
+- [ ] `Collectors`: `toSet`, `groupingBy`, `toMap`, `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
 - [ ] `gather<R>(_ gatherer:)` (Java 24, finalisiert)
 - [ ] `Gatherer<T, A, R>` + `Gatherers` Utility-Klasse (Java 24)
 
@@ -317,7 +308,6 @@ Aufgaben:
 ## Java 16
 
 ### `Stream<T>` – Java 16
-- [ ] `toList() -> List<T>`
 - [ ] `mapMulti<R>(_ mapper: (T, (R) -> Void) -> Void) -> Stream<R>`
 
 ---
@@ -370,7 +360,7 @@ Aufgaben:
 |---------|------------|
 | `java.util.concurrent.ScopedValue<T>` | In `java.lang` finalisiert (Java 24), nicht `java.util` |
 | `java.util.concurrent` Virtual Threads | Swift `Task {}` ist das idiomatische Äquivalent |
-| Stream `parallel()` | Strategie noch offen (No-Op vs. `AsyncSequence`) |
+| Stream `parallel()` | Als No-Op implementiert; `AsyncSequence`-Integration out of scope |
 | `java.util.spi.*` | SPI-Layer, kein direkter Portierungsbedarf |
 | `LazyConstant<V>` / `List.of(size:generator:)` | JEP 526 noch Preview in Java 26 |
 
@@ -393,4 +383,4 @@ Aufgaben:
 
 ---
 
-*Stand: 2026-08-09 · Basis: Java 1.0–26 public API*
+*Stand: 2026-08-10 · Basis: Java 1.0–26 public API*

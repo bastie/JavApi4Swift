@@ -284,34 +284,196 @@ let formatted = "[" + words.joined(separator: ", ") + "]"
 
 ---
 
-## JavApi⁴Swift: Porting Java Stream Code
+## JavApi⁴Swift: java.util.stream
 
-> **Work in progress.** The `java.util.stream` package is planned for a future release of
-> JavApi⁴Swift. This section will be filled in once `Stream<T>` and `Collectors` are
-> implemented. Track progress in
-> <doc:Util-Implementation> under the *Java 8 — java.util.stream* section.
+JavApi⁴Swift provides `java.util.stream.Stream<T>` — a Java-API-compatible stream
+implementation backed by Swift's lazy sequences.
 
-When available, ported Java code like:
+### Obtaining a Stream
+
+```swift
+// From any java.util.Collection
+let list = java.util.ArrayList<String>()
+_ = try? list.add("Alice"); _ = try? list.add("Bob"); _ = try? list.add("Carol")
+let stream = list.stream()
+
+// From values directly
+let numbers = java.util.stream.Stream.of(1, 2, 3, 4, 5)
+
+// Empty stream
+let empty = java.util.stream.Stream<Int>.empty()
+
+// Infinite stream from a supplier
+var n = 0
+let naturals = java.util.stream.Stream.generate(
+    java.util.function.AnySupplier { n += 1; return n }
+)
+
+// Infinite stream via iteration
+let powers = java.util.stream.Stream.iterate(
+    1,
+    java.util.function.AnyUnaryOperator<Int> { $0 * 2 }
+)
+// elements: 1, 2, 4, 8, 16, …
+```
+
+### Intermediate Operations
+
+All intermediate operations are **lazy** — no work is performed until a terminal operation is called.
+
+```swift
+let names = java.util.ArrayList<String>()
+_ = try? names.add("Alice"); _ = try? names.add("Bob")
+_ = try? names.add("Anna");  _ = try? names.add("Carol")
+
+// filter
+let aNames = names.stream()
+    .filter(java.util.function.AnyPredicate { $0.hasPrefix("A") })
+    .toArray()
+// → ["Alice", "Anna"]
+
+// map
+let lengths = names.stream()
+    .map(java.util.function.AnyFunction { $0.count })
+    .toArray()
+// → [5, 3, 4, 5]
+
+// flatMap
+let digits = java.util.stream.Stream.of(1, 2, 3)
+    .flatMap(java.util.function.AnyFunction { n in
+        java.util.stream.Stream.of(n, n * 10)
+    })
+    .toArray()
+// → [1, 10, 2, 20, 3, 30]
+
+// sorted with comparator
+let sorted = names.stream()
+    .sorted(java.util.Comparator.naturalOrder())
+    .toArray()
+// → ["Alice", "Anna", "Bob", "Carol"]
+
+// sorted with key extractor
+let byLength = names.stream()
+    .sorted(java.util.Comparator.comparing(
+        java.util.function.AnyFunction<String, Int> { $0.count }
+    ))
+    .toArray()
+
+// distinct (requires T: Hashable)
+let unique = java.util.stream.Stream.of(1, 2, 2, 3, 1).distinct().toArray()
+// → [1, 2, 3]
+
+// limit / skip
+let first3 = java.util.stream.Stream.of(1, 2, 3, 4, 5).limit(3).toArray()
+let last3  = java.util.stream.Stream.of(1, 2, 3, 4, 5).skip(2).toArray()
+
+// peek — observe elements without modifying them
+let result = names.stream()
+    .peek(java.util.function.AnyConsumer { print("seen: \($0)") })
+    .filter(java.util.function.AnyPredicate { $0.count > 3 })
+    .toArray()
+```
+
+### Terminal Operations
+
+```swift
+let numbers = java.util.stream.Stream.of(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+// forEach
+numbers.forEach(java.util.function.AnyConsumer { print($0) })
+
+// count
+let evenCount = java.util.stream.Stream.of(1, 2, 3, 4, 5, 6)
+    .filter(java.util.function.AnyPredicate { $0 % 2 == 0 })
+    .count()
+// → 3
+
+// reduce with identity
+let sum = java.util.stream.Stream.of(1, 2, 3, 4)
+    .reduce(0, java.util.function.AnyBinaryOperator { $0 + $1 })
+// → 10
+
+// reduce without identity (returns nil for empty stream)
+let product: Int? = java.util.stream.Stream.of(2, 3, 4)
+    .reduce(java.util.function.AnyBinaryOperator { $0 * $1 })
+// → Optional(24)
+
+// findFirst
+let first = java.util.stream.Stream.of(10, 20, 30).findFirst()
+// → Optional(10)
+
+// anyMatch / allMatch / noneMatch
+let hasEven  = java.util.stream.Stream.of(1, 2, 3)
+    .anyMatch(java.util.function.AnyPredicate { $0 % 2 == 0 }) // true
+let allPos   = java.util.stream.Stream.of(1, 2, 3)
+    .allMatch(java.util.function.AnyPredicate { $0 > 0 })      // true
+let noneNeg  = java.util.stream.Stream.of(1, 2, 3)
+    .noneMatch(java.util.function.AnyPredicate { $0 < 0 })     // true
+
+// min / max with comparator
+let minVal = java.util.stream.Stream.of(3, 1, 4)
+    .min(java.util.Comparator.naturalOrder())   // Optional(1)
+let maxVal = java.util.stream.Stream.of(3, 1, 4)
+    .max(java.util.Comparator.naturalOrder())   // Optional(4)
+
+// toArray
+let arr: [Int] = java.util.stream.Stream.of(1, 2, 3).toArray()
+
+// toList (returns java.util.List)
+let list = java.util.stream.Stream.of(1, 2, 3).toList()
+```
+
+### Collectors
+
+```swift
+// toList — accumulate into a java.util.List
+let collected = java.util.stream.Stream.of(1, 2, 3)
+    .collect(java.util.stream.Collectors.toList())
+// collected.size() == 3
+
+// counting — count elements
+let count = java.util.stream.Stream.of("a", "b", "c")
+    .collect(java.util.stream.Collectors.counting())
+// → 3
+
+// joining — concatenate strings
+let joined = java.util.stream.Stream.of("a", "b", "c")
+    .collect(java.util.stream.Collectors.joining(", "))
+// → "a, b, c"
+
+let bracketed = java.util.stream.Stream.of("x", "y")
+    .collect(java.util.stream.Collectors.joining(", ", "[", "]"))
+// → "[x, y]"
+```
+
+### Note on `parallel()`
+
+`parallel()` is accepted but treated as a no-op. All execution is sequential.
+This matches the Java API surface while keeping the implementation simple and safe
+for Swift's type system and concurrency model.
+
+### Side-by-side comparison: Java → JavApi⁴Swift
 
 ```java
+// Java
 List<String> result = names.stream()
     .filter(name -> name.startsWith("A"))
     .map(String::toUpperCase)
     .collect(Collectors.toList());
 ```
 
-will be expressible in JavApi⁴Swift as:
-
 ```swift
-// Planned API — not yet implemented
+// JavApi⁴Swift — direct port
 let result = names.stream()
-    .filter { $0.hasPrefix("A") }
-    .map { $0.uppercased() }
-    .collect(Collectors.toList())
+    .filter(java.util.function.AnyPredicate { $0.hasPrefix("A") })
+    .map(java.util.function.AnyFunction { $0.uppercased() })
+    .collect(java.util.stream.Collectors.toList())
 ```
 
-Until `java.util.stream` is available, replace Java Stream pipelines with the Swift
-`Sequence` / `LazySequence` patterns shown in the previous section.
+```swift
+// Idiomatic Swift — for new code
+let result = names.filter { $0.hasPrefix("A") }.map { $0.uppercased() }
+```
 
 ---
 
@@ -359,7 +521,7 @@ Use the `java.util.function` protocols when:
 | `BiFunction<T,U,R>` | `java.util.function.BiFunction<T,U,R>` | `AnyBiFunction<T,U,R>` | `apply(_ t: T, _ u: U) -> R` |
 | `UnaryOperator<T>` | `java.util.function.UnaryOperator<T>` | `AnyUnaryOperator<T>` | `apply(_ t: T) -> T` |
 | `BinaryOperator<T>` | `java.util.function.BinaryOperator<T>` | `AnyBinaryOperator<T>` | `apply(_ t: T, _ u: T) -> T` |
-| `Supplier<T>` | `java.util.function.Supplier<T>` | *(implement your own)* | `get() -> T` |
+| `Supplier<T>` | `java.util.function.Supplier<T>` | `AnySupplier<T>` | `get() -> T` |
 
 ### Usage: wrapping a closure
 
