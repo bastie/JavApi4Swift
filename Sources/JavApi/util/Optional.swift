@@ -21,11 +21,11 @@ extension java.util {
 
     // MARK: - Backing store
 
-    private let _value: T?
+    internal let _value: T?
 
     // MARK: - Private init
 
-    private init(_ value: T?) {
+    internal init(_ value: T?) {
       self._value = value
     }
 
@@ -140,11 +140,6 @@ extension java.util {
     open func or(_ supplier: () -> java.util.Optional<T>) -> java.util.Optional<T> {
       _value != nil ? self : supplier()
     }
-
-    // MARK: - Swift interop
-
-    /// Returns the underlying Swift `Optional<T>` value for bridging.
-    open func swiftOptional() -> T? { _value }
   }
 }
 

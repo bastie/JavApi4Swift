@@ -55,6 +55,43 @@ extension java.util.Comparator {
   ) -> any java.util.Comparator<T> {
     thenComparing(_KeyExtractorComparator<T, R>(keyExtractor))
   }
+
+  // MARK: - Primitive-specialised factory methods (Java 8)
+
+  /// Returns a comparator that compares objects by an `Int`-valued key function.
+  ///
+  /// Mirrors `java.util.Comparator.comparingInt(ToIntFunction)` (Java 8).
+  /// In JavApi⁴Swift the key extractor is typed as `Function<T, Int>` because
+  /// Swift has no separate `ToIntFunction` interface.
+  ///
+  /// - Since: Java 8
+  public static func comparingInt(
+    _ keyExtractor: some java.util.function.Function<T, Int>
+  ) -> any java.util.Comparator<T> {
+    _KeyExtractorComparator<T, Int>(keyExtractor)
+  }
+
+  /// Returns a comparator that compares objects by a `Int64`-valued key function.
+  ///
+  /// Mirrors `java.util.Comparator.comparingLong(ToLongFunction)` (Java 8).
+  ///
+  /// - Since: Java 8
+  public static func comparingLong(
+    _ keyExtractor: some java.util.function.Function<T, Int64>
+  ) -> any java.util.Comparator<T> {
+    _KeyExtractorComparator<T, Int64>(keyExtractor)
+  }
+
+  /// Returns a comparator that compares objects by a `Double`-valued key function.
+  ///
+  /// Mirrors `java.util.Comparator.comparingDouble(ToDoubleFunction)` (Java 8).
+  ///
+  /// - Since: Java 8
+  public static func comparingDouble(
+    _ keyExtractor: some java.util.function.Function<T, Double>
+  ) -> any java.util.Comparator<T> {
+    _KeyExtractorComparator<T, Double>(keyExtractor)
+  }
 }
 
 // MARK: - Natural / reverse order factories (require T: Comparable)

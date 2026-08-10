@@ -122,5 +122,81 @@ extension java.util.stream {
         return prefix + parts.joined() + suffix
       }
     }
+
+    // MARK: toSet
+
+    /// Returns a `Collector` that accumulates elements into a `java.util.Set`.
+    ///
+    /// Duplicate elements are silently ignored (set semantics).
+    ///
+    /// - Since: Java 8
+    public static func toSet<T: Hashable>()
+      -> some java.util.stream.Collector<T, any java.util.Set<T>>
+    {
+      AnyCollector<T, any java.util.Set<T>> { sequence in
+        let set = java.util.HashSet<T>()
+        for element in sequence { _ = try? set.add(element) }
+        return set
+      }
+    }
+
+    // MARK: groupingBy
+
+    /// Returns a `Collector` that groups elements by a classifier function,
+    /// producing a `HashMap` mapping each key to the list of matching elements.
+    ///
+    /// Mirrors `java.util.stream.Collectors.groupingBy(Function)` (Java 8).
+    ///
+    /// - Parameter classifier: The function mapping an element to its group key.
+    /// - Since: Java 8
+    /// - Note: The value type is `java.util.ArrayList<T>` (not the abstract `List<T>`)
+    ///   because `HashMap` requires `V: Equatable` and existentials cannot satisfy
+    ///   that constraint. Callers receive the concrete type which implements all
+    ///   `List` methods.
+    public static func groupingBy<T: Equatable, K: Hashable>(
+      _ classifier: some java.util.function.Function<T, K>
+    ) -> some java.util.stream.Collector<T, any java.util.Map<K, java.util.ArrayList<T>>>
+    {
+      AnyCollector<T, any java.util.Map<K, java.util.ArrayList<T>>> { sequence in
+        let map = java.util.HashMap<K, java.util.ArrayList<T>>()
+        for element in sequence {
+          let key = classifier.apply(element)
+          if let existing = map.get(key) {
+            _ = try? existing.add(element)
+          } else {
+            let list = java.util.ArrayList<T>()
+            _ = try? list.add(element)
+            _ = map.put(key, list)
+          }
+        }
+        return map
+      }
+    }
+
+    // MARK: toMap
+
+    /// Returns a `Collector` that accumulates elements into a `HashMap`,
+    /// using `keyMapper` and `valueMapper` to compute each entry.
+    ///
+    /// Mirrors `java.util.stream.Collectors.toMap(Function, Function)` (Java 8).
+    ///
+    /// - Parameters:
+    ///   - keyMapper: Function producing the map key from an element.
+    ///   - valueMapper: Function producing the map value from an element.
+    /// - Note: Duplicate keys cause the later value to overwrite the earlier one
+    ///   (unlike Java which throws; chosen for simplicity on Swift side).
+    /// - Since: Java 8
+    public static func toMap<T, K: Hashable, V: Equatable>(
+      _ keyMapper: some java.util.function.Function<T, K>,
+      _ valueMapper: some java.util.function.Function<T, V>
+    ) -> some java.util.stream.Collector<T, any java.util.Map<K, V>> {
+      AnyCollector<T, any java.util.Map<K, V>> { sequence in
+        let map = java.util.HashMap<K, V>()
+        for element in sequence {
+          _ = map.put(keyMapper.apply(element), valueMapper.apply(element))
+        }
+        return map
+      }
+    }
   }
 }

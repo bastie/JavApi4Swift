@@ -259,4 +259,35 @@ struct JavApi_util_Optional_Tests {
     #expect(present.swiftOptional() == 7)
     #expect(empty.swiftOptional()   == nil)
   }
+
+  // MARK: - stream() (Java 9)
+
+  @Test("stream() on present Optional contains exactly that element")
+  func testStreamPresent() {
+    let result = java.util.Optional<Int>.of(42).stream().toArray()
+    #expect(result == [42])
+  }
+
+  @Test("stream() on empty Optional returns empty stream")
+  func testStreamEmpty() {
+    let result = java.util.Optional<Int>.empty().stream().toArray()
+    #expect(result.isEmpty)
+  }
+
+  @Test("stream() result can be chained with intermediate operations")
+  func testStreamChained() {
+    let result = java.util.Optional<Int>.of(5)
+      .stream()
+      .map(java.util.function.AnyFunction { $0 * 10 })
+      .toArray()
+    #expect(result == [50])
+  }
+
+  @Test("stream() on empty Optional chained yields empty result")
+  func testStreamEmptyChained() {
+    let count = java.util.Optional<String>.empty()
+      .stream()
+      .count()
+    #expect(count == 0)
+  }
 }

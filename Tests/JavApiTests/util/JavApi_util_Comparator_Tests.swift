@@ -143,3 +143,83 @@ struct JavApi_util_Comparator_Tests {
     #expect(!keys.contains(99))
   }
 }
+
+// MARK: - Comparator.comparingInt / comparingLong / comparingDouble
+
+// Concrete helper — comparingInt/Long/Double are static protocol-extension
+// methods and must be called on a concrete conforming type.
+private struct _StrCmp2: java.util.Comparator {
+  var order: SortOrder = .forward
+  func compare(_ a: String, _ b: String) -> Int { a < b ? -1 : a > b ? 1 : 0 }
+  func compare(_ a: String?, _ b: String?) -> Int {
+    switch (a, b) {
+    case (nil, nil): return 0; case (nil, _): return -1; case (_, nil): return 1
+    default: return compare(a!, b!)
+    }
+  }
+  func compare(_ a: String, _ b: String) -> ComparisonResult {
+    a < b ? .orderedAscending : a > b ? .orderedDescending : .orderedSame
+  }
+  static func == (l: _StrCmp2, r: _StrCmp2) -> Bool { true }
+  func hash(into h: inout Hasher) { h.combine(0) }
+}
+
+private struct _DoubleCmp: java.util.Comparator {
+  var order: SortOrder = .forward
+  func compare(_ a: Double, _ b: Double) -> Int { a < b ? -1 : a > b ? 1 : 0 }
+  func compare(_ a: Double?, _ b: Double?) -> Int {
+    switch (a, b) {
+    case (nil, nil): return 0; case (nil, _): return -1; case (_, nil): return 1
+    default: return compare(a!, b!)
+    }
+  }
+  func compare(_ a: Double, _ b: Double) -> ComparisonResult {
+    a < b ? .orderedAscending : a > b ? .orderedDescending : .orderedSame
+  }
+  static func == (l: _DoubleCmp, r: _DoubleCmp) -> Bool { true }
+  func hash(into h: inout Hasher) { h.combine(0) }
+}
+
+@Suite("Comparator.comparingInt / comparingLong / comparingDouble")
+struct ComparatorPrimitiveSpecialisationTests {
+
+  @Test("comparingInt orders strings by character count")
+  func testComparingInt() {
+    let cmp = _StrCmp2.comparingInt(
+      java.util.function.AnyFunction<String, Int> { $0.count }
+    )
+    #expect(cmp.compare("hi", "hello") < 0)   // 2 < 5
+    #expect(cmp.compare("hello", "hi") > 0)   // 5 > 2
+    #expect(cmp.compare("abc", "xyz") == 0)    // 3 == 3
+  }
+
+  @Test("comparingInt can sort a list by string length")
+  func testComparingIntSort() {
+    let list = java.util.ArrayList<String>()
+    _ = try? list.add("banana"); _ = try? list.add("fig"); _ = try? list.add("kiwi")
+    list.sort(_StrCmp2.comparingInt(java.util.function.AnyFunction<String, Int> { $0.count }))
+    #expect((try? list.get(0)) == "fig")   // length 3
+    #expect((try? list.get(1)) == "kiwi")  // length 4
+    #expect((try? list.get(2)) == "banana") // length 6
+  }
+
+  @Test("comparingLong orders strings by Int64 hash key")
+  func testComparingLong() {
+    let cmp = _StrCmp2.comparingLong(
+      java.util.function.AnyFunction<String, Int64> { Int64($0.count) }
+    )
+    #expect(cmp.compare("a", "bbb") < 0)
+    #expect(cmp.compare("bbb", "a") > 0)
+    #expect(cmp.compare("ab", "cd") == 0)
+  }
+
+  @Test("comparingDouble orders strings by average char value")
+  func testComparingDouble() {
+    let cmp = _DoubleCmp.comparingDouble(
+      java.util.function.AnyFunction<Double, Double> { $0 }
+    )
+    #expect(cmp.compare(1.0, 2.0) < 0)
+    #expect(cmp.compare(3.0, 1.5) > 0)
+    #expect(cmp.compare(2.5, 2.5) == 0)
+  }
+}

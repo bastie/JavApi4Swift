@@ -13,7 +13,7 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 | Interface | Fehlende Methoden / Probleme |
 |-----------|------------------------------|
-| `Comparator<T>` | `comparingInt/Long/Double()` — primitive Spezialisierungen noch offen |
+| `Comparator<T>` | ✅ alle Java-8-Methoden implementiert |
 
 ---
 
@@ -125,7 +125,7 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 ## P3 – Java 1.2 Kompatibilität
 
 ### `Comparator<T>`
-- [ ] `comparingInt/Long/Double()` — primitive Spezialisierungen
+- ✅ `comparingInt/Long/Double()` — implementiert (nutzen `_KeyExtractorComparator<T, Int/Int64/Double>`)
 
 ### `Collections` – Implementierungsstand
 
@@ -238,7 +238,7 @@ Java 8:
 ## Java 8
 
 ### `Optional<T>` – Restarbeiten
-- [ ] `stream() -> Stream<T>` (abhängig von Stream-Implementierung)
+- ✅ `stream() -> Stream<T>` — implementiert (`Optional+Stream.swift`)
 
 ### `java.util.function` — primitive Spezialisierungen (niedrige Priorität)
 
@@ -255,21 +255,9 @@ Kern vollständig implementiert (`Supplier`, `Predicate`, `Function`, `Consumer`
 
 ### `java.util.stream` — Implementierungsstand
 
-Kern implementiert (`Stream<T>`, `Collector<T,A,R>`, `AnyCollector`, `Collectors`, `Spliterator<T>`, `_ArraySpliterator`).
-
-Implementiert:
-- `Stream<T>` class-Wrapper über `AnySequence<T>`
-- Intermediate ops: `filter`, `map`, `flatMap`, `distinct` (T: Hashable), `sorted` (T: Comparable + mit Comparator), `limit`, `skip`, `peek`, `parallel` (No-Op), `sequential`
-- Terminal ops: `forEach`, `count`, `reduce` (mit + ohne Identity), `findFirst`, `findAny`, `anyMatch`, `allMatch`, `noneMatch`, `min`, `max`, `toArray`, `toList`
-- `collect(_ collector:)` + `Collector<T, A, R>`-Protokoll + `AnyCollector`
-- `Collectors`: `toList`, `counting`, `joining`
-- `Stream.of(…)`, `Stream.empty()`, `Stream.generate(_:)`, `Stream.iterate(_:_:)`
-- `Spliterator<T>` Protokoll mit allen Charakteristik-Konstanten + `_ArraySpliterator`
-- `Collection.stream()` + `Collection.spliterator()` Defaults
-- `Optional<T>.stream()` — noch offen (abhängig von Stream ✓, Implementierung fehlt)
-
 Noch offen:
-- [ ] `Collectors`: `toSet`, `groupingBy`, `toMap`, `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
+- ✅ `Collectors.toSet`, `groupingBy`, `toMap` — implementiert
+- [ ] `Collectors`: `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
 - [ ] `gather<R>(_ gatherer:)` (Java 24, finalisiert)
 - [ ] `Gatherer<T, A, R>` + `Gatherers` Utility-Klasse (Java 24)
 

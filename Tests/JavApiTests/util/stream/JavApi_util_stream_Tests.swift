@@ -304,6 +304,72 @@ struct StreamCollectorTests {
   }
 }
 
+// MARK: - Extended Collectors
+
+@Suite("Extended Collectors (toSet, groupingBy, toMap)")
+struct ExtendedCollectorTests {
+
+  @Test("Collectors.toSet accumulates into a set (no duplicates)")
+  func testToSet() {
+    let set = java.util.stream.Stream.of(1, 2, 2, 3, 3, 3)
+      .collect(java.util.stream.Collectors.toSet())
+    #expect(set.size() == 3)
+    #expect(set.contains(1))
+    #expect(set.contains(2))
+    #expect(set.contains(3))
+  }
+
+  @Test("Collectors.toSet on empty stream returns empty set")
+  func testToSetEmpty() {
+    let set = java.util.stream.Stream<Int>.empty()
+      .collect(java.util.stream.Collectors.toSet())
+    #expect(set.size() == 0)
+  }
+
+  @Test("Collectors.groupingBy groups elements by key")
+  func testGroupingBy() {
+    // group strings by length
+    let map = java.util.stream.Stream.of("a", "bb", "cc", "ddd")
+      .collect(java.util.stream.Collectors.groupingBy(
+        java.util.function.AnyFunction<String, Int> { $0.count }
+      ))
+    #expect(map.get(1)?.size() == 1)
+    #expect(map.get(2)?.size() == 2)
+    #expect(map.get(3)?.size() == 1)
+  }
+
+  @Test("Collectors.groupingBy on empty stream returns empty map")
+  func testGroupingByEmpty() {
+    let map = java.util.stream.Stream<String>.empty()
+      .collect(java.util.stream.Collectors.groupingBy(
+        java.util.function.AnyFunction<String, Int> { $0.count }
+      ))
+    #expect(map.isEmpty())
+  }
+
+  @Test("Collectors.toMap builds key-value map")
+  func testToMap() {
+    let map = java.util.stream.Stream.of("apple", "fig", "mango")
+      .collect(java.util.stream.Collectors.toMap(
+        java.util.function.AnyFunction { $0 },          // key = word itself
+        java.util.function.AnyFunction { $0.count }     // value = length
+      ))
+    #expect(map.get("apple") == 5)
+    #expect(map.get("fig")   == 3)
+    #expect(map.get("mango") == 5)
+  }
+
+  @Test("Collectors.toMap on empty stream returns empty map")
+  func testToMapEmpty() {
+    let map = java.util.stream.Stream<String>.empty()
+      .collect(java.util.stream.Collectors.toMap(
+        java.util.function.AnyFunction<String, String> { $0 },
+        java.util.function.AnyFunction<String, Int> { $0.count }
+      ))
+    #expect(map.isEmpty())
+  }
+}
+
 // MARK: - Collection.stream() integration
 
 @Suite("Collection.stream() integration")
