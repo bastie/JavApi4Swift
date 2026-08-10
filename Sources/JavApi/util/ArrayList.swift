@@ -40,7 +40,7 @@ extension java.util {
     // MARK: - Size
 
     /// Returns the number of elements in this list.
-    public override func size() -> Int {
+    open override func size() -> Int {
       return elements.count
     }
 
@@ -49,7 +49,7 @@ extension java.util {
     /// Returns the element at the specified position.
     ///
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
-    public override func get(_ location: Int) throws -> E? {
+    open override func get(_ location: Int) throws -> E? {
       guard location >= 0 && location < elements.count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
@@ -62,7 +62,7 @@ extension java.util {
     ///
     /// - Returns: `true` always (as specified by `Collection.add`).
     @discardableResult
-    public override func add(_ element: E?) throws -> Bool {
+    open override func add(_ element: E?) throws -> Bool {
       elements.append(element)
       return true
     }
@@ -72,7 +72,7 @@ extension java.util {
     /// Shifts the element currently at that position and any subsequent elements to the right.
     ///
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range (`< 0` or `> size()`).
-    public override func add(_ location: Int, _ element: E?) throws {
+    open override func add(_ location: Int, _ element: E?) throws {
       guard location >= 0 && location <= elements.count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
@@ -83,7 +83,7 @@ extension java.util {
     ///
     /// - Returns: The element previously at the specified position.
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
-    public override func set(_ location: Int, _ element: E?) throws -> E? {
+    open override func set(_ location: Int, _ element: E?) throws -> E? {
       guard location >= 0 && location < elements.count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
@@ -98,7 +98,7 @@ extension java.util {
     ///
     /// - Returns: The element that was removed.
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
-    public override func remove(_ location: Int) throws -> E? {
+    open override func remove(_ location: Int) throws -> E? {
       guard location >= 0 && location < elements.count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
@@ -109,7 +109,7 @@ extension java.util {
     ///
     /// - Returns: `true` if this list contained the specified element.
     @discardableResult
-    public override func remove(_ element: E?) -> Bool {
+    open override func remove(_ element: E?) -> Bool {
       if let idx = elements.firstIndex(where: { $0 == element }) {
         elements.remove(at: idx)
         return true
@@ -118,25 +118,25 @@ extension java.util {
     }
 
     /// Removes all elements from this list.
-    public override func clear() {
+    open override func clear() {
       elements.removeAll()
     }
 
     // MARK: - Search
 
     /// Returns `true` if this list contains the specified element.
-    public override func contains(_ element: E?) -> Bool {
+    open override func contains(_ element: E?) -> Bool {
       return elements.contains(where: { $0 == element })
     }
 
     /// Returns the index of the first occurrence of the specified element, or -1 if not present.
-    public override func indexOf(element: Any?) -> Int {
+    open override func indexOf(element: Any?) -> Int {
       guard let typed = element as? E? else { return -1 }
       return elements.firstIndex(where: { $0 == typed }) ?? -1
     }
 
     /// Returns the index of the last occurrence of the specified element, or -1 if not present.
-    public override func lastIndexOf(_ element: Any?) -> Int {
+    open override func lastIndexOf(_ element: Any?) -> Int {
       guard let typed = element as? E? else { return -1 }
       return elements.lastIndex(where: { $0 == typed }) ?? -1
     }
@@ -149,31 +149,31 @@ extension java.util {
     /// reflected in this list, and vice-versa, matching `java.util.List.subList` specification.
     ///
     /// - Throws: `IndexOutOfBoundsException` indirectly if indices are out of range.
-    public override func subList(_ start: Int, _ end: Int) -> any java.util.List {
+    open override func subList(_ start: Int, _ end: Int) -> any java.util.List {
       return ArrayListSubList<E>(backing: self, fromIndex: start, toIndex: end)
     }
 
     // MARK: - Iterators
 
     /// Returns a forward iterator over the elements in this list.
-    public override func iterator() -> any java.util.Iterator<E> {
+    open override func iterator() -> any java.util.Iterator<E> {
       return ArrayListIterator<E>(list: self)
     }
 
     /// Returns a `ListIterator` over the elements in this list, starting at position `location`.
-    public override func listIterator(_ location: Int) -> any java.util.ListIterator<E> {
+    open override func listIterator(_ location: Int) -> any java.util.ListIterator<E> {
       return ArrayListListIterator<E>(list: self, startCursor: location)
     }
 
     /// Returns a `ListIterator` over the elements in this list starting at position 0.
-    public override func listIterator() -> any java.util.ListIterator<E> {
+    open override func listIterator() -> any java.util.ListIterator<E> {
       return listIterator(0)
     }
 
     // MARK: - Conversion
 
     /// Returns an array containing all elements in this list in proper sequence.
-    public override func toArray() -> [E?] {
+    open override func toArray() -> [E?] {
       return elements
     }
 
@@ -182,7 +182,7 @@ extension java.util {
     /// Returns a hash code value for this list.
     ///
     /// Uses index-based hashing to avoid requiring `E: Hashable`.
-    public override func hashCode() -> Int {
+    open override func hashCode() -> Int {
       var result = 1
       for element in elements {
         // Java ArrayList.hashCode(): result = 31 * result + (e == null ? 0 : e.hashCode())
@@ -244,7 +244,7 @@ extension java.util {
     /// - Returns: `true` if this list was modified.
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
     @discardableResult
-    public override func addAll(_ location: Int, collection: any java.util.Collection<E?>) -> Bool {
+    open override func addAll(_ location: Int, collection: any java.util.Collection<E?>) -> Bool {
       guard location >= 0 && location <= elements.count else {
         // Matching Java behaviour: throws IndexOutOfBoundsException at runtime.
         // Because AbstractList declares this as non-throwing, we crash like

@@ -68,13 +68,13 @@ extension java.util {
 
     /// Returns the number of key-value mappings.
     /// - Since: JavaApi (Java 1.0)
-    public func size() -> Int {
+    open func size() -> Int {
       withLock { storage.count }
     }
 
     /// Returns `true` if this hashtable contains no mappings.
     /// - Since: JavaApi (Java 1.0)
-    public func isEmpty() -> Bool {
+    open func isEmpty() -> Bool {
       withLock { storage.isEmpty }
     }
 
@@ -83,7 +83,7 @@ extension java.util {
     /// - Parameter key: The key to look up.
     /// - Returns: The associated value, or `nil`.
     /// - Since: JavaApi (Java 1.0)
-    public func get(_ key: K) -> V? {
+    open func get(_ key: K) -> V? {
       withLock { storage[key] }
     }
 
@@ -98,7 +98,7 @@ extension java.util {
     ///   Swift's type system — non-optional parameters cannot be `nil`).
     /// - Since: JavaApi (Java 1.0)
     @discardableResult
-    public func put(_ key: K, _ value: V) -> V? {
+    open func put(_ key: K, _ value: V) -> V? {
       withLock {
         let old = storage[key]
         storage[key] = value
@@ -112,13 +112,13 @@ extension java.util {
     /// - Returns: The removed value, or `nil` if not present.
     /// - Since: JavaApi (Java 1.0)
     @discardableResult
-    public func remove(_ key: K) -> V? {
+    open func remove(_ key: K) -> V? {
       withLock { storage.removeValue(forKey: key) }
     }
 
     /// Removes all mappings.
     /// - Since: JavaApi (Java 1.0)
-    public func clear() {
+    open func clear() {
       withLock { storage.removeAll() }
     }
 
@@ -149,7 +149,7 @@ extension java.util {
     ///
     /// - Parameter key: The key to test.
     /// - Since: JavaApi (Java 1.0)
-    public func containsKey(_ key: K) -> Bool {
+    open func containsKey(_ key: K) -> Bool {
       withLock { storage[key] != nil }
     }
 
@@ -159,25 +159,25 @@ extension java.util {
     ///
     /// - Parameter value: The value to search for (equality via `==`).
     /// - Since: JavaApi (Java 1.0)
-    public func containsValue(_ value: V) -> Bool where V: Equatable {
+    open func containsValue(_ value: V) -> Bool where V: Equatable {
       contains(value)
     }
 
     /// Returns an `Enumeration` over the keys of this hashtable.
     /// - Since: JavaApi (Java 1.0)
-    public func keys() -> any java.util.Enumeration<K> {
+    open func keys() -> any java.util.Enumeration<K> {
       withLock { HashtableEnumeration(Array(storage.keys)) }
     }
 
     /// Returns an `Enumeration` over the values of this hashtable.
     /// - Since: JavaApi (Java 1.0)
-    public func elements() -> any java.util.Enumeration<V> {
+    open func elements() -> any java.util.Enumeration<V> {
       withLock { HashtableEnumeration(Array(storage.values)) }
     }
 
     /// Returns a shallow copy of this hashtable.
     /// - Since: JavaApi (Java 1.0)
-    public func clone() -> Hashtable<K, V> {
+    open func clone() -> Hashtable<K, V> {
       withLock {
         let copy = Hashtable<K, V>()
         copy.storage = self.storage
@@ -187,7 +187,7 @@ extension java.util {
 
     /// Returns a string representation, e.g. `{one=1, two=2}`.
     /// - Since: JavaApi (Java 1.0)
-    public func toString() -> String {
+    open func toString() -> String {
       withLock {
         let pairs = storage.map { "\($0.key)=\($0.value)" }.joined(separator: ", ")
         return "{\(pairs)}"

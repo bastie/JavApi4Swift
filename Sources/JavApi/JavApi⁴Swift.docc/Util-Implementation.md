@@ -1,19 +1,13 @@
 # java.util – Implementierungs-Arbeitsplan
 
+> **Hinweis:** Dieses Dokument ist eine reine Aufgabenübersicht und enthält ausschließlich offene bzw. noch ausstehende Punkte. Vollständig implementierte Typen und Methoden werden hier **nicht** aufgeführt. Es ist kein Erledigungsprotokoll.
+
 Temporäres Arbeitsdokument zur schrittweisen Schließung der API-Lücken in `java.util`.
 Priorisierung: Java 1.0 → 1.1 → 1.2 → 1.4 → 5 → 6 → 7 → 8 → 9 → 10 → 11 → 12 → 16 → 17 → 21 -> 26.
 
 Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
-
-## P0 – Vorhandene Interfaces: Signaturlücken
-
-> **Legende:** `⚠️` = referenziert noch nicht bereitgestellten Typ · `🔧` = Signatur abweichend von Java-API
-
-| Interface | Fehlende Methoden / Probleme |
-|-----------|------------------------------|
-| `Comparator<T>` | ✅ alle Java-8-Methoden implementiert |
 
 ---
 
@@ -40,7 +34,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 ## P1 – Java 1.0 Kompatibilität
 
 ### `Date`
-- [ ] `clone() -> Date`
 
 **Tests:** 43 vorhanden.
 
@@ -93,14 +86,11 @@ Vorhanden: alle Konstanten, `getInstance()`, `get(int)`, `set(int, int)`, `setTi
 
 ### `GregorianCalendar`
 
-**Tests:** 0 vorhanden.
+**Tests:** Enthalten in `JavApi_util_Calendar_Tests.swift` (BC/AD-Konstanten, Konstruktoren, isLeapYear).
 
-- [ ] Tests für alle Konstruktoren schreiben
-- [ ] `BC = 0`, `AD = 1` Konstanten
-- [ ] `isLeapYear(_ year: Int) -> Bool`
 - [ ] `getGregorianChange() -> Date`, `setGregorianChange(_ date: Date)`
 - [ ] Konstruktoren: `(TimeZone)`, `(Locale)`, `(TimeZone, Locale)`
-- [ ] Alle `Calendar`-Methoden von oben implementieren
+- [ ] Alle noch fehlenden `Calendar`-Methoden von oben implementieren
 - [ ] `toZonedDateTime()` (Java 8)
 
 ### `Locale`
@@ -124,10 +114,9 @@ Vorhanden: Sprachkonstanten (ENGLISH…KOREAN, CHINESE), Länderkonstanten, `get
 
 ## P3 – Java 1.2 Kompatibilität
 
-### `Comparator<T>`
-- ✅ `comparingInt/Long/Double()` — implementiert (nutzen `_KeyExtractorComparator<T, Int/Int64/Double>`)
-
 ### `Collections` – Implementierungsstand
+
+Implementiert: `emptyList/Set/Map`, `singletonList`, `nCopies`, `unmodifiableList`, `synchronizedList`, `unmodifiableSequencedCollection/Set/Map`, `synchronizedSequencedCollection/Set/Map`, `reverseOrder`, `sort`, `reverse`, `shuffle`, `binarySearch`, `min`, `max`, `frequency`, `disjoint`, `fill`, `copy`, `addAll`, `swap`, `rotate`, `replaceAll`, `indexOfSubList`, `lastIndexOfSubList`.
 
 Noch fehlend:
 
@@ -136,8 +125,8 @@ Java 1.2:
 - [ ] `static singletonMap<K, V>(_ key: K, _ value: V) -> Map<K, V>`
 - [ ] `static enumeration<T>(_ c: Collection<T>) -> Enumeration<T>`
 - [ ] `static list<T>(_ e: Enumeration<T>) -> ArrayList<T>`
-- [ ] `static unmodifiableCollection/Set/SortedSet/Map/SortedMap`
-- [ ] `static synchronizedCollection/Set/SortedSet/Map/SortedMap`
+- [ ] `static unmodifiableSet/SortedSet/Map/SortedMap` (reine Varianten ohne Sequenced)
+- [ ] `static synchronizedSet/SortedSet/Map/SortedMap` (reine Varianten ohne Sequenced)
 
 Java 5:
 - [ ] `static checked*` (checkedCollection, checkedList, checkedSet, …)
@@ -237,12 +226,7 @@ Java 8:
 
 ## Java 8
 
-### `Optional<T>` – Restarbeiten
-- ✅ `stream() -> Stream<T>` — implementiert (`Optional+Stream.swift`)
-
 ### `java.util.function` — primitive Spezialisierungen (niedrige Priorität)
-
-Kern vollständig implementiert (`Supplier`, `Predicate`, `Function`, `Consumer`, `BiConsumer`, `BiFunction`, `UnaryOperator`, `BinaryOperator` + je `Any*`-Wrapper, 21 Tests). Noch offen:
 
 - [ ] `BiPredicate<T,U>`
 - [ ] `BooleanSupplier`, `IntSupplier`, `LongSupplier`, `DoubleSupplier`
@@ -256,7 +240,6 @@ Kern vollständig implementiert (`Supplier`, `Predicate`, `Function`, `Consumer`
 ### `java.util.stream` — Implementierungsstand
 
 Noch offen:
-- ✅ `Collectors.toSet`, `groupingBy`, `toMap` — implementiert
 - [ ] `Collectors`: `partitioningBy`, `toUnmodifiable*` (Java 10), `teeing` (Java 12)
 - [ ] `gather<R>(_ gatherer:)` (Java 24, finalisiert)
 - [ ] `Gatherer<T, A, R>` + `Gatherers` Utility-Klasse (Java 24)
@@ -271,7 +254,8 @@ Noch offen:
 - [ ] `Map.of(…)` (bis 10 Paare) + `Map.entry(_:_:)` + `Map.ofEntries(…)`
 
 ### `Optional<T>` – Java 9
-- [ ] `stream() -> Stream<T>` (abhängig von Stream-Implementierung)
+- [ ] `or(_ supplier: () -> Optional<T>)` — gibt `self` zurück wenn present, sonst Ergebnis des Suppliers
+- [ ] `ifPresentOrElse(_ action: (T) -> Void, _ emptyAction: () -> Void)`
 
 ### `ServiceLoader` – Java 9
 - [ ] `findFirst() -> Optional<S>`
@@ -356,18 +340,20 @@ Noch offen:
 
 ## Testabdeckungs-Lücken (keine neue Implementierung nötig)
 
-| Typ | Ist | Bedarf |
-|-----|-----|--------|
-| `GregorianCalendar` | 0 | ≥ 10 |
-| `Timer` / `TimerTask` | 0 | ≥ 8 |
-| `ServiceLoader` | 0 | ≥ 5 |
-| `LinkedHashMap` | 4 | ≥ 15 |
-| `UUID` | 3 | ≥ 15 |
-| `Enumeration` | 3 | ≥ 5 |
-| `TimeZone` | 8 | ≥ 12 |
-| `SimpleTimeZone` | 5 | ≥ 10 |
-| `Random` | 12 | ≥ 20 |
-| `Base64` | 13 | ≥ 20 |
+| Typ | Ist | Bedarf | Anmerkung |
+|-----|-----|--------|-----------|
+| `GregorianCalendar` | ~5 (in Calendar-Tests) | ≥ 10 | Tests im Calendar-File; eigene Suite anlegen |
+| `Timer` / `TimerTask` | 0 | ≥ 8 | Implementiert, keine Tests |
+| `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
+| `LinkedHashMap` | 4 | ≥ 15 | |
+| `UUID` | 3 | ≥ 15 | |
+| `Enumeration` | 3 | ≥ 5 | |
+| `TimeZone` | 8 | ≥ 12 | |
+| `SimpleTimeZone` | 5 | ≥ 10 | |
+| `Random` | 12 | ≥ 20 | |
+| `Base64` | 13 | ≥ 20 | |
+| `WeakHashMap` | 0 | ≥ 8 | Implementiert, keine Tests |
+| `Currency` | 0 | ≥ 5 | Implementiert, keine Tests |
 
 ---
 

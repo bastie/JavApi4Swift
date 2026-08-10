@@ -132,18 +132,18 @@ extension java.util {
 
     // MARK: - Size
 
-    public override func size() -> Int { count }
+    open override func size() -> Int { count }
 
     // MARK: - List — index access
 
-    public override func get(_ location: Int) throws -> E? {
+    open override func get(_ location: Int) throws -> E? {
       guard location >= 0 && location < count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(count)")
       }
       return nodeAt(location).element
     }
 
-    public override func set(_ location: Int, _ element: E?) throws -> E? {
+    open override func set(_ location: Int, _ element: E?) throws -> E? {
       guard location >= 0 && location < count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(count)")
       }
@@ -155,19 +155,19 @@ extension java.util {
 
     /// Appends `element` (optional) — satisfies `Collection.add(_ element: E?) throws -> Bool`.
     @discardableResult
-    public override func add(_ element: E?) throws -> Bool {
+    open override func add(_ element: E?) throws -> Bool {
       linkLast(element)
       return true
     }
 
-    public override func add(_ location: Int, _ element: E?) throws {
+    open override func add(_ location: Int, _ element: E?) throws {
       guard location >= 0 && location <= count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(count)")
       }
       if location == count { linkLast(element) } else { linkBefore(element, nodeAt(location)) }
     }
 
-    public override func remove(_ location: Int) throws -> E? {
+    open override func remove(_ location: Int) throws -> E? {
       guard location >= 0 && location < count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(count)")
       }
@@ -175,7 +175,7 @@ extension java.util {
     }
 
     @discardableResult
-    public override func remove(_ element: E?) -> Bool {
+    open override func remove(_ element: E?) -> Bool {
       var n = head
       while let node = n {
         if node.element == element { unlink(node); return true }
@@ -184,17 +184,17 @@ extension java.util {
       return false
     }
 
-    public override func clear() {
+    open override func clear() {
       head = nil; tail = nil; count = 0
     }
 
     // MARK: - List — search
 
-    public override func contains(_ element: E?) -> Bool {
+    open override func contains(_ element: E?) -> Bool {
       return indexOf(element: element) >= 0
     }
 
-    public override func indexOf(element: Any?) -> Int {
+    open override func indexOf(element: Any?) -> Int {
       guard let typed = element as? E? else { return -1 }
       var idx = 0; var n = head
       while let node = n {
@@ -204,7 +204,7 @@ extension java.util {
       return -1
     }
 
-    public override func lastIndexOf(_ element: Any?) -> Int {
+    open override func lastIndexOf(_ element: Any?) -> Int {
       guard let typed = element as? E? else { return -1 }
       var idx = count - 1; var n = tail
       while let node = n {
@@ -216,7 +216,7 @@ extension java.util {
 
     // MARK: - List — subList
 
-    public override func subList(_ start: Int, _ end: Int) -> any java.util.List {
+    open override func subList(_ start: Int, _ end: Int) -> any java.util.List {
       let sub = LinkedList<E>()
       var n: _LinkedListNode<E>? = (start < count) ? nodeAt(start) : nil
       for _ in start..<end {
@@ -354,17 +354,17 @@ extension java.util {
 
     // MARK: - ListIterator
 
-    public override func listIterator(_ location: Int) -> any java.util.ListIterator<E> {
+    open override func listIterator(_ location: Int) -> any java.util.ListIterator<E> {
       return LinkedListIterator<E>(list: self, startIndex: location)
     }
 
-    public override func listIterator() -> any java.util.ListIterator<E> {
+    open override func listIterator() -> any java.util.ListIterator<E> {
       return listIterator(0)
     }
 
     // MARK: - toArray
 
-    public override func toArray() -> [E?] {
+    open override func toArray() -> [E?] {
       var result: [E?] = []
       result.reserveCapacity(count)
       var n = head

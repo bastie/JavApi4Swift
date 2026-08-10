@@ -79,13 +79,13 @@ extension java.util {
     // MARK: - Capacity management
     // =========================================================================
 
-    public func capacity() -> Int { withLock { elementData.count } }
+    open func capacity() -> Int { withLock { elementData.count } }
 
-    public func ensureCapacity(_ minCapacity: Int) {
+    open func ensureCapacity(_ minCapacity: Int) {
       withLock { _growIfNeeded(minCapacity) }
     }
 
-    public func trimToSize() {
+    open func trimToSize() {
       withLock {
         if elementCount < elementData.count { elementData.removeSubrange(elementCount...) }
       }
@@ -114,11 +114,11 @@ extension java.util {
     // MARK: - Size  (List / Collection)
     // =========================================================================
 
-    public override func size() -> Int { withLock { elementCount } }
+    open override func size() -> Int { withLock { elementCount } }
 
-    public override func isEmpty() -> Bool { withLock { elementCount == 0 } }
+    open override func isEmpty() -> Bool { withLock { elementCount == 0 } }
 
-    public func setSize(_ newSize: Int) throws {
+    open func setSize(_ newSize: Int) throws {
       guard newSize >= 0 else { throw ArrayIndexOutOfBoundsException(newSize) }
       withLock {
         if newSize > elementData.count { _growIfNeeded(newSize) }
@@ -134,7 +134,7 @@ extension java.util {
     // =========================================================================
 
     /// Java legacy name for `get(_:)`.
-    public func elementAt(_ index: Int) throws -> E {
+    open func elementAt(_ index: Int) throws -> E {
       try withLock {
         try _rangeCheck(index)
         return elementData[index]!
@@ -142,21 +142,21 @@ extension java.util {
     }
 
     /// `List.get` — returns `E?` to match the protocol signature.
-    public override func get(_ location: Int) throws -> E? {
+    open override func get(_ location: Int) throws -> E? {
       try withLock {
         try _rangeCheck(location)
         return elementData[location]
       }
     }
 
-    public func firstElement() throws -> E {
+    open func firstElement() throws -> E {
       try withLock {
         guard elementCount > 0 else { throw java.util.NoSuchElementException("Vector is empty") }
         return elementData[0]!
       }
     }
 
-    public func lastElement() throws -> E {
+    open func lastElement() throws -> E {
       try withLock {
         guard elementCount > 0 else { throw java.util.NoSuchElementException("Vector is empty") }
         return elementData[elementCount - 1]!
@@ -169,7 +169,7 @@ extension java.util {
 
     /// Java legacy: replaces element at `index`, returns old value.
     @discardableResult
-    public func setElementAt(_ obj: E, _ index: Int) throws -> E {
+    open func setElementAt(_ obj: E, _ index: Int) throws -> E {
       try withLock {
         try _rangeCheck(index)
         let old = elementData[index]!
@@ -180,7 +180,7 @@ extension java.util {
 
     /// `List.set` — matches protocol signature.
     @discardableResult
-    public override func set(_ location: Int, _ element: E?) throws -> E? {
+    open override func set(_ location: Int, _ element: E?) throws -> E? {
       try withLock {
         try _rangeCheck(location)
         let old = elementData[location]
@@ -190,7 +190,7 @@ extension java.util {
     }
 
     /// Java legacy: appends to end.
-    public func addElement(_ obj: E) {
+    open func addElement(_ obj: E) {
       withLock {
         _growIfNeeded(elementCount + 1)
         elementData[elementCount] = obj
@@ -200,7 +200,7 @@ extension java.util {
 
     /// `Collection.add` — matches protocol signature (`throws -> Bool`).
     @discardableResult
-    public override func add(_ element: E?) throws -> Bool {
+    open override func add(_ element: E?) throws -> Bool {
       withLock {
         _growIfNeeded(elementCount + 1)
         elementData[elementCount] = element
@@ -210,7 +210,7 @@ extension java.util {
     }
 
     /// Java legacy: inserts before `index`.
-    public func insertElementAt(_ obj: E, _ index: Int) throws {
+    open func insertElementAt(_ obj: E, _ index: Int) throws {
       try withLock {
         guard index >= 0, index <= elementCount else { throw ArrayIndexOutOfBoundsException(index) }
         _growIfNeeded(elementCount + 1)
@@ -223,7 +223,7 @@ extension java.util {
     }
 
     /// `List.add(_:_:)` — matches protocol signature.
-    public override func add(_ location: Int, _ element: E?) throws {
+    open override func add(_ location: Int, _ element: E?) throws {
       try withLock {
         guard location >= 0, location <= elementCount else { throw ArrayIndexOutOfBoundsException(location) }
         _growIfNeeded(elementCount + 1)
@@ -241,19 +241,19 @@ extension java.util {
 
     /// Java legacy: removes at `index`, returns old element.
     @discardableResult
-    public func removeElementAt(_ index: Int) throws -> E {
+    open func removeElementAt(_ index: Int) throws -> E {
       try withLock { try _removeAt(index)! }
     }
 
     /// `List.remove(_:)` — matches protocol signature (returns `E?`).
     @discardableResult
-    public override func remove(_ location: Int) throws -> E? {
+    open override func remove(_ location: Int) throws -> E? {
       try withLock { try _removeAt(location) }
     }
 
     /// `Collection.remove(_:)` — removes first occurrence.
     @discardableResult
-    public override func remove(_ element: E?) -> Bool {
+    open override func remove(_ element: E?) -> Bool {
       withLock {
         for i in 0..<elementCount {
           if elementData[i] == element {
@@ -265,7 +265,7 @@ extension java.util {
       }
     }
 
-    public func removeAllElements() {
+    open func removeAllElements() {
       withLock {
         for i in 0..<elementCount { elementData[i] = nil }
         elementCount = 0
@@ -290,7 +290,7 @@ extension java.util {
     // MARK: - Bulk operations  (List / Collection)
     // =========================================================================
 
-    public func copyInto(_ anArray: inout [E]) {
+    open func copyInto(_ anArray: inout [E]) {
       withLock { for i in 0..<elementCount { anArray[i] = elementData[i]! } }
     }
 
@@ -373,7 +373,7 @@ extension java.util {
     // MARK: - Legacy enumeration
     // =========================================================================
 
-    public func elements() -> any java.util.Enumeration<E> {
+    open func elements() -> any java.util.Enumeration<E> {
       let snapshot = withLock { (0..<elementCount).map { elementData[$0] } }
       return java.util.VectorEnumeration(snapshot)
     }

@@ -16,7 +16,7 @@ extension java.util {
   
   
   /// Base64 implementation
-  open class Base64 {
+  public final class Base64 {
     
     public static func getEncoder () -> Encoder {
       return Encoder(.Standard)

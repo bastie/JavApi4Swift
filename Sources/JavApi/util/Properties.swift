@@ -26,7 +26,7 @@ extension java.util {
   /// ```
   ///
   /// - Since: Java 1.0
-  public class Properties : Hashtable<String, String> {
+  open class Properties : Hashtable<String, String> {
 
     // MARK: - Defaults
 
@@ -61,7 +61,7 @@ extension java.util {
     /// - Parameter key: The property key.
     /// - Returns: The property value, or `nil`.
     /// - Since: Java 1.0
-    public func getProperty(_ key: String) -> String? {
+    open func getProperty(_ key: String) -> String? {
       if let value = get(key) { return value }
       return defaults?.getProperty(key)
     }
@@ -73,7 +73,7 @@ extension java.util {
     ///   - defaultValue: Value returned when `key` is absent.
     /// - Returns: The property value, or `defaultValue`.
     /// - Since: Java 1.0
-    public func getProperty(_ key: String, _ defaultValue: String) -> String {
+    open func getProperty(_ key: String, _ defaultValue: String) -> String {
       return getProperty(key) ?? defaultValue
     }
 
@@ -85,14 +85,14 @@ extension java.util {
     /// - Returns: The previous value, or `nil`.
     /// - Since: Java 1.0
     @discardableResult
-    public func setProperty(_ key: String, _ value: String) -> String? {
+    open func setProperty(_ key: String, _ value: String) -> String? {
       return put(key, value)
     }
 
     /// Returns an `Enumeration` over all property names, including those from
     /// the defaults chain.
     /// - Since: Java 1.0
-    public func propertyNames() -> any java.util.Enumeration<String> {
+    open func propertyNames() -> any java.util.Enumeration<String> {
       var allKeys = Swift.Set(storage.keys)
       if let defaults {
         var defEnum = defaults.propertyNames()
@@ -114,7 +114,7 @@ extension java.util {
     /// - Parameter inStream: The input stream to read from.
     /// - Throws: `java.io.IOException` on read errors.
     /// - Since: Java 1.0
-    public func load(_ inStream: java.io.InputStream) throws {
+    open func load(_ inStream: java.io.InputStream) throws {
       var bytes: [UInt8] = []
       var b = try inStream.read()
       while b != -1 {
@@ -134,7 +134,7 @@ extension java.util {
     ///   - comments: Optional header comment written as the first line.
     /// - Throws: `java.io.IOException` on write errors.
     /// - Since: Java 1.0
-    public func store(_ out: java.io.OutputStream, _ comments: String?) throws {
+    open func store(_ out: java.io.OutputStream, _ comments: String?) throws {
       var lines = ""
       if let comments {
         lines += "# \(comments)\n"
@@ -158,7 +158,7 @@ extension java.util {
     ///   - comments: Optional header comment written as the first line.
     /// - Since: Java 1.0
     @available(*, deprecated, message: "as of Java 1.2, use store(OutputStream, String?) instead")
-    public func save(_ out: java.io.OutputStream, _ comments: String?) {
+    open func save(_ out: java.io.OutputStream, _ comments: String?) {
       try? store(out, comments)
     }
 
@@ -167,7 +167,7 @@ extension java.util {
     /// - Parameters:
     ///   - out: The `PrintStream` to write to.
     /// - Since: Java 1.0
-    public func list(_ out: java.io.PrintStream) {
+    open func list(_ out: java.io.PrintStream) {
       out.println("-- listing properties --")
       withLock {
         for (key, value) in storage {
@@ -184,7 +184,7 @@ extension java.util {
     /// - Parameters:
     ///   - out: The `PrintWriter` to write to.
     /// - Since: Java 1.0
-    public func list(_ out: java.io.PrintWriter) {
+    open func list(_ out: java.io.PrintWriter) {
       out.println("-- listing properties --")
       withLock {
         for (key, value) in storage {
@@ -204,7 +204,7 @@ extension java.util {
     ///
     /// - Returns: A Swift `Set<String>` of all property names.
     /// - Since: Java 6
-    public func stringPropertyNames() -> Swift.Set<String> {
+    open func stringPropertyNames() -> Swift.Set<String> {
       var allKeys = Swift.Set(storage.keys)
       if let defaults {
         allKeys.formUnion(defaults.stringPropertyNames())
@@ -229,7 +229,7 @@ extension java.util {
     /// - Parameter inStream: The input stream to read from.
     /// - Throws: `java.io.IOException` on read or parse errors.
     /// - Since: Java 5
-    public func loadFromXML(_ inStream: java.io.InputStream) throws {
+    open func loadFromXML(_ inStream: java.io.InputStream) throws {
       var bytes: [UInt8] = []
       var b = try inStream.read()
       while b != -1 {
@@ -262,7 +262,7 @@ extension java.util {
     ///   - comment: Optional comment written inside a `<comment>` element.
     /// - Throws: `java.io.IOException` on write errors.
     /// - Since: Java 5
-    public func storeToXML(_ os: java.io.OutputStream, _ comment: String?) throws {
+    open func storeToXML(_ os: java.io.OutputStream, _ comment: String?) throws {
       try storeToXML(os, comment, "UTF-8")
     }
 
@@ -274,7 +274,7 @@ extension java.util {
     ///   - encoding: Character encoding name (e.g. `"UTF-8"`, `"ISO-8859-1"`).
     /// - Throws: `java.io.IOException` on write errors.
     /// - Since: Java 5
-    public func storeToXML(_ os: java.io.OutputStream, _ comment: String?, _ encoding: String) throws {
+    open func storeToXML(_ os: java.io.OutputStream, _ comment: String?, _ encoding: String) throws {
       var xml = "<?xml version=\"1.0\" encoding=\"\(encoding)\"?>\n"
       xml += "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n"
       xml += "<properties>\n"

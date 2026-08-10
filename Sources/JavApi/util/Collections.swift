@@ -8,7 +8,7 @@ import Foundation   // for NSLock
 extension java.util {
 
   /// Swift port of `java.util.Collections` (Java 1.2).
-  open class Collections {
+  public final class Collections {
 
     // MARK: - Inner: UnmodifiableList
 

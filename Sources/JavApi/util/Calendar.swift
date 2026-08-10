@@ -208,7 +208,7 @@ extension java.util {
       return try! self.get(what.rawValue)
     }
 
-    public func setTime (_ newDate :java.util.Date) {
+    open func setTime (_ newDate :java.util.Date) {
       self.setTime(from: newDate.delegate)
     }
 

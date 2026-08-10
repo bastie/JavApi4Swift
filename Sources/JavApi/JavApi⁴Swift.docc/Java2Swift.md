@@ -1104,6 +1104,47 @@ public override init() {
 
 > **AI hint:** When porting any `java.awt.Window` subclass, always add an `init()` that sets `self.visible = false`. Do not change the `Component` default. Do not use `override var visible` — stored-property overrides are not allowed in Swift; use `init()` instead.
 
+#### utility classes (non-instantiable, static methods only)
+
+Java utility classes have a `private` constructor and contain only `static` methods. Examples: `java.util.Collections`, `java.util.Arrays`, `java.util.Objects`, `java.lang.Math`.
+
+In Swift, the idiomatic equivalent is a **caseless `enum`**. An `enum` with no cases is genuinely non-instantiable — the Swift compiler enforces this, unlike a `class` with a `private init()` that a subclass could circumvent.
+
+```java
+// Java
+public final class MathUtils {
+    private MathUtils() {}
+    public static int square(int x) { return x * x; }
+}
+```
+
+```swift
+// Swift
+public enum MathUtils {
+    public static func square(_ x: Int) -> Int { x * x }
+}
+```
+
+**Why `enum` over `public final class`?**
+- Genuinely non-instantiable — no `init()` to accidentally expose
+- No stored properties possible — matches the Java utility class contract
+- Standard Swift idiom for namespaces (see the `package` section)
+- `static let/var` on a caseless `enum` satisfies Swift 6 concurrency rules without needing `nonisolated(unsafe)` when the values are immutable
+
+**Why `enum` over `struct`?**
+
+A `struct` looks superficially similar — both are value types, both can carry `static` methods — but a `struct` is always instantiable. Swift synthesizes a trivial `init()` for a struct with no stored properties, so `let u = MathUtils()` compiles silently. Users (or AI tools) can then accidentally add instance methods or stored properties, and the utility-class contract breaks down.
+
+A caseless `enum` makes this impossible at the language level: there are no cases to match, so the compiler rejects any attempt to create an instance. Access is forced through the type name: `MathUtils.square(5)`. This mirrors the Java intent (private constructor) more faithfully than a struct ever can.
+
+**Scope:** Apply this pattern to **implementations** of Java utility classes. 
+
+**Exceptions:** Do not use a caseless `enum` if the type:
+- needs to conform to a protocol that requires an instance (`init`)
+- is used as a Java `class` reference (e.g. `Class.forName`) — use `public final class` there
+
+> **AI hint:** When porting a Java class whose only constructor is `private` and all methods are `static`, generate a Swift `public enum` with no cases. Do not add any `init`. All static members are written as `public static func` / `public static let` / `public static var` directly inside the `enum` body.
+
 #### visibility
 
 Swift visiblilities are:

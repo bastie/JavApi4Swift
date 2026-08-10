@@ -121,14 +121,14 @@ extension java.util {
     // MARK: - Java 8 methods (O(1) overrides of Map extension defaults)
 
     /// Returns the value for `key`, or `defaultValue` if the key is absent.
-    public override func getOrDefault(_ key: K, _ defaultValue: V) -> V {
+    open override func getOrDefault(_ key: K, _ defaultValue: V) -> V {
       _store[key] ?? defaultValue
     }
 
     /// Associates `key` with `value` only if `key` is not already present.
     /// Returns the existing value if present, or `nil` after inserting.
     @discardableResult
-    public override func putIfAbsent(_ key: K, _ value: V) -> V? {
+    open override func putIfAbsent(_ key: K, _ value: V) -> V? {
       if let existing = _store[key] { return existing }
       _store[key] = value
       return nil
@@ -137,7 +137,7 @@ extension java.util {
     /// Replaces the value for `key` if it is present. Returns the old value,
     /// or `nil` if the key was absent.
     @discardableResult
-    public override func replace(_ key: K, _ value: V) -> V? {
+    open override func replace(_ key: K, _ value: V) -> V? {
       guard _store[key] != nil else { return nil }
       let old = _store[key]
       _store[key] = value
@@ -147,7 +147,7 @@ extension java.util {
     /// Replaces the value for `key` only if it currently equals `oldValue`.
     /// Returns `true` on success, `false` otherwise.
     @discardableResult
-    public override func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool {
+    open override func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool {
       guard _store[key] == oldValue else { return false }
       _store[key] = newValue
       return true
@@ -156,7 +156,7 @@ extension java.util {
     /// Removes the mapping for `key` only if it currently maps to `value`.
     /// Returns `true` if the mapping was removed.
     @discardableResult
-    public override func remove(_ key: K, _ value: V) -> Bool {
+    open override func remove(_ key: K, _ value: V) -> Bool {
       guard _store[key] == value else { return false }
       _store.removeValue(forKey: key)
       return true
