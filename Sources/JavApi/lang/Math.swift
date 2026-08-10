@@ -5,7 +5,7 @@
 
 import Foundation
 
-public class Math {
+public enum Math {
   
   public static let PI = Double.pi
   public static let E = M_E

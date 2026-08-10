@@ -11,10 +11,7 @@
 /// no-ops and the class cannot be instantiated.
 ///
 /// - Since: JavaApi > 0.19.1 (Java 1.0)
-public final class Compiler {
-
-  /// `Compiler` cannot be instantiated.
-  private init() {}
+public enum Compiler {
 
   /// Compiles the given class. Always returns `false` in this implementation.
   ///

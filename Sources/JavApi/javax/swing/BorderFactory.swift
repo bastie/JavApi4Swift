@@ -13,9 +13,8 @@ extension javax.swing {
   ///
   /// Corresponds to `javax.swing.BorderFactory`.
   @MainActor
-  public final class BorderFactory {
+  public enum BorderFactory {
 
-    private init() {}
 
     // ── Empty ─────────────────────────────────────────────────────────────────
 

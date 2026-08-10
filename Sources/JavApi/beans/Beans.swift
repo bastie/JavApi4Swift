@@ -11,12 +11,11 @@ extension java.beans {
   /// `java.lang.Class` reflection and is not available — see NotImplemented.md.
   ///
   /// - Since: Java 1.1
-  public final class Beans {
+  public enum Beans {
 
     nonisolated(unsafe) private static var _designTime: Bool = false
     nonisolated(unsafe) private static var _guiAvailable: Bool = true
 
-    private init() {}
 
     // MARK: - Environment queries
 

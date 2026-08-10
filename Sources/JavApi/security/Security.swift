@@ -12,15 +12,13 @@ extension java.security {
   /// Mirrors `java.security.Security` (Java 1.1).
   ///
   /// - Since: JavaApi > 0.x (Java 1.1)
-  public final class Security {
+  public enum Security {
 
     // MARK: - Provider registry (ordered list, thread-unsafe by design — mirrors Java)
 
     nonisolated(unsafe) private static var providers: [Provider] = [SwiftMessageDigestServiceProvider()]
 
-    // MARK: - Private constructor
 
-    private init() {}
 
     // MARK: - Provider management
 

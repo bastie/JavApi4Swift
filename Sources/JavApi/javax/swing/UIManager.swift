@@ -34,7 +34,7 @@ extension javax.swing {
   ///
   /// - Since: Java 1.2
   @MainActor
-  public final class UIManager {
+  public enum UIManager {
     
     // -------------------------------------------------------------------------
     // MARK: Singleton state
@@ -48,7 +48,6 @@ extension javax.swing {
     }()
     private static var _defaults: javax.swing.UIDefaults = javax.swing.plaf.basic.BasicLookAndFeel().getDefaults()
     
-    private init() {}
     
     // -------------------------------------------------------------------------
     // MARK: L&F access
