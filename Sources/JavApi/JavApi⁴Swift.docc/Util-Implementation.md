@@ -13,9 +13,15 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ### `java.util.regex` (komplett fehlend)
 
+**Designentscheidung:** Backend ist `NSRegularExpression` (ICU-Syntax), **nicht** Swift 6 `Regex<Output>`.
+Begründung: Java-Regex-Syntax basiert auf ICU — `NSRegularExpression` ist nahezu 100 % kompatibel,
+sodass portierter Java-Code unverändert läuft. Swift `Regex` würde eine Syntax-Übersetzung erfordern
+und ist für eine Java-API-Brücke nicht geeignet.
+
 - [ ] `PatternSyntaxException`
 - [ ] `Pattern`: `compile`, `matcher`, `matches`, `split`, `pattern`, `flags` + Konstanten
 - [ ] `Matcher`: `matches`, `find`, `group`, `start`, `end`, `groupCount`, `replaceAll`, `replaceFirst`, `reset`, `lookingAt`, `region`, `appendReplacement`, `appendTail`, `usePattern`
+- [ ] `MatchResult` (Interface — wird von `Matcher` implementiert; blockiert `Scanner.findAll`)
 - [ ] Tests
 
 ---
@@ -31,8 +37,7 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 - [ ] Tests
 
 ### `Scanner` – Java 9
-- [ ] `tokens() -> Stream<String>`
-- [ ] `findAll(_ pattern:) -> Stream<MatchResult>`
+- [ ] `findAll(_ pattern:) -> Stream<MatchResult>` (requires `java.util.regex.MatchResult`)
 
 ### `UUID`
 
@@ -49,6 +54,34 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ### `ServiceLoader` (0 Tests)
 - [ ] Tests schreiben
+
+---
+
+## Java 1.4 (Nacharbeiten)
+
+### `java.util.logging` — Restarbeiten
+
+Kernskelett vorhanden (`Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`) mit ≥ 45 Tests. Folgende Lücken bestehen:
+
+**Bugs / falsche Signaturen:**
+- [ ] `Filter.isLoggable(_ record:)` gibt `Void` zurück statt `Bool`
+- [ ] `Logger.isLoggable(_ level:)` ist `private`, muss `public` sein
+- [ ] `Level.parse()` ist `@MainActor` — sollte plain `static` sein
+
+**Fehlende Methoden in bestehenden Klassen:**
+- [ ] `Handler`: `getFilter/setFilter`, `getFormatter/setFormatter`, `isLoggable(LogRecord)`
+- [ ] `LogRecord`: `sequenceNumber`, `parameters`, `threadID` / `longThreadID` (Java 16)
+- [ ] `LogManager`: `getLoggerNames()`, `getProperty(String)`, `readConfiguration()`, `reset()`
+- [ ] `Logger`: öffentliches `isLoggable(Level)`, `getFilter/setFilter`, `logp(…)`, `logrb(…)`, `getGlobal()`, `entering/exiting` mit Parameterübergabe
+
+**Komplett fehlende Klassen:**
+- [ ] `StreamHandler` (abstrakte Basis für Stream-Handler)
+- [ ] `ConsoleHandler` (schreibt auf `System.err` — sehr häufig genutzt)
+- [ ] `FileHandler` (schreibt in rotierende Logdateien)
+- [ ] `MemoryHandler` (gepufferter In-Memory-Handler)
+- [ ] `SocketHandler` (schreibt auf TCP-Socket)
+- [ ] `SimpleFormatter` (menschenlesbare Textausgabe)
+- [ ] `XMLFormatter` (XML-formatierte Ausgabe)
 
 ---
 
@@ -70,8 +103,7 @@ Noch offen:
 - [ ] `ServiceLoader.Provider<S>` innere Schnittstelle
 
 ### `Scanner` – Java 9
-- [ ] `tokens() -> Stream<String>`
-- [ ] `findAll(_ pattern:) -> Stream<MatchResult>`
+- [ ] `findAll(_ pattern:) -> Stream<MatchResult>` (requires `java.util.regex.MatchResult`)
 
 ---
 

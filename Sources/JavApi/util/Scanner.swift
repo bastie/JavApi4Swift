@@ -392,5 +392,32 @@ extension java.util {
       _remaining = rest
       return lower == "true"
     }
+
+    // MARK: - Java 9: tokens()
+
+    /// Returns a `Stream` of tokens produced by this scanner.
+    ///
+    /// Each element of the stream is the next token returned by `next()`.
+    /// The stream is **lazy** — tokens are read on demand. The scanner must
+    /// not be used concurrently while the stream is being consumed.
+    ///
+    /// Closing the stream does **not** close the scanner.
+    ///
+    /// Mirrors `java.util.Scanner.tokens()` (Java 9).
+    ///
+    /// - Since: Java 9
+    public func tokens() -> java.util.stream.Stream<String> {
+      // Materialise all remaining tokens immediately, then advance the scanner.
+      // Stream.init(_:) requires a concrete Sequence — the private factory
+      // init is not accessible from here.
+      var tokens: [String] = []
+      var remaining = _remaining
+      while let (tok, rest) = _splitNextToken(in: remaining) {
+        tokens.append(tok)
+        remaining = rest
+      }
+      _remaining = remaining
+      return java.util.stream.Stream<String>(tokens)
+    }
   }
 }
