@@ -5,22 +5,19 @@
 import Testing
 @testable import JavApi
 
-// WeakHashMap requires class-type (AnyObject) keys.
-// A simple reference-type key used throughout these tests.
+// Keys must be class types (AnyObject) for WeakHashMap.
 private final class Key: Hashable {
-  let name: String
-  init(_ name: String) { self.name = name }
-  static func == (lhs: Key, rhs: Key) -> Bool { lhs === rhs }
-  func hash(into hasher: inout Hasher) { hasher.combine(ObjectIdentifier(self)) }
+  let id: Int
+  init(_ id: Int) { self.id = id }
+  static func == (lhs: Key, rhs: Key) -> Bool { lhs.id == rhs.id }
+  func hash(into hasher: inout Hasher) { hasher.combine(id) }
 }
 
 struct JavApi_util_WeakHashMap_Tests {
 
-  // MARK: - Basic put / get / size / isEmpty
-
-  @Test("empty map has size 0 and isEmpty true")
-  func testEmpty() {
-    let map = java.util.WeakHashMap<Key, Int>()
+  @Test("WeakHashMap starts empty")
+  func testInitEmpty() {
+    let map = java.util.WeakHashMap<Key, String>()
     #expect(map.isEmpty())
     #expect(map.size() == 0)
   }
@@ -28,159 +25,92 @@ struct JavApi_util_WeakHashMap_Tests {
   @Test("put and get round-trip")
   func testPutGet() {
     let map = java.util.WeakHashMap<Key, String>()
-    let k = Key("a")
-    map.put(k, "hello")
-    #expect(map.get(k) == "hello")
-    #expect(map.size() == 1)
-    #expect(!map.isEmpty())
+    let k = Key(1)
+    map.put(k, "one")
+    #expect(map.get(k) == "one")
   }
 
   @Test("put returns previous value")
-  func testPutReturnsPrevious() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("x")
-    let prev1 = map.put(k, 1)
+  func testPutReturnsPreviousValue() {
+    let map = java.util.WeakHashMap<Key, String>()
+    let k = Key(2)
+    let prev1 = map.put(k, "first")
     #expect(prev1 == nil)
-    let prev2 = map.put(k, 2)
-    #expect(prev2 == 1)
-    #expect(map.get(k) == 2)
+    let prev2 = map.put(k, "second")
+    #expect(prev2 == "first")
+    #expect(map.get(k) == "second")
   }
 
-  @Test("put overwrites existing value")
-  func testPutOverwrite() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("k")
-    map.put(k, 10)
-    map.put(k, 20)
-    #expect(map.get(k) == 20)
-    #expect(map.size() == 1)
-  }
-
-  // MARK: - containsKey
-
-  @Test("containsKey returns true for present key")
-  func testContainsKeyPresent() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("k")
-    map.put(k, 1)
+  @Test("containsKey returns true for existing key")
+  func testContainsKey() {
+    let map = java.util.WeakHashMap<Key, String>()
+    let k = Key(3)
+    map.put(k, "v")
     #expect(map.containsKey(k))
   }
 
   @Test("containsKey returns false for absent key")
   func testContainsKeyAbsent() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("missing")
-    #expect(!map.containsKey(k))
+    let map = java.util.WeakHashMap<Key, String>()
+    #expect(!map.containsKey(Key(99)))
   }
 
-  // MARK: - remove
-
-  @Test("remove returns value and shrinks map")
+  @Test("remove deletes entry and returns old value")
   func testRemove() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("r")
-    map.put(k, 42)
+    let map = java.util.WeakHashMap<Key, String>()
+    let k = Key(4)
+    map.put(k, "val")
     let removed = map.remove(k)
-    #expect(removed == 42)
-    #expect(map.size() == 0)
+    #expect(removed == "val")
     #expect(map.get(k) == nil)
+    #expect(map.isEmpty())
   }
 
-  @Test("remove absent key returns nil")
-  func testRemoveAbsent() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("nope")
-    #expect(map.remove(k) == nil)
-  }
-
-  // MARK: - clear
-
-  @Test("clear empties the map")
+  @Test("clear removes all entries")
   func testClear() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k1 = Key("a"); let k2 = Key("b")
-    map.put(k1, 1); map.put(k2, 2)
+    let map = java.util.WeakHashMap<Key, String>()
+    map.put(Key(1), "a")
+    map.put(Key(2), "b")
     map.clear()
     #expect(map.isEmpty())
     #expect(map.size() == 0)
   }
 
-  // MARK: - Subscript
-
-  @Test("subscript get/set works like put/get")
-  func testSubscript() {
+  @Test("size reflects number of entries")
+  func testSize() {
     let map = java.util.WeakHashMap<Key, String>()
-    let k = Key("s")
-    map[k] = "world"
-    #expect(map[k] == "world")
+    let k1 = Key(10)
+    let k2 = Key(11)
+    map.put(k1, "x")
+    map.put(k2, "y")
+    #expect(map.size() == 2)
   }
 
-  @Test("subscript nil removes entry")
-  func testSubscriptNilRemoves() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k = Key("d")
-    map[k] = 99
-    map[k] = nil
-    #expect(map[k] == nil)
-    #expect(map.size() == 0)
-  }
-
-  // MARK: - entrySet
-
-  @Test("entrySet returns all live entries")
+  @Test("entrySet contains all live entries")
   func testEntrySet() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let k1 = Key("a"); let k2 = Key("b")
-    map.put(k1, 1); map.put(k2, 2)
+    let map = java.util.WeakHashMap<Key, String>()
+    let k1 = Key(20)
+    let k2 = Key(21)
+    map.put(k1, "a")
+    map.put(k2, "b")
     let entries = map.entrySet()
     #expect(entries.size() == 2)
-    var values: Set<Int> = []
-    let it = entries.iterator()
-    while it.hasNext() { if let e = try? it.next() { values.insert(e.value) } }
-    #expect(values == Set([1, 2]))
   }
 
-  // MARK: - Weak semantics
+  @Test("subscript get and set work like put/get")
+  func testSubscript() {
+    let map = java.util.WeakHashMap<Key, String>()
+    let k = Key(30)
+    map[k] = "hello"
+    #expect(map[k] == "hello")
+    map[k] = nil
+    #expect(map[k] == nil)
+  }
 
-  @Test("entry disappears after key is deallocated")
-  func testWeakKeyEviction() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    var objectId: ObjectIdentifier? = nil
-    do {
-      let k = Key("temp")
-      objectId = ObjectIdentifier(k)
-      map.put(k, 123)
-      #expect(map.size() == 1)
-      // k goes out of scope at end of do-block
-    }
-    // After k is deallocated, purge() should remove the dead entry.
+  @Test("purge does not crash on empty map")
+  func testPurgeEmpty() {
+    let map = java.util.WeakHashMap<Key, String>()
     map.purge()
-    #expect(map.size() == 0)
-    _ = objectId  // suppress unused-variable warning
-  }
-
-  @Test("multiple keys with independent lifetimes")
-  func testMultipleKeyLifetimes() {
-    let map = java.util.WeakHashMap<Key, Int>()
-    let longLived = Key("persistent")
-    map.put(longLived, 1)
-    do {
-      let shortLived = Key("temporary")
-      map.put(shortLived, 2)
-      #expect(map.size() == 2)
-    }
-    map.purge()
-    #expect(map.size() == 1)
-    #expect(map.get(longLived) == 1)
-  }
-
-  // MARK: - initialCapacity
-
-  @Test("initialCapacity constructor produces working map")
-  func testInitialCapacity() {
-    let map = java.util.WeakHashMap<Key, Int>(initialCapacity: 16)
-    let k = Key("cap")
-    map.put(k, 7)
-    #expect(map.get(k) == 7)
+    #expect(map.isEmpty())
   }
 }

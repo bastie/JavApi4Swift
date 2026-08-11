@@ -709,6 +709,16 @@ extension java.util {
       return _ArrayListEnumeration(list)
     }
 
+    /// Swiftify — returns an `Enumeration` directly from a Swift `Array`.
+    ///
+    /// Allows idiomatic bridging without first wrapping in `ArrayList`:
+    /// ```swift
+    /// let e = java.util.Collections.enumeration(["a", "b", "c"])
+    /// ```
+    public static func enumeration<T>(_ array: [T]) -> any java.util.Enumeration<T> {
+      return _SwiftArrayEnumeration(array)
+    }
+
     /// Returns an `ArrayList` containing all elements produced by `enumeration`.
     public static func list<T: Equatable, E: java.util.Enumeration>(
       _ enumeration: E
@@ -1091,6 +1101,29 @@ final class _EmptyEnumeration<T>: java.util.Enumeration {
   func nextElement() throws -> T { throw java.util.NoSuchElementException() }
   func next() -> T? { nil }
   func makeIterator() -> _EmptyEnumeration<T> { self }
+}
+
+/// Snapshot enumeration over a plain Swift `Array` — returned by the Swiftify overload of
+/// `Collections.enumeration(_ array:)`.  No `Equatable` constraint needed.
+final class _SwiftArrayEnumeration<T>: java.util.Enumeration {
+  typealias Element = T
+  private let elements: [T]
+  private var index: Int = 0
+
+  init(_ array: [T]) { self.elements = array }
+
+  func hasMoreElements() -> Bool { index < elements.count }
+  func nextElement() throws -> T {
+    guard index < elements.count else { throw java.util.NoSuchElementException() }
+    defer { index += 1 }
+    return elements[index]
+  }
+  func next() -> T? {
+    guard index < elements.count else { return nil }
+    defer { index += 1 }
+    return elements[index]
+  }
+  func makeIterator() -> _SwiftArrayEnumeration<T> { self }
 }
 
 /// Snapshot enumeration over an `ArrayList` — returned by `Collections.enumeration()`.

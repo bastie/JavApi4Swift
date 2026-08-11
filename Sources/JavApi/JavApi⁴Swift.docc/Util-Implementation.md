@@ -15,9 +15,7 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 Vollständig implementiert. Alle Klassen vorhanden, ≥ 60 Tests.
 
-Implementierte Klassen: `Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`, `SimpleFormatter`, `XMLFormatter`, `StreamHandler`, `ConsoleHandler`, `FileHandler`, `MemoryHandler`, `SocketHandler`.
-
-**Bewusst vereinfacht / nicht vollständig portiert:**
+**Noch offen:**
 - `FileHandler` ohne Log-Rotation (`limit`/`count`-Parameter)
 - `SocketHandler` auf WASM und Windows als No-Op (keine Netzwerk-API verfügbar)
 - `logrb`: Resource-Bundle-Lokalisierung nicht implementiert (Nachricht wird unübersetzt durchgereicht)
@@ -27,13 +25,26 @@ Implementierte Klassen: `Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`,
 
 ## Java 5 – Restarbeiten
 
-### `EnumMap<K, V>` (komplett fehlend)
-- [ ] Implementierung (Swift-Enums als Key — Designfrage)
-- [ ] Tests
+### `EnumMap<K, V>` — Stand 2026-08-11
 
-### `EnumSet<E>` (komplett fehlend)
-- [ ] Implementierung (Swift-Enums — Designfrage)
-- [ ] Tests
+Vollständig implementiert. 18 Tests.
+
+Key-Constraint: `K: CaseIterable & Hashable, K.AllCases.Element == K` (breite Swift-Kompatibilität, kein `java.lang.Enum` erforderlich).
+Storage: `[V?]` indiziert über Ordinal (`allCases.firstIndex(of:)`), O(1) get/put/remove.
+
+Implementierte Methoden: `init()`, `init(_ other:)`, `put`, `get`, `remove`, `containsKey`, `containsValue`, `size`, `isEmpty`, `clear`, `keySet`, `values`, `entrySet`, `forEach`, subscript.
+
+### `EnumSet<E>` — Stand 2026-08-11
+
+Vollständig implementiert. 22 Tests.
+
+Element-Constraint: `E: CaseIterable & Hashable, E.AllCases.Element == E`.
+Storage: `[Bool]` indiziert über Ordinal, O(1) add/remove/contains.
+`range(_:_:)` ist beidseitig inklusiv (abweichend von Java, das rechts exklusiv ist).
+
+Implementierte Factory-Methoden: `noneOf()`, `allOf()`, `of(_ elements: E...)`, `of(_ collection:)`, `copyOf`, `complementOf`, `range(_:_:)`.
+Implementierte Operationen: `add`, `remove`, `contains`, `size`, `isEmpty`, `clear`, `addAll`, `removeAll`, `retainAll`, `containsAll`, `toArray`, `forEach`.
+Sequence-Conformance: for-in Iteration möglich.
 
 
 ---
@@ -122,15 +133,15 @@ Noch offen:
 
 | Typ | Ist | Bedarf | Anmerkung |
 |-----|-----|--------|-----------|
-| `ServiceLoader` | 0 | ≥ 5 | Implementiert, keine Tests |
-| `UUID` | 3 | ≥ 15 | |
-| `Enumeration` | 3 | ≥ 5 | |
+| `ServiceLoader` | 6 | ✓ | |
+| `UUID` | 18 | ✓ | |
+| `Enumeration` | 5 | ✓ | |
+| `WeakHashMap` | 11 | ✓ | |
+| `Currency` | 16 | ✓ | |
 | `TimeZone` | 8 | ≥ 12 | |
 | `SimpleTimeZone` | 5 | ≥ 10 | |
 | `Random` | 12 | ≥ 20 | |
 | `Base64` | 13 | ≥ 20 | |
-| `WeakHashMap` | 0 | ≥ 8 | Implementiert, keine Tests |
-| `Currency` | 0 | ≥ 5 | Implementiert, keine Tests |
 
 ---
 

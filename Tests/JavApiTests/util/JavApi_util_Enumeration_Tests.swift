@@ -49,6 +49,24 @@ final class JavApi_util_Enumeration_Tests {
     #expect(!it.hasNext())
   }
 
+  @Test("Collections.enumeration wraps array as Enumeration")
+  func testCollectionsEnumeration() {
+    var e = java.util.Collections.enumeration(["a", "b", "c"])
+    var result: [String] = []
+    while e.hasMoreElements() {
+      result.append(try! e.nextElement())
+    }
+    #expect(result == ["a", "b", "c"])
+  }
+
+  @Test("Enumeration over single element yields that element")
+  func testSingleElement() {
+    var e = ArrayEnumeration(["only"])
+    #expect(e.hasMoreElements())
+    #expect(e.nextElement() == "only")
+    #expect(!e.hasMoreElements())
+  }
+
 }
 
 struct ArrayEnumeration<Element>: java.util.Enumeration {
