@@ -72,13 +72,41 @@ struct JavApi_util_TimeZone_Tests {
   @available(*, deprecated)
   @Test("TimeZone.getAvailableIDs(rawOffset) filters by offset")
   func testGetAvailableIDsForOffset() {
-    // UTC offset 0 should include at least "GMT" or "UTC"
     let ids = java.util.SimpleTimeZone.getAvailableIDs(0)
     #expect(ids.count > 0)
-    // Every returned ID must resolve to offset 0
     for id in ids {
       let tz = java.util.SimpleTimeZone.getTimeZone(id)
       #expect(tz.getRawOffset() == 0)
     }
+  }
+
+  // MARK: - Additional coverage
+
+  @available(*, deprecated)
+  @Test("getTimeZone(America/New_York) returns correct ID")
+  func testGetTimeZoneNewYork() {
+    let tz = java.util.SimpleTimeZone.getTimeZone("America/New_York")
+    #expect(tz.getID() == "America/New_York")
+  }
+
+  @available(*, deprecated)
+  @Test("getTimeZone(Asia/Tokyo) has positive offset")
+  func testGetTimeZoneTokyoPositiveOffset() {
+    let tz = java.util.SimpleTimeZone.getTimeZone("Asia/Tokyo")
+    #expect(tz.getRawOffset() > 0)
+  }
+
+  @available(*, deprecated)
+  @Test("getAvailableIDs contains Europe/London")
+  func testGetAvailableIDsContainsLondon() {
+    let ids = java.util.SimpleTimeZone.getAvailableIDs()
+    #expect(ids.contains("Europe/London"))
+  }
+
+  @available(*, deprecated)
+  @Test("getTimeZone(America/Los_Angeles) has negative offset")
+  func testGetTimeZoneLANegativeOffset() {
+    let tz = java.util.SimpleTimeZone.getTimeZone("America/Los_Angeles")
+    #expect(tz.getRawOffset() < 0)
   }
 }

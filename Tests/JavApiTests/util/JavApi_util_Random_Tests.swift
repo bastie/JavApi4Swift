@@ -168,4 +168,76 @@ struct JavApi_util_Random_Tests {
     }
     #expect(anyDifferent)
   }
+
+  // MARK: - Additional coverage
+
+  @Test("nextInt(1) always returns 0")
+  func testNextIntBoundOne() throws {
+    let r = java.util.Random(42)
+    for _ in 0..<50 {
+      #expect(try r.nextInt(1) == 0)
+    }
+  }
+
+  @Test("nextInt(bound) never returns negative value")
+  func testNextIntBoundNeverNegative() throws {
+    let r = java.util.Random()
+    for _ in 0..<200 {
+      #expect(try r.nextInt(100) >= 0)
+    }
+  }
+
+  @Test("nextInt(bound) never returns value >= bound")
+  func testNextIntBoundRespected() throws {
+    let r = java.util.Random()
+    let bound = 7
+    for _ in 0..<200 {
+      #expect(try r.nextInt(bound) < bound)
+    }
+  }
+
+  @Test("nextInt(0) throws IllegalArgumentException")
+  func testNextIntZeroBoundThrows() {
+    let r = java.util.Random()
+    #expect(throws: IllegalArgumentException.self) {
+      try r.nextInt(0)
+    }
+  }
+
+  @Test("nextDouble mean over 1000 samples is near 0.5")
+  func testNextDoubleMean() {
+    let r = java.util.Random(12345)
+    let sum = (0..<1000).reduce(0.0) { acc, _ in acc + r.nextDouble() }
+    let mean = sum / 1000.0
+    // Allow ±0.05 tolerance
+    #expect(mean > 0.45 && mean < 0.55)
+  }
+
+  @Test("nextFloat never returns 1.0")
+  func testNextFloatNeverOne() {
+    let r = java.util.Random()
+    for _ in 0..<1000 {
+      #expect(r.nextFloat() < 1.0)
+    }
+  }
+
+  @Test("nextBytes fills array — different seeds produce different bytes")
+  func testNextBytesDifferentSeeds() {
+    let r1 = java.util.Random(1)
+    let r2 = java.util.Random(2)
+    var b1: [byte] = Array(repeating: 0, count: 32)
+    var b2: [byte] = Array(repeating: 0, count: 32)
+    r1.nextBytes(&b1)
+    r2.nextBytes(&b2)
+    #expect(b1 != b2)
+  }
+
+  @Test("same seed produces same nextGaussian sequence")
+  func testSameSeedGaussian() {
+    let r1 = java.util.Random(999)
+    let r2 = java.util.Random(999)
+    for _ in 0..<20 {
+      #expect(r1.nextGaussian() == r2.nextGaussian())
+    }
+  }
 }

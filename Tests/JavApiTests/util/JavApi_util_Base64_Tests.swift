@@ -102,4 +102,64 @@ struct JavApi_util_Base64_Tests {
     let actually = try java.util.Base64.Decoder().decode(input)
     #expect(actually == expected)
   }
+
+  // MARK: - Additional coverage
+
+  @Test("encode 'Man' produces TWFu (RFC 4648 test vector)")
+  func testEncodeMan() {
+    let input: [UInt8] = [0x4D, 0x61, 0x6E]  // "Man"
+    #expect(java.util.Base64.getEncoder().encodeToString(input) == "TWFu")
+  }
+
+  @Test("encode 'Ma' produces TWE=")
+  func testEncodeMa() {
+    let input: [UInt8] = [0x4D, 0x61]  // "Ma"
+    #expect(java.util.Base64.getEncoder().encodeToString(input) == "TWE=")
+  }
+
+  @Test("encode 'M' produces TQ==")
+  func testEncodeM() {
+    let input: [UInt8] = [0x4D]  // "M"
+    #expect(java.util.Base64.getEncoder().encodeToString(input) == "TQ==")
+  }
+
+  @Test("decode TWFu produces Man")
+  func testDecodeMan() throws {
+    let input    = [UInt8]("TWFu".data(using: .utf8)!)
+    let expected: [UInt8] = [0x4D, 0x61, 0x6E]
+    let actually = try java.util.Base64.Decoder().decode(input)
+    #expect(actually == expected)
+  }
+
+  @Test("URL encoder uses - instead of + (no + in standard alphabet needed)")
+  func testURLEncoderUsesMinusAndUnderscore() {
+    // 0xFB 0xEF 0xBE encodes to ++++ in standard or ---- in URL-safe
+    // 0xFB = 11111011 — together with others will produce + in standard
+    let bytes: [UInt8] = [0xFB, 0xEF, 0xBE]
+    let standard = java.util.Base64.getEncoder().encodeToString(bytes)
+    let urlSafe  = java.util.Base64.getURLEncoder().encodeToString(bytes)
+    #expect(!urlSafe.contains("+"))
+    #expect(!urlSafe.contains("/"))
+    // The two encodings must differ for inputs that would produce + or /
+    let allBytes = (0...255).map { UInt8($0) }
+    let stdAll = java.util.Base64.getEncoder().encodeToString(allBytes)
+    let urlAll = java.util.Base64.getURLEncoder().encodeToString(allBytes)
+    #expect(stdAll != urlAll)
+  }
+
+  @Test("encode then decode roundtrip for 3-byte boundary")
+  func testRoundtripThreeByteMultiple() throws {
+    let input: [UInt8] = [1, 2, 3, 4, 5, 6]  // exactly 2 groups of 3
+    let encoded = java.util.Base64.getEncoder().encode(input)
+    let decoded = try java.util.Base64.Decoder().decode(encoded)
+    #expect(decoded == input)
+  }
+
+  @Test("encode produces only valid Base64 characters")
+  func testEncoderOutputCharset() {
+    let validBase64 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
+    let input = (0..<100).map { UInt8($0) }
+    let encoded = java.util.Base64.getEncoder().encodeToString(input)
+    #expect(encoded.allSatisfy { validBase64.contains($0) })
+  }
 }

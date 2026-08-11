@@ -9,11 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## Java 6 – Restarbeiten
-
-### `ServiceLoader` (0 Tests)
-- [ ] Tests schreiben
-
 ---
 
 ## Java 8
@@ -93,10 +88,10 @@ Noch offen:
 
 | Typ | Ist | Bedarf | Anmerkung |
 |-----|-----|--------|-----------|
-| `TimeZone` | 8 | ≥ 12 | |
-| `SimpleTimeZone` | 5 | ≥ 10 | |
-| `Random` | 12 | ≥ 20 | |
-| `Base64` | 13 | ≥ 20 | |
+| `TimeZone` | 12 | ✓ | |
+| `SimpleTimeZone` | 10 | ✓ | |
+| `Random` | 20 | ✓ | |
+| `Base64` | 20 | ✓ | |
 
 ---
 
