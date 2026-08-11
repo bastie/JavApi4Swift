@@ -9,8 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
----
-
 ## Java 8
 
 ### `java.util.stream` — Implementierungsstand
@@ -29,21 +27,6 @@ Noch offen:
 - [ ] `ServiceLoader.Provider<S>` innere Schnittstelle
 
 ---
-
-## Java 17 – `java.util.random` (komplett fehlend)
-
-### `RandomGenerator` Interface
-- [ ] `nextBoolean/Int/Long/Double/Float/Gaussian/Exponential` (alle Überladungen)
-- [ ] `isDeprecated() -> Bool`, `static of(_ algorithmName:)`
-- [ ] `ints()`, `longs()`, `doubles()` (Stream-Methoden)
-- [ ] Sub-Interfaces: `SplittableGenerator`, `JumpableGenerator`, `LeapableGenerator`
-
-### `RandomGeneratorFactory<T>`
-- [ ] `static all()`, `static of(_ algorithmName:)`, `create()`, `name()`, `group()`, Eigenschaften
-
-### `Random` – Retrofit (Java 17)
-- [ ] `Random` um `RandomGenerator`-Protocol erweitern
-- [ ] Neue Methoden mit `origin`/`bound`-Parametern ergänzen
 
 ---
 
@@ -81,17 +64,6 @@ Noch offen:
 | Stream `parallel()` | Als No-Op implementiert; `AsyncSequence`-Integration out of scope |
 | `java.util.spi.*` | SPI-Layer, kein direkter Portierungsbedarf |
 | `LazyConstant<V>` / `List.of(size:generator:)` | JEP 526 noch Preview in Java 26 |
-
----
-
-## Testabdeckungs-Lücken (keine neue Implementierung nötig)
-
-| Typ | Ist | Bedarf | Anmerkung |
-|-----|-----|--------|-----------|
-| `TimeZone` | 12 | ✓ | |
-| `SimpleTimeZone` | 10 | ✓ | |
-| `Random` | 20 | ✓ | |
-| `Base64` | 20 | ✓ | |
 
 ---
 
