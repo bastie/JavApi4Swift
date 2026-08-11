@@ -25,6 +25,16 @@ extension java.util.logging {
     public static let GLOBAL_LOGGER_NAME = "global"
     public static let ROOT_LOGGER_NAME   = ""
 
+    /// The global logger — convenience equivalent of `getLogger(GLOBAL_LOGGER_NAME)`.
+    ///
+    /// - Since: Java 1.4 (field deprecated in Java 7; use `getLogger` instead)
+    nonisolated(unsafe) public static let global: Logger = getLogger(GLOBAL_LOGGER_NAME)
+
+    /// Returns the global logger.
+    ///
+    /// - Since: Java 1.4
+    public static func getGlobal() -> Logger { global }
+
     // -------------------------------------------------------------------------
     // MARK: - Root logger singleton
     // -------------------------------------------------------------------------
@@ -49,6 +59,7 @@ extension java.util.logging {
     private var _level: Level? = nil
     private var _parent: Logger? = nil
     private var _useParentHandlers: Bool = true
+    private var _filter: Filter? = nil
 
     internal init(_ theName: String?, _ theResourceBundleName: String? = nil) {
       self.name = theName
@@ -120,9 +131,16 @@ extension java.util.logging {
       return Level.INFO
     }
 
-    private func isLoggable(_ level: Level) -> Bool {
+    public func isLoggable(_ level: Level) -> Bool {
       return level.intValue() >= effectiveLevel().intValue()
     }
+
+    // -------------------------------------------------------------------------
+    // MARK: - Filter
+    // -------------------------------------------------------------------------
+
+    open func getFilter() -> Filter? { _filter }
+    open func setFilter(_ filter: Filter?) { _filter = filter }
 
     // -------------------------------------------------------------------------
     // MARK: - Handlers
@@ -145,6 +163,7 @@ extension java.util.logging {
     /// Logs a `LogRecord`, propagating up the parent chain.
     open func log(_ record: LogRecord) {
       guard isLoggable(record.getLevel()) else { return }
+      if let filter = _filter, !filter.isLoggable(record) { return }
       _publish(record)
     }
 
@@ -183,6 +202,95 @@ extension java.util.logging {
       log(record)
     }
 
+    // -------------------------------------------------------------------------
+    // MARK: - logp (precise source) variants
+    // -------------------------------------------------------------------------
+
+    /// Logs a message with explicit source class and method names.
+    ///
+    /// - Since: Java 1.4
+    open func logp(_ level: Level, _ sourceClass: String, _ sourceMethod: String, _ msg: String) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msg)
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      log(record)
+    }
+
+    /// Logs a lazily-evaluated message with explicit source location.
+    ///
+    /// - Since: Java 8
+    open func logp(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
+                   _ msgSupplier: () -> String) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msgSupplier())
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      log(record)
+    }
+
+    /// Logs a message with an associated `Throwable` and explicit source location.
+    ///
+    /// - Since: Java 1.4
+    open func logp(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
+                   _ msg: String, _ thrown: Throwable) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msg)
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setThrown(thrown)
+      log(record)
+    }
+
+    /// Logs a lazily-evaluated message with a `Throwable` and explicit source location.
+    ///
+    /// - Since: Java 8
+    open func logp(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
+                   _ thrown: Throwable, _ msgSupplier: () -> String) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msgSupplier())
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setThrown(thrown)
+      log(record)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - logrb (resource bundle) variants
+    // -------------------------------------------------------------------------
+
+    /// Logs a message with explicit source location and resource bundle.
+    ///
+    /// Resource bundle localisation is not implemented; the raw message is
+    /// passed through unchanged.
+    ///
+    /// - Since: Java 1.4
+    open func logrb(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
+                    _ bundleName: String, _ msg: String) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msg)
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      log(record)
+    }
+
+    /// Logs a message with explicit source location, resource bundle, and a `Throwable`.
+    ///
+    /// - Since: Java 1.4
+    open func logrb(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
+                    _ bundleName: String, _ msg: String, _ thrown: Throwable) {
+      guard isLoggable(level) else { return }
+      let record = LogRecord(level, msg)
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setThrown(thrown)
+      log(record)
+    }
+
+    // -------------------------------------------------------------------------
+    // MARK: - entering / exiting / throwing
+    // -------------------------------------------------------------------------
+
     open func entering(_ sourceClass: String, _ sourceMethod: String) {
       guard isLoggable(Level.FINER) else { return }
       let record = LogRecord(Level.FINER, "ENTRY")
@@ -191,11 +299,48 @@ extension java.util.logging {
       log(record)
     }
 
+    /// Logs entry with a single parameter.
+    ///
+    /// - Since: Java 1.4
+    open func entering(_ sourceClass: String, _ sourceMethod: String, _ param: Any) {
+      guard isLoggable(Level.FINER) else { return }
+      let record = LogRecord(Level.FINER, "ENTRY \(param)")
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setParameters([param])
+      log(record)
+    }
+
+    /// Logs entry with multiple parameters.
+    ///
+    /// - Since: Java 1.4
+    open func entering(_ sourceClass: String, _ sourceMethod: String, _ params: [Any]) {
+      guard isLoggable(Level.FINER) else { return }
+      let paramStr = params.map { "\($0)" }.joined(separator: ", ")
+      let record = LogRecord(Level.FINER, "ENTRY \(paramStr)")
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setParameters(params)
+      log(record)
+    }
+
     open func exiting(_ sourceClass: String, _ sourceMethod: String) {
       guard isLoggable(Level.FINER) else { return }
       let record = LogRecord(Level.FINER, "RETURN")
       record.setSourceClassName(sourceClass)
       record.setSourceMethodName(sourceMethod)
+      log(record)
+    }
+
+    /// Logs exit with a return value.
+    ///
+    /// - Since: Java 1.4
+    open func exiting(_ sourceClass: String, _ sourceMethod: String, _ result: Any) {
+      guard isLoggable(Level.FINER) else { return }
+      let record = LogRecord(Level.FINER, "RETURN \(result)")
+      record.setSourceClassName(sourceClass)
+      record.setSourceMethodName(sourceMethod)
+      record.setParameters([result])
       log(record)
     }
 

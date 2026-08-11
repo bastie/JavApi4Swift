@@ -46,7 +46,7 @@ extension java.util.logging {
       return self.value
     }
     
-    @MainActor public static func parse(_ name: String) throws -> Level {
+    public static func parse(_ name: String) throws -> Level {
       switch name {
       case "OFF": return .OFF
       case "SEVERE": return .SEVERE

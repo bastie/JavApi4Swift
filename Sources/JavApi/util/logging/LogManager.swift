@@ -49,19 +49,54 @@ extension java.util.logging {
     }
 
     open func getLogger(_ name: String) -> Logger? {
-      // Special-case the root logger: `Logger.rootLogger` is a lazily
-      // initialised static that registers itself here on first access.
-      // If nothing has touched `Logger.rootLogger` yet (order of access is
-      // not guaranteed — Swift Testing may run tests concurrently), a plain
-      // dictionary lookup would return nil even though the root logger
-      // conceptually always exists. Forcing the static guarantees
-      // `getLogger("")` is correct regardless of access order, and is safe
-      // to call here because it is *not* called while holding `lock`
-      // (avoids re-entrant lock on non-reentrant NSLock).
       if name == Logger.ROOT_LOGGER_NAME {
         return Logger.rootLogger
       }
       return withLock { registeredLogger[name] }
+    }
+
+    /// Returns an `Enumeration` of all registered logger names.
+    ///
+    /// - Since: Java 1.4
+    open func getLoggerNames() -> any java.util.Enumeration<String> {
+      let names : [String] = withLock { Array(registeredLogger.keys) }
+      
+      return java.util.Collections.enumeration(java.util.ArrayList(from: names))
+    }
+
+    /// Returns a logging property from the manager's property set.
+    ///
+    /// This implementation has no persistent property store and always
+    /// returns `nil`.
+    ///
+    /// - Since: Java 1.4
+    open func getProperty(_ name: String) -> String? { nil }
+
+    /// Re-initialises the logging configuration from the default location.
+    ///
+    /// This implementation is a no-op: no properties file system is supported.
+    ///
+    /// - Since: Java 1.4
+    open func readConfiguration() throws {}
+
+    /// Resets the logging configuration.
+    ///
+    /// Closes all handlers on all registered loggers and removes all loggers
+    /// except the root logger.
+    ///
+    /// - Since: Java 1.4
+    open func reset() {
+      withLock {
+        for logger in registeredLogger.values {
+          for handler in logger.getHandlers() {
+            try? handler.close()
+          }
+        }
+        // Keep only the root logger.
+        let root = registeredLogger[Logger.ROOT_LOGGER_NAME]
+        registeredLogger = [:]
+        if let root { registeredLogger[Logger.ROOT_LOGGER_NAME] = root }
+      }
     }
   }
 }

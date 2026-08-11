@@ -11,29 +11,17 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ## Java 1.4 – Fehlende Typen
 
-### `java.util.logging` — Restarbeiten
+### `java.util.logging` — Stand 2026-08-11
 
-Kernskelett vorhanden (`Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`) mit ≥ 45 Tests. Folgende Lücken bestehen:
+Vollständig implementiert. Alle Klassen vorhanden, ≥ 60 Tests.
 
-**Bugs / falsche Signaturen:**
-- [ ] `Filter.isLoggable(_ record:)` gibt `Void` zurück statt `Bool`
-- [ ] `Logger.isLoggable(_ level:)` ist `private`, muss `public` sein
-- [ ] `Level.parse()` ist `@MainActor` — sollte plain `static` sein
+Implementierte Klassen: `Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`, `SimpleFormatter`, `XMLFormatter`, `StreamHandler`, `ConsoleHandler`, `FileHandler`, `MemoryHandler`, `SocketHandler`.
 
-**Fehlende Methoden in bestehenden Klassen:**
-- [ ] `Handler`: `getFilter/setFilter`, `getFormatter/setFormatter`, `isLoggable(LogRecord)`
-- [ ] `LogRecord`: `sequenceNumber`, `parameters`, `threadID` / `longThreadID` (Java 16)
-- [ ] `LogManager`: `getLoggerNames()`, `getProperty(String)`, `readConfiguration()`, `reset()`
-- [ ] `Logger`: öffentliches `isLoggable(Level)`, `getFilter/setFilter`, `logp(…)`, `logrb(…)`, `getGlobal()`, `entering/exiting` mit Parameterübergabe
-
-**Komplett fehlende Klassen:**
-- [ ] `StreamHandler` (abstrakte Basis für Stream-Handler)
-- [ ] `ConsoleHandler` (schreibt auf `System.err` — sehr häufig genutzt)
-- [ ] `FileHandler` (schreibt in rotierende Logdateien)
-- [ ] `MemoryHandler` (gepufferter In-Memory-Handler)
-- [ ] `SocketHandler` (schreibt auf TCP-Socket)
-- [ ] `SimpleFormatter` (menschenlesbare Textausgabe)
-- [ ] `XMLFormatter` (XML-formatierte Ausgabe)
+**Bewusst vereinfacht / nicht vollständig portiert:**
+- `FileHandler` ohne Log-Rotation (`limit`/`count`-Parameter)
+- `SocketHandler` auf WASM und Windows als No-Op (keine Netzwerk-API verfügbar)
+- `logrb`: Resource-Bundle-Lokalisierung nicht implementiert (Nachricht wird unübersetzt durchgereicht)
+- `Level.parse()`: Nur Standard-Level-Namen und deren Integer-Werte; benutzerdefinierte Level werden nicht gefunden
 
 ---
 
@@ -81,9 +69,6 @@ Noch offen:
 - [ ] `findFirst() -> Optional<S>`
 - [ ] `stream() -> Stream<ServiceLoader.Provider<S>>`
 - [ ] `ServiceLoader.Provider<S>` innere Schnittstelle
-
-### `Scanner` – Java 9
-- [x] `findAll(_ pattern:) -> Stream<MatchResult>` + `findAll(_ pattern: String)`
 
 ---
 
@@ -157,4 +142,4 @@ Noch offen:
 
 ---
 
-*Stand: 2026-08-10 · Basis: Java 1.0–26 public API
+*Stand: 2026-08-11 · Basis: Java 1.0–26 public API

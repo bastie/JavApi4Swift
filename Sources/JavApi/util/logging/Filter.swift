@@ -8,8 +8,9 @@ extension java.util.logging {
   /// - Since: Java 1.4
   public protocol Filter {
     
-    func isLoggable (_ record : LogRecord)
-    
+    /// Returns `true` if the given log record should be published.
+    func isLoggable(_ record: LogRecord) -> Bool
+
   }
   
 }
