@@ -9,30 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## Java 1.4 – Fehlende Typen
-
-### `java.util.logging` — Stand 2026-08-11
-
-Vollständig implementiert. Alle Klassen vorhanden, ≥ 60 Tests.
-
-Implementierte Klassen: `Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`, `Formatter`, `Filter`, `SimpleFormatter`, `XMLFormatter`, `StreamHandler`, `ConsoleHandler`, `FileHandler`, `MemoryHandler`, `SocketHandler`.
-
-**Bewusst vereinfacht:**
-- `SocketHandler` auf WASM und Windows als No-Op (keine POSIX-Netzwerk-API; im Klassen-Kommentar dokumentiert)
-
----
-
-## Java 5 – Restarbeiten
-
-### `EnumSet<E>` — Stand 2026-08-11
-
-Vollständig implementiert. 22 Tests.
-
-`range(_:_:)` ist beidseitig inklusiv — entspricht dem Java-Standard (`range` in Java ist ebenfalls beidseitig inklusiv).
-
-
----
-
 ## Java 6 – Restarbeiten
 
 ### `ServiceLoader` (0 Tests)
