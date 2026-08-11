@@ -7,4 +7,5 @@
 
 extension java.util.StringJoiner: CustomStringConvertible {
   public var description: String { toString() }
+  public var count : Int { length() }
 }

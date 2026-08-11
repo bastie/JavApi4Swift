@@ -16,7 +16,7 @@ extension java.util {
 
     // MARK: - Range views
 
-    /// Returns a view of the portion of this map whose keys are strictly
+    /// - Returns: a view of the portion of this map whose keys are strictly
     /// less than `toKey`.
     func headMap(_ toKey: K) -> any java.util.SortedMap<K, V>
 
@@ -24,21 +24,21 @@ extension java.util {
     /// than or equal to `fromKey`.
     func tailMap(_ fromKey: K) -> any java.util.SortedMap<K, V>
 
-    /// Returns a view of the portion of this map whose keys range from
+    /// - Returns: a view of the portion of this map whose keys range from
     /// `fromKey` (inclusive) to `toKey` (exclusive).
     func subMap(_ fromKey: K, _ toKey: K) -> any java.util.SortedMap<K, V>
 
     // MARK: - Endpoints
 
-    /// Returns the first (lowest) key in this map.
+    /// - Returns: the first (lowest) key in this map.
     /// - Throws: `NoSuchElementException` if the map is empty.
     func firstKey() throws -> K
 
-    /// Returns the last (highest) key in this map.
+    /// - Returns: the last (highest) key in this map.
     /// - Throws: `NoSuchElementException` if the map is empty.
     func lastKey() throws -> K
 
-    /// Returns the comparator used to order the keys in this map,
+    /// - Returns: the comparator used to order the keys in this map,
     /// or `nil` if it uses the keys' natural ordering.
     ///
     /// - Since: Java 1.2

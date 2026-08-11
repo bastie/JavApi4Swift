@@ -9,8 +9,6 @@ extension java.util {
 
   /// An object for traversing and partitioning elements of a source.
   ///
-  /// Mirrors `java.util.Spliterator<T>` (Java 8).
-  ///
   /// A `Spliterator` may be used to traverse elements individually via
   /// ``tryAdvance(_:)``, or traverse all remaining elements via
   /// ``forEachRemaining(_:)``.  It may also partition off some of its elements
@@ -38,7 +36,7 @@ extension java.util {
 
     /// Attempts to partition this spliterator into two halves.
     ///
-    /// Returns a `Spliterator` covering a prefix of elements, or `nil` if
+    /// - Returns: a `Spliterator` covering a prefix of elements, or `nil` if
     /// this spliterator cannot be split.
     ///
     /// - Since: Java 8
@@ -47,7 +45,7 @@ extension java.util {
     /// Returns an estimate of the number of elements this spliterator would
     /// encounter in a complete traversal.
     ///
-    /// Returns `Int64.max` if infinite, unknown, or too expensive to compute.
+    /// - Returns: `Int64.max` if infinite, unknown, or too expensive to compute.
     ///
     /// - Since: Java 8
     func estimateSize() -> Int64

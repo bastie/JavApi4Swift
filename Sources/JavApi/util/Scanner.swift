@@ -32,8 +32,6 @@ extension java.util {
   ///   because this implementation eagerly consumes trailing delimiters.
   /// - This class is **not** thread-safe (matches Java semantics).
   ///
-  /// Mirrors `java.util.Scanner` (Java 5).
-  ///
   /// - Since: Java 5
   open class Scanner: java.io.Closeable {
 
@@ -136,7 +134,7 @@ extension java.util {
 
     // MARK: - Internal helpers
 
-    /// Returns `text` with any leading delimiter match stripped.
+    /// - Returns: `text` with any leading delimiter match stripped.
     private func _stripLeadingDelimiters(_ text: String) -> String {
       guard !text.isEmpty,
             let regex = try? NSRegularExpression(pattern: "^(?:\(_delimiterPattern))") else {
@@ -150,7 +148,7 @@ extension java.util {
       return text
     }
 
-    /// Returns `(token, remainingAfterDelimiter)` from `text`, or `nil` if no token exists.
+    /// - Returns: `(token, remainingAfterDelimiter)` from `text`, or `nil` if no token exists.
     ///
     /// Leading delimiters are skipped.  The delimiter immediately following the token
     /// is also consumed so that the next call to this function finds the next token
@@ -185,7 +183,7 @@ extension java.util {
 
     // MARK: - hasNext / next
 
-    /// Returns `true` if this scanner has another token in its input.
+    /// - Returns: `true` if this scanner has another token in its input.
     ///
     /// - Since: Java 5
     public func hasNext() -> Bool {
@@ -209,7 +207,7 @@ extension java.util {
 
     // MARK: - hasNextLine / nextLine
 
-    /// Returns `true` if there is another line in this scanner's input.
+    /// - Returns: `true` if there is another line in this scanner's input.
     ///
     /// - Since: Java 5
     public func hasNextLine() -> Bool {
@@ -219,7 +217,7 @@ extension java.util {
 
     /// Advances past the current line and returns the skipped input.
     ///
-    /// Returns everything up to (but not including) the line separator.
+    /// - Returns: everything up to (but not including) the line separator.
     /// Recognises `\\n`, `\\r`, and `\\r\\n` as line terminators.
     ///
     /// - Throws: `NoSuchElementException` if no line is available.
@@ -252,12 +250,12 @@ extension java.util {
 
     // MARK: - hasNextInt / nextInt
 
-    /// Returns `true` if the next token can be interpreted as an `Int` using the default radix.
+    /// - Returns: `true` if the next token can be interpreted as an `Int` using the default radix.
     ///
     /// - Since: Java 5
     public func hasNextInt() -> Bool { hasNextInt(radix: _radix) }
 
-    /// Returns `true` if the next token can be interpreted as an `Int` using `radix`.
+    /// - Returns: `true` if the next token can be interpreted as an `Int` using `radix`.
     ///
     /// - Since: Java 5
     public func hasNextInt(radix: Int) -> Bool {
@@ -293,12 +291,12 @@ extension java.util {
 
     // MARK: - hasNextLong / nextLong
 
-    /// Returns `true` if the next token can be interpreted as an `Int64` using the default radix.
+    /// - Returns: `true` if the next token can be interpreted as an `Int64` using the default radix.
     ///
     /// - Since: Java 5
     public func hasNextLong() -> Bool { hasNextLong(radix: _radix) }
 
-    /// Returns `true` if the next token can be interpreted as an `Int64` using `radix`.
+    /// - Returns: `true` if the next token can be interpreted as an `Int64` using `radix`.
     ///
     /// - Since: Java 5
     public func hasNextLong(radix: Int) -> Bool {
@@ -334,7 +332,7 @@ extension java.util {
 
     // MARK: - hasNextDouble / nextDouble
 
-    /// Returns `true` if the next token can be interpreted as a `Double`.
+    /// - Returns: `true` if the next token can be interpreted as a `Double`.
     ///
     /// - Since: Java 5
     public func hasNextDouble() -> Bool {
@@ -362,7 +360,7 @@ extension java.util {
 
     // MARK: - hasNextBoolean / nextBoolean
 
-    /// Returns `true` if the next token is a case-insensitive `"true"` or `"false"`.
+    /// - Returns: `true` if the next token is a case-insensitive `"true"` or `"false"`.
     ///
     /// - Since: Java 5
     public func hasNextBoolean() -> Bool {
@@ -395,7 +393,7 @@ extension java.util {
 
     // MARK: - Java 9: tokens()
 
-    /// Returns a `Stream` of tokens produced by this scanner.
+    /// - Returns: a `Stream` of tokens produced by this scanner.
     ///
     /// Each element of the stream is the next token returned by `next()`.
     /// The stream is **lazy** — tokens are read on demand. The scanner must
@@ -422,7 +420,7 @@ extension java.util {
 
     // MARK: - Java 9: findAll
 
-    /// Returns a stream of match results for each subsequence of the remaining
+    /// - Returns: a stream of match results for each subsequence of the remaining
     /// input that matches the given `Pattern`.
     ///
     /// Matches are produced in order, without overlapping.  The scanner is
@@ -446,7 +444,7 @@ extension java.util {
       return java.util.stream.Stream<any java.util.regex.MatchResult>(results)
     }
 
-    /// Returns a stream of match results for each subsequence of the remaining
+    /// - Returns: a stream of match results for each subsequence of the remaining
     /// input that matches the given regex pattern string.
     ///
     /// - Throws: `PatternSyntaxException` if the pattern string is invalid.

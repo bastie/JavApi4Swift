@@ -19,7 +19,7 @@ extension java.util {
   /// If no elements are added, ``toString()`` returns `prefix + suffix` (or the
   /// value set via ``setEmptyValue(_:)``).
   ///
-  /// - Since: JavApi (Java 8)
+  /// - Since: Java 8
   public final class StringJoiner {
 
     private let delimiter: String

@@ -15,7 +15,7 @@ extension java.util {
   /// - Since: Java 21
   public protocol SequencedSet<E>: java.util.SequencedCollection, java.util.Set {
 
-    /// Returns a reverse-order view of this set as a `SequencedSet`.
+    /// - Returns: a reverse-order view of this set as a `SequencedSet`.
     ///
     /// Overrides `SequencedCollection.reversed()` to narrow the return type.
     func reversedSet() -> any java.util.SequencedSet<E>

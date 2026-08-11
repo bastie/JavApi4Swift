@@ -21,10 +21,10 @@ extension java.util {
 
     // MARK: - Endpoint entries
 
-    /// Returns the entry with the first key in the encounter order, or `nil`.
+    /// - Returns: the entry with the first key in the encounter order, or `nil`.
     func firstEntry() -> java.util.MapEntry<K, V>?
 
-    /// Returns the entry with the last key in the encounter order, or `nil`.
+    /// - Returns:  the entry with the last key in the encounter order, or `nil`.
     func lastEntry() -> java.util.MapEntry<K, V>?
 
     // MARK: - Polling

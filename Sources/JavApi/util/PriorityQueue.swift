@@ -18,7 +18,7 @@ extension java.util {
   /// - `contains`/`remove(_ element:)`: O(n) — linear scan
   /// - `iterator()`: unordered snapshot (matches Java semantics)
   ///
-  /// **Thread safety:** not thread-safe (matches Java).
+  /// **Thread safety:** not thread-safe.
   ///
   /// - Since: Java 5
   open class PriorityQueue<E: Comparable & Equatable>: AbstractCollection<E>, Queue {
@@ -40,9 +40,11 @@ extension java.util {
       super.init()
     }
 
-    /// Creates an empty priority queue with an initial capacity hint (ignored).
-    public init(initialCapacity: Int) {
+    /// Creates an empty priority queue with an initial capacity hint.
+    /// - Parameter initialCapacity: capacity
+    public init(_ initialCapacity: Int) {
       _comparator = nil
+      _heap.reserveCapacity(initialCapacity)
       super.init()
     }
 
@@ -51,19 +53,19 @@ extension java.util {
     /// - Parameter comparator: Returns a negative integer, zero, or a positive
     ///   integer when the first argument is less than, equal to, or greater than
     ///   the second.
-    public init(comparator: @escaping (E, E) -> Int) {
+    public init(_ comparator: @escaping (E, E) -> Int) { // TODO: check escaping vs. Java API conform - if it is only an addOn it is OK but move to PriorityQueue+Swiftify.swift
       _comparator = comparator
       super.init()
     }
 
     /// Creates a priority queue with a `java.util.Comparator`.
-    public init(comparator: any java.util.Comparator<E>) {
+    public init(_ comparator: any java.util.Comparator<E>) {
       _comparator = { comparator.compare($0, $1) }
       super.init()
     }
 
     /// Creates a priority queue pre-populated from `collection`, using natural ordering.
-    public init(collection: any java.util.Collection<E>) {
+    public init(_ collection: any java.util.Collection<E>) {
       _comparator = nil
       super.init()
       let it = collection.iterator()

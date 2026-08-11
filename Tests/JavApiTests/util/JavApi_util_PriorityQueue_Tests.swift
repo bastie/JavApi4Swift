@@ -96,7 +96,7 @@ struct JavApi_util_PriorityQueue_Tests {
 
   @Test("custom comparator reverses order (max-heap)")
   func testMaxHeap() {
-    let pq = java.util.PriorityQueue<Int>(comparator: { $1 - $0 })
+    let pq = java.util.PriorityQueue<Int>({ $1 - $0 })
     for v in [3, 1, 4, 1, 5, 9, 2] { _ = pq.offer(v) }
     #expect(pq.peek() == 9)
     var result: [Int] = []
@@ -265,7 +265,7 @@ struct JavApi_util_PriorityQueue_Tests {
   func testCollectionConstructor() throws {
     let src = java.util.ArrayList<Int>()
     for v in [5, 1, 4, 2, 3] { _ = try src.add(v) }
-    let pq = java.util.PriorityQueue<Int>(collection: src)
+    let pq = java.util.PriorityQueue<Int>(src)
     #expect(pq.size() == 5)
     var result: [Int] = []
     while let e = pq.poll() { result.append(e) }
@@ -290,7 +290,7 @@ struct JavApi_util_PriorityQueue_Tests {
   func testComparatorObject() {
     // Reverse-order comparator via java.util.Comparator
     // (We use a simple wrapper since java.util.Comparator is a protocol)
-    let pq = java.util.PriorityQueue<Int>(comparator: { b, a in
+    let pq = java.util.PriorityQueue<Int>({ b, a in
       // Reversed: larger values have higher priority
       if a < b { return -1 } else if a > b { return 1 } else { return 0 }
     })

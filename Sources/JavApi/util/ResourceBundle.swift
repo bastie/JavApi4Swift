@@ -47,7 +47,7 @@ extension java.util {
       return nil
     }
 
-    /// Returns an `Enumeration` over the keys defined **in this bundle**
+    /// - Returns: an `Enumeration` over the keys defined **in this bundle**
     /// (not including keys inherited from ``parent``).
     open func getKeys() -> any java.util.Enumeration<String> {
       return HashtableEnumeration<String>([])
@@ -97,7 +97,7 @@ extension java.util {
       return arr
     }
 
-    /// Returns `true` if `key` exists in this bundle or any parent.
+    /// - Returns: `true` if `key` exists in this bundle or any parent.
     ///
     /// - Parameter key: The resource key.
     /// - Since: Java 6
@@ -106,7 +106,7 @@ extension java.util {
       return parent?.containsKey(key) ?? false
     }
 
-    /// Returns a `Set` of all keys visible through the parent chain.
+    /// - Returns: a `Set` of all keys visible through the parent chain.
     ///
     /// - Since: Java 6
     public func keySet() -> Swift.Set<String> {

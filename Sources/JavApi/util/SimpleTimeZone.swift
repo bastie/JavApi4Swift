@@ -75,7 +75,7 @@ extension java.util {
     
     // MARK: - DST query
     
-    /// Returns `true` if the given date falls within daylight saving time for this zone.
+    /// - Returns: `true` if the given date falls within daylight saving time for this zone.
     ///
     /// Delegates to `Foundation.TimeZone.isDaylightSavingTime(for:)`.
     public func inDaylightTime(_ date: java.util.Date) -> Bool {
@@ -84,7 +84,7 @@ extension java.util {
     
     // MARK: - TimeZone protocol
     
-    /// Returns the timezone ID exactly as it was passed to the constructor,
+    /// - Returns: the timezone ID exactly as it was passed to the constructor,
     /// preserving the Java contract (`getTimeZone("UTC").getID() == "UTC"`).
     public func getID() -> String {
       return javaID

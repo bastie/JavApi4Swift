@@ -18,11 +18,11 @@ extension java.util {
 
     // MARK: - Endpoint access
 
-    /// Returns the first element of this collection.
+    /// - Returns: the first element of this collection.
     /// - Throws: `NoSuchElementException` if the collection is empty.
     func getFirst() throws -> E
 
-    /// Returns the last element of this collection.
+    /// - Returns: the last element of this collection.
     /// - Throws: `NoSuchElementException` if the collection is empty.
     func getLast() throws -> E
 
@@ -44,7 +44,7 @@ extension java.util {
 
     // MARK: - Reversed view
 
-    /// Returns a reverse-order view of this collection.
+    /// - Returns: a reverse-order view of this collection.
     func reversed() -> any java.util.SequencedCollection<E>
   }
 }
