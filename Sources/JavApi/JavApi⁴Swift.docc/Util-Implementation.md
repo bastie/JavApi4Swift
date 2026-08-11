@@ -35,14 +35,6 @@ Implementierte Klassen: `Logger`, `Level`, `Handler`, `LogRecord`, `LogManager`,
 - [ ] Implementierung (Swift-Enums — Designfrage)
 - [ ] Tests
 
-### `UUID`
-
-- [ ] `getLeastSignificantBits() -> Int64`
-- [ ] `getMostSignificantBits() -> Int64`
-- [ ] `version() -> Int`, `variant() -> Int`
-- [ ] `timestamp() -> Int64`, `clockSequence() -> Int`, `node() -> Int64` (nur Version-1)
-- [ ] `compareTo(_ val: UUID) -> Int`
-- [ ] Tests
 
 ---
 
