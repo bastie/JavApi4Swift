@@ -13,8 +13,10 @@ extension java.util.logging {
   ///
   /// **Platform support**
   /// - Apple / Linux (GLibc, MUSL) / FreeBSD / Android: full POSIX socket support.
-  /// - Windows: not yet implemented; `publish` is a no-op.
-  /// - WASM: no networking available; `publish` is a no-op.
+  /// - Windows (GDI): no POSIX socket API available in this port; `publish` is a
+  ///   silent no-op.  Use a platform-native logging sink on Windows instead.
+  /// - WASM: networking is unavailable in the WASM sandbox; `publish` is a
+  ///   silent no-op.  Consider a `ConsoleHandler` or `MemoryHandler` on WASM.
   ///
   /// The default formatter is `XMLFormatter`, matching Java's behaviour.
   ///

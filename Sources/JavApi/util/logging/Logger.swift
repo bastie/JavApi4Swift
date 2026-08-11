@@ -261,14 +261,16 @@ extension java.util.logging {
 
     /// Logs a message with explicit source location and resource bundle.
     ///
-    /// Resource bundle localisation is not implemented; the raw message is
-    /// passed through unchanged.
+    /// The message key `msg` is looked up in the named resource bundle
+    /// (via `ResourceBundle.getBundle`).  If the bundle is not found or the
+    /// key is absent, the raw `msg` string is used as the log message.
     ///
     /// - Since: Java 1.4
     open func logrb(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
                     _ bundleName: String, _ msg: String) {
       guard isLoggable(level) else { return }
-      let record = LogRecord(level, msg)
+      let localised = Logger._localise(msg, bundleName: bundleName)
+      let record = LogRecord(level, localised)
       record.setSourceClassName(sourceClass)
       record.setSourceMethodName(sourceMethod)
       log(record)
@@ -280,11 +282,24 @@ extension java.util.logging {
     open func logrb(_ level: Level, _ sourceClass: String, _ sourceMethod: String,
                     _ bundleName: String, _ msg: String, _ thrown: Throwable) {
       guard isLoggable(level) else { return }
-      let record = LogRecord(level, msg)
+      let localised = Logger._localise(msg, bundleName: bundleName)
+      let record = LogRecord(level, localised)
       record.setSourceClassName(sourceClass)
       record.setSourceMethodName(sourceMethod)
       record.setThrown(thrown)
       log(record)
+    }
+
+    /// Looks up `key` in the named resource bundle.
+    ///
+    /// Falls back to `key` itself if the bundle cannot be loaded or the
+    /// key is absent, preserving the original Java fall-through behaviour.
+    private static func _localise(_ key: String, bundleName: String) -> String {
+      guard !bundleName.isEmpty,
+            let bundle = try? java.util.ResourceBundle.getBundle(bundleName) else {
+        return key
+      }
+      return (try? bundle.getString(key)) ?? key
     }
 
     // -------------------------------------------------------------------------
