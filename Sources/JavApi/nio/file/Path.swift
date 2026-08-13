@@ -5,40 +5,37 @@
 
 extension java.nio.file {
   
-  public typealias Path = JavApi.Path
-  
+  /// Utility type to work with path
+  public protocol Path {
+    /// Create a new Path instance from given parts
+    /// - Parameters:
+    ///    - first part of path
+    ///    - more parts of path
+    /// - Returns path instance
+    static func of (_ first : String, _ more : String...) -> Path
+    /// Get a java.io.File from path instance
+    /// - Returns java.io.File
+    func toFile () -> java.io.File
+    /// Get a string representation of path
+    /// - Returns String
+    func toString () -> String
+  }
 }
 
-/// Utility type to work with path
-public protocol Path {
-  /// Create a new Path instance from given parts
-  /// - Parameters:
-  ///    - first part of path
-  ///    - more parts of path
-  /// - Returns path instance
-  static func of (_ first : String, _ more : String...) -> Path
-  /// Get a java.io.File from path instance
-  /// - Returns java.io.File
-  func toFile () -> java.io.File
-  /// Get a string representation of path
-  /// - Returns String
-  func toString () -> String
-}
-
-extension Path {
+extension java.nio.file.Path {
   
   /// Create a new Path instance from given parts
   /// - Parameters:
   ///    - first part of path
   ///    - more parts of path
   /// - Returns path instance
-  public static func of (_ firstValue : String, _ moreValue : [String]) -> Path {
+  public static func of (_ firstValue : String, _ moreValue : [String]) -> java.nio.file.Path {
     let result = java.nio.file._Path()
     result.first = firstValue
     result.more = moreValue
     return result
   }
-  public static func of (_ firstValue : String, _ moreValue : String...) -> Path {
+  public static func of (_ firstValue : String, _ moreValue : String...) -> java.nio.file.Path {
     let result = java.nio.file._Path()
     result.first = firstValue
     result.more = moreValue

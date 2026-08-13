@@ -11,7 +11,7 @@ extension java.nio.file.Files {
   /// - Parameter file path
   /// - Returns byte array
   /// - Throws OutOfMemoryError if file is to large or IOException on error
-  public static func readAllBytes (_ file : Path) throws -> Data {
+  public static func readAllBytes (_ file : java.nio.file.Path) throws -> Data {
     let lengthOfFile = java.io.File(file.toString()).length()
     guard 0 < lengthOfFile else {
       return Data([UInt8]())
