@@ -201,6 +201,27 @@ extension java.util.stream {
       }
     }
 
+    /// Returns a stream consisting of the results of applying `gatherer` to the
+    /// elements of this stream.
+    ///
+    /// A `Gatherer` is a composable, stateful transformation that can implement
+    /// patterns not expressible with `map`, `filter`, and `flatMap` alone —
+    /// such as windowing, prefix scans, and concurrent mapping.
+    ///
+    /// ```swift
+    /// let windows = stream.gather(java.util.stream.Gatherers.windowFixed(3))
+    /// ```
+    ///
+    /// Mirrors `Stream.gather(Gatherer<? super T, ?, R>)` (Java 24).
+    ///
+    /// - Parameter gatherer: The gatherer to apply.
+    /// - Since: Java 22 (finalised in Java 24)
+    public func gather<R>(_ gatherer: Gatherer<T, R>) -> Stream<R> {
+      Stream<R> { [_makeSequence] in
+        AnySequence(gatherer._process(_makeSequence()))
+      }
+    }
+
     /// Returns a no-op that signals intent to parallelize — currently a no-op.
     ///
     /// All execution in JavApi⁴Swift streams is sequential.

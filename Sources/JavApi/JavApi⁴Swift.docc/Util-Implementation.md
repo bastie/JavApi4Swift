@@ -9,39 +9,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## Java 8
-
-### `java.util.stream` — Implementierungsstand
-
-Noch offen:
-- [ ] `gather<R>(_ gatherer:)` (Java 24, finalisiert)
-- [ ] `Gatherer<T, A, R>` + `Gatherers` Utility-Klasse (Java 24)
-
----
-
-## Java 9
-
-### `ServiceLoader` – Java 9
-- [ ] `findFirst() -> Optional<S>`
-- [ ] `stream() -> Stream<ServiceLoader.Provider<S>>`
-- [ ] `ServiceLoader.Provider<S>` innere Schnittstelle
-
----
-
----
-
-## Java 22–24 – Stream Gatherers (finalisiert in Java 24)
-
-### `Gatherer<T, A, R>` Interface
-- [ ] `supplier`, `integrator`, `combiner`, `finisher`, `andThen`
-- [ ] `static of(integrator:)`, `of(supplier:integrator:)`, `of(supplier:integrator:finisher:)`, `ofSequential(…)`
-
-### `Gatherers` Utility-Klasse
-- [ ] `fold`, `scan`, `mapConcurrent`, `windowFixed`, `windowSliding`
-
-### `Stream<T>` – neue Methode
-- [ ] `gather<R>(_ gatherer: Gatherer<T, ?, R>) -> Stream<R>`
-
 ---
 
 ## Java 25 – `java.util.concurrent.StructuredTaskScope` (finalisiert)
@@ -51,7 +18,7 @@ Noch offen:
 - [ ] `StructuredTaskScope.ShutdownOnSuccess<T>`: `result()`
 - [ ] `Subtask<T>`: `get()`, `exception()`, `state()`, `Subtask.State`
 
-> **Swift-Hinweis:** Swift `async let` und `TaskGroup` decken die meisten Anwendungsfälle idiomatisch ab. Brücken-API nur bei tatsächlichem Portierungsbedarf.
+> **Swift-Hinweis:** Implementierung via Swift `async/await` + `TaskGroup`. WASM-Fallback: sequenziell.
 
 ---
 

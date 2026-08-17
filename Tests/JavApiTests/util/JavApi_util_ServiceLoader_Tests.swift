@@ -61,4 +61,34 @@ struct JavApi_util_ServiceLoader_Tests {
     let b = java.util.ServiceLoader<DummyVTable>(serviceName: "com.example.Svc")
     #expect(a !== b)
   }
+
+  // MARK: - Java 9
+
+  @Test("findFirst() returns empty Optional when no provider available")
+  func testFindFirstEmpty() {
+    java.util.ServiceLoader<DummyVTable>.setSearchPaths([FileManager.default.temporaryDirectory.path])
+    let loader = java.util.ServiceLoader<DummyVTable>(serviceName: "com.example.NoSuch")
+    let opt = loader.findFirst()
+    java.util.ServiceLoader<DummyVTable>.setSearchPaths([])
+    #expect(opt.isEmpty())
+  }
+
+  @Test("stream() returns empty Stream when no provider available")
+  func testStreamEmpty() {
+    java.util.ServiceLoader<DummyVTable>.setSearchPaths([FileManager.default.temporaryDirectory.path])
+    let loader = java.util.ServiceLoader<DummyVTable>(serviceName: "com.example.NoSuch")
+    let count = loader.stream().count()
+    java.util.ServiceLoader<DummyVTable>.setSearchPaths([])
+    #expect(count == 0)
+  }
+
+  @Test("stream() count matches iterator count")
+  func testStreamCountMatchesIterator() {
+    java.util.ServiceLoader<DummyVTable>.setSearchPaths([])
+    let loader = java.util.ServiceLoader<DummyVTable>(serviceName: "com.example.Svc")
+    let iterCount = Array(loader).count
+    loader.reload()
+    let streamCount = Int(loader.stream().count())
+    #expect(iterCount == streamCount)
+  }
 }

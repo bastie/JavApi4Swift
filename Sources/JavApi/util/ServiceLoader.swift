@@ -146,12 +146,49 @@ extension java.util {
       self.serviceName = serviceName
     }
 
+    // MARK: - Provider (Java 9)
+
+    /// Represents a service provider discovered by a `ServiceLoader`.
+    ///
+    /// Mirrors `java.util.ServiceLoader.Provider<S>` (Java 9).
+    public final class Provider: @unchecked Sendable {
+
+      private let _get: () -> UnsafeMutablePointer<VTable>
+
+      fileprivate init(_ get: @escaping () -> UnsafeMutablePointer<VTable>) {
+        _get = get
+      }
+
+      /// Returns the provider instance (loads it on first call).
+      public func get() -> UnsafeMutablePointer<VTable> { _get() }
+    }
+
     // MARK: - Public API
 
     /// Returns a new loader for the named service.
     /// - Since: Java 1.6
     public static func load(serviceName: String) -> ServiceLoader<VTable> {
       return ServiceLoader<VTable>(serviceName: serviceName)
+    }
+
+    /// Returns the first available provider, or an empty `Optional` if none is found.
+    ///
+    /// - Since: Java 9
+    public func findFirst() -> java.util.Optional<UnsafeMutablePointer<VTable>> {
+      if cachedProviders == nil { cachedProviders = loadProviders() }
+      if let first = cachedProviders?.first {
+        return java.util.Optional.of(first)
+      }
+      return java.util.Optional.empty()
+    }
+
+    /// Returns a stream of `Provider` instances for all discovered providers.
+    ///
+    /// - Since: Java 9
+    public func stream() -> java.util.stream.Stream<Provider> {
+      if cachedProviders == nil { cachedProviders = loadProviders() }
+      let providers = (cachedProviders ?? []).map { ptr in Provider { ptr } }
+      return java.util.stream.Stream(providers)
     }
 
     /// Clears the cached provider list so the next iteration reloads.
