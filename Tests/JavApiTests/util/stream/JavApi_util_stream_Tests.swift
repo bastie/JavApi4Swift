@@ -144,7 +144,7 @@ struct StreamIntermediateTests {
     #expect(observed == [1, 2, 3])
   }
 
-  @Test("parallel() is a no-op returning same stream content")
+  @Test("parallel() preserves stream content")
   func testParallel() {
     let result = java.util.stream.Stream.of(1, 2, 3).parallel().toArray()
     #expect(result == [1, 2, 3])
@@ -564,5 +564,102 @@ struct SpliteratorTests {
     var result: [Int] = []
     sp.forEachRemaining(java.util.function.AnyConsumer { result.append($0) })
     #expect(result == [10, 20])
+  }
+}
+
+// MARK: - parallel / sequential / isParallel
+
+struct JavApi_util_stream_Parallel_Tests {
+
+  @Test("isParallel() is false by default")
+  func testIsParallelDefault() {
+    let s = java.util.stream.Stream.of(1, 2, 3)
+    #expect(!s.isParallel())
+  }
+
+  @Test("parallel() sets isParallel to true")
+  func testParallelSetsFlag() {
+    let s = java.util.stream.Stream.of(1, 2, 3)
+    s.parallel()
+    #expect(s.isParallel())
+  }
+
+  @Test("sequential() resets isParallel to false")
+  func testSequentialResetsFlag() {
+    let s = java.util.stream.Stream.of(1, 2, 3)
+    s.parallel()
+    s.sequential()
+    #expect(!s.isParallel())
+  }
+
+  @Test("parallel().isParallel() returns true (fluent chain)")
+  func testFluentChain() {
+    #expect(java.util.stream.Stream.of(1).parallel().isParallel())
+  }
+
+  @Test("parallel flag propagates through filter")
+  func testParallelPropagatesFilter() {
+    let s = java.util.stream.Stream.of(1, 2, 3, 4)
+      .parallel()
+      .filter(java.util.function.AnyPredicate { $0 > 1 })
+    #expect(s.isParallel())
+  }
+
+  @Test("parallel flag propagates through map")
+  func testParallelPropagatesMap() {
+    let s = java.util.stream.Stream.of(1, 2, 3)
+      .parallel()
+      .map(java.util.function.AnyFunction { $0 * 2 })
+    #expect(s.isParallel())
+  }
+
+  @Test("forEach in parallel mode processes all elements")
+  func testParallelForEachAllElements() {
+    // Use a pre-allocated array + atomic sum to avoid data races.
+    // DispatchQueue.concurrentPerform guarantees all iterations complete before return.
+    nonisolated(unsafe) var sum = 0
+    let sumLock = CrossPlatformMutex(0)
+    java.util.stream.Stream.of(1, 2, 3, 4, 5)
+      .parallel()
+      .forEach(java.util.function.AnyConsumer { v in
+        sumLock.withLock { _ in sum += v }
+      })
+    #expect(sum == 15)
+  }
+
+  @Test("forEachOrdered preserves encounter order")
+  func testForEachOrderedPreservesOrder() {
+    var collected: [Int] = []
+    java.util.stream.Stream.of(1, 2, 3, 4, 5)
+      .parallel()
+      .forEachOrdered(java.util.function.AnyConsumer { collected.append($0) })
+    #expect(collected == [1, 2, 3, 4, 5])
+  }
+
+  @Test("sequential() after parallel() makes forEach sequential")
+  func testSequentialAfterParallel() {
+    var collected: [Int] = []
+    java.util.stream.Stream.of(1, 2, 3)
+      .parallel()
+      .sequential()
+      .forEach(java.util.function.AnyConsumer { collected.append($0) })
+    #expect(collected == [1, 2, 3])
+  }
+
+  @Test("parallel stream toArray preserves all elements")
+  func testParallelToArray() {
+    let result = java.util.stream.Stream.of(10, 20, 30)
+      .parallel()
+      .toArray()
+    #expect(result.sorted() == [10, 20, 30])
+  }
+
+  @Test("empty parallel stream forEach does nothing")
+  func testParallelForEachEmpty() {
+    var count = 0
+    java.util.stream.Stream<Int>.empty()
+      .parallel()
+      .forEach(java.util.function.AnyConsumer { _ in count += 1 })
+    #expect(count == 0)
   }
 }

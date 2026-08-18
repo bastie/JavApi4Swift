@@ -30,14 +30,19 @@ extension java.util.stream {
   /// // sum == 50
   /// ```
   ///
-  /// - Note: `parallel()` is accepted but treated as a no-op; all execution
-  ///   is sequential.
+  /// - Note: `parallel()` enables concurrent terminal-operation execution via
+  ///   `DispatchQueue.concurrentPerform` on platforms that support threads.
+  ///   On WASM/WASI the flag is accepted but execution remains sequential.
   ///
   /// - Since: Java 8
   public final class Stream<T>: @unchecked Sendable {
 
     // The source is a lazy factory: evaluated once per terminal operation.
     private let _makeSequence: () -> AnySequence<T>
+
+    // Whether this stream should execute terminal operations in parallel.
+    // On WASI there is no true parallelism; the flag is stored but ignored.
+    nonisolated(unsafe) private var _isParallel: Bool = false
 
     // MARK: - Internal constructors
 
@@ -48,8 +53,9 @@ extension java.util.stream {
     }
 
     /// Wraps a lazy sequence factory (used by intermediate operations).
-    private init(_ factory: @escaping () -> AnySequence<T>) {
+    private init(_ factory: @escaping () -> AnySequence<T>, isParallel: Bool = false) {
       _makeSequence = factory
+      _isParallel = isParallel
     }
 
     // MARK: - Factory methods
@@ -96,9 +102,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func filter(_ predicate: some java.util.function.Predicate<T>) -> Stream<T> {
-      Stream { [_makeSequence] in
+      Stream({ [_makeSequence] in
         AnySequence(_makeSequence().lazy.filter { predicate.test($0) })
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the results of applying `mapper` to
@@ -106,9 +112,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func map<R>(_ mapper: some java.util.function.Function<T, R>) -> Stream<R> {
-      Stream<R> { [_makeSequence] in
+      Stream<R>({ [_makeSequence] in
         AnySequence(_makeSequence().lazy.map { mapper.apply($0) })
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the results of replacing each element
@@ -116,9 +122,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func flatMap<R>(_ mapper: some java.util.function.Function<T, Stream<R>>) -> Stream<R> {
-      Stream<R> { [_makeSequence] in
+      Stream<R>({ [_makeSequence] in
         AnySequence(_makeSequence().lazy.flatMap { mapper.apply($0)._makeSequence() })
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the elements, truncated to no more than
@@ -126,9 +132,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func limit(_ maxSize: Int64) -> Stream<T> {
-      Stream { [_makeSequence] in
+      Stream({ [_makeSequence] in
         AnySequence(_makeSequence().prefix(Int(maxSize)))
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the remaining elements after discarding
@@ -136,9 +142,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func skip(_ n: Int64) -> Stream<T> {
-      Stream { [_makeSequence] in
+      Stream({ [_makeSequence] in
         AnySequence(_makeSequence().dropFirst(Int(n)))
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the elements, sorted by `comparator`.
@@ -147,9 +153,9 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func sorted(_ comparator: some java.util.Comparator<T>) -> Stream<T> {
-      Stream { [_makeSequence] in
+      Stream({ [_makeSequence] in
         AnySequence(Array(_makeSequence()).sorted { comparator.compare($0, $1) < 0 })
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the elements, additionally performing
@@ -159,12 +165,12 @@ extension java.util.stream {
     ///
     /// - Since: Java 8
     public func peek(_ action: some java.util.function.Consumer<T>) -> Stream<T> {
-      Stream { [_makeSequence] in
+      Stream({ [_makeSequence] in
         AnySequence(_makeSequence().lazy.map { element -> T in
           action.accept(element)
           return element
         })
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream by replacing each element with zero or more elements
@@ -191,14 +197,14 @@ extension java.util.stream {
     public func mapMulti<R>(
       _ mapper: some java.util.function.BiConsumer<T, java.util.function.AnyConsumer<R>>
     ) -> Stream<R> {
-      Stream<R> { [_makeSequence] in
+      Stream<R>({ [_makeSequence] in
         var results: [R] = []
         let push = java.util.function.AnyConsumer<R> { r in results.append(r) }
         for element in _makeSequence() {
           mapper.accept(element, push)
         }
         return AnySequence(results)
-      }
+      }, isParallel: _isParallel)
     }
 
     /// Returns a stream consisting of the results of applying `gatherer` to the
@@ -217,29 +223,72 @@ extension java.util.stream {
     /// - Parameter gatherer: The gatherer to apply.
     /// - Since: Java 22 (finalised in Java 24)
     public func gather<R>(_ gatherer: Gatherer<T, R>) -> Stream<R> {
-      Stream<R> { [_makeSequence] in
+      Stream<R>({ [_makeSequence] in
         AnySequence(gatherer._process(_makeSequence()))
-      }
+      }, isParallel: _isParallel)
     }
 
-    /// Returns a no-op that signals intent to parallelize — currently a no-op.
+    /// Returns this stream with parallel execution enabled for terminal operations.
     ///
-    /// All execution in JavApi⁴Swift streams is sequential.
+    /// On platforms that support threads (Apple, Linux, Windows, FreeBSD, Android),
+    /// terminal operations such as ``forEach(_:)`` will execute using
+    /// `DispatchQueue.concurrentPerform`. On WASM/WASI the flag is stored but
+    /// execution remains cooperative-sequential (no real thread parallelism).
+    ///
+    /// Intermediate operations always evaluate lazily and sequentially regardless
+    /// of this flag — only the terminal-operation work is dispatched concurrently.
     ///
     /// - Since: Java 8
-    public func parallel() -> Stream<T> { self }
+    @discardableResult
+    public func parallel() -> Stream<T> {
+      _isParallel = true
+      return self
+    }
 
-    /// Returns this stream as sequential — a no-op since all streams are sequential.
+    /// Returns this stream with parallel execution disabled.
     ///
     /// - Since: Java 8
-    public func sequential() -> Stream<T> { self }
+    @discardableResult
+    public func sequential() -> Stream<T> {
+      _isParallel = false
+      return self
+    }
+
+    /// Returns `true` if this stream will execute terminal operations in parallel.
+    ///
+    /// - Since: Java 8
+    public func isParallel() -> Bool { _isParallel }
 
     // MARK: - Terminal operations (trigger evaluation)
 
     /// Performs `action` for each element of this stream.
     ///
+    /// If ``isParallel()`` is `true` and the platform supports threads, elements
+    /// are processed concurrently using `DispatchQueue.concurrentPerform`.
+    /// Encounter order is **not** guaranteed in parallel mode — use
+    /// ``forEachOrdered(_:)`` if order matters.
+    ///
     /// - Since: Java 8
     public func forEach(_ action: some java.util.function.Consumer<T>) {
+      #if os(WASI)
+      for element in _makeSequence() { action.accept(element) }
+      #else
+      if _isParallel {
+        let elements = Array(_makeSequence())
+        DispatchQueue.concurrentPerform(iterations: elements.count) { i in
+          action.accept(elements[i])
+        }
+      } else {
+        for element in _makeSequence() { action.accept(element) }
+      }
+      #endif
+    }
+
+    /// Performs `action` for each element in encounter order, regardless of
+    /// whether the stream is parallel.
+    ///
+    /// - Since: Java 8
+    public func forEachOrdered(_ action: some java.util.function.Consumer<T>) {
       for element in _makeSequence() { action.accept(element) }
     }
 
@@ -382,10 +431,10 @@ extension java.util.stream.Stream where T: Hashable {
   ///
   /// - Since: Java 8
   public func distinct() -> java.util.stream.Stream<T> {
-    java.util.stream.Stream<T> { [_makeSequence] in
+    java.util.stream.Stream<T>({ [_makeSequence] in
       var seen = Set<T>()
       return AnySequence(_makeSequence().lazy.filter { seen.insert($0).inserted })
-    }
+    }, isParallel: _isParallel)
   }
 }
 
@@ -397,8 +446,8 @@ extension java.util.stream.Stream where T: Comparable {
   ///
   /// - Since: Java 8
   public func sorted() -> java.util.stream.Stream<T> {
-    java.util.stream.Stream<T> { [_makeSequence] in
+    java.util.stream.Stream<T>({ [_makeSequence] in
       AnySequence(Array(_makeSequence()).sorted())
-    }
+    }, isParallel: _isParallel)
   }
 }
