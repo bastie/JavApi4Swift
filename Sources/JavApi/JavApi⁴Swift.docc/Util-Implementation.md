@@ -11,15 +11,6 @@ Legende: `[ ]` offen · `[-]` bewusst ausgelassen
 
 ---
 
-## Java 25 – `java.util.concurrent.StructuredTaskScope` (finalisiert)
-
-- [ ] `StructuredTaskScope<T>`: `fork`, `join`, `joinUntil`, `shutdown`, `close`, `isShutdown`, `handleComplete`
-- [ ] `StructuredTaskScope.ShutdownOnFailure`: `exception()`, `throwIfFailed()`
-- [ ] `StructuredTaskScope.ShutdownOnSuccess<T>`: `result()`
-- [ ] `Subtask<T>`: `get()`, `exception()`, `state()`, `Subtask.State`
-
-> **Swift-Hinweis:** Implementierung via Swift `async/await` + `TaskGroup`. WASM-Fallback: sequenziell.
-
 ---
 
 ## Derzeit Bewusst ausgelassen (`[-]`) mit Prüfung im Nachgang
