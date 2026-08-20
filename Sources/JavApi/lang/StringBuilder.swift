@@ -50,13 +50,21 @@ public class StringBuilder {
     return Array (self.content)[offset]
   }
   
+  /// Removes the `Character` at the specified position in this sequence,
+  /// matching `java.lang.StringBuilder.deleteCharAt(int)`: the receiver is
+  /// mutated in place and returned (fluent interface pattern), analogous to
+  /// `append`/`setLength`.
+  @discardableResult
   public func deleteCharAt (_ offset : Int) throws -> StringBuilder {
     guard offset > -1, offset < self.count else {
       throw IndexOutOfBoundsException("the index \(offset) is negative or greater than or equal to count of String")
     }
     var asCharArray = Array(self.content)
-    asCharArray.removeFirst(offset)
-    return StringBuilder(String(asCharArray))
+    // Bugfix: `removeFirst(offset)` removes the first `offset` elements
+    // instead of the single element AT index `offset` - use `remove(at:)`.
+    asCharArray.remove(at: offset)
+    self.content = String(asCharArray)
+    return self
   }
   
   public func length () -> Int {

@@ -1,6 +1,6 @@
 # Text-Implementierung – Offene Punkte der Java-String-Verarbeitung in JavApi4Swift
 
-*Stand: 2026-08-18*
+*Stand: 2026-08-19*
 
 > **Hinweis zur Pflege dieses Dokuments:** Dies ist eine reine TODO-Liste
 > offener Punkte, kein Bestandsbericht. Bereits implementierte Java-APIs
@@ -46,18 +46,11 @@ Diese Punkte sind unabhängig von der Java-Versions-Reihenfolge zuerst zu
 erledigen, weil sie entweder einen Fehler in bereits vorhandenem Code
 betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
 
-- [ ] **Bugfix `StringBuilder.deleteCharAt`**: nutzt fälschlich
-  `removeFirst(offset)` statt an Position `offset` ein einzelnes Zeichen zu
-  entfernen (`Array.removeFirst(k)` entfernt die ersten `k` Elemente, nicht
-  das Element bei Index `k`) — funktionale Abweichung von Java (seit
-  Java 1.0/1.5). *Abhängig von:* nichts; blockiert aber sinnvolle Tests für
-  die unten aufgeführten `StringBuilder`-Ergänzungen (Java 1.5-Abschnitt).
 - [ ] **Gemeinsames Storage-Protokoll für `StringBuilder`/`StringBuffer`**:
   bevor `insert`/`delete`/`replace`/`reverse`/`indexOf` in `StringBuilder`
   nachgezogen werden (siehe Java-1.5-Abschnitt), sollte geprüft werden, ob
   beide Klassen ein gemeinsames internes Storage nutzen können, um
-  Code-Duplikation zu vermeiden und den `deleteCharAt`-Bug zentral zu
-  beheben. *Abhängig von:* obigem Bugfix.
+  Code-Duplikation zu vermeiden. *Abhängig von:* nichts.
 - [ ] **Fehlende Tests nachziehen**, bevor bestehende Funktionalität
   erweitert wird: `StringBuffer`, `Character`, `Collator`/
   `RuleBasedCollator`, `BreakIterator`, `AttributedString`, `Charset`/
@@ -85,12 +78,25 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   Swift-Strings kein String-Pool-Konzept haben. *Abhängig von:* nichts.
 - [ ] `String.copyValueOf(char[])` / `copyValueOf(char[], int, int)` — Alias
   zu `valueOf`. *Abhängig von:* nichts.
+- [ ] `Character.toString(char)` (statische Fassaden-Methode) — nur die
+  Instanzmethode `toString()` in `Character+Java.swift` gefunden, das
+  statische `Character.toString(char)`-Pendant fehlt. *Abhängig von:*
+  nichts.
 - [ ] `ChoiceFormat.nextDouble`/`previousDouble` Sonderfälle — Detailprüfung
   empfohlen (Kleinteil, `java.text.ChoiceFormat` seit 1.0). *Abhängig von:*
   nichts.
 - [ ] `StringBuffer`: `capacity()` / `ensureCapacity(int)` / `trimToSize()`
   — bislang nicht vorhanden (in Swift ohnehin nur als Hinweis/No-Op
   sinnvoll, da `String` dynamisch wächst). *Abhängig von:* nichts.
+- [ ] `String.equalsIgnoreCase(String)` — **komplett nicht gefunden** in
+  `String+Java.swift`, obwohl seit Java 1.0 vorhanden und sehr häufig
+  genutzt. *Abhängig von:* nichts.
+- [ ] `String.indexOf(String, int fromIndex)` / `indexOf(char, int fromIndex)`
+  / `lastIndexOf(String, int fromIndex)` / `lastIndexOf(char, int fromIndex)`
+  — aktuell existieren nur die Overloads ohne `fromIndex`-Parameter
+  (`indexOf(String)`, `indexOf(Character)`, `lastIndexOf(Character)`,
+  `lastIndexOf(String)` in `String+Java.swift`); die vier
+  `fromIndex`-Varianten fehlen komplett. *Abhängig von:* nichts.
 
 ## Java 1.1
 
@@ -120,6 +126,15 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   von:* nichts; wichtig für Sortierung, sollte früh kommen.
 - [ ] `Character.UnicodeBlock`. *Abhängig von:* **Unicode-Blockdaten** pro
   Plattform, siehe Plattform-Hinweis.
+- [ ] `String.CASE_INSENSITIVE_ORDER` — statische `Comparator<String>`-
+  Konstante für case-insensitive Sortierung, **nicht gefunden**. *Abhängig
+  von:* dem `compareToIgnoreCase`-Punkt oben (gleicher Abschnitt) bzw.
+  einem `Comparator`-Protokoll-Äquivalent in Swift.
+- [ ] `java.text.Annotation` — Wrapper-Klasse für benannte Attributwerte in
+  `AttributedString`/`AttributedCharacterIterator`, **nicht gefunden**
+  (nur `AttributedCharacterIterator.Attribute` scheint vorhanden zu sein,
+  `Annotation` selbst nicht). *Abhängig von:* vorhandenem
+  `AttributedCharacterIterator` (bereits implementiert).
 
 ## Java 1.4
 
@@ -128,6 +143,11 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   vorhandenem `java.util.regex` (bereits implementiert) — reiner
   Fassaden-Aufruf, kein Blocker.
 - [ ] `String.contentEquals(StringBuffer)`. *Abhängig von:* nichts.
+- [ ] `String.split(String regex, int limit)` — nur `split(String)` ohne
+  `limit`-Parameter vorhanden (`String+Java.swift`); `Pattern.split(String,
+  Int)` mit Limit existiert bereits, die `String`-Fassade mit `limit`
+  fehlt aber. *Abhängig von:* vorhandenem `Pattern.split(_:_:)` (bereits
+  implementiert) — reiner Fassaden-Aufruf, kein Blocker.
 - [ ] `Pattern`/`Matcher`-Flag-Konstanten vollständig prüfen:
   `UNIX_LINES`, `COMMENTS`, `LITERAL`, `UNICODE_CASE`, `CANON_EQ`
   (aktuell nur `flags()` als Getter sichtbar, keine Konstanten-Liste
@@ -184,8 +204,8 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   `replace(int, int, String)`, `reverse()`, `indexOf(String)` /
   `lastIndexOf(String)`, `capacity()`/`ensureCapacity(int)`/`trimToSize()`,
   `getChars(...)` — in `StringBuffer` größtenteils vorhanden, in
-  `StringBuilder` fehlt es komplett. *Abhängig von:* Priorität-Bugfix
-  `deleteCharAt` und ggf. gemeinsamem Storage-Protokoll (siehe oben).
+  `StringBuilder` fehlt es komplett. *Abhängig von:* ggf. gemeinsamem
+  Storage-Protokoll (siehe oben).
 - [ ] `Character.valueOf`/Boxing-Cache-Semantik — in Swift ohne
   Objekt-Identität weniger relevant, nur als Hinweis dokumentieren.
   *Abhängig von:* nichts.
@@ -203,6 +223,10 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
 - [ ] `Formatter(Locale)` / lokalisierte Zahl-/Datumsformatierung über
   `%d`/`%f`/`%t*` — zu prüfen, ob Locale-Parameter durchgereicht wird.
   *Abhängig von:* nichts.
+- [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
+  `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
+  `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-
+  Hilfsmethoden aus Java 1.5 fehlen. *Abhängig von:* nichts.
 - [ ] `Scanner`: `next(Pattern)` / `hasNext(Pattern)`,
   `nextBigInteger()` / `nextBigDecimal()`, `skip(Pattern)`, `match()`,
   `reset()`, `nextFloat()`/`hasNextFloat()`, `nextByte()`/`nextShort()` —
@@ -221,6 +245,12 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   eingeschränkt oder gar nicht verfügbar — Machbarkeit vorab prüfen (z. B.
   swift-foundation/ICU4C-Verfügbarkeit unter statischem MUSL). Siehe
   Plattform-Hinweis unten.
+- [ ] `String.getBytes(Charset)` / `String(byte[], Charset)`-Konstruktor —
+  aktuell existieren nur `getBytes(String encoding)` sowie
+  `String(bytes:, encoding: String)`-Initialisierer, die einen Charset-
+  Namen als `String` statt eines `Charset`-Objekts erwarten; die seit
+  Java 1.6 vorhandenen Charset-typisierten Überladungen fehlen. *Abhängig
+  von:* vorhandenem `java.nio.charset.Charset` (bereits implementiert).
 
 ## Java 7
 
@@ -236,6 +266,9 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   *Abhängig von:* **plattformabhängige Regex-Engine**, muss pro
   Zielplattform (Linux ohne Foundation-Vollausbau, WASM) verifiziert
   werden.
+- [ ] `System.lineSeparator()` — **nicht gefunden** in `System.swift`/
+  `System+*.swift`; String-relevante Utility zur plattformabhängigen
+  Zeilenumbruch-Ermittlung (seit Java 1.7). *Abhängig von:* nichts.
 
 ## Java 8
 
@@ -252,6 +285,9 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   Projekt-Memory).
 - [ ] `Pattern.splitAsStream(CharSequence)`. *Abhängig von:*
   **`java.util.stream`** (`Stream<String>`), siehe oben.
+- [ ] `Character.hashCode(char)` (statische Variante, seit Java 8) — nur
+  die Instanzmethode `hashCode()` in `Character+Java.swift` gefunden.
+  *Abhängig von:* nichts.
 
 ## Java 9
 
@@ -261,6 +297,12 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   über Closures gegeben).
 - [ ] `Matcher.results()` → `Stream<MatchResult>`. *Abhängig von:*
   **`java.util.stream`** (`Stream<MatchResult>`).
+- [ ] `java.lang.invoke.StringConcatFactory` — reines `invokedynamic`-
+  Compiler-Backend für String-Konkatenation seit Java 9, kein für Swift
+  relevantes API (Swift hat kein Analogon zu `invokedynamic`/Bootstrap-
+  Methoden); analog zu `String.describeConstable()` (Java 12) nur als
+  „nicht anwendbar" dokumentieren, keine Implementierung geplant.
+  *Abhängig von:* nichts.
 
 ## Java 11
 
@@ -290,18 +332,51 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   (bereits implementiert).
 - [ ] `CharSequence.isEmpty()` (seit 15 als Default-Methode). *Abhängig
   von:* nichts.
-- [ ] Text Blocks (`"""`) — reines Sprachfeature ohne Laufzeit-API-
-  Äquivalent, nicht in Swift nachbildbar; kein API-Gegenstück nötig, nur
-  zur Vollständigkeit hier vermerkt (keine Umsetzung geplant).
+- [ ] `String.stripIndent()` — entfernt einheitliche Einrückung wie bei
+  Text-Block-Verarbeitung, aber als öffentliche Instanzmethode direkt auf
+  `String` aufrufbar (verifiziert gegen
+  `docs.oracle.com/en/java/javase/21/.../java/lang/String.html`, seit
+  Java 15). *Abhängig von:* nichts.
+- [ ] `String.translateEscapes()` — löst Escape-Sequenzen (`\n`, `\t`,
+  `\uXXXX` etc.) in einem String auf, ebenfalls Teil der Text-Block-
+  Unterstützung, aber öffentlich direkt aufrufbar (verifiziert gegen
+  Oracle-API-Dokumentation Java 21, seit Java 15). *Abhängig von:* nichts.
 
-## Java 21 / 23 (Preview-Features, nicht übertragbar)
+## Java 20
 
+- [ ] `Pattern.namedGroups()` / `Matcher.namedGroups()` — liefert eine
+  `Map<String, Integer>` der benannten Capturing-Gruppen zu ihrem Index
+  (verifiziert gegen JDK-8249601/8292872 sowie
+  `docs.oracle.com/en/java/javase/21/.../java/util/regex/Pattern.html`,
+  seit Java 20). *Abhängig von:* vorhandenem `Pattern`/`Matcher`
+  (bereits implementiert) — reine Ergänzung.
+
+## Java 21 / 23
+
+- [ ] `String.splitWithDelimiters(String regex, int limit)` /
+  `Pattern.splitWithDelimiters(CharSequence, int)` — Split-Variante, die
+  die Trenner im Ergebnis-Array belässt (verifiziert gegen
+  JDK-8305486/JDK-8305488, seit Java 21). *Abhängig von:* vorhandenem
+  `Pattern.split`/`String.split` (bereits implementiert).
+- [ ] `StringBuilder.repeat(int codePoint, int count)` /
+  `repeat(CharSequence cs, int count)` sowie die entsprechenden
+  `StringBuffer`-Varianten (`synchronized` in Java) — wiederholtes
+  Anhängen eines Codepoints/einer `CharSequence` (verifiziert gegen
+  JDK-8302686, seit Java 21). *Abhängig von:* dem oben genannten
+  `StringBuilder`-Nachzieh-Punkt (Java 1.5-Abschnitt) bzw. vorhandenem
+  `StringBuffer` (bereits implementiert).
+- [ ] `Character.isEmoji(int)`, `isEmojiPresentation(int)`,
+  `isEmojiModifier(int)`, `isEmojiModifierBase(int)`,
+  `isEmojiComponent(int)`, `isExtendedPictographic(int)` — sechs neue
+  statische Emoji-Klassifizierungsmethoden (verifiziert gegen
+  `docs.oracle.com/en/java/javase/21/.../java/lang/Character.html` sowie
+  „Improved Emoji Support" (Sip of Java, inside.java 2023-11-20), seit
+  Java 21). *Abhängig von:* **Unicode-Emoji-Daten** — ggf. gleiches
+  Datenverfügbarkeits-Risiko wie bei anderen Unicode-Property-Punkten,
+  siehe Plattform-Hinweis unten.
 - [ ] String Templates (`STR."..."`) — Preview-Feature ohne stabiles API,
   für JavApi4Swift nicht relevant/nicht übertragbar (nur zur
   Vollständigkeit dokumentiert, keine Umsetzung geplant).
-- [ ] Pattern Matching for switch auf Strings — reines Sprachfeature, kein
-  API-Gegenstück nötig; Swift `switch` auf `String` funktioniert bereits
-  nativ (nur Hinweis, keine Umsetzung nötig).
 
 ## Plattform-/ICU-Abhängigkeiten (Querschnittsthema)
 
@@ -313,7 +388,8 @@ beschrieben wird:
 - **Betroffene Punkte:** `Collator`/`RuleBasedCollator` (Java 1.1),
   `BreakIterator` (Java 1.1), `Character.UnicodeBlock` (Java 1.2),
   `Character.UnicodeScript` (Java 7), `Bidi` (Java 1.4), `Normalizer`
-  (Java 1.6), `Character.getType` (Java 1.1).
+  (Java 1.6), `Character.getType` (Java 1.1), `Character.isEmoji`-Familie
+  (Java 21).
 - Diese benötigen in der Java-Referenzimplementierung ICU-Daten
   (CLDR/UCD). Für die Zielplattformen dieses Projekts (Apple, Linux X11
   mit MUSL/GLibc, Windows GDI, FreeBSD, Android, WASM) ist das ein
