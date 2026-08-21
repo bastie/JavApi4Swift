@@ -259,11 +259,18 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Java 6
 
-- [ ] `Formatter`-Konstruktoren/-Methoden mit explizitem `Locale`- und
-  `Appendable`-Parameter vollständig prüfen (Ergänzung zum bereits in
-  `Text-Implementierung.md` genannten Punkt „Formatter(Locale)"; hier nur
-  Querverweis, da beide Dokumente denselben Typ berühren). *Abhängig von:*
-  vorhandenem `Formatter`.
+- [ ] **`java.util.Formatter` hat kein `init(Appendable)`** — verifiziert:
+  `Sources/JavApi/util/java.util.Formatter.swift` schreibt `format(...)`
+  immer in den internen `StringBuilder`-Puffer; `init(Locale)` sowie die
+  `Locale`-parametrisierten `format(Locale, ...)`-Überladungen sind
+  inzwischen implementiert und getestet (siehe
+  `JavApi_lang_Java2SwiftFormatter_Tests.swift`). Offen bleibt nur ein
+  Konstruktor, der direkt in ein beliebiges `Appendable`-Ziel schreibt
+  (z. B. um in einen `Writer` zu formatieren) — aktuell blockiert, weil
+  `StringBuilder` selbst (noch) nicht dem projektinternen `Appendable`-
+  Protokoll entspricht (dessen Methoden `throws`-Signaturen verlangen, die
+  `StringBuilder` nicht hat). *Abhängig von:* `StringBuilder`-Konformität
+  zu `Appendable` (offen, s. Text-Implementierung.md).
 
 ## Java 7
 

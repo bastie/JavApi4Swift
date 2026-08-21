@@ -220,9 +220,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   differenziert oder nur generisch fehlschlägt (Review nötig). *Abhängig
   von:* nichts, sollte aber vor `Formattable` (s. o.) stehen, da
   `Formattable`-Implementierungen typischerweise diese Exceptions werfen.
-- [ ] `Formatter(Locale)` / lokalisierte Zahl-/Datumsformatierung über
-  `%d`/`%f`/`%t*` — zu prüfen, ob Locale-Parameter durchgereicht wird.
-  *Abhängig von:* nichts.
 - [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
   `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
   `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-

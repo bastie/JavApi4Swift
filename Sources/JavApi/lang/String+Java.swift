@@ -81,7 +81,32 @@ extension String {
   public static func format(_ format: String, args: [Any?]) -> String {
     Java2SwiftFormatter.format(format, args: args)
   }
-  
+
+  /// Formats a string using a Java-style format string and an explicit
+  /// `Locale`, independent of the global `java.util.Locale.getDefault()`.
+  ///
+  /// Equivalent to Java's `String.format(Locale, String, Object...)`. Per
+  /// the Java API contract, passing `nil` for `locale` means *"no
+  /// localization is applied"* — number formatting falls back to a fixed,
+  /// locale-independent convention ('.' decimal separator, ',' grouping
+  /// separator), matching `Locale.ROOT` behaviour, instead of consulting
+  /// the global default.
+  ///
+  /// - Parameters:
+  ///   - locale: The `Locale` to format with, or `nil` for no localization.
+  ///   - format: A Java-style format string.
+  ///   - args:   Arguments referenced by the format string.
+  /// - Returns: The formatted string.
+  public static func format(_ locale: java.util.Locale?, _ format: String, _ args: Any?...) -> String {
+    Java2SwiftFormatter.format(format, args: args, locale: locale)
+  }
+
+  /// Varargs-array overload — matches Java's
+  /// `String.format(Locale, String, Object[])`.
+  public static func format(_ locale: java.util.Locale?, _ format: String, args: [Any?]) -> String {
+    Java2SwiftFormatter.format(format, args: args, locale: locale)
+  }
+
   /// Check equals of String to other String
   ///
   /// - Parameter other String instance

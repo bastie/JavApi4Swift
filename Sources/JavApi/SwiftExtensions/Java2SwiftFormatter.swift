@@ -35,13 +35,38 @@ struct Java2SwiftFormatter {
   // MARK: Public entry point
   // ---------------------------------------------------------------------------
 
-  /// Formats `args` according to the Java format string `fmt`.
+  /// Formats `args` according to the Java format string `fmt`, using the
+  /// global `java.util.Locale.getDefault()` — mirrors
+  /// `java.util.Formatter.format(String, Object...)` /
+  /// `String.format(String, Object...)`.
   ///
   /// - Parameters:
   ///   - fmt:  A Java-style format string.
   ///   - args: The arguments referenced by the format string.
   /// - Returns: The formatted string.
   static func format(_ fmt: String, args: [Any?]) -> String {
+    return format(fmt, args: args, locale: java.util.Locale.getDefault())
+  }
+
+  /// Formats `args` according to the Java format string `fmt`, using an
+  /// explicit `Locale` instead of the global `java.util.Locale.getDefault()`.
+  ///
+  /// Mirrors `java.util.Formatter.format(Locale, String, Object...)` /
+  /// `String.format(Locale, String, Object...)`. Per the Java API contract
+  /// for those overloads, passing `nil` means *"no localization is
+  /// applied"* — number formatting falls back to a fixed,
+  /// locale-independent convention ('.' decimal separator, ',' grouping
+  /// separator, i.e. `Locale.ROOT`-like behaviour) instead of consulting
+  /// the global default.
+  ///
+  /// - Parameters:
+  ///   - fmt:    A Java-style format string.
+  ///   - args:   The arguments referenced by the format string.
+  ///   - locale: The `Locale` to format with, or `nil` for no localization
+  ///             (matches Java's documented `null`-`Locale` behaviour).
+  /// - Returns: The formatted string.
+  static func format(_ fmt: String, args: [Any?], locale: java.util.Locale?) -> String {
+    let resolvedLocale: Foundation.Locale = locale?.delegate ?? Foundation.Locale(identifier: "en_US_POSIX")
     // Phase 1: resolve argument-index notation (%1$s → positional)
     let (resolvedFmt, resolvedArgs) = resolveArgumentIndices(fmt, args: args)
 
@@ -172,7 +197,7 @@ struct Java2SwiftFormatter {
           let n = toInt64(arg)
           let raw = String(format: spec, n)
           swiftFmt  += "%@"
-          swiftArgs.append(insertGrouping(raw) as CVarArg)
+          swiftArgs.append(insertGrouping(raw, locale: resolvedLocale) as CVarArg)
         } else {
           swiftFmt  += spec
           swiftArgs.append(toInt64(arg))
@@ -196,7 +221,8 @@ struct Java2SwiftFormatter {
         let formatted = formatDouble(toDouble(arg), precision: prec,
                                      grouping: hasGrouping,
                                      width: Int(width) ?? 0,
-                                     leftAlign: flags.contains("-"))
+                                     leftAlign: flags.contains("-"),
+                                     locale: resolvedLocale)
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
 
@@ -224,7 +250,7 @@ struct Java2SwiftFormatter {
         guard i < resolvedFmt.endIndex else { break }
         let sub = resolvedFmt[i]
         i = resolvedFmt.index(after: i)
-        let dateStr = formatDateArg(arg, subSpec: sub)
+        let dateStr = formatDateArg(arg, subSpec: sub, locale: resolvedLocale)
         let upper   = conv == "T"
         swiftFmt  += "%@"
         swiftArgs.append((upper ? dateStr.uppercased() : dateStr) as CVarArg)
@@ -247,7 +273,7 @@ struct Java2SwiftFormatter {
     if hasGrouping {
       return String(
         format: swiftFmt,
-        locale: java.util.Locale.getDefault().delegate,
+        locale: resolvedLocale,
         arguments: swiftArgs
       )
     }
@@ -257,7 +283,6 @@ struct Java2SwiftFormatter {
         arguments: swiftArgs
       )
     }
-    //return String(format: swiftFmt, locale: java.util.Locale.getDefault().delegate,  arguments: swiftArgs)
   }
 
   // ---------------------------------------------------------------------------
@@ -309,7 +334,7 @@ struct Java2SwiftFormatter {
   // MARK: Date/time sub-specifiers
   // ---------------------------------------------------------------------------
 
-  private static func formatDateArg(_ arg: Any?, subSpec: Character) -> String {
+  private static func formatDateArg(_ arg: Any?, subSpec: Character, locale: Foundation.Locale) -> String {
     let date: Foundation.Date
     switch arg {
     case let d as java.util.Date:      date = d.delegate
@@ -322,7 +347,7 @@ struct Java2SwiftFormatter {
     let cal  = Foundation.Calendar.current
     let comp = cal.dateComponents([.year, .month, .day, .hour, .minute, .second, .nanosecond, .weekday], from: date)
     let fmt  = Foundation.DateFormatter()
-    fmt.locale = java.util.Locale.getDefault().delegate ?? Foundation.Locale.current
+    fmt.locale = locale
 
     switch subSpec {
     case "H": fmt.dateFormat = "HH"
@@ -372,13 +397,12 @@ struct Java2SwiftFormatter {
   /// current locale so that e.g. de_DE produces "1.234,50".
   private static func formatDouble(_ value: Double, precision: Int,
                                    grouping: Bool, width: Int,
-                                   leftAlign: Bool) -> String {
+                                   leftAlign: Bool, locale: Foundation.Locale) -> String {
     // Step 1: round with C-locale printf — cross-platform, matches Java.
     let cFormatted = String(format: "%.\(precision)f", value)
 
     // Step 2: replace '.' with the locale decimal separator, and optionally
     //         insert grouping separators into the integer part.
-    let locale = java.util.Locale.getDefault().delegate ?? Foundation.Locale.current
     let decSep = String(locale.decimalSeparator ?? ".")
 
     let raw: String
@@ -418,9 +442,9 @@ struct Java2SwiftFormatter {
   }
 
   /// Inserts locale-aware grouping separators into a formatted integer string.
-  private static func insertGrouping(_ raw: String) -> String {
+  private static func insertGrouping(_ raw: String, locale: Foundation.Locale) -> String {
     // Split on decimal point if present
-    let sep = String(java.util.Locale.getDefault().delegate.decimalSeparator ?? ".")
+    let sep = String(locale.decimalSeparator ?? ".")
     let parts = raw.components(separatedBy: sep)
     var intPart = parts[0]
     let fracPart = parts.count > 1 ? sep + parts[1] : ""
@@ -429,7 +453,7 @@ struct Java2SwiftFormatter {
     let negative = intPart.hasPrefix("-")
     if negative { intPart = String(intPart.dropFirst()) }
 
-    let groupSep = String(java.util.Locale.getDefault().delegate.groupingSeparator ?? ",")
+    let groupSep = String(locale.groupingSeparator ?? ",")
     var result = ""
     for (offset, ch) in intPart.reversed().enumerated() {
       if offset > 0 && offset % 3 == 0 { result.insert(contentsOf: groupSep.reversed(), at: result.startIndex) }

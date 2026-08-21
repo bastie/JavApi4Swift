@@ -186,7 +186,7 @@ extension java.util.concurrent {
   /// ```
   ///
   /// - Since: Java 25
-  public final class ShutdownOnFailure<T>: StructuredTaskScope<T> {
+  public final class ShutdownOnFailure<T>: StructuredTaskScope<T>, @unchecked Sendable {
 
     private let _exLock = CrossPlatformMutex(0)
     nonisolated(unsafe) private var _firstException: (any Error)? = nil
@@ -236,7 +236,7 @@ extension java.util.concurrent {
   /// ```
   ///
   /// - Since: Java 25
-  public final class ShutdownOnSuccess<T>: StructuredTaskScope<T> {
+  public final class ShutdownOnSuccess<T>: StructuredTaskScope<T>, @unchecked Sendable {
 
     private let _resultLock = CrossPlatformMutex(0)
     nonisolated(unsafe) private var _firstResult: T? = nil

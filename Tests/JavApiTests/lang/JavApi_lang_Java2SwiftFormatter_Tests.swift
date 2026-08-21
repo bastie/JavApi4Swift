@@ -319,4 +319,90 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
     #expect(f === returned)
     #expect(f.toString() == "ab")
   }
+
+  // ── explicit Locale parameter (String.format(Locale, ...) /
+  //    Formatter(Locale) / Formatter.format(Locale, ...)) ───────────────────
+  //
+  // Unlike the tests above, these do NOT use java.util.Locale.setDefault —
+  // that is the whole point: String.format(Locale, ...) and Formatter with
+  // an explicit Locale must work independently of, and without touching,
+  // the global default, matching java.util.Formatter/String's real API.
+
+  @Test("String.format(Locale, ...) uses the given locale, not the global default")
+  func testStringFormatExplicitLocaleIndependentOfDefault() {
+    let savedDefault = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(savedDefault) }
+
+    // Explicit GERMANY locale must win over the US default, without a
+    // setDefault(GERMANY) call.
+    let de = String.format(java.util.Locale.GERMANY, "%,d", 1_234_567)
+    #expect(de == "1.234.567")
+
+    // The global default itself must remain untouched by the explicit call.
+    #expect(java.util.Locale.getDefault() == java.util.Locale.US)
+    #expect(String.format("%,d", 1_234_567) == "1,234,567")
+  }
+
+  @Test("String.format(Locale, ...) with two different explicit locales back-to-back")
+  func testStringFormatExplicitLocaleBackToBack() {
+    // No setDefault anywhere in this test — both calls carry their own locale.
+    let de = String.format(java.util.Locale.GERMANY, "%,d", 1_000)
+    let us = String.format(java.util.Locale.US, "%,d", 1_000)
+    #expect(de == "1.000")
+    #expect(us == "1,000")
+  }
+
+  @Test("String.format(nil, ...) applies no localization (Locale.ROOT-like)")
+  func testStringFormatNilLocaleMeansNoLocalization() {
+    let savedDefault = java.util.Locale.getDefault()
+    // Set a default whose grouping/decimal separators differ from '.'/',' so
+    // a leak from the global default would be visible.
+    java.util.Locale.setDefault(java.util.Locale.GERMANY)
+    defer { java.util.Locale.setDefault(savedDefault) }
+
+    let noLocalization: java.util.Locale? = nil
+    let result = String.format(noLocalization, "%,.2f", 1_234.5)
+    // Java's "no localization" formatting uses '.' decimal / ',' grouping,
+    // i.e. the opposite of de_DE ('1.234,50') — must be '1,234.50'.
+    #expect(result == "1,234.50")
+  }
+
+  @Test("Formatter(Locale) formats with its constructor locale, no setDefault needed")
+  func testFormatterConstructorLocale() {
+    let savedDefault = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(savedDefault) }
+
+    let f = java.util.Formatter(java.util.Locale.GERMANY)
+    f.format("%,d", 1_234_567)
+    #expect(f.toString() == "1.234.567")
+    // Formatter's own locale must not have touched the global default.
+    #expect(java.util.Locale.getDefault() == java.util.Locale.US)
+  }
+
+  @Test("Formatter().format(Locale, ...) overrides the locale for a single call only")
+  func testFormatterPerCallLocaleOverride() {
+    let savedDefault = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(savedDefault) }
+
+    let f = java.util.Formatter()          // no explicit constructor locale
+    f.format(java.util.Locale.GERMANY, "%,d", 1_234_567)  // per-call override
+    f.format(" / ")
+    f.format("%,d", 1_234_567)             // back to the (US) default
+    #expect(f.toString() == "1.234.567 / 1,234,567")
+  }
+
+  @Test("Formatter.locale() reflects constructor locale or falls back to the current default")
+  func testFormatterLocaleGetter() {
+    let explicit = java.util.Formatter(java.util.Locale.GERMANY)
+    #expect(explicit.locale() == java.util.Locale.GERMANY)
+
+    let savedDefault = java.util.Locale.getDefault()
+    java.util.Locale.setDefault(java.util.Locale.US)
+    defer { java.util.Locale.setDefault(savedDefault) }
+    let implicit = java.util.Formatter()
+    #expect(implicit.locale() == java.util.Locale.US)
+  }
 }
