@@ -45,22 +45,6 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Priorität (vor der versionsweisen Abarbeitung)
 
-- [ ] **BUG: `ArrayList.addAll(_:collection:)` (indexbasiert) stürzt mit
-  `fatalError` statt eine Exception zu werfen**: In
-  `Sources/JavApi/util/ArrayList.swift` prüft die Methode zwar den Index
-  (`location >= 0 && location <= elements.count`), ruft bei Verletzung
-  aber `fatalError("IndexOutOfBoundsException: ...")` auf — mit dem im
-  Code selbst hinterlassenen Kommentar „Because AbstractList declares this
-  as non-throwing, we crash like the Harmony reference implementation does
-  on invalid indices." Das widerspricht der in `Java2Swift.md`
-  dokumentierten Konvention (Exceptions über `throws`, nicht über harte
-  Abstürze) und ist exakt das gleiche Muster, das bereits in
-  `Text-Implementierung.md` für `String.charAt` bemängelt wurde. Die
-  eigentliche Ursache liegt in der Signatur von
-  `AbstractList.addAll(_:collection:)`, die nicht `throws` deklariert.
-  *Abhängig von:* Erweiterung der `AbstractList`/`List`-Protokoll-Signatur
-  um `throws`, was Auswirkungen auf alle konformen Typen (`Vector`,
-  `LinkedList`, …) hat — vor der Änderung Kompatibilitäts-Review nötig.
 - [ ] **BUG/Lücke: `ConcurrentModificationException` wird im gesamten
   `java.util`-Baum nirgends geworfen**: Die Klasse existiert
   (`Sources/JavApi/util/ConcurrentModificationException.swift`), aber eine

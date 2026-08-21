@@ -8,7 +8,7 @@ extension java.util {
     associatedtype E
     
     func add(_ location : Int, _ element : E?) throws
-    func addAll(_ location : Int, collection : any Collection<E?>) -> Bool
+    func addAll(_ location : Int, collection : any Collection<E?>) throws -> Bool
     func get(_ location : Int) throws -> E?
     func hashCode() -> Int
     func indexOf(element : Any?) -> Int

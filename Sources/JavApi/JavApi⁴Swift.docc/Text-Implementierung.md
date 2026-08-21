@@ -59,15 +59,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   Testdateien unter `Tests/JavApiTests/`. *Abhängig von:* nichts; ist aber
   Voraussetzung, um Regressionen bei den Ergänzungen in den
   versionsspezifischen Abschnitten unten sicher zu erkennen.
-- [ ] **Fehlerkonvention klären**: Neue Methoden, die in Java
-  `StringIndexOutOfBoundsException` werfen, sollten konsequent `throws`
-  mit `StringIndexOutOfBoundsException` (bereits vorhanden in
-  `Sources/JavApi/lang/StringIndexOutOfBoundsException.swift`) verwenden
-  statt hart abzustürzen (aktuell z. B. bei `String.charAt` in
-  `String+Java.swift` der Fall), gemäß der in `Java2Swift.md`
-  beschriebenen Exception-Konvention. *Abhängig von:* nichts; betrifft aber
-  praktisch jeden Punkt unten, der Index-Zugriffe hat.
-
 ## Java 1.0
 
 - [ ] `String.concat(String)` — triviales `+`-Äquivalent, fehlt als

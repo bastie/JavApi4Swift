@@ -795,7 +795,7 @@ struct JavApi_util_ArrayList_Tests {
     _ = try? insert.add(2)
     _ = try? insert.add(3)
 
-    let changed = list.addAll(1, collection: insert)
+    let changed = try list.addAll(1, collection: insert)
     #expect(changed == true)
     #expect(list.size() == 4 as Int)
     #expect(try list.get(0) == 1)
@@ -814,20 +814,45 @@ struct JavApi_util_ArrayList_Tests {
     _ = try? prefix.add(1)
     _ = try? prefix.add(2)
 
-    list.addAll(0, collection: prefix)
+    try list.addAll(0, collection: prefix)
     #expect(list.size() == 4 as Int)
     #expect(try list.get(0) == 1)
     #expect(try list.get(1) == 2)
   }
 
   @Test("addAll(location:) with empty collection returns false")
-  func testAddAllAtLocation_emptyCollection() {
+  func testAddAllAtLocation_emptyCollection() throws {
     let list = java.util.ArrayList<Int>()
     _ = try? list.add(1)
     let empty = java.util.ArrayList<Int?>()
-    let changed = list.addAll(0, collection: empty)
+    let changed = try list.addAll(0, collection: empty)
     #expect(changed == false)
     #expect(list.size() == 1 as Int)
+  }
+
+  // Regression test for the "fatalError instead of throws" bug: an invalid
+  // location must throw IndexOutOfBoundsException, not crash the process.
+  // (see Util-Implementierung.md, Priority section)
+  @Test("addAll(location:) with negative index throws IndexOutOfBoundsException instead of crashing")
+  func testAddAllAtLocation_negativeIndexThrows() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    let insert = java.util.ArrayList<Int?>()
+    _ = try? insert.add(2)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      try list.addAll(-1, collection: insert)
+    }
+  }
+
+  @Test("addAll(location:) with too-large index throws IndexOutOfBoundsException instead of crashing")
+  func testAddAllAtLocation_tooLargeIndexThrows() {
+    let list = java.util.ArrayList<Int>()
+    _ = try? list.add(1)
+    let insert = java.util.ArrayList<Int?>()
+    _ = try? insert.add(2)
+    #expect(throws: IndexOutOfBoundsException.self) {
+      try list.addAll(list.size() + 1, collection: insert)
+    }
   }
 
   // MARK: - containsAll

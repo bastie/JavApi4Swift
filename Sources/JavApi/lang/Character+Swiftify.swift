@@ -8,6 +8,8 @@ extension char {
     var asString = ""
     let asArray : [UnicodeScalar] = [UnicodeScalar(codePoint)!]
     asString = String(String.UnicodeScalarView(asArray))
-    self.init(unicodeScalarLiteral: asString.charAt(0))
+    // A single UnicodeScalar always produces a non-empty String, so
+    // index 0 is always in bounds.
+    self.init(unicodeScalarLiteral: try! asString.charAt(0))
   }
 }

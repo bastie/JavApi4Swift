@@ -285,12 +285,12 @@ extension java.util {
     /// - Returns: `true` if this list was modified.
     /// - Throws: `IndexOutOfBoundsException` if `location` is out of range.
     @discardableResult
-    open override func addAll(_ location: Int, collection: any java.util.Collection<E?>) -> Bool {
+    open override func addAll(_ location: Int, collection: any java.util.Collection<E?>) throws -> Bool {
       guard location >= 0 && location <= elements.count else {
-        // Matching Java behaviour: throws IndexOutOfBoundsException at runtime.
-        // Because AbstractList declares this as non-throwing, we crash like
-        // the Harmony reference implementation does on invalid indices.
-        fatalError("IndexOutOfBoundsException: Index: \(location), Size: \(elements.count)")
+        // Bugfix: matching Java behaviour, this now throws
+        // IndexOutOfBoundsException instead of crashing the process with
+        // fatalError — see Java2Swift.md's throws-not-fatalError convention.
+        throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
       var newElements: [E?] = []
       let it = collection.iterator()

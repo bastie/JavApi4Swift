@@ -32,7 +32,8 @@ extension Character {
   /// Returns (a copy of) self value
   /// - Since: JavaApi &gt; 0.16.0 (Java 1.0)
   public func charValue () -> Swift.Character { // TODO: is copyOf needed?
-    return "copyOf\(self)".charAt(6)
+    // "copyOf" is always 6 characters, so index 6 is always in bounds.
+    return try! "copyOf\(self)".charAt(6)
   }
   
   /// Return the numeric value of Unicode character, f.e. `\u{216D}` returns  100.
@@ -185,14 +186,16 @@ extension Character {
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public static func toLowerCase(_ ch: Character) -> Character {
     let s = String(ch).lowercased()
-    return s.isEmpty ? ch : s.charAt(0)
+    // Guarded by `s.isEmpty`, so index 0 is always in bounds when reached.
+    return s.isEmpty ? ch : try! s.charAt(0)
   }
 
   /// Converts character to uppercase
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public static func toUpperCase(_ ch: Character) -> Character {
     let s = String(ch).uppercased()
-    return s.isEmpty ? ch : s.charAt(0)
+    // Guarded by `s.isEmpty`, so index 0 is always in bounds when reached.
+    return s.isEmpty ? ch : try! s.charAt(0)
   }
 
   /// Converts character to titlecase (same as uppercase for most characters)
@@ -230,7 +233,9 @@ extension Character {
   
   public func forDigit(_ digit: Int, _ radix: Int) -> Character {
     let chars = String(digit, radix: radix, uppercase: false)
-    return chars.charAt(0)
+    // A radix-formatted Int always yields at least one digit, so index 0
+    // is always in bounds.
+    return try! chars.charAt(0)
   }
   
   /// - Since: JavaApi &gt; 0.22.0 (Java 5)
@@ -260,7 +265,9 @@ extension Character {
       let lead = (codePoint - 0x10000) >> 10 &+ 0xD800
       let trail = (codePoint - 0x10000) & 0x3FF | 0xDC00
 
-      return ["\(UnicodeScalar(lead)!.description)".charAt(0), "\(UnicodeScalar(trail)!.description)".charAt(0)]
+      // A single UnicodeScalar's description is always exactly one
+      // character, so index 0 is always in bounds.
+      return [try! "\(UnicodeScalar(lead)!.description)".charAt(0), try! "\(UnicodeScalar(trail)!.description)".charAt(0)]
     }
   }
   

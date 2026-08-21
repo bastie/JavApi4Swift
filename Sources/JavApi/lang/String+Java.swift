@@ -168,9 +168,19 @@ extension String {
   ///
   /// Internal it use toCharArray. If it possible cache the result of toCharArray instead often call this function.
   ///
+  /// Bugfix: matches Java's `String.charAt(int)`, which throws
+  /// `StringIndexOutOfBoundsException` for a negative or out-of-range
+  /// `index` instead of crashing the process — see Java2Swift.md's
+  /// throws-not-fatalError convention.
+  ///
   /// - Parameters index
   /// - Returns char at index
-  public func charAt (_ index : Int) -> Character {
+  /// - Throws: `StringIndexOutOfBoundsException` if `index` is negative or
+  ///   greater than or equal to `length()`.
+  public func charAt (_ index : Int) throws -> Character {
+    guard index >= 0, index < self.count else {
+      throw StringIndexOutOfBoundsException(index)
+    }
     return self[self.index(self.startIndex, offsetBy: index)]
   }
   

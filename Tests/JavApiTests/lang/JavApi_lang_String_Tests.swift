@@ -83,61 +83,96 @@ struct JavApi_lang_String_Tests {
   // ---------------------------------------------------------------------------
 
   @Test("charAt returns correct character for ASCII input")
-  func testCharAtASCII() {
+  func testCharAtASCII() throws {
     let s: java.lang.String = "Hello"
-    #expect(s.charAt(0) == "H")
-    #expect(s.charAt(1) == "e")
-    #expect(s.charAt(4) == "o")
+    #expect(try s.charAt(0) == "H")
+    #expect(try s.charAt(1) == "e")
+    #expect(try s.charAt(4) == "o")
   }
 
   @Test("charAt handles German umlauts (multi-byte UTF-8, single Swift.Character)")
-  func testCharAtGerman() {
+  func testCharAtGerman() throws {
     // Ä ö ü ß are each one Swift.Character (Unicode scalar)
     let s: java.lang.String = "Äöüß"
-    #expect(s.charAt(0) == "Ä")
-    #expect(s.charAt(1) == "ö")
-    #expect(s.charAt(2) == "ü")
-    #expect(s.charAt(3) == "ß")
+    #expect(try s.charAt(0) == "Ä")
+    #expect(try s.charAt(1) == "ö")
+    #expect(try s.charAt(2) == "ü")
+    #expect(try s.charAt(3) == "ß")
   }
 
   @Test("charAt handles CJK ideographs (Chinese / Japanese)")
-  func testCharAtCJK() {
+  func testCharAtCJK() throws {
     // 日本語 = Japanese; 汉字 = Chinese characters
     let s: java.lang.String = "日本語汉字"
-    #expect(s.charAt(0) == "日")
-    #expect(s.charAt(1) == "本")
-    #expect(s.charAt(2) == "語")
-    #expect(s.charAt(3) == "汉")
-    #expect(s.charAt(4) == "字")
+    #expect(try s.charAt(0) == "日")
+    #expect(try s.charAt(1) == "本")
+    #expect(try s.charAt(2) == "語")
+    #expect(try s.charAt(3) == "汉")
+    #expect(try s.charAt(4) == "字")
   }
 
   @Test("charAt handles Emoji (multi-scalar grapheme clusters count as one Character)")
-  func testCharAtEmoji() {
+  func testCharAtEmoji() throws {
     // Each emoji is one Swift.Character regardless of its UTF-16 surrogate pair or ZWJ sequence length
     let s: java.lang.String = "😀🇩🇪👨‍👩‍👧"
-    #expect(s.charAt(0) == "😀")   // single scalar emoji
-    #expect(s.charAt(1) == "🇩🇪")  // flag: regional indicator pair
-    #expect(s.charAt(2) == "👨‍👩‍👧") // ZWJ family sequence
+    #expect(try s.charAt(0) == "😀")   // single scalar emoji
+    #expect(try s.charAt(1) == "🇩🇪")  // flag: regional indicator pair
+    #expect(try s.charAt(2) == "👨‍👩‍👧") // ZWJ family sequence
   }
 
   @Test("charAt handles Ogham Space Mark (U+1680)")
-  func testCharAtOghamSpace() {
+  func testCharAtOghamSpace() throws {
     // U+1680 OGHAM SPACE MARK — a historic whitespace character
     let s: java.lang.String = "A\u{1680}B"
-    #expect(s.charAt(0) == "A")
-    #expect(s.charAt(1) == "\u{1680}")
-    #expect(s.charAt(2) == "B")
+    #expect(try s.charAt(0) == "A")
+    #expect(try s.charAt(1) == "\u{1680}")
+    #expect(try s.charAt(2) == "B")
   }
 
   @Test("charAt handles mixed Unicode script string")
-  func testCharAtMixed() {
+  func testCharAtMixed() throws {
     // ASCII + German + CJK + Emoji + Ogham space in one string
     let s: java.lang.String = "A\u{00DC}\u{65E5}\u{1680}😀"
-    #expect(s.charAt(0) == "A")
-    #expect(s.charAt(1) == "Ü")        // U+00DC
-    #expect(s.charAt(2) == "日")       // U+65E5
-    #expect(s.charAt(3) == "\u{1680}") // Ogham space
-    #expect(s.charAt(4) == "😀")
+    #expect(try s.charAt(0) == "A")
+    #expect(try s.charAt(1) == "Ü")        // U+00DC
+    #expect(try s.charAt(2) == "日")       // U+65E5
+    #expect(try s.charAt(3) == "\u{1680}") // Ogham space
+    #expect(try s.charAt(4) == "😀")
+  }
+
+  // Regression tests for the "fatalError instead of throws" bug: an invalid
+  // index must throw StringIndexOutOfBoundsException, not crash the process.
+  // (see Text-Implementierung.md, Priority section)
+  @Test("charAt with negative index throws StringIndexOutOfBoundsException instead of crashing")
+  func testCharAtNegativeIndexThrows() {
+    let s: java.lang.String = "Hello"
+    #expect(throws: StringIndexOutOfBoundsException.self) {
+      _ = try s.charAt(-1)
+    }
+  }
+
+  @Test("charAt with index == length() throws StringIndexOutOfBoundsException instead of crashing")
+  func testCharAtIndexEqualsLengthThrows() {
+    let s: java.lang.String = "Hello"
+    #expect(throws: StringIndexOutOfBoundsException.self) {
+      _ = try s.charAt(s.length())
+    }
+  }
+
+  @Test("charAt with index far beyond length() throws StringIndexOutOfBoundsException instead of crashing")
+  func testCharAtIndexBeyondLengthThrows() {
+    let s: java.lang.String = "Hello"
+    #expect(throws: StringIndexOutOfBoundsException.self) {
+      _ = try s.charAt(100)
+    }
+  }
+
+  @Test("charAt on empty String throws StringIndexOutOfBoundsException instead of crashing")
+  func testCharAtOnEmptyStringThrows() {
+    let s: java.lang.String = ""
+    #expect(throws: StringIndexOutOfBoundsException.self) {
+      _ = try s.charAt(0)
+    }
   }
 
   // ---------------------------------------------------------------------------
