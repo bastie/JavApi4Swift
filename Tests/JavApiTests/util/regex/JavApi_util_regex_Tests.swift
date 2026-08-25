@@ -399,3 +399,105 @@ struct UsePatternTests {
     #expect(m.group() == "def")
   }
 }
+
+// MARK: - Matcher.pattern() / hitEnd() / requireEnd()
+//
+// These three methods were confirmed missing (commit a1f8cc39 claimed
+// "implement java.util.regex" but they were not present) — see
+// Util-Implementierung.md, Java-1.5-regex section.
+
+@Suite("java.util.regex.Matcher – pattern()")
+struct MatcherPatternGetterTests {
+
+  @Test("pattern() returns the Pattern this Matcher was created from")
+  func returnsOriginatingPattern() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let m = p.matcher("abc123")
+    #expect(m.pattern() === p)
+  }
+
+  @Test("pattern() reflects usePattern(_:) after switching")
+  func reflectsUsePattern() throws {
+    let p1 = try java.util.regex.Pattern.compile("\\d+")
+    let p2 = try java.util.regex.Pattern.compile("[a-z]+")
+    let m = p1.matcher("abc123")
+    m.usePattern(p2)
+    #expect(m.pattern() === p2)
+  }
+}
+
+@Suite("java.util.regex.Matcher – hitEnd()")
+struct MatcherHitEndTests {
+
+  @Test("hitEnd() is false before any match has been attempted")
+  func falseBeforeMatchAttempt() throws {
+    let m = try java.util.regex.Pattern.compile("\\d+").matcher("abc123")
+    #expect(m.hitEnd() == false)
+  }
+
+  @Test("hitEnd() is true when find() reaches the end of the input")
+  func trueWhenMatchReachesEnd() throws {
+    let m = try java.util.regex.Pattern.compile("\\d+").matcher("abc123")
+    #expect(m.find() == true)
+    #expect(m.hitEnd() == true)
+  }
+
+  @Test("hitEnd() is false when find() matches before the end of the input")
+  func falseWhenMatchLeavesTrailingInput() throws {
+    let m = try java.util.regex.Pattern.compile("\\d+").matcher("123abc")
+    #expect(m.find() == true)
+    #expect(m.hitEnd() == false)
+  }
+
+  @Test("hitEnd() is true when no match is found at all")
+  func trueWhenNoMatchFound() throws {
+    let m = try java.util.regex.Pattern.compile("xyz").matcher("abc123")
+    #expect(m.find() == false)
+    #expect(m.hitEnd() == true)
+  }
+}
+
+@Suite("java.util.regex.Matcher – requireEnd()")
+struct MatcherRequireEndTests {
+
+  @Test("requireEnd() is false when hitEnd() is false")
+  func falseWhenNotAtEnd() throws {
+    let m = try java.util.regex.Pattern.compile("\\d+").matcher("123abc")
+    #expect(m.find() == true)
+    #expect(m.hitEnd() == false)
+    #expect(m.requireEnd() == false)
+  }
+
+  @Test("requireEnd() is false when a trailing match at the end could not be invalidated by more input")
+  func falseWhenMatchIsStable() throws {
+    // "123" is followed only by a non-digit-class probe in the check, and
+    // \d+ does not depend on what comes after — the match cannot be lost.
+    let m = try java.util.regex.Pattern.compile("\\d+").matcher("abc123")
+    #expect(m.find() == true)
+    #expect(m.hitEnd() == true)
+    #expect(m.requireEnd() == false)
+  }
+
+  @Test("requireEnd() is true when a trailing word boundary could be invalidated by more input")
+  func trueWhenWordBoundaryAtRisk() throws {
+    // \d+\b matches "123" at the very end of the input; if more (word-
+    // forming) characters followed, the trailing \b would no longer hold
+    // there, so this exact match would be lost.
+    let m = try java.util.regex.Pattern.compile("\\d+\\b").matcher("abc123")
+    #expect(m.find() == true)
+    #expect(m.group() == "123")
+    #expect(m.hitEnd() == true)
+    #expect(m.requireEnd() == true)
+  }
+
+  @Test("requireEnd() is false for matches() on a pattern with no boundary dependency")
+  func falseForMatchesWithoutBoundaryDependency() throws {
+    // "a.*" against "aaa" (matches() requires the whole region): the
+    // trailing ".*" absorbs any additional character, so appending more
+    // input can never turn this positive match into a negative one.
+    let m = try java.util.regex.Pattern.compile("a.*").matcher("aaa")
+    #expect(m.matches() == true)
+    #expect(m.hitEnd() == true)
+    #expect(m.requireEnd() == false)
+  }
+}

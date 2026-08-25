@@ -227,20 +227,6 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
     Concurrency-Grundlage, siehe Priority-Abschnitt und
     „Plattform-/Concurrency-Abhängigkeiten" unten.
 
-## Java 1.5 (java.util.regex — Ergänzung zu Text-Implementierung.md)
-
-- [ ] **`Matcher.hitEnd()` / `requireEnd()` / `pattern()`-Getter fehlen** —
-  neu bestätigt durch Commit-Prüfung (Commit `a1f8cc39` behauptet
-  „implement java.util.regex", tatsächlich fehlen diese drei Methoden in
-  `Sources/JavApi/util/regex/Matcher.swift`). `Matcher.quoteReplacement`
-  (static), `Pattern.quote` (static) und `Pattern.splitAsStream`/
-  `Matcher.results()` sind bereits als offene Punkte in
-  `Text-Implementierung.md` (Java-1.5/8/9-Abschnitte) erfasst — hier nur
-  die zusätzlich gefundenen drei Methoden, damit `java.util.regex` nicht
-  in zwei Dokumenten unterschiedlich vollständig aussieht. *Abhängig von:*
-  vorhandenem `Matcher`/`Pattern` (bereits implementiert für die
-  Kernfunktionalität matches/find/group/replace).
-
 ## Java 6
 
 - [ ] **`java.util.Formatter` hat kein `init(Appendable)`** — verifiziert:

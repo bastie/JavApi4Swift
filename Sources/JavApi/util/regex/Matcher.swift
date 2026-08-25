@@ -43,6 +43,11 @@ extension java.util.regex {
     /// a failed match attempt.
     private var _state: MatchState?
 
+    /// Which match operation was last performed — used by `requireEnd()` to
+    /// pick the correct empirical re-check (see there).
+    private enum _Operation { case matches, find, lookingAt }
+    private var _lastOperation: _Operation = .find
+
     // MARK: - MatchState
 
     /// Snapshot of a single successful match.
@@ -102,6 +107,7 @@ extension java.util.regex {
     @discardableResult
     public func matches() -> Bool {
       _matchAttempted = true
+      _lastOperation = .matches
       let region = _input[_regionStart..<_regionEnd]
       guard let match = region.wholeMatch(of: _pattern._regex) else {
         _state = nil
@@ -118,6 +124,7 @@ extension java.util.regex {
     @discardableResult
     public func find() -> Bool {
       _matchAttempted = true
+      _lastOperation = .find
       let searchRegion = _input[_searchStart..<_regionEnd]
       guard let match = searchRegion.firstMatch(of: _pattern._regex) else {
         _state = nil
@@ -159,6 +166,7 @@ extension java.util.regex {
     @discardableResult
     public func lookingAt() -> Bool {
       _matchAttempted = true
+      _lastOperation = .lookingAt
       let region = _input[_regionStart..<_regionEnd]
       // prefixMatch checks that the match starts at the beginning of the region.
       guard let match = region.prefixMatch(of: _pattern._regex) else {
@@ -465,6 +473,90 @@ extension java.util.regex {
       }
 
       return result
+    }
+
+    // MARK: - pattern / hitEnd / requireEnd
+
+    /// Returns the `Pattern` this matcher is using.
+    ///
+    /// Mirrors `java.util.regex.Matcher.pattern()` (Java 1.5).
+    ///
+    /// - Since: Java 1.5
+    public func pattern() -> Pattern { _pattern }
+
+    /// Returns `true` if the end of input was hit by the search engine in
+    /// the last match operation performed by this matcher.
+    ///
+    /// Intended for text processors that perform incremental matching: a
+    /// `true` result means more input could still change the outcome of the
+    /// last `find()`/`matches()`/`lookingAt()` call.
+    ///
+    /// **Implementation note:** unlike the reference JDK, Swift's `Regex`
+    /// engine does not expose whether its backtracking search touched the
+    /// end of the input. This is therefore computed heuristically: `true`
+    /// if the last match attempt found no match at all (the engine
+    /// necessarily scanned the whole region without success), or if a match
+    /// was found whose end coincides with the end of the search region.
+    /// Returns `false` if no match has been attempted yet, matching the
+    /// JDK's initial state.
+    ///
+    /// - Since: Java 1.5
+    public func hitEnd() -> Bool {
+      guard _matchAttempted else { return false }
+      guard let s = _state else { return true }
+      return s.wholeRange.upperBound == _regionEnd
+    }
+
+    /// Returns `true` if more input could change a positive match into a
+    /// negative one — i.e. cause the current match to be *lost*, as opposed
+    /// to merely extended.
+    ///
+    /// Only meaningful immediately after a successful match that also hit
+    /// the end of input (see ``hitEnd()``); returns `false` otherwise,
+    /// matching the JDK's "has no meaning" case without throwing.
+    ///
+    /// **Implementation note:** Swift's `Regex` engine does not expose
+    /// backtracking state either, so this is determined empirically: one
+    /// representative probe character — an ordinary lowercase letter (`"a"`),
+    /// chosen because it is `\w`-forming and thus the character most likely
+    /// to reveal a dependency on a following word boundary (`\b`), line
+    /// anchor (`$`), or same-class quantifier (`a+` and similar) — is
+    /// appended immediately after the search region, and the same match
+    /// operation is re-run. If the original match is lost — it no longer
+    /// matches at all (`matches()`/`lookingAt()`), or `find()` no longer
+    /// finds a match at the exact same start position — this returns
+    /// `true`. A match that merely grows longer with the probe present is
+    /// not considered lost, matching Java's documented distinction between
+    /// "changed" and "lost". Because only a single representative character
+    /// is probed rather than every possible next character, this can miss
+    /// cases that depend on a *specific* following character (e.g. a
+    /// lookahead for a particular digit or symbol) — a known limitation
+    /// versus the reference JDK's exhaustive backtracking-based answer.
+    ///
+    /// - Since: Java 1.5
+    public func requireEnd() -> Bool {
+      guard _matchAttempted, let s = _state, hitEnd() else { return false }
+
+      let probe: Character = "a"
+      var extended = _input
+      extended.insert(probe, at: _regionEnd)
+
+      let startOffset = _input.distance(from: _input.startIndex, to: _regionStart)
+      let regionEndOffset = _input.distance(from: _input.startIndex, to: _regionEnd)
+      let matchStartOffset = s.startOffset(0)
+
+      let probeMatcher = Matcher(pattern: _pattern, input: extended)
+      probeMatcher.region(startOffset, regionEndOffset + 1)
+
+      switch _lastOperation {
+      case .matches:
+        return !probeMatcher.matches()
+      case .lookingAt:
+        return !probeMatcher.lookingAt()
+      case .find:
+        guard probeMatcher.find(matchStartOffset) else { return true }
+        return probeMatcher.start() != matchStartOffset
+      }
     }
 
     // MARK: - toMatchResult
