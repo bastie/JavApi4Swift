@@ -305,19 +305,19 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // ── java.util.Formatter ────────────────────────────────────────────────────
 
   @Test("java.util.Formatter accumulates output")
-  func testFormatter() {
+  func testFormatter() throws {
     let f = java.util.Formatter()
-    f.format("Hello, %s!", "Java")
-    f.format(" Count: %d.", 7)
-    #expect(f.toString() == "Hello, Java! Count: 7.")
+    try f.format("Hello, %s!", "Java")
+    try f.format(" Count: %d.", 7)
+    #expect(try f.toString() == "Hello, Java! Count: 7.")
   }
 
   @Test("java.util.Formatter.format returns self (chaining)")
-  func testFormatterChaining() {
+  func testFormatterChaining() throws {
     let f = java.util.Formatter()
-    let returned = f.format("a").format("b")
+    let returned = try f.format("a").format("b")
     #expect(f === returned)
-    #expect(f.toString() == "ab")
+    #expect(try f.toString() == "ab")
   }
 
   // ── explicit Locale parameter (String.format(Locale, ...) /
@@ -369,29 +369,29 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   }
 
   @Test("Formatter(Locale) formats with its constructor locale, no setDefault needed")
-  func testFormatterConstructorLocale() {
+  func testFormatterConstructorLocale() throws {
     let savedDefault = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(savedDefault) }
 
     let f = java.util.Formatter(java.util.Locale.GERMANY)
-    f.format("%,d", 1_234_567)
-    #expect(f.toString() == "1.234.567")
+    try f.format("%,d", 1_234_567)
+    #expect(try f.toString() == "1.234.567")
     // Formatter's own locale must not have touched the global default.
     #expect(java.util.Locale.getDefault() == java.util.Locale.US)
   }
 
   @Test("Formatter().format(Locale, ...) overrides the locale for a single call only")
-  func testFormatterPerCallLocaleOverride() {
+  func testFormatterPerCallLocaleOverride() throws {
     let savedDefault = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(savedDefault) }
 
     let f = java.util.Formatter()          // no explicit constructor locale
-    f.format(java.util.Locale.GERMANY, "%,d", 1_234_567)  // per-call override
-    f.format(" / ")
-    f.format("%,d", 1_234_567)             // back to the (US) default
-    #expect(f.toString() == "1.234.567 / 1,234,567")
+    try f.format(java.util.Locale.GERMANY, "%,d", 1_234_567)  // per-call override
+    try f.format(" / ")
+    try f.format("%,d", 1_234_567)             // back to the (US) default
+    #expect(try f.toString() == "1.234.567 / 1,234,567")
   }
 
   @Test("Formatter.locale() reflects constructor locale or falls back to the current default")

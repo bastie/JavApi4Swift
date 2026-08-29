@@ -205,12 +205,30 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
 - [ ] `Formattable`-Protokoll (`formatTo`) — fehlt komplett; nötig, damit
   eigene Typen `%s`-kompatibel eigene Formatierung liefern. *Abhängig von:*
   vorhandenem `Formatter`/`Java2SwiftFormatter` (bereits implementiert).
-- [ ] `FormatterClosedException`, `IllegalFormatException`-Hierarchie
-  (`MissingFormatArgumentException`, `UnknownFormatConversionException`
-  etc.) — aktuell unklar, ob `Java2SwiftFormatter` entsprechende Fehler
-  differenziert oder nur generisch fehlschlägt (Review nötig). *Abhängig
-  von:* nichts, sollte aber vor `Formattable` (s. o.) stehen, da
-  `Formattable`-Implementierungen typischerweise diese Exceptions werfen.
+- [ ] **`Java2SwiftFormatter` wirft die `IllegalFormatException`-Unterklassen
+  bei fehlerhaften Format-Strings nicht** — die Klassenhierarchie selbst
+  ist jetzt vollständig vorhanden (`IllegalFormatException` und alle elf
+  Unterklassen — `DuplicateFormatFlagsException`,
+  `FormatFlagsConversionMismatchException`, `IllegalFormatCodePointException`,
+  `IllegalFormatConversionException`, `IllegalFormatFlagsException`,
+  `IllegalFormatPrecisionException`, `IllegalFormatWidthException`,
+  `MissingFormatArgumentException`, `MissingFormatWidthException`,
+  `UnknownFormatConversionException`, `UnknownFormatFlagsException` — je
+  eine Datei in `Sources/JavApi/util/`, mit Java2Swift.md-konformen
+  Initialisierern/Gettern), ebenso `FormatterClosedException`
+  (`extends IllegalStateException`), die jetzt über `Formatter.close()`
+  ausgelöst wird (`format`/`out`/`toString`/`flush` werfen nach `close()`).
+  Was weiterhin fehlt: `Java2SwiftFormatter.format(...)` selbst ist
+  weiterhin nicht-throwing und behandelt unbekannte Conversion-Zeichen,
+  fehlende Argumente etc. aktuell still (Pass-through bzw. generischer
+  Rückfall) statt die neuen, spezifischen Exceptions zu werfen. Das
+  Nachziehen ist eine größere, eigenständige Änderung, da
+  `Java2SwiftFormatter.format`/`String.format`/`Formatter.format` dafür
+  `throws` werden müssten — signaturverändernd und mit entsprechend
+  größerem Blast-Radius (wird hier bewusst als separater Folgepunkt
+  offengehalten statt im Zuge dieser Änderung überstürzt umgesetzt).
+  *Abhängig von:* vorhandener `IllegalFormatException`-Hierarchie (jetzt
+  implementiert).
 - [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
   `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
   `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-

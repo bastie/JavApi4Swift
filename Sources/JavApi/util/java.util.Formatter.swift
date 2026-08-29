@@ -16,8 +16,8 @@ extension java.util {
   ///
   /// ```swift
   /// let f = java.util.Formatter()
-  /// f.format("Hello, %s! You have %,d messages.%n", "Alice", 1_234)
-  /// print(f.toString())
+  /// try f.format("Hello, %s! You have %,d messages.%n", "Alice", 1_234)
+  /// print(try f.toString())
   /// ```
   ///
   /// The class is intentionally minimal: it covers the common API surface that
@@ -33,6 +33,11 @@ extension java.util {
     /// applies, `explicitLocale` holds the value for the latter two cases.
     private var hasExplicitLocale = false
     private var explicitLocale: java.util.Locale?
+
+    /// Whether `close()` has been called — every subsequent `format`/`out`/
+    /// `toString`/`flush` call throws `FormatterClosedException`, matching
+    /// Java's documented behaviour.
+    private var _closed = false
 
     // -------------------------------------------------------------------------
     // MARK: Initialisierung
@@ -67,15 +72,22 @@ extension java.util {
     ///   - fmt:  A Java-style format string.
     ///   - args: The arguments referenced by the format string.
     /// - Returns: `self` (Java convention; allows chaining).
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
     @discardableResult
-    public func format(_ fmt: String, _ args: Any?...) -> Formatter {
+    public func format(_ fmt: String, _ args: Any?...) throws -> Formatter {
+      try checkNotClosed()
       _ = buffer.append(formatted(fmt, args: args))
       return self
     }
 
     /// Array overload — used when the caller already has `[Any?]`.
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
     @discardableResult
-    public func format(_ fmt: String, args: [Any?]) -> Formatter {
+    public func format(_ fmt: String, args: [Any?]) throws -> Formatter {
+      try checkNotClosed()
       _ = buffer.append(formatted(fmt, args: args))
       return self
     }
@@ -91,15 +103,23 @@ extension java.util {
     ///   - fmt:    A Java-style format string.
     ///   - args:   The arguments referenced by the format string.
     /// - Returns: `self` (Java convention; allows chaining).
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
     @discardableResult
-    public func format(_ locale: java.util.Locale?, _ fmt: String, _ args: Any?...) -> Formatter {
+    public func format(_ locale: java.util.Locale?, _ fmt: String, _ args: Any?...) throws -> Formatter {
+      try checkNotClosed()
       _ = buffer.append(Java2SwiftFormatter.format(fmt, args: args, locale: locale))
       return self
     }
 
     /// Array overload of `format(_:_:_:)`.
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
     @discardableResult
-    public func format(_ locale: java.util.Locale?, _ fmt: String, args: [Any?]) -> Formatter {
+    public func format(_ locale: java.util.Locale?, _ fmt: String, args: [Any?]) throws -> Formatter {
+      try checkNotClosed()
       _ = buffer.append(Java2SwiftFormatter.format(fmt, args: args, locale: locale))
       return self
     }
@@ -124,18 +144,60 @@ extension java.util {
     // -------------------------------------------------------------------------
 
     /// Returns the accumulated output as a `String`.
-    public func toString() -> String {
-      buffer.toString()
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
+    public func toString() throws -> String {
+      try checkNotClosed()
+      return buffer.toString()
     }
 
     /// Returns the underlying `StringBuilder` (Java `out()` returns `Appendable`).
-    public func out() -> StringBuilder {
-      buffer
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
+    public func out() throws -> StringBuilder {
+      try checkNotClosed()
+      return buffer
+    }
+
+    /// Flushes this `Formatter` — a no-op beyond the closed-state check,
+    /// since the backing `StringBuilder` has no buffering of its own.
+    ///
+    /// - Throws: `FormatterClosedException` if `close()` has already been
+    ///   called on this `Formatter`.
+    public func flush() throws {
+      try checkNotClosed()
+    }
+
+    /// Closes this `Formatter`. Once closed, `format(...)`, `out()`,
+    /// `toString()`, and `flush()` all throw `FormatterClosedException`.
+    /// Calling `close()` on an already-closed `Formatter` has no effect,
+    /// matching Java's documented behaviour.
+    public func close() {
+      _closed = true
+    }
+
+    /// Returns the last `IOException` thrown by this `Formatter`'s
+    /// destination, or `nil` if none was thrown.
+    ///
+    /// Always returns `nil` in this port: the backing store is an in-memory
+    /// `StringBuilder`, which never throws an I/O exception.
+    public func ioException() -> (any Error)? {
+      nil
     }
 
     /// Clears the internal buffer (not in Java API, but useful in Swift).
     public func clear() {
       buffer = StringBuilder()
+    }
+
+    /// - Throws: `FormatterClosedException` if this `Formatter` has been
+    ///   closed via `close()`.
+    private func checkNotClosed() throws {
+      if _closed {
+        throw FormatterClosedException()
+      }
     }
   }
 }
