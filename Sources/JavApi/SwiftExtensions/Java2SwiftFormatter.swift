@@ -44,8 +44,17 @@ struct Java2SwiftFormatter {
   ///   - fmt:  A Java-style format string.
   ///   - args: The arguments referenced by the format string.
   /// - Returns: The formatted string.
-  static func format(_ fmt: String, args: [Any?]) -> String {
-    return format(fmt, args: args, locale: java.util.Locale.getDefault())
+  ///
+  /// - Throws: An appropriate `java.util.IllegalFormatException` subclass
+  ///   (`java.util.UnknownFormatConversionException`, `java.util.MissingFormatArgumentException`,
+  ///   `java.util.IllegalFormatConversionException`, `java.util.DuplicateFormatFlagsException`,
+  ///   `java.util.MissingFormatWidthException`, `java.util.IllegalFormatPrecisionException`,
+  ///   `java.util.FormatFlagsConversionMismatchException`,
+  ///   `java.util.IllegalFormatCodePointException`) if `fmt` is malformed or `args`
+  ///   does not match it — see the per-case notes below for exactly which
+  ///   checks are implemented.
+  static func format(_ fmt: String, args: [Any?]) throws -> String {
+    return try format(fmt, args: args, locale: java.util.Locale.getDefault())
   }
 
   /// Formats `args` according to the Java format string `fmt`, using an
@@ -65,10 +74,15 @@ struct Java2SwiftFormatter {
   ///   - locale: The `Locale` to format with, or `nil` for no localization
   ///             (matches Java's documented `null`-`Locale` behaviour).
   /// - Returns: The formatted string.
-  static func format(_ fmt: String, args: [Any?], locale: java.util.Locale?) -> String {
+  static func format(_ fmt: String, args: [Any?], locale: java.util.Locale?) throws -> String {
     let resolvedLocale: Foundation.Locale = locale?.delegate ?? Foundation.Locale(identifier: "en_US_POSIX")
-    // Phase 1: resolve argument-index notation (%1$s → positional)
-    let (resolvedFmt, resolvedArgs) = resolveArgumentIndices(fmt, args: args)
+    // Phase 1: resolve argument-index notation (%1$s → positional).
+    // `missingArgPositions` marks positions in `resolvedArgs` that don't
+    // correspond to a real caller-supplied argument (out-of-range %n$
+    // index, or simply ran out of positional args) — distinct from a
+    // caller-supplied Java `null`, which is a legitimate `nil` at a
+    // *present* position.
+    let (resolvedFmt, resolvedArgs, missingArgPositions) = resolveArgumentIndices(fmt, args: args)
 
     // Phase 2: walk specifiers and build Swift format + transformed args
     var swiftFmt   = ""
@@ -76,6 +90,12 @@ struct Java2SwiftFormatter {
     var argIdx     = 0
     var i          = resolvedFmt.startIndex
     var hasGrouping = false
+
+    // Conversions that accept a precision at all, per java.util.Formatter's
+    // documented grammar — everything else throws java.util.IllegalFormatPrecisionException.
+    let precisionCapableConversions: Set<Character> = ["s", "S", "b", "B", "h", "H", "e", "E", "f", "g", "G"]
+    // Conversions the ',' grouping flag is legal on.
+    let groupingCapableConversions: Set<Character> = ["d", "f", "e", "E", "g", "G"]
 
     while i < resolvedFmt.endIndex {
       let ch = resolvedFmt[i]
@@ -106,13 +126,18 @@ struct Java2SwiftFormatter {
       }
 
       // Collect flags, width, precision, conversion
-      var flags     = ""
-      var width     = ""
-      var precision = ""
+      var flags        = ""
+      var width        = ""
+      var precision    = ""
+      var seenFlagChars: Set<Character> = []
 
       // Flags: -, +, 0, ' ', #, ,
       while i < resolvedFmt.endIndex && "-+ #0,(".contains(resolvedFmt[i]) {
         let f = resolvedFmt[i]
+        if seenFlagChars.contains(f) {
+          throw java.util.DuplicateFormatFlagsException("\(f)\(f)")
+        }
+        seenFlagChars.insert(f)
         if f == "," { hasGrouping = true }
         else { flags.append(f) }
         i = resolvedFmt.index(after: i)
@@ -135,8 +160,27 @@ struct Java2SwiftFormatter {
       let conv = resolvedFmt[i]
       i = resolvedFmt.index(after: i)
 
-      let arg = argIdx < resolvedArgs.count ? resolvedArgs[argIdx] : nil
+      // '-' (left-justify) requires an explicit width.
+      if flags.contains("-") && width.isEmpty {
+        throw java.util.MissingFormatWidthException(String(resolvedFmt[specStart..<i]))
+      }
+      // Precision is only legal on the conversions that document it.
+      if !precision.isEmpty && !precisionCapableConversions.contains(conv) {
+        throw java.util.IllegalFormatPrecisionException(Int(precision) ?? -1)
+      }
+      // ',' (grouping) is only legal on the numeric conversions that support it.
+      if seenFlagChars.contains(",") && !groupingCapableConversions.contains(conv) {
+        throw java.util.FormatFlagsConversionMismatchException(",", conv)
+      }
+
+      let hasArg = argIdx < resolvedArgs.count && !missingArgPositions.contains(argIdx)
+      let arg    = hasArg ? resolvedArgs[argIdx] : nil
       argIdx += 1
+      // Every conversion besides '%' and 'n' (both already handled above,
+      // before reaching this point) consumes an argument.
+      if !hasArg {
+        throw java.util.MissingFormatArgumentException("%" + String(conv))
+      }
 
       switch conv {
 
@@ -148,10 +192,16 @@ struct Java2SwiftFormatter {
       // rendering with this formatter's own width handling.
       case "s", "S":
         let upper = conv == "S"
+        // '#' ("alternate") is only meaningful for 's'/'S' when the
+        // argument implements Formattable, which is then responsible for
+        // honouring it itself — matches Java's documented behaviour.
+        if flags.contains("#"), let value = arg, !(value is java.util.Formattable) {
+          throw java.util.FormatFlagsConversionMismatchException("#", conv)
+        }
         if let formattable = arg as? java.util.Formattable {
           swiftFmt += "%@"
           swiftArgs.append(
-            formatUsingFormattable(
+            try formatUsingFormattable(
               formattable, flags: flags, upper: upper,
               width: Int(width) ?? -1, precision: Int(precision) ?? -1,
               locale: locale, fallback: arg
@@ -191,15 +241,26 @@ struct Java2SwiftFormatter {
       case "c", "C":
         let s: String
         switch arg {
-        case let c as Character: s = String(c)
-        case let n as Int:       s = String(UnicodeScalar(n) ?? UnicodeScalar(0))
-        default:                 s = arg.map { "\($0)" } ?? "?"
+        case let c as Character:
+          s = String(c)
+        case let n as Int:
+          guard (0...0x10FFFF).contains(n) else {
+            throw java.util.IllegalFormatCodePointException(n)
+          }
+          s = String(UnicodeScalar(n) ?? UnicodeScalar(0))
+        case .none:
+          s = "null"
+        default:
+          throw java.util.IllegalFormatConversionException(conv, type(of: arg!))
         }
         swiftFmt  += "%@"
         swiftArgs.append(s as CVarArg)
 
       // ── Integer ─────────────────────────────────────────────────────────────
       case "d":
+        if let value = arg, !isIntegerArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "d")
         if hasGrouping {
           // Format first, then insert grouping separators
@@ -213,19 +274,34 @@ struct Java2SwiftFormatter {
         }
 
       case "o":
+        if let value = arg, !isIntegerArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "o")
         swiftArgs.append(toInt64(arg))
 
       case "x":
+        if let value = arg, !isIntegerArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "x")
         swiftArgs.append(toInt64(arg))
 
       case "X":
+        if let value = arg, !isIntegerArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "X")
         swiftArgs.append(toInt64(arg))
 
       // ── Floating point ───────────────────────────────────────────────────────
+      // Matches Java: %f/%e/%E/%g/%G/%a/%A require a Float or Double
+      // argument (Java also accepts BigDecimal, which this port does not
+      // yet model) — anything else is an java.util.IllegalFormatConversionException.
       case "f":
+        if let value = arg, !isFloatArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         let prec = Int(precision) ?? 6
         let formatted = formatDouble(toDouble(arg), precision: prec,
                                      grouping: hasGrouping,
@@ -236,19 +312,31 @@ struct Java2SwiftFormatter {
         swiftArgs.append(formatted as CVarArg)
 
       case "e":
+        if let value = arg, !isFloatArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "e")
         swiftArgs.append(toDouble(arg))
 
       case "E":
+        if let value = arg, !isFloatArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "E")
         swiftArgs.append(toDouble(arg))
 
       case "g", "G":
+        if let value = arg, !isFloatArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         let c2: Character = conv == "g" ? "g" : "G"
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: c2)
         swiftArgs.append(toDouble(arg))
 
       case "a", "A":
+        if let value = arg, !isFloatArgument(value) {
+          throw java.util.IllegalFormatConversionException(conv, type(of: value))
+        }
         // Hex float — Swift supports %a
         let c2: Character = conv == "a" ? "a" : "A"
         swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: c2)
@@ -273,10 +361,7 @@ struct Java2SwiftFormatter {
         swiftArgs.append((conv == "H" ? hex.uppercased() : hex) as CVarArg)
 
       default:
-        // Unknown — pass through verbatim
-        let raw = String(resolvedFmt[specStart..<i])
-        swiftFmt  += raw
-        argIdx -= 1   // didn't consume an arg
+        throw java.util.UnknownFormatConversionException(String(resolvedFmt[specStart..<i]))
       }
     }
     if hasGrouping {
@@ -300,14 +385,25 @@ struct Java2SwiftFormatter {
 
   /// Resolves Java argument-index notation (`%1$s`) into positional order.
   ///
-  /// Returns a new format string (with indices stripped) and a reordered
-  /// argument array matching the positional order of specifiers in the string.
-  private static func resolveArgumentIndices(_ fmt: String, args: [Any?]) -> (String, [Any?]) {
+  /// Returns a new format string (with indices stripped), a reordered
+  /// argument array matching the positional order of specifiers in the
+  /// string, and the set of positions in that array which don't correspond
+  /// to a real caller-supplied argument (an out-of-range `%n$` index, or
+  /// simply running out of positional arguments) — needed so the caller can
+  /// tell "missing argument" apart from a legitimate Java `null` argument,
+  /// both of which would otherwise show up as `nil` in the array.
+  private static func resolveArgumentIndices(_ fmt: String, args: [Any?]) -> (String, [Any?], Set<Int>) {
     // Quick check — if no '$' present, nothing to do
-    guard fmt.contains("$") else { return (fmt, args) }
+    guard fmt.contains("$") else {
+      // No argument-index notation anywhere — purely sequential, and
+      // `resolvedArgs.count` (== `args.count`) already lets the caller
+      // detect a short argument list without needing a missing-set.
+      return (fmt, args, [])
+    }
 
     var result    = ""
     var outArgs   : [Any?] = []
+    var missing   : Set<Int> = []
     var i         = fmt.startIndex
 
     while i < fmt.endIndex {
@@ -327,16 +423,26 @@ struct Java2SwiftFormatter {
       if !digits.isEmpty && j < fmt.endIndex && fmt[j] == "$" {
         // Found argument index
         let idx = (Int(digits) ?? 1) - 1   // Java is 1-based
-        outArgs.append(idx < args.count ? args[idx] : nil)
+        if idx < args.count {
+          outArgs.append(args[idx])
+        } else {
+          missing.insert(outArgs.count)
+          outArgs.append(nil)
+        }
         i = fmt.index(after: j)   // skip past '$'
         // Do NOT append the index or '$' to result
       } else {
         // No index — sequential
-        outArgs.append(outArgs.count < args.count ? args[outArgs.count] : nil)
+        if outArgs.count < args.count {
+          outArgs.append(args[outArgs.count])
+        } else {
+          missing.insert(outArgs.count)
+          outArgs.append(nil)
+        }
         // i stays at current position
       }
     }
-    return (result, outArgs)
+    return (result, outArgs, missing)
   }
 
   // ---------------------------------------------------------------------------
@@ -403,28 +509,23 @@ struct Java2SwiftFormatter {
   /// precedence (`Formattable` wins over plain `toString()` for those two
   /// conversions).
   ///
-  /// - Note: `Java2SwiftFormatter.format(...)` is not itself `throws` (see
-  ///   the corresponding TODO in `Text-Implementierung.md`), so an error
-  ///   thrown by `formatTo` cannot yet be propagated to the caller. It is
-  ///   swallowed here and rendering falls back to plain `"\(fallback)"`
-  ///   rather than crashing — the same trade-off already documented for the
-  ///   rest of this file's error handling.
+  /// - Throws: Whatever `formattable.formatTo(...)` throws — matches Java,
+  ///   where a `Formattable` is expected to throw `IllegalFormatException`
+  ///   for a malformed flags/width/precision combination it was handed, and
+  ///   that exception propagates straight out of the enclosing `format(...)`
+  ///   call rather than being swallowed.
   private static func formatUsingFormattable(
     _ formattable: java.util.Formattable, flags: String, upper: Bool,
     width: Int, precision: Int, locale: java.util.Locale?, fallback: Any?
-  ) -> String {
+  ) throws -> String {
     var flagsInt = 0
     if flags.contains("-") { flagsInt |= java.util.FormattableFlags.LEFT_JUSTIFY }
     if upper                { flagsInt |= java.util.FormattableFlags.UPPERCASE }
     if flags.contains("#") { flagsInt |= java.util.FormattableFlags.ALTERNATE }
 
     let temp = java.util.Formatter(locale)
-    do {
-      try formattable.formatTo(temp, flagsInt, width, precision)
-      return try temp.toString()
-    } catch {
-      return fallback.map { "\($0)" } ?? "null"
-    }
+    try formattable.formatTo(temp, flagsInt, width, precision)
+    return try temp.toString()
   }
 
   // ---------------------------------------------------------------------------
@@ -509,6 +610,31 @@ struct Java2SwiftFormatter {
     guard width > t.count else { return t }
     let pad = String(repeating: " ", count: width - t.count)
     return leftAlign ? t + pad : pad + t
+  }
+
+  /// Whether `arg` is one of the Swift integer types accepted by Java's
+  /// `%d`/`%o`/`%x`/`%X` conversions (Java itself also accepts
+  /// `BigInteger`, which this port does not yet model).
+  private static func isIntegerArgument(_ arg: Any) -> Bool {
+    switch arg {
+    case is Int, is Int64, is Int32, is Int16, is Int8,
+         is UInt, is UInt64, is UInt32, is UInt16, is UInt8:
+      return true
+    default:
+      return false
+    }
+  }
+
+  /// Whether `arg` is one of the Swift floating-point types accepted by
+  /// Java's `%f`/`%e`/`%E`/`%g`/`%G`/`%a`/`%A` conversions (Java itself
+  /// also accepts `BigDecimal`, which this port does not yet model).
+  private static func isFloatArgument(_ arg: Any) -> Bool {
+    switch arg {
+    case is Double, is Float:
+      return true
+    default:
+      return false
+    }
   }
 
   private static func toInt64(_ arg: Any?) -> Int64 {

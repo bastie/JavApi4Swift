@@ -20,106 +20,106 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // ── %s / %S ────────────────────────────────────────────────────────────────
 
   @Test("%s inserts string argument")
-  func testStringSpecifier() {
-    #expect(String.format("Hello, %s!", "World") == "Hello, World!")
+  func testStringSpecifier() throws {
+    #expect(try String.format("Hello, %s!", "World") == "Hello, World!")
   }
 
   @Test("%s with nil produces 'null'")
-  func testStringNil() {
+  func testStringNil() throws {
     let arg: String? = nil
-    #expect(String.format("value=%s", arg as Any?) == "value=null")
+    #expect(try String.format("value=%s", arg as Any?) == "value=null")
   }
 
   @Test("%S uppercases the argument")
-  func testStringUpperSpecifier() {
-    #expect(String.format("%S", "hello") == "HELLO")
+  func testStringUpperSpecifier() throws {
+    #expect(try String.format("%S", "hello") == "HELLO")
   }
 
   @Test("%s with width right-pads when left-aligned")
-  func testStringWidth() {
-    #expect(String.format("%-10s|", "hi") == "hi        |")
+  func testStringWidth() throws {
+    #expect(try String.format("%-10s|", "hi") == "hi        |")
   }
 
   @Test("%s with width left-pads when right-aligned (default)")
-  func testStringWidthRightAlign() {
-    #expect(String.format("%10s|", "hi") == "        hi|")
+  func testStringWidthRightAlign() throws {
+    #expect(try String.format("%10s|", "hi") == "        hi|")
   }
 
   // ── %% ─────────────────────────────────────────────────────────────────────
 
   @Test("%% produces a literal percent sign")
-  func testLiteralPercent() {
-    #expect(String.format("100%%") == "100%")
+  func testLiteralPercent() throws {
+    #expect(try String.format("100%%") == "100%")
   }
 
   // ── %n ─────────────────────────────────────────────────────────────────────
 
   @Test("%n produces the platform line separator")
-  func testLineSeparator() {
+  func testLineSeparator() throws {
     let sep = java.lang.System.getProperty("line.separator", "\n")
-    #expect(String.format("line1%nline2") == "line1\(sep)line2")
+    #expect(try String.format("line1%nline2") == "line1\(sep)line2")
   }
 
   // ── %b / %B ────────────────────────────────────────────────────────────────
 
   @Test("%b with Bool true produces 'true'")
-  func testBoolTrue() {
-    #expect(String.format("%b", true) == "true")
+  func testBoolTrue() throws {
+    #expect(try String.format("%b", true) == "true")
   }
 
   @Test("%b with Bool false produces 'false'")
-  func testBoolFalse() {
-    #expect(String.format("%b", false) == "false")
+  func testBoolFalse() throws {
+    #expect(try String.format("%b", false) == "false")
   }
 
   @Test("%b with nil produces 'false'")
-  func testBoolNil() {
+  func testBoolNil() throws {
     let v: Bool? = nil
-    #expect(String.format("%b", v as Any?) == "false")
+    #expect(try String.format("%b", v as Any?) == "false")
   }
 
   @Test("%b with non-nil non-Bool produces 'true'")
-  func testBoolNonNil() {
-    #expect(String.format("%b", 42) == "true")
+  func testBoolNonNil() throws {
+    #expect(try String.format("%b", 42) == "true")
   }
 
   @Test("%B uppercases boolean output")
-  func testBoolUppercase() {
-    #expect(String.format("%B", true)  == "TRUE")
-    #expect(String.format("%B", false) == "FALSE")
+  func testBoolUppercase() throws {
+    #expect(try String.format("%B", true)  == "TRUE")
+    #expect(try String.format("%B", false) == "FALSE")
   }
 
   // ── %d ─────────────────────────────────────────────────────────────────────
 
   @Test("%d formats integer")
-  func testInteger() {
+  func testInteger() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
 
-    #expect(String.format("%d", 42) == "42")
+    #expect(try String.format("%d", 42) == "42")
   }
 
   @Test("%d with width pads with spaces")
-  func testIntegerWidth() {
-    #expect(String.format("%5d", 42) == "   42")
+  func testIntegerWidth() throws {
+    #expect(try String.format("%5d", 42) == "   42")
   }
 
   @Test("%d with zero-flag pads with zeros")
-  func testIntegerZeroPad() {
+  func testIntegerZeroPad() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
     
-    let java = String.format("%05d", 42)
+    let java = try String.format("%05d", 42)
     let expected = "00042"
 
     #expect(java == expected)
   }
 
   @Test("%d negative value")
-  func testIntegerNegative() {
-    #expect(String.format("%d", -7) == "-7")
+  func testIntegerNegative() throws {
+    #expect(try String.format("%d", -7) == "-7")
   }
 
   // ── %,d grouping ───────────────────────────────────────────────────────────
@@ -127,8 +127,8 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // are present and the value is correct when we strip separators.
 
   @Test("%,d inserts grouping separators")
-  func testGroupingInteger() {
-    let result = String.format("%,d", 1_000_000)
+  func testGroupingInteger() throws {
+    let result = try String.format("%,d", 1_000_000)
     let digits = result.filter { $0.isNumber || $0 == "-" }
     #expect(digits == "1000000")
     // Must be longer than plain digits (separator(s) inserted)
@@ -136,8 +136,8 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   }
 
   @Test("%,d negative with grouping")
-  func testGroupingNegative() {
-    let result = String.format("%,d", -1_234)
+  func testGroupingNegative() throws {
+    let result = try String.format("%,d", -1_234)
     #expect(result.contains("-"))
     let digits = result.filter { $0.isNumber }
     #expect(digits == "1234")
@@ -146,19 +146,19 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // ── %f ─────────────────────────────────────────────────────────────────────
 
   @Test("%f formats double with default 6 decimal places")
-  func testFloat() {
+  func testFloat() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
-    #expect(String.format("%f", 3.14159) == "3.141590")
+    #expect(try String.format("%f", 3.14159) == "3.141590")
   }
 
   @Test("%.2f rounds to 2 decimal places")
-  func testFloatPrecision() {
+  func testFloatPrecision() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
-    let shortPi = String.format("%.2f", 3.14159)
+    let shortPi = try String.format("%.2f", 3.14159)
     let expected = "3.14"
     
     #expect(shortPi == expected)
@@ -167,11 +167,11 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // ── %e ─────────────────────────────────────────────────────────────────────
 
   @Test("%e scientific notation")
-  func testScientific() {
+  func testScientific() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
-    let java  = String.format("%e", 123456.789).toLowerCase()
+    let java  = try String.format("%e", 123456.789).toLowerCase()
     let swift = String(format: "%e", 123456.789).toLowerCase()
     
     #expect(java == swift)
@@ -180,52 +180,52 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // ── %o / %x / %X ───────────────────────────────────────────────────────────
 
   @Test("%o octal")
-  func testOctal() {
-    #expect(String.format("%o", 8) == "10")
+  func testOctal() throws {
+    #expect(try String.format("%o", 8) == "10")
   }
 
   @Test("%x lowercase hex")
-  func testHexLower() {
-    #expect(String.format("%x", 255) == "ff")
+  func testHexLower() throws {
+    #expect(try String.format("%x", 255) == "ff")
   }
 
   @Test("%X uppercase hex")
-  func testHexUpper() {
-    #expect(String.format("%X", 255) == "FF")
+  func testHexUpper() throws {
+    #expect(try String.format("%X", 255) == "FF")
   }
 
   // ── %c ─────────────────────────────────────────────────────────────────────
 
   @Test("%c formats a Character")
-  func testCharacter() {
-    #expect(String.format("%c", Character("A")) == "A")
+  func testCharacter() throws {
+    #expect(try String.format("%c", Character("A")) == "A")
   }
 
   // ── argument index (%1$s) ──────────────────────────────────────────────────
 
   @Test("%1$s selects first argument")
-  func testArgIndex1() {
-    #expect(String.format("%1$s %2$s", "Hello", "World") == "Hello World")
+  func testArgIndex1() throws {
+    #expect(try String.format("%1$s %2$s", "Hello", "World") == "Hello World")
   }
 
   @Test("%2$s selects second argument")
-  func testArgIndex2() {
-    #expect(String.format("%2$s %1$s", "World", "Hello") == "Hello World")
+  func testArgIndex2() throws {
+    #expect(try String.format("%2$s %1$s", "World", "Hello") == "Hello World")
   }
 
   @Test("argument index can repeat an argument")
-  func testArgIndexRepeat() {
-    #expect(String.format("%1$s/%1$s", "ping") == "ping/ping")
+  func testArgIndexRepeat() throws {
+    #expect(try String.format("%1$s/%1$s", "ping") == "ping/ping")
   }
 
   // ── mixed specifiers ────────────────────────────────────────────────────────
 
   @Test("mixed specifiers in one format string")
-  func testMixed() {
+  func testMixed() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
-    let result = String.format("%s has %d items (%.1f%%)", "Cart", 3, 100.0)
+    let result = try String.format("%s has %d items (%.1f%%)", "Cart", 3, 100.0)
     #expect(result == "Cart has 3 items (100.0%)")
   }
 
@@ -235,53 +235,53 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // afterwards so tests remain independent of the machine's system locale.
 
   @Test("%,d with de_DE locale uses '.' as grouping separator")
-  func testGroupingDE() {
+  func testGroupingDE() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.GERMANY)
     defer { java.util.Locale.setDefault(saved) }
 
-    let result = String.format("%,d", 1_234_567)
+    let result = try String.format("%,d", 1_234_567)
     // de_DE: 1.234.567
     #expect(result == "1.234.567")
   }
 
   @Test("%,d with en_US locale uses ',' as grouping separator")
-  func testGroupingUS() {
+  func testGroupingUS() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
 
-    let result = String.format("%,d", 1_234_567)
+    let result = try String.format("%,d", 1_234_567)
     // en_US: 1,234,567
     #expect(result == "1,234,567")
   }
 
   @Test("%,f with de_DE locale uses ',' as decimal separator")
-  func testDecimalDE() {
+  func testDecimalDE() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.GERMANY)
     defer { java.util.Locale.setDefault(saved) }
 
-    let result = String.format("%.2f", 1234.5)
+    let result = try String.format("%.2f", 1234.5)
     // de_DE: 1234,50  (no grouping in plain %f, but decimal sep is ',')
     #expect(result.contains(","))
     #expect(!result.contains("."))
   }
 
   @Test("%,f with en_US locale uses '.' as decimal separator")
-  func testDecimalUS() {
+  func testDecimalUS() throws {
     let saved = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(saved) }
 
-    let result = String.format("%.2f", 1234.5)
+    let result = try String.format("%.2f", 1234.5)
     // en_US: 1234.50
     #expect(result.contains("."))
     #expect(!result.contains(","))
   }
 
   @Test("%,d with exotic locale (ar_EG) produces digit groups")
-  func testGroupingExotic() {
+  func testGroupingExotic() throws {
     let saved = java.util.Locale.getDefault()
     // Arabic Egypt — grouping separator is U+066C (Arabic Thousands Separator)
     // or a regular comma depending on the platform; we just check that
@@ -289,7 +289,7 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
     java.util.Locale.setDefault(java.util.Locale("ar", "EG"))
     defer { java.util.Locale.setDefault(saved) }
 
-    let result = String.format("%,d", 1_000_000)
+    let result = try String.format("%,d", 1_000_000)
     // Strip anything that isn't an ASCII/Arabic-Indic digit
     let asciiDigits = result.unicodeScalars
       .filter { ($0.value >= 48 && $0.value <= 57) ||   // ASCII 0-9
@@ -329,32 +329,32 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
   // the global default, matching java.util.Formatter/String's real API.
 
   @Test("String.format(Locale, ...) uses the given locale, not the global default")
-  func testStringFormatExplicitLocaleIndependentOfDefault() {
+  func testStringFormatExplicitLocaleIndependentOfDefault() throws {
     let savedDefault = java.util.Locale.getDefault()
     java.util.Locale.setDefault(java.util.Locale.US)
     defer { java.util.Locale.setDefault(savedDefault) }
 
     // Explicit GERMANY locale must win over the US default, without a
     // setDefault(GERMANY) call.
-    let de = String.format(java.util.Locale.GERMANY, "%,d", 1_234_567)
+    let de = try String.format(java.util.Locale.GERMANY, "%,d", 1_234_567)
     #expect(de == "1.234.567")
 
     // The global default itself must remain untouched by the explicit call.
     #expect(java.util.Locale.getDefault() == java.util.Locale.US)
-    #expect(String.format("%,d", 1_234_567) == "1,234,567")
+    #expect(try String.format("%,d", 1_234_567) == "1,234,567")
   }
 
   @Test("String.format(Locale, ...) with two different explicit locales back-to-back")
-  func testStringFormatExplicitLocaleBackToBack() {
+  func testStringFormatExplicitLocaleBackToBack() throws {
     // No setDefault anywhere in this test — both calls carry their own locale.
-    let de = String.format(java.util.Locale.GERMANY, "%,d", 1_000)
-    let us = String.format(java.util.Locale.US, "%,d", 1_000)
+    let de = try String.format(java.util.Locale.GERMANY, "%,d", 1_000)
+    let us = try String.format(java.util.Locale.US, "%,d", 1_000)
     #expect(de == "1.000")
     #expect(us == "1,000")
   }
 
   @Test("String.format(nil, ...) applies no localization (Locale.ROOT-like)")
-  func testStringFormatNilLocaleMeansNoLocalization() {
+  func testStringFormatNilLocaleMeansNoLocalization() throws {
     let savedDefault = java.util.Locale.getDefault()
     // Set a default whose grouping/decimal separators differ from '.'/',' so
     // a leak from the global default would be visible.
@@ -362,7 +362,7 @@ struct JavApi_lang_Java2SwiftFormatter_Tests {
     defer { java.util.Locale.setDefault(savedDefault) }
 
     let noLocalization: java.util.Locale? = nil
-    let result = String.format(noLocalization, "%,.2f", 1_234.5)
+    let result = try String.format(noLocalization, "%,.2f", 1_234.5)
     // Java's "no localization" formatting uses '.' decimal / ',' grouping,
     // i.e. the opposite of de_DE ('1.234,50') — must be '1,234.50'.
     #expect(result == "1,234.50")

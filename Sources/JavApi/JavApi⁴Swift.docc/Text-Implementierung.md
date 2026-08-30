@@ -202,30 +202,27 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   *Abhängig von:* nichts.
 - [ ] `Matcher.quoteReplacement(String)`, `Pattern.quote(String)`.
   *Abhängig von:* nichts.
-- [ ] **`Java2SwiftFormatter` wirft die `IllegalFormatException`-Unterklassen
-  bei fehlerhaften Format-Strings nicht** — die Klassenhierarchie selbst
-  ist jetzt vollständig vorhanden (`IllegalFormatException` und alle elf
-  Unterklassen — `DuplicateFormatFlagsException`,
-  `FormatFlagsConversionMismatchException`, `IllegalFormatCodePointException`,
-  `IllegalFormatConversionException`, `IllegalFormatFlagsException`,
-  `IllegalFormatPrecisionException`, `IllegalFormatWidthException`,
-  `MissingFormatArgumentException`, `MissingFormatWidthException`,
-  `UnknownFormatConversionException`, `UnknownFormatFlagsException` — je
-  eine Datei in `Sources/JavApi/util/`, mit Java2Swift.md-konformen
-  Initialisierern/Gettern), ebenso `FormatterClosedException`
-  (`extends IllegalStateException`), die jetzt über `Formatter.close()`
-  ausgelöst wird (`format`/`out`/`toString`/`flush` werfen nach `close()`).
-  Was weiterhin fehlt: `Java2SwiftFormatter.format(...)` selbst ist
-  weiterhin nicht-throwing und behandelt unbekannte Conversion-Zeichen,
-  fehlende Argumente etc. aktuell still (Pass-through bzw. generischer
-  Rückfall) statt die neuen, spezifischen Exceptions zu werfen. Das
-  Nachziehen ist eine größere, eigenständige Änderung, da
-  `Java2SwiftFormatter.format`/`String.format`/`Formatter.format` dafür
-  `throws` werden müssten — signaturverändernd und mit entsprechend
-  größerem Blast-Radius (wird hier bewusst als separater Folgepunkt
-  offengehalten statt im Zuge dieser Änderung überstürzt umgesetzt).
-  *Abhängig von:* vorhandener `IllegalFormatException`-Hierarchie (jetzt
-  implementiert).
+- [ ] Rest der `IllegalFormatException`-Anbindung: `Java2SwiftFormatter.format`
+  (und damit `String.format`/`Formatter.format`/`PrintStream.printf`) ist
+  jetzt `throws` und wirft bei fehlerhaften Format-Strings die passende
+  Unterklasse — `UnknownFormatConversionException` (unbekanntes
+  Conversion-Zeichen), `MissingFormatArgumentException` (Argument fehlt,
+  inkl. `%n$`-Index außerhalb des Bereichs — dabei sauber unterschieden von
+  einem echten Java-`null`-Argument), `IllegalFormatConversionException`
+  (Argumenttyp passt nicht zur Conversion, z. B. `%d` mit `String` oder
+  `%f` mit `Int` statt `Double`/`Float`), `IllegalFormatCodePointException`
+  (`%c` mit ungültigem Code-Point), `DuplicateFormatFlagsException`
+  (Flag doppelt in einem Specifier), `MissingFormatWidthException`
+  (`-`-Flag ohne Breite), `IllegalFormatPrecisionException` (Präzision auf
+  einer Conversion, die keine kennt) und `FormatFlagsConversionMismatchException`
+  (z. B. `,`-Flag auf `%s`, `#`-Flag auf `%s` ohne `Formattable`-Argument).
+  `Formattable.formatTo`-Fehler werden jetzt ebenfalls propagiert statt
+  verschluckt. Noch nicht verdrahtet: `IllegalFormatFlagsException`
+  (unzulässige Flag-*Kombinationen* jenseits reiner Duplikate) und
+  `UnknownFormatFlagsException` (durch den Parser strukturell nicht
+  erreichbar, da nur bekannte Flag-Zeichen überhaupt als Flag erkannt
+  werden); die `(`-Flag (Klammern für negative Zahlen) bleibt weiterhin ein
+  wirkungsloser Pass-through. *Abhängig von:* nichts weiter.
 - [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
   `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
   `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-

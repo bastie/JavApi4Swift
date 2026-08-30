@@ -73,22 +73,26 @@ extension java.util {
     ///   - args: The arguments referenced by the format string.
     /// - Returns: `self` (Java convention; allows chaining).
     /// - Throws: `FormatterClosedException` if `close()` has already been
-    ///   called on this `Formatter`.
+    ///   called on this `Formatter`, or an appropriate
+    ///   `java.util.IllegalFormatException` subclass if `fmt`/`args` don't
+    ///   match — see `Java2SwiftFormatter.format(_:args:)`.
     @discardableResult
     public func format(_ fmt: String, _ args: Any?...) throws -> Formatter {
       try checkNotClosed()
-      _ = buffer.append(formatted(fmt, args: args))
+      _ = buffer.append(try formatted(fmt, args: args))
       return self
     }
 
     /// Array overload — used when the caller already has `[Any?]`.
     ///
     /// - Throws: `FormatterClosedException` if `close()` has already been
-    ///   called on this `Formatter`.
+    ///   called on this `Formatter`, or an appropriate
+    ///   `java.util.IllegalFormatException` subclass if `fmt`/`args` don't
+    ///   match — see `Java2SwiftFormatter.format(_:args:)`.
     @discardableResult
     public func format(_ fmt: String, args: [Any?]) throws -> Formatter {
       try checkNotClosed()
-      _ = buffer.append(formatted(fmt, args: args))
+      _ = buffer.append(try formatted(fmt, args: args))
       return self
     }
 
@@ -105,22 +109,26 @@ extension java.util {
     /// - Returns: `self` (Java convention; allows chaining).
     ///
     /// - Throws: `FormatterClosedException` if `close()` has already been
-    ///   called on this `Formatter`.
+    ///   called on this `Formatter`, or an appropriate
+    ///   `java.util.IllegalFormatException` subclass if `fmt`/`args` don't
+    ///   match — see `Java2SwiftFormatter.format(_:args:locale:)`.
     @discardableResult
     public func format(_ locale: java.util.Locale?, _ fmt: String, _ args: Any?...) throws -> Formatter {
       try checkNotClosed()
-      _ = buffer.append(Java2SwiftFormatter.format(fmt, args: args, locale: locale))
+      _ = buffer.append(try Java2SwiftFormatter.format(fmt, args: args, locale: locale))
       return self
     }
 
     /// Array overload of `format(_:_:_:)`.
     ///
     /// - Throws: `FormatterClosedException` if `close()` has already been
-    ///   called on this `Formatter`.
+    ///   called on this `Formatter`, or an appropriate
+    ///   `java.util.IllegalFormatException` subclass if `fmt`/`args` don't
+    ///   match — see `Java2SwiftFormatter.format(_:args:locale:)`.
     @discardableResult
     public func format(_ locale: java.util.Locale?, _ fmt: String, args: [Any?]) throws -> Formatter {
       try checkNotClosed()
-      _ = buffer.append(Java2SwiftFormatter.format(fmt, args: args, locale: locale))
+      _ = buffer.append(try Java2SwiftFormatter.format(fmt, args: args, locale: locale))
       return self
     }
 
@@ -133,8 +141,8 @@ extension java.util {
 
     /// Routes to the explicit-locale or default-locale `Java2SwiftFormatter`
     /// entry point depending on how this `Formatter` was constructed.
-    private func formatted(_ fmt: String, args: [Any?]) -> String {
-      hasExplicitLocale
+    private func formatted(_ fmt: String, args: [Any?]) throws -> String {
+      try hasExplicitLocale
         ? Java2SwiftFormatter.format(fmt, args: args, locale: explicitLocale)
         : Java2SwiftFormatter.format(fmt, args: args)
     }

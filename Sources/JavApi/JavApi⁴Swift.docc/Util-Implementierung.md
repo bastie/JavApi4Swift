@@ -139,32 +139,6 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Java 1.5
 
-- [ ] `Formattable`-Protokoll (`formatTo`) — bereits in
-  `Text-Implementierung.md` (Java-1.5-Abschnitt) dokumentiert; hier nur
-  referenziert, da es formal zu `java.util.Formatter` gehört. *Abhängig
-  von:* vorhandenem `Formatter` (bereits implementiert).
-- [ ] `FormattableFlags` — Konstanten-Namespace (`LEFT_JUSTIFY`,
-  `UPPERCASE`, `ALTERNATE`) für `Formattable.formatTo` — **nicht
-  gefunden**. *Abhängig von:* `Formattable` (siehe oben).
-- [ ] Vollständige `IllegalFormatException`-Hierarchie —
-  `IllegalFormatException`, `IllegalFormatConversionException`,
-  `IllegalFormatFlagsException`, `IllegalFormatPrecisionException`,
-  `IllegalFormatWidthException`, `IllegalFormatCodePointException`,
-  `MissingFormatArgumentException`, `MissingFormatWidthException`,
-  `DuplicateFormatFlagsException`, `UnknownFormatConversionException`,
-  `UnknownFormatFlagsException`, `FormatFlagsConversionMismatchException`
-  — Vorab-Audit fand ~12 zusammengehörige Exception-Typen; laut
-  Volltextsuche existieren `IllegalFormatException`,
-  `MissingFormatArgumentException` und `FormatterClosedException` nur als
-  **Erwähnung in `Text-Implementierung.md`**, keine Swift-Implementierung
-  gefunden. Jeder Typ folgt dem in `Java2Swift.md` beschriebenen
-  Exception-Datei-Muster (eigene Datei, vier Standard-Initialisierer).
-  *Abhängig von:* vorhandenem `Formatter`/`Java2SwiftFormatter` (bereits
-  implementiert), sollte vor `Formattable` umgesetzt werden (siehe auch
-  Priority-Abschnitt in `Text-Implementierung.md`).
-- [ ] `FormatterClosedException` — eigene Datei nach Exception-Muster,
-  wird geworfen, wenn nach `Formatter.close()` weiterhin formatiert wird.
-  *Abhängig von:* vorhandenem `Formatter`.
 - [ ] **`java.util.concurrent` Kernpaket (seit Java 5)** — größte
   funktionale Einzel-Lücke des gesamten Dokuments. Aktuell nur `Callable`,
   `Future`, `ExecutionException`, `TimeoutException` vorhanden (plus die

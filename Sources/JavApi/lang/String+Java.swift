@@ -73,13 +73,18 @@ extension String {
   ///   - format: A Java-style format string.
   ///   - args:   Arguments referenced by the format string.
   /// - Returns: The formatted string.
-  public static func format(_ format: String, _ args: Any?...) -> String {
-    Java2SwiftFormatter.format(format, args: args)
+  /// - Throws: An appropriate `java.util.IllegalFormatException` subclass —
+  ///   see `Java2SwiftFormatter.format(_:args:)`.
+  public static func format(_ format: String, _ args: Any?...) throws -> String {
+    try Java2SwiftFormatter.format(format, args: args)
   }
 
   /// Varargs-array overload — matches Java's `String.format(String, Object[])`.
-  public static func format(_ format: String, args: [Any?]) -> String {
-    Java2SwiftFormatter.format(format, args: args)
+  ///
+  /// - Throws: An appropriate `java.util.IllegalFormatException` subclass —
+  ///   see `Java2SwiftFormatter.format(_:args:)`.
+  public static func format(_ format: String, args: [Any?]) throws -> String {
+    try Java2SwiftFormatter.format(format, args: args)
   }
 
   /// Formats a string using a Java-style format string and an explicit
@@ -97,14 +102,19 @@ extension String {
   ///   - format: A Java-style format string.
   ///   - args:   Arguments referenced by the format string.
   /// - Returns: The formatted string.
-  public static func format(_ locale: java.util.Locale?, _ format: String, _ args: Any?...) -> String {
-    Java2SwiftFormatter.format(format, args: args, locale: locale)
+  /// - Throws: An appropriate `java.util.IllegalFormatException` subclass —
+  ///   see `Java2SwiftFormatter.format(_:args:locale:)`.
+  public static func format(_ locale: java.util.Locale?, _ format: String, _ args: Any?...) throws -> String {
+    try Java2SwiftFormatter.format(format, args: args, locale: locale)
   }
 
   /// Varargs-array overload — matches Java's
   /// `String.format(Locale, String, Object[])`.
-  public static func format(_ locale: java.util.Locale?, _ format: String, args: [Any?]) -> String {
-    Java2SwiftFormatter.format(format, args: args, locale: locale)
+  ///
+  /// - Throws: An appropriate `java.util.IllegalFormatException` subclass —
+  ///   see `Java2SwiftFormatter.format(_:args:locale:)`.
+  public static func format(_ locale: java.util.Locale?, _ format: String, args: [Any?]) throws -> String {
+    try Java2SwiftFormatter.format(format, args: args, locale: locale)
   }
 
   /// Check equals of String to other String
