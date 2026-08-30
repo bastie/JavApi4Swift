@@ -432,16 +432,22 @@ hängen an derselben Voraussetzung — dem Fortschritt der
 
 ## Swift-6.3-Concurrency-Hinweis
 
-- `StringBuilder` ist aktuell nicht `Sendable` (kein Lock, Referenztyp mit
-  mutablem `var content`), `StringBuffer` ist durch `NSLock` faktisch
-  thread-sicher, sollte aber explizit als `@unchecked Sendable` markiert
-  und dokumentiert werden, sobald neue Methoden hinzukommen — insbesondere
-  wenn zukünftig `Formattable`/`CharsetEncoder`-Typen mit Closures/Zustand
-  ergänzt werden, müssen deren Sendable-Eigenschaften geprüft werden
-  (Closures, die in `async`-Kontexten über Aktorgrenzen gereicht werden,
-  brauchen `@Sendable`). *Betrifft:* alle `StringBuilder`-Punkte
-  (Java 1.5, Java 11) sowie `Formattable`/`CharsetEncoder` (Java 1.5 bzw.
-  1.4).
+- **`StringBuilder`/`StringBuffer` Sendable-Konformität geklärt und
+  umgesetzt**: `StringBuilder` ist — Java-treu — weiterhin bewusst *nicht*
+  `Sendable` (kein Lock, Referenztyp mit mutablem `var content`; Java
+  dokumentiert `StringBuilder` selbst explizit als nicht thread-sicher,
+  im Gegensatz zu `StringBuffer`), jetzt mit erklärendem Doc-Kommentar
+  direkt an der Klasse, damit das nicht versehentlich als Lücke
+  „nachgebessert" wird. `StringBuffer` ist jetzt explizit
+  `@unchecked Sendable` (verifiziert: jede Methode, die `content`
+  berührt, hält vorher `lock`; keine verschachtelten Selbstaufrufe, die
+  zu einem Deadlock am nicht-reentranten `NSLock` führen könnten) —
+  inklusive Nebenläufigkeits-Regressionstest.
+- Wenn künftig `CharsetEncoder`/`CharsetDecoder`-Typen mit Closures/
+  Zustand ergänzt werden, müssen deren Sendable-Eigenschaften separat
+  geprüft werden (Closures, die in `async`-Kontexten über Aktorgrenzen
+  gereicht werden, brauchen `@Sendable`). *Betrifft:* `CharsetEncoder`/
+  `CharsetDecoder` (Java 1.4, s. o.).
 - **`CharsetEncoder`/`CharsetDecoder`**: sollte analog zum bestehenden
   `Charset`-Muster mit `String.Encoding`-Mapping umgesetzt werden, aber mit
   expliziter `CodingErrorAction`-Steuerung — Foundations

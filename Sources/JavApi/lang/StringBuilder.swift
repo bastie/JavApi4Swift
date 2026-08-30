@@ -4,8 +4,16 @@
  */
 
 // final class => public
+
+/// A mutable string, `java.lang.StringBuilder` equivalent.
+///
+/// **Deliberately not `Sendable`**: this mirrors Java, where `StringBuilder`
+/// is explicitly documented as *not* thread-safe (unsynchronised, for
+/// performance) — unlike `StringBuffer`, which is. `content` has no lock and
+/// must not be shared across concurrent tasks/threads without external
+/// synchronisation; use ``StringBuffer`` instead if that is required.
 public class StringBuilder {
-  
+
   var content : String = "" // TODO: implements direct a char array
   
   /// Default constructor

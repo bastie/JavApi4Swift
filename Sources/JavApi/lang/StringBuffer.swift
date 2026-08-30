@@ -10,8 +10,14 @@ import Foundation
 /// `StringBuffer` has the same API as ``StringBuilder`` but all mutating methods
 /// are synchronised via an `NSLock`, matching Java's `synchronized` semantics.
 ///
+/// `@unchecked Sendable`: every method that touches `content` acquires
+/// `lock` first (see below), so instances may safely be shared and mutated
+/// across concurrent tasks/threads — unlike ``StringBuilder``, which is
+/// deliberately *not* `Sendable`. `@unchecked` is required because Swift
+/// cannot verify manual `NSLock`-based synchronisation itself.
+///
 /// For single-threaded use, prefer ``StringBuilder`` which has lower overhead.
-public final class StringBuffer {
+public final class StringBuffer : @unchecked Sendable {
 
   private var content: String = ""
   private let lock = NSLock()
