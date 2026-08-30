@@ -202,9 +202,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   *Abhängig von:* nichts.
 - [ ] `Matcher.quoteReplacement(String)`, `Pattern.quote(String)`.
   *Abhängig von:* nichts.
-- [ ] `Formattable`-Protokoll (`formatTo`) — fehlt komplett; nötig, damit
-  eigene Typen `%s`-kompatibel eigene Formatierung liefern. *Abhängig von:*
-  vorhandenem `Formatter`/`Java2SwiftFormatter` (bereits implementiert).
 - [ ] **`Java2SwiftFormatter` wirft die `IllegalFormatException`-Unterklassen
   bei fehlerhaften Format-Strings nicht** — die Klassenhierarchie selbst
   ist jetzt vollständig vorhanden (`IllegalFormatException` und alle elf

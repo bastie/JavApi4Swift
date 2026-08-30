@@ -183,8 +183,12 @@ extension java.util.stream {
         return buffer.map { mapper($0) }
 #else
         // Pre-allocate result storage; each concurrent iteration writes to
-        // its own index so no locking is needed.
-        let resultPtr = UnsafeMutablePointer<R>.allocate(capacity: n)
+        // its own index so no locking is needed. `UnsafeMutablePointer`
+        // itself is not `Sendable`, but this usage is safe by construction
+        // (disjoint indices, no shared mutable state across iterations),
+        // hence `nonisolated(unsafe)` rather than a Sendable-conforming
+        // wrapper.
+        nonisolated(unsafe) let resultPtr = UnsafeMutablePointer<R>.allocate(capacity: n)
         defer { resultPtr.deallocate() }
 
         DispatchQueue.concurrentPerform(iterations: n) { i in

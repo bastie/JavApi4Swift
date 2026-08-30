@@ -141,21 +141,30 @@ struct Java2SwiftFormatter {
       switch conv {
 
       // ── String ──────────────────────────────────────────────────────────────
-      case "s":
-        let s = arg.map { "\($0)" } ?? "null"
-        let padded = applyWidth(s, width: Int(width) ?? 0,
-                                leftAlign: flags.contains("-"),
-                                upper: false)
-        swiftFmt  += "%@"
-        swiftArgs.append(padded as CVarArg)
-
-      case "S":
-        let s = (arg.map { "\($0)" } ?? "null").uppercased()
-        let padded = applyWidth(s, width: Int(width) ?? 0,
-                                leftAlign: flags.contains("-"),
-                                upper: false)
-        swiftFmt  += "%@"
-        swiftArgs.append(padded as CVarArg)
+      // Per Java's `Formatter` javadoc, 's'/'S' first check whether the
+      // argument implements `Formattable` and, if so, delegate rendering to
+      // it entirely (it is then responsible for honouring width/precision/
+      // flags itself); otherwise fall back to plain `toString()`-style
+      // rendering with this formatter's own width handling.
+      case "s", "S":
+        let upper = conv == "S"
+        if let formattable = arg as? java.util.Formattable {
+          swiftFmt += "%@"
+          swiftArgs.append(
+            formatUsingFormattable(
+              formattable, flags: flags, upper: upper,
+              width: Int(width) ?? -1, precision: Int(precision) ?? -1,
+              locale: locale, fallback: arg
+            ) as CVarArg
+          )
+        } else {
+          let s = arg.map { "\($0)" } ?? "null"
+          let padded = applyWidth(upper ? s.uppercased() : s, width: Int(width) ?? 0,
+                                  leftAlign: flags.contains("-"),
+                                  upper: false)
+          swiftFmt  += "%@"
+          swiftArgs.append(padded as CVarArg)
+        }
 
       // ── Boolean ─────────────────────────────────────────────────────────────
       case "b":
@@ -383,6 +392,39 @@ struct Java2SwiftFormatter {
     default:  return "?"
     }
     return fmt.string(from: date)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: Formattable
+  // ---------------------------------------------------------------------------
+
+  /// Renders a `%s`/`%S` argument that implements `java.util.Formattable` by
+  /// delegating to its `formatTo(_:_:_:_:)`, matching Java's documented
+  /// precedence (`Formattable` wins over plain `toString()` for those two
+  /// conversions).
+  ///
+  /// - Note: `Java2SwiftFormatter.format(...)` is not itself `throws` (see
+  ///   the corresponding TODO in `Text-Implementierung.md`), so an error
+  ///   thrown by `formatTo` cannot yet be propagated to the caller. It is
+  ///   swallowed here and rendering falls back to plain `"\(fallback)"`
+  ///   rather than crashing — the same trade-off already documented for the
+  ///   rest of this file's error handling.
+  private static func formatUsingFormattable(
+    _ formattable: java.util.Formattable, flags: String, upper: Bool,
+    width: Int, precision: Int, locale: java.util.Locale?, fallback: Any?
+  ) -> String {
+    var flagsInt = 0
+    if flags.contains("-") { flagsInt |= java.util.FormattableFlags.LEFT_JUSTIFY }
+    if upper                { flagsInt |= java.util.FormattableFlags.UPPERCASE }
+    if flags.contains("#") { flagsInt |= java.util.FormattableFlags.ALTERNATE }
+
+    let temp = java.util.Formatter(locale)
+    do {
+      try formattable.formatTo(temp, flagsInt, width, precision)
+      return try temp.toString()
+    } catch {
+      return fallback.map { "\($0)" } ?? "null"
+    }
   }
 
   // ---------------------------------------------------------------------------
