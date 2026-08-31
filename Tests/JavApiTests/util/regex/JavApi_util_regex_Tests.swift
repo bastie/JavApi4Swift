@@ -501,3 +501,83 @@ struct MatcherRequireEndTests {
     #expect(m.requireEnd() == false)
   }
 }
+
+// MARK: - Matcher.quoteReplacement / Pattern.quote
+
+@Suite("java.util.regex.Matcher.quoteReplacement")
+struct MatcherQuoteReplacementTests {
+
+  @Test("a string without '\\' or '$' is returned unchanged")
+  func plainStringUnchanged() {
+    #expect(java.util.regex.Matcher.quoteReplacement("hello world") == "hello world")
+  }
+
+  @Test("'$' is escaped so group references are not expanded")
+  func dollarIsEscaped() {
+    #expect(java.util.regex.Matcher.quoteReplacement("$1 and $2") == "\\$1 and \\$2")
+  }
+
+  @Test("'\\\\' is escaped")
+  func backslashIsEscaped() {
+    #expect(java.util.regex.Matcher.quoteReplacement("a\\b") == "a\\\\b")
+  }
+
+  @Test("quoted replacement round-trips through appendReplacement/replaceAll literally")
+  func roundTripsThroughReplaceAll() throws {
+    let m = try java.util.regex.Pattern.compile("X").matcher("X-X")
+    let literal = java.util.regex.Matcher.quoteReplacement("$1\\end")
+    #expect(m.replaceAll(literal) == "$1\\end-$1\\end")
+  }
+}
+
+@Suite("java.util.regex.Pattern.quote")
+struct PatternQuoteTests {
+
+  @Test("wraps a plain string in \\\\Q...\\\\E")
+  func wrapsInQE() {
+    #expect(java.util.regex.Pattern.quote("a.b*c") == "\\Qa.b*c\\E")
+  }
+
+  @Test("the quoted string matches its input literally, metacharacters included")
+  func quotedPatternMatchesLiterally() throws {
+    let literal = "a.b*c?"
+    let p = try java.util.regex.Pattern.compile(java.util.regex.Pattern.quote(literal))
+    #expect(p.matcher(literal).matches() == true)
+    #expect(p.matcher("axbxxc?").matches() == false)
+  }
+
+  @Test("an embedded \\\\E is closed and reopened instead of terminating the quote early")
+  func embeddedSlashEIsHandled() throws {
+    let literal = "a\\Eb"
+    let quoted = java.util.regex.Pattern.quote(literal)
+    let p = try java.util.regex.Pattern.compile(quoted)
+    #expect(p.matcher(literal).matches() == true)
+  }
+}
+
+// MARK: - Matcher region-boundary flags
+
+@Suite("java.util.regex.Matcher anchoring/transparent bounds")
+struct MatcherBoundsFlagsTests {
+
+  @Test("defaults match the JDK: anchoring bounds true, transparent bounds false")
+  func defaults() throws {
+    let m = try java.util.regex.Pattern.compile("x").matcher("x")
+    #expect(m.hasAnchoringBounds() == true)
+    #expect(m.hasTransparentBounds() == false)
+  }
+
+  @Test("useAnchoringBounds/useTransparentBounds are remembered and are fluent")
+  func settersAreRememberedAndFluent() throws {
+    let m = try java.util.regex.Pattern.compile("x").matcher("x")
+    #expect(m.useAnchoringBounds(false) === m)
+    #expect(m.hasAnchoringBounds() == false)
+    #expect(m.useTransparentBounds(true) === m)
+    #expect(m.hasTransparentBounds() == true)
+
+    m.useAnchoringBounds(true)
+    m.useTransparentBounds(false)
+    #expect(m.hasAnchoringBounds() == true)
+    #expect(m.hasTransparentBounds() == false)
+  }
+}

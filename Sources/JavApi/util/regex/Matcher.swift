@@ -48,6 +48,14 @@ extension java.util.regex {
     private enum _Operation { case matches, find, lookingAt }
     private var _lastOperation: _Operation = .find
 
+    /// Backing storage for `hasAnchoringBounds()`/`useAnchoringBounds(_:)`.
+    /// Defaults to `true`, matching the JDK.
+    private var _anchoringBounds: Bool = true
+
+    /// Backing storage for `hasTransparentBounds()`/`useTransparentBounds(_:)`.
+    /// Defaults to `false`, matching the JDK.
+    private var _transparentBounds: Bool = false
+
     // MARK: - MatchState
 
     /// Snapshot of a single successful match.
@@ -389,6 +397,69 @@ extension java.util.regex {
       return _input[_searchStart..<_regionEnd].firstMatch(of: _pattern._regex) != nil
     }
 
+    // MARK: - Region boundary behaviour
+
+    /// Returns `true` if this matcher's region boundaries are treated as
+    /// anchors (`^`/`$` match there), matching the JDK default.
+    ///
+    /// **Implementation note:** matching in this port already runs against
+    /// `_input[_regionStart..<_regionEnd]` as an independent Swift
+    /// `Substring`, whose start/end Swift's `Regex` engine treats as the
+    /// effective string boundaries for `^`/`$` — i.e. the current
+    /// implementation's behaviour already *is* `useAnchoringBounds(true)`,
+    /// the JDK default. `useAnchoringBounds(false)` is accepted and
+    /// remembered (so `hasAnchoringBounds()` reports it correctly), but
+    /// Swift's `Regex` engine exposes no way to make `^`/`$` ignore a
+    /// sub-range's boundaries and refer only to the true start/end of the
+    /// whole input, so toggling it to `false` has no further effect on
+    /// match behaviour — a known limitation versus the reference JDK,
+    /// consistent with the one already documented for ``hitEnd()``/
+    /// ``requireEnd()``.
+    ///
+    /// - Since: Java 1.5
+    public func hasAnchoringBounds() -> Bool { _anchoringBounds }
+
+    /// Sets whether this matcher's region boundaries are transparent to
+    /// `^`/`$` anchors. See ``hasAnchoringBounds()`` for the implementation
+    /// limitation.
+    ///
+    /// - Since: Java 1.5
+    @discardableResult
+    public func useAnchoringBounds(_ b: Bool) -> Matcher {
+      _anchoringBounds = b
+      return self
+    }
+
+    /// Returns `true` if this matcher's region boundaries are transparent to
+    /// lookahead, lookbehind, and boundary matchers — i.e. whether they may
+    /// "see" beyond the region into the rest of the input. The JDK default
+    /// is `false` (opaque bounds).
+    ///
+    /// **Implementation note:** matching in this port runs against
+    /// `_input[_regionStart..<_regionEnd]` as an independent `Substring`,
+    /// which Swift's `Regex` engine cannot see past — i.e. the current
+    /// implementation's behaviour already *is* `useTransparentBounds(false)`,
+    /// the JDK default. `useTransparentBounds(true)` is accepted and
+    /// remembered (so `hasTransparentBounds()` reports it correctly), but
+    /// making lookaround see past the region boundary would require
+    /// matching against the full input while still constraining where the
+    /// overall match may start/end — not expressible with Swift's `Regex`
+    /// API — so toggling it to `true` has no further effect on match
+    /// behaviour, a known limitation versus the reference JDK.
+    ///
+    /// - Since: Java 1.5
+    public func hasTransparentBounds() -> Bool { _transparentBounds }
+
+    /// Sets whether this matcher's region boundaries are transparent. See
+    /// ``hasTransparentBounds()`` for the implementation limitation.
+    ///
+    /// - Since: Java 1.5
+    @discardableResult
+    public func useTransparentBounds(_ b: Bool) -> Matcher {
+      _transparentBounds = b
+      return self
+    }
+
     // MARK: - Private helpers
 
     /// Builds a `MatchState` from a successful Swift regex match.
@@ -573,6 +644,30 @@ extension java.util.regex {
         preconditionFailure("Matcher.toMatchResult(): no match has been performed")
       }
       return MatchSnapshot(state: s)
+    }
+
+    // MARK: - quoteReplacement
+
+    /// Returns a literal replacement `String` for the specified `String`.
+    ///
+    /// This method produces a `String` that will work as a literal
+    /// replacement `replacement` in the `appendReplacement(_:_:)` method of
+    /// this class (and therefore also `replaceAll(_:)`/`replaceFirst(_:)`):
+    /// the `\` and `$` characters will have no special meaning in the
+    /// returned string.
+    ///
+    /// Mirrors `java.util.regex.Matcher.quoteReplacement(String)` (Java 1.5).
+    ///
+    /// - Since: Java 1.5
+    public static func quoteReplacement(_ s: String) -> String {
+      guard s.contains("\\") || s.contains("$") else { return s }
+      var result = ""
+      result.reserveCapacity(s.count)
+      for c in s {
+        if c == "\\" || c == "$" { result.append("\\") }
+        result.append(c)
+      }
+      return result
     }
   }
 }

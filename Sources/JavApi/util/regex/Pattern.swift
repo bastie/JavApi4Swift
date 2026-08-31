@@ -166,6 +166,37 @@ extension java.util.regex {
       try compile(regex).matcher(input).matches()
     }
 
+    /// Returns a literal pattern `String` for the specified `String`.
+    ///
+    /// This method produces a `String` that can be used to create a
+    /// `Pattern` that would match the string `s` as if it were a literal
+    /// pattern: metacharacters or escape sequences in the input sequence
+    /// will be given no special meaning. Implemented, like the JDK, by
+    /// wrapping `s` in `\Q...\E`; any embedded `\E` is closed and reopened
+    /// (`\E\\E\Q`) so it cannot prematurely terminate the quoted section.
+    ///
+    /// Mirrors `java.util.regex.Pattern.quote(String)` (Java 1.5).
+    ///
+    /// - Since: Java 1.5
+    public static func quote(_ s: String) -> String {
+      guard let firstRange = s.range(of: "\\E") else {
+        return "\\Q" + s + "\\E"
+      }
+      var result = "\\Q"
+      var current = s.startIndex
+      var searchRange = firstRange
+      while true {
+        result += s[current..<searchRange.lowerBound]
+        result += "\\E\\\\E\\Q"
+        current = searchRange.upperBound
+        guard let next = s.range(of: "\\E", range: current..<s.endIndex) else { break }
+        searchRange = next
+      }
+      result += s[current...]
+      result += "\\E"
+      return result
+    }
+
     /// Returns a predicate that tests whether a string matches this pattern.
     ///
     /// - Since: Java 8

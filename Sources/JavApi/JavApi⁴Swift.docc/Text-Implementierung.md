@@ -143,8 +143,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   `UNIX_LINES`, `COMMENTS`, `LITERAL`, `UNICODE_CASE`, `CANON_EQ`
   (aktuell nur `flags()` als Getter sichtbar, keine Konstanten-Liste
   geprüft — Review nötig). *Abhängig von:* nichts.
-- [ ] `Matcher.hasAnchoringBounds`/`hasTransparentBounds`/
-  `useAnchoringBounds`/`useTransparentBounds`. *Abhängig von:* nichts.
 - [ ] `Bidi` (bidirektionaler Text) — **komplett nicht gefunden**.
   *Abhängig von:* **ICU-Bidi-Algorithmus-Implementierung**, auf Apple ggf.
   über CoreText/ICU, unter Linux GLibc/MUSL und insbesondere WASM ohne ICU
@@ -199,8 +197,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   Storage-Protokoll (siehe oben).
 - [ ] `Character.valueOf`/Boxing-Cache-Semantik — in Swift ohne
   Objekt-Identität weniger relevant, nur als Hinweis dokumentieren.
-  *Abhängig von:* nichts.
-- [ ] `Matcher.quoteReplacement(String)`, `Pattern.quote(String)`.
   *Abhängig von:* nichts.
 - [ ] Rest der `IllegalFormatException`-Anbindung: `Java2SwiftFormatter.format`
   (und damit `String.format`/`Formatter.format`/`PrintStream.printf`) ist
