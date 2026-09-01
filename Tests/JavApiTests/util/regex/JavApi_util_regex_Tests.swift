@@ -227,31 +227,31 @@ struct MatcherReplacementTests {
   @Test("replaceAll replaces every occurrence")
   func replaceAll() throws {
     let m = try java.util.regex.Pattern.compile("\\d+").matcher("a1b22c333")
-    #expect(m.replaceAll("N") == "aNbNcN")
+    #expect(try m.replaceAll("N") == "aNbNcN")
   }
 
   @Test("replaceFirst replaces only first")
   func replaceFirst() throws {
     let m = try java.util.regex.Pattern.compile("\\d+").matcher("a1b22c333")
-    #expect(m.replaceFirst("N") == "aNb22c333")
+    #expect(try m.replaceFirst("N") == "aNb22c333")
   }
 
   @Test("replaceAll with $1 backreference")
   func replaceAllBackref() throws {
     let m = try java.util.regex.Pattern.compile("(\\w+)@(\\w+)").matcher("user@host")
-    #expect(m.replaceAll("$2:$1") == "host:user")
+    #expect(try m.replaceAll("$2:$1") == "host:user")
   }
 
   @Test("replaceAll with $0 whole-match backreference")
   func replaceAllBackref0() throws {
     let m = try java.util.regex.Pattern.compile("\\d+").matcher("val=42")
-    #expect(m.replaceAll("[$0]") == "val=[42]")
+    #expect(try m.replaceAll("[$0]") == "val=[42]")
   }
 
   @Test("escape in replacement: \\$ literal dollar")
   func escapedDollar() throws {
     let m = try java.util.regex.Pattern.compile("price").matcher("the price is right")
-    #expect(m.replaceAll("\\$price") == "the $price is right")
+    #expect(try m.replaceAll("\\$price") == "the $price is right")
   }
 }
 
@@ -353,7 +353,7 @@ struct AppendReplacementTests {
     let m = try java.util.regex.Pattern.compile("\\d+").matcher("a1b22c333")
     let sb = StringBuffer()
     while m.find() {
-      m.appendReplacement(sb, "N")
+      try m.appendReplacement(sb, "N")
     }
     m.appendTail(sb)
     #expect(sb.toString() == "aNbNcN")
@@ -526,7 +526,7 @@ struct MatcherQuoteReplacementTests {
   func roundTripsThroughReplaceAll() throws {
     let m = try java.util.regex.Pattern.compile("X").matcher("X-X")
     let literal = java.util.regex.Matcher.quoteReplacement("$1\\end")
-    #expect(m.replaceAll(literal) == "$1\\end-$1\\end")
+    #expect(try m.replaceAll(literal) == "$1\\end-$1\\end")
   }
 }
 
@@ -579,5 +579,225 @@ struct MatcherBoundsFlagsTests {
     m.useTransparentBounds(false)
     #expect(m.hasAnchoringBounds() == true)
     #expect(m.hasTransparentBounds() == false)
+  }
+}
+
+// MARK: - Matcher.group(String) — named capture groups
+
+@Suite("java.util.regex.Matcher – named groups")
+struct MatcherNamedGroupTests {
+
+  @Test("group(name) returns the named capture's substring")
+  func namedGroupReturnsSubstring() throws {
+    let m = try java.util.regex.Pattern.compile("(?<year>\\d{4})-(?<month>\\d{2})").matcher("2026-09")
+    #expect(m.matches() == true)
+    #expect(try m.group("year") == "2026")
+    #expect(try m.group("month") == "09")
+  }
+
+  @Test("group(name) returns nil for a named group that didn't participate")
+  func namedGroupNotParticipating() throws {
+    let m = try java.util.regex.Pattern.compile("(?<a>x)|(?<b>y)").matcher("y")
+    #expect(m.matches() == true)
+    #expect(try m.group("a") == nil)
+    #expect(try m.group("b") == "y")
+  }
+
+  @Test("group(name) throws IllegalArgumentException for an unknown group name")
+  func unknownNamedGroupThrows() throws {
+    let m = try java.util.regex.Pattern.compile("(?<year>\\d{4})").matcher("2026")
+    #expect(m.matches() == true)
+    #expect(throws: IllegalArgumentException.self) {
+      _ = try m.group("nope")
+    }
+  }
+
+  @Test("${name} in a replacement template resolves the named group")
+  func namedGroupInReplacement() throws {
+    let m = try java.util.regex.Pattern.compile("(?<year>\\d{4})-(?<month>\\d{2})").matcher("2026-09")
+    #expect(try m.replaceAll("${month}/${year}") == "09/2026")
+  }
+
+  @Test("an unknown ${name} in a replacement template throws IllegalArgumentException")
+  func unknownNamedGroupInReplacementThrows() throws {
+    let m = try java.util.regex.Pattern.compile("(?<year>\\d{4})").matcher("2026")
+    #expect(throws: IllegalArgumentException.self) {
+      _ = try m.replaceAll("${nope}")
+    }
+  }
+}
+
+// MARK: - Harmony-style edge-case coverage: character classes, quantifiers,
+// backreferences, non-capturing groups, lookaround, split-with-capture.
+//
+// Apache Harmony's java.util.regex test suite (PatternTest/Pattern2Test/
+// MatcherTest in the historical Harmony/Android libcore sources) exercises
+// these constructs far more exhaustively than the suites above; this block
+// adds a representative, still-bounded slice of the same categories rather
+// than a full port.
+
+@Suite("java.util.regex.Pattern – character classes and alternation")
+struct PatternCharacterClassTests {
+
+  @Test("a simple character class [abc]")
+  func simpleClass() throws {
+    let p = try java.util.regex.Pattern.compile("[abc]")
+    #expect(p.matcher("b").matches() == true)
+    #expect(p.matcher("d").matches() == false)
+  }
+
+  @Test("a negated character class [^abc]")
+  func negatedClass() throws {
+    let p = try java.util.regex.Pattern.compile("[^abc]")
+    #expect(p.matcher("d").matches() == true)
+    #expect(p.matcher("a").matches() == false)
+  }
+
+  @Test("a range character class [a-z0-9]")
+  func rangeClass() throws {
+    let p = try java.util.regex.Pattern.compile("[a-z0-9]+")
+    #expect(p.matcher("abc123").matches() == true)
+    #expect(p.matcher("ABC").matches() == false)
+  }
+
+  @Test("alternation matches either branch")
+  func alternation() throws {
+    let p = try java.util.regex.Pattern.compile("cat|dog")
+    #expect(p.matcher("cat").matches() == true)
+    #expect(p.matcher("dog").matches() == true)
+    #expect(p.matcher("bird").matches() == false)
+  }
+}
+
+@Suite("java.util.regex.Pattern – quantifiers")
+struct PatternQuantifierTests {
+
+  @Test("bounded quantifier {2,4}")
+  func boundedQuantifier() throws {
+    let p = try java.util.regex.Pattern.compile("a{2,4}")
+    #expect(p.matcher("a").matches() == false)
+    #expect(p.matcher("aa").matches() == true)
+    #expect(p.matcher("aaaa").matches() == true)
+    #expect(p.matcher("aaaaa").matches() == false)
+  }
+
+  @Test("greedy quantifier consumes as much as possible")
+  func greedyQuantifier() throws {
+    let m = try java.util.regex.Pattern.compile("a.*b").matcher("axxbxxb")
+    #expect(m.find() == true)
+    #expect(m.group() == "axxbxxb")
+  }
+
+  @Test("reluctant quantifier consumes as little as possible")
+  func reluctantQuantifier() throws {
+    let m = try java.util.regex.Pattern.compile("a.*?b").matcher("axxbxxb")
+    #expect(m.find() == true)
+    #expect(m.group() == "axxb")
+  }
+
+  @Test("optional quantifier ?")
+  func optionalQuantifier() throws {
+    let p = try java.util.regex.Pattern.compile("colou?r")
+    #expect(p.matcher("color").matches() == true)
+    #expect(p.matcher("colour").matches() == true)
+  }
+}
+
+@Suite("java.util.regex.Pattern – backreferences")
+struct PatternBackreferenceTests {
+
+  @Test("\\1 matches the same text as group 1")
+  func simpleBackreference() throws {
+    let p = try java.util.regex.Pattern.compile("(\\w)\\1")
+    #expect(p.matcher("aa").matches() == true)
+    #expect(p.matcher("ab").matches() == false)
+  }
+
+  @Test("backreference to a word-repeated pattern")
+  func repeatedWordBackreference() throws {
+    let p = try java.util.regex.Pattern.compile("(\\w+) \\1")
+    #expect(p.matcher("hello hello").matches() == true)
+    #expect(p.matcher("hello world").matches() == false)
+  }
+}
+
+@Suite("java.util.regex.Pattern – non-capturing groups and lookaround")
+struct PatternNonCapturingLookaroundTests {
+
+  @Test("non-capturing group (?:...) does not increase groupCount")
+  func nonCapturingGroupDoesNotCount() throws {
+    let p = try java.util.regex.Pattern.compile("(?:abc)(def)")
+    #expect(p.groupCount() == 1)
+    #expect(p.matcher("abcdef").matches() == true)
+  }
+
+  @Test("positive lookahead (?=...) constrains without capturing")
+  func positiveLookahead() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+(?=px)")
+    #expect(p.groupCount() == 0)
+    let m = p.matcher("10px")
+    #expect(m.find() == true)
+    #expect(m.group() == "10")
+  }
+
+  @Test("negative lookahead (?!...) rejects the following text")
+  func negativeLookahead() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+(?!px)")
+    let m = p.matcher("10em")
+    #expect(m.find() == true)
+    #expect(m.group() == "10")
+    #expect(p.matcher("10px").matches() == false)
+  }
+
+  @Test("positive lookbehind (?<=...) constrains without capturing")
+  func positiveLookbehind() throws {
+    // `(?<=...)` is valid Java syntax and JavApi4Swift passes it through to
+    // Swift's native Regex engine unchanged. That engine only gained
+    // lookbehind support via SE-0448, which additionally requires a new
+    // stdlib *runtime*, not just a new compiler — on Apple platforms the
+    // regex engine ships with the OS, so this can throw PatternSyntaxException
+    // at test-run time on an OS whose bundled Swift runtime predates that
+    // update, even though the pattern itself is valid and unmodified.
+    // See the "Known differences / limitations" note on Pattern for detail.
+    // Treat exactly that failure as a known, environment-dependent issue so
+    // the suite doesn't hard-fail on such a runtime, while any other
+    // assertion failure below still fails the test normally.
+    // Note: `body` must be passed as a plain (non-trailing) closure argument
+    // here — trailing-closure syntax binds to the *last* parameter, which
+    // would attach it to `matching` instead of `body` and fails to compile
+    // ("unnamed argument must precede argument 'matching'").
+    try withKnownIssue(
+      "requires a Swift runtime with SE-0448 lookbehind support",
+      {
+        let p = try java.util.regex.Pattern.compile("(?<=\\$)\\d+")
+        #expect(p.groupCount() == 0)
+        let m = p.matcher("$100")
+        #expect(m.find() == true)
+        #expect(m.group() == "100")
+      },
+      matching: { $0.error is java.util.regex.PatternSyntaxException }
+    )
+  }
+
+  @Test("named capture inside an alternation is counted once per branch")
+  func namedGroupsInAlternationCounted() throws {
+    let p = try java.util.regex.Pattern.compile("(?<a>x)|(?<b>y)")
+    #expect(p.groupCount() == 2)
+  }
+}
+
+@Suite("java.util.regex.Pattern – split with a capturing delimiter")
+struct PatternSplitCapturingGroupTests {
+
+  @Test("a capturing group in the delimiter pattern is not included in the result (matches Java, unlike JS)")
+  func splitExcludesCapturedDelimiter() throws {
+    let p = try java.util.regex.Pattern.compile("(,)")
+    #expect(p.split("a,b,c") == ["a", "b", "c"])
+  }
+
+  @Test("splitting on whitespace collapses consecutive separators per match, not per character")
+  func splitOnWhitespaceClass() throws {
+    let p = try java.util.regex.Pattern.compile("\\s+")
+    #expect(p.split("a  b   c") == ["a", "b", "c"])
   }
 }

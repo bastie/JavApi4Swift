@@ -50,10 +50,14 @@ struct JavApi_util_concurrent_StructuredTaskScope_Tests {
   func testJoinDoesNotThrowOnSubtaskFailure() async throws {
     struct TestError: Error {}
     let scope = java.util.concurrent.StructuredTaskScope<Void>()
-    _ = scope.fork { throw TestError() }
-    // join() itself must not rethrow subtask errors
+    let t = scope.fork { throw TestError() }
+    // join() itself must not rethrow subtask errors — if it did, this
+    // `try await` would already fail the test on its own, without needing
+    // a trailing `#expect(true)` (which is always true and was flagged by
+    // the compiler as a no-op assertion). Assert on the subtask's actual
+    // state instead, so this test still checks something concrete.
     try await scope.join()
-    #expect(true)
+    #expect(t.state() == .failed)
   }
 
   @Test("close() is equivalent to join()")

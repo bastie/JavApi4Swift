@@ -209,33 +209,27 @@ struct Java2SwiftFormatter {
           )
         } else {
           let s = arg.map { "\($0)" } ?? "null"
-          let padded = applyWidth(upper ? s.uppercased() : s, width: Int(width) ?? 0,
-                                  leftAlign: flags.contains("-"),
-                                  upper: false)
+          let padded = applyGeneralFormatting(s, width: width, precision: precision,
+                                              leftAlign: flags.contains("-"), upper: upper)
           swiftFmt  += "%@"
           swiftArgs.append(padded as CVarArg)
         }
 
       // ── Boolean ─────────────────────────────────────────────────────────────
-      case "b":
+      // 'b'/'B' are general conversions too, so — like 's'/'S' — they honour
+      // width (padding) and precision (truncation), which the previous
+      // implementation silently ignored for both.
+      case "b", "B":
         let b: Bool
         switch arg {
         case let v as Bool:   b = v
         case .none:           b = false
         default:              b = true
         }
+        let word = applyGeneralFormatting(b ? "true" : "false", width: width, precision: precision,
+                                          leftAlign: flags.contains("-"), upper: conv == "B")
         swiftFmt  += "%@"
-        swiftArgs.append((b ? "true" : "false") as CVarArg)
-
-      case "B":
-        let b: Bool
-        switch arg {
-        case let v as Bool:   b = v
-        case .none:           b = false
-        default:              b = true
-        }
-        swiftFmt  += "%@"
-        swiftArgs.append((b ? "TRUE" : "FALSE") as CVarArg)
+        swiftArgs.append(word as CVarArg)
 
       // ── Character ───────────────────────────────────────────────────────────
       case "c", "C":
@@ -354,11 +348,14 @@ struct Java2SwiftFormatter {
         argIdx -= 1   // %t consumes no extra arg beyond arg already fetched
 
       // ── Hash code / identity ────────────────────────────────────────────────
+      // Also a general conversion — honours width/precision like 's'/'S'/'b'/'B'.
       case "h", "H":
         let hash = arg.map { ObjectIdentifier($0 as AnyObject).hashValue } ?? 0
-        let hex  = String(format: "%x", hash)
+        let hex  = arg == nil ? "null" : String(format: "%x", hash)
+        let word = applyGeneralFormatting(hex, width: width, precision: precision,
+                                          leftAlign: flags.contains("-"), upper: conv == "H")
         swiftFmt  += "%@"
-        swiftArgs.append((conv == "H" ? hex.uppercased() : hex) as CVarArg)
+        swiftArgs.append(word as CVarArg)
 
       default:
         throw java.util.UnknownFormatConversionException(String(resolvedFmt[specStart..<i]))
@@ -610,6 +607,21 @@ struct Java2SwiftFormatter {
     guard width > t.count else { return t }
     let pad = String(repeating: " ", count: width - t.count)
     return leftAlign ? t + pad : pad + t
+  }
+
+  /// Applies precision (truncation) and then width (padding) to `raw`,
+  /// matching Java's documented behaviour for the *general* conversions
+  /// that support both: `s`/`S`, `b`/`B`, `h`/`H` (`c`/`C` and `n`/`%` do
+  /// not support precision — enforced separately, before this is reached).
+  /// Precision truncates to at most `precision` characters; width then
+  /// pads the (possibly truncated) result up to `width` characters.
+  private static func applyGeneralFormatting(_ raw: String, width: String, precision: String,
+                                             leftAlign: Bool, upper: Bool) -> String {
+    var s = raw
+    if let p = Int(precision), p >= 0, s.count > p {
+      s = String(s.prefix(p))
+    }
+    return applyWidth(s, width: Int(width) ?? 0, leftAlign: leftAlign, upper: upper)
   }
 
   /// Whether `arg` is one of the Swift integer types accepted by Java's

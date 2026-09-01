@@ -67,6 +67,11 @@ extension java.util.regex {
       var groupRanges: [Range<String.Index>?]
       /// The string the match was performed against (same as `_input`).
       var input: String
+      /// The raw Swift regex output, kept around only so named capture
+      /// groups can be looked up by name (`AnyRegexOutput` supports
+      /// `subscript(_ name: String)`, which the pre-flattened
+      /// `groupRanges` array above has no way to represent).
+      var output: AnyRegexOutput
 
         /// Character-distance offset of the start of group `g` (0 = whole match), or -1.
       ///
@@ -226,18 +231,25 @@ extension java.util.regex {
       return s.substring(group).map(String.init)
     }
 
-    /// Returns the named capturing group, or `nil` if the group did not match.
+    /// Returns the named capturing group, or `nil` if the group exists in
+    /// the pattern but did not participate in this match.
     ///
+    /// - Throws: `IllegalArgumentException` if the pattern has no capturing
+    ///   group with the given `name` — matches
+    ///   `java.util.regex.Matcher.group(String)`'s documented behaviour
+    ///   (an unchecked `IllegalArgumentException` in Java; modelled as
+    ///   `throws` here rather than silently returning `nil`, per this
+    ///   project's throws-not-silent-wrong-result convention).
     /// - Since: Java 7
-    public func group(_ name: String) -> String? {
-      // Named group access requires dynamic lookup via AnyRegexOutput.
-      // We re-run the match to extract named captures.
-      guard _state != nil else {
+    public func group(_ name: String) throws -> String? {
+      guard let s = _state else {
         preconditionFailure("Matcher: no match has been attempted")
       }
-      // Named groups are not directly indexable in AnyRegexOutput by name
-      // without compile-time knowledge. Return nil for now.
-      return nil
+      guard let element = s.output[name] else {
+        throw IllegalArgumentException("No group with name <\(name)>")
+      }
+      guard let range = element.range else { return nil }
+      return String(_input[range])
     }
 
     /// Returns the number of capturing groups in the current pattern.
@@ -292,8 +304,10 @@ extension java.util.regex {
     /// `${name}` for named groups. Use `\\` to include a literal backslash
     /// and `\$` to include a literal dollar sign.
     ///
+    /// - Throws: `IllegalArgumentException` if `replacement` references a
+    ///   `${name}` group that doesn't exist in this matcher's pattern.
     /// - Since: Java 1.4
-    public func replaceAll(_ replacement: String) -> String {
+    public func replaceAll(_ replacement: String) throws -> String {
       reset()
       var result = ""
       var lastEnd = _regionStart
@@ -301,7 +315,7 @@ extension java.util.regex {
       while find() {
         guard let s = _state else { break }
         result += _input[lastEnd..<s.wholeRange.lowerBound]
-        result += _expandReplacement(replacement, state: s)
+        result += try _expandReplacement(replacement, state: s)
         lastEnd = s.wholeRange.upperBound
         // Guard against zero-length match infinite loop.
         if s.wholeRange.isEmpty, lastEnd < _regionEnd {
@@ -316,13 +330,15 @@ extension java.util.regex {
 
     /// Replaces the first subsequence that matches the pattern with `replacement`.
     ///
+    /// - Throws: `IllegalArgumentException` if `replacement` references a
+    ///   `${name}` group that doesn't exist in this matcher's pattern.
     /// - Since: Java 1.4
-    public func replaceFirst(_ replacement: String) -> String {
+    public func replaceFirst(_ replacement: String) throws -> String {
       reset()
       guard find(), let s = _state else { return _input }
       var result = ""
       result += _input[_regionStart..<s.wholeRange.lowerBound]
-      result += _expandReplacement(replacement, state: s)
+      result += try _expandReplacement(replacement, state: s)
       result += _input[s.wholeRange.upperBound..<_regionEnd]
       return result
     }
@@ -334,12 +350,14 @@ extension java.util.regex {
     /// Each call appends the subsequence of the input since the end of the
     /// last match, with the matched portion replaced by `replacement`.
     ///
+    /// - Throws: `IllegalArgumentException` if `replacement` references a
+    ///   `${name}` group that doesn't exist in this matcher's pattern.
     /// - Since: Java 1.4
     @discardableResult
-    public func appendReplacement(_ sb: StringBuffer, _ replacement: String) -> Matcher {
+    public func appendReplacement(_ sb: StringBuffer, _ replacement: String) throws -> Matcher {
       guard let s = _state else { return self }
       _ = sb.append(String(_input[_appendPos..<s.wholeRange.lowerBound]))
-      _ = sb.append(_expandReplacement(replacement, state: s))
+      _ = sb.append(try _expandReplacement(replacement, state: s))
       _appendPos = s.wholeRange.upperBound
       return self
     }
@@ -473,12 +491,18 @@ extension java.util.regex {
       return MatchState(
         wholeRange: match.range,
         groupRanges: groupRanges,
-        input: _input
+        input: _input,
+        output: match.output
       )
     }
 
     /// Expands `$n`, `${name}`, `\$`, and `\\` references in `template`.
-    private func _expandReplacement(_ template: String, state: MatchState) -> String {
+    ///
+    /// - Throws: `IllegalArgumentException` if `template` contains a
+    ///   `${name}` reference to a group that doesn't exist in this
+    ///   matcher's pattern — matches Java's documented behaviour for
+    ///   `appendReplacement`/`replaceAll`/`replaceFirst`.
+    private func _expandReplacement(_ template: String, state: MatchState) throws -> String {
       var result = ""
       var i = template.startIndex
 
@@ -504,12 +528,16 @@ extension java.util.regex {
           let nc = template[next]
 
           if nc == "{" {
-            // ${name} — named group (limited support: skip to })
+            // ${name} — named group.
             if let closeBrace = template[next...].firstIndex(of: "}") {
               let nameStart = template.index(after: next)
               let name = String(template[nameStart..<closeBrace])
-              // Named group lookup is not fully supported; emit empty string.
-              _ = name
+              guard let element = state.output[name] else {
+                throw IllegalArgumentException("No group with name <\(name)>")
+              }
+              if let range = element.range {
+                result += state.input[range]
+              }
               i = template.index(after: closeBrace)
             } else {
               result.append(c)

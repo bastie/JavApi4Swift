@@ -33,6 +33,19 @@ extension java.util.regex {
   ///   Use atomic groups `(?>a+)` instead.
   /// - `COMMENTS` mode (`(?x)` / flag 4) may not be supported on all Swift
   ///   versions; test before relying on it.
+  /// - Lookbehind assertions (`(?<=...)`, `(?<!...)`) are valid Java syntax
+  ///   and are passed through unchanged, but Swift's native regex engine
+  ///   only gained lookbehind support with SE-0448. That proposal requires
+  ///   not just a new compiler/toolchain but "a new version of the standard
+  ///   library and runtime" — on Apple platforms the regex engine ships
+  ///   with the OS, so a lookbehind pattern can compile fine and still
+  ///   throw `PatternSyntaxException` at runtime on an OS whose bundled
+  ///   Swift runtime predates that update, even though nothing in
+  ///   JavApi4Swift rewrites or rejects the pattern. There is nothing this
+  ///   library can do about that beyond surfacing the underlying error
+  ///   faithfully as `PatternSyntaxException`; callers targeting older
+  ///   deployment targets should avoid lookbehind or catch and handle
+  ///   `PatternSyntaxException` for it explicitly.
   ///
   /// Mirrors `java.util.regex.Pattern` (Java 1.4).
   ///
