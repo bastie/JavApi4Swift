@@ -801,3 +801,114 @@ struct PatternSplitCapturingGroupTests {
     #expect(p.split("a  b   c") == ["a", "b", "c"])
   }
 }
+
+// MARK: - Matcher region()/regionStart()/regionEnd() and multi-group offsets
+//
+// Deepens coverage (per Harmony-style combinatorial testing) of Matcher
+// surface that already existed and was already exercised indirectly
+// elsewhere, but had no dedicated regression tests of its own: restricting
+// the search region, multi-group start(int)/end(int) offsets, and the
+// toMatchResult() frozen snapshot.
+
+@Suite("java.util.regex.Matcher – region()")
+struct MatcherRegionTests {
+
+  @Test("region() restricts find() to the given character-offset window")
+  func regionRestrictsSearch() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let m = p.matcher("12 34 56")
+    // Restrict the region to "34" only (offsets 3..5).
+    m.region(3, 5)
+    #expect(m.find() == true)
+    #expect(m.group() == "34")
+    // No further match inside the region.
+    #expect(m.find() == false)
+  }
+
+  @Test("regionStart()/regionEnd() report the offsets passed to region()")
+  func regionStartEndReportOffsets() throws {
+    let p = try java.util.regex.Pattern.compile("x")
+    let m = p.matcher("abcxyz")
+    m.region(2, 5)
+    #expect(m.regionStart() == 2)
+    #expect(m.regionEnd() == 5)
+  }
+
+  @Test("region() defaults span the whole input before it is called")
+  func regionDefaultsSpanWholeInput() throws {
+    let p = try java.util.regex.Pattern.compile("x")
+    let m = p.matcher("abcxyz")
+    #expect(m.regionStart() == 0)
+    #expect(m.regionEnd() == 6)
+  }
+
+  @Test("region() implicitly resets prior match state, like Java")
+  func regionResetsMatchState() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let m = p.matcher("12 34")
+    #expect(m.find() == true)
+    #expect(m.group() == "12")
+    // Narrowing the region discards the previous match.
+    m.region(3, 5)
+    #expect(m.find() == true)
+    #expect(m.group() == "34")
+  }
+}
+
+@Suite("java.util.regex.Matcher – multi-group start(int)/end(int)")
+struct MatcherMultiGroupOffsetsTests {
+
+  @Test("start(group)/end(group) report per-group character offsets")
+  func perGroupOffsets() throws {
+    let p = try java.util.regex.Pattern.compile("(\\w+)@(\\w+)")
+    let m = p.matcher("user@host")
+    #expect(m.find() == true)
+    #expect(m.start(1) == 0)
+    #expect(m.end(1) == 4)
+    #expect(m.start(2) == 5)
+    #expect(m.end(2) == 9)
+    // Group 0 is the whole match.
+    #expect(m.start(0) == 0)
+    #expect(m.end(0) == 9)
+  }
+
+  @Test("start(group)/end(group) return -1 for a non-participating optional group")
+  func nonParticipatingGroupOffsets() throws {
+    let p = try java.util.regex.Pattern.compile("(a)(b)?")
+    let m = p.matcher("a")
+    #expect(m.find() == true)
+    #expect(m.group(1) == "a")
+    #expect(m.group(2) == nil)
+    #expect(m.start(2) == -1)
+    #expect(m.end(2) == -1)
+  }
+}
+
+@Suite("java.util.regex.Matcher – toMatchResult()")
+struct MatcherToMatchResultTests {
+
+  @Test("toMatchResult() snapshot reflects the match at the time it was taken")
+  func snapshotReflectsCurrentMatch() throws {
+    let p = try java.util.regex.Pattern.compile("(\\d+)")
+    let m = p.matcher("ab 42 cd")
+    #expect(m.find() == true)
+    let snapshot = m.toMatchResult()
+    #expect(snapshot.group() == "42")
+    #expect(snapshot.group(1) == "42")
+    #expect(snapshot.start() == 3)
+    #expect(snapshot.end() == 5)
+    #expect(snapshot.groupCount() == 1)
+  }
+
+  @Test("toMatchResult() snapshot is independent of subsequent matcher state changes")
+  func snapshotIsIndependentOfLaterMatches() throws {
+    let p = try java.util.regex.Pattern.compile("\\d+")
+    let m = p.matcher("11 22")
+    #expect(m.find() == true)
+    let first = m.toMatchResult()
+    #expect(m.find() == true)   // advances the matcher to "22"
+    // The earlier snapshot must still report the first match.
+    #expect(first.group() == "11")
+    #expect(m.group() == "22")
+  }
+}

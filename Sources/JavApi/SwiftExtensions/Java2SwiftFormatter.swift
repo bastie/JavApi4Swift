@@ -94,8 +94,16 @@ struct Java2SwiftFormatter {
     // Conversions that accept a precision at all, per java.util.Formatter's
     // documented grammar — everything else throws java.util.IllegalFormatPrecisionException.
     let precisionCapableConversions: Set<Character> = ["s", "S", "b", "B", "h", "H", "e", "E", "f", "g", "G"]
-    // Conversions the ',' grouping flag is legal on.
-    let groupingCapableConversions: Set<Character> = ["d", "f", "e", "E", "g", "G"]
+    // Conversions the ',' grouping flag is legal on. Per java.util.Formatter's
+    // own per-conversion documentation, 'e'/'E' explicitly throw
+    // FormatFlagsConversionMismatchException when ',' is given ("If the ','
+    // flag is given, then a FormatFlagsConversionMismatchException will be
+    // thrown.") — despite the class-level flags *summary table* listing
+    // 'e'/'E' alongside 'f'/'g'/'G' as accepting the flag, the authoritative
+    // per-conversion text for 'e' contradicts that and is what real JDKs
+    // implement; 'g'/'G' have no such sentence in their own description and
+    // do apply grouping (in their decimal-format branch), same as 'f'.
+    let groupingCapableConversions: Set<Character> = ["d", "f", "g", "G"]
 
     while i < resolvedFmt.endIndex {
       let ch = resolvedFmt[i]
@@ -323,9 +331,14 @@ struct Java2SwiftFormatter {
         if let value = arg, !isFloatArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        let c2: Character = conv == "g" ? "g" : "G"
-        swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: c2)
-        swiftArgs.append(toDouble(arg))
+        let formatted = formatGeneral(
+          toDouble(arg), precision: Int(precision) ?? 6,
+          grouping: hasGrouping, width: Int(width) ?? 0,
+          leftAlign: flags.contains("-"), upper: conv == "G",
+          flags: flags, locale: resolvedLocale
+        )
+        swiftFmt  += "%@"
+        swiftArgs.append(formatted as CVarArg)
 
       case "a", "A":
         if let value = arg, !isFloatArgument(value) {
@@ -380,23 +393,35 @@ struct Java2SwiftFormatter {
   // MARK: Argument-index resolution  (%1$s, %2$d, …)
   // ---------------------------------------------------------------------------
 
-  /// Resolves Java argument-index notation (`%1$s`) into positional order.
+  /// Resolves Java argument-index notation (`%1$s`) and the `<` relative
+  /// index flag ("reuse the previous specifier's argument", e.g.
+  /// `String.format("%d %<x", 255)`) into positional order.
   ///
-  /// Returns a new format string (with indices stripped), a reordered
-  /// argument array matching the positional order of specifiers in the
-  /// string, and the set of positions in that array which don't correspond
-  /// to a real caller-supplied argument (an out-of-range `%n$` index, or
-  /// simply running out of positional arguments) — needed so the caller can
-  /// tell "missing argument" apart from a legitimate Java `null` argument,
-  /// both of which would otherwise show up as `nil` in the array.
+  /// Returns a new format string (with indices and any `<` flag stripped),
+  /// a reordered argument array matching the positional order of specifiers
+  /// in the string, and the set of positions in that array which don't
+  /// correspond to a real caller-supplied argument (an out-of-range `%n$`
+  /// index, `%<` used on the very first specifier, or simply running out of
+  /// positional arguments) — needed so the caller can tell "missing
+  /// argument" apart from a legitimate Java `null` argument, both of which
+  /// would otherwise show up as `nil` in the array.
+  ///
+  /// Per Java's Formatter grammar, `<` is one of the *flag* characters
+  /// (`[-#+ 0,(<]`) rather than part of `argument_index` itself, and so can
+  /// in principle appear anywhere among a specifier's other flags, not only
+  /// immediately after `%`; this scans the whole flags run (order-
+  /// independent) to find it, exactly as it scans for a leading `<digits>$`
+  /// argument index.
   private static func resolveArgumentIndices(_ fmt: String, args: [Any?]) -> (String, [Any?], Set<Int>) {
-    // Quick check — if no '$' present, nothing to do
-    guard fmt.contains("$") else {
+    // Quick check — if neither notation appears anywhere, nothing to do.
+    guard fmt.contains("$") || fmt.contains("<") else {
       // No argument-index notation anywhere — purely sequential, and
       // `resolvedArgs.count` (== `args.count`) already lets the caller
       // detect a short argument list without needing a missing-set.
       return (fmt, args, [])
     }
+
+    let flagChars: Set<Character> = ["-", "+", " ", "#", "0", ",", "(", "<"]
 
     var result    = ""
     var outArgs   : [Any?] = []
@@ -428,16 +453,52 @@ struct Java2SwiftFormatter {
         }
         i = fmt.index(after: j)   // skip past '$'
         // Do NOT append the index or '$' to result
-      } else {
-        // No index — sequential
-        if outArgs.count < args.count {
-          outArgs.append(args[outArgs.count])
+        continue
+      }
+
+      // Peek through the flags run (order-independent, like Java's own
+      // `[-#+ 0,(<]*`) to see whether '<' — "reuse the previous
+      // specifier's argument" — appears among them.
+      var k = i
+      var hasRelativeIndex = false
+      while k < fmt.endIndex && flagChars.contains(fmt[k]) {
+        if fmt[k] == "<" { hasRelativeIndex = true }
+        k = fmt.index(after: k)
+      }
+      if hasRelativeIndex {
+        let lastIdx = outArgs.count - 1
+        if lastIdx >= 0 {
+          outArgs.append(outArgs[lastIdx])
+          if missing.contains(lastIdx) { missing.insert(outArgs.count - 1) }
         } else {
+          // '%<' on the very first specifier: Java throws
+          // MissingFormatArgumentException since there is no previous
+          // argument to reuse.
           missing.insert(outArgs.count)
           outArgs.append(nil)
         }
-        // i stays at current position
+        // Copy the flags run into `result`, omitting '<' itself — Swift's
+        // printf-style flags don't recognise it, and Phase 2's own flag
+        // scan doesn't expect it either.
+        var p = i
+        while p < k {
+          if fmt[p] != "<" { result.append(fmt[p]) }
+          p = fmt.index(after: p)
+        }
+        i = k
+        continue
       }
+
+      // No index notation on this specifier — sequential.
+      if outArgs.count < args.count {
+        outArgs.append(args[outArgs.count])
+      } else {
+        missing.insert(outArgs.count)
+        outArgs.append(nil)
+      }
+      // i stays at current position — the flags/width/conversion that
+      // follow are copied through verbatim by the loop's plain-character
+      // branch above on subsequent iterations.
     }
     return (result, outArgs, missing)
   }
@@ -569,6 +630,78 @@ struct Java2SwiftFormatter {
     }
 
     return applyWidth(raw, width: width, leftAlign: leftAlign, upper: false)
+  }
+
+  /// Formats a `Double` for `%g`/`%G` per Java's own "general scientific
+  /// notation" algorithm (`java.util.Formatter`, conversions 'g'/'G'):
+  ///
+  /// > After rounding for the precision, the formatting of the resulting
+  /// > magnitude *m* depends on its value. If *m* is greater than or equal
+  /// > to 10⁻⁴ but less than 10^precision then it is represented in decimal
+  /// > format. If *m* is less than 10⁻⁴ or greater than or equal to
+  /// > 10^precision, then it is represented in scientific notation. The
+  /// > total number of significant digits in *m* is equal to the precision.
+  ///
+  /// This is deliberately **not** implemented by delegating to C's/Swift's
+  /// native `%g` (as this function's previous implementation did): the
+  /// decimal/scientific switching *threshold* happens to be the same
+  /// exponent rule as C's, but C's `%g` strips trailing zeros by default
+  /// while Java's always shows exactly `precision` significant digits —
+  /// e.g. `String.format("%g", 100.0)` is `"100.000"` in Java (6 significant
+  /// digits) but C's/Swift's `%g` of the same value strips to `"100"`. This
+  /// reimplements the decimal-vs-scientific decision and digit count from
+  /// scratch and reuses the already-correct `formatDouble`/`buildCSpec`
+  /// helpers (used by `%f`/`%e`) purely for the actual digit rendering,
+  /// sign, grouping, and width/locale handling.
+  ///
+  /// The exponent of the rounded magnitude is obtained by asking C's own
+  /// well-tested `%e` rounding for the answer (parsing the exponent out of
+  /// `String(format: "%.\(precision-1)e", m)`) rather than computing
+  /// `floor(log10(m))` by hand, which is prone to floating-point boundary
+  /// errors exactly at powers of ten (e.g. `log10(1000)` can evaluate to
+  /// `2.9999999999999996`).
+  private static func formatGeneral(_ value: Double, precision: Int,
+                                    grouping: Bool, width: Int,
+                                    leftAlign: Bool, upper: Bool,
+                                    flags: String, locale: Foundation.Locale) -> String {
+    let prec = precision == 0 ? 1 : precision
+
+    guard value.isFinite, value != 0 else {
+      // NaN / ±Infinity and an exact zero: route through the same
+      // formatDouble helper %f itself uses (this does not change — and is
+      // not intended to fix — whatever %f's own current NaN/Infinity
+      // rendering already is), and treat an exact zero as a
+      // one-significant-digit decimal value the way the real JDK does
+      // (applying the literal 10⁻⁴/10^precision boundary rule to a raw
+      // zero would otherwise route it into the scientific branch, which
+      // the JDK does not do).
+      let fracDigits = value == 0 ? max(prec - 1, 0) : prec
+      return formatDouble(value, precision: fracDigits, grouping: grouping,
+                          width: width, leftAlign: leftAlign, locale: locale)
+    }
+
+    let m = abs(value)
+    let roundedSci = String(format: "%.\(max(prec - 1, 0))e", m)
+    guard let eIdx = roundedSci.firstIndex(where: { $0 == "e" || $0 == "E" }),
+          let exponent = Int(roundedSci[roundedSci.index(after: eIdx)...]) else {
+      // Unreachable in practice — String(format: "%e", ...) always
+      // includes an exponent — but fail safe into decimal formatting
+      // rather than crash if a platform's libc ever varies this.
+      return formatDouble(value, precision: prec, grouping: grouping,
+                          width: width, leftAlign: leftAlign, locale: locale)
+    }
+
+    let useScientific = exponent < -4 || exponent >= prec
+    if useScientific {
+      let sciPrec = max(prec - 1, 0)
+      let spec = buildCSpec(flags: flags, width: "", precision: "\(sciPrec)", conv: upper ? "E" : "e")
+      let s = String(format: spec, value)
+      return applyWidth(s, width: width, leftAlign: leftAlign, upper: false)
+    } else {
+      let fracDigits = max(prec - exponent - 1, 0)
+      return formatDouble(value, precision: fracDigits, grouping: grouping,
+                          width: width, leftAlign: leftAlign, locale: locale)
+    }
   }
 
   /// Builds a C printf specifier from parsed components.
