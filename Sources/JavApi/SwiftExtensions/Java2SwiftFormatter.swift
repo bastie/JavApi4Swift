@@ -304,12 +304,18 @@ struct Java2SwiftFormatter {
         if let value = arg, !isFloatArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        let prec = Int(precision) ?? 6
-        let formatted = formatDouble(toDouble(arg), precision: prec,
-                                     grouping: hasGrouping,
-                                     width: Int(width) ?? 0,
-                                     leftAlign: flags.contains("-"),
-                                     locale: resolvedLocale)
+        let dv = toDouble(arg)
+        let formatted: String
+        if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
+          formatted = literal
+        } else {
+          let prec = Int(precision) ?? 6
+          formatted = formatDouble(dv, precision: prec,
+                                   grouping: hasGrouping,
+                                   width: Int(width) ?? 0,
+                                   leftAlign: flags.contains("-"),
+                                   locale: resolvedLocale)
+        }
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
 
@@ -317,15 +323,31 @@ struct Java2SwiftFormatter {
         if let value = arg, !isFloatArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "e")
-        swiftArgs.append(toDouble(arg))
+        let dv = toDouble(arg)
+        let formatted: String
+        if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
+          formatted = literal
+        } else {
+          let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "e")
+          formatted = String(format: spec, dv)
+        }
+        swiftFmt  += "%@"
+        swiftArgs.append(formatted as CVarArg)
 
       case "E":
         if let value = arg, !isFloatArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: "E")
-        swiftArgs.append(toDouble(arg))
+        let dv = toDouble(arg)
+        let formatted: String
+        if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
+          formatted = literal
+        } else {
+          let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "E")
+          formatted = String(format: spec, dv)
+        }
+        swiftFmt  += "%@"
+        swiftArgs.append(formatted as CVarArg)
 
       case "g", "G":
         if let value = arg, !isFloatArgument(value) {
@@ -344,10 +366,18 @@ struct Java2SwiftFormatter {
         if let value = arg, !isFloatArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        // Hex float — Swift supports %a
-        let c2: Character = conv == "a" ? "a" : "A"
-        swiftFmt  += buildCSpec(flags: flags, width: width, precision: precision, conv: c2)
-        swiftArgs.append(toDouble(arg))
+        let dv = toDouble(arg)
+        let formatted: String
+        if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
+          formatted = literal
+        } else {
+          // Hex float — Swift supports %a
+          let c2: Character = conv == "a" ? "a" : "A"
+          let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: c2)
+          formatted = String(format: spec, dv)
+        }
+        swiftFmt  += "%@"
+        swiftArgs.append(formatted as CVarArg)
 
       // ── Date/time (%t prefix already consumed as 't', next char is sub-spec)
       case "t", "T":
@@ -590,6 +620,32 @@ struct Java2SwiftFormatter {
   // MARK: Helpers
   // ---------------------------------------------------------------------------
 
+  /// Returns Java's literal, non-localized rendering of a non-finite
+  /// `Double` — `"NaN"`, `"Infinity"`, or `"-Infinity"` — for every numeric
+  /// floating-point conversion (`%f`, `%e`/`%E`, `%g`/`%G`, `%a`/`%A`), or
+  /// `nil` for a finite value (letting the caller fall through to its
+  /// normal rendering path).
+  ///
+  /// Per `java.util.Formatter`'s "Number Localization Algorithm": *"If the
+  /// value is NaN or positive infinity the literal strings "NaN" or
+  /// "Infinity" respectively, will be output. If the value is negative
+  /// infinity ... the output will be "-Infinity". These values are not
+  /// localized."* Width/left-alignment still apply, but sign flags (`+`,
+  /// `' '`) do not — that '+' flag's own description only concerns
+  /// ordinary positive numbers, never this special-value case, so a
+  /// positive infinity must render as `"Infinity"`, never `"+Infinity"`.
+  ///
+  /// Found as a real, previously undocumented bug: this project's `%f`/
+  /// `%e`/`%g` conversions used to reach these values purely through
+  /// Swift's `String(format:)` (i.e. C's libc `printf`), whose convention
+  /// is the lowercase, un-capitalized `"nan"`/`"inf"`/`"-inf"` — confirmed
+  /// failing against a dedicated regression suite before this fix.
+  private static func nonFiniteLiteral(_ value: Double, width: Int, leftAlign: Bool) -> String? {
+    guard !value.isFinite else { return nil }
+    let word = value.isNaN ? "NaN" : (value < 0 ? "-Infinity" : "Infinity")
+    return applyWidth(word, width: width, leftAlign: leftAlign, upper: false)
+  }
+
   /// Formats a `Double` for `%f`.
   ///
   /// Rounding always follows C-printf semantics (%.2f of 3.14159 → "3.14"),
@@ -666,16 +722,16 @@ struct Java2SwiftFormatter {
                                     flags: String, locale: Foundation.Locale) -> String {
     let prec = precision == 0 ? 1 : precision
 
-    guard value.isFinite, value != 0 else {
-      // NaN / ±Infinity and an exact zero: route through the same
-      // formatDouble helper %f itself uses (this does not change — and is
-      // not intended to fix — whatever %f's own current NaN/Infinity
-      // rendering already is), and treat an exact zero as a
-      // one-significant-digit decimal value the way the real JDK does
-      // (applying the literal 10⁻⁴/10^precision boundary rule to a raw
-      // zero would otherwise route it into the scientific branch, which
-      // the JDK does not do).
-      let fracDigits = value == 0 ? max(prec - 1, 0) : prec
+    if let literal = nonFiniteLiteral(value, width: width, leftAlign: leftAlign) {
+      return literal
+    }
+
+    guard value != 0 else {
+      // An exact zero: treat it as a one-significant-digit decimal value
+      // the way the real JDK does (applying the literal 10⁻⁴/10^precision
+      // boundary rule to a raw zero would otherwise route it into the
+      // scientific branch, which the JDK does not do).
+      let fracDigits = max(prec - 1, 0)
       return formatDouble(value, precision: fracDigits, grouping: grouping,
                           width: width, leftAlign: leftAlign, locale: locale)
     }

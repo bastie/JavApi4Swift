@@ -179,6 +179,102 @@ struct ScannerStringTests {
   }
 }
 
+// MARK: - Scanner — Harmony-style deepened coverage
+//
+// Extends the existing Scanner suite with combinations that weren't
+// exercised yet: hasNextX() peeking without consuming, mixing next()/
+// nextInt() on the same stream, negative numbers, a genuine regex
+// delimiter (useDelimiter takes an NSRegularExpression pattern, not a
+// literal string — the existing test only ever used a single literal
+// character, which wouldn't have caught a regression to literal matching),
+// a non-decimal radix boundary, and nextLine() correctly reading only the
+// remainder of the current line after some tokens on it were already
+// consumed via next()/nextInt().
+
+@Suite("Scanner — deepened coverage")
+struct ScannerDeepenedTests {
+
+  @Test("hasNextInt()/hasNextLong()/hasNextDouble() peek without consuming the token")
+  func hasNextDoesNotConsume() throws {
+    let sc = java.util.Scanner("42")
+    #expect(sc.hasNextInt())
+    #expect(sc.hasNextInt())   // calling it again must still see the same token
+    #expect(try sc.nextInt() == 42)
+    #expect(!sc.hasNext())
+  }
+
+  @Test("hasNextLong() reflects whether the next token parses as a long, without consuming it")
+  func hasNextLongPeeks() throws {
+    let sc = java.util.Scanner("9223372036854775807 notALong")
+    #expect(sc.hasNextLong())
+    #expect(try sc.nextLong() == Int64.max)
+    #expect(!sc.hasNextLong())
+    #expect(try sc.next() == "notALong")
+  }
+
+  @Test("hasNextBoolean() is true only when the next token actually parses as a boolean")
+  func hasNextBooleanPeeks() throws {
+    let sc = java.util.Scanner("true maybe")
+    #expect(sc.hasNextBoolean())
+    #expect(try sc.nextBoolean() == true)
+    #expect(!sc.hasNextBoolean())
+    #expect(try sc.next() == "maybe")
+  }
+
+  @Test("next()/nextInt()/nextDouble() can be freely mixed on the same stream, matching Java's token-oriented model")
+  func mixedTokenTypes() throws {
+    let sc = java.util.Scanner("10 hello 3.5 world")
+    #expect(try sc.nextInt() == 10)
+    #expect(try sc.next() == "hello")
+    #expect(try sc.nextDouble() == 3.5)
+    #expect(try sc.next() == "world")
+  }
+
+  @Test("nextInt()/nextDouble() correctly parse negative numbers")
+  func negativeNumbers() throws {
+    let sc = java.util.Scanner("-5 -3.14")
+    #expect(try sc.nextInt() == -5)
+    #expect(abs((try sc.nextDouble()) - (-3.14)) < 1e-9)
+  }
+
+  @Test("useDelimiter() takes a real regex, not a literal string")
+  func delimiterIsARealRegex() throws {
+    // A single-character delimiter wouldn't distinguish literal-string
+    // matching from regex matching — this uses a character class plus
+    // optional surrounding whitespace, which only a genuine regex engine
+    // resolves correctly.
+    let sc = java.util.Scanner("a, b ; c ,d")
+    sc.useDelimiter("\\s*[,;]\\s*")
+    #expect(try sc.next() == "a")
+    #expect(try sc.next() == "b")
+    #expect(try sc.next() == "c")
+    #expect(try sc.next() == "d")
+    #expect(!sc.hasNext())
+  }
+
+  @Test("useRadix(36) parses base-36 tokens using letters as digits")
+  func radixThirtySix() throws {
+    let sc = java.util.Scanner("z 10")
+    sc.useRadix(36)
+    #expect(try sc.nextInt() == 35)
+    #expect(try sc.nextInt() == 36)   // "10" in base 36 is 36 in decimal
+  }
+
+  @Test("nextLine() after next()/nextInt() reads only the remainder of the current line")
+  func nextLineAfterPartialTokenConsumption() throws {
+    // Note: this project's Scanner eagerly consumes the delimiter
+    // (whitespace) trailing a token as part of next()/nextInt() itself
+    // (see the "Notes" doc comment on Scanner), so the single space after
+    // "10" is already gone by the time nextLine() runs — unlike Java,
+    // where nextLine() would include that leading space. Documenting the
+    // actual, current behaviour here rather than the Java-exact one.
+    let sc = java.util.Scanner("10 rest of first line\nsecond line")
+    #expect(try sc.nextInt() == 10)
+    #expect(try sc.nextLine() == "rest of first line")
+    #expect(try sc.nextLine() == "second line")
+  }
+}
+
 // MARK: - Scanner.findAll + Matcher.toMatchResult tests
 
 @Suite("Scanner.findAll + Matcher.toMatchResult")

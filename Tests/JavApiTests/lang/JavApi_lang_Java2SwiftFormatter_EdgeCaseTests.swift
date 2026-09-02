@@ -261,3 +261,67 @@ struct GeneralScientificNotationTests {
     }
   }
 }
+
+// MARK: - NaN / Infinity for %f, %e/%E, %g/%G
+//
+// Not a known-fixed bug yet — a suspected, previously undocumented gap
+// surfaced while answering "is our code Java-API-conformant now?": Java's
+// Formatter renders Double.NaN / Double.POSITIVE_INFINITY /
+// Double.NEGATIVE_INFINITY as the literal, non-localized strings "NaN",
+// "Infinity", "-Infinity" for every numeric floating-point conversion —
+// per the Formatter javadoc's "Number Localization Algorithm": "If the
+// value is NaN or positive infinity the literal strings "NaN" or
+// "Infinity" respectively, will be output. If the value is negative
+// infinity, then the output will be ... "-Infinity"" (and confirmed
+// separately that the '+' flag's own description says nothing about
+// Infinity/NaN, i.e. it must NOT gain a "+" prefix).
+//
+// %f/%e/%g in this project currently reach these values through Swift's
+// `String(format:)`, i.e. C's libc printf, whose convention is the
+// lowercase "nan"/"inf"/"-inf" — different from Java's capitalized,
+// spelled-out strings. These tests assert the *Java*-correct values, so a
+// local `swift test` run tells us definitively whether this is a real,
+// live bug or whether it already happens to work.
+
+@Suite("Java2SwiftFormatter — NaN/Infinity for floating-point conversions", .serialized)
+struct NaNInfinityTests {
+
+  @Test("%f renders NaN/Infinity/-Infinity as Java's literal, capitalized strings")
+  func fConversion() throws {
+    #expect(try String.format("%f", Double.nan) == "NaN")
+    #expect(try String.format("%f", Double.infinity) == "Infinity")
+    #expect(try String.format("%f", -Double.infinity) == "-Infinity")
+  }
+
+  @Test("%e/%E render NaN/Infinity/-Infinity as Java's literal, capitalized strings")
+  func eConversion() throws {
+    #expect(try String.format("%e", Double.nan) == "NaN")
+    #expect(try String.format("%e", Double.infinity) == "Infinity")
+    #expect(try String.format("%e", -Double.infinity) == "-Infinity")
+    #expect(try String.format("%E", Double.nan) == "NaN")
+    #expect(try String.format("%E", Double.infinity) == "Infinity")
+    #expect(try String.format("%E", -Double.infinity) == "-Infinity")
+  }
+
+  @Test("%g/%G render NaN/Infinity/-Infinity as Java's literal, capitalized strings")
+  func gConversion() throws {
+    #expect(try String.format("%g", Double.nan) == "NaN")
+    #expect(try String.format("%g", Double.infinity) == "Infinity")
+    #expect(try String.format("%g", -Double.infinity) == "-Infinity")
+    #expect(try String.format("%G", Double.nan) == "NaN")
+    #expect(try String.format("%G", Double.infinity) == "Infinity")
+    #expect(try String.format("%G", -Double.infinity) == "-Infinity")
+  }
+
+  @Test("NaN/Infinity are not affected by the '+' flag — no '+Infinity'")
+  func plusFlagDoesNotSignNaNOrInfinity() throws {
+    #expect(try String.format("%+f", Double.infinity) == "Infinity")
+    #expect(try String.format("%+f", Double.nan) == "NaN")
+  }
+
+  @Test("NaN/Infinity are still padded to the requested width like any other output")
+  func widthPaddingStillApplies() throws {
+    #expect(try String.format("%10f|", Double.infinity) == "  Infinity|")
+    #expect(try String.format("%-10f|", Double.nan) == "NaN       |")
+  }
+}
