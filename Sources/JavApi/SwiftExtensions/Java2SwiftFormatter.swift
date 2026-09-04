@@ -193,13 +193,13 @@ struct Java2SwiftFormatter {
     // Conversions the '(' ("parenthesize negative values") flag is legal
     // on, per the Formatter flags table footnote: 'd' for byte/short/int/
     // long (this project doesn't model the separate BigInteger
-    // 'd'/'o'/'x'/'X' case), and 'e'/'E'/'f'/'g'/'G'. Actual parenthesized
-    // rendering below is currently only implemented for 'd' — the flag is
-    // still accepted (not thrown) for 'e'/'E'/'f'/'g'/'G' to match Java's
-    // grammar, but remains a no-op there for now (previously it was worse
-    // than a no-op: '(' was fed straight into the underlying C printf
-    // spec string as an unrecognised flag character, which is undefined
-    // behaviour; it is now cleanly excluded from that spec either way).
+    // 'd'/'o'/'x'/'X' case), and 'e'/'E'/'f'/'g'/'G' — now fully rendered
+    // for all six (see `applyParensToInteger`, `applyParensToFloatingPoint`,
+    // and `formatGeneral`'s own inline handling for 'g'/'G'). Previously
+    // '(' was worse than a no-op for all of them: fed straight into the
+    // underlying C printf spec string as an unrecognised flag character,
+    // which is undefined behaviour.
+
     let parenCapableConversions: Set<Character> = ["d", "e", "E", "f", "g", "G"]
 
     while i < resolvedFmt.endIndex {
@@ -244,6 +244,25 @@ struct Java2SwiftFormatter {
       var hasParens = false
 
       // Flags: -, +, 0, ' ', #, ,, (
+      //
+      // Any character NOT in this set simply ends the flags loop below —
+      // it's then reinterpreted as the start of width/precision/conversion,
+      // or (if it matches none of those either) surfaces as
+      // `UnknownFormatConversionException` once `conv` is read further
+      // down. There is deliberately no `java.util.UnknownFormatFlagsException`
+      // thrown here for "an unrecognised flag character": researched
+      // against the real OpenJDK `Formatter` source (which parses the
+      // whole specifier with one regex whose flags group only matches
+      // `[-#+ 0,(]*`) — an out-of-set character simply fails that regex
+      // for the WHOLE specifier, the same "stop and fall through" shape
+      // this loop has, never reaching a distinct "flags string contains
+      // an unknown flag" code path. This isn't a guess: OpenJDK's own bug
+      // tracker has JDK-8189250, titled exactly "Exception
+      // java.util.UnknownFormatFlagsException is never thrown" — the real
+      // JDK's `Formatter.java` mentions the exception only in its
+      // class-level javadoc and never actually throws it anywhere in the
+      // implementation. So NOT wiring it up here matches real Java's own
+      // (undocumented-as-such) behaviour rather than falling short of it.
       while i < resolvedFmt.endIndex && "-+ #0,(".contains(resolvedFmt[i]) {
         let f = resolvedFmt[i]
         if seenFlagChars.contains(f) {
@@ -450,12 +469,20 @@ struct Java2SwiftFormatter {
           formatted = literal
         } else {
           let prec = Int(precision) ?? 6
-          formatted = formatDouble(dv, precision: prec,
-                                   grouping: specifierHasGrouping,
-                                   width: Int(width) ?? 0,
-                                   leftAlign: flags.contains("-"),
-                                   zeroPad: flags.contains("0"),
-                                   locale: resolvedLocale)
+          let hasZero = flags.contains("0")
+          if hasParens && dv < 0 {
+            formatted = applyParensToFloatingPoint(width: Int(width) ?? 0, leftAlign: flags.contains("-"), hasZero: hasZero) { innerWidth in
+              formatDouble(-dv, precision: prec, grouping: specifierHasGrouping,
+                          width: innerWidth, leftAlign: false, zeroPad: hasZero, locale: resolvedLocale)
+            }
+          } else {
+            formatted = formatDouble(dv, precision: prec,
+                                     grouping: specifierHasGrouping,
+                                     width: Int(width) ?? 0,
+                                     leftAlign: flags.contains("-"),
+                                     zeroPad: hasZero,
+                                     locale: resolvedLocale)
+          }
         }
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
@@ -468,6 +495,16 @@ struct Java2SwiftFormatter {
         let formatted: String
         if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
           formatted = literal
+        } else if hasParens && dv < 0 {
+          let hasZero = flags.contains("0")
+          formatted = applyParensToFloatingPoint(width: Int(width) ?? 0, leftAlign: flags.contains("-"), hasZero: hasZero) { innerWidth in
+            // '+'/' ' dropped for the inner magnitude — same reasoning as
+            // `applyParensToInteger` — the parentheses ARE the sign here.
+            let innerFlags = flags.filter { $0 != "+" && $0 != " " }
+            let innerWidthStr = innerWidth > 0 ? "\(innerWidth)" : ""
+            let spec = buildCSpec(flags: innerFlags, width: innerWidthStr, precision: precision, conv: "e")
+            return applyDecimalSeparatorForScientific(String(format: spec, -dv), locale: resolvedLocale)
+          }
         } else {
           let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "e")
           // Deliberately NO `locale:` argument to `String(format:)` here —
@@ -490,6 +527,14 @@ struct Java2SwiftFormatter {
         let formatted: String
         if let literal = nonFiniteLiteral(dv, width: Int(width) ?? 0, leftAlign: flags.contains("-")) {
           formatted = literal
+        } else if hasParens && dv < 0 {
+          let hasZero = flags.contains("0")
+          formatted = applyParensToFloatingPoint(width: Int(width) ?? 0, leftAlign: flags.contains("-"), hasZero: hasZero) { innerWidth in
+            let innerFlags = flags.filter { $0 != "+" && $0 != " " }
+            let innerWidthStr = innerWidth > 0 ? "\(innerWidth)" : ""
+            let spec = buildCSpec(flags: innerFlags, width: innerWidthStr, precision: precision, conv: "E")
+            return applyDecimalSeparatorForScientific(String(format: spec, -dv), locale: resolvedLocale)
+          }
         } else {
           let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "E")
           // See the identical comment in `case "e":` just above.
@@ -505,8 +550,8 @@ struct Java2SwiftFormatter {
         let formatted = formatGeneral(
           toDouble(arg), precision: Int(precision) ?? 6,
           grouping: specifierHasGrouping, width: Int(width) ?? 0,
-          leftAlign: flags.contains("-"), zeroPad: flags.contains("0"), upper: conv == "G",
-          flags: flags, locale: resolvedLocale
+          leftAlign: flags.contains("-"), zeroPad: flags.contains("0"), hasParens: hasParens,
+          upper: conv == "G", flags: flags, locale: resolvedLocale
         )
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
@@ -904,12 +949,32 @@ struct Java2SwiftFormatter {
   /// `2.9999999999999996`).
   private static func formatGeneral(_ value: Double, precision: Int,
                                     grouping: Bool, width: Int,
-                                    leftAlign: Bool, zeroPad: Bool = false, upper: Bool,
-                                    flags: String, locale: Foundation.Locale) -> String {
+                                    leftAlign: Bool, zeroPad: Bool = false, hasParens: Bool = false,
+                                    upper: Bool, flags: String, locale: Foundation.Locale) -> String {
     let prec = precision == 0 ? 1 : precision
 
     if let literal = nonFiniteLiteral(value, width: width, leftAlign: leftAlign) {
       return literal
+    }
+
+    // Handled here, at the top, rather than via `applyParensToFloatingPoint`
+    // like `%f`/`%e`/`%E` do: `%g`/`%G` need the SAME decimal-vs-scientific
+    // branch decision applied to the wrapped magnitude that applies
+    // everywhere else in this function, so the cleanest way to get that is
+    // to recurse on the magnitude (with `hasParens: false`, so the
+    // recursive call takes the normal, unparenthesized path) and wrap the
+    // result — rather than duplicating the branch logic inside a closure.
+    if hasParens && value < 0 {
+      let innerWidth = zeroPad ? max(width - 2, 0) : 0
+      // '+'/' ' dropped for the inner magnitude, same reasoning as
+      // `applyParensToInteger`/`applyParensToFloatingPoint` — the
+      // parentheses themselves are the sign indicator here.
+      let innerFlags = flags.filter { $0 != "+" && $0 != " " }
+      let inner = formatGeneral(-value, precision: precision, grouping: grouping,
+                                width: innerWidth, leftAlign: false, zeroPad: zeroPad,
+                                hasParens: false, upper: upper, flags: innerFlags, locale: locale)
+      let wrapped = "(" + inner + ")"
+      return zeroPad ? wrapped : applyWidth(wrapped, width: width, leftAlign: leftAlign, upper: false)
     }
 
     guard value != 0 else {
@@ -1038,6 +1103,30 @@ struct Java2SwiftFormatter {
     var inner = String(format: spec, magnitude)
     if grouping { inner = insertGrouping(inner, locale: locale) }
     let wrapped = "(" + inner + ")"
+    return hasZero ? wrapped : applyWidth(wrapped, width: width, leftAlign: leftAlign, upper: false)
+  }
+
+  /// The `%f`/`%e`/`%E` equivalent of `applyParensToInteger`: wraps a
+  /// **negative** floating-point value's MAGNITUDE in parentheses instead
+  /// of a leading `'-'` sign. Only called when `value < 0` — the caller
+  /// takes the normal, unparenthesized path for non-negative values even
+  /// when `'('` was given, matching Java. (`%g`/`%G` don't use this
+  /// helper — `formatGeneral` handles its own parens directly, since it
+  /// needs to apply the SAME decimal-vs-scientific branch decision to the
+  /// wrapped magnitude that it applies everywhere else.)
+  ///
+  /// Same width/zero-pad split as `applyParensToInteger`: with the `'0'`
+  /// flag, `width` is reduced by 2 (for the two paren characters) and
+  /// handed to `formatMagnitude` as its OWN width so the padding zeros
+  /// land *inside* the parentheses (`formatMagnitude` is expected to
+  /// zero-pad itself, e.g. via `formatDouble`'s own `zeroPad` parameter);
+  /// without `'0'`, `formatMagnitude` gets no inner width at all and the
+  /// padding spaces are applied to the whole `"(...)"` string afterwards,
+  /// landing *outside* the parentheses.
+  private static func applyParensToFloatingPoint(width: Int, leftAlign: Bool, hasZero: Bool,
+                                                 formatMagnitude: (_ innerWidth: Int) -> String) -> String {
+    let innerWidth = hasZero ? max(width - 2, 0) : 0
+    let wrapped = "(" + formatMagnitude(innerWidth) + ")"
     return hasZero ? wrapped : applyWidth(wrapped, width: width, leftAlign: leftAlign, upper: false)
   }
 

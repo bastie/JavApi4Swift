@@ -588,3 +588,72 @@ struct LocaleIndependentRoundingTests {
     #expect(try String.format(java.util.Locale.US, "%.2f", 3.14159) == "3.14")
   }
 }
+
+// MARK: - '(' flag for %f/%e/%E/%g/%G — now fully rendered
+//
+// Regression tests for finishing task (c)'s last open item: '(' was
+// previously accepted (not thrown) for these five conversions per Java's
+// flags grammar, but rendered nothing — a deliberately scoped-out no-op
+// documented at the time as depending on `formatDouble` first gaining
+// zero-fill width support (done above) and on the locale bugs found while
+// chasing the zero-pad regression (also done above). With both of those
+// fixed, '(' now wraps a negative magnitude in parentheses for all five
+// conversions, via `applyParensToFloatingPoint` (%f/%e/%E) and
+// `formatGeneral`'s own inline handling (%g/%G, which needs the SAME
+// decimal-vs-scientific branch decision applied to the wrapped magnitude
+// that applies everywhere else in that function). All assertions pin
+// Locale.US explicitly for the same reason as everywhere else in this
+// file — decimal points and exponent formatting are locale-sensitive.
+
+@Suite("Java2SwiftFormatter — '(' flag for %f/%e/%E/%g/%G", .serialized)
+struct ParenthesizeNegativeFloatingPointTests {
+
+  @Test("%(.2f wraps a negative value in parentheses instead of a minus sign")
+  func basicNegativeF() throws {
+    #expect(try String.format(java.util.Locale.US, "%(.2f", -3.14) == "(3.14)")
+  }
+
+  @Test("%(.2f leaves a positive value untouched — the flag only affects negatives")
+  func positiveUnaffectedF() throws {
+    #expect(try String.format(java.util.Locale.US, "%(.2f", 5.0) == "5.00")
+  }
+
+  @Test("%(10.2f pads the whole parenthesized string with spaces from the outside")
+  func widthPadsOutsideParensF() throws {
+    #expect(try String.format(java.util.Locale.US, "%(10.2f", -3.14) == "    (3.14)")
+  }
+
+  @Test("%(08.2f zero-pads *inside* the parentheses, per 'following any sign or radix indicator'")
+  func zeroFlagPadsInsideParensF() throws {
+    // Magnitude "3.14" (4 chars) zero-padded to inner width 8-2=6 -> "003.14",
+    // wrapped -> "(003.14)" (8 chars total, matching the requested width).
+    #expect(try String.format(java.util.Locale.US, "%(08.2f", -3.14) == "(003.14)")
+  }
+
+  @Test("%(.2e wraps a negative value in scientific notation")
+  func basicNegativeE() throws {
+    #expect(try String.format(java.util.Locale.US, "%(.2e", -12345.6789) == "(1.23e+04)")
+  }
+
+  @Test("%(.2E uppercases the exponent marker inside the parentheses")
+  func basicNegativeUppercaseE() throws {
+    #expect(try String.format(java.util.Locale.US, "%(.2E", -12345.6789) == "(1.23E+04)")
+  }
+
+  @Test("%(.4g wraps a negative value that renders in %g's decimal branch")
+  func negativeGDecimalBranch() throws {
+    // precision 4, exponent 0 < 4 -> decimal branch: "3.140".
+    #expect(try String.format(java.util.Locale.US, "%(.4g", -3.14) == "(3.140)")
+  }
+
+  @Test("%(.3g wraps a negative value that renders in %g's scientific branch")
+  func negativeGScientificBranch() throws {
+    // precision 3, exponent 5 >= 3 -> scientific branch: "1.23e+05".
+    #expect(try String.format(java.util.Locale.US, "%(.3g", -123456.0) == "(1.23e+05)")
+  }
+
+  @Test("%(G on a negative value keeps parentheses and uppercases the exponent")
+  func negativeGUppercaseScientific() throws {
+    #expect(try String.format(java.util.Locale.US, "%(.3G", -123456.0) == "(1.23E+05)")
+  }
+}

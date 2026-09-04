@@ -216,13 +216,20 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   verschluckt. `IllegalFormatFlagsException` ist für die beiden in der
   Formatter-Doku genannten unzulässigen Flag-Kombinationen (`-` zusammen mit
   `0`, `+` zusammen mit Leerzeichen) verdrahtet. Die `(`-Flag (Klammern für
-  negative Zahlen) ist für `%d` vollständig implementiert (inkl. korrektem
-  Zusammenspiel mit `0`-Padding und Gruppierung); für `%e`/`%E`/`%f`/`%g`/`%G`
-  korrumpiert sie den Format-String nicht mehr, bleibt dort aber noch
-  wirkungslos, bis `formatDouble` Zero-Fill-Padding unterstützt. Noch nicht
-  verdrahtet: `UnknownFormatFlagsException` (durch den Parser strukturell
-  nicht erreichbar, da nur bekannte Flag-Zeichen überhaupt als Flag erkannt
-  werden). *Abhängig von:* nichts weiter.
+  negative Zahlen) ist jetzt für alle sechs Konversionen (`%d`, `%e`/`%E`,
+  `%f`, `%g`/`%G`) vollständig implementiert, inkl. korrektem Zusammenspiel
+  mit `0`-Padding (Nullen innerhalb der Klammern) und Gruppierung.
+  `UnknownFormatFlagsException` wird bewusst nicht geworfen: recherchiert
+  gegen den echten OpenJDK-Quellcode (`Formatter.java` parst den gesamten
+  Specifier mit einem Regex, dessen Flags-Gruppe nur `[-#+ 0,(]*` matcht —
+  ein unbekanntes Zeichen lässt einfach den ganzen Regex fehlschlagen,
+  nie einen eigenen "Flags enthalten unbekanntes Zeichen"-Pfad) und
+  bestätigt durch OpenJDKs eigenen Bug-Tracker: JDK-8189250, wörtlich
+  betitelt "Exception java.util.UnknownFormatFlagsException is never
+  thrown" — die echte JDK wirft diese Exception nirgends in der
+  Implementierung, nur in der Klassen-Javadoc erwähnt. Nicht-Verdrahtung
+  entspricht also echtem Java-Verhalten, ist kein Rückstand mehr.
+  *Abhängig von:* nichts weiter.
 - [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
   `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
   `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-
