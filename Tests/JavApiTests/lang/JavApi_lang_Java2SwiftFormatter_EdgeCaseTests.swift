@@ -203,52 +203,69 @@ struct GeneralScientificNotationTests {
   @Test("%g on a value that renders in decimal form shows exactly `precision` significant digits, unlike C's %g")
   func decimalFormShowsAllSignificantDigits() throws {
     // Default precision 6; C's/Swift's native %g would strip this to "100".
-    #expect(try String.format("%g", 100.0) == "100.000")
+    // Pinned to Locale.US for the same reason as `wellFormedSpecifiersStillWork`
+    // in JavApi_lang_Java2SwiftFormatter_ExceptionTests.swift — this test is
+    // about significant-digit count, not locale, so it shouldn't depend on
+    // the machine's default Locale for its "." decimal point.
+    #expect(try String.format(java.util.Locale.US, "%g", 100.0) == "100.000")
   }
+
+  // NOTE on the Locale.US pins below: every assertion here that contains a
+  // '.' decimal point or a ',' grouping separator needs an explicit Locale,
+  // for the same reason as `decimalFormShowsAllSignificantDigits` above —
+  // `String.format` with no explicit Locale correctly follows
+  // `java.util.Locale.getDefault()` (real Java behaviour, confirmed against
+  // the Formatter javadoc), so a hardcoded "." or "," expectation is only
+  // ever correct by accident, on an English-locale machine. Found via a
+  // German-locale dev machine, where several of these intermittently failed
+  // depending on Swift Testing's parallel test scheduling (a separate,
+  // pre-existing concern — see java.util.Locale.setDefault's thread-safety
+  // note elsewhere in this test target).
 
   @Test("%g just below the 10⁻⁴ decimal/scientific boundary stays in decimal form")
   func justAboveLowerBoundaryStaysDecimal() throws {
-    #expect(try String.format("%g", 0.0001234) == "0.000123400")
+    #expect(try String.format(java.util.Locale.US, "%g", 0.0001234) == "0.000123400")
   }
 
   @Test("%g just below the 10⁻⁴ boundary switches to scientific notation")
   func justBelowLowerBoundarySwitchesToScientific() throws {
-    #expect(try String.format("%g", 0.00001234) == "1.23400e-05")
+    #expect(try String.format(java.util.Locale.US, "%g", 0.00001234) == "1.23400e-05")
   }
 
   @Test("%g at or above 10^precision switches to scientific notation")
   func atUpperBoundarySwitchesToScientific() throws {
-    #expect(try String.format("%g", 123456789.0) == "1.23457e+08")
+    #expect(try String.format(java.util.Locale.US, "%g", 123456789.0) == "1.23457e+08")
   }
 
   @Test("%.3g switches to scientific right at the precision boundary (rounded exponent == precision)")
   func explicitPrecisionAtBoundary() throws {
-    #expect(try String.format("%.3g", 1234.5678) == "1.23e+03")
+    #expect(try String.format(java.util.Locale.US, "%.3g", 1234.5678) == "1.23e+03")
   }
 
   @Test("%.3g stays decimal with a zero fractional-digit count when precision == integer digit count")
   func explicitPrecisionEqualsIntegerDigits() throws {
+    // No '.' or ',' in the expected value ("123") — locale-independent as-is.
     #expect(try String.format("%.3g", 123.4) == "123")
   }
 
   @Test("%G uppercases the scientific exponent marker")
   func uppercaseScientific() throws {
-    #expect(try String.format("%G", 123456789.0) == "1.23457E+08")
+    #expect(try String.format(java.util.Locale.US, "%G", 123456789.0) == "1.23457E+08")
   }
 
   @Test("%g on a negative value keeps the sign and rounds correctly")
   func negativeValue() throws {
-    #expect(try String.format("%g", -42.5) == "-42.5000")
+    #expect(try String.format(java.util.Locale.US, "%g", -42.5) == "-42.5000")
   }
 
   @Test("%,g applies grouping separators in its decimal-format branch (previously a silent no-op)")
   func groupingAppliedInDecimalBranch() throws {
-    #expect(try String.format("%,.10g", 1234567.0) == "1,234,567.000")
+    #expect(try String.format(java.util.Locale.US, "%,.10g", 1234567.0) == "1,234,567.000")
   }
 
   @Test("%,g with default precision and grouping visible with zero fractional digits")
   func groupingWithZeroFractionalDigits() throws {
-    #expect(try String.format("%,g", 123456.0) == "123,456")
+    #expect(try String.format(java.util.Locale.US, "%,g", 123456.0) == "123,456")
   }
 
   @Test("%,e still throws FormatFlagsConversionMismatchException, matching Java (unlike the previously too-permissive groupingCapableConversions set)")
@@ -323,5 +340,251 @@ struct NaNInfinityTests {
   func widthPaddingStillApplies() throws {
     #expect(try String.format("%10f|", Double.infinity) == "  Infinity|")
     #expect(try String.format("%-10f|", Double.nan) == "NaN       |")
+  }
+}
+
+// MARK: - '(' flag (parenthesize negative values) for %d
+//
+// Regression tests for task (c): the '(' flag used to be fed straight
+// into the underlying C printf spec string as an unrecognised flag
+// character (undefined behaviour — worse than a no-op, since it could
+// corrupt the whole spec), because it was collected into the same
+// `flags` string used to build printf specs. It's now diverted out
+// (like ',' already was) and actually implemented for '%d'. '%(e'/'%(f'/
+// '%(g'/'%(G' are still accepted (not thrown, matching Java's own flags
+// grammar) but not yet actually rendered — deliberately scoped out here
+// since correct zero-padding for them depends on formatDouble first
+// gaining C-printf-style zero-fill support, which it doesn't have yet
+// (a separate, likely pre-existing gap — see NaNInfinityTests' sibling
+// diagnostic note in this file's history for the analogous pattern).
+
+@Suite("Java2SwiftFormatter — '(' flag for %d", .serialized)
+struct ParenthesizeNegativeTests {
+
+  @Test("%(d wraps a negative value in parentheses instead of a minus sign")
+  func basicNegative() throws {
+    #expect(try String.format("%(d", -42) == "(42)")
+  }
+
+  @Test("%(d leaves a positive value untouched — the flag only affects negatives")
+  func positiveUnaffected() throws {
+    #expect(try String.format("%(d", 5) == "5")
+  }
+
+  @Test("%(8d pads the whole parenthesized string with spaces from the outside")
+  func widthPadsOutsideParens() throws {
+    #expect(try String.format("%(8d", -42) == "    (42)")
+  }
+
+  @Test("%(08d zero-pads *inside* the parentheses, per 'following any sign or radix indicator'")
+  func zeroFlagPadsInsideParens() throws {
+    #expect(try String.format("%(08d", -42) == "(000042)")
+  }
+
+  @Test("%(,d applies grouping separators inside the parentheses")
+  func groupingInsideParens() throws {
+    // Pinned to Locale.US: the grouping SEPARATOR CHARACTER is locale-
+    // sensitive (e.g. '.' in German), same reasoning as the decimal-point
+    // pins elsewhere in this file — this test is about the parens/grouping
+    // interaction, not about which character represents "grouping".
+    #expect(try String.format(java.util.Locale.US, "%(,d", -1234) == "(1,234)")
+  }
+
+  @Test("'(' on a conversion that doesn't support it throws FormatFlagsConversionMismatchException")
+  func unsupportedConversionThrows() throws {
+    #expect(throws: java.util.FormatFlagsConversionMismatchException.self) {
+      _ = try String.format("%(s", "hi")
+    }
+  }
+}
+
+// MARK: - IllegalFormatFlagsException for illegal flag combinations
+//
+// Regression tests for task (c): '-'+'0' and '+'+' ' were previously
+// never thrown ("durch den Parser strukturell nicht erreichbar" — the
+// flags were individually valid, just not checked for mutually
+// incompatible combinations). Now validated once both flags have been
+// collected for a specifier, per Formatter's own documented "If both the
+// '-' and '0' flags are given..." / "If both the '+' and ' ' flags are
+// given..." rules.
+
+@Suite("Java2SwiftFormatter — IllegalFormatFlagsException for flag combinations", .serialized)
+struct IllegalFormatFlagsCombinationTests {
+
+  @Test("'-' combined with '0' throws IllegalFormatFlagsException")
+  func leftJustifyAndZeroPad() throws {
+    #expect(throws: java.util.IllegalFormatFlagsException.self) {
+      _ = try String.format("%-08d", 5)
+    }
+  }
+
+  @Test("'+' combined with ' ' (space) throws IllegalFormatFlagsException")
+  func explicitPlusAndSpace() throws {
+    #expect(throws: java.util.IllegalFormatFlagsException.self) {
+      _ = try String.format("%+ d", 5)
+    }
+  }
+}
+
+// MARK: - Regression: per-specifier grouping no longer "leaks" to later specifiers
+//
+// A real, previously undiscovered bug found while implementing the '('
+// flag above and re-reading this function closely: the grouping flag's
+// effect on an individual specifier was decided by `hasGrouping`, a
+// function-wide accumulator that is only ever set to `true` and never
+// reset between specifiers (it's also used, correctly, to decide whether
+// the *final* combined String(format:) call needs a `locale:` argument
+// at all). That meant `String.format("%,d %d", 1234567, 42)` would have
+// incorrectly grouped the SECOND %d too, even though it has no ',' flag
+// of its own — simply because an earlier specifier in the same format
+// string happened to use grouping. Fixed by deciding each specifier's own
+// grouping from that specifier's freshly-scanned flags instead.
+
+@Suite("Java2SwiftFormatter — grouping does not leak across specifiers", .serialized)
+struct GroupingDoesNotLeakTests {
+
+  @Test("a ',' flag on an earlier specifier must not affect a later specifier without its own ','")
+  func groupingIsPerSpecifier() throws {
+    // Pinned to Locale.US — see `groupingInsideParens`'s comment above;
+    // this test is about grouping being per-specifier, not about which
+    // character represents grouping on the runner's system locale.
+    #expect(try String.format(java.util.Locale.US, "%,d %d", 1234567, 42) == "1,234,567 42")
+  }
+
+  @Test("the reverse order also stays independent")
+  func groupingIsPerSpecifierReversed() throws {
+    #expect(try String.format(java.util.Locale.US, "%d %,d", 42, 1234567) == "42 1,234,567")
+  }
+}
+
+// MARK: - '0' zero-pad flag for %f/%e/%g (confirmed and fixed)
+//
+// Was shipped as a DIAGNOSTIC suite first — a suspected gap noticed while
+// implementing the '(' flag above (whose zero-inside-parens behavior for
+// '%d' depends on the '0' flag being honoured, which prompted a closer
+// look at the floating-point path too) — and confirmed as a real bug by
+// a failing local `swift test` run (the same "assert the Java-correct
+// value first, fix only after confirmation" workflow used earlier for
+// NaN/Infinity). Root cause: `formatDouble` (used by '%f' and, via
+// `formatGeneral`, by '%g'/'%G' in their decimal-format branch) only ever
+// padded with spaces via `applyWidth`; it never passed `width` or the '0'
+// flag into the underlying C `String(format:)` call, and never zero-filled
+// manually either. Fixed by adding a `zeroPad` parameter to `formatDouble`
+// (new `applyZeroPad` helper inserts the padding zeros *after* a leading
+// '-' sign, per Java's "follows any sign or radix indicator" rule) and
+// threading it through `formatGeneral`. While tracing this, the SAME class
+// of bug turned up independently in `formatGeneral`'s *scientific* branch
+// (used when '%g'/'%G' render in exponential form): it built the inner
+// '%e'/'%E' C-spec with `width: ""` and space-padded the result afterwards
+// instead of passing the real width into the spec, so a '0' flag there had
+// no width to pad against and was silently a no-op — fixed by passing the
+// real width straight into the spec (mirroring how plain '%e' already did
+// it), which lets C's own zero-flag handling do the work correctly,
+// including after the exponent's sign/digits are already in place.
+@Suite("Java2SwiftFormatter — '0' zero-pad flag for floating point", .serialized)
+struct ZeroPadFloatingPointTests {
+
+  // All four assertions below pin `Locale.US` explicitly. `String.format`
+  // with no explicit Locale follows `java.util.Locale.getDefault()` (real
+  // Java behaviour) — on a German-locale machine that correctly renders
+  // "," as the decimal point, which would make a hardcoded "." expectation
+  // fail for reasons unrelated to zero-padding. Pinning the locale keeps
+  // these tests about the '0' flag, not about the runner's system locale
+  // (discovered via exactly that failure on a German-locale dev machine).
+
+  @Test("%08.2f should zero-pad, not space-pad")
+  func zeroPadForF() throws {
+    #expect(try String.format(java.util.Locale.US, "%08.2f", 3.14) == "00003.14")
+  }
+
+  @Test("%08.2f on a negative value should zero-pad after the sign")
+  func zeroPadForNegativeF() throws {
+    #expect(try String.format(java.util.Locale.US, "%08.2f", -3.14) == "-0003.14")
+  }
+
+  @Test("'0' flag also zero-pads %g's decimal-format branch")
+  func zeroPadForGDecimalBranch() throws {
+    // 3.14 with precision 4 stays in %g's decimal branch (exponent 0 < 4);
+    // formatDouble renders it as "3.140" (3 fractional digits), then
+    // zero-pads to width 12 -> "00000003.140" (verified against Python's
+    // '%012.4g' % 3.14, which follows the same C-printf zero-pad rule for
+    // the fractional-digit count, since Java's %g fractional-digit
+    // selection matches C's here for this value).
+    #expect(try String.format(java.util.Locale.US, "%012.4g", 3.14) == "00000003.140")
+  }
+
+  @Test("'0' flag also zero-pads %g's scientific-notation branch")
+  func zeroPadForGScientificBranch() throws {
+    // 123456.0 with precision 3: exponent 5 >= precision 3, so %g renders
+    // in scientific notation ("1.23e+05"). Zero-padded to width 14 ->
+    // "0000001.23e+05" (verified against Python's '%014.2e' % 123456.0,
+    // which uses the same C-printf zero-pad convention this code now
+    // delegates to for the scientific branch).
+    #expect(try String.format(java.util.Locale.US, "%014.3g", 123456.0) == "0000001.23e+05")
+  }
+}
+
+// MARK: - Locale independence for %f/%e/%g's decimal-point rendering
+//
+// Regression coverage for the root-cause bug found while chasing the
+// zero-pad failures above: `formatDouble`'s (and, until this fix, '%e'/'%E'
+// and %g's scientific branch's) intermediate C-printf rounding step called
+// Swift's `String(format:)` with NO explicit locale, which does not mean
+// "fixed C locale" as the surrounding code assumed — it silently follows
+// `Foundation.Locale.current` (the SYSTEM locale). On a German-locale
+// machine this produced "3,14" for a supposedly locale-independent internal
+// step, corrupting the code's own subsequent, correct `resolvedLocale`-based
+// decimal/grouping substitution (worst case: `formatDouble`'s grouping
+// branch splits the C-formatted string on "." to separate integer and
+// fractional parts — if the intermediate step had already substituted ","
+// for the system locale, that split silently finds nothing, merging the
+// fractional digits into what grouping then treats as the integer part).
+// Fixed by pinning the intermediate step to a fixed `en_US_POSIX` locale
+// (`cLocale`) so ONLY the code's own explicit, request-driven locale
+// handling ever determines the visible output — verified here by requesting
+// an explicit, non-default `Locale` (`Locale.GERMANY`) and checking for
+// its comma decimal point, independent of whatever the test runner's own
+// system locale happens to be.
+@Suite("Java2SwiftFormatter — locale-independence of the C-printf rounding step", .serialized)
+struct LocaleIndependentRoundingTests {
+
+  @Test("%f honors an explicitly requested Locale's decimal separator")
+  func explicitGermanLocaleForF() throws {
+    #expect(try String.format(java.util.Locale.GERMANY, "%.2f", 3.14159) == "3,14")
+  }
+
+  @Test("%f with grouping honors an explicitly requested Locale, without corrupting the fractional part")
+  func explicitGermanLocaleForGroupedF() throws {
+    // Regression for the worst-case corruption described above: grouping
+    // splits on '.', which only works if the intermediate step actually
+    // produced '.' — German grouping separator is '.', decimal separator
+    // is ',', so a corrupted intermediate step (comma from the SYSTEM
+    // locale bleeding into what should be a POSIX-only internal step)
+    // would previously have merged "1234567,89" into one ungrouped blob.
+    #expect(try String.format(java.util.Locale.GERMANY, "%,.2f", 1234567.891) == "1.234.567,89")
+  }
+
+  @Test("%e honors an explicitly requested Locale's decimal separator")
+  func explicitGermanLocaleForE() throws {
+    #expect(try String.format(java.util.Locale.GERMANY, "%.2e", 12345.6789) == "1,23e+04")
+  }
+
+  @Test("%g's scientific branch honors an explicitly requested Locale's decimal separator")
+  func explicitGermanLocaleForGScientific() throws {
+    // precision 3, value 123456.0: exponent 5 >= 3, so %g renders in
+    // scientific notation, same shape as ZeroPadFloatingPointTests'
+    // zeroPadForGScientificBranch above but with a German Locale instead
+    // of a '0' flag.
+    #expect(try String.format(java.util.Locale.GERMANY, "%.3g", 123456.0) == "1,23e+05")
+  }
+
+  @Test("%f still defaults to '.' when no explicit Locale is requested and the internal step is POSIX-pinned")
+  func explicitUSLocaleStillDot() throws {
+    // Companion to the above: confirms the fix didn't overcorrect into
+    // always using a non-'.' separator — an explicitly US-Locale request
+    // still renders '.', proving the substitution is driven by the
+    // REQUESTED locale, not left over from either the system locale or a
+    // hardcoded assumption either way.
+    #expect(try String.format(java.util.Locale.US, "%.2f", 3.14159) == "3.14")
   }
 }

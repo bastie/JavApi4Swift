@@ -213,12 +213,16 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   einer Conversion, die keine kennt) und `FormatFlagsConversionMismatchException`
   (z. B. `,`-Flag auf `%s`, `#`-Flag auf `%s` ohne `Formattable`-Argument).
   `Formattable.formatTo`-Fehler werden jetzt ebenfalls propagiert statt
-  verschluckt. Noch nicht verdrahtet: `IllegalFormatFlagsException`
-  (unzulässige Flag-*Kombinationen* jenseits reiner Duplikate) und
-  `UnknownFormatFlagsException` (durch den Parser strukturell nicht
-  erreichbar, da nur bekannte Flag-Zeichen überhaupt als Flag erkannt
-  werden); die `(`-Flag (Klammern für negative Zahlen) bleibt weiterhin ein
-  wirkungsloser Pass-through. *Abhängig von:* nichts weiter.
+  verschluckt. `IllegalFormatFlagsException` ist für die beiden in der
+  Formatter-Doku genannten unzulässigen Flag-Kombinationen (`-` zusammen mit
+  `0`, `+` zusammen mit Leerzeichen) verdrahtet. Die `(`-Flag (Klammern für
+  negative Zahlen) ist für `%d` vollständig implementiert (inkl. korrektem
+  Zusammenspiel mit `0`-Padding und Gruppierung); für `%e`/`%E`/`%f`/`%g`/`%G`
+  korrumpiert sie den Format-String nicht mehr, bleibt dort aber noch
+  wirkungslos, bis `formatDouble` Zero-Fill-Padding unterstützt. Noch nicht
+  verdrahtet: `UnknownFormatFlagsException` (durch den Parser strukturell
+  nicht erreichbar, da nur bekannte Flag-Zeichen überhaupt als Flag erkannt
+  werden). *Abhängig von:* nichts weiter.
 - [ ] `Character.isSurrogate(char)`, `isSupplementaryCodePoint(int)`,
   `isValidCodePoint(int)`, `reverseBytes(char)` — nur `isHighSurrogate`/
   `isLowSurrogate` gefunden, die übrigen Supplementary-/Codepoint-

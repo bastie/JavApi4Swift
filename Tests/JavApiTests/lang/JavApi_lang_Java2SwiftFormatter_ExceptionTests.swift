@@ -140,7 +140,15 @@ struct JavApi_lang_Java2SwiftFormatter_ExceptionTests {
   @Test("Well-formed specifiers still succeed and don't throw")
   func wellFormedSpecifiersStillWork() throws {
     #expect(try String.format("%s is %d years old", "Alice", 30) == "Alice is 30 years old")
-    #expect(try String.format("%.2f", 3.14159) == "3.14")
+    // Pinned to Locale.US: `String.format` with no explicit Locale follows
+    // `java.util.Locale.getDefault()` (matching real Java), so a hardcoded
+    // "." decimal-point expectation is only correct on an English-locale
+    // machine. This test is about specifiers not throwing, not about
+    // locale — pin the locale explicitly so it doesn't depend on the
+    // machine it runs on. (Found via a German-locale CI/dev machine, where
+    // the unpinned version produced "3,14" — itself correct Java-locale
+    // behavior, just not what this test intends to check.)
+    #expect(try String.format(java.util.Locale.US, "%.2f", 3.14159) == "3.14")
     #expect(try String.format("%c", Character("A")) == "A")
     #expect(try String.format("%c", 65) == "A")
   }

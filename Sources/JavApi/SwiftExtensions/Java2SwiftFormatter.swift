@@ -32,6 +32,86 @@ import Foundation
 struct Java2SwiftFormatter {
 
   // ---------------------------------------------------------------------------
+  // MARK: Locale-independent C-printf rounding
+  // ---------------------------------------------------------------------------
+
+  /// A fixed, non-system locale used ONLY for the intermediate C-printf
+  /// rounding step of floating-point conversions (never for the final
+  /// user-visible output).
+  ///
+  /// **Root-cause bug this fixes:** Swift's `String(format:)`, when called
+  /// WITHOUT an explicit `locale:` argument, does not use a fixed C locale —
+  /// on Apple platforms it silently follows `Foundation.Locale.current`
+  /// (confirmed via a German-locale machine: `String(format: "%.2f", 3.14159)`
+  /// returned `"3,14"`, comma decimal point, even though the surrounding code
+  /// documented and assumed C-locale/POSIX `"."` output). Several call sites
+  /// in this file relied on that false assumption for their *intermediate*
+  /// rounding step, before applying their OWN explicit, `resolvedLocale`-based
+  /// decimal/grouping-separator substitution on top — so on a non-English
+  /// system locale, the intermediate step had already silently substituted
+  /// the WRONG (system) locale's separators, corrupting the subsequent
+  /// explicit substitution (in the worst case — `formatDouble`'s grouping
+  /// branch — splitting on `"."` to separate integer/fractional parts would
+  /// find no `"."` at all once the system locale had already turned it into
+  /// `","`, merging the fractional digits into the "integer part" that then
+  /// gets grouping separators spliced into it).
+  ///
+  /// Passing this fixed locale into the intermediate `String(format:)` calls
+  /// guarantees they always produce plain `"."` decimal points and no
+  /// grouping, regardless of the machine's system locale, so that this file's
+  /// own explicit `resolvedLocale`-based localization step (which already
+  /// existed and is unaffected by this fix) is the ONLY place locale is
+  /// actually applied — matching the class-level doc comment's original
+  /// (previously false) claim that this step used "C-locale printf".
+  private static let cLocale = Foundation.Locale(identifier: "en_US_POSIX")
+
+  /// Swaps the `"."` decimal point produced by a `cLocale`-forced C-printf
+  /// call for the target `locale`'s own decimal separator — the same
+  /// substitution `formatDouble`'s non-grouping branch already did, factored
+  /// out so `%e`/`%E` and `%g`/`%G`'s scientific branch can apply it too
+  /// (see `cLocale`'s doc comment for why the C-printf step must be locale-
+  /// pinned first). No grouping is applied here — Java's `Formatter` only
+  /// documents `,` as legal on `'e'`/`'E'` never (see `groupingCapableConversions`)
+  /// and on `'g'`/`'G'`'s *decimal* branch (handled separately by
+  /// `formatDouble`, not this scientific-notation helper).
+  private static func applyDecimalSeparator(_ s: String, locale: Foundation.Locale) -> String {
+    let decSep = String(locale.decimalSeparator ?? ".")
+    return decSep == "." ? s : s.replacingOccurrences(of: ".", with: decSep)
+  }
+
+  /// The '%e'/'%E'-family equivalent of `applyDecimalSeparator` — needed
+  /// because of a SECOND, distinct Foundation quirk found while fixing the
+  /// first one (see `cLocale`'s doc comment): `String(format:locale:)` —
+  /// the locale-AWARE overload — does not behave like a plain
+  /// locale-independent printf call for 'e'-family conversions on Apple
+  /// platforms. Passing ANY explicit `Locale` (even `cLocale` =
+  /// en_US_POSIX) silently (a) forces an UPPERCASE exponent marker
+  /// regardless of whether 'e' or 'E' was actually requested, and (b)
+  /// drops width/zero-flag handling entirely — confirmed via a debug
+  /// build: `String(format: "%014.3g", locale: cLocale, 123456.0)`
+  /// (lowercase 'e', width 14, zero flag) produced `"      1.23E+05"` —
+  /// SPACE-padded (not zero-padded) and uppercase. This is specific to
+  /// 'e'-family conversions: `formatDouble`'s `%f` via `cLocale` was
+  /// separately verified unaffected (case doesn't apply to 'f', and its
+  /// zero-pad/width regression tests pass).
+  ///
+  /// The fix: 'e'-family call sites must use the PLAIN `String(format:)`
+  /// overload (NO `locale:` argument at all), which correctly preserves
+  /// case and width/zero-flag handling — exactly like the ORIGINAL,
+  /// pre-this-session code already (accidentally) relied on. But that
+  /// means its decimal point again silently follows
+  /// `Foundation.Locale.current` (the SYSTEM locale) instead of a fixed
+  /// POSIX locale — the same issue `cLocale` was introduced to solve for
+  /// '%f', just not solvable the same way here. So this normalizes in TWO
+  /// steps instead of one: the system locale's separator -> "." -> the
+  /// actually-requested `locale`'s separator.
+  private static func applyDecimalSeparatorForScientific(_ s: String, locale: Foundation.Locale) -> String {
+    let systemDecSep = String(Foundation.Locale.current.decimalSeparator ?? ".")
+    let posix = systemDecSep == "." ? s : s.replacingOccurrences(of: systemDecSep, with: ".")
+    return applyDecimalSeparator(posix, locale: locale)
+  }
+
+  // ---------------------------------------------------------------------------
   // MARK: Public entry point
   // ---------------------------------------------------------------------------
 
@@ -89,6 +169,12 @@ struct Java2SwiftFormatter {
     var swiftArgs  : [CVarArg] = []
     var argIdx     = 0
     var i          = resolvedFmt.startIndex
+    // Whether ANY specifier anywhere in the string used ',' — controls
+    // only whether the final combined String(format:) call needs a
+    // `locale:` argument. Per-specifier grouping decisions inside the
+    // switch below use the freshly-scanned `specifierHasGrouping` local
+    // instead (see its declaration) — NOT this accumulator, which never
+    // resets.
     var hasGrouping = false
 
     // Conversions that accept a precision at all, per java.util.Formatter's
@@ -104,6 +190,17 @@ struct Java2SwiftFormatter {
     // implement; 'g'/'G' have no such sentence in their own description and
     // do apply grouping (in their decimal-format branch), same as 'f'.
     let groupingCapableConversions: Set<Character> = ["d", "f", "g", "G"]
+    // Conversions the '(' ("parenthesize negative values") flag is legal
+    // on, per the Formatter flags table footnote: 'd' for byte/short/int/
+    // long (this project doesn't model the separate BigInteger
+    // 'd'/'o'/'x'/'X' case), and 'e'/'E'/'f'/'g'/'G'. Actual parenthesized
+    // rendering below is currently only implemented for 'd' — the flag is
+    // still accepted (not thrown) for 'e'/'E'/'f'/'g'/'G' to match Java's
+    // grammar, but remains a no-op there for now (previously it was worse
+    // than a no-op: '(' was fed straight into the underlying C printf
+    // spec string as an unrecognised flag character, which is undefined
+    // behaviour; it is now cleanly excluded from that spec either way).
+    let parenCapableConversions: Set<Character> = ["d", "e", "E", "f", "g", "G"]
 
     while i < resolvedFmt.endIndex {
       let ch = resolvedFmt[i]
@@ -138,8 +235,15 @@ struct Java2SwiftFormatter {
       var width        = ""
       var precision    = ""
       var seenFlagChars: Set<Character> = []
+      // Whether THIS specifier's own flags include '(' — diverted out of
+      // `flags` (like ',' already was) rather than left in it: `flags` is
+      // embedded directly into C printf specs via buildCSpec elsewhere,
+      // and '(' is not a C printf flag character, so leaving it in there
+      // was undefined behaviour (documented as a "wirkungsloser
+      // Pass-through" — in practice worse than a no-op).
+      var hasParens = false
 
-      // Flags: -, +, 0, ' ', #, ,
+      // Flags: -, +, 0, ' ', #, ,, (
       while i < resolvedFmt.endIndex && "-+ #0,(".contains(resolvedFmt[i]) {
         let f = resolvedFmt[i]
         if seenFlagChars.contains(f) {
@@ -147,6 +251,7 @@ struct Java2SwiftFormatter {
         }
         seenFlagChars.insert(f)
         if f == "," { hasGrouping = true }
+        else if f == "(" { hasParens = true }
         else { flags.append(f) }
         i = resolvedFmt.index(after: i)
       }
@@ -177,8 +282,34 @@ struct Java2SwiftFormatter {
         throw java.util.IllegalFormatPrecisionException(Int(precision) ?? -1)
       }
       // ',' (grouping) is only legal on the numeric conversions that support it.
-      if seenFlagChars.contains(",") && !groupingCapableConversions.contains(conv) {
+      // NOTE: this specifier's OWN ',' flag, via `seenFlagChars` (freshly
+      // scanned per specifier just above) — NOT the function-wide
+      // `hasGrouping` accumulator below, which intentionally stays true
+      // for the rest of the string once any specifier has used ',' (it
+      // only controls whether the final combined String(format:) call
+      // needs a `locale:` argument at all). Using `hasGrouping` itself
+      // here was a real, previously undiscovered bug: `"%,d %d"` would
+      // have incorrectly grouped the SECOND %d too, since it never resets
+      // between specifiers.
+      let specifierHasGrouping = seenFlagChars.contains(",")
+      if specifierHasGrouping && !groupingCapableConversions.contains(conv) {
         throw java.util.FormatFlagsConversionMismatchException(",", conv)
+      }
+      // '(' (parenthesize negative values) is only legal on the
+      // conversions that document it.
+      if hasParens && !parenCapableConversions.contains(conv) {
+        throw java.util.FormatFlagsConversionMismatchException("(", conv)
+      }
+      // Illegal FLAG COMBINATIONS, independent of the conversion — per
+      // Formatter's own documentation: "If both the '-' and '0' flags are
+      // given then an IllegalFormatFlagsException will be thrown" and "If
+      // both the '+' and ' ' flags are given then an
+      // IllegalFormatFlagsException will be thrown."
+      if seenFlagChars.contains("-") && seenFlagChars.contains("0") {
+        throw java.util.IllegalFormatFlagsException(flags)
+      }
+      if seenFlagChars.contains("+") && seenFlagChars.contains(" ") {
+        throw java.util.IllegalFormatFlagsException(flags)
       }
 
       let hasArg = argIdx < resolvedArgs.count && !missingArgPositions.contains(argIdx)
@@ -263,16 +394,25 @@ struct Java2SwiftFormatter {
         if let value = arg, !isIntegerArgument(value) {
           throw java.util.IllegalFormatConversionException(conv, type(of: value))
         }
-        let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "d")
-        if hasGrouping {
-          // Format first, then insert grouping separators
-          let n = toInt64(arg)
-          let raw = String(format: spec, n)
+        let n = toInt64(arg)
+        if hasParens && n < 0 {
           swiftFmt  += "%@"
-          swiftArgs.append(insertGrouping(raw, locale: resolvedLocale) as CVarArg)
+          swiftArgs.append(
+            applyParensToInteger(n, flags: flags, grouping: specifierHasGrouping,
+                                 width: Int(width) ?? 0, leftAlign: flags.contains("-"),
+                                 locale: resolvedLocale) as CVarArg
+          )
         } else {
-          swiftFmt  += spec
-          swiftArgs.append(toInt64(arg))
+          let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "d")
+          if specifierHasGrouping {
+            // Format first, then insert grouping separators
+            let raw = String(format: spec, n)
+            swiftFmt  += "%@"
+            swiftArgs.append(insertGrouping(raw, locale: resolvedLocale) as CVarArg)
+          } else {
+            swiftFmt  += spec
+            swiftArgs.append(n)
+          }
         }
 
       case "o":
@@ -311,9 +451,10 @@ struct Java2SwiftFormatter {
         } else {
           let prec = Int(precision) ?? 6
           formatted = formatDouble(dv, precision: prec,
-                                   grouping: hasGrouping,
+                                   grouping: specifierHasGrouping,
                                    width: Int(width) ?? 0,
                                    leftAlign: flags.contains("-"),
+                                   zeroPad: flags.contains("0"),
                                    locale: resolvedLocale)
         }
         swiftFmt  += "%@"
@@ -329,7 +470,14 @@ struct Java2SwiftFormatter {
           formatted = literal
         } else {
           let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "e")
-          formatted = String(format: spec, dv)
+          // Deliberately NO `locale:` argument to `String(format:)` here —
+          // see `applyDecimalSeparatorForScientific`'s doc comment: for
+          // 'e'-family conversions, Swift's locale-AWARE `String(format:
+          // locale:)` overload silently forces an uppercase exponent and
+          // drops width/zero-flag handling, so the plain overload (whose
+          // decimal point then needs its own two-step normalization) is
+          // used instead.
+          formatted = applyDecimalSeparatorForScientific(String(format: spec, dv), locale: resolvedLocale)
         }
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
@@ -344,7 +492,8 @@ struct Java2SwiftFormatter {
           formatted = literal
         } else {
           let spec = buildCSpec(flags: flags, width: width, precision: precision, conv: "E")
-          formatted = String(format: spec, dv)
+          // See the identical comment in `case "e":` just above.
+          formatted = applyDecimalSeparatorForScientific(String(format: spec, dv), locale: resolvedLocale)
         }
         swiftFmt  += "%@"
         swiftArgs.append(formatted as CVarArg)
@@ -355,8 +504,8 @@ struct Java2SwiftFormatter {
         }
         let formatted = formatGeneral(
           toDouble(arg), precision: Int(precision) ?? 6,
-          grouping: hasGrouping, width: Int(width) ?? 0,
-          leftAlign: flags.contains("-"), upper: conv == "G",
+          grouping: specifierHasGrouping, width: Int(width) ?? 0,
+          leftAlign: flags.contains("-"), zeroPad: flags.contains("0"), upper: conv == "G",
           flags: flags, locale: resolvedLocale
         )
         swiftFmt  += "%@"
@@ -652,11 +801,24 @@ struct Java2SwiftFormatter {
   /// which matches Java's behaviour and is consistent across platforms.
   /// The decimal separator and grouping separator are then applied from the
   /// current locale so that e.g. de_DE produces "1.234,50".
+  ///
+  /// `zeroPad` implements the `'0'` flag: unlike `applyWidth` (space-only
+  /// padding, used for every other conversion here), Java requires the
+  /// padding to be zeros inserted *after* the sign when `'0'` is given —
+  /// `String.format("%08.2f", -3.14)` is `"-0003.14"`, not `"   -3.14"`.
+  /// Previously this function never consulted `width`/`'0'` at all beyond
+  /// the trailing space-pad, which was a real, confirmed bug (regression
+  /// test: `ZeroPadFloatingPointDiagnosticTests`, now promoted out of
+  /// "diagnostic" status).
   private static func formatDouble(_ value: Double, precision: Int,
                                    grouping: Bool, width: Int,
-                                   leftAlign: Bool, locale: Foundation.Locale) -> String {
+                                   leftAlign: Bool, zeroPad: Bool = false,
+                                   locale: Foundation.Locale) -> String {
     // Step 1: round with C-locale printf — cross-platform, matches Java.
-    let cFormatted = String(format: "%.\(precision)f", value)
+    // MUST pass `cLocale` explicitly (see its doc comment): without it,
+    // Swift's `String(format:)` silently follows the system locale instead
+    // of a fixed C locale, corrupting this step's "." assumption.
+    let cFormatted = String(format: "%.\(precision)f", locale: cLocale, value)
 
     // Step 2: replace '.' with the locale decimal separator, and optionally
     //         insert grouping separators into the integer part.
@@ -685,7 +847,31 @@ struct Java2SwiftFormatter {
       raw = decSep == "." ? cFormatted : cFormatted.replacingOccurrences(of: ".", with: decSep)
     }
 
+    if zeroPad && !leftAlign {
+      // '-' + '0' together is already rejected earlier by
+      // IllegalFormatFlagsException, so leftAlign and zeroPad never both
+      // hold in practice — the `!leftAlign` guard is defensive only.
+      return applyZeroPad(raw, width: width)
+    }
     return applyWidth(raw, width: width, leftAlign: leftAlign, upper: false)
+  }
+
+  /// Zero-pads a already-locale-formatted numeric string to `width`,
+  /// inserting the padding zeros *after* a leading sign character (`-`)
+  /// rather than in front of it — matching Java's "the padding will
+  /// consist of zeros ... follows any sign or radix indicator" rule
+  /// (used by `%0<width>f`/`%0<width>g` and, indirectly, by `applyParensToInteger`
+  /// would if it delegated here, though that helper implements the same
+  /// idea directly for the parenthesized-integer case since its inner
+  /// width is already reduced by 2 rather than sign-aware).
+  private static func applyZeroPad(_ s: String, width: Int) -> String {
+    guard width > s.count else { return s }
+    let padCount = width - s.count
+    if s.hasPrefix("-") {
+      return "-" + String(repeating: "0", count: padCount) + s.dropFirst()
+    } else {
+      return String(repeating: "0", count: padCount) + s
+    }
   }
 
   /// Formats a `Double` for `%g`/`%G` per Java's own "general scientific
@@ -718,7 +904,7 @@ struct Java2SwiftFormatter {
   /// `2.9999999999999996`).
   private static func formatGeneral(_ value: Double, precision: Int,
                                     grouping: Bool, width: Int,
-                                    leftAlign: Bool, upper: Bool,
+                                    leftAlign: Bool, zeroPad: Bool = false, upper: Bool,
                                     flags: String, locale: Foundation.Locale) -> String {
     let prec = precision == 0 ? 1 : precision
 
@@ -733,30 +919,46 @@ struct Java2SwiftFormatter {
       // scientific branch, which the JDK does not do).
       let fracDigits = max(prec - 1, 0)
       return formatDouble(value, precision: fracDigits, grouping: grouping,
-                          width: width, leftAlign: leftAlign, locale: locale)
+                          width: width, leftAlign: leftAlign, zeroPad: zeroPad, locale: locale)
     }
 
     let m = abs(value)
-    let roundedSci = String(format: "%.\(max(prec - 1, 0))e", m)
+    // `locale: cLocale` here too — this string is only parsed internally
+    // for its exponent digits below, but pinning it keeps the whole
+    // function's C-printf steps consistently locale-independent (see
+    // `cLocale`'s doc comment).
+    let roundedSci = String(format: "%.\(max(prec - 1, 0))e", locale: cLocale, m)
     guard let eIdx = roundedSci.firstIndex(where: { $0 == "e" || $0 == "E" }),
           let exponent = Int(roundedSci[roundedSci.index(after: eIdx)...]) else {
       // Unreachable in practice — String(format: "%e", ...) always
       // includes an exponent — but fail safe into decimal formatting
       // rather than crash if a platform's libc ever varies this.
       return formatDouble(value, precision: prec, grouping: grouping,
-                          width: width, leftAlign: leftAlign, locale: locale)
+                          width: width, leftAlign: leftAlign, zeroPad: zeroPad, locale: locale)
     }
 
     let useScientific = exponent < -4 || exponent >= prec
     if useScientific {
       let sciPrec = max(prec - 1, 0)
-      let spec = buildCSpec(flags: flags, width: "", precision: "\(sciPrec)", conv: upper ? "E" : "e")
-      let s = String(format: spec, value)
-      return applyWidth(s, width: width, leftAlign: leftAlign, upper: false)
+      // Pass the REAL width straight into the C spec (like the plain '%e'
+      // case does) instead of formatting unbounded and space-padding
+      // afterwards — the previous `width: ""` here meant a `'0'` flag had
+      // no width to pad to and was silently a no-op, the same class of bug
+      // `formatDouble` had for the decimal branch below.
+      let widthStr = width > 0 ? "\(width)" : ""
+      let spec = buildCSpec(flags: flags, width: widthStr, precision: "\(sciPrec)", conv: upper ? "E" : "e")
+      // Deliberately NO `locale:` argument here — same reasoning as plain
+      // '%e'/'%E' above (see `applyDecimalSeparatorForScientific`'s doc
+      // comment): the locale-aware `String(format:locale:)` overload
+      // breaks case/width/zero-flag handling specifically for 'e'-family
+      // conversions, confirmed via a debug build for this exact scientific
+      // branch (`%014.3g` came back space-padded and uppercase instead of
+      // zero-padded lowercase).
+      return applyDecimalSeparatorForScientific(String(format: spec, value), locale: locale)
     } else {
       let fracDigits = max(prec - exponent - 1, 0)
       return formatDouble(value, precision: fracDigits, grouping: grouping,
-                          width: width, leftAlign: leftAlign, locale: locale)
+                          width: width, leftAlign: leftAlign, zeroPad: zeroPad, locale: locale)
     }
   }
 
@@ -796,6 +998,47 @@ struct Java2SwiftFormatter {
     guard width > t.count else { return t }
     let pad = String(repeating: " ", count: width - t.count)
     return leftAlign ? t + pad : pad + t
+  }
+
+  /// Renders a **negative** `%d` integer per Java's `'('` flag: wraps the
+  /// magnitude in parentheses instead of a leading `'-'` sign, e.g.
+  /// `String.format("%(d", -42)` → `"(42)"`. Only called when `n < 0` —
+  /// the caller (`case "d":`) takes the normal, unparenthesized path for
+  /// non-negative values even when `'('` was given, matching Java (the
+  /// flag only ever affects *negative* values; a positive value is
+  /// unaffected by it).
+  ///
+  /// Per Formatter's own documentation, `'0'` zero-padding "follow[s] any
+  /// sign or radix indicator" — so when the `'0'` flag is also given, the
+  /// padding zeros go *inside* the parentheses, and the requested `width`
+  /// is reduced by 2 (for the two paren characters) before formatting the
+  /// magnitude; otherwise the magnitude is formatted with no inner width
+  /// at all and the width is applied to the whole `"(...)"` string
+  /// afterwards, so the padding spaces land *outside* the parentheses.
+  /// `'+'`/`' '` sign flags are dropped for the inner magnitude — the
+  /// parentheses themselves are the sign indicator here, so a "(+42)"
+  /// would be nonsensical.
+  private static func applyParensToInteger(_ n: Int64, flags: String, grouping: Bool,
+                                           width: Int, leftAlign: Bool,
+                                           locale: Foundation.Locale) -> String {
+    // Int64.min has no positive Int64 counterpart to negate to; clamp to
+    // Int64.max rather than trap. This only ever affects the single exact
+    // value Int64.min — an extreme edge case documented here rather than
+    // silently risking a crash.
+    let magnitude: Int64 = n == Int64.min ? Int64.max : -n
+    let hasZero = flags.contains("0")
+    let innerWidth = hasZero ? max(width - 2, 0) : 0
+    let innerFlags = flags.filter { $0 != "+" && $0 != " " }
+    // A width string of "0" would be ambiguous with C printf's '0' (zero-
+    // pad) FLAG when it immediately follows other flags — pass an empty
+    // width string instead of "0" so "no inner width" can never be
+    // misread as an extra zero-pad flag.
+    let innerWidthStr = innerWidth > 0 ? "\(innerWidth)" : ""
+    let spec = buildCSpec(flags: innerFlags, width: innerWidthStr, precision: "", conv: "d")
+    var inner = String(format: spec, magnitude)
+    if grouping { inner = insertGrouping(inner, locale: locale) }
+    let wrapped = "(" + inner + ")"
+    return hasZero ? wrapped : applyWidth(wrapped, width: width, leftAlign: leftAlign, upper: false)
   }
 
   /// Applies precision (truncation) and then width (padding) to `raw`,
