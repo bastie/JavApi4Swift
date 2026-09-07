@@ -45,21 +45,34 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Priorität (vor der versionsweisen Abarbeitung)
 
-- [ ] **BUG/Lücke: `ConcurrentModificationException` wird im gesamten
-  `java.util`-Baum nirgends geworfen**: Die Klasse existiert
-  (`Sources/JavApi/util/ConcurrentModificationException.swift`), aber eine
-  Volltextsuche über `Sources/JavApi/util/*.swift` findet außer der
-  Klassendefinition selbst keine einzige Verwendungsstelle — kein
-  `modCount`-Feld, kein Iterator (`HashMap`, `ArrayList`, `LinkedList`,
-  `TreeMap`, `HashSet`, `Vector`, …) prüft auf strukturelle Änderung
-  während der Iteration. Damit fehlt Javas fail-fast-Semantik komplett;
-  Iteration über eine während des Iterierens modifizierte Collection
-  liefert in JavApi4Swift stillschweigend falsche/undefinierte Ergebnisse
-  statt der in Java garantierten (wenn auch „best effort") Exception.
-  *Abhängig von:* nichts technisch Blockierendes, aber ein grundlegendes
-  Entwurfsmuster (z. B. `modCount`-Zähler in `AbstractList`/`AbstractMap`
-  plus Prüfung in allen zugehörigen Iterator-Implementierungen), das vor
-  Einzel-Nachbesserungen an bestehenden Collections geklärt werden sollte.
+- [ ] **BUG/Lücke: `ConcurrentModificationException` wird außerhalb von
+  `ArrayList` im `java.util`-Baum weiterhin nirgends geworfen**: Das
+  fail-fast-Grundmuster ist jetzt etabliert und für `java.util.ArrayList`
+  (inkl. `ArrayListIterator`, `ArrayListListIterator`, `ArrayListSubList`/
+  `ArrayListSubListIterator`) vollständig implementiert — ein `modCount`-Feld
+  wird bei jeder strukturellen Änderung (`add`/`insert`/`remove`/`clear`,
+  auch über eine SubList-View) inkrementiert, jeder Iterator/ListIterator
+  merkt sich beim Erzeugen und nach jeder eigenen strukturellen Operation
+  ein `expectedModCount` und wirft `ConcurrentModificationException`, sobald
+  eine externe Modifikation erkannt wird (Regressionstests:
+  `Tests/JavApiTests/util/JavApi_util_ArrayList_ConcurrentModificationTests.swift`).
+  Dafür wurde das `java.util.Iterator`/`ListIterator`-Protokoll von
+  `next() throws (NoSuchElementException)` / `remove() throws (IllegalStateException)`
+  auf `throws (java.lang.RuntimeException)` verbreitert (Swifts typed throws
+  verlangt bei Protokoll-Konformität exakte Typgleichheit, keine Kovarianz) —
+  alle 16 betroffenen Iterator-Klassen in den 9 Konformer-Dateien
+  (`ArrayDeque`, `ArrayList`, `Collections`, `Enumeration+Swiftify`,
+  `HashSet`, `LinkedHashSet`, `LinkedList`, `PriorityQueue`, `TreeMap`,
+  `TreeSet`, `Vector`) sind entsprechend mit umgestellt, tatsächliches
+  `ConcurrentModificationException`-Werfen fehlt dort aber noch — nur
+  `ArrayList` hat bislang ein `modCount`-Feld und die zugehörigen Prüfungen.
+  Offen: `HashMap`/`LinkedHashMap`/`TreeMap`/`HashSet`/`LinkedHashSet`/
+  `TreeSet`/`Vector`/`LinkedList`/`PriorityQueue`/`ArrayDeque` analog
+  nachziehen; zusätzlich prüft `ArrayListListIterator.previous()`/
+  `ArrayListSubListIterator.previous()` (kein typed-throws, da
+  `ListIterator.previous()` in diesem Projekt ungetypt `throws` deklariert
+  ist) bislang nicht auf Comodification — Java tut das in `ListItr.previous()`
+  ebenfalls, hier aber noch nicht nachgezogen.
 - [ ] **Korrektur zum Vorab-Audit: `Locale.Builder` ist entgegen der
   ursprünglichen Einschätzung bereits vorhanden** (`Sources/JavApi/util/
   Locale.swift`, ab `// MARK: - Locale.Builder (Java 7)`) — mit

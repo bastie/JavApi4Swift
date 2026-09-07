@@ -267,7 +267,7 @@ private final class ConcreteSet<E: Equatable & Hashable>: java.util.AbstractSet<
     let snapshot = _elements
     return AnyJavaIterator(
       hasNextFn: { index < snapshot.count },
-      nextFn: { () throws(java.util.NoSuchElementException) -> E in
+      nextFn: { () throws(java.lang.RuntimeException) -> E in
         guard index < snapshot.count else { throw java.util.NoSuchElementException() }
         let e = snapshot[index]; index += 1; return e
       }
@@ -296,13 +296,13 @@ private final class ConcreteSet<E: Equatable & Hashable>: java.util.AbstractSet<
 private final class AnyJavaIterator<E: Equatable>: java.util.Iterator, IteratorProtocol {
   typealias Element = E
   private let _hasNext: () -> Bool
-  private let _next: () throws(java.util.NoSuchElementException) -> E
-  init(hasNextFn: @escaping () -> Bool, nextFn: @escaping () throws(java.util.NoSuchElementException) -> E) {
+  private let _next: () throws(java.lang.RuntimeException) -> E
+  init(hasNextFn: @escaping () -> Bool, nextFn: @escaping () throws(java.lang.RuntimeException) -> E) {
     _hasNext = hasNextFn; _next = nextFn
   }
   // java.util.Iterator
   func hasNext() -> Bool { _hasNext() }
-  func next() throws(java.util.NoSuchElementException) -> E { try _next() }
+  func next() throws(java.lang.RuntimeException) -> E { try _next() }
   // IteratorProtocol (Swift for-in / Sequence)
   func next() -> E? { try? _next() }
   // Sequence

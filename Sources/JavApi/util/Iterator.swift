@@ -13,8 +13,24 @@ extension java.util {
 
     func hasNext() -> Bool
 
-    func next() throws (java.util.NoSuchElementException) -> Element
+    /// Throws `java.util.NoSuchElementException` if no more elements are
+    /// available, or `java.util.ConcurrentModificationException` (fail-fast,
+    /// where implemented) if the backing collection was structurally
+    /// modified outside this iterator.
+    ///
+    /// Declared as `throws (java.lang.RuntimeException)` — a common
+    /// supertype covering both — rather than a single concrete exception
+    /// type, because Swift's typed-throws protocol conformance requires an
+    /// exact type match from every conformer (no covariance); a single
+    /// conforming type needs to be able to throw either exception.
+    func next() throws(java.lang.RuntimeException) -> Element
 
-    func remove() throws (java.lang.IllegalStateException)
+    /// Throws `java.lang.IllegalStateException` if `next()` has not yet
+    /// been called, or the element was already removed, or
+    /// `java.util.ConcurrentModificationException` (fail-fast, where
+    /// implemented) if the backing collection was structurally modified
+    /// outside this iterator. See `next()` for why this uses the common
+    /// `RuntimeException` supertype instead of one concrete type.
+    func remove() throws(java.lang.RuntimeException)
   }
 }

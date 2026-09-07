@@ -15,7 +15,7 @@ extension java.util.Iterator {
     }
   }
 
-  public func remove() throws (java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException()
   }
 }

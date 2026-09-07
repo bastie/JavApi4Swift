@@ -25,7 +25,7 @@ private final class SimpleSeqCollection<E: Equatable>
     var i = 0
     return _FuncIterator(
       hasNextFn: { i < self._data.count },
-      nextFn: { [weak self] () throws(java.util.NoSuchElementException) in
+      nextFn: { [weak self] () throws(java.lang.RuntimeException) in
         guard let self, i < self._data.count else { throw java.util.NoSuchElementException() }
         defer { i += 1 }; return self._data[i]
       })
@@ -66,15 +66,15 @@ private final class SimpleSeqCollection<E: Equatable>
 private final class _FuncIterator<E>: java.util.Iterator, IteratorProtocol {
   typealias Element = E
   private let _hasNext: () -> Bool
-  private let _next: () throws(java.util.NoSuchElementException) -> E
+  private let _next: () throws(java.lang.RuntimeException) -> E
   init(hasNextFn: @escaping () -> Bool,
-       nextFn: @escaping () throws(java.util.NoSuchElementException) -> E) {
+       nextFn: @escaping () throws(java.lang.RuntimeException) -> E) {
     _hasNext = hasNextFn; _next = nextFn
   }
   func hasNext() -> Bool { _hasNext() }
-  func next() throws(java.util.NoSuchElementException) -> E { try _next() }
+  func next() throws(java.lang.RuntimeException) -> E { try _next() }
   func next() -> E? { try? _next() }
-  func remove() throws(java.lang.IllegalStateException) { throw java.lang.IllegalStateException() }
+  func remove() throws(java.lang.RuntimeException) { throw java.lang.IllegalStateException() }
   func makeIterator() -> _FuncIterator<E> { self }
 }
 

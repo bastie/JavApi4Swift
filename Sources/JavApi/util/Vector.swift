@@ -525,13 +525,13 @@ extension java.util {
 
     public func hasNext() -> Bool { cursor < storage.count }
 
-    public func next() throws(java.util.NoSuchElementException) -> E {
+    public func next() throws(java.lang.RuntimeException) -> E {
       guard cursor < storage.count else { throw java.util.NoSuchElementException("Iterator exhausted") }
       defer { cursor += 1 }
       return storage[cursor]!
     }
 
-    public func remove() throws(java.lang.IllegalStateException) {
+    public func remove() throws(java.lang.RuntimeException) {
       throw IllegalStateException("remove() not supported on snapshot iterator")
     }
 
@@ -560,7 +560,7 @@ extension java.util {
     public func hasNext() -> Bool { cursor < storage.count }
     public func hasPrevious() -> Bool { cursor > 0 }
 
-    public func next() throws(java.util.NoSuchElementException) -> E {
+    public func next() throws(java.lang.RuntimeException) -> E {
       guard cursor < storage.count else { throw java.util.NoSuchElementException() }
       defer { cursor += 1 }
       return storage[cursor]!
@@ -575,7 +575,7 @@ extension java.util {
     public func nextIndex() -> Int { cursor }
     public func previousIndex() -> Int { cursor - 1 }
 
-    public func remove() throws(java.lang.IllegalStateException) {
+    public func remove() throws(java.lang.RuntimeException) {
       throw IllegalStateException("remove() not supported on snapshot iterator")
     }
 

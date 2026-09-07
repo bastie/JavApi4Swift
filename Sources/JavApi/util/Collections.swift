@@ -1062,12 +1062,12 @@ extension java.util {
 final class _EmptyIterator<T>: java.util.Iterator, IteratorProtocol {
   typealias Element = T
   func hasNext() -> Bool { false }
-  func next() throws(java.util.NoSuchElementException) -> T {
+  func next() throws(java.lang.RuntimeException) -> T {
     throw java.util.NoSuchElementException()
   }
   /// `IteratorProtocol` — non-throwing, returns `nil` when exhausted.
   func next() -> T? { nil }
-  func remove() throws(java.lang.IllegalStateException) {
+  func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("empty iterator")
   }
   func makeIterator() -> _EmptyIterator<T> { self }
@@ -1077,12 +1077,12 @@ final class _EmptyIterator<T>: java.util.Iterator, IteratorProtocol {
 final class _EmptyListIterator<T>: java.util.ListIterator, IteratorProtocol {
   typealias Element = T
   func hasNext() -> Bool { false }
-  func next() throws(java.util.NoSuchElementException) -> T {
+  func next() throws(java.lang.RuntimeException) -> T {
     throw java.util.NoSuchElementException()
   }
   /// `IteratorProtocol` — non-throwing, returns `nil` when exhausted.
   func next() -> T? { nil }
-  func remove() throws(java.lang.IllegalStateException) {
+  func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("empty iterator")
   }
   func add(_ element: T?) {}

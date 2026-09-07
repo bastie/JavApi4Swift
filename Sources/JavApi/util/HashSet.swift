@@ -185,7 +185,7 @@ private final class _HashSetIterator<E: Hashable>: java.util.Iterator, IteratorP
     index < keys.count
   }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  public func next() throws(java.lang.RuntimeException) -> E {
     guard index < keys.count else {
       throw java.util.NoSuchElementException()
     }
@@ -200,7 +200,7 @@ private final class _HashSetIterator<E: Hashable>: java.util.Iterator, IteratorP
     return keys[index]
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 

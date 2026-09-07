@@ -18,6 +18,14 @@ extension java.util {
 
     internal var elements : [E?]
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented on every structural change (add/insert/remove/clear), but NOT
+    /// on non-structural changes such as `set(_:_:)`. Iterators capture this value
+    /// at creation and on every access, throwing `ConcurrentModificationException`
+    /// when it no longer matches — mirrors `java.util.ArrayList`'s `modCount` field.
+    /// See Text-Implementierung.md priority section for background.
+    internal var modCount : Int = 0
+
     // MARK: - Constructors
 
     /// Creates an empty list with the given initial capacity (capacity hint only).
@@ -64,6 +72,7 @@ extension java.util {
     @discardableResult
     open override func add(_ element: E?) throws -> Bool {
       elements.append(element)
+      modCount += 1
       return true
     }
 
@@ -77,6 +86,7 @@ extension java.util {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
       elements.insert(element, at: location)
+      modCount += 1
     }
 
     /// Replaces the element at the specified position with the specified element.
@@ -102,7 +112,9 @@ extension java.util {
       guard location >= 0 && location < elements.count else {
         throw IndexOutOfBoundsException("Index: \(location), Size: \(elements.count)")
       }
-      return elements.remove(at: location)
+      let removed = elements.remove(at: location)
+      modCount += 1
+      return removed
     }
 
     /// Removes the first occurrence of the specified element from this list, if present.
@@ -112,6 +124,7 @@ extension java.util {
     open override func remove(_ element: E?) -> Bool {
       if let idx = elements.firstIndex(where: { $0 == element }) {
         elements.remove(at: idx)
+        modCount += 1
         return true
       }
       return false
@@ -120,6 +133,7 @@ extension java.util {
     /// Removes all elements from this list.
     open override func clear() {
       elements.removeAll()
+      modCount += 1
     }
 
     // MARK: - Search
@@ -299,6 +313,7 @@ extension java.util {
       }
       guard !newElements.isEmpty else { return false }
       elements.insert(contentsOf: newElements, at: location)
+      modCount += 1
       return true
     }
   }
@@ -322,6 +337,8 @@ public class ArrayListIterator<E: Equatable> : java.util.Iterator, IteratorProto
   /// `nil` means "use list.elements.count dynamically" (normal ArrayList iterator).
   /// A fixed value is used only by ArrayListSubList to bound iteration to the subrange.
   internal let fixedEndIndex : Int?
+  /// Fail-fast bookkeeping — snapshot of `list.modCount` at the last known-good point.
+  internal var expectedModCount : Int
 
   internal var endIndex : Int {
     return fixedEndIndex ?? list.elements.count
@@ -331,6 +348,7 @@ public class ArrayListIterator<E: Equatable> : java.util.Iterator, IteratorProto
     self.list = list
     self.cursor = startCursor
     self.fixedEndIndex = endIndex
+    self.expectedModCount = list.modCount
   }
 
   public func hasNext() -> Bool {
@@ -340,16 +358,22 @@ public class ArrayListIterator<E: Equatable> : java.util.Iterator, IteratorProto
   /// Java-style `next()` — throws `NoSuchElementException` when exhausted.
   /// A `nil` element in the backing store causes a force-unwrap crash,
   /// matching Java's `NullPointerException` on primitive unboxing.
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the list was
+  /// structurally modified outside this iterator since it started.
+  public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == list.modCount else { throw java.util.ConcurrentModificationException() }
     guard hasNext() else { throw java.util.NoSuchElementException() }
     lastReturned = cursor
     defer { cursor += 1 }
     return list.elements[cursor]!
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == list.modCount else { throw java.util.ConcurrentModificationException() }
     guard lastReturned >= 0 else { throw java.lang.IllegalStateException() }
     list.elements.remove(at: lastReturned)
+    list.modCount += 1
+    expectedModCount = list.modCount
     cursor = lastReturned
     lastReturned = -1
   }
@@ -379,6 +403,8 @@ public class ArrayListListIterator<E: Equatable> : java.util.ListIterator, Itera
   private var cursor : Int
   private var lastReturned : Int = -1
   private let fixedEndIndex : Int?
+  /// Fail-fast bookkeeping — snapshot of `list.modCount` at the last known-good point.
+  private var expectedModCount : Int
 
   private var endIndex : Int {
     return fixedEndIndex ?? list.elements.count
@@ -388,6 +414,7 @@ public class ArrayListListIterator<E: Equatable> : java.util.ListIterator, Itera
     self.list = list
     self.cursor = startCursor
     self.fixedEndIndex = endIndex
+    self.expectedModCount = list.modCount
   }
 
   // MARK: - Iterator
@@ -395,16 +422,22 @@ public class ArrayListListIterator<E: Equatable> : java.util.ListIterator, Itera
   public func hasNext() -> Bool { return cursor < endIndex }
 
   /// Java-style `next()` — throws when exhausted, force-unwraps nil elements.
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the list was
+  /// structurally modified outside this iterator since it started.
+  public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == list.modCount else { throw java.util.ConcurrentModificationException() }
     guard hasNext() else { throw java.util.NoSuchElementException() }
     lastReturned = cursor
     defer { cursor += 1 }
     return list.elements[cursor]!
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == list.modCount else { throw java.util.ConcurrentModificationException() }
     guard lastReturned >= 0 else { throw java.lang.IllegalStateException() }
     list.elements.remove(at: lastReturned)
+    list.modCount += 1
+    expectedModCount = list.modCount
     cursor = lastReturned
     lastReturned = -1
   }
@@ -435,8 +468,14 @@ public class ArrayListListIterator<E: Equatable> : java.util.ListIterator, Itera
   public func previousIndex() -> Int { return cursor - 1 }
 
   /// Inserts the element before the element that would be returned by `next()`.
+  /// Structural modification: bumps `list.modCount` and re-syncs this iterator's
+  /// own `expectedModCount` so the insertion doesn't trip this iterator's own
+  /// fail-fast check on the next `next()`/`remove()` call — matches
+  /// `java.util.ArrayList.ListItr.add(E)`.
   public func add(_ element: E?) {
     list.elements.insert(element, at: cursor)
+    list.modCount += 1
+    expectedModCount = list.modCount
     cursor += 1
     lastReturned = -1
   }
@@ -528,6 +567,9 @@ public class ArrayListSubList<E: Equatable>: java.util.AbstractList<E> {
       let idx = fromIndex + i
       if backing.elements[idx] == element {
         backing.elements.remove(at: idx)
+        // Direct array mutation bypasses backing.remove(Int), so bump
+        // backing.modCount manually — keeps fail-fast iterators consistent.
+        backing.modCount += 1
         toIndex -= 1
         return true
       }
@@ -537,6 +579,9 @@ public class ArrayListSubList<E: Equatable>: java.util.AbstractList<E> {
 
   public override func clear() {
     backing.elements.removeSubrange(fromIndex..<toIndex)
+    // Direct array mutation bypasses backing.clear(), so bump
+    // backing.modCount manually — keeps fail-fast iterators consistent.
+    backing.modCount += 1
     toIndex = fromIndex
   }
 
@@ -617,17 +662,24 @@ public class ArrayListSubListIterator<E: Equatable>: java.util.ListIterator, Ite
   private let subList: ArrayListSubList<E>
   private var offset: Int        // position within the subList (0-based)
   private var lastReturned: Int = -1
+  /// Fail-fast bookkeeping — snapshot of `subList.backing.modCount` at the
+  /// last known-good point.
+  private var expectedModCount: Int
 
   internal init(subList: ArrayListSubList<E>, startOffset: Int = 0) {
     self.subList = subList
     self.offset = startOffset
+    self.expectedModCount = subList.backing.modCount
   }
 
   // MARK: - Iterator
 
   public func hasNext() -> Bool { return offset < subList.size() }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the backing
+  /// list was structurally modified outside this iterator/view since it started.
+  public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == subList.backing.modCount else { throw java.util.ConcurrentModificationException() }
     guard hasNext() else { throw java.util.NoSuchElementException() }
     lastReturned = offset
     defer { offset += 1 }
@@ -635,9 +687,11 @@ public class ArrayListSubListIterator<E: Equatable>: java.util.ListIterator, Ite
     return subList.backing.elements[subList.fromIndex + offset]!
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == subList.backing.modCount else { throw java.util.ConcurrentModificationException() }
     guard lastReturned >= 0 else { throw java.lang.IllegalStateException() }
     _ = try? subList.remove(lastReturned)
+    expectedModCount = subList.backing.modCount
     offset = lastReturned
     lastReturned = -1
   }
@@ -667,6 +721,7 @@ public class ArrayListSubListIterator<E: Equatable>: java.util.ListIterator, Ite
 
   public func add(_ element: E?) {
     _ = try? subList.add(offset, element)
+    expectedModCount = subList.backing.modCount
     offset += 1
     lastReturned = -1
   }

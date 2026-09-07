@@ -475,7 +475,7 @@ private final class _ArrayIterator<E: Equatable>: java.util.Iterator, IteratorPr
   private var idx = 0
   init(_ items: [E]) { self.items = items }
   func hasNext() -> Bool { idx < items.count }
-  func next() throws(java.util.NoSuchElementException) -> E {
+  func next() throws(java.lang.RuntimeException) -> E {
     guard idx < items.count else { throw java.util.NoSuchElementException() }
     defer { idx += 1 }
     return items[idx]
@@ -485,7 +485,7 @@ private final class _ArrayIterator<E: Equatable>: java.util.Iterator, IteratorPr
     defer { idx += 1 }
     return items[idx]
   }
-  func remove() throws(java.lang.IllegalStateException) {
+  func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("remove() not supported")
   }
   func makeIterator() -> _ArrayIterator<E> { self }

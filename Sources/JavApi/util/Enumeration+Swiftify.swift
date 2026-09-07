@@ -49,7 +49,7 @@ private final class _EnumerationIterator<E>: java.util.Iterator, IteratorProtoco
 
   public func hasNext() -> Bool { index < storage.count }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  public func next() throws(java.lang.RuntimeException) -> E {
     guard index < storage.count else { throw java.util.NoSuchElementException() }
     defer { index += 1 }
     return storage[index]
@@ -61,7 +61,7 @@ private final class _EnumerationIterator<E>: java.util.Iterator, IteratorProtoco
     return storage[index]
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("remove() not supported on Enumeration-backed iterator")
   }
 

@@ -99,12 +99,12 @@ private final class _ArrayIterator<E>: java.util.Iterator, IteratorProtocol {
   private var idx = 0
   init(_ data: [E]) { self.data = data }
   func hasNext() -> Bool { idx < data.count }
-  func next() throws(java.util.NoSuchElementException) -> E {
+  func next() throws(java.lang.RuntimeException) -> E {
     guard idx < data.count else { throw java.util.NoSuchElementException() }
     defer { idx += 1 }; return data[idx]
   }
   func next() -> E? { guard idx < data.count else { return nil }; defer { idx += 1 }; return data[idx] }
-  func remove() throws(java.lang.IllegalStateException) { throw java.lang.IllegalStateException() }
+  func remove() throws(java.lang.RuntimeException) { throw java.lang.IllegalStateException() }
   func makeIterator() -> _ArrayIterator<E> { self }
 }
 

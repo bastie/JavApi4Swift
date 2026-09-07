@@ -199,7 +199,7 @@ private final class _ArrayDequeIterator<E: Equatable>: java.util.Iterator, Itera
 
   public func hasNext() -> Bool { _index < _elements.count }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  public func next() throws(java.lang.RuntimeException) -> E {
     guard _index < _elements.count else { throw java.util.NoSuchElementException() }
     defer { _index += 1 }
     return _elements[_index]
@@ -211,7 +211,7 @@ private final class _ArrayDequeIterator<E: Equatable>: java.util.Iterator, Itera
     return _elements[_index]
   }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 

@@ -412,7 +412,7 @@ public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterato
 
   public func hasNext() -> Bool { current != nil }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  public func next() throws(java.lang.RuntimeException) -> E {
     guard let node = current, let element = node.element else {
       throw java.util.NoSuchElementException()
     }
@@ -453,7 +453,7 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
 
   public func hasNext() -> Bool { nextNode != nil }
 
-  public func next() throws(java.util.NoSuchElementException) -> E {
+  public func next() throws(java.lang.RuntimeException) -> E {
     guard let node = nextNode else { throw java.util.NoSuchElementException() }
     guard let element = node.element else { throw java.util.NoSuchElementException() }
     lastReturned = node
@@ -496,7 +496,7 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
   public func nextIndex()     -> Int { nextIdx }
   public func previousIndex() -> Int { nextIdx - 1 }
 
-  public func remove() throws(java.lang.IllegalStateException) {
+  public func remove() throws(java.lang.RuntimeException) {
     guard let node = lastReturned else {
       throw java.lang.IllegalStateException("No current element")
     }
