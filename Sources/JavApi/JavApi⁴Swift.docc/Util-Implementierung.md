@@ -46,16 +46,34 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 ## Priorität (vor der versionsweisen Abarbeitung)
 
 - [ ] **BUG/Lücke: `ConcurrentModificationException` wird außerhalb von
-  `ArrayList` im `java.util`-Baum weiterhin nirgends geworfen**: Das
-  fail-fast-Grundmuster ist jetzt etabliert und für `java.util.ArrayList`
-  (inkl. `ArrayListIterator`, `ArrayListListIterator`, `ArrayListSubList`/
-  `ArrayListSubListIterator`) vollständig implementiert — ein `modCount`-Feld
-  wird bei jeder strukturellen Änderung (`add`/`insert`/`remove`/`clear`,
-  auch über eine SubList-View) inkrementiert, jeder Iterator/ListIterator
-  merkt sich beim Erzeugen und nach jeder eigenen strukturellen Operation
-  ein `expectedModCount` und wirft `ConcurrentModificationException`, sobald
-  eine externe Modifikation erkannt wird (Regressionstests:
-  `Tests/JavApiTests/util/JavApi_util_ArrayList_ConcurrentModificationTests.swift`).
+  `ArrayList`/`HashSet`/`LinkedHashSet`/`Vector` im `java.util`-Baum
+  weiterhin nirgends geworfen**: Das fail-fast-Grundmuster ist etabliert
+  und für vier Collections vollständig implementiert:
+  - `java.util.ArrayList` (inkl. `ArrayListIterator`, `ArrayListListIterator`
+    — auch `previous()` —, `ArrayListSubList`/`ArrayListSubListIterator`
+    — ebenfalls inkl. `previous()`).
+  - `java.util.HashSet` (`_HashSetIterator`, Snapshot-Iterator — `modCount`
+    lebt direkt auf `HashSet`, bumpt nur bei tatsächlich strukturellen
+    `add`/`remove`, sowie immer bei `clear()`).
+  - `java.util.LinkedHashSet` (erbt `HashSet`s `modCount`; `addFirst`/
+    `addLast`/`removeFirst`/`removeLast` bumpen es zusätzlich manuell, da
+    sie `HashSet.add`/`remove` umgehen).
+  - `java.util.Vector` (`VectorIterator`/`VectorListIterator`, ebenfalls
+    Snapshot-Iteratoren; `modCount` wird unter demselben `NSLock` wie die
+    jeweilige Mutation inkrementiert, und `iterator()`/`listIterator()`
+    snapshotten `modCount` atomisch zusammen mit den Elementdaten, um ein
+    Race zwischen Snapshot-Erstellung und `expectedModCount`-Erfassung zu
+    vermeiden).
+
+  Jeder Iterator/ListIterator merkt sich beim Erzeugen und nach jeder
+  eigenen strukturellen Operation ein `expectedModCount` und wirft
+  `ConcurrentModificationException`, sobald eine externe Modifikation
+  erkannt wird (Regressionstests:
+  `Tests/JavApiTests/util/JavApi_util_ArrayList_ConcurrentModificationTests.swift`,
+  `.../JavApi_util_HashSet_ConcurrentModificationTests.swift`,
+  `.../JavApi_util_LinkedHashSet_ConcurrentModificationTests.swift`,
+  `.../JavApi_util_Vector_ConcurrentModificationTests.swift`).
+
   Dafür wurde das `java.util.Iterator`/`ListIterator`-Protokoll von
   `next() throws (NoSuchElementException)` / `remove() throws (IllegalStateException)`
   auf `throws (java.lang.RuntimeException)` verbreitert (Swifts typed throws
@@ -64,15 +82,9 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
   (`ArrayDeque`, `ArrayList`, `Collections`, `Enumeration+Swiftify`,
   `HashSet`, `LinkedHashSet`, `LinkedList`, `PriorityQueue`, `TreeMap`,
   `TreeSet`, `Vector`) sind entsprechend mit umgestellt, tatsächliches
-  `ConcurrentModificationException`-Werfen fehlt dort aber noch — nur
-  `ArrayList` hat bislang ein `modCount`-Feld und die zugehörigen Prüfungen.
-  Offen: `HashMap`/`LinkedHashMap`/`TreeMap`/`HashSet`/`LinkedHashSet`/
-  `TreeSet`/`Vector`/`LinkedList`/`PriorityQueue`/`ArrayDeque` analog
-  nachziehen; zusätzlich prüft `ArrayListListIterator.previous()`/
-  `ArrayListSubListIterator.previous()` (kein typed-throws, da
-  `ListIterator.previous()` in diesem Projekt ungetypt `throws` deklariert
-  ist) bislang nicht auf Comodification — Java tut das in `ListItr.previous()`
-  ebenfalls, hier aber noch nicht nachgezogen.
+  `ConcurrentModificationException`-Werfen fehlt in den übrigen aber noch.
+  Offen: `HashMap`/`LinkedHashMap`/`TreeMap`/`TreeSet`/`LinkedList`/
+  `PriorityQueue`/`ArrayDeque` analog nachziehen.
 - [ ] **Korrektur zum Vorab-Audit: `Locale.Builder` ist entgegen der
   ursprünglichen Einschätzung bereits vorhanden** (`Sources/JavApi/util/
   Locale.swift`, ab `// MARK: - Locale.Builder (Java 7)`) — mit

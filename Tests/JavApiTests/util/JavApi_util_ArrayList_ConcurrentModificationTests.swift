@@ -147,6 +147,20 @@ struct JavApi_util_ArrayList_ConcurrentModificationTests {
     }
   }
 
+  @Test("Adding to the list while a ListIterator is live also throws ConcurrentModificationException on previous()")
+  func listIteratorPreviousThrowsAfterExternalAdd() throws {
+    let list = java.util.ArrayList<Int>()
+    try list.add(1)
+    try list.add(2)
+    let it = list.listIterator()
+    _ = try it.next() // 1
+    _ = try it.next() // 2
+    try list.add(3) // external structural modification
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.previous()
+    }
+  }
+
   // MARK: - SubList
 
   @Test("Structurally modifying the backing list while iterating its subList throws ConcurrentModificationException")
@@ -162,6 +176,22 @@ struct JavApi_util_ArrayList_ConcurrentModificationTests {
     try list.add(99) // structural modification on the BACKING list, bypassing the view
     #expect(throws: java.util.ConcurrentModificationException.self) {
       _ = try it.next()
+    }
+  }
+
+  @Test("Structurally modifying the backing list while iterating its subList's ListIterator also throws ConcurrentModificationException on previous()")
+  func subListListIteratorPreviousThrowsAfterExternalBackingModification() throws {
+    let list = java.util.ArrayList<Int>()
+    try list.add(1)
+    try list.add(2)
+    try list.add(3)
+    try list.add(4)
+    let sub = list.subList(1, 3) as! ArrayListSubList<Int>   // view over [2, 3]
+    let it = sub.listIterator()
+    _ = try it.next() // 2
+    try list.add(99) // structural modification on the BACKING list, bypassing the view
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.previous()
     }
   }
 }

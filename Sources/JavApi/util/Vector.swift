@@ -36,6 +36,15 @@ extension java.util {
     /// Capacity growth step.  `<= 0` means "double the capacity".
     internal var capacityIncrement: Int
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented on every structural change (add/insert/remove/clear) under
+    /// the same `lock` as the mutation itself. `iterator()`/`listIterator()`
+    /// snapshot this together with the element data, and the returned
+    /// snapshot-based iterators compare against it on every access — mirrors
+    /// `java.util.Vector`'s `modCount` field (inherited from `AbstractList`).
+    /// See Util-Implementierung.md priority section for background.
+    internal var modCount: Int = 0
+
     // -------------------------------------------------------------------------
     // MARK: Synchronisation
     // -------------------------------------------------------------------------
@@ -195,6 +204,7 @@ extension java.util {
         _growIfNeeded(elementCount + 1)
         elementData[elementCount] = obj
         elementCount += 1
+        modCount += 1
       }
     }
 
@@ -205,6 +215,7 @@ extension java.util {
         _growIfNeeded(elementCount + 1)
         elementData[elementCount] = element
         elementCount += 1
+        modCount += 1
       }
       return true
     }
@@ -219,6 +230,7 @@ extension java.util {
         }
         elementData[index] = obj
         elementCount += 1
+        modCount += 1
       }
     }
 
@@ -232,6 +244,7 @@ extension java.util {
         }
         elementData[location] = element
         elementCount += 1
+        modCount += 1
       }
     }
 
@@ -269,6 +282,7 @@ extension java.util {
       withLock {
         for i in 0..<elementCount { elementData[i] = nil }
         elementCount = 0
+        modCount += 1
       }
     }
 
@@ -283,6 +297,7 @@ extension java.util {
       for i in index..<(elementCount - 1) { elementData[i] = elementData[i + 1] }
       elementCount -= 1
       elementData[elementCount] = nil
+      modCount += 1
       return old
     }
 
@@ -356,6 +371,7 @@ extension java.util {
           elementData[index + offset] = elem
         }
         elementCount += count
+        modCount += 1
       }
       return true
     }
@@ -458,18 +474,24 @@ extension java.util {
     // =========================================================================
 
     public override func iterator() -> any java.util.Iterator<E> {
-      let snapshot = withLock { (0..<elementCount).map { elementData[$0] } }
-      return java.util.VectorIterator(snapshot)
+      let (snapshot, snapshotModCount) = withLock {
+        ((0..<elementCount).map { elementData[$0] }, modCount)
+      }
+      return java.util.VectorIterator(snapshot, owner: self, expectedModCount: snapshotModCount)
     }
 
     public override func listIterator() -> any java.util.ListIterator<E> {
-      let snapshot = withLock { (0..<elementCount).map { elementData[$0] } }
-      return java.util.VectorListIterator(snapshot, 0)
+      let (snapshot, snapshotModCount) = withLock {
+        ((0..<elementCount).map { elementData[$0] }, modCount)
+      }
+      return java.util.VectorListIterator(snapshot, 0, owner: self, expectedModCount: snapshotModCount)
     }
 
     public override func listIterator(_ location: Int) -> any java.util.ListIterator<E> {
-      let snapshot = withLock { (0..<elementCount).map { elementData[$0] } }
-      return java.util.VectorListIterator(snapshot, location)
+      let (snapshot, snapshotModCount) = withLock {
+        ((0..<elementCount).map { elementData[$0] }, modCount)
+      }
+      return java.util.VectorListIterator(snapshot, location, owner: self, expectedModCount: snapshotModCount)
     }
 
     // =========================================================================
@@ -520,18 +542,31 @@ extension java.util {
 
     private let storage: [E?]
     private var cursor: Int = 0
+    private let owner: Vector<E>
+    /// Fail-fast bookkeeping — `owner.modCount` snapshotted atomically together
+    /// with `storage` under `owner.lock` at iterator-creation time.
+    private let expectedModCount: Int
 
-    internal init(_ storage: [E?]) { self.storage = storage }
+    internal init(_ storage: [E?], owner: Vector<E>, expectedModCount: Int) {
+      self.storage = storage
+      self.owner = owner
+      self.expectedModCount = expectedModCount
+    }
 
     public func hasNext() -> Bool { cursor < storage.count }
 
+    /// Also throws `ConcurrentModificationException` (fail-fast) — this is a
+    /// snapshot iterator so a missed check would not crash, but Java still
+    /// guarantees (best-effort) detection here.
     public func next() throws(java.lang.RuntimeException) -> E {
+      guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
       guard cursor < storage.count else { throw java.util.NoSuchElementException("Iterator exhausted") }
       defer { cursor += 1 }
       return storage[cursor]!
     }
 
     public func remove() throws(java.lang.RuntimeException) {
+      guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
       throw IllegalStateException("remove() not supported on snapshot iterator")
     }
 
@@ -551,22 +586,30 @@ extension java.util {
 
     private let storage: [E?]
     private var cursor: Int
+    private let owner: Vector<E>
+    /// Fail-fast bookkeeping — `owner.modCount` snapshotted atomically together
+    /// with `storage` under `owner.lock` at iterator-creation time.
+    private let expectedModCount: Int
 
-    internal init(_ storage: [E?], _ start: Int) {
+    internal init(_ storage: [E?], _ start: Int, owner: Vector<E>, expectedModCount: Int) {
       self.storage = storage
       self.cursor = start
+      self.owner = owner
+      self.expectedModCount = expectedModCount
     }
 
     public func hasNext() -> Bool { cursor < storage.count }
     public func hasPrevious() -> Bool { cursor > 0 }
 
     public func next() throws(java.lang.RuntimeException) -> E {
+      guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
       guard cursor < storage.count else { throw java.util.NoSuchElementException() }
       defer { cursor += 1 }
       return storage[cursor]!
     }
 
     public func previous() throws -> E? {
+      guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
       guard cursor > 0 else { throw java.util.NoSuchElementException() }
       cursor -= 1
       return storage[cursor]
@@ -576,6 +619,7 @@ extension java.util {
     public func previousIndex() -> Int { cursor - 1 }
 
     public func remove() throws(java.lang.RuntimeException) {
+      guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
       throw IllegalStateException("remove() not supported on snapshot iterator")
     }
 

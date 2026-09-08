@@ -20,6 +20,13 @@ extension java.util {
 
     internal var _map: HashMap<E, _SentinelObject>
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented only on structural changes (an add that actually inserts a
+    /// new element, a remove that actually removes one, or clear()) — mirrors
+    /// `java.util.HashSet`'s (delegated `HashMap`'s) `modCount` field. See
+    /// Util-Implementierung.md priority section for background.
+    internal var modCount: Int = 0
+
     // MARK: - Init
 
     /// Creates an empty set with default initial capacity (16).
@@ -58,7 +65,7 @@ extension java.util {
       // Access backing store directly to avoid infinite recursion:
       // entrySet() returns HashSet<MapEntry<E,_SentinelObject>>, whose iterator()
       // would call entrySet() again → infinite recursion.
-      return _HashSetIterator(keys: Array(_map._store.keys))
+      return _HashSetIterator(keys: Array(_map._store.keys), owner: self)
     }
 
     // MARK: - Mutation
@@ -70,7 +77,9 @@ extension java.util {
     open override func add(_ element: E?) throws -> Bool {
       guard let element else { return false }
       let previous = _map.put(element, .shared)
-      return previous == nil
+      let wasNew = previous == nil
+      if wasNew { modCount += 1 }
+      return wasNew
     }
 
     /// Removes `element` from this set.
@@ -79,12 +88,15 @@ extension java.util {
     @discardableResult
     open override func remove(_ element: E?) -> Bool {
       guard let element else { return false }
-      return _map.remove(element) != nil
+      let removed = _map.remove(element) != nil
+      if removed { modCount += 1 }
+      return removed
     }
 
     /// Removes all elements from this set.
     public override func clear() {
       _map.clear()
+      modCount += 1
     }
 
     // MARK: - Query
@@ -176,16 +188,26 @@ private final class _HashSetIterator<E: Hashable>: java.util.Iterator, IteratorP
 
   private let keys: [E]
   private var index: Int = 0
+  private let owner: java.util.HashSet<E>
+  /// Fail-fast bookkeeping — snapshot of `owner.modCount` at the last known-good point.
+  private var expectedModCount: Int
 
-  init(keys: [E]) {
+  init(keys: [E], owner: java.util.HashSet<E>) {
     self.keys = keys
+    self.owner = owner
+    self.expectedModCount = owner.modCount
   }
 
   public func hasNext() -> Bool {
     index < keys.count
   }
 
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the set was
+  /// structurally modified outside this iterator since it started — note this
+  /// iterates a *snapshot* array, so an undetected modification would not
+  /// crash, but Java still guarantees (best-effort) detection here.
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     guard index < keys.count else {
       throw java.util.NoSuchElementException()
     }
@@ -201,6 +223,7 @@ private final class _HashSetIterator<E: Hashable>: java.util.Iterator, IteratorP
   }
 
   public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 

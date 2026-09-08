@@ -86,7 +86,7 @@ extension java.util {
 
     /// Returns an iterator over elements in **insertion order**.
     open override func iterator() -> any java.util.Iterator<E> {
-      _LinkedHashSetIterator(_order)
+      _LinkedHashSetIterator(_order, owner: self)
     }
 
     // MARK: - SequencedCollection
@@ -113,6 +113,7 @@ extension java.util {
       _forceRemove(e)
       _order.insert(e, at: 0)
       _ = _map.put(e, .shared)
+      modCount += 1
     }
 
     /// Inserts `e` at the end of the encounter order.
@@ -123,6 +124,7 @@ extension java.util {
       _forceRemove(e)
       _order.append(e)
       _ = _map.put(e, .shared)
+      modCount += 1
     }
 
     /// Removes and returns the first element.
@@ -131,6 +133,7 @@ extension java.util {
       guard !_order.isEmpty else { throw java.util.NoSuchElementException() }
       let e = _order.removeFirst()
       _ = _map.remove(e)
+      modCount += 1
       return e
     }
 
@@ -140,6 +143,7 @@ extension java.util {
       guard !_order.isEmpty else { throw java.util.NoSuchElementException() }
       let e = _order.removeLast()
       _ = _map.remove(e)
+      modCount += 1
       return e
     }
 
@@ -189,12 +193,22 @@ private final class _LinkedHashSetIterator<E: Hashable>: java.util.Iterator, Ite
 
   private let _elements: [E]
   private var _index: Int = 0
+  private let owner: java.util.HashSet<E>
+  /// Fail-fast bookkeeping — snapshot of `owner.modCount` at the last known-good point.
+  private var expectedModCount: Int
 
-  init(_ elements: [E]) { _elements = elements }
+  init(_ elements: [E], owner: java.util.HashSet<E>) {
+    _elements = elements
+    self.owner = owner
+    self.expectedModCount = owner.modCount
+  }
 
   public func hasNext() -> Bool { _index < _elements.count }
 
+  /// Also throws `ConcurrentModificationException` (fail-fast) — see
+  /// `_HashSetIterator.next()` for why detection still applies to a snapshot.
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     guard _index < _elements.count else { throw java.util.NoSuchElementException() }
     defer { _index += 1 }
     return _elements[_index]
@@ -207,6 +221,7 @@ private final class _LinkedHashSetIterator<E: Hashable>: java.util.Iterator, Ite
   }
 
   public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 

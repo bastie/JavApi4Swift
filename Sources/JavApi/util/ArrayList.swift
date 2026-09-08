@@ -456,7 +456,11 @@ public class ArrayListListIterator<E: Equatable> : java.util.ListIterator, Itera
 
   public func hasPrevious() -> Bool { return cursor > 0 }
 
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the list was
+  /// structurally modified outside this iterator since it started — matches
+  /// `java.util.ArrayList.ListItr.previous()`.
   public func previous() throws -> E? {
+    guard expectedModCount == list.modCount else { throw java.util.ConcurrentModificationException() }
     guard hasPrevious() else { throw java.util.NoSuchElementException() }
     cursor -= 1
     lastReturned = cursor
@@ -709,7 +713,10 @@ public class ArrayListSubListIterator<E: Equatable>: java.util.ListIterator, Ite
 
   public func hasPrevious() -> Bool { return offset > 0 }
 
+  /// Also throws `ConcurrentModificationException` (fail-fast) if the backing
+  /// list was structurally modified outside this iterator/view since it started.
   public func previous() throws -> E? {
+    guard expectedModCount == subList.backing.modCount else { throw java.util.ConcurrentModificationException() }
     guard hasPrevious() else { throw java.util.NoSuchElementException() }
     offset -= 1
     lastReturned = offset
