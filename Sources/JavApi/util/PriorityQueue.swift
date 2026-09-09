@@ -32,6 +32,12 @@ extension java.util {
     /// Optional comparator — overrides natural ordering when non-nil.
     private let _comparator: ((E, E) -> Int)?
 
+    /// Structural-modification counter, mirroring `java.util.PriorityQueue`'s
+    /// fail-fast `modCount`. Bumped in `_heapPush`/`_heapPop` (the two shared
+    /// primitives all insertions/removals funnel through) plus `clear()` and
+    /// the linear-scan `remove(_ element:)` — never on a pure lookup/peek.
+    internal var modCount: Int = 0
+
     // MARK: - Init
 
     /// Creates an empty priority queue with natural ordering (`E: Comparable`).
@@ -98,6 +104,7 @@ extension java.util {
     private func _heapPush(_ element: E) -> Bool {
       _heap.append(element)
       _siftUp(_heap.count - 1)
+      modCount += 1
       return true
     }
 
@@ -109,6 +116,7 @@ extension java.util {
         _heap[0] = last
         _siftDown(0)
       }
+      modCount += 1
       return top
     }
 
@@ -167,7 +175,7 @@ extension java.util {
     /// provided … is not guaranteed to traverse the elements of the priority
     /// queue in any particular order."
     open override func iterator() -> any java.util.Iterator<E> {
-      _PriorityQueueIterator(_heap)
+      _PriorityQueueIterator(_heap, owner: self, expectedModCount: modCount)
     }
 
     open override func contains(_ element: E?) -> Bool {
@@ -175,7 +183,10 @@ extension java.util {
       return _heap.contains(element)
     }
 
-    open override func clear() { _heap.removeAll() }
+    open override func clear() {
+      _heap.removeAll()
+      modCount += 1
+    }
 
     /// Adds `element` using the optional syntax (wraps non-optional version).
     @discardableResult
@@ -194,6 +205,7 @@ extension java.util {
         _siftUp(idx)
         _siftDown(idx)
       }
+      modCount += 1
       return true
     }
 
@@ -236,17 +248,26 @@ extension java.util {
 
 // MARK: - Snapshot iterator (heap-storage order)
 
-private final class _PriorityQueueIterator<E: Equatable>: java.util.Iterator, IteratorProtocol {
+private final class _PriorityQueueIterator<E: Comparable & Equatable>: java.util.Iterator, IteratorProtocol {
   public typealias Element = E
 
   private let _elements: [E]
   private var _index: Int = 0
+  private let owner: java.util.PriorityQueue<E>
+  /// `modCount` snapshot at creation time — see `_ArrayDequeIterator` for the
+  /// same snapshot-but-still-checked pattern.
+  private let expectedModCount: Int
 
-  init(_ elements: [E]) { _elements = elements }
+  init(_ elements: [E], owner: java.util.PriorityQueue<E>, expectedModCount: Int) {
+    _elements = elements
+    self.owner = owner
+    self.expectedModCount = expectedModCount
+  }
 
   public func hasNext() -> Bool { _index < _elements.count }
 
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     guard _index < _elements.count else { throw java.util.NoSuchElementException() }
     defer { _index += 1 }
     return _elements[_index]
@@ -259,6 +280,7 @@ private final class _PriorityQueueIterator<E: Equatable>: java.util.Iterator, It
   }
 
   public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 

@@ -45,99 +45,29 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Priorität (vor der versionsweisen Abarbeitung)
 
-- [ ] **BUG/Lücke: `ConcurrentModificationException` wird außerhalb von
-  `ArrayList`/`HashSet`/`LinkedHashSet`/`Vector`/`HashMap`/`LinkedHashMap`/
-  `TreeMap`/`TreeSet`/`LinkedList` im `java.util`-Baum weiterhin nirgends
-  geworfen**: Das fail-fast-Grundmuster ist etabliert und für neun
-  Collections/Maps vollständig implementiert:
-  - `java.util.ArrayList` (inkl. `ArrayListIterator`, `ArrayListListIterator`
-    — auch `previous()` —, `ArrayListSubList`/`ArrayListSubListIterator`
-    — ebenfalls inkl. `previous()`).
-  - `java.util.HashSet` (`_HashSetIterator`, Snapshot-Iterator — `modCount`
-    lebt direkt auf `HashSet`, bumpt nur bei tatsächlich strukturellen
-    `add`/`remove`, sowie immer bei `clear()`).
-  - `java.util.LinkedHashSet` (erbt `HashSet`s `modCount`; `addFirst`/
-    `addLast`/`removeFirst`/`removeLast` bumpen es zusätzlich manuell, da
-    sie `HashSet.add`/`remove` umgehen).
-  - `java.util.Vector` (`VectorIterator`/`VectorListIterator`, ebenfalls
-    Snapshot-Iteratoren; `modCount` wird unter demselben `NSLock` wie die
-    jeweilige Mutation inkrementiert, und `iterator()`/`listIterator()`
-    snapshotten `modCount` atomisch zusammen mit den Elementdaten, um ein
-    Race zwischen Snapshot-Erstellung und `expectedModCount`-Erfassung zu
-    vermeiden).
-  - `java.util.HashMap` (`modCount` bumpt nur bei tatsächlich neuen/
-    entfernten Schlüsseln — gegen OpenJDK verifiziert für `put`, `remove`,
-    `putIfAbsent`, `putAll`, `compute`, `computeIfPresent`, `merge`;
-    `replace`/`replace(k,old,new)` sind bewusst NICHT strukturell, wie im
-    echten `java.util.HashMap`).
-  - `java.util.LinkedHashMap` (eigenständige Implementierung, nicht von
-    `HashMap` abgeleitet; `putFirst`/`putLast` bumpen immer, auch beim
-    reinen Umsortieren eines bereits vorhandenen Schlüssels — analog zu
-    `LinkedHashSet.addFirst`/`addLast`. Ausgenommen: `sequencedKeySet()`/
-    `sequencedValues()`/`sequencedEntrySet()` nutzen weiterhin den
-    ungeprüften `_OrderedSetSnapshot` und sind NICHT fail-fast — siehe
-    „Bekannte Scope-Grenzen" unten).
-  - `java.util.TreeMap` (`putIfAbsent`/`replace`/`replace(k,old,new)`/
-    `remove(k,v)` erbt `AbstractMap`s Default-Implementierungen, die über
-    `put()`/`remove()` laufen und damit automatisch korrekt `modCount`-
-    bewusst sind; `TreeMap` hat kein `compute`/`computeIfPresent`/`merge`).
-  - `java.util.TreeSet` (`_TreeSetIterator` inkl. `descendingIterator()`;
-    `pollFirst()`/`pollLast()` bumpen manuell, da sie `add`/`remove`
-    umgehen).
-  - `java.util.LinkedList` (`modCount` lebt auf `LinkedList` und wird in
-    den 6 gemeinsamen Verkettungs-Hilfsmethoden `linkFirst`/`linkLast`/
-    `linkBefore`/`unlinkFirst`/`unlinkLast`/`unlink` plus `clear()` bumpt —
-    das deckt transitiv alle öffentlichen Mutatoren ab, inkl. `push`/`pop`
-    über `Deque+Default.swift`. `LinkedListIterator` prüft in `next()`/
-    `previous()`/`remove()`; `LinkedListDescendingIterator` nur in `next()`
-    — siehe Scope-Grenze unten).
+- [ ] **Restliche Scope-Grenzen der `ConcurrentModificationException`-Fail-Fast-Arbeit**
+  (Kernarbeit abgeschlossen: alle zentralen `java.util`-Collections/Maps —
+  `ArrayList`, `HashSet`, `LinkedHashSet`, `Vector`, `HashMap`,
+  `LinkedHashMap`, `TreeMap`, `TreeSet`, `LinkedList`, `ArrayDeque`,
+  `PriorityQueue` — werfen jetzt `ConcurrentModificationException` bei
+  struktureller Fremdmodifikation während laufender Iteration, mit
+  Regressionstests unter `Tests/JavApiTests/util/*_ConcurrentModificationTests.swift`).
+  Bewusst offen gelassene, architektonisch vorbestehende Einzelfälle:
+  - `TreeMap.headMap`/`tailMap`/`subMap`/`descendingMap`/`navigableKeySet`
+    und `TreeSet.headSet`/`tailSet`/`subSet`/`descendingSet` liefern
+    entkoppelte, gefilterte Array-Snapshots statt Live-Views und sind nicht
+    fail-fast.
+  - `LinkedHashMap.sequencedKeySet()`/`sequencedValues()`/
+    `sequencedEntrySet()` nutzen den gemeinsamen `_OrderedSetSnapshot` (auch
+    von `TreeMap` verwendet) ohne `modCount`-Prüfung.
+  - `LinkedListDescendingIterator.remove()` ist nicht überschrieben und wirft
+    immer `IllegalStateException` unabhängig vom `modCount` (statt
+    zusätzlich `ConcurrentModificationException` zu unterscheiden).
 
-  Für `keySet()`/`entrySet()`/`values()` der Maps (die architekturbedingt
-  entkoppelte Snapshot-Kopien statt Live-Views zurückgeben) wurde eine
-  wiederverwendbare Infrastruktur `MapView+ConcurrentModification.swift`
-  geschaffen (`_MapViewIterator` + `_MapKeySetView`/`_MapEntrySetView`/
-  `_MapValuesView`): der Snapshot-Iterator prüft nicht eine eigene
-  `modCount`-Property, sondern eine beim Erzeugen übergebene
-  `currentModCount: () -> Int`-Closure, die auf die *ursprüngliche* Map
-  zeigt — dadurch bleibt das fail-fast-Verhalten korrekt an die Quelle
-  gebunden, obwohl die zurückgegebene View selbst nur eine Momentaufnahme
-  ist. Wird unverändert von `HashMap`, `LinkedHashMap` und `TreeMap`
-  genutzt.
-
-  Jeder Iterator/ListIterator merkt sich beim Erzeugen und nach jeder
-  eigenen strukturellen Operation ein `expectedModCount` und wirft
-  `ConcurrentModificationException`, sobald eine externe Modifikation
-  erkannt wird (Regressionstests:
-  `Tests/JavApiTests/util/JavApi_util_ArrayList_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_HashSet_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_LinkedHashSet_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_Vector_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_HashMap_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_LinkedHashMap_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_TreeMap_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_TreeSet_ConcurrentModificationTests.swift`,
-  `.../JavApi_util_LinkedList_ConcurrentModificationTests.swift`).
-
-  Dafür wurde das `java.util.Iterator`/`ListIterator`-Protokoll von
-  `next() throws (NoSuchElementException)` / `remove() throws (IllegalStateException)`
-  auf `throws (java.lang.RuntimeException)` verbreitert (Swifts typed throws
-  verlangt bei Protokoll-Konformität exakte Typgleichheit, keine Kovarianz) —
-  alle betroffenen Iterator-Klassen in Sources UND Tests sind entsprechend
-  umgestellt (repo-weit per Grep verifiziert: 0 verbliebene Vorkommen des
-  alten, engen Patterns).
-
-  **Bekannte Scope-Grenzen (bewusst nicht in diesem Durchgang behoben, da
-  vorbestehende Architekturentscheidungen jenseits des Bugfix-Rahmens):**
-  `TreeMap.headMap`/`tailMap`/`subMap`/`descendingMap`/`navigableKeySet`
-  und `TreeSet.headSet`/`tailSet`/`subSet`/`descendingSet` liefern weiterhin
-  entkoppelte, gefilterte Array-Snapshots statt Live-Views und sind nicht
-  fail-fast; `LinkedHashMap.sequencedKeySet()`/`sequencedValues()`/
-  `sequencedEntrySet()` nutzen den gemeinsamen `_OrderedSetSnapshot` (auch
-  von `TreeMap` verwendet) ohne `modCount`-Prüfung;
-  `LinkedListDescendingIterator.remove()` ist nicht überschrieben und wirft
-  immer `IllegalStateException` unabhängig vom `modCount` (statt zusätzlich
-  `ConcurrentModificationException` zu unterscheiden). Offen: `PriorityQueue`/
-  `ArrayDeque` analog nachziehen.
+  *Abhängig von:* nichts technisch Blockierendem — jeweils Einzelfälle mit
+  überschaubarem Aufwand, sollten aber nur bei Bedarf angegangen werden, da
+  sie vorbestehende Architekturentscheidungen (entkoppelte Snapshot-Views)
+  berühren.
 - [ ] **Korrektur zum Vorab-Audit: `Locale.Builder` ist entgegen der
   ursprünglichen Einschätzung bereits vorhanden** (`Sources/JavApi/util/
   Locale.swift`, ab `// MARK: - Locale.Builder (Java 7)`) — mit

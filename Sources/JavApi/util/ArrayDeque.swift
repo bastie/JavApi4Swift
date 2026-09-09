@@ -26,6 +26,14 @@ extension java.util {
 
     internal var _elements: [E] = []
 
+    /// Structural-modification counter, mirroring `java.util.ArrayDeque`'s
+    /// fail-fast `modCount`. Bumped only on genuinely structural changes
+    /// (an element actually added/removed, or `clear()`) — never on a pure
+    /// lookup/peek. `iterator()`/`descendingIterator()` snapshot both the
+    /// element data and this counter together, so the returned snapshot
+    /// iterator can still detect a later structural change to the live deque.
+    internal var modCount: Int = 0
+
     // MARK: - Init
 
     /// Creates an empty deque.
@@ -65,7 +73,7 @@ extension java.util {
     }
 
     open override func iterator() -> any java.util.Iterator<E> {
-      _ArrayDequeIterator(_elements)
+      _ArrayDequeIterator(_elements, owner: self, expectedModCount: modCount)
     }
 
     open override func contains(_ element: E?) -> Bool {
@@ -73,13 +81,17 @@ extension java.util {
       return _elements.contains(element)
     }
 
-    open override func clear() { _elements.removeAll() }
+    open override func clear() {
+      _elements.removeAll()
+      modCount += 1
+    }
 
     /// Appends `element` at the tail (satisfies `AbstractCollection.add(_:)`).
     @discardableResult
     open override func add(_ element: E?) throws -> Bool {
       guard let element else { return false }
       _elements.append(element)
+      modCount += 1
       return true
     }
 
@@ -93,11 +105,13 @@ extension java.util {
 
     open func offerFirst(_ elem: E) -> Bool {
       _elements.insert(elem, at: 0)
+      modCount += 1
       return true
     }
 
     open func offerLast(_ elem: E) -> Bool {
       _elements.append(elem)
+      modCount += 1
       return true
     }
 
@@ -122,6 +136,7 @@ extension java.util {
     /// - Throws: `NoSuchElementException` if empty.
     open func removeFirst() throws -> E {
       guard !_elements.isEmpty else { throw java.util.NoSuchElementException() }
+      modCount += 1
       return _elements.removeFirst()
     }
 
@@ -129,11 +144,20 @@ extension java.util {
     /// - Throws: `NoSuchElementException` if empty.
     open func removeLast() throws -> E {
       guard !_elements.isEmpty else { throw java.util.NoSuchElementException() }
+      modCount += 1
       return _elements.removeLast()
     }
 
-    open func pollFirst() -> E? { _elements.isEmpty ? nil : _elements.removeFirst() }
-    open func pollLast() -> E?  { _elements.isEmpty ? nil : _elements.removeLast() }
+    open func pollFirst() -> E? {
+      guard !_elements.isEmpty else { return nil }
+      modCount += 1
+      return _elements.removeFirst()
+    }
+    open func pollLast() -> E? {
+      guard !_elements.isEmpty else { return nil }
+      modCount += 1
+      return _elements.removeLast()
+    }
 
     // MARK: - Deque — occurrence removal
 
@@ -141,6 +165,7 @@ extension java.util {
     open func removeFirstOccurrence(_ elem: E?) -> Bool {
       guard let elem, let idx = _elements.firstIndex(of: elem) else { return false }
       _elements.remove(at: idx)
+      modCount += 1
       return true
     }
 
@@ -148,13 +173,14 @@ extension java.util {
     open func removeLastOccurrence(_ elem: E?) -> Bool {
       guard let elem, let idx = _elements.lastIndex(of: elem) else { return false }
       _elements.remove(at: idx)
+      modCount += 1
       return true
     }
 
     // MARK: - Deque — descending iterator
 
     open func descendingIterator() -> any java.util.Iterator<E> {
-      _ArrayDequeIterator(_elements.reversed())
+      _ArrayDequeIterator(Array(_elements.reversed()), owner: self, expectedModCount: modCount)
     }
 
     // MARK: - Queue protocol
@@ -164,6 +190,7 @@ extension java.util {
     @discardableResult
     open func add(_ elem: E) throws -> Bool {
       _elements.append(elem)
+      modCount += 1
       return true
     }
 
@@ -194,12 +221,22 @@ private final class _ArrayDequeIterator<E: Equatable>: java.util.Iterator, Itera
 
   private let _elements: [E]
   private var _index: Int = 0
+  private let owner: java.util.ArrayDeque<E>
+  /// `modCount` snapshot at creation time, mirroring `java.util.ArrayDeque`'s
+  /// fail-fast iterator (a snapshot copy that still checks the *originating*
+  /// deque's modCount, matching HashSet/TreeSet's snapshot-iterator pattern).
+  private let expectedModCount: Int
 
-  init(_ elements: [E]) { _elements = elements }
+  init(_ elements: [E], owner: java.util.ArrayDeque<E>, expectedModCount: Int) {
+    _elements = elements
+    self.owner = owner
+    self.expectedModCount = expectedModCount
+  }
 
   public func hasNext() -> Bool { _index < _elements.count }
 
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     guard _index < _elements.count else { throw java.util.NoSuchElementException() }
     defer { _index += 1 }
     return _elements[_index]
@@ -212,6 +249,7 @@ private final class _ArrayDequeIterator<E: Equatable>: java.util.Iterator, Itera
   }
 
   public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == owner.modCount else { throw java.util.ConcurrentModificationException() }
     throw java.lang.IllegalStateException("remove() not supported on snapshot iterator")
   }
 
