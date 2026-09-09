@@ -40,6 +40,15 @@ extension java.util {
     internal var tail: _LinkedListNode<E>?
     internal var count: Int = 0
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Every structural change funnels through `linkFirst`/`linkLast`/
+    /// `linkBefore`/`unlinkFirst`/`unlinkLast`/`unlink` (plus `clear()`, which
+    /// bypasses them), so bumping it in exactly those places covers every
+    /// public mutator (`add*`, `remove*`, `poll*`, `offer*`, `push`/`pop`, …) —
+    /// mirrors real `java.util.LinkedList`'s `modCount` field. See
+    /// Util-Implementierung.md priority section for background.
+    internal var modCount: Int = 0
+
     // MARK: - Constructors
 
     /// Creates an empty linked list.
@@ -65,6 +74,7 @@ extension java.util {
       if let t = tail { t.next = node } else { head = node }
       tail = node
       count += 1
+      modCount += 1
       return node
     }
 
@@ -74,6 +84,7 @@ extension java.util {
       if let h = head { h.prev = node } else { tail = node }
       head = node
       count += 1
+      modCount += 1
       return node
     }
 
@@ -82,6 +93,7 @@ extension java.util {
       if let p = successor.prev { p.next = node } else { head = node }
       successor.prev = node
       count += 1
+      modCount += 1
     }
 
     @discardableResult
@@ -92,6 +104,7 @@ extension java.util {
       head?.prev = nil
       if head == nil { tail = nil }
       count -= 1
+      modCount += 1
       return element
     }
 
@@ -103,6 +116,7 @@ extension java.util {
       tail?.next = nil
       if tail == nil { head = nil }
       count -= 1
+      modCount += 1
       return element
     }
 
@@ -114,6 +128,7 @@ extension java.util {
       if node === head { head = node.next }
       if node === tail { tail = node.prev }
       count -= 1
+      modCount += 1
       return element
     }
 
@@ -186,6 +201,7 @@ extension java.util {
 
     open override func clear() {
       head = nil; tail = nil; count = 0
+      modCount += 1
     }
 
     // MARK: - List — search
@@ -404,15 +420,29 @@ extension java.util {
 public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterator, IteratorProtocol {
   public typealias Element = E
 
+  private let list: java.util.LinkedList<E>
   private var current: _LinkedListNode<E>?
+  /// `modCount` snapshot at creation time, mirroring `java.util.LinkedList`'s
+  /// fail-fast `DescendingIterator` (which wraps `ListItr(size())`).
+  ///
+  /// Scope note: only `next()` is comodification-checked here; `remove()` is
+  /// not overridden (it always throws `IllegalStateException` via the shared
+  /// default in `Iterator+Swiftify.swift`), which is a narrower guarantee
+  /// than real Java but does not silently produce wrong results.
+  private let expectedModCount: Int
 
   internal init(list: java.util.LinkedList<E>) {
+    self.list = list
     self.current = list.tail
+    self.expectedModCount = list.modCount
   }
 
   public func hasNext() -> Bool { current != nil }
 
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == list.modCount else {
+      throw java.util.ConcurrentModificationException()
+    }
     guard let node = current, let element = node.element else {
       throw java.util.NoSuchElementException()
     }
@@ -442,11 +472,14 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
   private var nextNode: _LinkedListNode<E>?
   private var lastReturned: _LinkedListNode<E>?
   private var nextIdx: Int
+  /// `modCount` snapshot, mirroring `java.util.LinkedList.ListItr.expectedModCount`.
+  private var expectedModCount: Int
 
   internal init(list: java.util.LinkedList<E>, startIndex: Int) {
     self.list = list
     self.nextIdx = startIndex
     self.nextNode = (startIndex < list.count) ? list.nodeAt(startIndex) : nil
+    self.expectedModCount = list.modCount
   }
 
   // MARK: - Iterator
@@ -454,6 +487,9 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
   public func hasNext() -> Bool { nextNode != nil }
 
   public func next() throws(java.lang.RuntimeException) -> E {
+    guard expectedModCount == list.modCount else {
+      throw java.util.ConcurrentModificationException()
+    }
     guard let node = nextNode else { throw java.util.NoSuchElementException() }
     guard let element = node.element else { throw java.util.NoSuchElementException() }
     lastReturned = node
@@ -478,6 +514,9 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
   public func hasPrevious() -> Bool { nextIdx > 0 }
 
   public func previous() throws -> E? {
+    guard expectedModCount == list.modCount else {
+      throw java.util.ConcurrentModificationException()
+    }
     guard nextIdx > 0 else { throw java.util.NoSuchElementException() }
     let prev: _LinkedListNode<E>
     if let nn = nextNode {
@@ -497,12 +536,18 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
   public func previousIndex() -> Int { nextIdx - 1 }
 
   public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == list.modCount else {
+      throw java.util.ConcurrentModificationException()
+    }
     guard let node = lastReturned else {
       throw java.lang.IllegalStateException("No current element")
     }
     if nextNode === node { nextNode = node.next } else { nextIdx -= 1 }
     list.unlink(node)
     lastReturned = nil
+    // Resync: this removal is the iterator's OWN structural change, so it
+    // must not trip its own next check (mirrors ArrayListListIterator).
+    expectedModCount = list.modCount
   }
 
   public func set(_ element: E?) {
@@ -513,5 +558,7 @@ public final class LinkedListIterator<E: Equatable>: java.util.ListIterator, Ite
     if let nn = nextNode { list.linkBefore(element, nn) } else { list.linkLast(element) }
     nextIdx += 1
     lastReturned = nil
+    // Resync: this insertion is the iterator's OWN structural change.
+    expectedModCount = list.modCount
   }
 }

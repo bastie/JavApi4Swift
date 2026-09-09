@@ -23,6 +23,16 @@ extension java.util {
     /// The Swift Dictionary backing this map.
     internal var _store: [K: V]
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented only when a key is actually inserted or removed (never on a
+    /// pure value replacement for an already-present key) — mirrors real
+    /// `java.util.HashMap`'s `modCount` field exactly (verified against the
+    /// OpenJDK source: `put`/`putVal` only bump it on `e == null`, i.e. a new
+    /// node; `replace(K,V)`/`replace(K,V,V)` update `e.value` directly without
+    /// touching `modCount` at all). See Util-Implementierung.md priority
+    /// section for background.
+    internal var modCount: Int = 0
+
     // MARK: - Init
 
     /// Creates an empty map.
@@ -57,9 +67,8 @@ extension java.util {
     /// `get()`, `clear()`, `putAll()`, `equals()`, and `toString()` from this.
     /// `HashMap` overrides the hot paths below for O(1) behaviour.
     open override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
-      let set = HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _store.count * 2))
-      for (k, v) in _store { _ = try? set.add(Entry(k, v)) }
-      return set
+      let entries = _store.map { Entry($0.key, $0.value) }
+      return _MapEntrySetView(entries: entries, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     // MARK: - java.util.Map — Mutation (O(1) overrides)
@@ -68,16 +77,20 @@ extension java.util {
     open override func put(_ key: K, _ value: V) -> V? {
       let old = _store[key]
       _store[key] = value
+      if old == nil { modCount += 1 }
       return old
     }
 
     @discardableResult
     open override func remove(_ key: K) -> V? {
-      _store.removeValue(forKey: key)
+      let removed = _store.removeValue(forKey: key)
+      if removed != nil { modCount += 1 }
+      return removed
     }
 
     open override func clear() {
       _store.removeAll()
+      modCount += 1
     }
 
     // MARK: - java.util.Map — Query (O(1) overrides)
@@ -101,15 +114,11 @@ extension java.util {
     // MARK: - java.util.Map — Views (O(n) but direct, no intermediate array)
 
     open override func keySet() -> any java.util.Set<K> {
-      let set = HashSet<K>(initialCapacity: Swift.max(16, _store.count * 2))
-      for key in _store.keys { _ = try? set.add(key) }
-      return set
+      _MapKeySetView(keys: Array(_store.keys), expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open override func values() -> any java.util.Collection<V> {
-      let list = java.util.ArrayList<V>()
-      for v in _store.values { _ = try? list.add(v) }
-      return list
+      _MapValuesView(values: Array(_store.values), expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     // MARK: - containsValue
@@ -127,7 +136,9 @@ extension java.util {
       let it = map.keySet().iterator()
       while it.hasNext() {
         if let key = try? it.next(), let v = map.get(key) {
+          let isNewKey = _store[key] == nil
           _store[key] = v
+          if isNewKey { modCount += 1 } // structural only for genuinely new keys
         }
       }
     }
@@ -145,6 +156,7 @@ extension java.util {
     open override func putIfAbsent(_ key: K, _ value: V) -> V? {
       if let existing = _store[key] { return existing }
       _store[key] = value
+      modCount += 1
       return nil
     }
 
@@ -152,6 +164,8 @@ extension java.util {
     /// or `nil` if the key was absent.
     @discardableResult
     open override func replace(_ key: K, _ value: V) -> V? {
+      // Not structural — matches java.util.HashMap.replace(K,V), which
+      // updates the existing node's value in place without touching modCount.
       guard _store[key] != nil else { return nil }
       let old = _store[key]
       _store[key] = value
@@ -162,6 +176,7 @@ extension java.util {
     /// Returns `true` on success, `false` otherwise.
     @discardableResult
     open override func replace(_ key: K, _ oldValue: V, _ newValue: V) -> Bool {
+      // Not structural — same reasoning as replace(K,V) above.
       guard _store[key] == oldValue else { return false }
       _store[key] = newValue
       return true
@@ -173,6 +188,7 @@ extension java.util {
     open override func remove(_ key: K, _ value: V) -> Bool {
       guard _store[key] == value else { return false }
       _store.removeValue(forKey: key)
+      modCount += 1
       return true
     }
 
@@ -198,9 +214,13 @@ extension java.util {
       let oldValue = _store[key]
       if let newValue = remappingFunction(key, oldValue) {
         _store[key] = newValue
+        if oldValue == nil { modCount += 1 } // inserted a new key — structural
         return newValue
       } else {
-        _store.removeValue(forKey: key)
+        if oldValue != nil {
+          _store.removeValue(forKey: key)
+          modCount += 1 // removed an existing key — structural
+        }
         return nil
       }
     }
@@ -214,10 +234,12 @@ extension java.util {
     open func computeIfPresent(_ key: K, _ remappingFunction: (K, V) -> V?) -> V? {
       guard let oldValue = _store[key] else { return nil }
       if let newValue = remappingFunction(key, oldValue) {
+        // Not structural — updates the existing node's value in place.
         _store[key] = newValue
         return newValue
       } else {
         _store.removeValue(forKey: key)
+        modCount += 1 // removed an existing key — structural
         return nil
       }
     }
@@ -231,14 +253,17 @@ extension java.util {
     open func merge(_ key: K, _ value: V, _ remappingFunction: (V, V) -> V?) -> V? {
       if let oldValue = _store[key] {
         if let newValue = remappingFunction(oldValue, value) {
+          // Not structural — updates the existing node's value in place.
           _store[key] = newValue
           return newValue
         } else {
           _store.removeValue(forKey: key)
+          modCount += 1 // removed an existing key — structural
           return nil
         }
       } else {
         _store[key] = value
+        modCount += 1 // inserted a new key — structural
         return value
       }
     }

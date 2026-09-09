@@ -35,6 +35,15 @@ extension java.util {
     /// Insertion-order (or access-order) key list — the single source of truth for iteration order.
     internal var sortedKeyCollection: Array<KeyType>
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented only when a key is actually inserted or removed (never on a
+    /// pure value replacement, and never on an access-order reordering alone) —
+    /// mirrors real `java.util.LinkedHashMap`'s (inherited `HashMap`) `modCount`
+    /// field. `putFirst`/`putLast` (Java 21 SequencedMap) always bump it, since
+    /// even a "move" changes the encounter order — consistent with how this
+    /// port treats `LinkedHashSet.addFirst`/`addLast`.
+    internal var modCount: Int = 0
+
     /// When `true`, every `get()` and `put()` on an existing key moves the key
     /// to the **end** of `sortedKeyCollection` (LRU / access-order mode).
     ///
@@ -112,8 +121,10 @@ extension java.util {
       let oldValue = delegateDictionary.updateValue(newValue, forKey: key)
       if oldValue == nil {
         sortedKeyCollection.append(key)
+        modCount += 1
       } else if _accessOrder {
-        // Move updated key to end (most-recently-used)
+        // Move updated key to end (most-recently-used) — reordering only,
+        // not structural (matches java.util.HashMap.put's modCount semantics).
         sortedKeyCollection.removeAll { $0 == key }
         sortedKeyCollection.append(key)
       }
@@ -155,6 +166,7 @@ extension java.util {
     open func remove(_ key: KeyType) -> ValueType? {
       guard let oldValue = delegateDictionary.removeValue(forKey: key) else { return nil }
       sortedKeyCollection.removeAll { $0 == key }
+      modCount += 1
       return oldValue
     }
 
@@ -168,31 +180,26 @@ extension java.util {
     open func clear() {
       sortedKeyCollection.removeAll()
       delegateDictionary.removeAll()
+      modCount += 1
     }
 
     // MARK: - Map — Views
 
     open func keySet() -> any java.util.Set<KeyType> {
-      let set = java.util.HashSet<KeyType>(initialCapacity: sortedKeyCollection.count * 2)
-      for k in sortedKeyCollection { _ = try? set.add(k) }
-      return set
+      java.util._MapKeySetView(keys: sortedKeyCollection, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open func values() -> any java.util.Collection<ValueType> {
-      let list = java.util.ArrayList<ValueType>()
-      for k in sortedKeyCollection {
-        if let v = delegateDictionary[k] { _ = try? list.add(v) }
-      }
-      return list
+      let values = sortedKeyCollection.compactMap { delegateDictionary[$0] }
+      return java.util._MapValuesView(values: values, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open func entrySet() -> any java.util.Set<java.util.MapEntry<KeyType, ValueType>> {
-      let set = java.util.HashSet<java.util.MapEntry<KeyType, ValueType>>(
-        initialCapacity: sortedKeyCollection.count * 2)
-      for k in sortedKeyCollection {
-        if let v = delegateDictionary[k] { _ = try? set.add(java.util.MapEntry(k, v)) }
+      let entries = sortedKeyCollection.compactMap { k -> java.util.MapEntry<KeyType, ValueType>? in
+        guard let v = delegateDictionary[k] else { return nil }
+        return java.util.MapEntry(k, v)
       }
-      return set
+      return java.util._MapEntrySetView(entries: entries, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     // MARK: - SequencedMap — ordered first/last access
@@ -224,6 +231,7 @@ extension java.util {
       let old = delegateDictionary.updateValue(value, forKey: key)
       if old != nil { sortedKeyCollection.removeAll { $0 == key } }
       sortedKeyCollection.insert(key, at: 0)
+      modCount += 1
       return old
     }
 
@@ -232,6 +240,7 @@ extension java.util {
       let old = delegateDictionary.updateValue(value, forKey: key)
       if old != nil { sortedKeyCollection.removeAll { $0 == key } }
       sortedKeyCollection.append(key)
+      modCount += 1
       return old
     }
 

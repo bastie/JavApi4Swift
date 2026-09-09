@@ -28,6 +28,15 @@ extension java.util {
     /// Sorted, deduplicated element array — ascending order.
     internal var _elements: [E] = []
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented only on an actual insert/removal — mirrors real
+    /// `java.util.TreeSet`'s (delegated `TreeMap`'s) `modCount` field. See
+    /// Util-Implementierung.md priority section for background, including the
+    /// known scope limit: `headSet`/`tailSet`/`subSet`/`descendingSet` are
+    /// pre-existing disconnected snapshots in this port (not live views), so
+    /// fail-fast is wired only for `iterator()`/`descendingIterator()` here.
+    internal var modCount: Int = 0
+
     /// Optional custom comparator; `nil` means natural ordering.
     private var _comparator: (any java.util.Comparator<E>)? = nil
 
@@ -112,7 +121,7 @@ extension java.util {
     open override func size() -> Int { _elements.count }
 
     open override func iterator() -> any java.util.Iterator<E> {
-      _TreeSetIterator(elements: _elements)
+      _TreeSetIterator(elements: _elements, owner: self, expectedModCount: modCount)
     }
 
     // MARK: - Collection — Mutation
@@ -123,6 +132,7 @@ extension java.util {
       let idx = _indexOf(element)
       if idx >= 0 { return false }      // already present
       _elements.insert(element, at: -(idx + 1))
+      modCount += 1
       return true
     }
 
@@ -132,11 +142,13 @@ extension java.util {
       let idx = _indexOf(element)
       guard idx >= 0 else { return false }
       _elements.remove(at: idx)
+      modCount += 1
       return true
     }
 
     open override func clear() {
       _elements.removeAll()
+      modCount += 1
     }
 
     open override func contains(_ element: E?) -> Bool {
@@ -231,11 +243,13 @@ extension java.util {
 
     open func pollFirst() -> E? {
       guard !_elements.isEmpty else { return nil }
+      modCount += 1
       return _elements.removeFirst()
     }
 
     open func pollLast() -> E? {
       guard !_elements.isEmpty else { return nil }
+      modCount += 1
       return _elements.removeLast()
     }
 
@@ -246,7 +260,7 @@ extension java.util {
     }
 
     open func descendingIterator() -> any java.util.Iterator<E> {
-      _TreeSetIterator(elements: _elements.reversed())
+      _TreeSetIterator(elements: _elements.reversed(), owner: self, expectedModCount: modCount)
     }
 
     // MARK: - NavigableSet — inclusive range views
@@ -286,17 +300,39 @@ extension java.util {
 
 // MARK: - Snapshot ascending iterator
 
-private final class _TreeSetIterator<E: Equatable>: java.util.Iterator, IteratorProtocol {
+private final class _TreeSetIterator<E: Hashable & Comparable & Equatable>: java.util.Iterator, IteratorProtocol {
   public typealias Element = E
 
   private let _elements: [E]
   private var _index: Int = 0
+  /// `nil` for a caller with no live owner to check against (`_SubTreeSet`/
+  /// `_DescendingTreeSet` are themselves disconnected snapshots) — in that
+  /// case this iterator never throws `ConcurrentModificationException`.
+  private let owner: java.util.TreeSet<E>?
+  /// Fail-fast bookkeeping — snapshot of `owner.modCount` at the last known-good point.
+  private let expectedModCount: Int
 
-  init(elements: [E]) { self._elements = elements }
+  init(elements: [E], owner: java.util.TreeSet<E>, expectedModCount: Int) {
+    self._elements = elements
+    self.owner = owner
+    self.expectedModCount = expectedModCount
+  }
+
+  /// Convenience initializer for disconnected-snapshot callers (`_SubTreeSet`/
+  /// `_DescendingTreeSet`) that have no live source `TreeSet` to check against.
+  init(elements: [E]) {
+    self._elements = elements
+    self.owner = nil
+    self.expectedModCount = 0
+  }
 
   public func hasNext() -> Bool { _index < _elements.count }
 
+  /// Also throws `ConcurrentModificationException` (fail-fast) — this is a
+  /// snapshot iterator so a missed check would not crash, but Java still
+  /// guarantees (best-effort) detection here.
   public func next() throws(java.lang.RuntimeException) -> E {
+    if let owner, expectedModCount != owner.modCount { throw java.util.ConcurrentModificationException() }
     guard _index < _elements.count else {
       throw java.util.NoSuchElementException()
     }
@@ -311,6 +347,7 @@ private final class _TreeSetIterator<E: Equatable>: java.util.Iterator, Iterator
   }
 
   public func remove() throws(java.lang.RuntimeException) {
+    if let owner, expectedModCount != owner.modCount { throw java.util.ConcurrentModificationException() }
     throw java.lang.IllegalStateException("remove() not supported on TreeSet snapshot iterator")
   }
 

@@ -28,6 +28,17 @@ extension java.util {
     // Pairs kept in ascending key order at all times.
     internal var _pairs: [(key: K, value: V)] = []
 
+    /// Structural-modification counter for Java's fail-fast iterator semantics.
+    /// Incremented only on an actual insert or removal — never on a pure
+    /// value replacement for an already-present key — mirrors real
+    /// `java.util.TreeMap`'s `modCount` field. See Util-Implementierung.md
+    /// priority section for background, including the known scope limit:
+    /// `headMap`/`tailMap`/`subMap`/`descendingMap`/`navigableKeySet` and
+    /// similar `NavigableMap` views are pre-existing disconnected snapshots
+    /// in this port (not live views), so fail-fast is wired only for the
+    /// core `keySet()`/`entrySet()`/`values()`.
+    internal var modCount: Int = 0
+
     /// Optional custom key comparator; `nil` means natural ordering.
     private var _comparator: (any java.util.Comparator<K>)? = nil
 
@@ -103,9 +114,8 @@ extension java.util {
     // MARK: - AbstractMap required override
 
     open override func entrySet() -> any java.util.Set<java.util.MapEntry<K, V>> {
-      let set = HashSet<java.util.MapEntry<K, V>>(initialCapacity: Swift.max(16, _pairs.count * 2))
-      for pair in _pairs { _ = try? set.add(Entry(pair.key, pair.value)) }
-      return set
+      let entries = _pairs.map { Entry($0.key, $0.value) }
+      return _MapEntrySetView(entries: entries, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     // MARK: - Map — Mutation
@@ -119,6 +129,7 @@ extension java.util {
         return old
       } else {
         _pairs.insert((key: key, value: value), at: -(idx + 1))
+        modCount += 1
         return nil
       }
     }
@@ -129,11 +140,13 @@ extension java.util {
       guard idx >= 0 else { return nil }
       let old = _pairs[idx].value
       _pairs.remove(at: idx)
+      modCount += 1
       return old
     }
 
     open override func clear() {
       _pairs.removeAll()
+      modCount += 1
     }
 
     // MARK: - Map — Query (O(log n))
@@ -151,15 +164,11 @@ extension java.util {
     // MARK: - Map — Views
 
     open override func keySet() -> any java.util.Set<K> {
-      let set = HashSet<K>(initialCapacity: Swift.max(16, _pairs.count * 2))
-      for pair in _pairs { _ = try? set.add(pair.key) }
-      return set
+      _MapKeySetView(keys: _pairs.map { $0.key }, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open override func values() -> any java.util.Collection<V> {
-      let list = java.util.ArrayList<V>()
-      for pair in _pairs { _ = try? list.add(pair.value) }
-      return list
+      _MapValuesView(values: _pairs.map { $0.value }, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     // MARK: - SortedMap
