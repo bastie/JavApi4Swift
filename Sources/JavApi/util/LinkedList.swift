@@ -422,14 +422,13 @@ public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterato
 
   private let list: java.util.LinkedList<E>
   private var current: _LinkedListNode<E>?
-  /// `modCount` snapshot at creation time, mirroring `java.util.LinkedList`'s
-  /// fail-fast `DescendingIterator` (which wraps `ListItr(size())`).
-  ///
-  /// Scope note: only `next()` is comodification-checked here; `remove()` is
-  /// not overridden (it always throws `IllegalStateException` via the shared
-  /// default in `Iterator+Swiftify.swift`), which is a narrower guarantee
-  /// than real Java but does not silently produce wrong results.
-  private let expectedModCount: Int
+  /// The node last returned by `next()`, tracked so `remove()` can unlink it —
+  /// mirrors `java.util.LinkedList.DescendingIterator`, which wraps a
+  /// `ListItr` and delegates `remove()` to it.
+  private var lastReturned: _LinkedListNode<E>?
+  /// `modCount` snapshot, mirroring `java.util.LinkedList`'s fail-fast
+  /// `DescendingIterator` (which wraps `ListItr(size())`).
+  private var expectedModCount: Int
 
   internal init(list: java.util.LinkedList<E>) {
     self.list = list
@@ -446,6 +445,7 @@ public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterato
     guard let node = current, let element = node.element else {
       throw java.util.NoSuchElementException()
     }
+    lastReturned = node
     current = node.prev
     return element
   }
@@ -453,11 +453,32 @@ public final class LinkedListDescendingIterator<E: Equatable>: java.util.Iterato
   /// Swift `IteratorProtocol.next()` — returns `nil` at end.
   public func next() -> E? {
     guard let node = current else { return nil }
+    lastReturned = node
     defer { current = node.prev }
     return node.element
   }
 
   public func makeIterator() -> LinkedListDescendingIterator<E> { self }
+
+  /// Removes the element last returned by `next()`.
+  ///
+  /// Mirrors `java.util.LinkedList.DescendingIterator.remove()`, which
+  /// delegates to the wrapped `ListItr.remove()` — including its
+  /// comodification check and `IllegalStateException` when `next()` was not
+  /// called since the last `remove()`.
+  public func remove() throws(java.lang.RuntimeException) {
+    guard expectedModCount == list.modCount else {
+      throw java.util.ConcurrentModificationException()
+    }
+    guard let node = lastReturned else {
+      throw java.lang.IllegalStateException("No current element")
+    }
+    list.unlink(node)
+    lastReturned = nil
+    // Resync: this removal is the iterator's OWN structural change, so it
+    // must not trip its own next check (mirrors LinkedListIterator.remove()).
+    expectedModCount = list.modCount
+  }
 }
 
 // MARK: - LinkedListIterator

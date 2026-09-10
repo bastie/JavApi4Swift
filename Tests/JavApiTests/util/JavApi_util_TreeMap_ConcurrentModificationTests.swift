@@ -109,4 +109,49 @@ struct JavApi_util_TreeMap_ConcurrentModificationTests {
     #expect(try it.next() == 2)
     #expect(!it.hasNext())
   }
+
+  // MARK: - sequencedValues() / sequencedEntrySet() (Java 21 SequencedMap)
+  //
+  // Note: sequencedKeySet() delegates to navigableKeySet(), which returns a
+  // pre-existing disconnected _SubTreeSet snapshot with no tie-back to the
+  // live TreeMap — same documented scope limit as headMap/tailMap/subMap/
+  // descendingMap, so it is intentionally not covered here.
+
+  @Test("Removing a key while iterating sequencedValues() throws ConcurrentModificationException on next()")
+  func sequencedValuesNextThrowsAfterExternalRemove() throws {
+    let map = java.util.TreeMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedValues().iterator()
+    _ = try it.next()
+    _ = map.remove(1)
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.next()
+    }
+  }
+
+  @Test("Clearing the map while iterating sequencedEntrySet() throws ConcurrentModificationException on next()")
+  func sequencedEntrySetNextThrowsAfterExternalClear() throws {
+    let map = java.util.TreeMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedEntrySet().iterator()
+    #expect(it.hasNext() == true)
+    map.clear()
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.next()
+    }
+  }
+
+  @Test("Replacing the value of an already-present key does NOT trigger ConcurrentModificationException on sequencedValues()")
+  func sequencedValuesNotAffectedByValueReplace() throws {
+    let map = java.util.TreeMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedValues().iterator()
+    _ = try it.next()
+    _ = map.put(1, "updated")
+    _ = try it.next() // must not throw
+    #expect(!it.hasNext())
+  }
 }

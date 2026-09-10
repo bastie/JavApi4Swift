@@ -202,4 +202,43 @@ struct JavApi_util_LinkedList_ConcurrentModificationTests {
     #expect(try it.next() == 2)
     #expect(try it.next() == 1)
   }
+
+  @Test("descendingIterator()'s own remove() removes the last-returned (tail-to-head) element and does not trip its own fail-fast check")
+  func descendingIteratorOwnRemoveDoesNotThrow() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1)
+    _ = try list.add(2)
+    _ = try list.add(3)
+    let it = list.descendingIterator()
+    #expect(try it.next() == 3)
+    try it.remove() // removes 3 via the SAME iterator — must not throw
+    #expect(list.size() == 2 as Int)
+    #expect(try it.next() == 2)
+    try it.remove() // removes 2 — must still not throw
+    #expect(list.size() == 1 as Int)
+    #expect(try list.get(0) == 1)
+  }
+
+  @Test("descendingIterator()'s remove() without a preceding next() throws IllegalStateException, not ConcurrentModificationException")
+  func descendingIteratorRemoveWithoutNextThrowsIllegalState() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1)
+    let it = list.descendingIterator()
+    #expect(throws: java.lang.IllegalStateException.self) {
+      try it.remove()
+    }
+  }
+
+  @Test("descendingIterator()'s remove() throws ConcurrentModificationException instead when the list was modified first")
+  func descendingIteratorRemoveThrowsCMEWhenModified() throws {
+    let list = java.util.LinkedList<Int>()
+    _ = try list.add(1)
+    _ = try list.add(2)
+    let it = list.descendingIterator()
+    _ = try it.next() // 2
+    _ = try list.add(3) // external structural modification
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      try it.remove()
+    }
+  }
 }

@@ -163,9 +163,32 @@ extension java.util {
     public func getVariant() -> String {
       // Parse from the original identifier so Foundation normalisation (e.g. "no"→"nb")
       // does not affect the variant returned by this method.
-      let parts = _originalIdentifier.split(separator: "_", maxSplits: 2,
+      //
+      // The identifier shape is language[_SCRIPT][_COUNTRY][_VARIANT], where
+      // SCRIPT (if present) is exactly 4 letters and COUNTRY (if present) is
+      // 2 letters or 3 digits — both optional, so the variant's position is
+      // not fixed and must be found by skipping over whichever of the two
+      // are actually present, rather than always assuming index 2.
+      let parts = _originalIdentifier.split(separator: "_",
                                             omittingEmptySubsequences: false)
-      return parts.count >= 3 ? String(parts[2]) : ""
+                                     .map(String.init)
+      guard parts.count >= 2 else { return "" }
+      var index = 1
+      if parts[index].count == 4, parts[index].allSatisfy({ $0.isLetter }) {
+        index += 1  // skip script
+      }
+      if index < parts.count {
+        let candidate = parts[index]
+        if candidate.isEmpty
+            || (candidate.count == 2 && candidate.allSatisfy({ $0.isLetter }))
+            || (candidate.count == 3 && candidate.allSatisfy({ $0.isNumber })) {
+          index += 1  // skip country (an empty candidate is the blank country
+                       // placeholder the legacy 3-arg constructor inserts when
+                       // called with an empty country but a non-empty variant)
+        }
+      }
+      guard index < parts.count else { return "" }
+      return parts[index...].joined(separator: "_")
     }
 
     // MARK: - toString (Java 1.1)
@@ -508,6 +531,12 @@ extension java.util.Locale {
     private var _script:   String = ""
     private var _variant:  String = ""
     private var _extensions: [Character: String] = [:]
+    /// Unicode locale extension ('u') keywords — a separate, dedicated store
+    /// (2-character key -> 3-8-alphanum-subtag type), mirroring Java's own
+    /// separation between `setExtension('u', ...)` and
+    /// `setUnicodeLocaleKeyword(key, type)`. Merged into `_extensions['u']`
+    /// (sorted by key, matching the BCP 47 canonical form) whenever read.
+    private var _unicodeLocaleKeywords: [String: String] = [:]
 
     public init() {}
 
@@ -578,19 +607,167 @@ extension java.util.Locale {
       return self
     }
 
-    /// Convenience: set language + region in one call (not in Java API, but handy).
+    /// Resets all subtags from `locale`'s language, script, region, and variant.
+    ///
+    /// - Note: `java.util.Locale.Builder.setLocale(Locale)` also copies the
+    ///   given locale's extensions. This port's `Locale` does not itself
+    ///   store extensions (they exist only on `Builder`, and `build()` does
+    ///   not yet encode them back into the constructed `Locale`'s
+    ///   identifier — a pre-existing gap in this port, tracked separately
+    ///   in `Util-Implementierung.md`), so there is nothing to copy here;
+    ///   language/script/region/variant are copied in full.
     @discardableResult
     public func setLocale(_ locale: java.util.Locale) throws -> Builder {
       try setLanguage(locale.getLanguage())
+      try setScript(locale.getScript())
       try setRegion(locale.getCountry())
+      _ = setVariant(locale.getVariant())
+      return self
+    }
+
+    /// Resets the `Builder` and configures it to match `languageTag`.
+    ///
+    /// Unlike `Locale.forLanguageTag(_:)` (which never throws and accepts
+    /// any string), this validates each subtag's well-formedness against
+    /// BCP 47 and throws `IllformedLocaleException` on the first invalid
+    /// one — matching `java.util.Locale.Builder.setLanguageTag(String)`.
+    @discardableResult
+    public func setLanguageTag(_ languageTag: String) throws -> Builder {
+      clear()
+      let subtags = languageTag.split(separator: "-", omittingEmptySubsequences: false).map(String.init)
+      guard let first = subtags.first, !first.isEmpty else {
+        throw java.util.IllformedLocaleException("Empty language tag", 0)
+      }
+
+      // Private-use-only tag, e.g. "x-foo-bar".
+      if first.lowercased() == "x" {
+        _extensions["x"] = subtags.dropFirst().joined(separator: "-")
+        return self
+      }
+
+      var index = 0
+
+      // language: 2-8 letters ("und" means "no language", per BCP 47).
+      let languageSubtag = subtags[index]
+      guard languageSubtag.count >= 2 && languageSubtag.count <= 8
+              && languageSubtag.allSatisfy({ $0.isLetter }) else {
+        throw java.util.IllformedLocaleException("Invalid language: \(languageSubtag)", 0)
+      }
+      _language = languageSubtag.lowercased() == "und" ? "" : languageSubtag.lowercased()
+      index += 1
+
+      // script: exactly 4 letters.
+      if index < subtags.count, subtags[index].count == 4, subtags[index].allSatisfy({ $0.isLetter }) {
+        let s = subtags[index]
+        _script = s.prefix(1).uppercased() + s.dropFirst().lowercased()
+        index += 1
+      }
+
+      // region: 2 letters or 3 digits.
+      if index < subtags.count {
+        let s = subtags[index]
+        if (s.count == 2 && s.allSatisfy({ $0.isLetter })) || (s.count == 3 && s.allSatisfy({ $0.isNumber })) {
+          _region = s.uppercased()
+          index += 1
+        }
+      }
+
+      // variant(s): 5-8 alphanumeric, or exactly 4 starting with a digit.
+      var variants: [String] = []
+      while index < subtags.count {
+        let s = subtags[index]
+        let looksLikeVariant =
+          (s.count >= 5 && s.count <= 8 && s.allSatisfy { $0.isLetter || $0.isNumber })
+          || (s.count == 4 && (s.first?.isNumber ?? false) && s.allSatisfy { $0.isLetter || $0.isNumber })
+        guard looksLikeVariant else { break }
+        variants.append(s)
+        index += 1
+      }
+      if !variants.isEmpty { _variant = variants.joined(separator: "_") }
+
+      // extensions: a 1-character singleton followed by 1+ subtags of 2-8 alphanumerics.
+      while index < subtags.count {
+        let singleton = subtags[index]
+        guard singleton.count == 1, let key = singleton.lowercased().first else {
+          throw java.util.IllformedLocaleException("Invalid extension singleton: \(singleton)", index)
+        }
+        index += 1
+        var values: [String] = []
+        while index < subtags.count, (2...8).contains(subtags[index].count),
+              subtags[index].allSatisfy({ $0.isLetter || $0.isNumber }) {
+          values.append(subtags[index])
+          index += 1
+        }
+        guard !values.isEmpty else {
+          throw java.util.IllformedLocaleException("Extension '\(key)' has no subtags", index)
+        }
+        _extensions[key] = values.joined(separator: "-")
+      }
+
+      guard index == subtags.count else {
+        throw java.util.IllformedLocaleException("Malformed language tag: \(languageTag)", index)
+      }
+      return self
+    }
+
+    /// Sets a keyword in the Unicode locale extension ('u'), e.g.
+    /// `setUnicodeLocaleKeyword("ca", "buddhist")` for a calendar preference.
+    ///
+    /// - Parameters:
+    ///   - key: A 2-character alphanumeric key (e.g. `"ca"`, `"nu"`, `"co"`).
+    ///   - type: A `-`-joined sequence of 3-8-character alphanumeric subtags,
+    ///     or the empty string to remove the keyword.
+    /// - Throws: `IllformedLocaleException` if `key` or `type` is malformed.
+    @discardableResult
+    public func setUnicodeLocaleKeyword(_ key: String, _ type: String) throws -> Builder {
+      guard key.count == 2, key.allSatisfy({ $0.isLetter || $0.isNumber }) else {
+        throw java.util.IllformedLocaleException("Invalid Unicode locale keyword key: \(key)", 0)
+      }
+      let normalizedKey = key.lowercased()
+      if type.isEmpty {
+        _unicodeLocaleKeywords.removeValue(forKey: normalizedKey)
+      } else {
+        let typeSubtags = type.split(separator: "-").map(String.init)
+        guard !typeSubtags.isEmpty,
+              typeSubtags.allSatisfy({ (3...8).contains($0.count) && $0.allSatisfy({ c in c.isLetter || c.isNumber }) }) else {
+          throw java.util.IllformedLocaleException("Invalid Unicode locale keyword type: \(type)", 0)
+        }
+        _unicodeLocaleKeywords[normalizedKey] = typeSubtags.joined(separator: "-").lowercased()
+      }
+      return self
+    }
+
+    /// Resets the `Builder` to its initial, empty state (language, script,
+    /// region, variant, and all extensions — matches
+    /// `java.util.Locale.Builder.clear()`).
+    @discardableResult
+    public func clear() -> Builder {
+      _language = ""
+      _region = ""
+      _script = ""
+      _variant = ""
+      clearExtensions()
+      return self
+    }
+
+    /// Removes all extensions (both `setExtension`-style and Unicode locale
+    /// keywords), leaving language/script/region/variant untouched — matches
+    /// `java.util.Locale.Builder.clearExtensions()`.
+    @discardableResult
+    public func clearExtensions() -> Builder {
+      _extensions.removeAll()
+      _unicodeLocaleKeywords.removeAll()
       return self
     }
 
     /// Constructs a `Locale` from the accumulated settings.
     public func build() -> java.util.Locale {
-      // Build a POSIX-style identifier: language[_REGION][_VARIANT]
+      // Build a POSIX-style identifier: language[_SCRIPT][_REGION][_VARIANT].
+      // Every component is "_"-joined (not "-") so getLanguage()/getScript()/
+      // getVariant() — which all parse the resulting Locale's identifier by
+      // splitting on "_" — can find the script/region/variant components.
       var id = _language
-      if !_script.isEmpty { id += "-\(_script)" }
+      if !_script.isEmpty { id += "_\(_script)" }
       if !_region.isEmpty { id += "_\(_region)" }
       if !_variant.isEmpty { id += "_\(_variant)" }
       return java.util.Locale(id)

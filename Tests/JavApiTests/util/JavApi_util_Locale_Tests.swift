@@ -414,6 +414,141 @@ struct JavApi_util_Locale_Tests {
     #expect(l.getVariant() == "NY")
   }
 
+  @Test("Locale.Builder.setLanguageTag parses language, script, region, and variant")
+  func testBuilderSetLanguageTag() throws {
+    let l = try java.util.Locale.Builder()
+      .setLanguageTag("zh-Hant-TW")
+      .build()
+    #expect(l.getLanguage() == "zh")
+    #expect(l.getScript() == "Hant")
+    #expect(l.getCountry() == "TW")
+  }
+
+  @Test("Locale.Builder.build() with language, script, region, and variant all set — regression for the build()/getVariant() script-separator bug")
+  func testBuilderBuildWithScriptAndVariant() throws {
+    // Regression test: Builder.build() used to join the script subtag with
+    // "-" while getLanguage()/getScript()/getVariant() all parse the built
+    // Locale's identifier by splitting on "_" only — so a script set via
+    // setScript(_:) (directly, or copied in via setLocale(_:)) made
+    // getLanguage() return "language-Script" and getScript() return "".
+    // Separately, getVariant() assumed the variant always sits at the fixed
+    // 3rd "_"-separated position, which broke once a script component
+    // shifted the variant one position further right (or was itself absent,
+    // as in Locale(language, "", variant), leaving a blank placeholder
+    // segment). Both are exercised together here.
+    let l = try java.util.Locale.Builder()
+      .setLanguage("sr")
+      .setScript("Latn")
+      .setRegion("RS")
+      .setVariant("EKAVSK")
+      .build()
+    #expect(l.getLanguage() == "sr")
+    #expect(l.getScript() == "Latn")
+    #expect(l.getCountry() == "RS")
+    #expect(l.getVariant() == "EKAVSK")
+  }
+
+  @Test("Locale.Builder.setLanguageTag resets previously set subtags")
+  func testBuilderSetLanguageTagResetsPriorState() throws {
+    let l = try java.util.Locale.Builder()
+      .setLanguage("fr")
+      .setRegion("FR")
+      .setLanguageTag("de-DE") // must fully replace the prior fr-FR state
+      .build()
+    #expect(l.getLanguage() == "de")
+    #expect(l.getCountry() == "DE")
+  }
+
+  @Test("Locale.Builder.setLanguageTag accepts a language-only tag")
+  func testBuilderSetLanguageTagLanguageOnly() throws {
+    let l = try java.util.Locale.Builder()
+      .setLanguageTag("fr")
+      .build()
+    #expect(l.getLanguage() == "fr")
+    #expect(l.getCountry() == "")
+  }
+
+  @Test("Locale.Builder.setLanguageTag throws IllformedLocaleException for an empty tag")
+  func testBuilderSetLanguageTagThrowsOnEmpty() {
+    #expect(throws: java.util.IllformedLocaleException.self) {
+      try java.util.Locale.Builder().setLanguageTag("")
+    }
+  }
+
+  @Test("Locale.Builder.setLanguageTag throws IllformedLocaleException for an invalid language subtag")
+  func testBuilderSetLanguageTagThrowsOnInvalidLanguage() {
+    #expect(throws: java.util.IllformedLocaleException.self) {
+      try java.util.Locale.Builder().setLanguageTag("1")
+    }
+  }
+
+  @Test("Locale.Builder.setLocale(_:) copies language, script, region, and variant from the given locale")
+  func testBuilderSetLocaleCopiesAllSubtags() throws {
+    let source = try java.util.Locale.Builder()
+      .setLanguage("no")
+      .setRegion("NO")
+      .setVariant("NY")
+      .build()
+    let copy = try java.util.Locale.Builder()
+      .setLocale(source)
+      .build()
+    #expect(copy.getLanguage() == "no")
+    #expect(copy.getCountry() == "NO")
+    #expect(copy.getVariant() == "NY")
+  }
+
+  @Test("Locale.Builder.setUnicodeLocaleKeyword sets a calendar preference keyword")
+  func testBuilderSetUnicodeLocaleKeyword() throws {
+    // The keyword is accepted without throwing; this port's build() does not
+    // yet encode extensions back into the constructed Locale's identifier
+    // (a pre-existing, separately tracked gap), so only the non-throwing
+    // contract is verified here.
+    _ = try java.util.Locale.Builder()
+      .setLanguage("th")
+      .setUnicodeLocaleKeyword("ca", "buddhist")
+      .build()
+  }
+
+  @Test("Locale.Builder.setUnicodeLocaleKeyword throws IllformedLocaleException for an invalid key")
+  func testBuilderSetUnicodeLocaleKeywordThrowsOnInvalidKey() {
+    #expect(throws: java.util.IllformedLocaleException.self) {
+      try java.util.Locale.Builder().setUnicodeLocaleKeyword("cal", "buddhist")
+    }
+  }
+
+  @Test("Locale.Builder.setUnicodeLocaleKeyword throws IllformedLocaleException for an invalid type")
+  func testBuilderSetUnicodeLocaleKeywordThrowsOnInvalidType() {
+    #expect(throws: java.util.IllformedLocaleException.self) {
+      try java.util.Locale.Builder().setUnicodeLocaleKeyword("ca", "xx")
+    }
+  }
+
+  @Test("Locale.Builder.clear() resets language, region, and variant")
+  func testBuilderClear() throws {
+    let l = try java.util.Locale.Builder()
+      .setLanguage("de")
+      .setRegion("DE")
+      .setVariant("X")
+      .clear()
+      .setLanguage("en")
+      .build()
+    #expect(l.getLanguage() == "en")
+    #expect(l.getCountry() == "")
+    #expect(l.getVariant() == "")
+  }
+
+  @Test("Locale.Builder.clearExtensions() removes extensions but keeps language/region")
+  func testBuilderClearExtensions() throws {
+    let l = try java.util.Locale.Builder()
+      .setLanguage("de")
+      .setRegion("DE")
+      .setUnicodeLocaleKeyword("ca", "buddhist")
+      .clearExtensions()
+      .build()
+    #expect(l.getLanguage() == "de")
+    #expect(l.getCountry() == "DE")
+  }
+
   // MARK: - Java 7: Locale.Category
 
   @Test("Locale.Category has DISPLAY and FORMAT cases")

@@ -45,55 +45,78 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Priorität (vor der versionsweisen Abarbeitung)
 
-- [ ] **Restliche Scope-Grenzen der `ConcurrentModificationException`-Fail-Fast-Arbeit**
-  (Kernarbeit abgeschlossen: alle zentralen `java.util`-Collections/Maps —
-  `ArrayList`, `HashSet`, `LinkedHashSet`, `Vector`, `HashMap`,
-  `LinkedHashMap`, `TreeMap`, `TreeSet`, `LinkedList`, `ArrayDeque`,
-  `PriorityQueue` — werfen jetzt `ConcurrentModificationException` bei
-  struktureller Fremdmodifikation während laufender Iteration, mit
-  Regressionstests unter `Tests/JavApiTests/util/*_ConcurrentModificationTests.swift`).
-  Bewusst offen gelassene, architektonisch vorbestehende Einzelfälle:
-  - `TreeMap.headMap`/`tailMap`/`subMap`/`descendingMap`/`navigableKeySet`
-    und `TreeSet.headSet`/`tailSet`/`subSet`/`descendingSet` liefern
-    entkoppelte, gefilterte Array-Snapshots statt Live-Views und sind nicht
-    fail-fast.
-  - `LinkedHashMap.sequencedKeySet()`/`sequencedValues()`/
-    `sequencedEntrySet()` nutzen den gemeinsamen `_OrderedSetSnapshot` (auch
-    von `TreeMap` verwendet) ohne `modCount`-Prüfung.
-  - `LinkedListDescendingIterator.remove()` ist nicht überschrieben und wirft
-    immer `IllegalStateException` unabhängig vom `modCount` (statt
-    zusätzlich `ConcurrentModificationException` zu unterscheiden).
+- [ ] **Letzte verbleibende Scope-Grenze der `ConcurrentModificationException`-
+  Fail-Fast-Arbeit: `TreeMap`/`TreeSet`-Sub-Views ohne Live-Rückbindung.**
+  (Inzwischen zusätzlich geschlossen: `LinkedHashMap.sequencedKeySet()`/
+  `sequencedValues()`/`sequencedEntrySet()` und `TreeMap`s gleichnamige
+  Top-Level-Methoden prüfen jetzt über `_OrderedSetSnapshot`/
+  `_MapValuesView` gegen die ursprüngliche Map, analog zu `keySet()`/
+  `entrySet()`/`values()`; `LinkedListDescendingIterator.remove()` ist jetzt
+  überschrieben und unterscheidet korrekt `ConcurrentModificationException`
+  vs. `IllegalStateException`, inkl. `expectedModCount`-Resync nach eigener
+  Entfernung.)
 
-  *Abhängig von:* nichts technisch Blockierendem — jeweils Einzelfälle mit
-  überschaubarem Aufwand, sollten aber nur bei Bedarf angegangen werden, da
-  sie vorbestehende Architekturentscheidungen (entkoppelte Snapshot-Views)
-  berühren.
-- [ ] **Korrektur zum Vorab-Audit: `Locale.Builder` ist entgegen der
-  ursprünglichen Einschätzung bereits vorhanden** (`Sources/JavApi/util/
-  Locale.swift`, ab `// MARK: - Locale.Builder (Java 7)`) — mit
-  `setLanguage`/`setRegion`/`setScript`/`setVariant`/`setExtension`/
-  `build()`. Es fehlen aber gegenüber Java 7 noch: `setLanguageTag(String)`,
-  `setLocale(Locale)` (Java-Signatur nimmt zusätzlich Extensions/Variant
-  aus dem übergebenen `Locale` mit, aktuelle Implementierung übernimmt nur
-  Sprache+Land), `setUnicodeLocaleKeyword(String,String)`,
-  `clear()`/`clearExtensions()`, sowie sämtliche Getter
-  (`getLanguage()`/`getRegion()`/... existieren auf `Builder` in Java
-  nicht, das ist korrekt — aber `removeExtension` fehlt). Dieser Punkt
-  ersetzt die im Vorab-Audit genannte komplette Abwesenheit von
-  `Locale.Builder`. *Abhängig von:* nichts.
-- [ ] **`java.util.stream` Primitive Streams (`IntStream`/`LongStream`/
-  `DoubleStream`/`BaseStream`/`StreamSupport`) sind eine strukturelle
-  Vorbedingung für mehrere bereits in `Text-Implementierung.md`
-  dokumentierte Punkte** (`String.chars()`/`codePoints()`,
-  `CharSequence.chars()`/`codePoints()`, `Pattern.splitAsStream`,
-  `Matcher.results()`, `String.lines()`) — siehe dortiger Abschnitt „Java
-  8"/„Java 9"/„Java 11". Aktuell existieren im Projekt nur `Stream`,
-  `Collector`, `Gatherer`/`Gatherers` (`Sources/JavApi/util/stream/`);
-  `IntStream`, `LongStream`, `DoubleStream`, `BaseStream` und
-  `StreamSupport` fehlen komplett. Da mehrere String/Text-Punkte davon
-  abhängen, sollte dieser Block hoch priorisiert werden. *Abhängig von:*
-  nichts technisch Blockierendem, aber Grundlage für o. g. Punkte in
-  `Text-Implementierung.md`.
+  Weiterhin offen: `TreeMap.headMap`/`tailMap`/`subMap`/`descendingMap`/
+  `navigableKeySet` und `TreeSet.headSet`/`tailSet`/`subSet`/
+  `descendingSet` liefern entkoppelte, gefilterte Array-Snapshots
+  (`_SubTreeMap`/`_DescendingTreeMap`/`_SubTreeSet`/`_DescendingTreeSet`)
+  ohne jede Rückbindung an die ursprüngliche `TreeMap`/`TreeSet` — diese
+  Klassen speichern aktuell keine Owner-Referenz. Eine Live-Rückbindung
+  würde eine `owner`/`expectedModCount`-Durchreichung durch die gesamte
+  Konstruktions-Kette dieser vier Klassen erfordern (inkl. der jeweils
+  verschachtelten `sequencedKeySet()`/`sequencedValues()`/
+  `sequencedEntrySet()`-Varianten von `_SubTreeMap`/`_DescendingTreeMap`,
+  die denselben `_OrderedSetSnapshot`-Typ ohne Owner nutzen) — bewusst als
+  eigener, in sich geschlossener Punkt belassen statt hier mit
+  hineingezogen, da er die vorbestehende Architekturentscheidung
+  (entkoppelte Snapshot-Views für Sub-Ranges) direkt berührt.
+
+  *Abhängig von:* nichts technisch Blockierendem, aber deutlich größerer
+  Umfang als die übrigen Punkte dieser Liste (vier Klassenfamilien, viele
+  Konstruktionsstellen) — nur bei tatsächlichem Bedarf angehen.
+- [ ] **`Locale.Builder`-Erweiterungen (`setLanguageTag`, vollständiges
+  `setLocale`, `setUnicodeLocaleKeyword`, `clear`/`clearExtensions`) sind
+  implementiert, wenden Extensions aber nicht auf das gebaute `Locale`
+  an.** `setExtension(_:_:)` und `setUnicodeLocaleKeyword(_:_:)` speichern
+  korrekt im `Builder`-Zustand, aber `build()` kodiert nur
+  Sprache/Skript/Region/Variante in die POSIX-artige `Locale`-Kennung —
+  Extensions gehen beim `build()` verloren, da `java.util.Locale` selbst
+  (anders als `Builder`) keinerlei Extension-Speicher/Getter besitzt.
+  Betrifft auch `Builder.setLocale(Locale)`: kann Extensions eines
+  bestehenden `Locale` nicht übernehmen, weil `Locale` sie nirgends
+  vorhält. *Abhängig von:* Architekturentscheidung, ob `Locale` einen
+  eigenen Extension-Speicher (z. B. `[Character: String]`, analog zu
+  `Builder`) bekommt, oder ob Extensions bewusst außerhalb des
+  POSIX-Identifier-Modells dieses Ports bleiben (dokumentieren).
+- [ ] **`java.util.stream` Primitive Streams: `IntStream`/`LongStream`/
+  `DoubleStream`/`StreamSupport` sind implementiert (inkl. Tests unter
+  `Tests/JavApiTests/util/stream/JavApi_util_stream_PrimitiveStreams_Tests.swift`),
+  `BaseStream` bewusst nicht.** `IntStream`, `LongStream`, `DoubleStream`
+  (`Sources/JavApi/util/stream/`) folgen exakt dem lazy/single-use
+  Pipeline-Design von `Stream<T>` und decken Factory-Methoden (`of`,
+  `range`/`rangeClosed` — `DoubleStream` bewusst ohne, wie im echten
+  Java —, `generate`, `iterate` 2-/3-arg, `concat`), Zwischenoperationen
+  (`filter`, `map`, `mapToObj`/`mapToInt`/`mapToLong`/`mapToDouble`,
+  `flatMap`, `distinct`, `sorted`, `peek`, `limit`, `skip`, `boxed`,
+  `asLongStream`/`asDoubleStream`) und Terminaloperationen (`forEach`,
+  `toArray`, `reduce`, `sum`/`min`/`max`/`count`/`average`, `anyMatch`/
+  `allMatch`/`noneMatch`, `findFirst`/`findAny`, `iterator`,
+  `spliterator`) ab. `StreamSupport` (`stream`/`intStream`/`longStream`/
+  `doubleStream`) drainiert dabei einen `Spliterator` eager in ein Array,
+  statt echt inkrementell zu streamen — dokumentierter Kompromiss, da
+  alle Stream-Typen selbst array-/sequence-backed sind. **Bewusst nicht
+  umgesetzt:** ein formales `BaseStream`-Protokoll — analog zu `Stream<T>`
+  selbst, das ebenfalls keinen solchen gemeinsamen Oberbau hat, um
+  Konsistenz zu wahren; `PrimitiveIterator.OfInt/OfLong/OfDouble` als
+  öffentliche Typen (die internen `_ArrayIterator`/`_LongArrayIterator`/
+  `_DoubleArrayIterator` sind rein privat); `IntSummaryStatistics`/
+  `LongSummaryStatistics`/`DoubleSummaryStatistics` sowie
+  `summaryStatistics()`; `Spliterators`-Utility-Klasse. Die in
+  `Text-Implementierung.md` davon abhängigen Punkte (`String.chars()`/
+  `codePoints()`, `CharSequence.chars()`/`codePoints()`,
+  `Pattern.splitAsStream`, `Matcher.results()`, `String.lines()`) können
+  jetzt auf `IntStream` aufsetzen. *Abhängig von:* nichts mehr technisch
+  Blockierendem für die o. g. Text-Punkte.
 - [ ] **Machbarkeits-Klärung `java.util.concurrent` vor Implementierungs-
   beginn nötig** — siehe Abschnitt „Plattform-/Concurrency-Abhängigkeiten"
   unten. Fast das gesamte Paket (Executor-Framework, `ConcurrentHashMap`,
@@ -241,36 +264,35 @@ für die `Throwable`-Hierarchie, `open`/`final`, `preconditionFailure` statt
 
 ## Java 8
 
-- [ ] `DoubleToIntFunction`, `DoubleToLongFunction`, `IntToDoubleFunction`,
-  `IntToLongFunction`, `LongToDoubleFunction`, `LongToIntFunction` — sechs
-  primitive Konvertierungs-Funktionsinterfaces aus `java.util.function`
-  fehlen; die übrigen 37 von 43 Interfaces sind bereits vorhanden.
-  *Abhängig von:* nichts.
 - [ ] `DoubleSummaryStatistics`, `IntSummaryStatistics`,
   `LongSummaryStatistics` — Akkumulator-Klassen für
   `Stream.collect(Collectors.summarizingInt/...)` bzw.
   `IntStream.summaryStatistics()` — **komplett nicht gefunden**.
-  *Abhängig von:* `IntStream`/`LongStream`/`DoubleStream` (siehe
-  Priority-Abschnitt).
+  *Abhängig von:* nichts mehr technisch Blockierendem — `IntStream`/
+  `LongStream`/`DoubleStream` sind inzwischen implementiert, nur
+  `summaryStatistics()` selbst fehlt noch dort.
 - [ ] `PrimitiveIterator` + Unter-Interfaces (`PrimitiveIterator.OfInt`,
   `OfLong`, `OfDouble`) — spezialisierte Iterator-Protokolle ohne Boxing;
-  **nicht gefunden**. *Abhängig von:* nichts direkt Blockierendem, aber
-  sinnvollerweise zusammen mit `IntStream`/`LongStream`/`DoubleStream`
-  umgesetzt (gemeinsame Grundlage).
+  **nicht gefunden** (die internen `_ArrayIterator`/`_LongArrayIterator`/
+  `_DoubleArrayIterator` in `Sources/JavApi/util/stream/` sind rein
+  private Implementierungsdetails von `IntStream`/`LongStream`/
+  `DoubleStream.iterator()`, kein öffentliches `PrimitiveIterator`-Typ).
+  *Abhängig von:* nichts mehr technisch Blockierendem.
 - [ ] `Spliterators` — Utility-Klasse mit statischen Factory-Methoden
   (`spliterator(...)`, `spliteratorUnknownSize(...)`,
   `emptySpliterator()` etc.) ergänzend zum bereits vorhandenen
   `Spliterator`-Protokoll (`Sources/JavApi/util/Spliterator.swift`).
   *Abhängig von:* vorhandenem `Spliterator` (bereits implementiert).
-- [ ] `StreamSupport` — Brücke von `Spliterator` zu `Stream`/`IntStream`/
-  etc. (`StreamSupport.stream(...)`); **nicht gefunden**. *Abhängig von:*
-  `IntStream`/`LongStream`/`DoubleStream`/`BaseStream` (siehe
-  Priority-Abschnitt) sowie vorhandenem `Spliterator`.
 - [ ] `BaseStream` — gemeinsames Basis-Interface von `Stream`/`IntStream`/
   `LongStream`/`DoubleStream` (`onClose`, `close`, `isParallel`,
-  `sequential`, `parallel`, `unordered`); aktuell hat `Stream` vermutlich
-  keinen gemeinsamen Oberbau, da die primitiven Streams fehlen. *Abhängig
-  von:* siehe Priority-Abschnitt.
+  `sequential`, `parallel`, `unordered`); **bewusst nicht umgesetzt** —
+  `Stream<T>` selbst hat ebenfalls keinen solchen gemeinsamen Oberbau, die
+  primitiven Streams folgen hier zwecks Konsistenz demselben Muster
+  (`isParallel`/`sequential`/`parallel` existieren jeweils direkt auf dem
+  konkreten Typ; `onClose`/`close`/`unordered` fehlen auf allen vier
+  Stream-Typen gleichermaßen). *Abhängig von:* Architekturentscheidung,
+  ob `Stream<T>` rückwirkend ein `BaseStream`-Protokoll bekommt (dann
+  gemeinsam für alle vier Typen nachzuziehen).
 - [ ] **`Comparator.thenComparingInt`/`thenComparingLong`/
   `thenComparingDouble` fehlen komplett** — bestätigt durch Commit-Prüfung
   (Commit `1278291f` behauptet „Java 8/9 API completions... Comparator",

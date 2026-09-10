@@ -104,4 +104,57 @@ struct JavApi_util_LinkedHashMap_ConcurrentModificationTests {
       _ = try it.next()
     }
   }
+
+  // MARK: - sequencedKeySet() / sequencedValues() / sequencedEntrySet() (Java 21 SequencedMap)
+
+  @Test("Putting a new key while iterating sequencedKeySet() throws ConcurrentModificationException on next()")
+  func sequencedKeySetNextThrowsAfterExternalPutNewKey() throws {
+    let map = java.util.LinkedHashMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedKeySet().iterator()
+    #expect(try it.next() == 1) // insertion order guaranteed
+    _ = map.put(3, "c")
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.next()
+    }
+  }
+
+  @Test("Replacing the value of an already-present key does NOT trigger ConcurrentModificationException on sequencedKeySet()")
+  func sequencedKeySetNotAffectedByValueReplace() throws {
+    let map = java.util.LinkedHashMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedKeySet().iterator()
+    #expect(try it.next() == 1)
+    _ = map.put(1, "updated")
+    #expect(try it.next() == 2)
+    #expect(!it.hasNext())
+  }
+
+  @Test("Removing a key while iterating sequencedValues() throws ConcurrentModificationException on next()")
+  func sequencedValuesNextThrowsAfterExternalRemove() throws {
+    let map = java.util.LinkedHashMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedValues().iterator()
+    _ = try it.next()
+    _ = map.remove(1)
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.next()
+    }
+  }
+
+  @Test("Clearing the map while iterating sequencedEntrySet() throws ConcurrentModificationException on next()")
+  func sequencedEntrySetNextThrowsAfterExternalClear() throws {
+    let map = java.util.LinkedHashMap<Int, String>()
+    _ = map.put(1, "a")
+    _ = map.put(2, "b")
+    let it = map.sequencedEntrySet().iterator()
+    #expect(it.hasNext() == true)
+    map.clear()
+    #expect(throws: java.util.ConcurrentModificationException.self) {
+      _ = try it.next()
+    }
+  }
 }

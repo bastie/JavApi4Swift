@@ -357,14 +357,13 @@ extension java.util {
     open func sequencedKeySet() -> any java.util.SequencedSet<K> { navigableKeySet() }
 
     open func sequencedValues() -> any java.util.SequencedCollection<V> {
-      let list = java.util.ArrayList<V>()
-      for p in _pairs { _ = try? list.add(p.value) }
-      return list
+      let values = _pairs.map { $0.value }
+      return java.util._MapValuesView(values: values, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open func sequencedEntrySet() -> any java.util.SequencedSet<java.util.MapEntry<K, V>> {
       let entries = _pairs.map { java.util.MapEntry($0.key, $0.value) }
-      return java.util._OrderedSetSnapshot(entries)
+      return java.util._OrderedSetSnapshot(entries, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
   }
 }
@@ -382,13 +381,25 @@ extension java.util {
                                                              java.util.SequencedSet {
 
     private let _elements: [E]
+    /// Optional fail-fast tie-back to the *originating* map — both nil for a
+    /// plain, unchecked snapshot (kept as the default so every pre-existing
+    /// caller stays source-compatible). See `_MapViewIterator` in
+    /// `MapView+ConcurrentModification.swift` for the same closure-based
+    /// pattern used for keySet()/entrySet()/values().
+    private let expectedModCount: Int?
+    private let currentModCount: (() -> Int)?
 
-    init(_ elements: [E]) { self._elements = elements; super.init() }
+    init(_ elements: [E], expectedModCount: Int? = nil, currentModCount: (() -> Int)? = nil) {
+      self._elements = elements
+      self.expectedModCount = expectedModCount
+      self.currentModCount = currentModCount
+      super.init()
+    }
 
     override func size() -> Int { _elements.count }
 
     override func iterator() -> any java.util.Iterator<E> {
-      _SnapshotIter(_elements)
+      _SnapshotIter(_elements, expectedModCount: expectedModCount, currentModCount: currentModCount)
     }
 
     override func contains(_ e: E?) -> Bool {
@@ -407,12 +418,12 @@ extension java.util {
       return l
     }
     func reversed() -> any java.util.SequencedCollection<E> {
-      _OrderedSetSnapshot(_elements.reversed())
+      _OrderedSetSnapshot(_elements.reversed(), expectedModCount: expectedModCount, currentModCount: currentModCount)
     }
 
     // SequencedSet
     func reversedSet() -> any java.util.SequencedSet<E> {
-      _OrderedSetSnapshot(_elements.reversed())
+      _OrderedSetSnapshot(_elements.reversed(), expectedModCount: expectedModCount, currentModCount: currentModCount)
     }
   }
 }
@@ -422,9 +433,20 @@ private final class _SnapshotIter<E>: java.util.Iterator, IteratorProtocol {
   public typealias Element = E
   private let _elements: [E]
   private var _index: Int = 0
-  init(_ elements: [E]) { _elements = elements }
+  /// Both nil for a plain, unchecked snapshot (the pre-existing default).
+  /// When both are set, mirrors the originating map's fail-fast guarantee.
+  private let expectedModCount: Int?
+  private let currentModCount: (() -> Int)?
+  init(_ elements: [E], expectedModCount: Int? = nil, currentModCount: (() -> Int)? = nil) {
+    _elements = elements
+    self.expectedModCount = expectedModCount
+    self.currentModCount = currentModCount
+  }
   public func hasNext() -> Bool { _index < _elements.count }
   public func next() throws(java.lang.RuntimeException) -> E {
+    if let expected = expectedModCount, let current = currentModCount, expected != current() {
+      throw java.util.ConcurrentModificationException()
+    }
     guard _index < _elements.count else { throw java.util.NoSuchElementException() }
     defer { _index += 1 }
     return _elements[_index]
@@ -435,6 +457,9 @@ private final class _SnapshotIter<E>: java.util.Iterator, IteratorProtocol {
     return _elements[_index]
   }
   public func remove() throws(java.lang.RuntimeException) {
+    if let expected = expectedModCount, let current = currentModCount, expected != current() {
+      throw java.util.ConcurrentModificationException()
+    }
     throw java.lang.IllegalStateException()
   }
   public func makeIterator() -> _SnapshotIter<E> { self }

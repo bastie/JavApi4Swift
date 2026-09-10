@@ -253,15 +253,12 @@ extension java.util {
     }
 
     open func sequencedKeySet() -> any java.util.SequencedSet<KeyType> {
-      java.util._OrderedSetSnapshot(sortedKeyCollection)
+      java.util._OrderedSetSnapshot(sortedKeyCollection, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open func sequencedValues() -> any java.util.SequencedCollection<ValueType> {
-      let list = java.util.ArrayList<ValueType>()
-      for k in sortedKeyCollection {
-        if let v = delegateDictionary[k] { _ = try? list.add(v) }
-      }
-      return list
+      let values = sortedKeyCollection.compactMap { delegateDictionary[$0] }
+      return java.util._MapValuesView(values: values, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
 
     open func sequencedEntrySet() -> any java.util.SequencedSet<java.util.MapEntry<KeyType, ValueType>> {
@@ -269,7 +266,7 @@ extension java.util {
         guard let v = delegateDictionary[k] else { return nil }
         return java.util.MapEntry(k, v)
       }
-      return java.util._OrderedSetSnapshot(entries)
+      return java.util._OrderedSetSnapshot(entries, expectedModCount: modCount, currentModCount: { [self] in self.modCount })
     }
   }
 
