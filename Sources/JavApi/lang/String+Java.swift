@@ -322,6 +322,66 @@ extension String {
   public func hashCode () -> Int {
     return self._javaHashCode()
   }
+
+  // MARK: - java.util.stream bridges (Java 8/11)
+
+  /// Returns an `IntStream` of `char` values (UTF-16 code units) from this string.
+  ///
+  /// Unlike most of this port's `char`-related APIs — which follow the
+  /// simplified `char[]` → `[Character]` (grapheme cluster) convention
+  /// documented in Java2Swift.md — `chars()` is specified by Java strictly
+  /// in terms of UTF-16 code units, so this uses `self.utf16` directly.
+  /// This means a character outside the Basic Multilingual Plane produces
+  /// two `Int` elements (a surrogate pair), exactly matching real Java,
+  /// even though it would be a single `Character`/grapheme cluster in
+  /// `toCharArray()`.
+  ///
+  /// Mirrors `java.lang.String.chars()`.
+  /// - Since: Java 8
+  public func chars() -> java.util.stream.IntStream {
+    java.util.stream.IntStream(self.utf16.map { Int($0) })
+  }
+
+  /// Returns an `IntStream` of Unicode code points from this string.
+  ///
+  /// Unlike `chars()`, a code point maps 1:1 to a Swift `Unicode.Scalar`,
+  /// so this has no BMP/surrogate-pair caveat.
+  ///
+  /// Mirrors `java.lang.String.codePoints()`.
+  /// - Since: Java 8
+  public func codePoints() -> java.util.stream.IntStream {
+    java.util.stream.IntStream(self.unicodeScalars.map { Int($0.value) })
+  }
+
+  /// Returns a stream of lines extracted from this string, separated by
+  /// line terminators (`"\n"`, `"\r"`, or `"\r\n"`); terminators are not
+  /// included in the returned lines. The final line is included even
+  /// without a trailing terminator, but a trailing terminator does not
+  /// itself produce an extra empty trailing line — so `""` yields zero
+  /// lines and `"a\n"` yields exactly one line, `"a"`.
+  ///
+  /// Relies on `"\r\n"` always being a single Swift `Character` (Unicode
+  /// guarantees CR+LF never splits across an extended grapheme cluster
+  /// boundary), so no manual two-character lookahead is needed here.
+  ///
+  /// Mirrors `java.lang.String.lines()`.
+  /// - Since: Java 11
+  public func lines() -> java.util.stream.Stream<String> {
+    var result: [String] = []
+    var current = ""
+    for c in self {
+      if c == "\n" || c == "\r" || c == "\r\n" {
+        result.append(current)
+        current = ""
+      } else {
+        current.append(c)
+      }
+    }
+    if !current.isEmpty {
+      result.append(current)
+    }
+    return java.util.stream.Stream<String>(result)
+  }
 }
 
 fileprivate let TRIM_CHARACTER_SET = CharacterSet(charactersIn : "\u{0000}\u{0001}\u{0002}\u{0003}\u{0004}\u{0005}\u{0006}\u{0007}\u{0008}\u{0009}\u{000A}\u{000B}\u{000C}\u{000D}\u{000E}\u{000F}\u{0010}\u{0011}\u{0012}\u{0013}\u{0014}\u{0015}\u{0016}\u{0017}\u{0018}\u{0019}\u{001A}\u{001B}\u{001C}\u{001D}\u{001E}\u{001F}\u{0020}") // different to strip can be readed f.e. here: (https://stackoverflow.com/questions/51266582/difference-between-string-trim-and-strip-methods-in-java-11)

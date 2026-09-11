@@ -674,6 +674,32 @@ extension java.util.regex {
       return MatchSnapshot(state: s)
     }
 
+    // MARK: - results
+
+    /// Returns a stream of match results for each subsequence of the input
+    /// that matches the pattern, in the same order as would be produced by
+    /// repeatedly calling `find()` until it returns `false`. Each result is
+    /// captured as if by `toMatchResult()`.
+    ///
+    /// This does **not** reset the matcher first — matching continues from
+    /// wherever this matcher currently stands (the beginning of the region,
+    /// if no match operation has been attempted yet). Unlike the real JDK,
+    /// where `results()` returns a stream that is driven lazily by its
+    /// eventual terminal operation, this port's `Stream` is array-backed
+    /// (matching this project's established `Stream`/`IntStream` design),
+    /// so all matches are found and captured eagerly at the point `results()`
+    /// itself is called, not at the point a terminal stream operation runs.
+    ///
+    /// Mirrors `java.util.regex.Matcher.results()`.
+    /// - Since: Java 9
+    public func results() -> java.util.stream.Stream<any java.util.regex.MatchResult> {
+      var snapshots: [any java.util.regex.MatchResult] = []
+      while find() {
+        snapshots.append(toMatchResult())
+      }
+      return java.util.stream.Stream<any java.util.regex.MatchResult>(snapshots)
+    }
+
     // MARK: - quoteReplacement
 
     /// Returns a literal replacement `String` for the specified `String`.

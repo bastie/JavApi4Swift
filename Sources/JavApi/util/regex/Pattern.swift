@@ -271,6 +271,17 @@ extension java.util.regex {
       return results
     }
 
+    /// Creates a stream from `input`, split around matches of this pattern.
+    ///
+    /// Equivalent to `Stream(split(input))` — same trailing-empty-string
+    /// behaviour as `split(_:)` with `limit == 0`.
+    ///
+    /// Mirrors `java.util.regex.Pattern.splitAsStream(CharSequence)`.
+    /// - Since: Java 8
+    public func splitAsStream(_ input: String) -> java.util.stream.Stream<String> {
+      java.util.stream.Stream<String>(split(input))
+    }
+
     // MARK: - Java → Swift pattern translation
 
     /// Translates a Java regex pattern string and flag bitmask into a Swift

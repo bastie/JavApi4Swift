@@ -284,14 +284,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   existiert bereits, aber die `String.join`-Fassade fehlt. *Abhängig von:*
   vorhandenem `StringJoiner` (bereits implementiert) — reine Fassade,
   kein Blocker.
-- [ ] `String.chars()` / `codePoints()` als `IntStream` sowie
-  `CharSequence.chars()` / `codePoints()` (Default-Methoden auf
-  `CharSequence`). *Abhängig von:* **`java.util.stream`-Fortschritt**
-  (`IntStream`) — dieser Punkt kann erst sinnvoll umgesetzt werden, wenn
-  `IntStream` im Projekt verfügbar ist (siehe Java-8-16-Streams-Phase in
-  Projekt-Memory).
-- [ ] `Pattern.splitAsStream(CharSequence)`. *Abhängig von:*
-  **`java.util.stream`** (`Stream<String>`), siehe oben.
 - [ ] `Character.hashCode(char)` (statische Variante, seit Java 8) — nur
   die Instanzmethode `hashCode()` in `Character+Java.swift` gefunden.
   *Abhängig von:* nichts.
@@ -302,8 +294,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   `replaceFirst(Function<MatchResult,String>)`. *Abhängig von:* nichts
   Zusätzlichem (Funktionsinterface-Unterstützung in Swift bereits nativ
   über Closures gegeben).
-- [ ] `Matcher.results()` → `Stream<MatchResult>`. *Abhängig von:*
-  **`java.util.stream`** (`Stream<MatchResult>`).
 - [ ] `java.lang.invoke.StringConcatFactory` — reines `invokedynamic`-
   Compiler-Backend für String-Konkatenation seit Java 9, kein für Swift
   relevantes API (Swift hat kein Analogon zu `invokedynamic`/Bootstrap-
@@ -315,8 +305,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
 
 - [ ] `String.stripLeading()` / `stripTrailing()`. *Abhängig von:* nichts
   (`strip()` bereits vorhanden).
-- [ ] `String.lines()` (`Stream<String>`). *Abhängig von:*
-  **`java.util.stream`**.
 - [ ] `String.repeat(int)`. *Abhängig von:* nichts.
 - [ ] `CharSequence.compare(CharSequence, CharSequence)` (statische
   Utility). *Abhängig von:* nichts.
@@ -427,12 +415,15 @@ beschrieben wird:
     Fallback bündeln (analog zur bestehenden MUSL/CoreFoundation-Guard-
     Praxis bei X11-Code, siehe Projekt-Memory `project_open_issues.md`).
 
-Ebenfalls Querschnitt: mehrere Java-8/9/11-Punkte (`chars()`/
-`codePoints()`, `lines()`, `Pattern.splitAsStream`, `Matcher.results()`)
-hängen an derselben Voraussetzung — dem Fortschritt der
-`java.util.stream`-Implementierung (`IntStream`/`Stream<String>`/
-`Stream<MatchResult>`). Diese sollten gebündelt angegangen werden, sobald
-`IntStream` im Projekt verfügbar ist.
+`String.chars()`/`codePoints()`, `CharSequence.chars()`/`codePoints()`,
+`String.lines()`, `Pattern.splitAsStream(_:)`, and `Matcher.results()` —
+the Java 8/9/11 points that were gated on `java.util.stream` progress —
+are now implemented (`Sources/JavApi/lang/String+Java.swift`,
+`Sources/JavApi/lang/CharSequence.swift`,
+`Sources/JavApi/util/regex/Pattern.swift`,
+`Sources/JavApi/util/regex/Matcher.swift`), with regression coverage in
+`JavApi_lang_String_Java8Stream_Tests.swift` and
+`JavApi_util_regex_Stream_Tests.swift`.
 
 ## Swift-6.3-Concurrency-Hinweis
 
