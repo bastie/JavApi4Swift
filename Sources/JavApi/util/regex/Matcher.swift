@@ -32,6 +32,12 @@ extension java.util.regex {
     /// The position from which the next `find()` call starts.
     private var _searchStart: String.Index
 
+    /// `true` once `find()` has produced a zero-length match at the very
+    /// end of the search region -- the only position left to search is
+    /// already exhausted, so the next `find()` call must report no match
+    /// instead of re-matching the same empty range forever.
+    private var _searchExhausted: Bool = false
+
     /// The position up to which text has been appended in
     /// `appendReplacement` / `appendTail`.
     private var _appendPos: String.Index
@@ -138,6 +144,10 @@ extension java.util.regex {
     public func find() -> Bool {
       _matchAttempted = true
       _lastOperation = .find
+      if _searchExhausted {
+        _state = nil
+        return false
+      }
       let searchRegion = _input[_searchStart..<_regionEnd]
       guard let match = searchRegion.firstMatch(of: _pattern._regex) else {
         _state = nil
@@ -147,6 +157,13 @@ extension java.util.regex {
       // Advance search start; guard against infinite loops on zero-length match.
       if match.range.isEmpty, match.range.upperBound < _regionEnd {
         _searchStart = _input.index(after: match.range.upperBound)
+      } else if match.range.isEmpty {
+        // A zero-length match at the very end of the region is the last
+        // possible match here -- there is no position left to advance to,
+        // so mark the search exhausted instead of re-matching this same
+        // empty range on every subsequent find() call.
+        _searchStart = match.range.upperBound
+        _searchExhausted = true
       } else {
         _searchStart = match.range.upperBound
       }
@@ -268,6 +285,7 @@ extension java.util.regex {
       _appendPos = _input.startIndex
       _state = nil
       _matchAttempted = false
+      _searchExhausted = false
       return self
     }
 

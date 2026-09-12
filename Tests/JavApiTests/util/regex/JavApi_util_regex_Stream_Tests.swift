@@ -51,4 +51,32 @@ struct JavApi_util_regex_Stream_Tests {
     let remaining = m.results().toArray()
     #expect(remaining.map { $0.group() } == ["22", "33"])
   }
+
+  @Test("Pattern.splitAsStream(_:) on a string with zero matches yields the whole string as the only element")
+  func splitAsStreamZeroMatches() throws {
+    let p = try java.util.regex.Pattern.compile(",")
+    #expect(p.splitAsStream("no delimiter here").toArray() == ["no delimiter here"])
+  }
+
+  @Test("Matcher.results() exposes capture groups on each yielded MatchResult")
+  func resultsExposesCaptureGroups() throws {
+    let p = try java.util.regex.Pattern.compile("(\\w+)=(\\d+)")
+    let m = p.matcher("a=1 b=22 c=333")
+    let results = m.results().toArray()
+    #expect(results.count == 3)
+    #expect(results.map { $0.group(1) } == ["a", "b", "c"])
+    #expect(results.map { $0.group(2) } == ["1", "22", "333"])
+    #expect(results.allSatisfy { $0.groupCount() == 2 })
+  }
+
+  @Test("Matcher.results() on a zero-length-matching pattern terminates instead of looping forever")
+  func resultsTerminatesOnZeroLengthMatches() throws {
+    let p = try java.util.regex.Pattern.compile("x*")
+    let m = p.matcher("abc")
+    let results = m.results().toArray()
+    // One empty match before each character, plus one at the very end -- see
+    // the dedicated find() regression coverage in JavApi_util_regex_Tests.swift.
+    #expect(results.count == 4)
+    #expect(results.allSatisfy { $0.group().isEmpty })
+  }
 }

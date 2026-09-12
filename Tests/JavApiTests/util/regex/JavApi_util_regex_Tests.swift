@@ -912,3 +912,62 @@ struct MatcherToMatchResultTests {
     #expect(m.group() == "22")
   }
 }
+
+@Suite("java.util.regex.Matcher – find() zero-length match at end of input (regression)")
+struct MatcherZeroLengthFindRegressionTests {
+
+  @Test("find() terminates instead of looping forever when a zero-length match lands exactly at the end of the input")
+  func findTerminatesOnTrailingZeroLengthMatch() throws {
+    // "x*" can match the empty string, so a naive search-position advance
+    // that only moves forward on a NON-trailing empty match would keep
+    // re-matching the empty range at the very end of "abc" forever.
+    let p = try java.util.regex.Pattern.compile("x*")
+    let m = p.matcher("abc")
+
+    var matches: [(String, Int, Int)] = []
+    var iterations = 0
+    while m.find() {
+      iterations += 1
+      // A hard cap well above any legitimate match count guards this test
+      // itself against ever hanging if the regression were reintroduced.
+      #expect(iterations <= 10, "find() looped past a sane bound -- likely stuck re-matching the trailing empty match")
+      if iterations > 10 { break }
+      matches.append((m.group(), m.start(), m.end()))
+    }
+
+    // One empty match before each character, plus one at the very end.
+    #expect(matches.count == 4)
+    #expect(matches.allSatisfy { $0.0 == "" })
+    #expect(matches.map { $0.1 } == [0, 1, 2, 3])
+    #expect(matches.map { $0.2 } == [0, 1, 2, 3])
+  }
+
+  @Test("find() still finds a legitimate trailing zero-length match after a non-empty match that consumes the whole input")
+  func findStillReportsTrailingEmptyMatchAfterFullConsumption() throws {
+    let p = try java.util.regex.Pattern.compile("a*")
+    let m = p.matcher("aaa")
+
+    #expect(m.find() == true)
+    #expect(m.group() == "aaa")
+    #expect(m.start() == 0)
+    #expect(m.end() == 3)
+
+    // Java also reports one further empty match at the end of the input.
+    #expect(m.find() == true)
+    #expect(m.group() == "")
+    #expect(m.start() == 3)
+    #expect(m.end() == 3)
+
+    // No more matches after that.
+    #expect(m.find() == false)
+  }
+
+  @Test("find() on an empty input with a nullable pattern matches once, not forever")
+  func findOnEmptyInputTerminates() throws {
+    let p = try java.util.regex.Pattern.compile("x*")
+    let m = p.matcher("")
+    #expect(m.find() == true)
+    #expect(m.group() == "")
+    #expect(m.find() == false)
+  }
+}

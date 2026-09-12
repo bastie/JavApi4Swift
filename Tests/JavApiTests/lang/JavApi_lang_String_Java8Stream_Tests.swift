@@ -86,4 +86,23 @@ struct JavApi_lang_String_Java8Stream_Tests {
   func linesWithoutTerminator() {
     #expect("no newline here".lines().toArray() == ["no newline here"])
   }
+
+  // MARK: - Grapheme cluster vs. code point / UTF-16 unit (additional edge case)
+
+  @Test("chars()/codePoints() operate below the grapheme level: a combining-diacritic sequence is one Character but two code units")
+  func charsAndCodePointsOperateBelowGraphemeLevel() {
+    // "e" + COMBINING ACUTE ACCENT (U+0301) is a single extended grapheme
+    // cluster / single Swift Character ("\u{65}\u{301}" == "\u{e9}" in NFC,
+    // but NOT normalized here -- it stays two scalars), unlike this port's
+    // usual char[]->[Character] simplification used elsewhere in the API.
+    let s = "e\u{0301}"
+    #expect(s.count == 1)  // one grapheme cluster
+
+    let chars = s.chars().toArray()
+    let codePoints = s.codePoints().toArray()
+    #expect(chars.count == 2)
+    #expect(codePoints.count == 2)
+    #expect(chars == codePoints)  // both scalars are within the BMP: no surrogate pairs
+    #expect(codePoints == [0x65, 0x0301])
+  }
 }
