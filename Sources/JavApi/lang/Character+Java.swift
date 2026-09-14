@@ -210,6 +210,13 @@ extension Character {
     return String(self)
   }
 
+  /// Static facade for the instance ``toString()`` — matches Java's
+  /// `Character.toString(char)`.
+  /// - Since: JavaApi > 0.19.1 (Java 1.0)
+  public static func toString(_ ch: Character) -> String {
+    return String(ch)
+  }
+
   /// Equals comparison
   /// - Since: JavaApi > 0.19.1 (Java 1.0)
   public func equals(_ other: Character) -> Bool {

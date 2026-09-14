@@ -92,7 +92,7 @@ extension java.text {
           let text     = String(s[ltRange.upperBound...])
           if let limit = Double(limitStr) {
             // `<` means strictly greater than; encode as limit + smallest epsilon
-            newLimits.append(nextDouble(limit))
+            newLimits.append(ChoiceFormat.nextDouble(limit))
             newFormats.append(text)
           }
         }
@@ -182,12 +182,36 @@ extension java.text {
     }
 
     // -------------------------------------------------------------------------
-    // MARK: Private helpers
+    // MARK: nextDouble / previousDouble
     // -------------------------------------------------------------------------
 
     /// Returns the smallest `Double` value strictly greater than `d`.
-    private func nextDouble(_ d: Double) -> Double {
+    ///
+    /// Mirrors `java.text.ChoiceFormat.nextDouble(double)`. Matches Java's
+    /// documented special cases: `NaN` and infinite values are returned
+    /// unchanged rather than having a ULP increment applied to them (Java's
+    /// own bit-manipulation implementation short-circuits on
+    /// `Double.isNaN`/`Double.isInfinite` before ever touching the raw bit
+    /// pattern), and `0.0`/`-0.0` map to the smallest positive subnormal
+    /// double (Java's `Double.MIN_VALUE`) rather than to `-0.0`'s literal
+    /// ULP neighbour.
+    /// - Since: Java 1.0
+    public static func nextDouble(_ d: Double) -> Double {
+      if d.isNaN || d.isInfinite { return d }
+      if d == 0.0 { return Double.leastNonzeroMagnitude }
       return d.nextUp
+    }
+
+    /// Returns the greatest `Double` value strictly less than `d`.
+    ///
+    /// Mirrors `java.text.ChoiceFormat.previousDouble(double)`. See
+    /// ``nextDouble(_:)`` for the `NaN`/infinite/zero special cases, which
+    /// apply symmetrically here.
+    /// - Since: Java 1.0
+    public static func previousDouble(_ d: Double) -> Double {
+      if d.isNaN || d.isInfinite { return d }
+      if d == 0.0 { return -Double.leastNonzeroMagnitude }
+      return d.nextDown
     }
   }
 }

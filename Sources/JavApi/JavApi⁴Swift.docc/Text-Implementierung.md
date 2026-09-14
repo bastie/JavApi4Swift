@@ -59,36 +59,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   Testdateien unter `Tests/JavApiTests/`. *Abhängig von:* nichts; ist aber
   Voraussetzung, um Regressionen bei den Ergänzungen in den
   versionsspezifischen Abschnitten unten sicher zu erkennen.
-## Java 1.0
-
-- [ ] `String.concat(String)` — triviales `+`-Äquivalent, fehlt als
-  explizite Methode. *Abhängig von:* nichts.
-- [ ] `String.regionMatches(...)` (mit/ohne `ignoreCase`). *Abhängig von:*
-  nichts.
-- [ ] `String.intern()` — in Swift ggf. No-Op/Dokumentationshinweis, da
-  Swift-Strings kein String-Pool-Konzept haben. *Abhängig von:* nichts.
-- [ ] `String.copyValueOf(char[])` / `copyValueOf(char[], int, int)` — Alias
-  zu `valueOf`. *Abhängig von:* nichts.
-- [ ] `Character.toString(char)` (statische Fassaden-Methode) — nur die
-  Instanzmethode `toString()` in `Character+Java.swift` gefunden, das
-  statische `Character.toString(char)`-Pendant fehlt. *Abhängig von:*
-  nichts.
-- [ ] `ChoiceFormat.nextDouble`/`previousDouble` Sonderfälle — Detailprüfung
-  empfohlen (Kleinteil, `java.text.ChoiceFormat` seit 1.0). *Abhängig von:*
-  nichts.
-- [ ] `StringBuffer`: `capacity()` / `ensureCapacity(int)` / `trimToSize()`
-  — bislang nicht vorhanden (in Swift ohnehin nur als Hinweis/No-Op
-  sinnvoll, da `String` dynamisch wächst). *Abhängig von:* nichts.
-- [ ] `String.equalsIgnoreCase(String)` — **komplett nicht gefunden** in
-  `String+Java.swift`, obwohl seit Java 1.0 vorhanden und sehr häufig
-  genutzt. *Abhängig von:* nichts.
-- [ ] `String.indexOf(String, int fromIndex)` / `indexOf(char, int fromIndex)`
-  / `lastIndexOf(String, int fromIndex)` / `lastIndexOf(char, int fromIndex)`
-  — aktuell existieren nur die Overloads ohne `fromIndex`-Parameter
-  (`indexOf(String)`, `indexOf(Character)`, `lastIndexOf(Character)`,
-  `lastIndexOf(String)` in `String+Java.swift`); die vier
-  `fromIndex`-Varianten fehlen komplett. *Abhängig von:* nichts.
-
 ## Java 1.1
 
 - [ ] `Character.isJavaIdentifierStart`/`isJavaIdentifierPart`,

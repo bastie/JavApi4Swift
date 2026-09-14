@@ -213,6 +213,42 @@ public final class StringBuffer : @unchecked Sendable {
     return content.count
   }
 
+  /// Returns the current capacity.
+  ///
+  /// Advisory only, like the capacity-hint constructor above: Swift
+  /// `String` grows automatically, so this reports the buffer's current
+  /// length as a lower bound rather than a true pre-allocated capacity.
+  ///
+  /// Mirrors `java.lang.StringBuffer.capacity()`.
+  /// - Since: JavaApi (Java 1.0)
+  public func capacity() -> Int {
+    lock.lock(); defer { lock.unlock() }
+    return content.count
+  }
+
+  /// Ensures the buffer's capacity is at least `minimumCapacity`.
+  ///
+  /// Advisory only — hints the underlying storage via
+  /// `reserveCapacity(_:)`; Swift `String` still grows automatically
+  /// beyond this if needed.
+  ///
+  /// Mirrors `java.lang.StringBuffer.ensureCapacity(int)`.
+  /// - Since: JavaApi (Java 1.0)
+  public func ensureCapacity(_ minimumCapacity: Int) {
+    guard minimumCapacity > 0 else { return }
+    lock.lock(); defer { lock.unlock() }
+    content.reserveCapacity(minimumCapacity)
+  }
+
+  /// Attempts to reduce storage used for the buffer.
+  ///
+  /// No-op in this Swift port — `String` manages its own storage and
+  /// offers no equivalent "trim to size" operation.
+  ///
+  /// Mirrors `java.lang.StringBuffer.trimToSize()`.
+  /// - Since: JavaApi (Java 1.0)
+  public func trimToSize() {}
+
   /// Truncates or pads (with null characters) the buffer to the given length
   ///
   /// - Since: JavaApi > 0.19.1 (Java 1.0)

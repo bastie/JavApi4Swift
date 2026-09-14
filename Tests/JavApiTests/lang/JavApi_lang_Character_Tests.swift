@@ -46,4 +46,20 @@ struct JavApi_lang_Character_Tests {
     let musicalSymbol: Character = "𝄞"  // outside BMP
     #expect(Int(musicalSymbol) == 119_070)
   }
+
+  @Test("Character.toString(_:) static facade matches the instance method")
+  func testStaticToString() {
+    let A: Character = "A"
+    #expect(Character.toString(A) == "A")
+    #expect(Character.toString(A) == A.toString())
+  }
+
+  @Test("Character.toString(_:) matches the instance method even for a multi-scalar grapheme cluster")
+  func testStaticToStringMultiScalarGrapheme() {
+    // A flag emoji is one Swift `Character` built from two Unicode scalars
+    // (regional indicator symbols) -- toString must round-trip it exactly.
+    let flag: Character = "\u{1F1E9}\u{1F1EA}"  // 🇩🇪
+    #expect(Character.toString(flag) == "\(flag)")
+    #expect(Character.toString(flag) == flag.toString())
+  }
 }

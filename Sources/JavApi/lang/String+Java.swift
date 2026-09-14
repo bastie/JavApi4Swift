@@ -124,6 +124,62 @@ extension String {
   public func equals (_ other : String) -> Bool {
     return self == other
   }
+
+  /// Compares this string to `other`, ignoring case considerations.
+  ///
+  /// Mirrors `java.lang.String.equalsIgnoreCase(String)`.
+  /// - Since: Java 1.0
+  public func equalsIgnoreCase (_ other : String) -> Bool {
+    return self.lowercased() == other.lowercased()
+  }
+
+  /// Concatenates the specified string to the end of this string.
+  ///
+  /// Mirrors `java.lang.String.concat(String)`.
+  /// - Since: Java 1.0
+  public func concat (_ str : String) -> String {
+    return self + str
+  }
+
+  /// Returns a canonical representation for this string.
+  ///
+  /// Swift's `String` has no string-pool/interning concept, so this is
+  /// effectively a no-op that returns `self` unchanged.
+  ///
+  /// Mirrors `java.lang.String.intern()`.
+  /// - Since: Java 1.0
+  public func intern () -> String {
+    return self
+  }
+
+  /// Tests if the substring of this string beginning at `toffset` with
+  /// length `len` matches the substring of `other` beginning at `ooffset`
+  /// with the same length.
+  ///
+  /// Mirrors `java.lang.String.regionMatches(int, String, int, int)`.
+  /// - Since: Java 1.0
+  public func regionMatches (_ toffset : Int, _ other : String, _ ooffset : Int, _ len : Int) -> Bool {
+    return regionMatches(false, toffset, other, ooffset, len)
+  }
+
+  /// `regionMatches(_:_:_:_:)`, optionally ignoring case.
+  ///
+  /// Mirrors `java.lang.String.regionMatches(boolean, int, String, int, int)`.
+  /// - Since: Java 1.0
+  public func regionMatches (_ ignoreCase : Bool, _ toffset : Int, _ other : String, _ ooffset : Int, _ len : Int) -> Bool {
+    guard toffset >= 0, ooffset >= 0, len >= 0 else { return false }
+    guard toffset + len <= self.count, ooffset + len <= other.count else { return false }
+    let selfStart = self.index(self.startIndex, offsetBy: toffset)
+    let selfEnd = self.index(selfStart, offsetBy: len)
+    let otherStart = other.index(other.startIndex, offsetBy: ooffset)
+    let otherEnd = other.index(otherStart, offsetBy: len)
+    let selfSlice = self[selfStart..<selfEnd]
+    let otherSlice = other[otherStart..<otherEnd]
+    if ignoreCase {
+      return selfSlice.lowercased() == otherSlice.lowercased()
+    }
+    return selfSlice == otherSlice
+  }
   
   public func indexOf (_ part : String) -> Int {
     if let range = self.range(of: part) {
@@ -138,6 +194,40 @@ extension String {
       return self.distance(from: self.startIndex, to: indexOfPart)
     }
     return -1
+  }
+
+  /// Returns the index of the first occurrence of `part` at or after
+  /// `fromIndex`, or -1 if there is none. A negative `fromIndex` is
+  /// treated as 0.
+  ///
+  /// Mirrors `java.lang.String.indexOf(String, int)`.
+  /// - Since: Java 1.0
+  public func indexOf (_ part : String, _ fromIndex : Int) -> Int {
+    let length = self.count
+    let clampedFrom = max(0, fromIndex)
+    if part.isEmpty {
+      return clampedFrom > length ? length : clampedFrom
+    }
+    guard clampedFrom < length else { return -1 }
+    let searchStart = self.index(self.startIndex, offsetBy: clampedFrom)
+    guard let range = self.range(of: part, range: searchStart..<self.endIndex) else {
+      return -1
+    }
+    return self.distance(from: self.startIndex, to: range.lowerBound)
+  }
+
+  /// `indexOf(String, int)` counterpart for a single `Character`.
+  ///
+  /// Mirrors `java.lang.String.indexOf(int, int)` (Java's `char`-valued
+  /// overload).
+  /// - Since: Java 1.0
+  public func indexOf (_ part : Character, _ fromIndex : Int) -> Int {
+    let length = self.count
+    let clampedFrom = max(0, fromIndex)
+    guard clampedFrom < length else { return -1 }
+    let searchStart = self.index(self.startIndex, offsetBy: clampedFrom)
+    guard let idx = self[searchStart...].firstIndex(of: part) else { return -1 }
+    return self.distance(from: self.startIndex, to: idx)
   }
 
   /// Check the string contains only whitspaces (or nothing)
@@ -207,6 +297,41 @@ extension String {
     }
     return distance(from: startIndex, to: range.lowerBound)
   }
+
+  /// Returns the index of the last occurrence of `substring` such that the
+  /// occurrence starts at or before `fromIndex`, or -1 if there is none.
+  ///
+  /// Mirrors `java.lang.String.lastIndexOf(String, int)`.
+  /// - Since: Java 1.0
+  public func lastIndexOf (_ substring : String, _ fromIndex : Int) -> Int {
+    let length = self.count
+    if substring.isEmpty {
+      return max(0, min(fromIndex, length))
+    }
+    guard fromIndex >= 0 else { return -1 }
+    let searchEndOffset = min(fromIndex + substring.count, length)
+    guard searchEndOffset >= substring.count else { return -1 }
+    let searchEnd = self.index(self.startIndex, offsetBy: searchEndOffset)
+    guard let range = self.range(of: substring, options: .backwards, range: self.startIndex..<searchEnd) else {
+      return -1
+    }
+    return self.distance(from: self.startIndex, to: range.lowerBound)
+  }
+
+  /// `lastIndexOf(String, int)` counterpart for a single `Character`.
+  ///
+  /// Mirrors `java.lang.String.lastIndexOf(int, int)` (Java's `char`-valued
+  /// overload).
+  /// - Since: Java 1.0
+  public func lastIndexOf (_ char : Character, _ fromIndex : Int) -> Int {
+    let length = self.count
+    guard fromIndex >= 0 else { return -1 }
+    let searchEndOffset = min(fromIndex + 1, length)
+    guard searchEndOffset > 0 else { return -1 }
+    let searchEnd = self.index(self.startIndex, offsetBy: searchEndOffset)
+    guard let idx = self[self.startIndex..<searchEnd].lastIndex(of: char) else { return -1 }
+    return self.distance(from: self.startIndex, to: idx)
+  }
   
   /// The count of String elements
   @inlinable
@@ -271,6 +396,29 @@ extension String {
       slowImpl.append("\(array[i])")
     }
     return slowImpl
+  }
+
+  /// Returns a String composed of the given `Character` array.
+  ///
+  /// Alias of `valueOf(_:)`, matching Java's separate `copyValueOf` entry
+  /// point.
+  ///
+  /// Mirrors `java.lang.String.copyValueOf(char[])`.
+  /// - Since: Java 1.0
+  public static func copyValueOf (_ data : [Character]) -> String {
+    return valueOf(data, 0, data.count)
+  }
+
+  /// Returns a String composed of `count` characters of `data`, starting
+  /// at `offset`.
+  ///
+  /// Alias of `valueOf(_:_:_:)`, matching Java's separate `copyValueOf`
+  /// entry point.
+  ///
+  /// Mirrors `java.lang.String.copyValueOf(char[], int, int)`.
+  /// - Since: Java 1.0
+  public static func copyValueOf (_ data : [Character], _ offset : Int, _ count : Int) -> String {
+    return valueOf(data, offset, count)
   }
   
   public static func valueOf (_ char : Character) -> String {

@@ -79,23 +79,65 @@ public class StringBuilder {
     return content.length()
   }
   
+  /// Truncates or pads (with null characters) this builder to the given
+  /// length.
+  ///
+  /// Bugfix: the previous implementation only ever grew `content` (via
+  /// the padding loop) and had a dead `if newLength < self.content.count`
+  /// branch with no actual truncation code in it, so shrinking via
+  /// `setLength(shorter)` silently did nothing instead of truncating —
+  /// unlike ``StringBuffer/setLength(_:)``, which already truncates
+  /// correctly.
+  ///
+  /// Mirrors `java.lang.StringBuilder.setLength(int)`.
   public func setLength (_ newLength : Int) throws {
     guard newLength >= 0 else {
       throw IndexOutOfBoundsException("New length need to be equals or greater than zero but is \(newLength)")
     }
-    
-    switch newLength {
-    case 0 : self.content = ""
-    default :
-      while newLength > self.content.count {
-        content.append("\u{0000}")
-      }
-      if newLength < self.content.count {
-        
-        //let substring = self.content [content.startIndex..<]
+    if newLength == 0 {
+      self.content = ""
+    } else if newLength < self.content.count {
+      self.content = String(self.content.prefix(newLength))
+    } else {
+      while self.content.count < newLength {
+        self.content.append("\u{0000}")
       }
     }
   }
+
+  /// Returns the current capacity.
+  ///
+  /// Advisory only: Swift `String` grows automatically, so this reports
+  /// the builder's current length as a lower bound rather than a true
+  /// pre-allocated capacity.
+  ///
+  /// Mirrors `java.lang.StringBuilder.capacity()`.
+  /// - Since: JavaApi (Java 1.0)
+  public func capacity() -> Int {
+    return content.count
+  }
+
+  /// Ensures this builder's capacity is at least `minimumCapacity`.
+  ///
+  /// Advisory only — hints the underlying storage via
+  /// `reserveCapacity(_:)`; Swift `String` still grows automatically
+  /// beyond this if needed.
+  ///
+  /// Mirrors `java.lang.StringBuilder.ensureCapacity(int)`.
+  /// - Since: JavaApi (Java 1.0)
+  public func ensureCapacity(_ minimumCapacity: Int) {
+    guard minimumCapacity > 0 else { return }
+    content.reserveCapacity(minimumCapacity)
+  }
+
+  /// Attempts to reduce storage used for this builder.
+  ///
+  /// No-op in this Swift port — `String` manages its own storage and
+  /// offers no equivalent "trim to size" operation.
+  ///
+  /// Mirrors `java.lang.StringBuilder.trimToSize()`.
+  /// - Since: JavaApi (Java 1.0)
+  public func trimToSize() {}
   
   public func toString () -> String {
     return self.content

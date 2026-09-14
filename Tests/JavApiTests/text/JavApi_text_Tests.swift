@@ -1505,6 +1505,115 @@ struct JavApi_text_ChoiceFormat_Tests {
       try cf.parseChoice("unknown")
     }
   }
+
+  @Test("ChoiceFormat: format(_:toAppendTo:pos:) accepts Float, Int, Int64 and Int32")
+  func testFormatAnyOverloadNumericTypes() {
+    let cf = java.text.ChoiceFormat("0#none|1#one|2<many")
+    let pos = java.text.FieldPosition(0)
+
+    var out1 = ""
+    _ = cf.format(Float(1.0), toAppendTo: &out1, pos: pos)
+    #expect(out1 == "one")
+
+    var out2 = ""
+    _ = cf.format(Int(0), toAppendTo: &out2, pos: pos)
+    #expect(out2 == "none")
+
+    var out3 = ""
+    _ = cf.format(Int64(5), toAppendTo: &out3, pos: pos)
+    #expect(out3 == "many")
+
+    var out4 = ""
+    _ = cf.format(Int32(1), toAppendTo: &out4, pos: pos)
+    #expect(out4 == "one")
+  }
+
+  @Test("ChoiceFormat: format(_:toAppendTo:pos:) falls back to string interpolation for a non-numeric value")
+  func testFormatAnyOverloadDefaultFallback() {
+    let cf = java.text.ChoiceFormat("0#none|1#one")
+    let pos = java.text.FieldPosition(0)
+    var out = "prefix-"
+    let result = cf.format("not a number", toAppendTo: &out, pos: pos)
+    #expect(result == "prefix-not a number")
+    #expect(out == "prefix-not a number")
+  }
+
+  @Test("ChoiceFormat: multiple chained '<' choices resolve exclusive boundaries correctly")
+  func testMultipleChainedLessThan() {
+    let cf = java.text.ChoiceFormat("0#zero|0<small|10<medium|100<large")
+    #expect(cf.format(0.0) == "zero")
+    #expect(cf.format(java.text.ChoiceFormat.nextDouble(0.0)) == "small")
+    #expect(cf.format(5.0) == "small")
+    #expect(cf.format(10.0) == "small")
+    #expect(cf.format(java.text.ChoiceFormat.nextDouble(10.0)) == "medium")
+    #expect(cf.format(50.0) == "medium")
+    #expect(cf.format(100.0) == "medium")
+    #expect(cf.format(java.text.ChoiceFormat.nextDouble(100.0)) == "large")
+    #expect(cf.format(1000.0) == "large")
+  }
+
+  @Test("ChoiceFormat: parseChoice returns the first matching format in array order, even when a later format is a more specific prefix match")
+  func testParseChoiceFirstMatchWinsOnPrefixOrder() {
+    // Mirrors real Java's ChoiceFormat.parse, which iterates choiceFormats in
+    // order and returns on the first regionMatches hit -- not necessarily the
+    // longest or most specific match.
+    let cf = java.text.ChoiceFormat(limits: [0, 1], formats: ["one", "one basket"])
+    let d = try? cf.parseChoice("one basket of apples")
+    #expect(d == 0.0)
+  }
+
+  @Test("ChoiceFormat: pattern segments with neither '#' nor '<' are silently skipped")
+  func testMalformedSegmentMissingSeparatorIsSkipped() {
+    let cf = java.text.ChoiceFormat("0#zero|garbage|1#one")
+    #expect(cf.getLimits() == [0, 1])
+    #expect(cf.getFormats() == ["zero", "one"])
+  }
+
+  @Test("ChoiceFormat: pattern segments with a non-numeric limit are silently skipped")
+  func testMalformedSegmentNonNumericLimitIsSkipped() {
+    let cf = java.text.ChoiceFormat("x#text|1#one")
+    #expect(cf.getLimits() == [1])
+    #expect(cf.getFormats() == ["one"])
+  }
+
+  @Test("ChoiceFormat: format(_:) with no limits falls back to the number's string interpolation")
+  func testFormatWithEmptyLimitsFallsBackToNumber() {
+    let cf = java.text.ChoiceFormat(limits: [], formats: [])
+    #expect(cf.format(3.5) == "3.5")
+  }
+
+  @Test("ChoiceFormat: applyPattern with an empty string leaves no limits, so format falls back to the raw number")
+  func testEmptyPatternLeavesNoLimits() {
+    let cf = java.text.ChoiceFormat("")
+    #expect(cf.getLimits().isEmpty)
+    #expect(cf.format(3.5) == "3.5")
+  }
+
+  @Test("ChoiceFormat: negative and non-integer limits parse and format correctly")
+  func testNegativeAndNonIntegerLimits() {
+    let cf = java.text.ChoiceFormat("-1.5#negative|0#zero|1<positive")
+    #expect(cf.format(-2.0) == "negative")
+    #expect(cf.format(-1.5) == "negative")
+    #expect(cf.format(-1.0) == "negative")
+    #expect(cf.format(0.0) == "zero")
+    #expect(cf.format(1.0) == "zero")
+    #expect(cf.format(2.0) == "positive")
+  }
+
+  @Test("ChoiceFormat: toPattern renders a non-integer limit without truncating it to an Int")
+  func testToPatternNonIntegerLimit() {
+    let cf = java.text.ChoiceFormat(limits: [0.5, 2.0], formats: ["half", "two"])
+    #expect(cf.toPattern() == "0.5#half|2#two")
+  }
+
+  @Test("ChoiceFormat: getLimits/getFormats reflect the most recent applyPattern call")
+  func testGettersAfterApplyPattern() {
+    let cf = java.text.ChoiceFormat("0#none|1#one")
+    #expect(cf.getLimits() == [0, 1])
+    cf.applyPattern("5#five|10#ten")
+    #expect(cf.getLimits() == [5, 10])
+    #expect(cf.getFormats() == ["five", "ten"])
+  }
 }
 
 // =============================================================================

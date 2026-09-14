@@ -69,4 +69,52 @@ struct JavApi_lang_StringBuilder_Tests {
       try sb.deleteCharAt(sb.count)
     }
   }
+
+  @Test("setLength to a shorter length truncates the content (regression: it used to silently do nothing)")
+  func testSetLengthTruncates() throws {
+    let sb = StringBuilder("abcdef")
+    try sb.setLength(3)
+    #expect(sb.toString() == "abc")
+    #expect(sb.length() == 3)
+  }
+
+  @Test("setLength to a longer length pads with null characters")
+  func testSetLengthPads() throws {
+    let sb = StringBuilder("ab")
+    try sb.setLength(4)
+    #expect(sb.length() == 4)
+    #expect(sb.toString() == "ab\u{0000}\u{0000}")
+  }
+
+  @Test("setLength(0) empties the builder")
+  func testSetLengthZero() throws {
+    let sb = StringBuilder("abcdef")
+    try sb.setLength(0)
+    #expect(sb.toString() == "")
+  }
+
+  @Test("capacity()/ensureCapacity()/trimToSize() do not affect content")
+  func testCapacityIsAdvisoryOnly() {
+    let sb = StringBuilder("abc")
+    #expect(sb.capacity() >= sb.length())
+    sb.ensureCapacity(100)
+    #expect(sb.toString() == "abc")
+    sb.trimToSize()
+    #expect(sb.toString() == "abc")
+  }
+
+  @Test("setLength to the current length is a no-op")
+  func testSetLengthUnchanged() throws {
+    let sb = StringBuilder("abc")
+    try sb.setLength(3)
+    #expect(sb.toString() == "abc")
+  }
+
+  @Test("ensureCapacity with a non-positive value does not affect content or crash")
+  func testEnsureCapacityNonPositiveIsNoOp() {
+    let sb = StringBuilder("abc")
+    sb.ensureCapacity(0)
+    sb.ensureCapacity(-5)
+    #expect(sb.toString() == "abc")
+  }
 }

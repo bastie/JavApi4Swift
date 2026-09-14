@@ -482,4 +482,169 @@ struct JavApi_lang_String_Tests {
     let s = try String(bytes, 1, 4, "UTF-8")       // "ell"
     #expect(s == "ell")
   }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - Java 1.0 basics: equalsIgnoreCase / concat / intern / regionMatches
+  // ---------------------------------------------------------------------------
+
+  @Test("equalsIgnoreCase compares ignoring case")
+  func testEqualsIgnoreCase() {
+    #expect("Hello".equalsIgnoreCase("HELLO"))
+    #expect("Hello".equalsIgnoreCase("hello"))
+    #expect(!"Hello".equalsIgnoreCase("World"))
+  }
+
+  @Test("concat appends the argument, equivalent to +")
+  func testConcat() {
+    #expect("foo".concat("bar") == "foobar")
+    #expect("foo".concat("") == "foo")
+  }
+
+  @Test("intern returns the same content (no-op in this Swift port)")
+  func testIntern() {
+    #expect("abc".intern() == "abc")
+  }
+
+  @Test("regionMatches compares equal-length regions of two strings")
+  func testRegionMatches() {
+    #expect("Hello World".regionMatches(6, "World!", 0, 5))
+    #expect(!"Hello World".regionMatches(6, "Word!!", 0, 5))
+    // Out-of-bounds offsets/length must fail rather than trap.
+    #expect(!"Hello".regionMatches(3, "lo", 0, 10))
+    #expect(!"Hello".regionMatches(-1, "lo", 0, 2))
+  }
+
+  @Test("regionMatches(ignoreCase:...) compares case-insensitively when requested")
+  func testRegionMatchesIgnoreCase() {
+    #expect("Hello World".regionMatches(true, 6, "WORLD", 0, 5))
+    #expect(!"Hello World".regionMatches(false, 6, "WORLD", 0, 5))
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - Java 1.0: indexOf/lastIndexOf with fromIndex
+  // ---------------------------------------------------------------------------
+
+  @Test("indexOf(String, fromIndex) finds the first match at or after fromIndex")
+  func testIndexOfStringFromIndex() {
+    let s = "abcabcabc"
+    #expect(s.indexOf("abc", 0) == 0)
+    #expect(s.indexOf("abc", 1) == 3)
+    #expect(s.indexOf("abc", 4) == 6)
+    #expect(s.indexOf("abc", 7) == -1)
+    // A negative fromIndex is treated as 0.
+    #expect(s.indexOf("abc", -5) == 0)
+    // An empty search string matches at the (clamped) fromIndex itself.
+    #expect(s.indexOf("", 3) == 3)
+    #expect(s.indexOf("", 100) == s.count)
+  }
+
+  @Test("indexOf(Character, fromIndex) finds the first match at or after fromIndex")
+  func testIndexOfCharFromIndex() {
+    let s = "banana"
+    #expect(s.indexOf(Character("a"), 0) == 1)
+    #expect(s.indexOf(Character("a"), 2) == 3)
+    #expect(s.indexOf(Character("a"), 4) == 5)
+    #expect(s.indexOf(Character("a"), 6) == -1)
+    #expect(s.indexOf(Character("z"), 0) == -1)
+  }
+
+  @Test("lastIndexOf(String, fromIndex) finds the last match starting at or before fromIndex")
+  func testLastIndexOfStringFromIndex() {
+    let s = "abcabcabc"
+    #expect(s.lastIndexOf("abc", 8) == 6)
+    #expect(s.lastIndexOf("abc", 6) == 6)
+    #expect(s.lastIndexOf("abc", 5) == 3)
+    #expect(s.lastIndexOf("abc", 2) == 0)
+    #expect(s.lastIndexOf("xyz", 8) == -1)
+    #expect(s.lastIndexOf("abc", -1) == -1)
+  }
+
+  @Test("lastIndexOf(Character, fromIndex) finds the last match starting at or before fromIndex")
+  func testLastIndexOfCharFromIndex() {
+    let s = "banana"
+    #expect(s.lastIndexOf(Character("a"), 5) == 5)
+    #expect(s.lastIndexOf(Character("a"), 4) == 3)
+    #expect(s.lastIndexOf(Character("a"), 2) == 1)
+    #expect(s.lastIndexOf(Character("a"), 0) == -1)
+    #expect(s.lastIndexOf(Character("z"), 5) == -1)
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - Java 1.0: copyValueOf
+  // ---------------------------------------------------------------------------
+
+  @Test("copyValueOf(_:) and copyValueOf(_:_:_:) are aliases of valueOf")
+  func testCopyValueOf() {
+    let chars: [Character] = ["H", "e", "l", "l", "o"]
+    #expect(String.copyValueOf(chars) == "Hello")
+    #expect(String.copyValueOf(chars, 1, 3) == "ell")
+  }
+
+  // ---------------------------------------------------------------------------
+  // MARK: - Java 1.0 basics: additional edge cases
+  // ---------------------------------------------------------------------------
+
+  @Test("equalsIgnoreCase edge cases: empty strings and non-ASCII case folding")
+  func testEqualsIgnoreCaseEdgeCases() {
+    #expect("".equalsIgnoreCase(""))
+    #expect(!"".equalsIgnoreCase("x"))
+    #expect("café".equalsIgnoreCase("CAFÉ"))
+    // Different lengths can never be equal, ignoring case or not.
+    #expect(!"ab".equalsIgnoreCase("abc"))
+  }
+
+  @Test("concat with an empty receiver, and concatenating a string with itself")
+  func testConcatEdgeCases() {
+    #expect("".concat("bar") == "bar")
+    let s = "ab"
+    #expect(s.concat(s) == "abab")
+  }
+
+  @Test("regionMatches with a zero length is trivially true when offsets stay in bounds, false when they don't")
+  func testRegionMatchesZeroLength() {
+    #expect("Hello".regionMatches(5, "World", 5, 0))   // both at end-of-string, 0-length
+    #expect("Hello".regionMatches(0, "", 0, 0))
+    #expect(!"Hello".regionMatches(6, "World", 0, 0))  // toffset past the end
+  }
+
+  @Test("regionMatches covering the entire strings")
+  func testRegionMatchesFullString() {
+    #expect("Hello".regionMatches(0, "Hello", 0, 5))
+    #expect(!"Hello".regionMatches(0, "Hellx", 0, 5))
+  }
+
+  @Test("indexOf(String/Character, fromIndex) at and beyond the exact end of the string")
+  func testIndexOfFromIndexAtEnd() {
+    let s = "abc"
+    #expect(s.indexOf("c", 2) == 2)
+    // fromIndex == length: no room left for a non-empty match.
+    #expect(s.indexOf("c", 3) == -1)
+    #expect(s.indexOf(Character("c"), 3) == -1)
+    // Far beyond the end must not crash, just report no match.
+    #expect(s.indexOf("c", 1000) == -1)
+    #expect(s.indexOf(Character("c"), 1000) == -1)
+  }
+
+  @Test("lastIndexOf(String/Character, fromIndex) with fromIndex far beyond the end searches the whole string")
+  func testLastIndexOfFromIndexBeyondEnd() {
+    let s = "abcbc"
+    #expect(s.lastIndexOf("bc", 1000) == 3)
+    #expect(s.lastIndexOf(Character("b"), 1000) == 3)
+  }
+
+  @Test("lastIndexOf(String, fromIndex) on an empty search string clamps to [0, length]")
+  func testLastIndexOfEmptyString() {
+    let s = "abc"
+    #expect(s.lastIndexOf("", 1) == 1)
+    #expect(s.lastIndexOf("", -5) == 0)
+    #expect(s.lastIndexOf("", 1000) == s.count)
+  }
+
+  @Test("copyValueOf on an empty array, and copying the full array via the offset/count overload")
+  func testCopyValueOfEdgeCases() {
+    let empty: [Character] = []
+    #expect(String.copyValueOf(empty) == "")
+    let chars: [Character] = ["a", "b", "c"]
+    #expect(String.copyValueOf(chars, 0, chars.count) == "abc")
+  }
 }
