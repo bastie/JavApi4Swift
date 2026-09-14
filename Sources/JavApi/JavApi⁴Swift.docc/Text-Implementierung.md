@@ -61,8 +61,6 @@ betreffen oder als Grundlage für mehrere spätere Punkte gebraucht werden.
   versionsspezifischen Abschnitten unten sicher zu erkennen.
 ## Java 1.1
 
-- [ ] `Character.isJavaIdentifierStart`/`isJavaIdentifierPart`,
-  `isUnicodeIdentifierStart`/`Part`. *Abhängig von:* nichts.
 - [ ] `Character.getType(char)` (Unicode-Kategorie). *Abhängig von:*
   Unicode-Kategoriedaten — siehe Plattform-Hinweis unten.
 - [ ] `BreakIterator` — Grundgerüst vorhanden (Character-/Word-/Sentence-/

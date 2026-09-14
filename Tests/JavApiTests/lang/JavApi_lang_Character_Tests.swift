@@ -62,4 +62,56 @@ struct JavApi_lang_Character_Tests {
     #expect(Character.toString(flag) == "\(flag)")
     #expect(Character.toString(flag) == flag.toString())
   }
+
+  @Test("isJavaIdentifierStart accepts letters, letter-numbers, currency symbols, and connecting punctuation")
+  func testIsJavaIdentifierStart() {
+    #expect(Character.isJavaIdentifierStart("a"))
+    #expect(Character.isJavaIdentifierStart("_"))
+    #expect(Character.isJavaIdentifierStart("$"))
+    #expect(Character.isJavaIdentifierStart("\u{2160}"))  // Ⅰ ROMAN NUMERAL ONE (Nl)
+    #expect(!Character.isJavaIdentifierStart("5"))
+    #expect(!Character.isJavaIdentifierStart(" "))
+  }
+
+  @Test("isJavaIdentifierPart additionally accepts digits, combining marks, and ignorable control characters")
+  func testIsJavaIdentifierPart() {
+    #expect(Character.isJavaIdentifierPart("a"))
+    #expect(Character.isJavaIdentifierPart("5"))
+    #expect(Character.isJavaIdentifierPart("_"))
+    #expect(Character.isJavaIdentifierPart("$"))
+    #expect(Character.isJavaIdentifierPart("\u{0301}"))  // COMBINING ACUTE ACCENT (Mn)
+    #expect(Character.isJavaIdentifierPart("\u{0007}"))  // BEL -- ignorable control, not whitespace
+    #expect(!Character.isJavaIdentifierPart(" "))
+    #expect(!Character.isJavaIdentifierPart("\t"))  // whitespace control, not ignorable
+  }
+
+  @Test("isUnicodeIdentifierStart accepts letters and letter-numbers but not currency symbols or connecting punctuation")
+  func testIsUnicodeIdentifierStart() {
+    #expect(Character.isUnicodeIdentifierStart("a"))
+    #expect(Character.isUnicodeIdentifierStart("\u{2160}"))  // Ⅰ ROMAN NUMERAL ONE (Nl)
+    #expect(!Character.isUnicodeIdentifierStart("_"))
+    #expect(!Character.isUnicodeIdentifierStart("$"))
+    #expect(!Character.isUnicodeIdentifierStart("5"))
+  }
+
+  @Test("isUnicodeIdentifierPart accepts digits, connecting punctuation and combining marks but not currency symbols")
+  func testIsUnicodeIdentifierPart() {
+    #expect(Character.isUnicodeIdentifierPart("a"))
+    #expect(Character.isUnicodeIdentifierPart("5"))
+    #expect(Character.isUnicodeIdentifierPart("_"))
+    #expect(Character.isUnicodeIdentifierPart("\u{0301}"))  // COMBINING ACUTE ACCENT (Mn)
+    #expect(Character.isUnicodeIdentifierPart("\u{0903}"))  // DEVANAGARI SIGN VISARGA (Mc)
+    #expect(!Character.isUnicodeIdentifierPart("$"))
+    #expect(!Character.isUnicodeIdentifierPart(" "))
+  }
+
+  @Test("isIdentifierIgnorable matches non-whitespace ISO control characters and FORMAT-category characters")
+  func testIsIdentifierIgnorable() {
+    #expect(Character.isIdentifierIgnorable("\u{0007}"))  // BEL
+    #expect(Character.isIdentifierIgnorable("\u{000F}"))  // SI, inside 0x000E...0x001B
+    #expect(Character.isIdentifierIgnorable("\u{200E}"))  // LEFT-TO-RIGHT MARK (Cf)
+    #expect(!Character.isIdentifierIgnorable("\t"))  // whitespace control -- not ignorable
+    #expect(!Character.isIdentifierIgnorable("\n"))
+    #expect(!Character.isIdentifierIgnorable("a"))
+  }
 }

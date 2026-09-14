@@ -332,4 +332,84 @@ extension Character {
     // from XCode generated
     return ((high & 0x3FF) << 10) | (low & 0x3FF) | 0x10000
   }
+
+  // MARK: - Java 1.1 missing methods
+
+  /// Returns true if the character is ignorable in a Java or Unicode
+  /// identifier: an ISO control character that is not whitespace (i.e. not
+  /// one of the control characters `isWhitespace` already recognizes), or a
+  /// character in the Unicode `FORMAT` general category.
+  /// - Since: JavaApi > 0.24.0 (Java 1.1)
+  public static func isIdentifierIgnorable(_ ch: Character) -> Bool {
+    guard let scalar = ch.unicodeScalars.first else { return false }
+    let value = scalar.value
+    if (0x0000...0x0008).contains(value)
+      || (0x000E...0x001B).contains(value)
+      || (0x007F...0x009F).contains(value) {
+      return true
+    }
+    return scalar.properties.generalCategory == .format
+  }
+
+  /// Returns true if the character may start a Java identifier: a letter, a
+  /// letter-number (such as a Roman numeral), a currency symbol (such as
+  /// `$`), or a connecting punctuation character (such as `_`).
+  /// - Since: JavaApi > 0.24.0 (Java 1.1)
+  public static func isJavaIdentifierStart(_ ch: Character) -> Bool {
+    guard let scalar = ch.unicodeScalars.first else { return false }
+    if isLetter(ch) { return true }
+    switch scalar.properties.generalCategory {
+    case .letterNumber, .currencySymbol, .connectorPunctuation:
+      return true
+    default:
+      return false
+    }
+  }
+
+  /// Returns true if the character may be part of a Java identifier, other
+  /// than as the first character: everything `isJavaIdentifierStart`
+  /// allows, plus digits, combining marks, and ignorable control/format
+  /// characters.
+  /// - Since: JavaApi > 0.24.0 (Java 1.1)
+  public static func isJavaIdentifierPart(_ ch: Character) -> Bool {
+    guard let scalar = ch.unicodeScalars.first else { return false }
+    if isLetter(ch) || isDigit(ch) { return true }
+    if isIdentifierIgnorable(ch) { return true }
+    switch scalar.properties.generalCategory {
+    case .letterNumber, .currencySymbol, .connectorPunctuation,
+         .spacingMark, .nonspacingMark:
+      return true
+    default:
+      return false
+    }
+  }
+
+  /// Returns true if the character may start a Unicode identifier, per the
+  /// Unicode Standard's identifier syntax: a letter or a letter-number.
+  /// Unlike `isJavaIdentifierStart`, this does not accept currency symbols
+  /// or connecting punctuation.
+  /// - Since: JavaApi > 0.24.0 (Java 1.1)
+  public static func isUnicodeIdentifierStart(_ ch: Character) -> Bool {
+    guard let scalar = ch.unicodeScalars.first else { return false }
+    if isLetter(ch) { return true }
+    return scalar.properties.generalCategory == .letterNumber
+  }
+
+  /// Returns true if the character may be part of a Unicode identifier,
+  /// other than as the first character: a letter, a letter-number, a
+  /// digit, a connecting punctuation character, a combining mark, or an
+  /// ignorable control/format character. Unlike `isJavaIdentifierPart`,
+  /// this does not accept currency symbols.
+  /// - Since: JavaApi > 0.24.0 (Java 1.1)
+  public static func isUnicodeIdentifierPart(_ ch: Character) -> Bool {
+    guard let scalar = ch.unicodeScalars.first else { return false }
+    if isLetter(ch) || isDigit(ch) { return true }
+    if isIdentifierIgnorable(ch) { return true }
+    switch scalar.properties.generalCategory {
+    case .letterNumber, .connectorPunctuation, .spacingMark, .nonspacingMark:
+      return true
+    default:
+      return false
+    }
+  }
 }
